@@ -99,7 +99,7 @@ for pair in "smartnutri-api-dev:$API_SA" "smartnutri-web-dev:$WEB_SA"; do
   if gcloud run services describe "$svc" --project "$PROJECT" --region "$REGION" >/dev/null 2>&1; then
     echo "cloud run service $svc: exists"
   else
-    gcloud run services create "$svc" --project "$PROJECT" --region "$REGION" \
+    gcloud run deploy "$svc" --project "$PROJECT" --region "$REGION" --quiet \
       --image us-docker.pkg.dev/cloudrun/container/hello --service-account "$sa" \
       --no-allow-unauthenticated >/dev/null
     echo "cloud run service $svc: created (placeholder image)"
