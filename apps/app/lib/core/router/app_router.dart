@@ -9,6 +9,8 @@ import '../../features/auth/presentation/email_otp_screen.dart';
 import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/result/presentation/result_placeholder_screen.dart';
+import '../../features/scan/presentation/scan_screen.dart';
 import '../config/app_config.dart';
 
 class _AuthRefresh extends ChangeNotifier {
@@ -50,6 +52,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
+      GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
+      GoRoute(
+        path: '/result',
+        builder: (_, state) => ResultPlaceholderScreen(
+          barcode: state.uri.queryParameters['barcode'] ?? '',
+        ),
+      ),
     ],
   );
   ref.onDispose(router.dispose);

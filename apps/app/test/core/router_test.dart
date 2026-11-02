@@ -11,6 +11,7 @@ import 'package:smartnutri_ai/features/auth/data/auth_repository.dart';
 import 'package:smartnutri_ai/features/auth/presentation/phone_otp_screen.dart';
 import 'package:smartnutri_ai/features/auth/presentation/sign_in_screen.dart';
 import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
+import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../support/fake_auth.dart';
@@ -86,6 +87,18 @@ void main() {
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
     expect(find.text(l10n.homeWelcome('Asha')), findsOneWidget);
     expect(find.text(l10n.commonDisclaimer), findsOneWidget);
+  });
+
+  testWidgets('home scan button navigates to /scan', (tester) async {
+    await tester.pumpWidget(
+      _app(FakeAuthRepository(signedIn: true), _FakeMe(() async => _me())),
+    );
+    await tester.pumpAndSettle();
+    final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
+    await tester.tap(find.text(l10n.homeScanCta));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(ScanScreen), findsOneWidget);
   });
 
   testWidgets('API error maps to error string; sign-out returns to sign-in', (

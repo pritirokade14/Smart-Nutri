@@ -24,6 +24,7 @@ dependencies:
   google_sign_in: ^7.0.0
   sentry_flutter: ^9.0.0
   posthog_flutter: ^5.0.0
+  mobile_scanner: ^7.5.0
 
 dev_dependencies:
   flutter_test:

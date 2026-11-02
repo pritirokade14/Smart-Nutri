@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 // ignore: implementation_imports
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/theme/tokens.g.dart';
 import '../../auth/data/auth_repository.dart';
 
 final meProvider = FutureProvider.autoDispose<MeOut>(
@@ -56,6 +58,11 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            FilledButton(
+              onPressed: () => context.push('/scan'),
+              child: Text(l10n.homeScanCta),
+            ),
+            const SizedBox(height: SnTokens.space3),
             Text(l10n.commonDisclaimer, textAlign: TextAlign.center),
           ],
         ),
