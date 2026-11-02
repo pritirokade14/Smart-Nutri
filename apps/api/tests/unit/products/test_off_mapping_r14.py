@@ -189,7 +189,10 @@ def test_sweetener_additives_set_contains_sweeteners_and_change_nutriscore():
     with_s = off_to_product(cola, confidence=0.9)
     without = off_to_product({**cola, "additives_tags": ["en:e338"]}, confidence=0.9)
     assert with_s.contains_sweeteners is True and without.contains_sweeteners is False
-    assert analyze(with_s, []).report.nutriscore != analyze(without, []).report.nutriscore
+    ns_with = analyze(with_s, []).report.nutriscore
+    ns_without = analyze(without, []).report.nutriscore
+    assert (ns_without.grade, ns_without.points) == ("B", 0)
+    assert (ns_with.grade, ns_with.points) == ("C", 4)
 
 
 @pytest.mark.parametrize("tag", ["en:e950", "en:e955", "en:e960a", "en:e962", "en:e968"])

@@ -34,8 +34,14 @@ DRY_DRINK_TAGS = frozenset(
         "en:ground-coffees",
         "en:coffee-beans",
         "en:instant-coffees",
+        "en:dried-products-to-be-rehydrated",
+        "en:dehydrated-beverages",
+        "en:cocoa-and-chocolate-powders",
     }
 )
+# Dry leaves unless the product is also tagged as a ready-to-drink child category.
+DRY_UNLESS_READY_TAGS = frozenset({"en:green-teas", "en:black-teas"})
+# Best-effort lists: an unknown powder tag falls through to BEVERAGE and over-warns as a drink.
 WATER_TAGS = frozenset({"en:waters"})
 # en:coffees / en:teas alone are deliberately NOT here (often dry leaves/grounds);
 # ready-to-drink children are. Plain en:milks stays GENERAL.
@@ -63,6 +69,10 @@ BEVERAGE_TAGS = frozenset(
         "en:plant-based-milks",
         "en:plant-based-beverages",
     }
+)
+# Parent tags that say "a drink" but not "ready to drink".
+GENERIC_DRINK_TAGS = frozenset(
+    {"en:beverages", "en:non-alcoholic-beverages", "en:plant-based-beverages"}
 )
 CHEESE_TAGS = frozenset({"en:cheeses"})
 FAT_TAGS = frozenset({"en:fats"})
@@ -124,7 +134,47 @@ SWEETENER_E_NUMBERS = frozenset(
     {950, 951, 952, 954, 955, 957, 959, 960, 961, 962, 965, 966, 967, 968, 969}
 )
 _ADDITIVE_TAG = re.compile(r"^en:e(\d{3,4})[a-z]?$")
-_SERVING_SIZE = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*(?:g|ml)\s*$", re.IGNORECASE)
+_G_ML = r"(?:g|gm|gms|grams?|ml)"
+_LEADING_AMOUNT = re.compile(rf"^\s*(\d+(?:\.\d+)?)\s*{_G_ML}\b", re.IGNORECASE)
+_PAREN_AMOUNT = re.compile(rf"\(\s*(\d+(?:\.\d+)?)\s*{_G_ML}\s*\)", re.IGNORECASE)
+# Any amount with a unit (also units we reject: litres, kg, oz), comma decimals included.
+_ANY_AMOUNT = re.compile(
+    r"(\d+(?:[.,]\d+)?)\s*(?:g|gm|gms|grams?|ml|cl|dl|l|litres?|liters?|kg|oz)\b", re.IGNORECASE
+)
+_MULTIPLIER = re.compile(r"\d\s*[x\u00d7]\s*\d", re.IGNORECASE)
+
+# Common non-English ingredient words that are NOT English words. A text containing any of
+# these is treated as unreadable even if labelled en/hi/mr (OFF language labels are unreliable).
+FOREIGN_INGREDIENT_WORDS = frozenset(
+    {
+        "lait",
+        "sucre",
+        "farine",
+        "huile",
+        "beurre",
+        "oeuf",
+        "oeufs",
+        "\u0153ufs",
+        "noisettes",
+        "poudre",
+        "entier",
+        "eau",
+        "milch",
+        "zucker",
+        "mehl",
+        "eier",
+        "vollmilch",
+        "vollmilchpulver",
+        "leche",
+        "az\u00facar",
+        "azucar",
+        "harina",
+        "aceite",
+        "huevos",
+        "agua",
+    }
+)
+_WORD = re.compile(r"[^\W\d_]+")
 
 
 @dataclass(frozen=True, slots=True)
@@ -200,6 +250,9 @@ def _category(tags: list[str]) -> Category:
     found = set(tags)
     if found & DRY_DRINK_TAGS:
         return Category.GENERAL
+    ready = found & (BEVERAGE_TAGS - GENERIC_DRINK_TAGS)
+    if found & DRY_UNLESS_READY_TAGS and not ready:
+        return Category.GENERAL
     if found & WATER_TAGS:
         return Category.WATER
     if found & BEVERAGE_TAGS:
@@ -223,22 +276,43 @@ def _statement(prefix: str, tags: list[str]) -> str | None:
     return prefix + ", ".join(dict.fromkeys(_allergen_text(t) for t in tags))
 
 
+def _serving_from_text(size: str) -> float | None:
+    """Exactly one explicit g/ml amount: a leading "30 g" or a parenthesised "(500 ml)".
+
+    Rejects multipliers ("2 x 15 g"), litres, comma decimals and two different amounts.
+    """
+    if _MULTIPLIER.search(size):
+        return None
+    amounts = {a.replace(",", ".") for a in _ANY_AMOUNT.findall(size)}
+    if len(amounts) != 1:
+        return None
+    candidates = {float(m) for m in _PAREN_AMOUNT.findall(size)}
+    if (lead := _LEADING_AMOUNT.match(size)) is not None:
+        candidates.add(float(lead.group(1)))
+    if len(candidates) != 1:
+        return None
+    value = candidates.pop()
+    return value if float(next(iter(amounts))) == value else None
+
+
 def _serving_size(product: dict) -> float | None:
-    """Grams/ml per serving, only with an explicit g or ml unit (never guess the unit)."""
+    """Grams/ml per serving, only from an explicit g/ml amount (never guess the unit)."""
     unit = _text(product.get("serving_quantity_unit"))
     if unit is not None and unit.lower() in ("g", "ml"):
         qty = _num(product.get("serving_quantity"))
         if qty is not None:
             return qty
     size = _text(product.get("serving_size"))
-    if size is not None and (m := _SERVING_SIZE.match(size)):
-        return float(m.group(1))
-    return None
+    return _serving_from_text(size) if size is not None else None
 
 
 def _lang_prefix(value: Any) -> str | None:
     text = _text(value)
     return text.lower().replace("_", "-").split("-")[0] if text else None
+
+
+def _looks_foreign(text: str) -> bool:
+    return any(w in FOREIGN_INGREDIENT_WORDS for w in _WORD.findall(text.lower()))
 
 
 def _ingredient_items(product: dict) -> tuple[str, ...]:
@@ -254,6 +328,8 @@ def _ingredient_items(product: dict) -> tuple[str, ...]:
     texts += [_text(product.get(f"ingredients_text_{lang}")) for lang in ("en", "hi", "mr")]
     items: dict[str, None] = {}
     for text in texts:
+        if text is not None and _looks_foreign(text):
+            continue
         for item in split_ingredients(text):
             items.setdefault(item, None)
     return tuple(items)
