@@ -293,7 +293,7 @@ async def send_sms(request: Request) -> dict   # verifies Standard Webhooks sign
     - CSP present with `script-src 'nonce-`
     - `x-frame-options: DENY`
     - `referrer-policy: strict-origin-when-cross-origin`
-    - session cookies `HttpOnly; Secure; SameSite=Lax`
+    - session cookies `Secure; SameSite=Lax` (JS-readable by design, ADR 0014); HSTS header present in production
 - [ ] **Step 3: Run them, fix every failure** (each fix in the owning module), then rerun until green.
 - [ ] **Step 4: Run** `gitleaks git --no-banner --redact .` from the repo root. Expected: `no leaks found`. Then run the `nutrition-safety-reviewer` agent and a whole-branch code review (Opus). Fix the blocking findings.
 - [ ] **Step 5: Commit** with message `test: security and disclaimer compliance suite`.

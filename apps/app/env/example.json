@@ -6,6 +6,5 @@
   "GOOGLE_WEB_CLIENT_ID": "",
   "SENTRY_DSN": "",
   "POSTHOG_KEY": "",
-  "FEATURE_PHONE_OTP": "false",
-  "GOOGLE_ANDROID_CLIENT_ID": ""
+  "FEATURE_PHONE_OTP": "false"
 }

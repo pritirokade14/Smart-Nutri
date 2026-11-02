@@ -20,6 +20,8 @@ on:
       - .github/workflows/deploy-dev.yml
       - .github/workflows/api.yml
       - .github/workflows/web.yml
+      - .github/workflows/packages.yml
+      - apps/app/lib/core/**
       - .github/workflows/security.yml
   workflow_dispatch:
 
@@ -56,13 +58,18 @@ jobs:
     permissions:
       contents: read
 
+  packages-checks:
+    uses: ./.github/workflows/packages.yml
+    permissions:
+      contents: read
+
   security-checks:
     uses: ./.github/workflows/security.yml
     permissions:
       contents: read
 
   deploy-api:
-    needs: [api-checks, web-checks, security-checks]
+    needs: [api-checks, web-checks, packages-checks, security-checks]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -137,6 +144,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
           NEXT_PUBLIC_POSTHOG_KEY: ${{ vars.NEXT_PUBLIC_POSTHOG_KEY }}
           NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+          NEXT_PUBLIC_FEATURE_PHONE_OTP: ${{ vars.NEXT_PUBLIC_FEATURE_PHONE_OTP || 'false' }}
         run: |
           if [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
             echo "Set the repository variable NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Settings > Secrets and variables > Actions > Variables)." >&2
@@ -149,6 +157,7 @@ jobs:
             --build-arg NEXT_PUBLIC_SITE_URL="$WEB_URL" \
             --build-arg NEXT_PUBLIC_POSTHOG_KEY="$NEXT_PUBLIC_POSTHOG_KEY" \
             --build-arg NEXT_PUBLIC_SENTRY_DSN="$NEXT_PUBLIC_SENTRY_DSN" \
+            --build-arg NEXT_PUBLIC_FEATURE_PHONE_OTP="$NEXT_PUBLIC_FEATURE_PHONE_OTP" \
             .
           docker push "$AR_REPO/web:${{ github.sha }}"
           echo "IMAGE=$(docker inspect --format '{{index .RepoDigests 0}}' "$AR_REPO/web:${{ github.sha }}")" >> "$GITHUB_ENV"

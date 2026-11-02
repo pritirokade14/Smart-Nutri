@@ -50,6 +50,7 @@ test/  integration_test/
 - Config is passed at build time: `--dart-define-from-file=env/<env>.json`. Envs: `dev`, `staging`, `prod`.
 - `env/*.json` is **git-ignored**, apart from `env/example.json`, which documents the keys:
   `API_BASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `ENVIRONMENT`, `GOOGLE_WEB_CLIENT_ID`, `SENTRY_DSN`, `POSTHOG_KEY`, `FEATURE_PHONE_OTP`.
+  There is no Android client ID key: the Android OAuth client is identified by package name + SHA-1 in Google Cloud and needs no dart-define.
 - **No secrets in the app.** The CallMissed key never comes here. All AI and voice calls go through `apps/api`.
 
 ## Platform

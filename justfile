@@ -76,6 +76,8 @@ docker-web:
         --build-arg NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-}" \
         --build-arg NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-}" \
         --build-arg NEXT_PUBLIC_POSTHOG_KEY="${NEXT_PUBLIC_POSTHOG_KEY:-}" \
+        --build-arg NEXT_PUBLIC_SENTRY_DSN="${NEXT_PUBLIC_SENTRY_DSN:-}" \
+        --build-arg NEXT_PUBLIC_FEATURE_PHONE_OTP="${NEXT_PUBLIC_FEATURE_PHONE_OTP:-false}" \
         .
 
 # ---------- generated code (never hand-edit the outputs) ----------

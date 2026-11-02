@@ -1,0 +1,38 @@
+name: packages
+
+on:
+  push:
+    branches: [main, v1-rebuild]
+    paths: ["packages/**", "apps/app/lib/core/**", "pnpm-lock.yaml", "package.json", ".github/workflows/packages.yml"]
+  pull_request:  # no paths filter: this check is required on PRs to main (R35)
+    branches: [main]
+  workflow_call:  # reused as part of the test gate of deploy-dev.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: packages / test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413  # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Design tokens tests (unknown never green, token freshness)
+        run: pnpm --filter @smartnutri/design-tokens test
+      - name: i18n tests
+        run: pnpm --filter @smartnutri/i18n test
+      - name: Regenerate strings and design tokens
+        run: |
+          pnpm --filter @smartnutri/i18n build
+          pnpm --filter @smartnutri/design-tokens build
+      - name: Generated outputs are committed and fresh
+        # app_localizations*.dart come from `flutter gen-l10n`, which app.yml checks separately.
+        run: |
+          git add -N .
+          git diff --exit-code -- apps/app/lib/core/l10n apps/app/lib/core/theme packages/design-tokens/build packages/i18n ':(exclude)apps/app/lib/core/l10n/app_localizations*.dart'

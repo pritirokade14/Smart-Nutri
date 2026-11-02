@@ -8,6 +8,10 @@
 /packages/test-fixtures/            @pritirokade14
 /apps/app/lib/features/result/      @pritirokade14
 /apps/web/src/features/result/      @pritirokade14
+/apps/app/lib/features/analysis/    @pritirokade14
+/apps/web/src/features/analysis/    @pritirokade14
+/apps/app/lib/features/product/     @pritirokade14
+/apps/web/src/features/product/     @pritirokade14
 
 # Contract and security-sensitive config
 /packages/api-contract/             @pritirokade14

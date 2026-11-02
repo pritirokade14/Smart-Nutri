@@ -93,7 +93,7 @@ apps/app/  pubspec.yaml  l10n.yaml  android/app/{build.gradle.kts,src/main/Andro
            lib/{main,app,bootstrap}.dart  lib/core/{config,network,router,theme,l10n}/  lib/features/{auth,home}/
            test/**  env/example.json
 apps/web/  (create-next-app) package.json next.config.ts biome.json vitest.config.ts playwright.config.ts Dockerfile
-           src/{middleware.ts,i18n/*,lib/{supabase,api}/*,app/[locale]/{layout.tsx,(public)/{page,sign-in/page}.tsx,(app)/home/page.tsx},app/auth/callback/route.ts}
+           src/{proxy.ts,i18n/*,lib/{supabase,api}/*,app/[locale]/{layout.tsx,(public)/{page,sign-in/page}.tsx,(app)/home/page.tsx},app/auth/callback/route.ts}
            tests/*  e2e/*  .env.example
 supabase/config.toml
 scripts/push-secrets.sh  justfile  .github/workflows/{api,app,web}.yml
@@ -855,7 +855,7 @@ test("hi sets html lang", async ({ page }) => { await page.goto("/hi"); await ex
 - Create:
   - `apps/web/src/lib/supabase/{client,server,middleware}.ts`
   - `apps/web/src/lib/api/client.ts`
-  - `apps/web/src/middleware.ts`
+  - `apps/web/src/proxy.ts` (Next 16 renamed middleware to proxy)
   - `apps/web/src/app/providers.tsx`
   - `apps/web/src/app/auth/callback/route.ts`
   - `apps/web/src/app/[locale]/(public)/sign-in/page.tsx`

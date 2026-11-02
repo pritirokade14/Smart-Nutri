@@ -122,7 +122,7 @@ gcloud artifacts repositories create smartnutri \
 
 ## Dev deploy (GitHub Actions + WIF)
 
-Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federation: no service-account keys exist. Google trusts only this repository (by immutable id), the `main` branch, the `deploy-dev.yml` workflow file and `push` / `workflow_dispatch` events. The workflow runs the `api`, `web` and `security` workflows first and deploys only if they are all green. Each new revision is deployed with no traffic, smoke-tested on its own tag URL, and only then receives traffic.
+Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federation: no service-account keys exist. Google trusts only this repository (by immutable id), the `main` branch, the `deploy-dev.yml` workflow file and `push` / `workflow_dispatch` events. The workflow runs the `api`, `web`, `packages` and `security` workflows first and deploys only if they are all green. Each new revision is deployed with no traffic, smoke-tested on its own tag URL, and only then receives traffic.
 
 **Because anyone who can change `deploy-dev.yml` on `main` can deploy, branch protection (Step 0) is required, not optional.**
 
@@ -131,13 +131,13 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
 0. **Protect `main` in GitHub (before anything else).**
    - Settings → Rules → Rulesets → New branch ruleset, target `main`, enforcement Active, **no bypass list**:
      - Require a pull request before merging, required approvals **0** (solo maintainer).
-     - Require status checks to pass, using the job names `api / test`, `api / contract`, `app / test`, `web / test` and `security / secrets`.
+     - Require status checks to pass, using the job names `api / test`, `api / contract`, `app / test`, `web / test`, `packages / test` and `security / secrets`.
      - Block force pushes. Restrict deletions.
    - Settings → Actions → General:
      - Workflow permissions: **Read repository contents and packages permissions** (read-only default).
      - Fork pull request workflows: **Require approval for all outside collaborators**.
    - `.github/CODEOWNERS` already covers `.github/workflows/**` and `scripts/**`.
-   - Caveat: `api.yml`, `app.yml` and `web.yml` only run on pull requests that touch their paths. A required check that never runs blocks the PR, so if a docs-only PR gets stuck, drop the `paths` filter from that workflow's `pull_request` trigger.
+   - Note: the `pull_request` triggers of `api.yml`, `app.yml`, `web.yml`, `packages.yml` and `security.yml` have no `paths` filter (R35), so every required check always runs on PRs to `main`. Only `push` runs are path-filtered. Do not add a `paths` filter to a `pull_request` trigger: a required check that never runs blocks the PR.
 1. `bash scripts/push-secrets.sh` : copies the three dev secrets from `apps/api/.env` into Secret Manager.
 2. `bash scripts/setup-github-deploy.sh` (or `just setup-github-deploy`) : creates the service accounts, placeholder Cloud Run services with service-level roles, and the WIF pool and provider. Safe to re-run.
 3. GitHub repo → Settings → Secrets and variables → Actions → **Variables** → New repository variable `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the **public** publishable key). Optional variables: `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`.
