@@ -27,3 +27,48 @@ def test_devanagari_no_match_inside_longer_word():
 def test_longest_match_consumes_text():
     assert find_terms(["liquid glucose", "salt"], ["liquid glucose", "glucose"]) == ["liquid glucose"]
     assert find_terms(["onion powder"], ["onion", "onion powder"]) == ["onion powder"]
+
+
+MILK = ["milk", "milk powder", "milk solids", "butter", "cream"]
+MILK_EX = ["coconut milk", "almond milk", "cocoa butter", "peanut butter", "nut butter"]
+
+
+def test_excludes_do_not_span_ingredient_boundaries():
+    for texts in (
+        ["desiccated coconut", "milk powder"],
+        ["Desiccated Coconut, Milk Solids"],
+        ["Almond", "Milk"],
+        ["Cocoa", "Butter"],
+        ["Peanut", "Butter"],
+    ):
+        assert find_terms(texts, MILK, MILK_EX), texts
+
+
+def test_in_segment_exclude_still_works():
+    assert find_terms(["coconut milk"], MILK, MILK_EX) == []
+
+
+def test_segments_split_on_brackets_and_slash():
+    assert find_terms(["coconut (milk)"], MILK, MILK_EX) == ["milk"]
+    assert find_terms(["coconut/milk"], MILK, MILK_EX) == ["milk"]
+
+
+def test_ins_code_formats():
+    for text in ("E 220", "INS. 220", "ins: 220", "E-220", "INS 220", "e220", "Preservative (220)"):
+        assert "ins220" in normalize(text).split(), text
+    n = normalize("Preservatives (220, 223), Emulsifiers (322, 471)").split()
+    assert {"ins220", "ins223", "ins322", "ins471"} <= set(n)
+
+
+def test_ordinary_numbers_untouched():
+    for text in ("vitamin e 1000 iu", "500 g", "contains 100% juice", "Vitamin E 400 mg"):
+        assert not any(w.startswith("ins") for w in normalize(text).split()), text
+
+
+def test_sulphite_code_list():
+    sulphite = ["ins220", "ins221", "ins222", "ins223", "ins224"]
+    assert find_terms(["Preservatives (220, 223)"], sulphite) == ["ins220", "ins223"]
+
+
+def test_zero_width_chars_stripped():
+    assert find_terms(["pea‍nut"], ["peanut"]) == ["peanut"]
