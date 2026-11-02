@@ -17,7 +17,9 @@ abstract interface class AuthRepository {
 }
 
 /// Returns [token] unless it is missing or [expired]; an expired token is
-/// refreshed, and null is returned if the refresh fails.
+/// refreshed. A transient failure (network, 5xx) is rethrown so the request
+/// fails without a token and the session is kept. Null is returned only for a
+/// non-retryable auth failure (e.g. invalid refresh token).
 Future<String?> freshAccessToken({
   required String? token,
   required bool expired,
@@ -27,6 +29,8 @@ Future<String?> freshAccessToken({
   if (!expired) return token;
   try {
     return await refresh();
+  } on AuthRetryableFetchException {
+    rethrow;
   } on AuthException {
     return null;
   }

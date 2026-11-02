@@ -13,7 +13,20 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _token();
+    final String? token;
+    try {
+      token = await _token();
+    } catch (e) {
+      // Never leave the request hanging; fail it without signing the user out.
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          type: DioExceptionType.unknown,
+          error: e,
+        ),
+      );
+      return;
+    }
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -25,7 +38,10 @@ class AuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    if (err.response?.statusCode == 401) {
+    // Only a rejected token counts; a request sent without one says nothing
+    // about the session.
+    final sentToken = err.requestOptions.headers.containsKey('Authorization');
+    if (sentToken && err.response?.statusCode == 401) {
       try {
         await _onUnauthorized();
       } catch (_) {

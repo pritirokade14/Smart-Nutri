@@ -79,4 +79,36 @@ void main() {
       ),
     );
   });
+
+  test('401 without a sent token does not call onUnauthorized', () async {
+    var calls = 0;
+    final dio = Dio(BaseOptions(baseUrl: 'http://x'))
+      ..httpClientAdapter = _Adapter(401)
+      ..interceptors.add(
+        AuthInterceptor(() async => null, () async => calls++),
+      );
+    await expectLater(dio.get<Object?>('/v1/me'), throwsA(isA<DioException>()));
+    expect(calls, 0);
+  });
+
+  test('a throwing token getter rejects the request, no sign-out', () async {
+    final adapter = _Adapter(200);
+    var calls = 0;
+    final dio = Dio(BaseOptions(baseUrl: 'http://x'))
+      ..httpClientAdapter = adapter
+      ..interceptors.add(
+        AuthInterceptor(
+          () async => throw StateError('net'),
+          () async => calls++,
+        ),
+      );
+    await expectLater(
+      dio.get<Object?>('/v1/me'),
+      throwsA(
+        isA<DioException>().having((e) => e.error, 'error', isA<StateError>()),
+      ),
+    );
+    expect(adapter.seen, isEmpty);
+    expect(calls, 0);
+  });
 }

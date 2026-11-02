@@ -40,4 +40,15 @@ void main() {
       isNull,
     );
   });
+
+  test('transient refresh failure is rethrown, not treated as signed out', () {
+    expect(
+      freshAccessToken(
+        token: 'old',
+        expired: true,
+        refresh: () async => throw AuthRetryableFetchException(message: 'net'),
+      ),
+      throwsA(isA<AuthRetryableFetchException>()),
+    );
+  });
 }
