@@ -21,6 +21,7 @@ export function SignInPanel({
   const [mode, setMode] = useState<"email" | "phone" | null>(null);
   const [failed, setFailed] = useState(false);
   const target = safeNext(next, `/${locale}/home`);
+  const emailEnabled = process.env.NEXT_PUBLIC_FEATURE_EMAIL_OTP === "true";
   const phoneEnabled = process.env.NEXT_PUBLIC_FEATURE_PHONE_OTP === "true";
 
   async function google() {
@@ -40,14 +41,16 @@ export function SignInPanel({
       <button type="button" className={buttonClass} onClick={google}>
         {t("google")}
       </button>
-      <button
-        type="button"
-        className={buttonClass}
-        onClick={() => setMode("email")}
-      >
-        {t("email")}
-      </button>
-      {mode === "email" && <EmailOtpForm target={target} />}
+      {emailEnabled && (
+        <button
+          type="button"
+          className={buttonClass}
+          onClick={() => setMode("email")}
+        >
+          {t("email")}
+        </button>
+      )}
+      {emailEnabled && mode === "email" && <EmailOtpForm target={target} />}
       {phoneEnabled && (
         <button
           type="button"

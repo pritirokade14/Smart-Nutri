@@ -161,6 +161,25 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
   2. Inspect the new key in `rate_limit_counters`.
   3. Your own egress IP: correct. `203.0.113.9`: the header is spoofable, lower the hops. A Google or `169.254.*` address: everyone shares one bucket, raise the hops.
 
+## Email sign-in codes (Google Workspace SMTP — after the domain)
+
+Email sign-in is hidden (`NEXT_PUBLIC_FEATURE_EMAIL_OTP=false` on web, `FEATURE_EMAIL_OTP=false` on Android) because the built-in Supabase email sender cannot send the 6-digit code the app expects: editing the template needs custom SMTP. Until then the built-in sender only delivers to Supabase project team members and sends links, not codes. Use Google or phone sign-in meanwhile.
+
+Once you own a domain:
+
+1. Buy the domain.
+2. Create Google Workspace Business Starter with a `no-reply@<domain>` user (or an alias on an existing user).
+3. Turn on 2-Step Verification for that user, then create an App Password for it.
+4. Supabase → Authentication → Emails → SMTP Settings → Set up SMTP:
+   - Host `smtp.gmail.com`, port `465`.
+   - Username: the Workspace address. Password: the App Password.
+   - Sender email `no-reply@<domain>`, sender name `SmartNutri`.
+5. Supabase → Authentication → Emails → Templates → "Magic link or OTP": paste `supabase/templates/magic_link.html` and set the subject to `Your SmartNutri sign-in code`.
+6. GitHub repo → Settings → Secrets and variables → Actions → Variables: set `NEXT_PUBLIC_FEATURE_EMAIL_OTP=true`. For Android, build with `FEATURE_EMAIL_OTP=true`.
+7. Redeploy (`just deploy-dev`) and ship a new Android build.
+
+Note: Google Workspace limits sending to about 2,000 emails per day per user. That is fine for launch; move to a transactional provider (for example Resend or SES) if sign-in volume grows.
+
 ## Schema changes: migrate, then merge
 
 Each API build knows the Alembic head it was built with. `GET /v1/health` returns `503 {"status": "unavailable", "database": "schema_behind"}` until the database's `alembic_version` equals that head, so a new revision is never smoke-tested green, or given traffic, against an old schema.
