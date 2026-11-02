@@ -84,18 +84,22 @@ def build_report(product: Product, cfg: ScoringConfig) -> ProductReport:
     return _build(clean, cfg, dropped, ())
 
 
+def _freeze(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return tuple(sorted(((str(k), _freeze(v)) for k, v in value.items()), key=lambda kv: kv[0]))
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze(v) for v in value)
+    if isinstance(value, (set, frozenset)):
+        return frozenset(_freeze(v) for v in value)
+    return value
+
+
 def _dedupe(reasons: Sequence[Reason]) -> tuple[Reason, ...]:
     ordered = sorted(reasons, key=lambda r: (-r.severity.rank, r.code))
     seen: set[tuple[Any, ...]] = set()
     out: list[Reason] = []
     for r in ordered:
-        key = (
-            r.code,
-            r.severity,
-            r.params.get("nutrient"),
-            r.params.get("allergen"),
-            r.params.get("diet"),
-        )
+        key = (r.code, r.severity, _freeze(r.params))
         if key in seen:
             continue
         seen.add(key)
@@ -121,7 +125,8 @@ def evaluate_member(
 def analyze(
     product: Product, members: Sequence[Member], cfg: ScoringConfig | None = None
 ) -> AnalysisResult:
-    cfg = cfg or load_config()
+    if cfg is None:
+        cfg = load_config()
     clean, dropped = _sanitize(product)
     extra = [a for m in members for a in m.allergens]
     report = _build(clean, cfg, dropped, extra)
