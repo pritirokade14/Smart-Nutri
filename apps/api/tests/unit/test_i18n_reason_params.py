@@ -30,10 +30,7 @@ MESSAGES = Path(__file__).parents[4] / "packages" / "i18n" / "messages"
 # Codes with a message that the engine at this commit cannot emit (code -> why). They are
 # excluded only from "is it triggered?"; once the engine emits them, every param check applies
 # (MEMBERS already holds inputs meant to trigger them). Remove entries once they are emitted.
-UNTRIGGERABLE: dict[str, str] = {
-    "cardio_risk_high_in": "added to the engine on v1-rebuild after this test's base commit",
-    "age_unknown": "added to the engine on v1-rebuild after this test's base commit",
-}
+UNTRIGGERABLE: dict[str, str] = {}
 
 # variant key (under reason_variant) -> (engine code, predicate on params).
 REASON_VARIANTS: dict[str, tuple[str, Callable[[Mapping[str, Any]], bool]]] = {
