@@ -46,7 +46,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/sign-in',
         builder: (_, _) => const SignInScreen(),
         routes: [
-          GoRoute(path: 'email', builder: (_, _) => const EmailOtpScreen()),
+          if (config.featureEmailOtp)
+            GoRoute(path: 'email', builder: (_, _) => const EmailOtpScreen()),
           if (config.featurePhoneOtp)
             GoRoute(path: 'phone', builder: (_, _) => const PhoneOtpScreen()),
         ],

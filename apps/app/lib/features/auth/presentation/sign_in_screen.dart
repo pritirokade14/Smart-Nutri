@@ -40,7 +40,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final phone = ref.watch(appConfigProvider).featurePhoneOtp;
+    final config = ref.watch(appConfigProvider);
+    final phone = config.featurePhoneOtp;
+    final email = config.featureEmailOtp;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.authTitle)),
       body: Padding(
@@ -52,11 +54,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               onPressed: _busy ? null : _google,
               child: Text(l10n.authGoogle),
             ),
-            const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () => context.go('/sign-in/email'),
-              child: Text(l10n.authEmail),
-            ),
+            if (email) ...[
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () => context.go('/sign-in/email'),
+                child: Text(l10n.authEmail),
+              ),
+            ],
             if (phone) ...[
               const SizedBox(height: 12),
               OutlinedButton(
