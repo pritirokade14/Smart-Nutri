@@ -99,17 +99,22 @@ See [AGENTS.md](AGENTS.md). In short:
 - Research on users, competitors, tech, regulation and CallMissed (`docs/research/`).
 - Monorepo restructure, docs, ADRs, tooling and CI (commit `5f943ff`).
 - Accounts: CallMissed keys, Supabase dev project (database tested), Google Cloud project with billing (free trial), OAuth clients, Google login enabled in Supabase, Cloud Run / Artifact Registry / Secret Manager / Build APIs enabled, ₹1,000 budget alert.
-- Plan 1 Tasks 1–2: fresh uv project, domain models.
+- **Plan 1 (rules engine): complete.** Every ruling is listed in `docs/superpowers/plans/2026-11-02-plan-1-rulings.md`. Follow-up rulings R12/R13/R25 (Plan 2 ledger) add a blood-sugar heart-health caution, an `age_unknown` guard for members without a birth year, and `unknown` when saturated fat or salt is missing for blood-sugar members.
+- **Plan 2 (foundation), in progress:** config/logging/errors, health check, Supabase JWT verification, database baseline with RLS (ADR 0013: clients never write through the Supabase Data API), `/v1/me`, rate limits, shared i18n (en/hi/mr) with an engine-param contract test, design tokens, shared test fixtures, Next.js web shell. Live check against the dev database passed (`/v1/health` 200).
 
 **Next:**
-- Finish Plan 1, then Plan 2 (foundation and first dev deploy).
-- Then M1 (barcode → verdict on phone + browser), targeted for about day 4–5.
+- Plan 2: generated API clients (T7), Flutter shell and login (T11–T12), web login and security headers (T14), Sentry/PostHog (T15), Docker/CI/pre-commit (T16), first dev deploy to Cloud Run (T17, needs `push-secrets.sh`).
+- Then M1 (barcode → verdict on phone + browser).
 
 ## 9. Open items that only the user can do
 
 - [ ] Run `scripts/push-secrets.sh` (created in Plan 2) to copy secrets into Secret Manager before the first deploy.
 - [ ] Create the Google Play Console **personal** account ($25) and complete ID verification.
 - [ ] Recruit 12–20 closed-test testers once a usable build exists.
-- [ ] Clinician or dietitian review of `apps/api/app/scoring/data/thresholds.yaml`.
+- [ ] Clinician or dietitian review of `apps/api/app/scoring/data/thresholds.yaml` (all values are marked PENDING CLINICIAN REVIEW). Specific questions for them:
+  - Over-warning list from Plan 1: rice vermicelli / rava flagged as gluten; pistachio/almond "nuts" flagged for peanut allergy; coconut cream and butter beans flagged for milk; soya keema; chai masala / herbal tea flagged as caffeine for children; plain milk 250 ml for a 2-year-old = avoid; coconut water for diabetics; infant rice cereal salt.
+  - Blood-sugar members: is CAUTION the right level for foods high in saturated fat or salt (UK FSA "high" limits: sat fat > 5 g, salt > 1.5 g per 100 g)? Is the 30 g carbs-per-serving threshold right (oats at 26 g per 40 g serving shows ok)?
+  - Child rules compare total sugars with a daily free-sugar limit, and ignore saturated fat.
+- [ ] Native Hindi and Marathi speaker review of all UI strings: checklist in `packages/i18n/NATIVE_REVIEW.md`.
 - [ ] Before launch: domain name, privacy policy and terms, Supabase prod (Pro), CallMissed plan check, WhatsApp OTP template approval.
 - [ ] Before Play submission, decide whether to keep the Android package name `com.smartnutri.app` (it is permanent once published).
