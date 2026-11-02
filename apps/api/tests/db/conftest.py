@@ -174,12 +174,24 @@ def _emulate_supabase_default_privileges(url: str) -> None:
         engine.dispose()
 
 
+def _drop_alembic_version(url: str) -> None:
+    engine = create_engine(url, poolclass=NullPool)
+    try:
+        with engine.begin() as conn:
+            conn.exec_driver_sql("DROP TABLE IF EXISTS public.alembic_version")
+    finally:
+        engine.dispose()
+
+
 @pytest.fixture(scope="session")
 def migrated(alembic_cfg: Config) -> Config:
     """Fresh schema per session: downgrade to base, then upgrade to head."""
     url = alembic_cfg.get_main_option("sqlalchemy.url")
     _assert_not_supabase(url)
     command.downgrade(alembic_cfg, "base")
+    # `downgrade base` creates alembic_version on a fresh DB; drop it so that it is
+    # re-created by `upgrade` AFTER the default privileges exist, as on Supabase.
+    _drop_alembic_version(url)
     # Reproduce Supabase: new public tables (incl. alembic_version) are granted ALL to
     # anon/authenticated/service_role. The migration must tighten this.
     _emulate_supabase_default_privileges(url)

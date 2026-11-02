@@ -60,7 +60,7 @@ DO $lock$
 BEGIN
     IF to_regclass('public.alembic_version') IS NOT NULL THEN
         ALTER TABLE public.alembic_version ENABLE ROW LEVEL SECURITY;
-        REVOKE ALL ON public.alembic_version FROM PUBLIC, anon, authenticated;
+        REVOKE ALL ON public.alembic_version FROM PUBLIC, anon, authenticated, service_role;
     END IF;
 END
 $lock$;
