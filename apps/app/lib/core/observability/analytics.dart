@@ -64,6 +64,12 @@ SentryEvent? scrubSentryEvent(SentryEvent event, Hint hint) {
     ex.value = '<redacted>';
   }
   event.breadcrumbs = null;
+  // FlutterErrorIntegration attaches widget diagnostics, which can include
+  // user-entered text; free-form message/extra may too.
+  event.contexts.remove('flutter_error_details');
+  event.message = null;
+  // ignore: deprecated_member_use
+  event.extra = null;
   final user = event.user;
   if (user != null) {
     event.user = user.id == null ? null : SentryUser(id: user.id);

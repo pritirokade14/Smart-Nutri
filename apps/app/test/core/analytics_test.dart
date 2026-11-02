@@ -64,6 +64,24 @@ void main() {
     expect(out.breadcrumbs, isNull);
   });
 
+  test('scrubSentryEvent drops flutter error details, message and extra', () {
+    final event = SentryEvent(
+      message: SentryMessage('member Asha has diabetes'),
+      // ignore: deprecated_member_use
+      extra: {'allergies': 'peanut'},
+    );
+    event.contexts['flutter_error_details'] = {
+      'information': 'TextField(controller: "Asha")',
+    };
+    event.contexts['os'] = {'name': 'Android'};
+    final out = scrubSentryEvent(event, Hint())!;
+    expect(out.contexts.containsKey('flutter_error_details'), isFalse);
+    expect(out.contexts.containsKey('os'), isTrue);
+    expect(out.message, isNull);
+    // ignore: deprecated_member_use
+    expect(out.extra, isNull);
+  });
+
   test('track constrains allow-listed values', () async {
     final sent = <Map<String, Object>>[];
     final a = Analytics((e, p) async => sent.add(p));
