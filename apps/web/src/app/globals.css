@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@import "@smartnutri/design-tokens/tokens.css";
+
+body {
+  background: var(--color-surface-default);
+  color: var(--color-text-primary);
+}
