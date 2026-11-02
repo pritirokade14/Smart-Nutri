@@ -2,15 +2,39 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 
 from app.scoring.config import ScoringConfig
 from app.scoring.ingredients import find_terms
 from app.scoring.models import AllergenState, Member, Product, Reason, Status
 
+# Common member-entered variants mapped to config keys (after _norm_key).
+_ALIASES = {
+    "dairy": "milk",
+    "lactose": "milk",
+    "nuts": "tree_nut",
+    "tree_nuts": "tree_nut",
+    "shellfish": "crustacean",
+    "crustaceans": "crustacean",
+    "wheat": "gluten",
+    "groundnut": "peanut",
+    "peanuts": "peanut",
+    "soya": "soy",
+    "sulfite": "sulphite",
+    "sulfites": "sulphite",
+    "sulphites": "sulphite",
+    "eggs": "egg",
+}
+
+
+def _norm_key(key: str) -> str:
+    k = re.sub(r"[\s\-]+", "_", key.strip().lower())
+    return _ALIASES.get(k, k)
+
 
 def ingredients_known(product: Product, cfg: ScoringConfig) -> bool:
-    return bool(product.ingredients) and (
+    return any(i.strip() for i in product.ingredients) and (
         product.extraction_confidence >= cfg.thresholds["min_extraction_confidence"]
     )
 
@@ -24,7 +48,7 @@ def _detect_one(product: Product, entry: dict[str, list[str]]) -> AllergenState 
         main.append(product.allergen_statement)
     if main and find_terms(main, contains, exclude):
         return AllergenState.CONTAINS
-    if product.ingredients and possible and find_terms(product.ingredients, possible, exclude):
+    if possible and main and find_terms(main, possible, exclude):
         return AllergenState.MAY_CONTAIN
     if product.may_contain_statement and find_terms(
         [product.may_contain_statement], contains + possible, exclude
@@ -38,9 +62,9 @@ def detect_allergens(
 ) -> dict[str, AllergenState]:
     entries: dict[str, dict[str, list[str]]] = {k.lower(): dict(v) for k, v in cfg.allergens.items()}
     for key in extra_keys:
-        k = key.strip().lower()
+        k = _norm_key(key)
         if k and k not in entries:
-            entries[k] = {"contains": [k], "possible": [], "exclude": []}
+            entries[k] = {"contains": [k.replace("_", " ")], "possible": [], "exclude": []}
     found: dict[str, AllergenState] = {}
     for key, entry in entries.items():
         state = _detect_one(product, entry)
@@ -50,7 +74,7 @@ def detect_allergens(
 
 
 def allergen_reasons(product: Product, member: Member, cfg: ScoringConfig) -> list[Reason]:
-    keys = list(dict.fromkeys(a.strip().lower() for a in member.allergens if a.strip()))
+    keys = list(dict.fromkeys(_norm_key(a) for a in member.allergens if a.strip()))
     if not keys:
         return []
     detected = detect_allergens(product, cfg, keys)
