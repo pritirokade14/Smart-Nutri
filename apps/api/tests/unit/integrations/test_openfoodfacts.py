@@ -30,13 +30,17 @@ def _client(handler) -> OffClient:
         (" 8901 0632 0108 9 ", "8901063201089"),
         ("036000291452", "036000291452"),
         ("12345670", "12345670"),
+        ("8901-0632-0108-9", "8901063201089"),
+        ("00012345678905", "00012345678905"),
     ],
 )
 def test_normalize_barcode_accepts(raw, clean):
     assert normalize_barcode(raw) == clean
 
 
-@pytest.mark.parametrize("raw", ["abc123", "1234567", "123456789012345", ""])
+@pytest.mark.parametrize(
+    "raw", ["abc123", "1234567", "123456789", "1234567890", "12345678901", "123456789012345", ""]
+)
 def test_normalize_barcode_rejects(raw):
     with pytest.raises(InvalidBarcode):
         normalize_barcode(raw)

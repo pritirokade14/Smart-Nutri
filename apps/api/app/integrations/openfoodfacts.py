@@ -33,10 +33,14 @@ class OffUnavailable(Exception):
     """Network error, timeout, 5xx, or malformed body."""
 
 
+# EAN-8, UPC-A, EAN-13, GTIN-14 (Plan 3 global constraint; same rule on Android and web).
+VALID_LENGTHS = frozenset({8, 12, 13, 14})
+
+
 def normalize_barcode(raw: str) -> str:
-    cleaned = re.sub(r"\s+", "", raw or "")
-    if not cleaned.isascii() or not cleaned.isdigit() or not 8 <= len(cleaned) <= 14:
-        raise InvalidBarcode("barcode must be 8 to 14 digits")
+    cleaned = re.sub(r"[\s-]+", "", raw or "")
+    if not cleaned.isascii() or not cleaned.isdigit() or len(cleaned) not in VALID_LENGTHS:
+        raise InvalidBarcode("barcode must be 8, 12, 13 or 14 digits")
     return cleaned
 
 

@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     off_user_agent: str = "SmartNutri/0.1"
     off_base_url: str = "https://world.openfoodfacts.org"
     off_cache_ttl_hours: int = 168
+    # Confidence passed to the engine for OFF data (crowd-sourced; < 1.0, >= 0.7 so allergen rules still run).
+    off_data_confidence: float = 0.9
     rate_limit_label_scans_per_day: int = 30
     rate_limit_voice_per_day: int = 20
     rate_limit_analyze_per_hour: int = 120
