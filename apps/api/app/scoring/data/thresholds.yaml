@@ -26,7 +26,8 @@ conditions:
     caution_energy_kcal: 400
     caution_nutriscore: [D, E]
     good_protein_g_per_100kcal: 5
-  child:          # 2 <= age < 13
+  child:          # infant.max_age <= age < max_age
+    max_age: 13
     free_sugar_daily_limit_g: {2: 19, 7: 24, 11: 30}   # key = min age of band (NHS; 2–3 uses 4–6 value)
     caution_pct_of_limit: 25
     avoid_pct_of_limit: 50
