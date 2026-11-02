@@ -23,16 +23,27 @@ String localizedStatus(AppLocalizations l10n, String status) =>
     };
 
 /// One member's verdict, exactly as the API returned it: status, colour from
-/// the verdict tokens, and reasons in API order.
-class VerdictCard extends StatelessWidget {
+/// the verdict tokens, and reasons in API order. Avoid, unknown and allergen
+/// reasons are always visible; the rest sit behind a toggle (R22).
+class VerdictCard extends StatefulWidget {
   const VerdictCard({super.key, required this.verdict});
 
   final VerdictOut verdict;
 
   static const statusBadgeKey = Key('verdict-status-badge');
+  static const reasonsToggleKey = Key('verdict-reasons-toggle');
+  static const profileNoteKey = Key('verdict-profile-note');
+
+  @override
+  State<VerdictCard> createState() => _VerdictCardState();
+}
+
+class _VerdictCardState extends State<VerdictCard> {
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
+    final verdict = widget.verdict;
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final status = displayStatus(verdict.status);
@@ -40,23 +51,8 @@ class VerdictCard extends StatelessWidget {
     final name = verdict.memberName.isEmpty
         ? l10n.resultYou
         : verdict.memberName;
-    final reasons = displayReasons(verdict.reasons);
+    final groups = splitReasons(displayReasons(verdict.reasons));
     final statusLabel = localizedStatus(l10n, status);
-
-    final Widget? reasonsView = switch (reasons.length) {
-      0 => null,
-      1 => Text(reasonText(l10n, reasons.first)),
-      // Top reason first; the rest (API order) behind the expand control.
-      _ => ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: EdgeInsets.zero,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        title: Text(topReasonText(l10n, verdict)),
-        children: [for (final r in reasons.skip(1)) ReasonLine(reason: r)],
-      ),
-    };
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: SnTokens.space2),
@@ -73,7 +69,7 @@ class VerdictCard extends StatelessWidget {
               children: [
                 Expanded(child: Text(name, style: theme.textTheme.titleMedium)),
                 Container(
-                  key: statusBadgeKey,
+                  key: VerdictCard.statusBadgeKey,
                   padding: const EdgeInsets.symmetric(
                     horizontal: SnTokens.space3,
                     vertical: SnTokens.space1,
@@ -91,9 +87,29 @@ class VerdictCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (reasonsView != null) ...[
+            if (!verdict.profileSetUp) ...[
               const SizedBox(height: SnTokens.space2),
-              reasonsView,
+              Text(
+                l10n.verdictProfileNotSetUp,
+                key: VerdictCard.profileNoteKey,
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
+            if (groups.visible.isNotEmpty || groups.collapsed.isNotEmpty)
+              const SizedBox(height: SnTokens.space2),
+            for (final r in groups.visible) ReasonLine(reason: r),
+            if (groups.collapsed.isNotEmpty) ...[
+              TextButton(
+                key: VerdictCard.reasonsToggleKey,
+                onPressed: () => setState(() => _expanded = !_expanded),
+                child: Text(
+                  _expanded
+                      ? l10n.verdictHideReasons
+                      : l10n.verdictShowAllReasons,
+                ),
+              ),
+              if (_expanded)
+                for (final r in groups.collapsed) ReasonLine(reason: r),
             ],
           ],
         ),

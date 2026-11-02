@@ -10,10 +10,8 @@ import '../domain/reasons.dart';
 
 /// Generic line for a reason the app cannot render: a reason code this build
 /// does not know, or params that do not match the message. Never throws.
-// TODO(i18n): replace with a dedicated `reason.fallback` key once it exists
-// in packages/i18n (reported in Plan 3 Task 7).
 String reasonFallbackText(AppLocalizations l10n) =>
-    l10n.verdictConfidenceNote('other');
+    l10n.verdictReasonUnavailable;
 
 /// Localized text for one API reason (`packages/i18n/README.md`, "Rendering
 /// reasons"): picks `reason.<code>` or its `reason_variant.*`, maps code params
@@ -24,13 +22,6 @@ String reasonText(AppLocalizations l10n, ReasonOut reason) {
   } on _BadParam {
     return reasonFallbackText(l10n);
   }
-}
-
-/// The first reason in API order (the engine already sorts by severity), or
-/// "" when the verdict has no reasons.
-String topReasonText(AppLocalizations l10n, VerdictOut v) {
-  final shown = displayReasons(v.reasons);
-  return shown.isEmpty ? '' : reasonText(l10n, shown.first);
 }
 
 class ReasonLine extends StatelessWidget {
@@ -63,6 +54,9 @@ class _ReasonFormatter {
 
   final AppLocalizations l10n;
   final Map<String, Object?> p;
+
+  // Latin digits in every locale (R21).
+  static final _latinNumbers = NumberFormat.decimalPattern('en');
 
   // Separator for joined lists ({ingredients}, {high_in}).
   static const _listSeparator = ', ';
@@ -145,7 +139,7 @@ class _ReasonFormatter {
 
   String _num(String name) {
     final v = p[name];
-    if (v is num) return NumberFormat.decimalPattern(l10n.localeName).format(v);
+    if (v is num) return _latinNumbers.format(v);
     throw const _BadParam();
   }
 

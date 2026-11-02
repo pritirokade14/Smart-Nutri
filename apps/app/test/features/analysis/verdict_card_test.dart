@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_ai/core/l10n/app_localizations.dart';
 import 'package:smartnutri_ai/core/theme/tokens.g.dart';
 import 'package:smartnutri_ai/core/theme/verdict_colors.dart';
+import 'package:smartnutri_ai/features/analysis/domain/reasons.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/reason_line.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/verdict_card.dart';
 import 'package:smartnutri_api/src/export.dart';
@@ -65,9 +66,14 @@ void main() {
         if (status != 'ok') {
           expect(cardColor(t), isNot(SnTokens.verdictOk));
         }
-        if (c.verdict.reasons.isNotEmpty) {
-          expect(find.text(topReasonText(l10n, c.verdict)), findsOneWidget);
+        final groups = splitReasons(displayReasons(c.verdict.reasons));
+        for (final r in groups.visible) {
+          expect(find.text(reasonText(l10n, r)), findsWidgets);
         }
+        expect(
+          find.byKey(VerdictCard.reasonsToggleKey),
+          groups.collapsed.isEmpty ? findsNothing : findsOneWidget,
+        );
         expect(t.takeException(), isNull);
       });
     }
@@ -124,18 +130,142 @@ void main() {
     expect(t.takeException(), isNull);
   });
 
-  testWidgets('extra reasons are listed in API order when expanded', (t) async {
+  testWidgets('collapsed reasons appear in API order after the toggle', (
+    t,
+  ) async {
     final v = fixtureVerdict('sf_biscuit', 'diabetic_adult');
     final l10n = lookupAppLocalizations(const Locale('en'));
+    final groups = splitReasons(displayReasons(v.reasons));
     await t.pumpWidget(wrap(VerdictCard(verdict: v)));
-    final rest = v.reasons.skip(1).map((r) => reasonText(l10n, r)).toList();
-    for (final text in rest) {
+    final hidden = [for (final r in groups.collapsed) reasonText(l10n, r)];
+    for (final text in hidden) {
       expect(find.text(text), findsNothing);
     }
-    await t.tap(find.text(topReasonText(l10n, v)));
-    await t.pumpAndSettle();
-    final ys = [for (final text in rest) t.getTopLeft(find.text(text)).dy];
-    expect(ys, [...ys]..sort());
+    if (hidden.isNotEmpty) {
+      await t.tap(find.text(l10n.verdictShowAllReasons));
+      await t.pumpAndSettle();
+      final ys = [for (final text in hidden) t.getTopLeft(find.text(text)).dy];
+      expect(ys, [...ys]..sort());
+      expect(find.text(l10n.verdictHideReasons), findsOneWidget);
+    }
+  });
+
+  group('R22 visibility', () {
+    final l10n = lookupAppLocalizations(const Locale('en'));
+    ReasonOut r(String code, Map<String, Object?> p, String sev) => ReasonOut(
+      code: code,
+      params: p,
+      severity: ReasonOutSeverity.fromJson(sev),
+    );
+    VerdictOut v(List<ReasonOut> rs, {bool setUp = true}) => VerdictOut(
+      memberId: 'm',
+      memberName: 'Asha',
+      profileSetUp: setUp,
+      reasons: rs,
+      status: VerdictOutStatus.avoid,
+    );
+
+    testWidgets('(a) two allergen avoid reasons both visible', (t) async {
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('allergen_contains', {'allergen': 'milk'}, 'avoid'),
+              r('allergen_contains', {'allergen': 'peanut'}, 'avoid'),
+            ]),
+          ),
+        ),
+      );
+      expect(
+        find.text(l10n.reasonAllergenContains(l10n.allergenMilk)),
+        findsOneWidget,
+      );
+      expect(
+        find.text(l10n.reasonAllergenContains(l10n.allergenPeanut)),
+        findsOneWidget,
+      );
+      expect(find.byKey(VerdictCard.reasonsToggleKey), findsNothing);
+    });
+
+    testWidgets('(b) avoid and allergen_unknown both visible', (t) async {
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('sugar_high', {'sugars_g': 30}, 'avoid'),
+              r('allergen_unknown', {'allergen': 'peanut'}, 'unknown'),
+            ]),
+          ),
+        ),
+      );
+      expect(find.text(l10n.reasonSugarHigh('30')), findsOneWidget);
+      expect(
+        find.text(l10n.reasonAllergenUnknown(l10n.allergenPeanut)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('(c) age_unknown and allergen_unknown both visible', (t) async {
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('age_unknown', {}, 'unknown'),
+              r('allergen_unknown', {'allergen': 'peanut'}, 'unknown'),
+            ]),
+          ),
+        ),
+      );
+      expect(find.text(l10n.reasonAgeUnknown), findsOneWidget);
+      expect(
+        find.text(l10n.reasonAllergenUnknown(l10n.allergenPeanut)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('(d) caution lines hidden until the toggle is tapped', (
+      t,
+    ) async {
+      final energy = l10n.reasonEnergyDense('500');
+      final score = l10n.reasonNutriscoreLow('D');
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('sugar_high', {'sugars_g': 30}, 'avoid'),
+              r('energy_dense', {'energy_kcal': 500}, 'caution'),
+              r('nutriscore_low', {'grade': 'D'}, 'caution'),
+            ]),
+          ),
+        ),
+      );
+      expect(find.text(l10n.reasonSugarHigh('30')), findsOneWidget);
+      expect(find.text(energy), findsNothing);
+      expect(find.text(score), findsNothing);
+      await t.tap(find.text(l10n.verdictShowAllReasons));
+      await t.pumpAndSettle();
+      expect(find.text(energy), findsOneWidget);
+      expect(find.text(score), findsOneWidget);
+      await t.tap(find.text(l10n.verdictHideReasons));
+      await t.pumpAndSettle();
+      expect(find.text(energy), findsNothing);
+    });
+
+    testWidgets('profile not set up shows a neutral note', (t) async {
+      await t.pumpWidget(wrap(VerdictCard(verdict: v([], setUp: false))));
+      expect(find.text(l10n.verdictProfileNotSetUp), findsOneWidget);
+      await t.pumpWidget(wrap(VerdictCard(verdict: v([]))));
+      expect(find.text(l10n.verdictProfileNotSetUp), findsNothing);
+    });
+
+    testWidgets('unrenderable reason shows verdictReasonUnavailable', (
+      t,
+    ) async {
+      await t.pumpWidget(
+        wrap(VerdictCard(verdict: v([r('brand_new_code', {}, 'avoid')]))),
+      );
+      expect(find.text(l10n.verdictReasonUnavailable), findsOneWidget);
+    });
   });
 
   testWidgets('duplicate nutrient_missing lines collapse to one', (t) async {
@@ -166,8 +296,6 @@ void main() {
         ),
       ),
     );
-    await t.tap(find.text(l10n.reasonSugarHigh('30')));
-    await t.pumpAndSettle();
     expect(
       find.text(l10n.reasonNutrientMissing(l10n.nutrientSalt)),
       findsOneWidget,

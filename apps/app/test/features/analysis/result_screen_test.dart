@@ -84,7 +84,14 @@ void main() {
 
     expect(repo.calls.single, ('8901063201089', 'en'));
     expect(find.text('Sugar Free Biscuit'), findsOneWidget);
-    expect(find.text(en.resultGrade('D')), findsOneWidget);
+    expect(find.byKey(const Key('nutriscore-grade-tile')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('nutriscore-grade-tile')),
+        matching: find.text('D'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text(en.nutriscoreCalculatedBy), findsOneWidget);
     expect(find.text(en.resultHighInTitle), findsOneWidget);
     expect(find.text(en.highInSatFat), findsOneWidget);
@@ -204,7 +211,6 @@ void main() {
       await t.pumpWidget(const SizedBox());
     }
 
-    await check(const AnalysisInvalidBarcode(), en.errorInvalidBarcode);
     await check(const AnalysisNetworkFailure(), en.errorNetwork);
     final ro = RequestOptions(path: '/v1/analyze');
     await check(
@@ -226,6 +232,35 @@ void main() {
       ),
       en.errorRateLimited,
     );
+  });
+
+  testWidgets('API invalid-barcode error has no retry button', (t) async {
+    await t.pumpWidget(
+      _app(
+        FakeAnalysisRepository([() => throw const AnalysisInvalidBarcode()]),
+      ),
+    );
+    await t.pumpAndSettle();
+    expect(find.text(en.errorInvalidBarcode), findsOneWidget);
+    expect(find.text(en.scanRetry), findsNothing);
+  });
+
+  testWidgets('invalid deep-link barcode: error, no API call, no retry', (
+    t,
+  ) async {
+    final repo = FakeAnalysisRepository([() => analyzeFixture('water')]);
+    await t.pumpWidget(_app(repo, barcode: '123'));
+    await t.pumpAndSettle();
+    expect(find.text(en.errorInvalidBarcode), findsOneWidget);
+    expect(find.text(en.scanRetry), findsNothing);
+    expect(repo.calls, isEmpty);
+  });
+
+  testWidgets('deep-link barcode is normalised before the API call', (t) async {
+    final repo = FakeAnalysisRepository([() => analyzeFixture('water')]);
+    await t.pumpWidget(_app(repo, barcode: '8901-0632 01089'));
+    await t.pumpAndSettle();
+    expect(repo.calls.single.$1, '8901063201089');
   });
 
   testWidgets('requests the analysis in the UI language', (t) async {

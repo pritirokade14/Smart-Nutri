@@ -18,15 +18,6 @@ ReasonOut _r(
   severity: ReasonOutSeverity.fromJson(sev),
 );
 
-VerdictOut _v(List<ReasonOut> reasons, [String status = 'caution']) =>
-    VerdictOut(
-      memberId: 'm',
-      memberName: 'Asha',
-      profileSetUp: true,
-      reasons: reasons,
-      status: VerdictOutStatus.fromJson(status),
-    );
-
 void main() {
   final en = lookupAppLocalizations(const Locale('en'));
   final locales = [
@@ -232,26 +223,57 @@ void main() {
     });
   });
 
-  group('topReasonText', () {
-    test('is the first reason in API order, "" when none', () {
-      final v = _v([
-        _r('diet_unknown', {'diet': 'veg'}, 'unknown'),
-        _r('sugar_moderate', {'sugars_g': 10}),
-      ], 'unknown');
-      expect(topReasonText(en, v), en.reasonDietUnknown(en.dietVeg));
-      expect(topReasonText(en, _v(const [], 'ok')), '');
+  group('R22 rules', () {
+    test(
+      'diet_violation with missing ingredients is the mark-only variant',
+      () {
+        final r = _r('diet_violation', {'diet': 'veg'});
+        expect(reasonMessageKey(r), 'reason_variant.diet_violation_mark_only');
+        expect(
+          reasonText(en, r),
+          en.reasonVariantDietViolationMarkOnly(en.dietVeg),
+        );
+      },
+    );
+    test('nutrient_missing dedupe keeps a variant and a plain line', () {
+      final plain = _r('nutrient_missing', {
+        'nutrient': 'salt',
+        'rule': 'a',
+      }, 'unknown');
+      final lowConf = _r('nutrient_missing', {
+        'nutrient': 'salt',
+        'rule': 'b',
+        'reason': 'low_confidence',
+      }, 'unknown');
+      final dupPlain = _r('nutrient_missing', {
+        'nutrient': 'salt',
+        'rule': 'c',
+      }, 'unknown');
+      expect(displayReasons([plain, lowConf, dupPlain]), [plain, lowConf]);
     });
-    test('sf_biscuit diabetic_adult top reason is misleading_sugar_claim', () {
-      final expected = expectedFixture('sf_biscuit', 'diabetic_adult');
-      final firstCode =
-          ((expected['reasons'] as List).first as Map)['code'] as String;
-      expect(firstCode, 'misleading_sugar_claim');
-      final v = fixtureVerdict('sf_biscuit', 'diabetic_adult');
-      expect(v.reasons.first.code, 'misleading_sugar_claim');
-      expect(
-        topReasonText(en, v),
-        en.reasonMisleadingSugarClaim(en.claimSugarFree),
-      );
+    test('numbers use Latin digits in every locale', () {
+      final mr = lookupAppLocalizations(const Locale('mr'));
+      final hi = lookupAppLocalizations(const Locale('hi'));
+      for (final l10n in [mr, hi]) {
+        final text = reasonText(
+          l10n,
+          _r('sugar_high', {'sugars_g': 2.5}, 'avoid'),
+        );
+        expect(text, contains('2.5'));
+        expect(text, isNot(matches(RegExp(r'[\u0966-\u096F]'))));
+      }
+    });
+    test('fallback is verdictReasonUnavailable', () {
+      expect(reasonFallbackText(en), en.verdictReasonUnavailable);
+    });
+    test('splitReasons keeps API order within each group', () {
+      final a = _r('allergen_contains', {'allergen': 'milk'}, 'avoid');
+      final b = _r('energy_dense', {'energy_kcal': 500});
+      final c = _r('sugar_high', {'sugars_g': 30}, 'avoid');
+      final d = _r('nutriscore_low', {'grade': 'D'});
+      final g = splitReasons([b, a, d, c]);
+      expect(g.visible, [a, c]);
+      expect(g.collapsed, [b, d]);
     });
   });
 

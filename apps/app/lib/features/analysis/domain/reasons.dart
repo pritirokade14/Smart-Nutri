@@ -16,7 +16,8 @@ String reasonMessageKey(ReasonOut reason) {
     case 'nutrient_missing' when p['reason'] == 'low_confidence':
       return 'reason_variant.nutrient_missing_low_confidence';
     case 'diet_violation'
-        when p['ingredients'] is List && (p['ingredients']! as List).isEmpty:
+        when p['ingredients'] == null ||
+            (p['ingredients'] is List && (p['ingredients']! as List).isEmpty):
       return 'reason_variant.diet_violation_mark_only';
   }
   return 'reason.${reason.code}';
@@ -24,14 +25,37 @@ String reasonMessageKey(ReasonOut reason) {
 
 /// The reasons to show, in API order (already severity-sorted by the engine;
 /// never re-sorted here). The engine emits `nutrient_missing` once per
-/// (nutrient, rule); only the first line per nutrient is kept
-/// (CROSS-PLAN-NOTES item 13). Nothing else is dropped or merged.
+/// (nutrient, rule); only the first line per (nutrient, message key) is kept
+/// so a low-confidence variant and a plain line for the same nutrient both
+/// show (CROSS-PLAN-NOTES item 13). Nothing else is dropped or merged.
 List<ReasonOut> displayReasons(List<ReasonOut> reasons) {
-  final seenMissing = <Object?>{};
+  final seenMissing = <(Object?, String)>{};
   return [
     for (final r in reasons)
       if (r.code != 'nutrient_missing' ||
-          seenMissing.add(reasonParams(r)['nutrient']))
+          seenMissing.add((reasonParams(r)['nutrient'], reasonMessageKey(r))))
         r,
   ];
 }
+
+/// Ruling R22: avoid and unknown reasons (including a severity this build
+/// does not recognise) and every allergen reason are always visible.
+bool isAlwaysVisible(ReasonOut r) =>
+    r.code.startsWith('allergen_') ||
+    (r.severity != ReasonOutSeverity.caution &&
+        r.severity != ReasonOutSeverity.ok);
+
+/// Splits [reasons] into the always-visible group and the collapsed
+/// caution/ok group, each in API order.
+({List<ReasonOut> visible, List<ReasonOut> collapsed}) splitReasons(
+  List<ReasonOut> reasons,
+) => (
+  visible: [
+    for (final r in reasons)
+      if (isAlwaysVisible(r)) r,
+  ],
+  collapsed: [
+    for (final r in reasons)
+      if (!isAlwaysVisible(r)) r,
+  ],
+);

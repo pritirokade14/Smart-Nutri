@@ -9,6 +9,7 @@ import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/off_attribution.dart';
+import '../../scan/domain/barcode.dart';
 import '../data/analysis_repository.dart';
 import '../domain/report.dart';
 import 'analysis_providers.dart';
@@ -25,7 +26,16 @@ class ResultScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final query = (barcode: barcode, language: l10n.localeName);
+    // S8: same normalisation as the API; an invalid deep-link barcode never
+    // reaches it.
+    final code = normalizeBarcode(barcode);
+    if (code == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.resultTitle)),
+        body: _ErrorView(message: l10n.errorInvalidBarcode),
+      );
+    }
+    final query = (barcode: code, language: l10n.localeName);
     final result = ref.watch(analyzeResultProvider(query));
     return Scaffold(
       appBar: AppBar(title: Text(l10n.resultTitle)),
@@ -34,9 +44,12 @@ class ResultScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => _ErrorView(
           message: _errorMessage(l10n, error),
-          onRetry: () => ref.invalidate(analyzeResultProvider(query)),
+          // An invalid barcode cannot succeed on retry.
+          onRetry: error is AnalysisInvalidBarcode
+              ? null
+              : () => ref.invalidate(analyzeResultProvider(query)),
         ),
-        data: (out) => _ResultView(out: out, barcode: barcode),
+        data: (out) => _ResultView(out: out, barcode: code),
       ),
     );
   }
@@ -53,10 +66,10 @@ class ResultScreen extends ConsumerWidget {
 }
 
 class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message, required this.onRetry});
+  const _ErrorView({required this.message, this.onRetry});
 
   final String message;
-  final VoidCallback onRetry;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +82,10 @@ class _ErrorView extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: SnTokens.space4),
-            FilledButton(onPressed: onRetry, child: Text(l10n.scanRetry)),
-            const SizedBox(height: SnTokens.space2),
+            if (onRetry != null) ...[
+              FilledButton(onPressed: onRetry, child: Text(l10n.scanRetry)),
+              const SizedBox(height: SnTokens.space2),
+            ],
             TextButton(
               onPressed: () => context.pushReplacement('/scan'),
               child: Text(l10n.resultScanAnother),
@@ -149,6 +164,8 @@ class _ResultView extends StatelessWidget {
 class _GradeChip extends StatelessWidget {
   const _GradeChip({required this.grade});
 
+  static const gradeTileKey = Key('nutriscore-grade-tile');
+
   final String? grade;
 
   @override
@@ -162,27 +179,41 @@ class _GradeChip extends StatelessWidget {
         style: theme.textTheme.bodyMedium,
       );
     }
-    final (background, foreground) = switch (grade) {
-      'A' => (SnTokens.gradeA, SnTokens.surfaceDefault),
-      'B' => (SnTokens.gradeB, SnTokens.textPrimary),
-      'C' => (SnTokens.gradeC, SnTokens.textPrimary),
-      'D' => (SnTokens.gradeD, SnTokens.textPrimary),
-      _ => (SnTokens.gradeE, SnTokens.surfaceDefault),
+    final background = switch (grade) {
+      'A' => SnTokens.gradeA,
+      'B' => SnTokens.gradeB,
+      'C' => SnTokens.gradeC,
+      'D' => SnTokens.gradeD,
+      _ => SnTokens.gradeE,
     };
+    // Whichever of the two text tokens contrasts more with the tile.
+    final foreground =
+        _contrast(background, SnTokens.textPrimary) >=
+            _contrast(background, SnTokens.surfaceDefault)
+        ? SnTokens.textPrimary
+        : SnTokens.surfaceDefault;
     return Row(
       children: [
+        // A square letter tile, deliberately unlike the pill status badge.
         Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: SnTokens.space3,
-            vertical: SnTokens.space1,
-          ),
+          key: gradeTileKey,
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: background,
-            borderRadius: BorderRadius.circular(SnTokens.radiusLg),
+            borderRadius: BorderRadius.circular(SnTokens.radiusSm),
           ),
-          child: Text(
-            l10n.resultGrade(grade),
-            style: theme.textTheme.labelLarge?.copyWith(color: foreground),
+          child: Semantics(
+            label: l10n.resultGrade(grade),
+            excludeSemantics: true,
+            child: Text(
+              grade,
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: foreground,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ),
         const SizedBox(width: SnTokens.space2),
@@ -194,5 +225,11 @@ class _GradeChip extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  static double _contrast(Color a, Color b) {
+    final la = a.computeLuminance() + 0.05;
+    final lb = b.computeLuminance() + 0.05;
+    return la > lb ? la / lb : lb / la;
   }
 }
