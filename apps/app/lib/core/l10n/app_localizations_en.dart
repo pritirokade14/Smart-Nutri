@@ -309,6 +309,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Not enough label data to calculate a Nutri-Score.';
 
   @override
+  String get productMetaDescription =>
+      'Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice.';
+
+  @override
+  String productMetaTitle(String name) {
+    return '$name – nutrition facts | SmartNutri';
+  }
+
+  @override
+  String get productPublicCta => 'Check it for your family';
+
+  @override
   String reasonAddedSugars(String ingredients) {
     return 'Contains added sugars: $ingredients.';
   }

@@ -312,6 +312,18 @@ class AppLocalizationsMr extends AppLocalizations {
       'Nutri-Score काढण्यासाठी लेबलवर पुरेशी माहिती नाही.';
 
   @override
+  String get productMetaDescription =>
+      'या पॅकेटबंद अन्नपदार्थाची पोषण माहिती, SmartNutri ने मोजलेला Nutri-Score आणि घटक. माहिती, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String productMetaTitle(String name) {
+    return '$name – पोषण माहिती | SmartNutri';
+  }
+
+  @override
+  String get productPublicCta => 'तुमच्या कुटुंबासाठी तपासा';
+
+  @override
   String reasonAddedSugars(String ingredients) {
     return 'यात वरून घातलेली साखर आहे: $ingredients.';
   }

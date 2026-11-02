@@ -658,6 +658,24 @@ abstract class AppLocalizations {
   /// **'Not enough label data to calculate a Nutri-Score.'**
   String get nutriscoreInsufficientData;
 
+  /// No description provided for @productMetaDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice.'**
+  String get productMetaDescription;
+
+  /// No description provided for @productMetaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} – nutrition facts | SmartNutri'**
+  String productMetaTitle(String name);
+
+  /// No description provided for @productPublicCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Check it for your family'**
+  String get productPublicCta;
+
   /// No description provided for @reasonAddedSugars.
   ///
   /// In en, this message translates to:
