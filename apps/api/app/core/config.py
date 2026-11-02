@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     )
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
     off_user_agent: str = "SmartNutri/0.1"
+    off_base_url: str = "https://world.openfoodfacts.org"
+    off_cache_ttl_hours: int = 168
     rate_limit_label_scans_per_day: int = 30
     rate_limit_voice_per_day: int = 20
     rate_limit_analyze_per_hour: int = 120

@@ -1,0 +1,18 @@
+{
+  "code": "8901063201089",
+  "status": "success",
+  "errors": [],
+  "product": {
+    "code": "8901063201089",
+    "product_name": "Marie Gold Biscuits",
+    "brands": "Britannia",
+    "image_front_url": "https://images.openfoodfacts.org/images/products/890/106/320/1089/front_en.3.400.jpg",
+    "categories_tags": ["en:snacks", "en:biscuits"],
+    "nutriments": {"energy-kcal_100g": 440, "sugars_100g": 22.0, "proteins_100g": 8.0},
+    "serving_quantity": 25,
+    "ingredients_text": "Refined wheat flour, sugar, edible vegetable oil, salt",
+    "allergens_tags": ["en:gluten"],
+    "traces_tags": [],
+    "labels_tags": []
+  }
+}
