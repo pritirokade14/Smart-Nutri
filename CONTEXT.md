@@ -102,9 +102,13 @@ See [AGENTS.md](AGENTS.md). In short:
 - **Plan 1 (rules engine): complete.** Every ruling is listed in `docs/superpowers/plans/2026-11-02-plan-1-rulings.md`. Follow-up rulings R12/R13/R25 (Plan 2 ledger) add a blood-sugar heart-health caution, an `age_unknown` guard for members without a birth year, and `unknown` when saturated fat or salt is missing for blood-sugar members.
 - **Plan 2 (foundation), in progress:** config/logging/errors, health check, Supabase JWT verification, database baseline with RLS (ADR 0013: clients never write through the Supabase Data API), `/v1/me`, rate limits, shared i18n (en/hi/mr) with an engine-param contract test, design tokens, shared test fixtures, Next.js web shell. Live check against the dev database passed (`/v1/health` 200).
 
+- **Plan 2 (foundation): code complete.** Generated Dart/TS clients, Flutter and web login, CSP/HSTS, Sentry/PostHog with health-data scrubbing, Docker images, CI, and the GitHub Actions dev-deploy workflow (keyless WIF, ADR 0015). What's left is the user's one-time deploy setup in `docs/SETUP_ACCOUNTS.md`.
+- **Plan 3 (M1: barcode → verdict): code complete on API, Android and web.** Barcode lookup (own products → Open Food Facts cache → OFF), safety-reviewed OFF mapping, `POST /v1/analyze`, a public product page, and scan/result screens on both clients. The clients render identical reason text in en/hi/mr, asserted by a shared fixture.
+
 **Next:**
-- Plan 2: generated API clients (T7), Flutter shell and login (T11–T12), web login and security headers (T14), Sentry/PostHog (T15), Docker/CI/pre-commit (T16), first dev deploy to Cloud Run (T17, needs `push-secrets.sh`).
-- Then M1 (barcode → verdict on phone + browser).
+- User: the one-time deploy setup (protect `main`, `push-secrets.sh`, `setup-github-deploy.sh`, the repo variable, `db-migrate`), then push and open the PR to `main`.
+- After the first dev deploy: a manual login check (Google and email OTP) on web and Android, and the M1 real-pack parity check on a phone and in a browser.
+- Then Plan 4 (M2: label scan for products not found by barcode).
 
 ## 9. Open items that only the user can do
 

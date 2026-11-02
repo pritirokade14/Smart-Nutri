@@ -17,7 +17,7 @@ Status values: ⬜ not started · 🟡 in progress · ✅ done.
 |---|---|---|---|---|---|---|
 | F1 | Accounts: Google, email OTP; phone OTP behind a flag | Plan 2 / M1 | 🟡 | 🟡 | 🟡 | `@supabase/ssr` cookie session, `/auth/callback` route for OAuth and magic link, Secure + SameSite=Lax cookies, JS-readable by design with strict CSP and HSTS (ADR 0014) |
 | F2 | Family members | M3 | ⬜ | ⬜ | ⬜ | react-hook-form + zod forms; same validation messages from i18n |
-| F3 | Scan by barcode | M1 | ⬜ | ⬜ | ⬜ | `BarcodeDetector` where supported, else `@zxing/browser` on the camera stream. Manual entry is always available. Desktop uses the webcam or manual entry. |
+| F3 | Scan by barcode | M1 | 🟡 | 🟡 | 🟡 | `BarcodeDetector` where supported, else `@zxing/browser` on the camera stream. Manual entry is always available. Desktop uses the webcam or manual entry. | **Status (M1):** built and tested on API, Android and web (shared golden fixtures + identical reason text in en/hi/mr); ✅ after the manual real-pack check on a phone and in a browser.
 | F4 | Scan by label photo plus confirm | M2 | ⬜ | ⬜ | ⬜ | `<input type="file" accept="image/*" capture="environment">`. Desktop: file upload or drag and drop. The confirm form is identical. |
 | F5 | Rules engine | Plan 1 | ⬜ | n/a (server) | n/a (server) | The clients only render reason codes |
 | F6 | Verdict per member | M3 | ⬜ | ⬜ | ⬜ | Rendered from shared tokens; fixtures check each member's colour and reason |
@@ -25,9 +25,9 @@ Status values: ⬜ not started · 🟡 in progress · ✅ done.
 | F8 | Scan-to-log plus daily and weekly totals | M4 | ⬜ | ⬜ | ⬜ | Android keeps an offline log (drift) and syncs it. Web is online-only in v1 and says so. |
 | F9 | Alternatives, search, compare | M4 | ⬜ | ⬜ | ⬜ | Compare is a two-column table on desktop and stacked on mobile web |
 | F10 | Voice Q&A | M5 | ⬜ | ⬜ | ⬜ | `MediaRecorder` (webm/opus) upload; the API converts it if needed. Answer audio plays in an `<audio>` element. Needs HTTPS and mic permission. |
-| F11 | Trust and compliance (disclaimer, consent, deletion, attribution) | M6 (consent from M1) | ⬜ | ⬜ | ⬜ | Cookie notice (essential cookies only), OFF attribution in the footer on product pages |
+| F11 | Trust and compliance (disclaimer, consent, deletion, attribution) | M6 (consent from M1) | 🟡 | 🟡 | 🟡 | Cookie notice (essential cookies only), OFF attribution in the footer on product pages | **Status (M1):** OFF attribution and the disclaimer on every result and public product page; consent/deletion in later milestones.
 | F12 | "How we score" page | M5 | ⬜ | ⬜ | ⬜ | **Public, statically rendered/ISR** at `/[locale]/how-we-score` for Google; in-app link on Android |
-| F13 | Result at a glance (colour, grade, one-line reason) | M1 (basic) → M3 | ⬜ | ⬜ | ⬜ | Same component contract on both clients; colour from tokens |
+| F13 | Result at a glance (colour, grade, one-line reason) | M1 (basic) → M3 | 🟡 | 🟡 | 🟡 | Same component contract on both clients; colour from tokens | **Status (M1, basic):** verdict colour from tokens (unknown never green), grade letter tile, allergen/avoid/unknown reasons always visible, profile-not-set-up note.
 | F14 | Report a problem | M5 | ⬜ | ⬜ | ⬜ | Dialog with the four reasons plus a note |
 | F15 | Product not found leads to a label-photo result | M2 | ⬜ | ⬜ | ⬜ | The web flow switches to the upload step automatically |
 | F16 | Custom ingredient alerts | M3 | ⬜ | ⬜ | ⬜ | Toggles in the member form |
