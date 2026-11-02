@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/analysis/presentation/result_screen.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/presentation/email_otp_screen.dart';
 import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
-import '../../features/result/presentation/result_placeholder_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
 import '../config/app_config.dart';
 
@@ -55,9 +55,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
       GoRoute(
         path: '/result',
-        builder: (_, state) => ResultPlaceholderScreen(
-          barcode: state.uri.queryParameters['barcode'] ?? '',
-        ),
+        builder: (_, state) =>
+            ResultScreen(barcode: state.uri.queryParameters['barcode'] ?? ''),
       ),
     ],
   );

@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smartnutri_ai/core/l10n/app_localizations.dart';
-import 'package:smartnutri_ai/features/result/presentation/result_placeholder_screen.dart';
+import 'package:smartnutri_ai/features/analysis/data/analysis_repository.dart';
+import 'package:smartnutri_ai/features/analysis/presentation/result_screen.dart';
 import 'package:smartnutri_ai/features/scan/data/barcode_source.dart';
 import 'package:smartnutri_ai/features/scan/presentation/manual_barcode_field.dart';
 import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
+import 'package:smartnutri_api/src/export.dart';
 
 class FakeBarcodeSource implements BarcodeSource {
   FakeBarcodeSource([this.status = BarcodeSourceStatus.ready]);
@@ -29,6 +31,13 @@ class FakeBarcodeSource implements BarcodeSource {
   Future<void> dispose() async => disposed = true;
 }
 
+/// Never answers, so the result screen stays in its loading state.
+class _PendingRepo implements AnalysisRepository {
+  @override
+  Future<AnalyzeOut> analyzeBarcode(String barcode, {String language = 'en'}) =>
+      Completer<AnalyzeOut>().future;
+}
+
 Widget _app(FakeBarcodeSource src, List<String> visited) {
   final router = GoRouter(
     initialLocation: '/scan',
@@ -38,15 +47,16 @@ Widget _app(FakeBarcodeSource src, List<String> visited) {
         path: '/result',
         builder: (_, s) {
           visited.add(s.uri.queryParameters['barcode']!);
-          return ResultPlaceholderScreen(
-            barcode: s.uri.queryParameters['barcode']!,
-          );
+          return ResultScreen(barcode: s.uri.queryParameters['barcode']!);
         },
       ),
     ],
   );
   return ProviderScope(
-    overrides: [barcodeSourceFactoryProvider.overrideWithValue(() => src)],
+    overrides: [
+      barcodeSourceFactoryProvider.overrideWithValue(() => src),
+      analysisRepositoryProvider.overrideWithValue(_PendingRepo()),
+    ],
     child: MaterialApp.router(
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -73,9 +83,13 @@ void main() {
 
     src.emit('8901 0632 0108 9');
     src.emit('012345678905');
-    await tester.pumpAndSettle();
+    // The result screen keeps a spinner running, so pump a fixed time instead
+    // of settling.
+    for (var i = 0; i < 3; i++) {
+      await tester.pump(const Duration(milliseconds: 500));
+    }
     expect(visited, ['8901063201089']);
-    expect(find.byType(ResultPlaceholderScreen), findsOneWidget);
+    expect(find.byType(ResultScreen), findsOneWidget);
   });
 
   testWidgets('permission denied shows message and manual field', (
@@ -107,7 +121,8 @@ void main() {
     final l10n = AppLocalizations.of(tester.element(find.byType(ScanScreen)));
     await tester.enterText(find.byType(TextField), '8901-0632-0108-9');
     await tester.tap(find.text(l10n.scanSubmit));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
     expect(visited, ['8901063201089']);
   });
 
