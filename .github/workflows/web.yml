@@ -15,7 +15,9 @@ env:
   # Dummy PUBLIC values: NEXT_PUBLIC_* are shipped to browsers, never put real secrets here.
   NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: dummy-publishable-key
-  NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+  # Must match the e2e stub API (apps/web/e2e/stub-api.mjs): NEXT_PUBLIC_* values are inlined at build time.
+  STUB_API_PORT: "18000"
+  NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:18000
   NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
 jobs:
