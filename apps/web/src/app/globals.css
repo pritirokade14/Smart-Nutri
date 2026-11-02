@@ -5,3 +5,26 @@ body {
   background: var(--color-surface-default);
   color: var(--color-text-primary);
 }
+
+/* Verdict colour comes only from the API status on data-status. Anything
+   unexpected stays the neutral "unknown" grey, never green. */
+.verdict-card {
+  --verdict-color: var(--color-verdict-unknown);
+  border-inline-start: 6px solid var(--verdict-color);
+}
+.verdict-card[data-status="ok"] {
+  --verdict-color: var(--color-verdict-ok);
+}
+.verdict-card[data-status="caution"] {
+  --verdict-color: var(--color-verdict-caution);
+}
+.verdict-card[data-status="unknown"] {
+  --verdict-color: var(--color-verdict-unknown);
+}
+.verdict-card[data-status="avoid"] {
+  --verdict-color: var(--color-verdict-avoid);
+}
+.verdict-badge {
+  background: var(--verdict-color);
+  color: var(--color-surface-default);
+}

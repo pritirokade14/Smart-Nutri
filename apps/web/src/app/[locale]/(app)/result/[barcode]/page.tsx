@@ -1,6 +1,11 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, setRequestLocale } from "next-intl/server";
+import { ResultView } from "@/features/analysis/components/ResultView";
+import { resultMessages } from "@/i18n/client-messages";
 
-// Placeholder: Plan 3 Task 8 replaces this with the verdict page.
+// Logged-in result page (the proxy and the (app) layout require a session).
+// The root layout strips the verdict namespaces from the client catalogue, so
+// the client result view gets its own provider with exactly those added back.
 export default async function ResultPage({
   params,
 }: {
@@ -8,11 +13,10 @@ export default async function ResultPage({
 }) {
   const { locale, barcode } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations();
+  const messages = resultMessages(await getMessages({ locale }));
   return (
-    <main className="mx-auto max-w-xl p-(--spacing-4)">
-      <h1 className="text-(length:--text-xl)">{barcode}</h1>
-      <p className="text-(length:--text-sm)">{t("common.disclaimer")}</p>
-    </main>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <ResultView barcode={barcode} />
+    </NextIntlClientProvider>
   );
 }
