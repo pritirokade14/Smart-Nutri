@@ -61,10 +61,16 @@ def test_caffeine_no_overmatch(text, no_ingredients, cfg):
 
 
 @pytest.mark.parametrize(
-    "term", ["शहद", "साखर", "apple juice concentrate", "गूळ", "coconut sugar", "agave", "fruit juice"]
+    "term",
+    ["शहद", "साखर", "apple juice concentrate", "fruit juice concentrate", "गूळ", "coconut sugar", "agave"],
 )
 def test_added_sugar_new_terms(term, no_ingredients, cfg):
     assert added_sugar_terms(_with(no_ingredients, "water", term), cfg)
+
+
+def test_plain_juice_is_not_added_sugar_but_concentrate_is(no_ingredients, cfg):
+    assert added_sugar_terms(_with(no_ingredients, "apple juice"), cfg) == ()
+    assert added_sugar_terms(_with(no_ingredients, "apple juice concentrate"), cfg)
 
 
 @pytest.mark.parametrize("term", ["sodium chloride", "मीठ", "namak", "lavan", "सैंधव"])
