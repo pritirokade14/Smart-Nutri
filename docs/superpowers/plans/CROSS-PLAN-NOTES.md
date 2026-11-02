@@ -32,3 +32,6 @@ The engine emits `nutrient_missing` once per (nutrient, rule). A member with dia
 
 ## 14. Android release readiness (Plan 8 / M6, before any Play upload)
 From the Plan 2 Task 11 review: the release build is still signed with the debug key (Flutter template). Add a signing config from `android/key.properties` (git-ignored, upload keystore), enable R8 minify/shrink with keep rules for Supabase/Sentry/retrofit, declare `<uses-feature android:name="android.hardware.camera" android:required="false"/>` (and microphone) so devices without them still see the app, and remove the template TODOs. Check Hindi/Marathi (Devanagari) rendering with the theme's text styles in Plan 3 UI work.
+
+## 15. Production database role (Plan 8 / M6)
+The API connects to dev as `postgres` (owner, BYPASSRLS). Before prod, create a dedicated role with BYPASSRLS and DML-only grants on app tables (no DDL, not owner), used by the API; migrations keep using the owner role. ADR 0013 follow-up.
