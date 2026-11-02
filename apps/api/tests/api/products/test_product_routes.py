@@ -150,3 +150,24 @@ async def test_public_rate_limited(db_session, fake_off):
         r = await c.get(PUBLIC_URL)
     assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
     assert "cache-control" not in r.headers
+
+
+async def test_off_client_dependency_works_without_lifespan():
+    """ASGITransport does not run lifespan; get_off_client must still resolve (no 500)."""
+    import httpx as _httpx
+
+    from app.core.config import Settings
+    from app.integrations.openfoodfacts import get_off_client
+    from app.main import create_app
+
+    app = create_app(Settings(_env_file=None, environment="test"))
+    assert isinstance(app.state.off_http, _httpx.AsyncClient)
+
+    class _Req:
+        pass
+
+    req = _Req()
+    req.app = app
+    client = get_off_client(req)
+    assert client is not None
+    await app.state.off_http.aclose()

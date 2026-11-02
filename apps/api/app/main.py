@@ -35,7 +35,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        app.state.off_http = httpx.AsyncClient()  # shared by get_off_client
+        # app.state.off_http is created eagerly below (works without lifespan, e.g. ASGITransport);
+        # the lifespan only closes it.
         try:
             yield
         finally:
@@ -51,6 +52,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.engine = engine
+    app.state.off_http = httpx.AsyncClient()  # shared by get_off_client; closed in lifespan
     app.state.sessionmaker = build_sessionmaker(engine)
     app.state.jwks_cache = JwksCache(settings.supabase_jwks_url)
     app.add_middleware(CatchAllMiddleware)  # innermost
