@@ -4,8 +4,8 @@ on:
   push:
     branches: [main, v1-rebuild]
     paths: ["apps/web/**", "packages/**", "pnpm-lock.yaml", "package.json", ".github/workflows/web.yml"]
-  pull_request:
-    paths: ["apps/web/**", "packages/**", "pnpm-lock.yaml", "package.json", ".github/workflows/web.yml"]
+  pull_request:  # no paths filter: these checks are required on PRs to main (R35)
+    branches: [main]
   workflow_call:  # reused as the test gate of deploy-dev.yml
 
 permissions:

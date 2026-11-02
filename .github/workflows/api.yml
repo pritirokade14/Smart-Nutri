@@ -4,8 +4,8 @@ on:
   push:
     branches: [main, v1-rebuild]
     paths: ["apps/api/**", "packages/api-contract/**", "packages/test-fixtures/**", "justfile", ".github/workflows/api.yml"]
-  pull_request:
-    paths: ["apps/api/**", "packages/api-contract/**", "packages/test-fixtures/**", "justfile", ".github/workflows/api.yml"]
+  pull_request:  # no paths filter: these checks are required on PRs to main (R35)
+    branches: [main]
   workflow_call:  # reused as the test gate of deploy-dev.yml
 
 permissions:

@@ -4,8 +4,8 @@ on:
   push:
     branches: [main, v1-rebuild]
     paths: ["apps/app/**", "packages/api-contract/dart/**", "packages/i18n/**", "packages/design-tokens/**", "packages/test-fixtures/**", ".github/workflows/app.yml"]
-  pull_request:
-    paths: ["apps/app/**", "packages/api-contract/dart/**", "packages/i18n/**", "packages/design-tokens/**", "packages/test-fixtures/**", ".github/workflows/app.yml"]
+  pull_request:  # no paths filter: these checks are required on PRs to main (R35)
+    branches: [main]
 
 permissions:
   contents: read
