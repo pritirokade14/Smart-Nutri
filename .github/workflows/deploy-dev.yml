@@ -104,6 +104,13 @@ jobs:
           grep -q '"status":[[:space:]]*"ok"' health.json
           gcloud run services update-traffic smartnutri-api-dev \
             --project "$GCP_PROJECT" --region "$REGION" --to-latest
+      - name: Remove the per-deploy tag URL (also after a failed smoke test)
+        if: always()
+        run: |
+          # A leftover c<sha> tag would keep an old or broken revision publicly reachable.
+          gcloud run services update-traffic smartnutri-api-dev \
+            --project "$GCP_PROJECT" --region "$REGION" \
+            --remove-tags "c${GITHUB_SHA::7}" || echo "no tag to remove"
 
   deploy-web:
     # After the API so the first web build points at a live API.
@@ -165,3 +172,10 @@ jobs:
           grep -qi '^content-security-policy:' headers.txt
           gcloud run services update-traffic smartnutri-web-dev \
             --project "$GCP_PROJECT" --region "$REGION" --to-latest
+      - name: Remove the per-deploy tag URL (also after a failed smoke test)
+        if: always()
+        run: |
+          # A leftover c<sha> tag would keep an old or broken revision publicly reachable.
+          gcloud run services update-traffic smartnutri-web-dev \
+            --project "$GCP_PROJECT" --region "$REGION" \
+            --remove-tags "c${GITHUB_SHA::7}" || echo "no tag to remove"
