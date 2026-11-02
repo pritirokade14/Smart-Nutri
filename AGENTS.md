@@ -48,7 +48,7 @@ Each app and package has its own `AGENTS.md` or `README.md` with stack-specific 
 5. **Secrets stay server-side.**
    - CallMissed (`cm_...`), the Supabase service-role key and other keys live only in `apps/api` env or Secret Manager.
    - The Android app gets only public config via `--dart-define`.
-   - The web app exposes only `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_POSTHOG_KEY`, plus the non-secret `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_FEATURE_PHONE_OTP` flag. Nothing secret is ever named `NEXT_PUBLIC_*`.
+   - The web app exposes only `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_POSTHOG_KEY`, plus the non-secret `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_FEATURE_PHONE_OTP` flag. Nothing secret is ever named `NEXT_PUBLIC_*`.
 6. **Health data residency.**
    - LLM calls that include member health data use an India-processed model with `provider.data_residency = "in"`.
    - Strip names and IDs from prompts. No health data in analytics events.
