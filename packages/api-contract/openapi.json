@@ -1,6 +1,114 @@
 {
   "components": {
     "schemas": {
+      "AnalyzeOut": {
+        "properties": {
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductOut"
+          },
+          "report": {
+            "additionalProperties": true,
+            "title": "Report",
+            "type": "object"
+          },
+          "scan_id": {
+            "format": "uuid",
+            "title": "Scan Id",
+            "type": "string"
+          },
+          "tips": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Tips",
+            "type": "array"
+          },
+          "verdicts": {
+            "items": {
+              "$ref": "#/components/schemas/VerdictOut"
+            },
+            "title": "Verdicts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scan_id",
+          "product",
+          "report",
+          "verdicts"
+        ],
+        "title": "AnalyzeOut",
+        "type": "object"
+      },
+      "AnalyzeRequest": {
+        "description": "Exactly one product reference: our own ``product_id``, or a ``barcode`` (OFF products\nhave no product_id). With no ``member_ids`` the account's primary member is used.",
+        "properties": {
+          "barcode": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "language": {
+            "default": "en",
+            "enum": [
+              "en",
+              "hi",
+              "mr"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "member_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "maxItems": 10,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Ids"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          }
+        },
+        "title": "AnalyzeRequest",
+        "type": "object"
+      },
       "ErrorBody": {
         "description": "A stable `code`; clients localise `message_key` (always `error.<code>`).",
         "properties": {
@@ -388,6 +496,74 @@
         ],
         "title": "PublicProductOut",
         "type": "object"
+      },
+      "ReasonOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "params": {
+            "additionalProperties": true,
+            "title": "Params",
+            "type": "object"
+          },
+          "severity": {
+            "enum": [
+              "ok",
+              "caution",
+              "unknown",
+              "avoid"
+            ],
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "params"
+        ],
+        "title": "ReasonOut",
+        "type": "object"
+      },
+      "VerdictOut": {
+        "properties": {
+          "member_id": {
+            "format": "uuid",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "member_name": {
+            "title": "Member Name",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonOut"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "caution",
+              "unknown",
+              "avoid"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "member_id",
+          "member_name",
+          "status",
+          "reasons"
+        ],
+        "title": "VerdictOut",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -403,6 +579,102 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/v1/analyze": {
+      "post": {
+        "operationId": "analyze_create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Analyze Create",
+        "tags": [
+          "analyze"
+        ]
+      }
+    },
     "/v1/health": {
       "get": {
         "operationId": "health_get",

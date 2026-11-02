@@ -22,6 +22,7 @@ from app.features.products.off_mapping import (
     off_to_product,
     split_ingredients,
 )
+from app.features.products.schemas import NutrientsOut, ProductOut, PublicProductOut
 from app.integrations.openfoodfacts import OffClient, OffUnavailable, normalize_barcode
 
 OFF_ATTRIBUTION = "attribution.off"
@@ -92,6 +93,62 @@ def record_to_info(record: Product) -> ProductInfo:
     )
 
 
+def lookup_from_record(record: Product) -> ProductLookup:
+    """A ProductLookup for one of our own products (no DB access)."""
+    return ProductLookup(
+        source="smartnutri",
+        product_id=record.id,
+        info=record_to_info(record),
+        product=record_to_product(record),
+        attribution=None,
+    )
+
+
+async def lookup_by_id(session: AsyncSession, product_id: UUID) -> ProductLookup | None:
+    """Own catalogue product by id; rejected products count as missing (as in barcode lookup)."""
+    record = await session.scalar(
+        select(Product).where(Product.id == product_id, Product.verification_status != "rejected")
+    )
+    return None if record is None else lookup_from_record(record)
+
+
+def to_product_out(found: ProductLookup) -> ProductOut:
+    p = found.product
+    n = p.per_100g
+    return ProductOut(
+        source=found.source,
+        product_id=found.product_id,
+        barcode=found.info.barcode or None,
+        name=found.info.name,
+        brand=found.info.brand,
+        image_url=found.info.image_url,
+        category=p.category.value,
+        per_100g=NutrientsOut(
+            energy_kcal=n.energy_kcal,
+            protein_g=n.protein_g,
+            carbs_g=n.carbs_g,
+            sugars_g=n.sugars_g,
+            fat_g=n.fat_g,
+            sat_fat_g=n.sat_fat_g,
+            fiber_g=n.fiber_g,
+            salt_g=n.salt_g,
+            sodium_mg=n.sodium_mg,
+        ),
+        serving_size_g=p.serving_size_g,
+        ingredients=list(p.ingredients),
+        claims=list(p.claims),
+        attribution=found.attribution,
+    )
+
+
+def to_public_out(found: ProductLookup) -> PublicProductOut:
+    """Generic product facts only: the report comes from analyze(product, []), no members."""
+    report = scoring.analyze(found.product, []).to_dict()["report"]
+    return PublicProductOut(
+        product=to_product_out(found), report=report, score_label="calculated_by_smartnutri"
+    )
+
+
 def _from_off(payload: dict, barcode: str, settings: Settings) -> ProductLookup:
     info = off_to_info(payload)
     if not info.barcode:
@@ -125,13 +182,7 @@ async def lookup_by_barcode(
         select(Product).where(Product.barcode == barcode, Product.verification_status != "rejected")
     )
     if own is not None:
-        return ProductLookup(
-            source="smartnutri",
-            product_id=own.id,
-            info=record_to_info(own),
-            product=record_to_product(own),
-            attribution=None,
-        )
+        return lookup_from_record(own)
 
     ttl = timedelta(hours=settings.off_cache_ttl_hours)
     cached = await session.scalar(

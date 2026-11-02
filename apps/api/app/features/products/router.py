@@ -9,14 +9,13 @@ from app.core.ratelimit import limit
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.products import service
-from app.features.products.schemas import NutrientsOut, ProductOut, PublicProductOut
+from app.features.products.schemas import ProductOut, PublicProductOut
 from app.integrations.openfoodfacts import (
     InvalidBarcode,
     OffClient,
     OffUnavailable,
     get_off_client,
 )
-from app.scoring import analyze
 
 router = APIRouter(prefix="/v1/products", tags=["products"])
 
@@ -24,35 +23,6 @@ _RESPONSES = {
     **ERROR_RESPONSES,
     503: {"model": ErrorEnvelope, "description": "Open Food Facts unavailable"},
 }
-
-
-def _to_out(found: service.ProductLookup) -> ProductOut:
-    p = found.product
-    n = p.per_100g
-    return ProductOut(
-        source=found.source,
-        product_id=found.product_id,
-        barcode=found.info.barcode or None,
-        name=found.info.name,
-        brand=found.info.brand,
-        image_url=found.info.image_url,
-        category=p.category.value,
-        per_100g=NutrientsOut(
-            energy_kcal=n.energy_kcal,
-            protein_g=n.protein_g,
-            carbs_g=n.carbs_g,
-            sugars_g=n.sugars_g,
-            fat_g=n.fat_g,
-            sat_fat_g=n.sat_fat_g,
-            fiber_g=n.fiber_g,
-            salt_g=n.salt_g,
-            sodium_mg=n.sodium_mg,
-        ),
-        serving_size_g=p.serving_size_g,
-        ingredients=list(p.ingredients),
-        claims=list(p.claims),
-        attribution=found.attribution,
-    )
 
 
 async def _find(
@@ -84,7 +54,7 @@ async def products_get_by_barcode(
     off: Annotated[OffClient, Depends(get_off_client)],
     settings: Annotated[Settings, Depends(get_app_settings)],
 ) -> ProductOut:
-    return _to_out(await _find(session, off, code, settings))
+    return service.to_product_out(await _find(session, off, code, settings))
 
 
 @router.get(
@@ -103,8 +73,5 @@ async def products_get_public(
     language: Annotated[Literal["en", "hi", "mr"], Query()] = "en",  # reserved; unused in M1
 ) -> PublicProductOut:
     found = await _find(session, off, barcode, settings)
-    report = analyze(found.product, []).to_dict()["report"]
     response.headers["Cache-Control"] = "public, max-age=3600"
-    return PublicProductOut(
-        product=_to_out(found), report=report, score_label="calculated_by_smartnutri"
-    )
+    return service.to_public_out(found)

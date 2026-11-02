@@ -8,6 +8,7 @@ Shared, realistic test cases: Indian products and family members, with the **ver
 members/<id>.json                 # e.g. diabetic_adult, milk_allergic_child, jain_adult, bp_parent, infant
 products/<name>.json              # per_100g nutrition, serving_size_g, ingredients, claims, "source"
 expected/<name>.<member>.json     # { "status": "avoid", "reasons": [{"code": "...", "severity": "avoid"}, ...] } (engine order)
+responses/                        # generated golden API responses (see "Golden API responses")
 ```
 
 Each expected file is `{"status": "ok|caution|unknown|avoid", "reasons": [{"code": "<reason code>", "severity": "<status>"}]}`. `reasons` keeps the engine's order; Android (Dart) and web (TypeScript) tests compare status, then codes and severities in that order.
@@ -20,6 +21,28 @@ uv run python scripts/generate_fixture_expectations.py --write  # writes/removes
 ```
 
 Changing any expectation needs the `nutrition-safety-reviewer`. The product and member loaders are strict: unknown JSON keys are rejected, and `category` (products) and `diet` (members) are required.
+
+## Golden API responses (`responses/`)
+
+Real API response bodies built from these fixtures, for the Android and web tests. They are **generated**, never edited by hand:
+
+```
+cd apps/api && uv run python scripts/export_fixture_responses.py
+```
+
+`tests/api/analyze/test_shared_fixtures.py` fails when they are stale, and also checks that every verdict in them equals `expected/`.
+
+```
+responses/index.json               # fixture name -> fixed UUID, plus the reference date
+responses/analyze/<product>.json   # POST /v1/analyze body (AnalyzeOut) for the product and ALL members
+responses/public/<product>.json    # GET /v1/products/{barcode}/public body (PublicProductOut)
+```
+
+- **`index.json`:** `{"reference_date": "2026-01-01", "account_id": "<uuid>", "products": {"<product>": "<uuid>"}, "members": {"<member>": "<uuid>"}, "scans": {"<product>": "<uuid>"}}`. UUIDs are `uuid5(NAMESPACE_URL, "https://smartnutri.app/test-fixtures/<kind>/<name>")`.
+- **`analyze/<product>.json`:** `{scan_id, product, report, verdicts, explanation: null, tips: []}`. `verdicts` holds one entry per member, sorted by member file name (`bp_parent`, `diabetic_adult`, ...): `{member_id, member_name, status, reasons: [{code, severity, params}]}`. To find the verdict for `<product>.<member>`, look up `index.json` `members[<member>]` and match `member_id`; it agrees with `expected/<product>.<member>.json` (status, then codes and severities in order).
+- **`public/<product>.json`:** `{product, report, score_label: "calculated_by_smartnutri"}`. No member data.
+- Fixture products are served as our own verified catalogue products (`product.source = "smartnutri"`, `attribution = null`, `barcode = null`). Ages are turned into birth years against the fixed `reference_date`, which is also the engine's "today", so the files never change on 1 January.
+- All files use sorted keys, 2-space indent and a trailing newline.
 
 The products mirror the Plan 1 engine fixtures (`sf_biscuit`, `namkeen`, `curd`, `oats`, `cola`, `water`, `no_ingredients`) plus real packs added over time.
 

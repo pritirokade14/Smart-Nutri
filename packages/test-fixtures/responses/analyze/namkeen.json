@@ -1,0 +1,211 @@
+{
+  "explanation": null,
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [],
+    "image_url": null,
+    "ingredients": [
+      "gram flour (besan)",
+      "edible vegetable oil",
+      "peanuts",
+      "salt",
+      "spices",
+      "onion powder",
+      "garlic powder"
+    ],
+    "name": "Namkeen",
+    "per_100g": {
+      "carbs_g": 40.0,
+      "energy_kcal": 550.0,
+      "fat_g": 35.0,
+      "fiber_g": 5.0,
+      "protein_g": 15.0,
+      "salt_g": 2.5,
+      "sat_fat_g": 10.0,
+      "sodium_mg": null,
+      "sugars_g": 3.0
+    },
+    "product_id": "ad4d8031-067b-5080-bc60-a298160154ae",
+    "serving_size_g": 30.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "peanut": "contains"
+    },
+    "claims": [],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [
+        "garlic powder",
+        "onion powder"
+      ],
+      "non_veg": [],
+      "veg": [],
+      "vegan": []
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [
+      "fat",
+      "sat_fat",
+      "salt"
+    ],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "E",
+      "partial": true,
+      "points": 25,
+      "reason": null
+    },
+    "sodium_additives": [],
+    "veg_mark_mismatch": false
+  },
+  "scan_id": "16495784-ba60-5e06-b164-a290f42554be",
+  "tips": [],
+  "verdicts": [
+    {
+      "member_id": "1e329317-586f-5b80-aaee-d07fd72fc6d6",
+      "member_name": "BP Parent",
+      "reasons": [
+        {
+          "code": "salt_high",
+          "params": {
+            "salt_g": 2.5
+          },
+          "severity": "avoid"
+        }
+      ],
+      "status": "avoid"
+    },
+    {
+      "member_id": "03205f4c-4228-5936-93f2-d182aeb2743b",
+      "member_name": "Diabetic Adult",
+      "reasons": [
+        {
+          "code": "cardio_risk_high_in",
+          "params": {
+            "high_in": [
+              "sat_fat",
+              "salt"
+            ]
+          },
+          "severity": "caution"
+        }
+      ],
+      "status": "caution"
+    },
+    {
+      "member_id": "1d7fee7b-8981-5115-941a-65bb357864d3",
+      "member_name": "Infant",
+      "reasons": [
+        {
+          "code": "infant_added_salt",
+          "params": {
+            "ingredients": [
+              "salt"
+            ]
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "infant_salt_high",
+          "params": {
+            "salt_g": 2.5
+          },
+          "severity": "avoid"
+        }
+      ],
+      "status": "avoid"
+    },
+    {
+      "member_id": "4aac1a45-e2cc-57f2-af48-8896e0b62866",
+      "member_name": "Jain Adult",
+      "reasons": [
+        {
+          "code": "diet_violation",
+          "params": {
+            "diet": "jain",
+            "ingredients": [
+              "garlic powder",
+              "onion powder"
+            ]
+          },
+          "severity": "avoid"
+        }
+      ],
+      "status": "avoid"
+    },
+    {
+      "member_id": "834da0b9-324c-51a2-b07a-719afc7d08f0",
+      "member_name": "Milk Allergic Child",
+      "reasons": [
+        {
+          "code": "child_salt_high",
+          "params": {
+            "salt_g": 2.5
+          },
+          "severity": "caution"
+        }
+      ],
+      "status": "caution"
+    },
+    {
+      "member_id": "d4a4c7e7-01cc-521a-a16d-3b3002846e7c",
+      "member_name": "No Age",
+      "reasons": [
+        {
+          "code": "age_unknown",
+          "params": {},
+          "severity": "unknown"
+        }
+      ],
+      "status": "unknown"
+    },
+    {
+      "member_id": "defbaa80-4fb3-5075-9f8a-befcf6f78518",
+      "member_name": "Peanut Allergic",
+      "reasons": [
+        {
+          "code": "allergen_contains",
+          "params": {
+            "allergen": "peanut"
+          },
+          "severity": "avoid"
+        }
+      ],
+      "status": "avoid"
+    },
+    {
+      "member_id": "4f12ed5d-c075-5b3f-8750-fd594b080946",
+      "member_name": "Vegan Adult",
+      "reasons": [],
+      "status": "ok"
+    },
+    {
+      "member_id": "e5e07704-c60d-5ba7-9330-5e575fb9ff36",
+      "member_name": "Weight Loss Adult",
+      "reasons": [
+        {
+          "code": "energy_dense",
+          "params": {
+            "energy_kcal": 550.0
+          },
+          "severity": "caution"
+        },
+        {
+          "code": "nutriscore_low",
+          "params": {
+            "grade": "E"
+          },
+          "severity": "caution"
+        }
+      ],
+      "status": "caution"
+    }
+  ]
+}

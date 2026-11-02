@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/v1/analyze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Analyze Create */
+        post: operations["analyze_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -76,6 +93,47 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AnalyzeOut */
+        AnalyzeOut: {
+            /** Explanation */
+            explanation?: string | null;
+            product: components["schemas"]["ProductOut"];
+            /** Report */
+            report: {
+                [key: string]: unknown;
+            };
+            /**
+             * Scan Id
+             * Format: uuid
+             */
+            scan_id: string;
+            /**
+             * Tips
+             * @default []
+             */
+            tips: string[];
+            /** Verdicts */
+            verdicts: components["schemas"]["VerdictOut"][];
+        };
+        /**
+         * AnalyzeRequest
+         * @description Exactly one product reference: our own ``product_id``, or a ``barcode`` (OFF products
+         *     have no product_id). With no ``member_ids`` the account's primary member is used.
+         */
+        AnalyzeRequest: {
+            /** Barcode */
+            barcode?: string | null;
+            /**
+             * Language
+             * @default en
+             * @enum {string}
+             */
+            language: "en" | "hi" | "mr";
+            /** Member Ids */
+            member_ids?: string[] | null;
+            /** Product Id */
+            product_id?: string | null;
+        };
         /**
          * ErrorBody
          * @description A stable `code`; clients localise `message_key` (always `error.<code>`).
@@ -199,6 +257,37 @@ export interface components {
              */
             score_label: "calculated_by_smartnutri";
         };
+        /** ReasonOut */
+        ReasonOut: {
+            /** Code */
+            code: string;
+            /** Params */
+            params: {
+                [key: string]: unknown;
+            };
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "ok" | "caution" | "unknown" | "avoid";
+        };
+        /** VerdictOut */
+        VerdictOut: {
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Member Name */
+            member_name: string;
+            /** Reasons */
+            reasons: components["schemas"]["ReasonOut"][];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "caution" | "unknown" | "avoid";
+        };
     };
     responses: never;
     parameters: never;
@@ -208,6 +297,84 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    analyze_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalyzeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalyzeOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     health_get: {
         parameters: {
             query?: never;

@@ -4,6 +4,7 @@
 
 import 'package:dio/dio.dart';
 
+import 'analyze/analyze_client.dart';
 import 'health/health_client.dart';
 import 'me/me_client.dart';
 import 'products/products_client.dart';
@@ -19,9 +20,13 @@ class SmartNutriApiClient {
 
   static String get version => '0.0.0';
 
+  AnalyzeClient? _analyze;
   HealthClient? _health;
   MeClient? _me;
   ProductsClient? _products;
+
+  AnalyzeClient get analyze =>
+      _analyze ??= AnalyzeClient(_dio, baseUrl: _baseUrl);
 
   HealthClient get health => _health ??= HealthClient(_dio, baseUrl: _baseUrl);
 

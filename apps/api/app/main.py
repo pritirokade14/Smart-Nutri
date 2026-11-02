@@ -12,11 +12,12 @@ from app.core.logging import configure_logging
 from app.core.observability import init_observability, shutdown_observability
 from app.core.security import JwksCache
 from app.db.session import build_engine, build_sessionmaker
+from app.features.analyze.router import router as analyze_router
 from app.features.health.router import router as health_router
 from app.features.me.router import router as me_router
 from app.features.products.router import router as products_router
 
-ROUTERS: list[APIRouter] = [health_router, me_router, products_router]
+ROUTERS: list[APIRouter] = [health_router, me_router, products_router, analyze_router]
 
 
 def _version() -> str:

@@ -1,0 +1,83 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [
+      "Sugar Free"
+    ],
+    "image_url": null,
+    "ingredients": [
+      "wheat flour (maida)",
+      "maltodextrin",
+      "edible vegetable oil (palm)",
+      "milk solids",
+      "raising agent (ins 500(ii))",
+      "salt",
+      "emulsifier (ins 322)"
+    ],
+    "name": "Sugar Free Biscuit",
+    "per_100g": {
+      "carbs_g": 72.0,
+      "energy_kcal": 450.0,
+      "fat_g": 15.0,
+      "fiber_g": 2.0,
+      "protein_g": 8.0,
+      "salt_g": 0.9,
+      "sat_fat_g": 7.0,
+      "sodium_mg": null,
+      "sugars_g": 2.0
+    },
+    "product_id": "bd9cf825-bcc0-53e2-bb3f-f934f94ceb6d",
+    "serving_size_g": 25.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "gluten": "contains",
+      "milk": "contains",
+      "soy": "may_contain"
+    },
+    "claims": [
+      {
+        "claim": "sugar_free",
+        "params": {
+          "limit": 0.5,
+          "value": 2.0
+        },
+        "reason_code": "exceeds_limit",
+        "verdict": "contradicted"
+      }
+    ],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": [
+        "milk solids"
+      ]
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [
+      "maltodextrin"
+    ],
+    "high_in": [
+      "sat_fat"
+    ],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "D",
+      "partial": true,
+      "points": 15,
+      "reason": null
+    },
+    "sodium_additives": [
+      "ins500"
+    ],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

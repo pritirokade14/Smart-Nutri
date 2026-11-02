@@ -1,0 +1,55 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "beverage",
+    "claims": [],
+    "image_url": null,
+    "ingredients": [
+      "carbonated water",
+      "sugar",
+      "caffeine"
+    ],
+    "name": "Cola",
+    "per_100g": {
+      "carbs_g": 10.6,
+      "energy_kcal": 42.0,
+      "fat_g": 0.0,
+      "fiber_g": 0.0,
+      "protein_g": 0.0,
+      "salt_g": 0.0,
+      "sat_fat_g": 0.0,
+      "sodium_mg": null,
+      "sugars_g": 10.6
+    },
+    "product_id": "62e22ce8-476b-5780-b460-b6230c4c5d6e",
+    "serving_size_g": 300.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {},
+    "claims": [],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": []
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "E",
+      "partial": true,
+      "points": 12,
+      "reason": null
+    },
+    "sodium_additives": [],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,3 +25,7 @@ async def ensure_account(session: AsyncSession, ctx: AccountContext) -> Account:
     await session.commit()
     result = await session.execute(select(Account).where(Account.id == ctx.account_id))
     return result.scalar_one()
+
+
+async def get_display_name(session: AsyncSession, account_id: UUID) -> str | None:
+    return await session.scalar(select(Account.display_name).where(Account.id == account_id))
