@@ -8,8 +8,10 @@ Order:
 1. Supabase compatibility shim (roles, ``auth`` schema, ``auth.uid()``). Guarded, so it is
    a no-op on Supabase, where these already exist. Never dropped on downgrade.
 2. Tables, with check constraints for every enum.
-3. Grants matching Supabase defaults for ``authenticated``/``service_role``; ``anon`` gets
-   nothing. RLS (not grants) is what isolates accounts.
+3. Grants (ADR 0013). Supabase's default privileges give anon/authenticated ALL on new
+   public tables, so we REVOKE everything first, then grant ``authenticated`` SELECT only on
+   the seven user-facing tables. All writes go through the API (BYPASSRLS role). Also locks
+   down ``alembic_version`` (RLS on, no grants for PUBLIC/anon/authenticated).
 4. ENABLE + FORCE ROW LEVEL SECURITY on all ten tables.
 5. Policies, all ``TO authenticated``. ``off_product_cache``, ``rate_limit_counters`` and
    ``explanation_cache`` get none, so they are server-only.
@@ -39,6 +41,30 @@ TABLES = (
     "rate_limit_counters",
     "explanation_cache",
 )
+
+# Tables an authenticated user may SELECT (RLS filters to own rows; products are public).
+USER_READABLE = (
+    "accounts",
+    "members",
+    "consents",
+    "scans",
+    "meal_logs",
+    "product_reports",
+    "products",
+)
+
+# Alembic's own table would otherwise inherit Supabase's default grants and be exposed
+# through the Data API. Guarded so it is idempotent and harmless if the table is absent.
+LOCK_ALEMBIC_VERSION = """
+DO $lock$
+BEGIN
+    IF to_regclass('public.alembic_version') IS NOT NULL THEN
+        ALTER TABLE public.alembic_version ENABLE ROW LEVEL SECURITY;
+        REVOKE ALL ON public.alembic_version FROM PUBLIC, anon, authenticated;
+    END IF;
+END
+$lock$;
+"""
 
 SHIM = """
 DO $shim$
@@ -173,6 +199,9 @@ def upgrade() -> None:
             "diet in ('veg', 'eggetarian', 'vegan', 'jain', 'non_veg')", name="ck_members_diet"
         ),
         sa.CheckConstraint("sex in ('female', 'male', 'other')", name="ck_members_sex"),
+        sa.CheckConstraint("birth_year between 1900 and 2100", name="ck_members_birth_year"),
+        sa.CheckConstraint("height_cm > 0 and height_cm <= 300", name="ck_members_height_cm"),
+        sa.CheckConstraint("weight_kg > 0 and weight_kg <= 500", name="ck_members_weight_kg"),
     )
     op.create_index("ix_members_account_id", "members", ["account_id"])
 
@@ -361,12 +390,14 @@ def upgrade() -> None:
         sa.CheckConstraint("language in ('en', 'hi', 'mr')", name="ck_explanation_cache_language"),
     )
 
-    # 3. Grants: match Supabase's defaults for authenticated/service_role so that RLS is
-    #    the only thing isolating accounts; anon (unauthenticated PostgREST) gets nothing.
+    # 3. Grants (ADR 0013). Supabase default privileges grant ALL (incl. TRUNCATE, which
+    #    ignores RLS) to anon/authenticated, so revoke first. Users only ever read; RLS
+    #    still filters those reads to their own rows.
     tables = ", ".join(TABLES)
-    op.execute(f"REVOKE ALL ON {tables} FROM anon")
-    op.execute(f"GRANT SELECT, INSERT, UPDATE, DELETE ON {tables} TO authenticated")
+    op.execute(f"REVOKE ALL ON {tables} FROM PUBLIC, anon, authenticated")
+    op.execute(f"GRANT SELECT ON {', '.join(USER_READABLE)} TO authenticated")
     op.execute(f"GRANT ALL ON {tables} TO service_role")
+    op.execute(LOCK_ALEMBIC_VERSION)
 
     # 4. Row-level security on every table, forced for the table owner too.
     for table in TABLES:

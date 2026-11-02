@@ -1,4 +1,9 @@
-"""Row-level security: account B can neither read nor write account A's rows."""
+"""Row-level security and privileges (ADR 0013).
+
+``authenticated`` has SELECT only, and RLS filters reads to the caller's own rows. Every
+write by ``authenticated`` fails with 42501 (permission denied): the policies remain only
+as defence in depth, and the API writes through a BYPASSRLS role.
+"""
 
 import uuid
 
@@ -19,11 +24,6 @@ async def _expect_denied(db, sql: str, params: dict | None = None) -> None:
         async with db.begin_nested():
             await db.execute(text(sql), params or {})
     assert exc_info.value.orig.sqlstate == INSUFFICIENT_PRIVILEGE, exc_info.value
-
-
-async def _rowcount(db, sql: str, params: dict | None = None) -> int:
-    async with db.begin_nested():
-        return (await db.execute(text(sql), params or {})).rowcount
 
 
 async def test_all_tables_have_rls(db):
@@ -80,27 +80,15 @@ async def test_account_sees_only_itself(db, two_accounts):
     async with as_user(db, two_accounts.b):
         ids = (await db.execute(text("select id from accounts"))).scalars().all()
         assert ids == [two_accounts.b]
-        n = await _rowcount(
+        # Writes are denied outright: no write grant for authenticated.
+        await _expect_denied(
             db, "update accounts set display_name = 'x' where id = :id", {"id": two_accounts.a}
         )
-        assert n == 0
-        assert (
-            await _rowcount(db, "delete from accounts where id = :id", {"id": two_accounts.a}) == 0
-        )
-        await _expect_denied(db, "insert into accounts (id) values (:id)", {"id": uuid.uuid4()})
         await _expect_denied(
-            db,
-            "update accounts set id = :a where id = :b",
-            {"a": uuid.uuid4(), "b": two_accounts.b},
+            db, "update accounts set display_name = 'mine' where id = :id", {"id": two_accounts.b}
         )
-        assert (
-            await _rowcount(
-                db,
-                "update accounts set display_name = 'mine' where id = :id",
-                {"id": two_accounts.b},
-            )
-            == 1
-        )
+        await _expect_denied(db, "delete from accounts where id = :id", {"id": two_accounts.a})
+        await _expect_denied(db, "insert into accounts (id) values (:id)", {"id": uuid.uuid4()})
 
 
 @pytest.mark.parametrize("table", OWNED)
@@ -126,98 +114,67 @@ async def test_owned_tables_hide_other_accounts_rows(db, two_accounts, table):
     assert other not in ids
 
 
-@pytest.mark.parametrize("table", OWNED)
-async def test_owned_tables_block_update_and_delete_of_other_accounts_rows(db, two_accounts, table):
-    other = {
-        "members": two_accounts.seed_a.member,
-        "consents": two_accounts.seed_a.consent,
-        "scans": two_accounts.seed_a.scan,
-        "meal_logs": two_accounts.seed_a.meal_log,
-        "product_reports": two_accounts.seed_a.report,
+def _row_of(seed, table):
+    return {
+        "members": seed.member,
+        "consents": seed.consent,
+        "scans": seed.scan,
+        "meal_logs": seed.meal_log,
+        "product_reports": seed.report,
     }[table]
-    async with as_user(db, two_accounts.b):
-        assert (
-            await _rowcount(
-                db, f"update {table} set account_id = account_id where id = :id", {"id": other}
+
+
+@pytest.mark.parametrize("table", OWNED)
+async def test_owned_tables_deny_update_and_delete(db, two_accounts, table):
+    for seed in (two_accounts.seed_a, two_accounts.seed_b):  # foreign row and own row
+        row = _row_of(seed, table)
+        async with as_user(db, two_accounts.b):
+            await _expect_denied(
+                db, f"update {table} set account_id = account_id where id = :id", {"id": row}
             )
-            == 0
-        )
-        assert await _rowcount(db, f"delete from {table} where id = :id", {"id": other}) == 0
-    still = await db.execute(text(f"select count(*) from {table} where id = :id"), {"id": other})
-    assert still.scalar() == 1
+            await _expect_denied(db, f"delete from {table} where id = :id", {"id": row})
+        still = await db.execute(text(f"select count(*) from {table} where id = :id"), {"id": row})
+        assert still.scalar() == 1
 
 
 @pytest.mark.parametrize("table", OWNED)
-async def test_owned_tables_block_moving_own_row_to_other_account(db, two_accounts, table):
-    own = {
-        "members": two_accounts.seed_b.member,
-        "consents": two_accounts.seed_b.consent,
-        "scans": two_accounts.seed_b.scan,
-        "meal_logs": two_accounts.seed_b.meal_log,
-        "product_reports": two_accounts.seed_b.report,
-    }[table]
+async def test_owned_tables_deny_moving_row_to_other_account(db, two_accounts, table):
     async with as_user(db, two_accounts.b):
         await _expect_denied(
             db,
             f"update {table} set account_id = :a where id = :id",
-            {"a": two_accounts.a, "id": own},
+            {"a": two_accounts.a, "id": _row_of(two_accounts.seed_b, table)},
         )
 
 
-async def test_inserts_into_other_account_are_denied(db, two_accounts):
+async def test_all_inserts_by_authenticated_are_denied(db, two_accounts):
     a, b, p = two_accounts.a, two_accounts.b, two_accounts.product
+    m_b = two_accounts.seed_b.member
     async with as_user(db, b):
-        await _expect_denied(
-            db,
-            "insert into members (account_id, name, relation) values (:a, 'evil', 'self')",
-            {"a": a},
-        )
-        await _expect_denied(
-            db,
-            "insert into consents (account_id, purpose, version) values (:a, 'terms', 'v1')",
-            {"a": a},
-        )
-        await _expect_denied(
-            db,
-            "insert into scans (account_id) values (:a)",
-            {"a": a},
-        )
-        await _expect_denied(
-            db,
-            "insert into product_reports (account_id, product_id, reason) values (:a, :p, 'other')",
-            {"a": a, "p": p},
-        )
-        await _expect_denied(
-            db,
-            "insert into meal_logs (account_id, member_id, product_id, grams, nutrients) "
-            "values (:a, :m, :p, 10, '{}')",
-            {"a": a, "m": two_accounts.seed_a.member, "p": p},
-        )
-        # Own account_id but somebody else's member: blocked by the members check.
-        await _expect_denied(
-            db,
-            "insert into meal_logs (account_id, member_id, product_id, grams, nutrients) "
-            "values (:b, :m, :p, 10, '{}')",
-            {"b": b, "m": two_accounts.seed_a.member, "p": p},
-        )
-        # Own rows are allowed.
-        assert (
-            await _rowcount(
+        for owner in (a, b):  # someone else's account and its own
+            await _expect_denied(
+                db,
+                "insert into members (account_id, name, relation) values (:o, 'x', 'self')",
+                {"o": owner},
+            )
+            await _expect_denied(
+                db,
+                "insert into consents (account_id, purpose, version) values (:o, 'terms', 'v1')",
+                {"o": owner},
+            )
+            await _expect_denied(db, "insert into scans (account_id) values (:o)", {"o": owner})
+            await _expect_denied(
+                db,
+                "insert into product_reports (account_id, product_id, reason) "
+                "values (:o, :p, 'other')",
+                {"o": owner, "p": p},
+            )
+            await _expect_denied(
                 db,
                 "insert into meal_logs (account_id, member_id, product_id, grams, nutrients) "
-                "values (:b, :m, :p, 10, '{}')",
-                {"b": b, "m": two_accounts.seed_b.member, "p": p},
+                "values (:o, :m, :p, 10, '{}')",
+                {"o": owner, "m": m_b, "p": p},
             )
-            == 1
-        )
-        assert (
-            await _rowcount(
-                db,
-                "insert into members (account_id, name, relation) values (:b, 'kid', 'child')",
-                {"b": b},
-            )
-            == 1
-        )
 
 
 async def test_meal_logs_scoped_through_members(db, two_accounts):
@@ -242,26 +199,20 @@ async def test_products_are_read_only_for_users(db, two_accounts):
         await _expect_denied(
             db, "insert into products (name, category, source) values ('x', 'general', 'user')"
         )
-        assert (
-            await _rowcount(
-                db,
-                "update products set name = 'pwned' where id = :id",
-                {"id": two_accounts.product},
-            )
-            == 0
+        await _expect_denied(
+            db, "update products set name = 'pwned' where id = :id", {"id": two_accounts.product}
         )
-        assert (
-            await _rowcount(db, "delete from products where id = :id", {"id": two_accounts.product})
-            == 0
+        await _expect_denied(
+            db, "delete from products where id = :id", {"id": two_accounts.product}
         )
 
 
 @pytest.mark.parametrize("table", SERVER_ONLY)
-async def test_server_only_tables_hidden(db, two_accounts, table):
+async def test_server_only_tables_are_inaccessible(db, two_accounts, table):
     assert (await db.execute(text(f"select count(*) from {table}"))).scalar() == 1
     async with as_user(db, two_accounts.a):
-        assert (await db.execute(text(f"select count(*) from {table}"))).scalar() == 0
-        assert await _rowcount(db, f"delete from {table}") == 0
+        await _expect_denied(db, f"select count(*) from {table}")
+        await _expect_denied(db, f"delete from {table}")
     assert (await db.execute(text(f"select count(*) from {table}"))).scalar() == 1
 
 
@@ -281,12 +232,12 @@ async def test_server_only_tables_reject_user_writes(db, two_accounts):
             "values (:p, 'x', 'en', '{}')",
             {"p": two_accounts.product},
         )
-        assert await _rowcount(db, "update rate_limit_counters set count = 0") == 0
+        await _expect_denied(db, "update rate_limit_counters set count = 0")
 
 
 async def test_user_without_jwt_sub_sees_nothing(db, two_accounts):
     async with as_user(db, None):
-        for table in TABLES - {"products"}:
+        for table in TABLES - {"products", *SERVER_ONLY}:
             count = (await db.execute(text(f"select count(*) from {table}"))).scalar()
             assert count == 0, table
 

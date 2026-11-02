@@ -89,3 +89,24 @@ def test_orm_class_names():
             ExplanationCache,
         )
     } == TABLES
+
+
+def test_host_allowlist():
+    import pytest
+
+    from tests.db.conftest import _assert_disposable
+
+    for ok in (
+        "postgresql+psycopg://u:p@127.0.0.1:5432/db",
+        "postgresql+psycopg://u:p@localhost/db",
+        "postgresql+psycopg://u:p@[::1]:5432/db",
+        "postgresql+psycopg://u:p@postgres:5432/db",
+    ):
+        _assert_disposable(ok)
+    for bad in (
+        "postgresql+psycopg://u:p@db.abc.supabase.co:5432/postgres",
+        "postgresql+psycopg://u:p@10.0.0.5:5432/postgres",
+        "postgresql+psycopg://u:p@evil.example.com/localhost",
+    ):
+        with pytest.raises(RuntimeError):
+            _assert_disposable(bad)

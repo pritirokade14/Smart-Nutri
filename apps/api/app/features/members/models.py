@@ -30,6 +30,9 @@ class Member(Base):
         ),
         CheckConstraint("diet in ('veg', 'eggetarian', 'vegan', 'jain', 'non_veg')", name="diet"),
         CheckConstraint("sex in ('female', 'male', 'other')", name="sex"),
+        CheckConstraint("birth_year between 1900 and 2100", name="birth_year"),
+        CheckConstraint("height_cm > 0 and height_cm <= 300", name="height_cm"),
+        CheckConstraint("weight_kg > 0 and weight_kg <= 500", name="weight_kg"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(

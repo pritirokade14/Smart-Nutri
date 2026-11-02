@@ -20,7 +20,7 @@ from pathlib import Path
 import psycopg
 import pytest
 from alembic.config import Config
-from sqlalchemy import text
+from sqlalchemy import create_engine, make_url, text
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 from sqlalchemy.pool import NullPool
 
@@ -41,13 +41,17 @@ TABLES = {
     "explanation_cache",
 }
 
-_FORBIDDEN_HOSTS = ("supabase.co", "supabase.com", "pooler.supabase")
+_ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")
 _IMAGE = "postgres:17"
 
 
 def _assert_disposable(url: str) -> None:
-    if any(h in url for h in _FORBIDDEN_HOSTS):
-        raise RuntimeError("TEST_DATABASE_URL points at Supabase; DB tests drop every table")
+    """Host allowlist: DB tests drop every table, so only local/CI Postgres is acceptable."""
+    host = make_url(url).host
+    if host not in _ALLOWED_HOSTS:
+        raise RuntimeError(
+            f"refusing to run DB tests against host {host!r}; allowed: {_ALLOWED_HOSTS}"
+        )
 
 
 def _wait_for_postgres(url: str, timeout: float = 60.0) -> None:
@@ -128,13 +132,57 @@ def alembic_cfg(pg_url: str) -> Config:
     cfg = Config(str(API_DIR / "alembic.ini"))
     cfg.set_main_option("script_location", str(API_DIR / "alembic"))
     cfg.set_main_option("sqlalchemy.url", pg_url)
+    # env.py must never fall back to Settings/.env when run from tests.
+    assert cfg.get_main_option("sqlalchemy.url") == pg_url
     return cfg
+
+
+SUPABASE_DEFAULT_PRIVILEGES = """
+DO $roles$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+        CREATE ROLE anon NOLOGIN NOINHERIT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+        CREATE ROLE authenticated NOLOGIN NOINHERIT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+        CREATE ROLE service_role NOLOGIN NOINHERIT BYPASSRLS;
+    END IF;
+END
+$roles$;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+"""
+
+
+def _assert_not_supabase(url: str) -> None:
+    engine = create_engine(url, poolclass=NullPool)
+    try:
+        with engine.connect() as conn:
+            if conn.execute(text("select to_regclass('auth.users') is not null")).scalar():
+                raise RuntimeError("auth.users exists: this looks like Supabase; refusing")
+    finally:
+        engine.dispose()
+
+
+def _emulate_supabase_default_privileges(url: str) -> None:
+    engine = create_engine(url, poolclass=NullPool)
+    try:
+        with engine.begin() as conn:
+            conn.exec_driver_sql(SUPABASE_DEFAULT_PRIVILEGES.replace("%", "%%"))
+    finally:
+        engine.dispose()
 
 
 @pytest.fixture(scope="session")
 def migrated(alembic_cfg: Config) -> Config:
     """Fresh schema per session: downgrade to base, then upgrade to head."""
+    url = alembic_cfg.get_main_option("sqlalchemy.url")
+    _assert_not_supabase(url)
     command.downgrade(alembic_cfg, "base")
+    # Reproduce Supabase: new public tables (incl. alembic_version) are granted ALL to
+    # anon/authenticated/service_role. The migration must tighten this.
+    _emulate_supabase_default_privileges(url)
     command.upgrade(alembic_cfg, "head")
     return alembic_cfg
 
