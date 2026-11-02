@@ -15,8 +15,22 @@ def test_dairy_is_superset_of_milk_allergen_terms():
 
 def test_dairy_includes_post_review_milk_terms():
     required = {
-        "dairy whitener", "mawa", "lactitol", "ins966", "milk fat", "butter oil", "मक्खन", "मलाई",
-        "खोया", "khoa", "khoya", "chhena", "दूध", "घी", "पनीर", "दही",
+        "dairy whitener",
+        "mawa",
+        "lactitol",
+        "ins966",
+        "milk fat",
+        "butter oil",
+        "मक्खन",
+        "मलाई",
+        "खोया",
+        "khoa",
+        "khoya",
+        "chhena",
+        "दूध",
+        "घी",
+        "पनीर",
+        "दही",
     }
     assert required <= set(_load("diet.yaml")["dairy"])
 

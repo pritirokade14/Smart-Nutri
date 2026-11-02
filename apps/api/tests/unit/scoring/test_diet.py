@@ -83,7 +83,9 @@ def test_brown_dot_non_veg_member_unaffected(cfg, diabetic_adult):
 
 
 def test_allergen_statement_egg_milk_violates_veg(cfg):
-    p = Product(name="t", ingredients=("wheat flour", "sugar"), allergen_statement="Contains: Egg, Milk")
+    p = Product(
+        name="t", ingredients=("wheat flour", "sugar"), allergen_statement="Contains: Egg, Milk"
+    )
     assert diet_violations(p, cfg)[Diet.VEG] == ("egg",)
 
 
@@ -124,9 +126,30 @@ def test_unknown_ingredients_unknown_for_vegan(no_ingredients, cfg, vegan_adult)
 
 # --- final safety review: term-list regressions -------------------------------------------
 _NEW_NON_VEG = [
-    "tuna", "salmon", "mackerel", "sardine", "squid", "octopus", "lobster", "oyster sauce",
-    "cod liver oil", "collagen", "seafood", "keema", "animal fat", "bacon", "ham", "turkey",
-    "beef extract", "ins441", "ins542", "ins920", "चिकन", "मछली", "मांस", "झींगा",
+    "tuna",
+    "salmon",
+    "mackerel",
+    "sardine",
+    "squid",
+    "octopus",
+    "lobster",
+    "oyster sauce",
+    "cod liver oil",
+    "collagen",
+    "seafood",
+    "keema",
+    "animal fat",
+    "bacon",
+    "ham",
+    "turkey",
+    "beef extract",
+    "ins441",
+    "ins542",
+    "ins920",
+    "चिकन",
+    "मछली",
+    "मांस",
+    "झींगा",
 ]
 
 
@@ -144,7 +167,9 @@ def test_vegan_avoids_dairy_terms(term, no_ingredients, cfg, vegan_adult):
     assert reasons and reasons[0].severity == Status.AVOID
 
 
-@pytest.mark.parametrize("term", ["aloo", "kanda", "आलू", "mushroom", "lehsun", "yeast", "अदरक", "शकरकंद"])
+@pytest.mark.parametrize(
+    "term", ["aloo", "kanda", "आलू", "mushroom", "lehsun", "yeast", "अदरक", "शकरकंद"]
+)
 def test_jain_avoids_new_exclusions(term, no_ingredients, cfg, jain_adult):
     p = replace(no_ingredients, ingredients=("rice", term))
     reasons = diet_reasons(p, jain_adult, cfg)

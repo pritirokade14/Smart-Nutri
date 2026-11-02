@@ -24,7 +24,9 @@ def high_in(product: Product, cfg: ScoringConfig) -> tuple[str, ...]:
         "salt_g": n.salt(),
     }
     return tuple(
-        name for name, key in _HIGH_IN_ORDER if values[key] is not None and values[key] > limits[key]
+        name
+        for name, key in _HIGH_IN_ORDER
+        if values[key] is not None and values[key] > limits[key]
     )
 
 

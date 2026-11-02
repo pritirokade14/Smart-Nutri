@@ -28,7 +28,9 @@ def test_drink_high_sugar(cola, cfg):
 
 
 def test_missing_values_never_warn(no_ingredients, cfg):
-    p = replace(no_ingredients, per_100g=replace(no_ingredients.per_100g, sugars_g=None, salt_g=None))
+    p = replace(
+        no_ingredients, per_100g=replace(no_ingredients.per_100g, sugars_g=None, salt_g=None)
+    )
     assert "sugar" not in high_in(p, cfg)
     assert "salt" not in high_in(p, cfg)
 
@@ -50,7 +52,9 @@ def _with(base, *ings):
     return replace(base, ingredients=tuple(ings))
 
 
-@pytest.mark.parametrize("term", ["tea", "chai", "चाय", "green tea extract", "matcha", "mate", "kola nut", "कॉफी"])
+@pytest.mark.parametrize(
+    "term", ["tea", "chai", "चाय", "green tea extract", "matcha", "mate", "kola nut", "कॉफी"]
+)
 def test_caffeine_new_terms(term, no_ingredients, cfg):
     assert ingredient_hits(_with(no_ingredients, "water", term), cfg, "caffeine")
 
@@ -62,7 +66,15 @@ def test_caffeine_no_overmatch(text, no_ingredients, cfg):
 
 @pytest.mark.parametrize(
     "term",
-    ["शहद", "साखर", "apple juice concentrate", "fruit juice concentrate", "गूळ", "coconut sugar", "agave"],
+    [
+        "शहद",
+        "साखर",
+        "apple juice concentrate",
+        "fruit juice concentrate",
+        "गूळ",
+        "coconut sugar",
+        "agave",
+    ],
 )
 def test_added_sugar_new_terms(term, no_ingredients, cfg):
     assert added_sugar_terms(_with(no_ingredients, "water", term), cfg)

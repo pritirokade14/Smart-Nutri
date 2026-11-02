@@ -9,13 +9,33 @@ def cfg():
     return load_config()
 
 
-def _p(name, category, kcal, protein, carbs, sugars, fat, sat, fiber, salt, serving, ingredients, claims):
+def _p(
+    name,
+    category,
+    kcal,
+    protein,
+    carbs,
+    sugars,
+    fat,
+    sat,
+    fiber,
+    salt,
+    serving,
+    ingredients,
+    claims,
+):
     return Product(
         name=name,
         category=category,
         per_100g=Nutrients(
-            energy_kcal=kcal, protein_g=protein, carbs_g=carbs, sugars_g=sugars,
-            fat_g=fat, sat_fat_g=sat, fiber_g=fiber, salt_g=salt,
+            energy_kcal=kcal,
+            protein_g=protein,
+            carbs_g=carbs,
+            sugars_g=sugars,
+            fat_g=fat,
+            sat_fat_g=sat,
+            fiber_g=fiber,
+            salt_g=salt,
         ),
         serving_size_g=serving,
         ingredients=ingredients,
@@ -25,34 +45,113 @@ def _p(name, category, kcal, protein, carbs, sugars, fat, sat, fiber, salt, serv
 
 @pytest.fixture
 def sf_biscuit():
-    return _p("Sugar Free Biscuit", Category.GENERAL, 450, 8, 72, 2.0, 15, 7, 2, 0.9, 25,
-              ("wheat flour (maida)", "maltodextrin", "edible vegetable oil (palm)", "milk solids",
-               "raising agent (ins 500(ii))", "salt", "emulsifier (ins 322)"), ("Sugar Free",))
+    return _p(
+        "Sugar Free Biscuit",
+        Category.GENERAL,
+        450,
+        8,
+        72,
+        2.0,
+        15,
+        7,
+        2,
+        0.9,
+        25,
+        (
+            "wheat flour (maida)",
+            "maltodextrin",
+            "edible vegetable oil (palm)",
+            "milk solids",
+            "raising agent (ins 500(ii))",
+            "salt",
+            "emulsifier (ins 322)",
+        ),
+        ("Sugar Free",),
+    )
 
 
 @pytest.fixture
 def namkeen():
-    return _p("Namkeen", Category.GENERAL, 550, 15, 40, 3, 35, 10, 5, 2.5, 30,
-              ("gram flour (besan)", "edible vegetable oil", "peanuts", "salt", "spices",
-               "onion powder", "garlic powder"), ())
+    return _p(
+        "Namkeen",
+        Category.GENERAL,
+        550,
+        15,
+        40,
+        3,
+        35,
+        10,
+        5,
+        2.5,
+        30,
+        (
+            "gram flour (besan)",
+            "edible vegetable oil",
+            "peanuts",
+            "salt",
+            "spices",
+            "onion powder",
+            "garlic powder",
+        ),
+        (),
+    )
 
 
 @pytest.fixture
 def curd():
-    return _p("Curd", Category.GENERAL, 60, 3.5, 4.7, 4.0, 3.1, 2.0, 0, 0.1, 100,
-              ("pasteurised toned milk", "active cultures"), ())
+    return _p(
+        "Curd",
+        Category.GENERAL,
+        60,
+        3.5,
+        4.7,
+        4.0,
+        3.1,
+        2.0,
+        0,
+        0.1,
+        100,
+        ("pasteurised toned milk", "active cultures"),
+        (),
+    )
 
 
 @pytest.fixture
 def oats():
-    return _p("Oats", Category.GENERAL, 389, 13, 66, 1.0, 7, 1.2, 10.6, 0.01, 40,
-              ("whole grain rolled oats",), ("High Protein",))
+    return _p(
+        "Oats",
+        Category.GENERAL,
+        389,
+        13,
+        66,
+        1.0,
+        7,
+        1.2,
+        10.6,
+        0.01,
+        40,
+        ("whole grain rolled oats",),
+        ("High Protein",),
+    )
 
 
 @pytest.fixture
 def cola():
-    return _p("Cola", Category.BEVERAGE, 42, 0, 10.6, 10.6, 0, 0, 0, 0, 300,
-              ("carbonated water", "sugar", "caffeine"), ())
+    return _p(
+        "Cola",
+        Category.BEVERAGE,
+        42,
+        0,
+        10.6,
+        10.6,
+        0,
+        0,
+        0,
+        0,
+        300,
+        ("carbonated water", "sugar", "caffeine"),
+        (),
+    )
 
 
 @pytest.fixture
