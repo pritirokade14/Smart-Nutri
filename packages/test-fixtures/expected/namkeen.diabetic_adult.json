@@ -1,4 +1,9 @@
 {
-  "status": "ok",
-  "reasons": []
+  "status": "caution",
+  "reasons": [
+    {
+      "code": "cardio_risk_high_in",
+      "severity": "caution"
+    }
+  ]
 }

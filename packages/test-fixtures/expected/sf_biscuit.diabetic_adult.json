@@ -6,6 +6,10 @@
       "severity": "avoid"
     },
     {
+      "code": "cardio_risk_high_in",
+      "severity": "caution"
+    },
+    {
       "code": "hidden_sugars",
       "severity": "caution"
     }

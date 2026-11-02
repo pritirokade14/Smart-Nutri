@@ -23,7 +23,12 @@ def _pairs(product, member, cfg):
 
 
 def test_diabetic_and_sugar_free_biscuit(sf_biscuit, diabetic_adult, cfg):
-    assert _codes(sf_biscuit, diabetic_adult, cfg) == {"misleading_sugar_claim", "hidden_sugars"}
+    # cardio_risk_high_in: 7 g sat fat per 100 g is high_in (Ruling R12).
+    assert _codes(sf_biscuit, diabetic_adult, cfg) == {
+        "misleading_sugar_claim",
+        "hidden_sugars",
+        "cardio_risk_high_in",
+    }
 
 
 def test_diabetic_and_curd_ok(curd, diabetic_adult, cfg):
@@ -58,8 +63,8 @@ def test_infant_cola(cola, infant, cfg):
     assert {"infant_added_sugar"} <= _codes(cola, infant, cfg)
 
 
-def test_no_age_skips_child_rules(cola, no_age, cfg):
-    assert _codes(cola, no_age, cfg) == set()
+def test_no_age_child_rules_give_age_unknown(cola, no_age, cfg):  # Ruling R13
+    assert _codes(cola, no_age, cfg) == {"age_unknown"}
 
 
 def test_missing_sugar_for_diabetic_is_unknown(curd, diabetic_adult, cfg):
@@ -382,3 +387,177 @@ def test_infant_mango_puree_not_flagged_by_juice_list(cola, cfg):
 def test_adult_unaffected_by_infant_juice_rule(cola, cfg):
     p = replace(cola, ingredients=("apple juice",))
     assert "infant_added_sugar" not in _codes(p, _m(age=30), cfg)
+
+
+# --- R12: blood-sugar caution for high_in salt / sat_fat (PENDING CLINICIAN REVIEW) ---
+
+
+def _cardio(product, member, cfg):
+    return [r for r in _reasons(product, member, cfg) if r.code == "cardio_risk_high_in"]
+
+
+def test_diabetic_namkeen_cardio_caution(namkeen, diabetic_adult, cfg):
+    rs = _cardio(namkeen, diabetic_adult, cfg)
+    assert len(rs) == 1
+    assert rs[0].severity == Status.CAUTION
+    assert rs[0].params == {"high_in": ["sat_fat", "salt"]}
+
+
+@pytest.mark.parametrize("raw", ["prediabetes", "pcos", "PCOD", "Pre-Diabetes", "Type 2 Diabetes"])
+def test_cardio_caution_blood_sugar_aliases(namkeen, cfg, raw):
+    rs = _cardio(namkeen, _m(age=40, conditions=(raw,)), cfg)
+    assert [(r.severity, r.params) for r in rs] == [
+        (Status.CAUTION, {"high_in": ["sat_fat", "salt"]})
+    ], raw
+
+
+def test_cardio_only_matching_keys(namkeen, diabetic_adult, cfg):
+    salty = replace(namkeen, per_100g=replace(namkeen.per_100g, sat_fat_g=1))
+    assert [r.params for r in _cardio(salty, diabetic_adult, cfg)] == [{"high_in": ["salt"]}]
+    fatty = replace(namkeen, per_100g=replace(namkeen.per_100g, salt_g=0.5))
+    assert [r.params for r in _cardio(fatty, diabetic_adult, cfg)] == [{"high_in": ["sat_fat"]}]
+
+
+def test_diabetic_high_only_in_sugar_no_cardio(curd, diabetic_adult, cfg):
+    sweet = replace(curd, per_100g=replace(curd.per_100g, sugars_g=30, carbs_g=35))
+    codes = _codes(sweet, diabetic_adult, cfg)
+    assert "sugar_high" in codes and "cardio_risk_high_in" not in codes
+
+
+def test_diabetic_high_in_fat_only_no_cardio(curd, diabetic_adult, cfg):
+    # Total fat is not in cardio_high_in; only salt and sat_fat trigger.
+    p = replace(curd, per_100g=Nutrients(sugars_g=1, carbs_g=2, fat_g=20, sat_fat_g=3, salt_g=0.1))
+    assert "cardio_risk_high_in" not in _codes(p, diabetic_adult, cfg)
+
+
+def test_diabetic_curd_no_cardio(curd, diabetic_adult, cfg):
+    assert "cardio_risk_high_in" not in _codes(curd, diabetic_adult, cfg)
+
+
+def test_non_blood_sugar_members_no_cardio(namkeen, bp_parent, weight_loss_adult, cfg):
+    for m in (bp_parent, weight_loss_adult, _m(age=40), _m(age=8)):
+        assert "cardio_risk_high_in" not in _codes(namkeen, m, cfg), m
+
+
+def test_diabetic_hypertensive_namkeen_no_salt_double_warning(namkeen, cfg):
+    m = _m(age=60, conditions=("diabetes", "hypertension"))
+    rs = _reasons(namkeen, m, cfg)
+    assert ("salt_high", Status.AVOID) in {(r.code, r.severity) for r in rs}
+    cardio = [r for r in rs if r.code == "cardio_risk_high_in"]
+    assert [(r.severity, r.params) for r in cardio] == [(Status.CAUTION, {"high_in": ["sat_fat"]})]
+
+
+def test_diabetic_hypertensive_salt_only_skips_cardio(namkeen, cfg):
+    m = _m(age=60, conditions=("diabetes", "hypertension"))
+    salty = replace(namkeen, per_100g=replace(namkeen.per_100g, sat_fat_g=1))
+    codes = _codes(salty, m, cfg)
+    assert "salt_high" in codes and "cardio_risk_high_in" not in codes
+
+
+def test_cardio_low_confidence_is_unknown_not_caution(namkeen, diabetic_adult, cfg):
+    p = replace(namkeen, extraction_confidence=0.2)
+    pairs = _pairs(p, diabetic_adult, cfg)
+    assert ("nutrient_missing", Status.UNKNOWN) in pairs
+    assert "cardio_risk_high_in" not in {c for c, _ in pairs}
+
+
+def test_cardio_keys_are_data(namkeen, diabetic_adult, cfg):
+    from app.scoring.config import ScoringConfig
+
+    t = {**cfg.thresholds}
+    t["conditions"] = {**t["conditions"]}
+    t["conditions"]["blood_sugar"] = {**t["conditions"]["blood_sugar"], "cardio_high_in": ["salt"]}
+    only_salt = ScoringConfig(cfg.allergens, cfg.diet, cfg.ingredient_lists, t)
+    assert [r.params for r in _cardio(namkeen, diabetic_adult, only_salt)] == [
+        {"high_in": ["salt"]}
+    ]
+
+
+def test_cardio_high_in_config_keys_are_valid(cfg):
+    from app.scoring.warnings import _HIGH_IN_ORDER
+
+    keys = cfg.thresholds["conditions"]["blood_sugar"]["cardio_high_in"]
+    assert set(keys) == {"salt", "sat_fat"}
+    assert set(keys) <= {name for name, _ in _HIGH_IN_ORDER}
+
+
+# --- R13: unknown age is not safe (age_unknown) ---
+
+
+def _no_age(conditions=(), allergens=()):
+    return Member(id="x", name="x", age=None, conditions=conditions, allergens=allergens)
+
+
+def test_no_age_cola_is_age_unknown(cola, no_age, cfg):
+    rs = _reasons(cola, no_age, cfg)
+    assert [(r.code, r.severity, dict(r.params)) for r in rs] == [
+        ("age_unknown", Status.UNKNOWN, {})
+    ]
+
+
+def test_no_age_no_ingredients_is_age_unknown(no_ingredients, no_age, cfg):
+    rs = _reasons(no_ingredients, no_age, cfg)
+    assert [(r.code, r.severity, dict(r.params)) for r in rs] == [
+        ("age_unknown", Status.UNKNOWN, {})
+    ]
+
+
+def test_no_age_unknown_ingredients_only_is_age_unknown(water, no_age, cfg):
+    # Nothing numeric flags, but a child or infant would get ingredients_missing (UNKNOWN).
+    p = replace(water, ingredients=())
+    assert _codes(p, no_age, cfg) == {"age_unknown"}
+
+
+def test_no_age_water_and_curd_ok(water, curd, no_age, cfg):
+    assert _codes(water, no_age, cfg) == set()
+    assert _codes(curd, no_age, cfg) == set()
+
+
+def test_no_age_uses_most_protective_child_band(cola, no_age, cfg):
+    # 5 g sugar per serving: 26.3 % of the age-2 limit (19 g) -> CAUTION for a 2-year-old,
+    # but 20.8 % of 24 g for an 8-year-old. 4.5 g: 23.7 % of 19 g -> no flag at any age.
+    base = replace(cola, ingredients=("water",), serving_size_g=100)
+    p = replace(base, per_100g=Nutrients(sugars_g=5, salt_g=0))
+    assert "child_sugar_moderate" in _codes(p, _m(age=2), cfg)
+    assert _codes(p, _m(age=8), cfg) == set()
+    assert _codes(p, no_age, cfg) == {"age_unknown"}
+    q = replace(base, per_100g=Nutrients(sugars_g=4.5, salt_g=0))
+    assert _codes(q, no_age, cfg) == set()
+
+
+def test_no_age_infant_only_rule_triggers(cola, no_age, cfg):
+    # Plain salted product: only the infant rule (added salt) flags.
+    p = replace(
+        cola,
+        category=Category.GENERAL,
+        ingredients=("rice", "salt"),
+        per_100g=Nutrients(sugars_g=0, salt_g=0.2),
+        serving_size_g=30,
+    )
+    assert _codes(p, _m(age=2), cfg) == set()
+    assert _codes(p, no_age, cfg) == {"age_unknown"}
+
+
+@pytest.mark.parametrize("fixture", ["cola", "namkeen", "no_ingredients", "sf_biscuit", "curd"])
+def test_no_age_never_yields_child_or_infant_codes(request, fixture, cfg):
+    product = request.getfixturevalue(fixture)
+    for m in (_no_age(), _no_age(conditions=("diabetes",)), _no_age(allergens=("milk",))):
+        rs = _reasons(product, m, cfg)
+        assert not any(r.code.startswith(("child_", "infant_")) for r in rs)
+        assert not any(r.params.get("rule") in ("child", "infant") for r in rs)
+        assert sum(r.code == "age_unknown" for r in rs) <= 1
+
+
+def test_no_age_adult_rules_still_apply(cola, cfg):
+    rs = _reasons(cola, _no_age(conditions=("diabetes",)), cfg)
+    pairs = {(r.code, r.severity) for r in rs}
+    assert ("sugar_high", Status.AVOID) in pairs and ("age_unknown", Status.UNKNOWN) in pairs
+
+
+def test_known_age_child_unchanged(cola, namkeen, cfg):
+    child = _m(age=8)
+    assert "age_unknown" not in _codes(cola, child, cfg)
+    assert {"child_sugar_high", "child_caffeine"} <= _codes(cola, child, cfg)
+    assert _codes(namkeen, child, cfg) == {"child_salt_high"}
+    assert "age_unknown" not in _codes(cola, _m(age=1), cfg)
+    assert "age_unknown" not in _codes(cola, _m(age=40), cfg)

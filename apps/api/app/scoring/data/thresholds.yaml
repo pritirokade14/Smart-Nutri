@@ -44,6 +44,11 @@ conditions:
     avoid_sugars_g: {food: 22.5, drink: 5.0}
     caution_sugars_g: {food: 5.0, drink: 2.5}
     caution_carbs_per_serving_g: 30
+    # high_in keys that add a CAUTION (cardio_risk_high_in) for this group (Ruling R12;
+    # PENDING CLINICIAN REVIEW). Rationale: guidance for people with diabetes also limits
+    # sodium and saturated fat (ADA Standards of Care, Section 5; ICMR-NIN Dietary Guidelines 2024).
+    # Uses the global high_in limits above; salt is dropped when hypertension already reported it.
+    cardio_high_in: [salt, sat_fat]
   hypertension:
     applies_to: [hypertension]
     avoid_salt_g: 1.5

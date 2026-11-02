@@ -1,4 +1,9 @@
 {
-  "status": "ok",
-  "reasons": []
+  "status": "unknown",
+  "reasons": [
+    {
+      "code": "age_unknown",
+      "severity": "unknown"
+    }
+  ]
 }

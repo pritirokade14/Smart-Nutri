@@ -145,6 +145,33 @@ def test_diabetic_and_cola_is_avoid(cola, diabetic_adult):
     assert {("sugar_high", Status.AVOID), ("added_sugars", Status.CAUTION)} <= pairs
 
 
+# --- R12 / R13 golden ---
+
+
+def test_diabetic_and_namkeen_is_caution(namkeen, diabetic_adult):  # Ruling R12
+    v = analyze(namkeen, [diabetic_adult]).verdicts[0]
+    assert v.status == Status.CAUTION
+    assert [(r.code, r.severity) for r in v.reasons] == [("cardio_risk_high_in", Status.CAUTION)]
+
+
+def test_no_age_cola_is_unknown_not_ok(cola, water, curd, no_age):  # Ruling R13
+    r = analyze(cola, [no_age]).verdicts[0]
+    assert r.status == Status.UNKNOWN
+    assert [(x.code, x.severity) for x in r.reasons] == [("age_unknown", Status.UNKNOWN)]
+    assert analyze(water, [no_age]).verdicts[0].status == Status.OK
+    assert analyze(curd, [no_age]).verdicts[0].status == Status.OK
+
+
+def test_age_unknown_outranks_caution_but_not_avoid(namkeen, cola):  # Ruling R13
+    from app.scoring.models import Member
+
+    d = Member(id="x", name="x", age=None, conditions=("diabetes",))
+    v = analyze(namkeen, [d]).verdicts[0]  # cardio CAUTION + age_unknown UNKNOWN
+    assert {r.code for r in v.reasons} == {"cardio_risk_high_in", "age_unknown"}
+    assert v.status == Status.UNKNOWN and v.reasons[0].code == "age_unknown"
+    assert analyze(cola, [d]).verdicts[0].status == Status.AVOID
+
+
 # --- C14: public exports ---
 
 

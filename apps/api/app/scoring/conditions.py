@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 from app.scoring.allergens import ingredients_known
@@ -81,6 +81,116 @@ def _child_limit(age: int, bands: dict[int, float]) -> float | None:
     return norm[max(eligible)] if eligible else None
 
 
+def _protective_child_age(cond: Mapping[str, Any]) -> int:
+    """The child age with the lowest free-sugar limit (youngest on a tie), for unknown ages."""
+    c, lo = cond["child"], cond["infant"]["max_age"]
+    bands = {int(k): v for k, v in c["free_sugar_daily_limit_g"].items()}
+    eligible = [k for k in bands if lo <= k < c["max_age"]]
+    if not eligible:
+        return lo
+    return min(eligible, key=lambda k: (bands[k], k))
+
+
+Need = Callable[[str, float | None, str], float | None]
+
+
+def _make_need(out: list[Reason], low_confidence: bool) -> Need:
+    """`need(name, value, rule)`: the value, or None after adding one nutrient_missing to out."""
+    missing: set[tuple[str, str]] = set()
+
+    def need(name: str, value: float | None, group: str) -> float | None:
+        if low_confidence or value is None:
+            if (name, group) not in missing:
+                missing.add((name, group))
+                params: dict[str, Any] = {"nutrient": name, "rule": group}
+                if low_confidence:
+                    params["reason"] = "low_confidence"
+                out.append(Reason("nutrient_missing", Status.UNKNOWN, params))
+            return None
+        return value
+
+    return need
+
+
+def _child_reasons(
+    product: Product, age: int, c: Mapping[str, Any], cfg: ScoringConfig, need: Need
+) -> list[Reason]:
+    out: list[Reason] = []
+    n = product.per_100g
+    sugars = need("sugars_g", n.sugars_g, "child")
+    limit = _child_limit(age, c["free_sugar_daily_limit_g"])
+    if sugars is not None and limit:
+        has_serving = product.serving_size_g is not None
+        amount = product.per_serving(sugars) if has_serving else sugars
+        basis = "per_serving" if has_serving else "per_100g"
+        pct = amount / limit * 100
+        params = {"pct": _r(pct), "limit_g": _r(limit), "basis": basis}
+        if pct > c["avoid_pct_of_limit"]:
+            out.append(Reason("child_sugar_high", Status.AVOID, params))
+        elif pct > c["caution_pct_of_limit"]:
+            out.append(Reason("child_sugar_moderate", Status.CAUTION, params))
+        elif "sugar" in high_in(product, cfg):
+            # Per-100 g floor: a tiny serving of a very sugary food is still at least CAUTION.
+            floor = {"pct": _r(sugars / limit * 100), "limit_g": _r(limit), "basis": "per_100g"}
+            out.append(Reason("child_sugar_moderate", Status.CAUTION, floor))
+    caf = ingredient_hits(product, cfg, "caffeine")
+    if caf:
+        out.append(Reason("child_caffeine", Status.AVOID, {"ingredients": list(caf)}))
+    salt = need("salt", n.salt(), "child")
+    if salt is not None and "salt" in high_in(product, cfg):
+        out.append(Reason("child_salt_high", Status.CAUTION, {"salt_g": _r(salt)}))
+    if not ingredients_known(product, cfg):
+        out.append(Reason("ingredients_missing", Status.UNKNOWN, {"rule": "child"}))
+    return out
+
+
+def _infant_reasons(
+    product: Product, c: Mapping[str, Any], cfg: ScoringConfig, need: Need
+) -> list[Reason]:
+    out: list[Reason] = []
+    n = product.per_100g
+    if not ingredients_known(product, cfg):
+        out.append(Reason("ingredients_missing", Status.UNKNOWN, {"rule": "infant"}))
+    inf_caf = ingredient_hits(product, cfg, "caffeine")
+    if inf_caf:
+        out.append(Reason("infant_caffeine", Status.AVOID, {"ingredients": list(inf_caf)}))
+    sugar_terms = added_sugar_terms(product, cfg)
+    free_sugars = ingredient_hits(product, cfg, "infant_free_sugars")
+    infant_sugar = tuple(sorted({*sugar_terms, *free_sugars}))
+    if infant_sugar:
+        out.append(Reason("infant_added_sugar", Status.AVOID, {"ingredients": list(infant_sugar)}))
+    salt_hits = ingredient_hits(product, cfg, "salt")
+    if salt_hits:
+        out.append(Reason("infant_added_salt", Status.AVOID, {"ingredients": list(salt_hits)}))
+    if "honey" in sugar_terms:
+        out.append(Reason("infant_honey", Status.AVOID, {}))
+    # Numeric sugar rule only when ingredients are unknown; with a known list,
+    # infant_added_sugar decides, so milk/formula lactose is not flagged (Ruling R32).
+    if not ingredients_known(product, cfg):
+        sugars = need("sugars_g", n.sugars_g, "infant")
+        if sugars is not None and sugars > c["avoid_sugars_g"]:
+            out.append(Reason("infant_sugar_high", Status.AVOID, {"sugars_g": _r(sugars)}))
+    salt = need("salt", n.salt(), "infant")
+    if salt is not None and salt > c["avoid_salt_g"]:
+        out.append(Reason("infant_salt_high", Status.AVOID, {"salt_g": _r(salt)}))
+    return out
+
+
+def _age_unknown_flags(
+    product: Product, cond: Mapping[str, Any], cfg: ScoringConfig, low_confidence: bool
+) -> bool:
+    """Ruling R13: would a child or infant at the most protective age get anything but OK?
+
+    The hypothetical reasons (including their nutrient_missing) are discarded; only the
+    answer is used.
+    """
+    hypothetical: list[Reason] = []
+    need = _make_need(hypothetical, low_confidence)
+    hypothetical += _child_reasons(product, _protective_child_age(cond), cond["child"], cfg, need)
+    hypothetical += _infant_reasons(product, cond["infant"], cfg, need)
+    return any(r.severity.rank > Status.OK.rank for r in hypothetical)
+
+
 def condition_reasons(
     product: Product,
     member: Member,
@@ -96,22 +206,13 @@ def condition_reasons(
     out: list[Reason] = [
         Reason("condition_unrecognised", Status.UNKNOWN, {"condition": raw}) for raw in unrecognised
     ]
-    missing: set[tuple[str, str]] = set()
     # NaN-safe: anything not clearly >= the minimum is low confidence (Ruling R25).
     low_confidence = not (
         product.extraction_confidence >= cfg.thresholds["min_extraction_confidence"]
     )
-
-    def need(name: str, value: float | None, group: str) -> float | None:
-        if low_confidence or value is None:
-            if (name, group) not in missing:
-                missing.add((name, group))
-                params: dict[str, Any] = {"nutrient": name, "rule": group}
-                if low_confidence:
-                    params["reason"] = "low_confidence"
-                out.append(Reason("nutrient_missing", Status.UNKNOWN, params))
-            return None
-        return value
+    need = _make_need(out, low_confidence)
+    cardio_hits: list[str] = []
+    salt_reported = False
 
     if "blood_sugar" in groups:
         c = cond["blood_sugar"]
@@ -144,6 +245,11 @@ def condition_reasons(
                         {"carbs_g": _r(amount), "basis": basis},
                     )
                 )
+        # Ruling R12: high_in salt / sat_fat (keys from data) adds a CAUTION. Skipped on low
+        # confidence: the values are untrusted and nutrient_missing already makes it UNKNOWN.
+        if not low_confidence:
+            keys = set(c.get("cardio_high_in") or ())
+            cardio_hits = [k for k in high_in(product, cfg) if k in keys]
 
     if "hypertension" in groups:
         c = cond["hypertension"]
@@ -151,11 +257,19 @@ def condition_reasons(
         if salt is not None:
             if salt > c["avoid_salt_g"]:
                 out.append(Reason("salt_high", Status.AVOID, {"salt_g": _r(salt)}))
+                salt_reported = True
             elif salt > c["caution_salt_g"]:
                 out.append(Reason("salt_moderate", Status.CAUTION, {"salt_g": _r(salt)}))
+                salt_reported = True
         sa = sodium_additives(product, cfg)
         if sa:
             out.append(Reason("sodium_additives", Status.CAUTION, {"ingredients": list(sa)}))
+
+    # Salt already reported by the hypertension rule is not repeated in cardio_risk_high_in.
+    if salt_reported:
+        cardio_hits = [k for k in cardio_hits if k != "salt"]
+    if cardio_hits:
+        out.append(Reason("cardio_risk_high_in", Status.CAUTION, {"high_in": cardio_hits}))
 
     if "weight_loss" in groups:
         c = cond["weight_loss"]
@@ -175,59 +289,14 @@ def condition_reasons(
                 )
 
     if "child" in groups and member.age is not None:
-        c = cond["child"]
-        sugars = need("sugars_g", n.sugars_g, "child")
-        limit = _child_limit(member.age, c["free_sugar_daily_limit_g"])
-        if sugars is not None and limit:
-            has_serving = product.serving_size_g is not None
-            amount = product.per_serving(sugars) if has_serving else sugars
-            basis = "per_serving" if has_serving else "per_100g"
-            pct = amount / limit * 100
-            params = {"pct": _r(pct), "limit_g": _r(limit), "basis": basis}
-            if pct > c["avoid_pct_of_limit"]:
-                out.append(Reason("child_sugar_high", Status.AVOID, params))
-            elif pct > c["caution_pct_of_limit"]:
-                out.append(Reason("child_sugar_moderate", Status.CAUTION, params))
-            elif "sugar" in high_in(product, cfg):
-                # Per-100 g floor: a tiny serving of a very sugary food is still at least CAUTION.
-                floor = {"pct": _r(sugars / limit * 100), "limit_g": _r(limit), "basis": "per_100g"}
-                out.append(Reason("child_sugar_moderate", Status.CAUTION, floor))
-        caf = ingredient_hits(product, cfg, "caffeine")
-        if caf:
-            out.append(Reason("child_caffeine", Status.AVOID, {"ingredients": list(caf)}))
-        salt = need("salt", n.salt(), "child")
-        if salt is not None and "salt" in high_in(product, cfg):
-            out.append(Reason("child_salt_high", Status.CAUTION, {"salt_g": _r(salt)}))
-        if not ingredients_known(product, cfg):
-            out.append(Reason("ingredients_missing", Status.UNKNOWN, {"rule": "child"}))
+        out += _child_reasons(product, member.age, cond["child"], cfg, need)
 
     if "infant" in groups:
-        c = cond["infant"]
-        if not ingredients_known(product, cfg):
-            out.append(Reason("ingredients_missing", Status.UNKNOWN, {"rule": "infant"}))
-        inf_caf = ingredient_hits(product, cfg, "caffeine")
-        if inf_caf:
-            out.append(Reason("infant_caffeine", Status.AVOID, {"ingredients": list(inf_caf)}))
-        sugar_terms = added_sugar_terms(product, cfg)
-        free_sugars = ingredient_hits(product, cfg, "infant_free_sugars")
-        infant_sugar = tuple(sorted({*sugar_terms, *free_sugars}))
-        if infant_sugar:
-            out.append(
-                Reason("infant_added_sugar", Status.AVOID, {"ingredients": list(infant_sugar)})
-            )
-        salt_hits = ingredient_hits(product, cfg, "salt")
-        if salt_hits:
-            out.append(Reason("infant_added_salt", Status.AVOID, {"ingredients": list(salt_hits)}))
-        if "honey" in sugar_terms:
-            out.append(Reason("infant_honey", Status.AVOID, {}))
-        # Numeric sugar rule only when ingredients are unknown; with a known list,
-        # infant_added_sugar decides, so milk/formula lactose is not flagged (Ruling R32).
-        if not ingredients_known(product, cfg):
-            sugars = need("sugars_g", n.sugars_g, "infant")
-            if sugars is not None and sugars > c["avoid_sugars_g"]:
-                out.append(Reason("infant_sugar_high", Status.AVOID, {"sugars_g": _r(sugars)}))
-        salt = need("salt", n.salt(), "infant")
-        if salt is not None and salt > c["avoid_salt_g"]:
-            out.append(Reason("infant_salt_high", Status.AVOID, {"salt_g": _r(salt)}))
+        out += _infant_reasons(product, cond["infant"], cfg, need)
+
+    # Ruling R13: unknown age is not safe. Evaluate the child and infant rules at the most
+    # protective age; if either would flag, add one UNKNOWN (never the hypothetical reasons).
+    if member.age is None and _age_unknown_flags(product, cond, cfg, low_confidence):
+        out.append(Reason("age_unknown", Status.UNKNOWN, {}))
 
     return out

@@ -44,5 +44,9 @@ The products mirror the Plan 1 engine fixtures (`sf_biscuit`, `namkeen`, `curd`,
 
 These expectations record current engine output that a reviewer disputes. They will change when the engine does.
 
-- `expected/namkeen.diabetic_adult.json` is `ok`, but the product is high in salt and saturated fat (2.5 g salt, 10 g sat fat per 100 g). A dietitian would expect `caution` for a person with diabetes. Engine follow-up ruling R12 will add a blood-sugar caution for high_in salt/sat_fat.
-- `expected/cola.no_age.json`, `expected/namkeen.no_age.json` and `expected/no_ingredients.no_age.json` are `ok`, because child and infant rules are skipped when age is unknown. Engine follow-up ruling R13 will return `unknown` (`age_unknown`) when a child/infant rule would flag.
+None currently.
+
+Resolved:
+
+- R12: `expected/namkeen.diabetic_adult.json` is now `caution` (`cardio_risk_high_in`): blood-sugar members get a caution when the product is high_in salt or saturated fat. `sf_biscuit.diabetic_adult` (7 g sat fat per 100 g) gains the same reason; its status stays `avoid`.
+- R13: `expected/cola.no_age.json`, `expected/namkeen.no_age.json`, `expected/no_ingredients.no_age.json` and `expected/sf_biscuit.no_age.json` are now `unknown` (`age_unknown`): with no birth year, the child and infant rules are checked at the most protective age, and any flag makes the verdict `unknown`.
