@@ -21,7 +21,8 @@ def _extraction(**over) -> NutritionExtraction:
         "product_name": None, "brand": None, "basis_detected": "unknown", "per_100g": None,
         "per_serving": None, "serving_size_g": None, "ingredients": [], "allergen_statement": None,
         "may_contain_statement": None, "claims": [], "veg_mark": None, "category_guess": None,
-        "confidence": 0.9, "unreadable_fields": [],
+        "confidence": 0.9, "unreadable_fields": [], "upper_bound_fields": [],
+        "per_100_unit": None, "serving_size_unit": None,
     }  # fmt: skip
     return NutritionExtraction(**{**base, **over})
 
