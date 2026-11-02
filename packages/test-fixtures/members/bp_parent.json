@@ -1,0 +1,11 @@
+{
+  "id": "bp_parent",
+  "name": "BP Parent",
+  "age": 70,
+  "diet": "non_veg",
+  "allergens": [],
+  "conditions": [
+    "hypertension"
+  ],
+  "goal": null
+}

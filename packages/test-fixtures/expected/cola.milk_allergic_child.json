@@ -1,0 +1,7 @@
+{
+  "status": "avoid",
+  "reason_codes": [
+    "child_caffeine",
+    "child_sugar_high"
+  ]
+}

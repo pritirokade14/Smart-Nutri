@@ -1,0 +1,11 @@
+{
+  "id": "peanut_allergic",
+  "name": "Peanut Allergic",
+  "age": 30,
+  "diet": "non_veg",
+  "allergens": [
+    "peanut"
+  ],
+  "conditions": [],
+  "goal": null
+}

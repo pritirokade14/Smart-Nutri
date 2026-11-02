@@ -1,0 +1,8 @@
+{
+  "status": "unknown",
+  "reason_codes": [
+    "diet_unknown",
+    "carbs_per_serving_high",
+    "sugar_moderate"
+  ]
+}

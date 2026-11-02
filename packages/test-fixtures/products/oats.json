@@ -1,0 +1,22 @@
+{
+  "name": "Oats",
+  "category": "general",
+  "per_100g": {
+    "energy_kcal": 389,
+    "protein_g": 13,
+    "carbs_g": 66,
+    "sugars_g": 1.0,
+    "fat_g": 7,
+    "sat_fat_g": 1.2,
+    "fiber_g": 10.6,
+    "salt_g": 0.01
+  },
+  "serving_size_g": 40,
+  "ingredients": [
+    "whole grain rolled oats"
+  ],
+  "claims": [
+    "High Protein"
+  ],
+  "source": "plan-1 fixture"
+}

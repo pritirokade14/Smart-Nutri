@@ -1,0 +1,9 @@
+{
+  "id": "jain_adult",
+  "name": "Jain Adult",
+  "age": 40,
+  "diet": "jain",
+  "allergens": [],
+  "conditions": [],
+  "goal": null
+}

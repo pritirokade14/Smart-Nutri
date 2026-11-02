@@ -1,0 +1,9 @@
+{
+  "status": "unknown",
+  "reason_codes": [
+    "allergen_unknown",
+    "diet_unknown",
+    "ingredients_missing",
+    "child_sugar_moderate"
+  ]
+}

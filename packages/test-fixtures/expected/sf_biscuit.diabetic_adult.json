@@ -1,0 +1,7 @@
+{
+  "status": "avoid",
+  "reason_codes": [
+    "misleading_sugar_claim",
+    "hidden_sugars"
+  ]
+}

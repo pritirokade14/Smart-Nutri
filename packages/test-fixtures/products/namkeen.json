@@ -1,0 +1,26 @@
+{
+  "name": "Namkeen",
+  "category": "general",
+  "per_100g": {
+    "energy_kcal": 550,
+    "protein_g": 15,
+    "carbs_g": 40,
+    "sugars_g": 3,
+    "fat_g": 35,
+    "sat_fat_g": 10,
+    "fiber_g": 5,
+    "salt_g": 2.5
+  },
+  "serving_size_g": 30,
+  "ingredients": [
+    "gram flour (besan)",
+    "edible vegetable oil",
+    "peanuts",
+    "salt",
+    "spices",
+    "onion powder",
+    "garlic powder"
+  ],
+  "claims": [],
+  "source": "plan-1 fixture"
+}

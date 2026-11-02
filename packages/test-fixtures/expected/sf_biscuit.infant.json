@@ -1,0 +1,8 @@
+{
+  "status": "avoid",
+  "reason_codes": [
+    "infant_added_salt",
+    "infant_added_sugar",
+    "infant_salt_high"
+  ]
+}
