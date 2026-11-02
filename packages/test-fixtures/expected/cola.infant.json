@@ -1,7 +1,13 @@
 {
   "status": "avoid",
-  "reason_codes": [
-    "infant_added_sugar",
-    "infant_caffeine"
+  "reasons": [
+    {
+      "code": "infant_added_sugar",
+      "severity": "avoid"
+    },
+    {
+      "code": "infant_caffeine",
+      "severity": "avoid"
+    }
   ]
 }

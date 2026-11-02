@@ -1,6 +1,9 @@
 {
   "status": "unknown",
-  "reason_codes": [
-    "diet_unknown"
+  "reasons": [
+    {
+      "code": "diet_unknown",
+      "severity": "unknown"
+    }
   ]
 }

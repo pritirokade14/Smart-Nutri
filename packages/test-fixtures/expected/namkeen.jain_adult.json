@@ -1,6 +1,9 @@
 {
   "status": "avoid",
-  "reason_codes": [
-    "diet_violation"
+  "reasons": [
+    {
+      "code": "diet_violation",
+      "severity": "avoid"
+    }
   ]
 }

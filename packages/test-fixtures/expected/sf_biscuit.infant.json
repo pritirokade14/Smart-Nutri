@@ -1,8 +1,17 @@
 {
   "status": "avoid",
-  "reason_codes": [
-    "infant_added_salt",
-    "infant_added_sugar",
-    "infant_salt_high"
+  "reasons": [
+    {
+      "code": "infant_added_salt",
+      "severity": "avoid"
+    },
+    {
+      "code": "infant_added_sugar",
+      "severity": "avoid"
+    },
+    {
+      "code": "infant_salt_high",
+      "severity": "avoid"
+    }
   ]
 }

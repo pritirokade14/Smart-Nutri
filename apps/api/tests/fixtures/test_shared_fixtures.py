@@ -16,8 +16,11 @@ def test_every_product_and_member_has_expectations():
     assert {(p, m) for p, m, _ in CASES} == {(p, m) for p in products for m in members}
 
 
-@pytest.mark.parametrize(("product", "member", "expected"), CASES, ids=[f"{p}.{m}" for p, m, _ in CASES])
+@pytest.mark.parametrize(
+    ("product", "member", "expected"), CASES, ids=[f"{p}.{m}" for p, m, _ in CASES]
+)
 def test_engine_matches_expected(product, member, expected):
     verdict = analyze(load_product(product), [load_member(member)]).verdicts[0]
     assert verdict.status.value == expected["status"]
-    assert [r.code for r in verdict.reasons] == expected["reason_codes"]
+    actual = [{"code": r.code, "severity": r.severity.value} for r in verdict.reasons]
+    assert actual == expected["reasons"]

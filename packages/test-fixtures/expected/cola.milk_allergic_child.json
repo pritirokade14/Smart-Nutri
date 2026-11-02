@@ -1,7 +1,13 @@
 {
   "status": "avoid",
-  "reason_codes": [
-    "child_caffeine",
-    "child_sugar_high"
+  "reasons": [
+    {
+      "code": "child_caffeine",
+      "severity": "avoid"
+    },
+    {
+      "code": "child_sugar_high",
+      "severity": "avoid"
+    }
   ]
 }

@@ -1,7 +1,13 @@
 {
   "status": "caution",
-  "reason_codes": [
-    "energy_dense",
-    "nutriscore_low"
+  "reasons": [
+    {
+      "code": "energy_dense",
+      "severity": "caution"
+    },
+    {
+      "code": "nutriscore_low",
+      "severity": "caution"
+    }
   ]
 }

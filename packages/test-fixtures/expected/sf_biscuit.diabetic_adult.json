@@ -1,7 +1,13 @@
 {
   "status": "avoid",
-  "reason_codes": [
-    "misleading_sugar_claim",
-    "hidden_sugars"
+  "reasons": [
+    {
+      "code": "misleading_sugar_claim",
+      "severity": "avoid"
+    },
+    {
+      "code": "hidden_sugars",
+      "severity": "caution"
+    }
   ]
 }

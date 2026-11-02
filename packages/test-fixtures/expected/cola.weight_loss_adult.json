@@ -1,6 +1,9 @@
 {
   "status": "caution",
-  "reason_codes": [
-    "nutriscore_low"
+  "reasons": [
+    {
+      "code": "nutriscore_low",
+      "severity": "caution"
+    }
   ]
 }

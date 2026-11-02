@@ -1,6 +1,9 @@
 {
   "status": "avoid",
-  "reason_codes": [
-    "allergen_contains"
+  "reasons": [
+    {
+      "code": "allergen_contains",
+      "severity": "avoid"
+    }
   ]
 }

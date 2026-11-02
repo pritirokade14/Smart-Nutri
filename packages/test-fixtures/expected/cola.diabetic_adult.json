@@ -1,8 +1,17 @@
 {
   "status": "avoid",
-  "reason_codes": [
-    "sugar_high",
-    "added_sugars",
-    "carbs_per_serving_high"
+  "reasons": [
+    {
+      "code": "sugar_high",
+      "severity": "avoid"
+    },
+    {
+      "code": "added_sugars",
+      "severity": "caution"
+    },
+    {
+      "code": "carbs_per_serving_high",
+      "severity": "caution"
+    }
   ]
 }

@@ -1,9 +1,21 @@
 {
   "status": "unknown",
-  "reason_codes": [
-    "allergen_unknown",
-    "diet_unknown",
-    "ingredients_missing",
-    "child_sugar_moderate"
+  "reasons": [
+    {
+      "code": "allergen_unknown",
+      "severity": "unknown"
+    },
+    {
+      "code": "diet_unknown",
+      "severity": "unknown"
+    },
+    {
+      "code": "ingredients_missing",
+      "severity": "unknown"
+    },
+    {
+      "code": "child_sugar_moderate",
+      "severity": "caution"
+    }
   ]
 }

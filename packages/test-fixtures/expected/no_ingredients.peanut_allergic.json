@@ -1,6 +1,9 @@
 {
   "status": "unknown",
-  "reason_codes": [
-    "allergen_unknown"
+  "reasons": [
+    {
+      "code": "allergen_unknown",
+      "severity": "unknown"
+    }
   ]
 }
