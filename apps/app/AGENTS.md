@@ -2,11 +2,11 @@
 
 This is the **Android app** for SmartNutri AI, built with Flutter. The web app is a separate Next.js project in `apps/web`, and **both ship every v1 feature** (full parity). Root rules in `../../AGENTS.md` apply first.
 
-> **Current state:** `lib/` is the **old prototype**: Provider, a 1,557-line `dashboard_screen.dart`, a hard-coded `127.0.0.1`, and the scraping `translator` package. Plan 3 rebuilds it. Don't extend the prototype. New code follows the layout below.
+> **Current state:** shell built (Plan 2 Task 11): `com.smartnutri.app`, Riverpod 3, `AppConfig` from `--dart-define`, theme from design tokens, generated l10n (en/hi/mr). The old prototype is deleted. New code follows the layout below.
 
 ## Stack
 
-- Flutter **latest stable** (upgrade the local 3.44.2 with `flutter upgrade` before Plan 3), Dart ≥ 3.9
+- Flutter **3.44.2 stable** (pinned on the dev machine; Dart 3.12.2, so `environment: sdk: ^3.12.0`). Don't upgrade without a deliberate decision.
 - `flutter_riverpod` 3 + `riverpod_generator`
 - `go_router`, `freezed` + `json_serializable`
 - **`smartnutri_api`**: the generated API client in `packages/api-contract/dart` (swagger_parser 1.45). Use it for every API call; never hand-write HTTP calls to the API.
@@ -24,7 +24,7 @@ This is the **Android app** for SmartNutri AI, built with Flutter. The web app i
 lib/
   main.dart  app.dart  bootstrap.dart
   core/
-    config/      # reads --dart-define values (API_BASE_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, ENV, SENTRY_DSN, POSTHOG_KEY)
+    config/      # reads --dart-define values (API_BASE_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, ENVIRONMENT, GOOGLE_WEB_CLIENT_ID, SENTRY_DSN, POSTHOG_KEY, FEATURE_PHONE_OTP)
     network/     # configures the generated smartnutri_api client: base URL, Supabase JWT, retry
     router/      # go_router, auth guard
     theme/       # wraps the GENERATED tokens; no raw colour literals elsewhere
@@ -49,7 +49,7 @@ test/  integration_test/
 
 - Config is passed at build time: `--dart-define-from-file=env/<env>.json`. Envs: `dev`, `staging`, `prod`.
 - `env/*.json` is **git-ignored**, apart from `env/example.json`, which documents the keys:
-  `API_BASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `ENV`, `SENTRY_DSN`, `POSTHOG_KEY`.
+  `API_BASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `ENVIRONMENT`, `GOOGLE_WEB_CLIENT_ID`, `SENTRY_DSN`, `POSTHOG_KEY`, `FEATURE_PHONE_OTP`.
 - **No secrets in the app.** The CallMissed key never comes here. All AI and voice calls go through `apps/api`.
 
 ## Platform

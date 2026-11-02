@@ -99,12 +99,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String claimReasonBelowMinimum(String limit, String value) {
-    return '$value is below the minimum of $limit for this claim.';
+    return 'Protein gives $value% of the energy, below the $limit% this claim needs.';
   }
 
   @override
   String claimReasonExceedsLimit(String limit, String value) {
-    return '$value is above the limit of $limit for this claim.';
+    return 'The label shows $value per 100 g/ml, above this claim\'s limit of $limit.';
   }
 
   @override
@@ -112,13 +112,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'The ingredients list is not available, so this claim can\'t be checked.';
 
   @override
-  String claimReasonNoStandard(String claim) {
-    return 'We have no standard to check \"$claim\" against.';
-  }
+  String get claimReasonNoStandard =>
+      'There is no standard to check this claim against.';
 
   @override
   String claimReasonNutrientMissing(String nutrient) {
-    return '$nutrient is not on the label, so this claim can\'t be checked.';
+    return 'The label does not show $nutrient, so this claim can\'t be checked.';
   }
 
   @override
@@ -235,6 +234,30 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get nutrientCarbsG => 'carbohydrate';
+
+  @override
+  String get nutrientEnergyKcal => 'energy (calories)';
+
+  @override
+  String get nutrientFatG => 'fat';
+
+  @override
+  String get nutrientProteinG => 'protein';
+
+  @override
+  String get nutrientSalt => 'salt';
+
+  @override
+  String get nutrientSatFat => 'saturated fat';
+
+  @override
+  String get nutrientSodiumMg => 'sodium';
+
+  @override
+  String get nutrientSugarsG => 'sugars';
+
+  @override
   String get nutriscoreCalculatedBy => 'Nutri-Score calculated by SmartNutri';
 
   @override
@@ -245,6 +268,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String reasonAddedSugars(String ingredients) {
     return 'Contains added sugars: $ingredients.';
   }
+
+  @override
+  String get reasonAgeUnknown =>
+      'Add this member\'s birth year: this food may not suit young children or babies.';
 
   @override
   String reasonAllergenContains(String allergen) {
@@ -267,8 +294,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String reasonCarbsPerServingHigh(String carbs_g) {
-    return '$carbs_g g carbohydrate per serving. This may not suit your condition; check with your doctor.';
+  String reasonCarbsPerServingHigh(String basis, String carbs_g) {
+    String _temp0 = intl.Intl.selectLogic(basis, {
+      'per_serving': 'per serving',
+      'other': 'per 100 g/ml',
+    });
+    return '$carbs_g g carbohydrate $_temp0. This may not suit your condition; check with your doctor.';
+  }
+
+  @override
+  String reasonCardioRiskHighIn(String high_in) {
+    return 'High in $high_in. People managing blood sugar are often advised to limit these; check with your doctor.';
   }
 
   @override
@@ -276,18 +312,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Contains caffeine, which is not recommended for children.';
 
   @override
-  String reasonChildSaltHigh(String limit_g, String salt_g) {
-    return '$salt_g g salt is high for a child (guide: about $limit_g g).';
+  String reasonChildSaltHigh(String salt_g) {
+    return '$salt_g g salt per 100 g/ml is high for a child.';
   }
 
   @override
-  String reasonChildSugarHigh(String limit_g, String sugars_g) {
-    return '$sugars_g g sugar is high for a child (guide: about $limit_g g).';
+  String reasonChildSugarHigh(String basis, String limit_g, String pct) {
+    String _temp0 = intl.Intl.selectLogic(basis, {
+      'per_serving': 'One serving',
+      'other': '100 g/ml',
+    });
+    return '$_temp0 gives $pct% of a child\'s daily sugar limit (about $limit_g g a day). That is high for a child.';
   }
 
   @override
-  String reasonChildSugarModerate(String limit_g, String sugars_g) {
-    return '$sugars_g g sugar is on the higher side for a child (guide: about $limit_g g).';
+  String reasonChildSugarModerate(String basis, String limit_g, String pct) {
+    String _temp0 = intl.Intl.selectLogic(basis, {
+      'per_serving': 'One serving',
+      'other': '100 g/ml',
+    });
+    return '$_temp0 gives $pct% of a child\'s daily sugar limit (about $limit_g g a day). That is on the higher side for a child.';
   }
 
   @override
@@ -297,17 +341,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reasonDietUnknown(String diet) {
-    return 'We can\'t tell whether this fits a $diet diet.';
+    return 'We can\'t tell whether this fits the $diet diet.';
   }
 
   @override
   String reasonDietViolation(String diet, String ingredients) {
-    return 'May not match a $diet diet: $ingredients.';
+    return 'May not match the $diet diet: $ingredients.';
   }
 
   @override
-  String get reasonEnergyDense =>
-      'This is an energy-dense food. Small portions are best.';
+  String reasonEnergyDense(String energy_kcal) {
+    return 'This is an energy-dense food ($energy_kcal kcal per 100 g/ml). Consider a smaller portion.';
+  }
 
   @override
   String get reasonGoodProteinDensity =>
@@ -320,28 +365,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reasonInfantAddedSalt =>
-      'Contains added salt, which is not recommended for infants.';
+      'Contains added salt, which is not recommended for children under 2.';
 
   @override
   String get reasonInfantAddedSugar =>
-      'Contains added sugar, which is not recommended for infants.';
+      'Contains added sugar, which is not recommended for children under 2.';
 
   @override
   String get reasonInfantCaffeine =>
-      'Contains caffeine, which is not recommended for infants.';
+      'Contains caffeine, which is not recommended for children under 2.';
 
   @override
   String get reasonInfantHoney =>
-      'Contains honey, which should not be given to infants under 12 months.';
+      'Contains honey, which should not be given to babies under 1 year. For toddlers, check with your doctor.';
 
   @override
   String reasonInfantSaltHigh(String salt_g) {
-    return '$salt_g g salt is high for an infant.';
+    return '$salt_g g salt per 100 g/ml is high for a child under 2.';
   }
 
   @override
   String reasonInfantSugarHigh(String sugars_g) {
-    return '$sugars_g g sugar is high for an infant.';
+    return '$sugars_g g sugar per 100 g/ml is high for a child under 2.';
   }
 
   @override
@@ -349,13 +394,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'The ingredients list was not readable, so some checks could not be done.';
 
   @override
-  String reasonMisleadingSugarClaim(String ingredients, String mark) {
-    return 'The pack says \"$mark\", but the ingredients include sugar: $ingredients.';
+  String reasonMisleadingSugarClaim(String claim) {
+    return 'The pack says \"$claim\", but the label data does not support this claim.';
   }
 
   @override
   String reasonNutrientMissing(String nutrient) {
-    return '$nutrient is not on the label, so this check could not be done.';
+    return 'The label does not show $nutrient, so this check could not be done.';
   }
 
   @override
@@ -364,21 +409,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String reasonSaltHigh(String basis, String salt_g) {
-    String _temp0 = intl.Intl.selectLogic(basis, {
-      'per_serving': 'per serving',
-      'other': 'per 100 g',
-    });
-    return 'High in salt: $salt_g g $_temp0.';
+  String reasonSaltHigh(String salt_g) {
+    return 'High in salt: $salt_g g per 100 g/ml.';
   }
 
   @override
-  String reasonSaltModerate(String basis, String salt_g) {
-    String _temp0 = intl.Intl.selectLogic(basis, {
-      'per_serving': 'per serving',
-      'other': 'per 100 g',
-    });
-    return 'Moderate salt: $salt_g g $_temp0.';
+  String reasonSaltModerate(String salt_g) {
+    return 'Moderate salt: $salt_g g per 100 g/ml.';
   }
 
   @override
@@ -387,21 +424,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String reasonSugarHigh(String basis, String sugars_g) {
-    String _temp0 = intl.Intl.selectLogic(basis, {
-      'per_serving': 'per serving',
-      'other': 'per 100 g',
-    });
-    return 'High in sugar: $sugars_g g $_temp0.';
+  String reasonSugarHigh(String sugars_g) {
+    return 'High in sugar: $sugars_g g per 100 g/ml.';
   }
 
   @override
-  String reasonSugarModerate(String basis, String sugars_g) {
-    String _temp0 = intl.Intl.selectLogic(basis, {
-      'per_serving': 'per serving',
-      'other': 'per 100 g',
-    });
-    return 'Moderate sugar: $sugars_g g $_temp0.';
+  String reasonSugarModerate(String sugars_g) {
+    return 'Moderate sugar: $sugars_g g per 100 g/ml.';
+  }
+
+  @override
+  String reasonVariantDietViolationMarkOnly(String diet) {
+    return 'The pack has the brown non-vegetarian mark, so this may not match the $diet diet.';
+  }
+
+  @override
+  String reasonVariantNutrientMissingLowConfidence(String nutrient) {
+    return 'We couldn\'t read $nutrient clearly on the label, so this check could not be done.';
   }
 
   @override

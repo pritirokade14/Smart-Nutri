@@ -39,7 +39,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get allergenSulphite => 'सल्फाइट';
 
   @override
-  String get allergenTreeNut => 'सुकामेवा (ट्री नट्स)';
+  String get allergenTreeNut => 'ट्री नट्स (बदाम, काजू, अक्रोड इ.)';
 
   @override
   String get appName => 'SmartNutri AI';
@@ -99,12 +99,12 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String claimReasonBelowMinimum(String limit, String value) {
-    return '$value हे या दाव्याच्या किमान $limit पेक्षा कमी आहे.';
+    return 'प्रथिनांमधून $value% ऊर्जा मिळते, जी या दाव्यासाठी आवश्यक $limit% पेक्षा कमी आहे.';
   }
 
   @override
   String claimReasonExceedsLimit(String limit, String value) {
-    return '$value हे या दाव्याच्या $limit मर्यादेपेक्षा जास्त आहे.';
+    return 'लेबलवर प्रति 100 ग्रॅम/मि.ली. $value आहे, जे या दाव्याच्या $limit मर्यादेपेक्षा जास्त आहे.';
   }
 
   @override
@@ -112,13 +112,12 @@ class AppLocalizationsMr extends AppLocalizations {
       'घटकांची यादी उपलब्ध नाही, त्यामुळे हा दावा तपासता येत नाही.';
 
   @override
-  String claimReasonNoStandard(String claim) {
-    return '\"$claim\" तपासण्यासाठी आमच्याकडे कोणतेही मानक नाही.';
-  }
+  String get claimReasonNoStandard =>
+      'हा दावा तपासण्यासाठी आमच्याकडे कोणतेही मानक नाही.';
 
   @override
   String claimReasonNutrientMissing(String nutrient) {
-    return 'लेबलवर $nutrient दिलेले नाही, त्यामुळे हा दावा तपासता येत नाही.';
+    return 'लेबलवर $nutrient ची माहिती नाही, त्यामुळे हा दावा तपासता येत नाही.';
   }
 
   @override
@@ -237,6 +236,30 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String get nutrientCarbsG => 'कार्बोहायड्रेट';
+
+  @override
+  String get nutrientEnergyKcal => 'ऊर्जा (कॅलरी)';
+
+  @override
+  String get nutrientFatG => 'फॅट (स्निग्ध पदार्थ)';
+
+  @override
+  String get nutrientProteinG => 'प्रथिने';
+
+  @override
+  String get nutrientSalt => 'मीठ';
+
+  @override
+  String get nutrientSatFat => 'संतृप्त फॅट';
+
+  @override
+  String get nutrientSodiumMg => 'सोडियम';
+
+  @override
+  String get nutrientSugarsG => 'शर्करा (साखर)';
+
+  @override
   String get nutriscoreCalculatedBy =>
       'Nutri-Score ची गणना SmartNutri ने केली आहे';
 
@@ -248,6 +271,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String reasonAddedSugars(String ingredients) {
     return 'यात वरून घातलेली साखर आहे: $ingredients.';
   }
+
+  @override
+  String get reasonAgeUnknown =>
+      'या सदस्याचे जन्मवर्ष जोडा: हा पदार्थ कदाचित लहान मुलांना किंवा बाळांना योग्य नसेल.';
 
   @override
   String reasonAllergenContains(String allergen) {
@@ -270,8 +297,17 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
-  String reasonCarbsPerServingHigh(String carbs_g) {
-    return 'प्रति सर्व्हिंग $carbs_g ग्रॅम कार्बोहायड्रेट. हे तुमच्या स्थितीला योग्य नसू शकते; तुमच्या डॉक्टरांना विचारा.';
+  String reasonCarbsPerServingHigh(String basis, String carbs_g) {
+    String _temp0 = intl.Intl.selectLogic(basis, {
+      'per_serving': 'प्रति सर्व्हिंग',
+      'other': 'प्रति 100 ग्रॅम/मि.ली.',
+    });
+    return '$_temp0 $carbs_g ग्रॅम कार्बोहायड्रेट. हे तुमच्या स्थितीला कदाचित योग्य नसेल; तुमच्या डॉक्टरांना विचारा.';
+  }
+
+  @override
+  String reasonCardioRiskHighIn(String high_in) {
+    return 'यात $high_in जास्त आहे. रक्तातील साखरेकडे लक्ष देणाऱ्या लोकांना हे मर्यादित ठेवण्याचा सल्ला अनेकदा दिला जातो; तुमच्या डॉक्टरांना विचारा.';
   }
 
   @override
@@ -279,18 +315,26 @@ class AppLocalizationsMr extends AppLocalizations {
       'यात कॅफिन आहे, जे मुलांसाठी शिफारस केलेले नाही.';
 
   @override
-  String reasonChildSaltHigh(String limit_g, String salt_g) {
-    return 'मुलासाठी $salt_g ग्रॅम मीठ जास्त आहे (मार्गदर्शक मर्यादा: सुमारे $limit_g ग्रॅम).';
+  String reasonChildSaltHigh(String salt_g) {
+    return 'प्रति 100 ग्रॅम/मि.ली. $salt_g ग्रॅम मीठ मुलासाठी जास्त आहे.';
   }
 
   @override
-  String reasonChildSugarHigh(String limit_g, String sugars_g) {
-    return 'मुलासाठी $sugars_g ग्रॅम साखर जास्त आहे (मार्गदर्शक मर्यादा: सुमारे $limit_g ग्रॅम).';
+  String reasonChildSugarHigh(String basis, String limit_g, String pct) {
+    String _temp0 = intl.Intl.selectLogic(basis, {
+      'per_serving': 'एका सर्व्हिंगमध्ये',
+      'other': '100 ग्रॅम/मि.ली. मध्ये',
+    });
+    return '$_temp0 मुलाच्या दैनिक साखर मर्यादेच्या (दिवसाला सुमारे $limit_g ग्रॅम) $pct% साखर आहे. हे मुलासाठी जास्त आहे.';
   }
 
   @override
-  String reasonChildSugarModerate(String limit_g, String sugars_g) {
-    return 'मुलासाठी $sugars_g ग्रॅम साखर थोडी जास्त आहे (मार्गदर्शक मर्यादा: सुमारे $limit_g ग्रॅम).';
+  String reasonChildSugarModerate(String basis, String limit_g, String pct) {
+    String _temp0 = intl.Intl.selectLogic(basis, {
+      'per_serving': 'एका सर्व्हिंगमध्ये',
+      'other': '100 ग्रॅम/मि.ली. मध्ये',
+    });
+    return '$_temp0 मुलाच्या दैनिक साखर मर्यादेच्या (दिवसाला सुमारे $limit_g ग्रॅम) $pct% साखर आहे. हे मुलासाठी थोडे जास्त आहे.';
   }
 
   @override
@@ -305,12 +349,13 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String reasonDietViolation(String diet, String ingredients) {
-    return 'हे $diet आहाराशी जुळणार नाही असे असू शकते: $ingredients.';
+    return 'हे कदाचित $diet आहाराशी जुळणार नाही: $ingredients.';
   }
 
   @override
-  String get reasonEnergyDense =>
-      'हा ऊर्जेने भरपूर (जास्त कॅलरीचा) पदार्थ आहे. कमी प्रमाणात घेणे चांगले.';
+  String reasonEnergyDense(String energy_kcal) {
+    return 'हा ऊर्जेने भरपूर (जास्त कॅलरीचा) पदार्थ आहे (प्रति 100 ग्रॅम/मि.ली. $energy_kcal किलोकॅलरी). कमी प्रमाणात घेण्याचा विचार करा.';
+  }
 
   @override
   String get reasonGoodProteinDensity =>
@@ -323,28 +368,28 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get reasonInfantAddedSalt =>
-      'यात वरून घातलेले मीठ आहे, जे लहान बाळांसाठी शिफारस केलेले नाही.';
+      'यात वरून घातलेले मीठ आहे, जे 2 वर्षांखालील मुलांसाठी शिफारस केलेले नाही.';
 
   @override
   String get reasonInfantAddedSugar =>
-      'यात वरून घातलेली साखर आहे, जी लहान बाळांसाठी शिफारस केलेली नाही.';
+      'यात वरून घातलेली साखर आहे, जी 2 वर्षांखालील मुलांसाठी शिफारस केलेली नाही.';
 
   @override
   String get reasonInfantCaffeine =>
-      'यात कॅफिन आहे, जे लहान बाळांसाठी शिफारस केलेले नाही.';
+      'यात कॅफिन आहे, जे 2 वर्षांखालील मुलांसाठी शिफारस केलेले नाही.';
 
   @override
   String get reasonInfantHoney =>
-      'यात मध आहे, जो 12 महिन्यांपेक्षा लहान बाळांना देऊ नये.';
+      'यात मध आहे, जो 1 वर्षाखालील बाळांना देऊ नये. त्याहून मोठ्या लहान मुलांसाठी तुमच्या डॉक्टरांना विचारा.';
 
   @override
   String reasonInfantSaltHigh(String salt_g) {
-    return 'लहान बाळासाठी $salt_g ग्रॅम मीठ जास्त आहे.';
+    return 'प्रति 100 ग्रॅम/मि.ली. $salt_g ग्रॅम मीठ 2 वर्षांखालील मुलासाठी जास्त आहे.';
   }
 
   @override
   String reasonInfantSugarHigh(String sugars_g) {
-    return 'लहान बाळासाठी $sugars_g ग्रॅम साखर जास्त आहे.';
+    return 'प्रति 100 ग्रॅम/मि.ली. $sugars_g ग्रॅम साखर 2 वर्षांखालील मुलासाठी जास्त आहे.';
   }
 
   @override
@@ -352,13 +397,13 @@ class AppLocalizationsMr extends AppLocalizations {
       'घटकांची यादी वाचता आली नाही, त्यामुळे काही तपासण्या करता आल्या नाहीत.';
 
   @override
-  String reasonMisleadingSugarClaim(String ingredients, String mark) {
-    return 'पॅकवर \"$mark\" असे लिहिले आहे, पण घटकांमध्ये साखर आहे: $ingredients.';
+  String reasonMisleadingSugarClaim(String claim) {
+    return 'पॅकवर \"$claim\" असे लिहिले आहे, पण लेबलवरील माहिती या दाव्याला पुष्टी देत नाही.';
   }
 
   @override
   String reasonNutrientMissing(String nutrient) {
-    return 'लेबलवर $nutrient दिलेले नाही, त्यामुळे ही तपासणी करता आली नाही.';
+    return 'लेबलवर $nutrient ची माहिती नाही, त्यामुळे ही तपासणी करता आली नाही.';
   }
 
   @override
@@ -367,21 +412,13 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
-  String reasonSaltHigh(String basis, String salt_g) {
-    String _temp0 = intl.Intl.selectLogic(basis, {
-      'per_serving': 'प्रति सर्व्हिंग',
-      'other': 'प्रति 100 ग्रॅम',
-    });
-    return 'मीठ जास्त आहे: $salt_g ग्रॅम $_temp0.';
+  String reasonSaltHigh(String salt_g) {
+    return 'मीठ जास्त आहे: प्रति 100 ग्रॅम/मि.ली. $salt_g ग्रॅम.';
   }
 
   @override
-  String reasonSaltModerate(String basis, String salt_g) {
-    String _temp0 = intl.Intl.selectLogic(basis, {
-      'per_serving': 'प्रति सर्व्हिंग',
-      'other': 'प्रति 100 ग्रॅम',
-    });
-    return 'मीठ मध्यम आहे: $salt_g ग्रॅम $_temp0.';
+  String reasonSaltModerate(String salt_g) {
+    return 'मीठ मध्यम आहे: प्रति 100 ग्रॅम/मि.ली. $salt_g ग्रॅम.';
   }
 
   @override
@@ -390,21 +427,23 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
-  String reasonSugarHigh(String basis, String sugars_g) {
-    String _temp0 = intl.Intl.selectLogic(basis, {
-      'per_serving': 'प्रति सर्व्हिंग',
-      'other': 'प्रति 100 ग्रॅम',
-    });
-    return 'साखर जास्त आहे: $sugars_g ग्रॅम $_temp0.';
+  String reasonSugarHigh(String sugars_g) {
+    return 'साखर जास्त आहे: प्रति 100 ग्रॅम/मि.ली. $sugars_g ग्रॅम.';
   }
 
   @override
-  String reasonSugarModerate(String basis, String sugars_g) {
-    String _temp0 = intl.Intl.selectLogic(basis, {
-      'per_serving': 'प्रति सर्व्हिंग',
-      'other': 'प्रति 100 ग्रॅम',
-    });
-    return 'साखर मध्यम आहे: $sugars_g ग्रॅम $_temp0.';
+  String reasonSugarModerate(String sugars_g) {
+    return 'साखर मध्यम आहे: प्रति 100 ग्रॅम/मि.ली. $sugars_g ग्रॅम.';
+  }
+
+  @override
+  String reasonVariantDietViolationMarkOnly(String diet) {
+    return 'पॅकवर तपकिरी रंगाची मांसाहारी खूण आहे, त्यामुळे हे कदाचित $diet आहाराशी जुळणार नाही.';
+  }
+
+  @override
+  String reasonVariantNutrientMissingLowConfidence(String nutrient) {
+    return 'लेबलवरील $nutrient स्पष्टपणे वाचता आले नाही, त्यामुळे ही तपासणी करता आली नाही.';
   }
 
   @override

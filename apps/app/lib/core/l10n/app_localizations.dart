@@ -277,13 +277,13 @@ abstract class AppLocalizations {
   /// No description provided for @claimReasonBelowMinimum.
   ///
   /// In en, this message translates to:
-  /// **'{value} is below the minimum of {limit} for this claim.'**
+  /// **'Protein gives {value}% of the energy, below the {limit}% this claim needs.'**
   String claimReasonBelowMinimum(String limit, String value);
 
   /// No description provided for @claimReasonExceedsLimit.
   ///
   /// In en, this message translates to:
-  /// **'{value} is above the limit of {limit} for this claim.'**
+  /// **'The label shows {value} per 100 g/ml, above this claim\'s limit of {limit}.'**
   String claimReasonExceedsLimit(String limit, String value);
 
   /// No description provided for @claimReasonIngredientsUnknown.
@@ -295,13 +295,13 @@ abstract class AppLocalizations {
   /// No description provided for @claimReasonNoStandard.
   ///
   /// In en, this message translates to:
-  /// **'We have no standard to check \"{claim}\" against.'**
-  String claimReasonNoStandard(String claim);
+  /// **'There is no standard to check this claim against.'**
+  String get claimReasonNoStandard;
 
   /// No description provided for @claimReasonNutrientMissing.
   ///
   /// In en, this message translates to:
-  /// **'{nutrient} is not on the label, so this claim can\'t be checked.'**
+  /// **'The label does not show {nutrient}, so this claim can\'t be checked.'**
   String claimReasonNutrientMissing(String nutrient);
 
   /// No description provided for @claimReasonOk.
@@ -514,6 +514,54 @@ abstract class AppLocalizations {
   /// **'Hello, {name}'**
   String homeWelcome(String name);
 
+  /// No description provided for @nutrientCarbsG.
+  ///
+  /// In en, this message translates to:
+  /// **'carbohydrate'**
+  String get nutrientCarbsG;
+
+  /// No description provided for @nutrientEnergyKcal.
+  ///
+  /// In en, this message translates to:
+  /// **'energy (calories)'**
+  String get nutrientEnergyKcal;
+
+  /// No description provided for @nutrientFatG.
+  ///
+  /// In en, this message translates to:
+  /// **'fat'**
+  String get nutrientFatG;
+
+  /// No description provided for @nutrientProteinG.
+  ///
+  /// In en, this message translates to:
+  /// **'protein'**
+  String get nutrientProteinG;
+
+  /// No description provided for @nutrientSalt.
+  ///
+  /// In en, this message translates to:
+  /// **'salt'**
+  String get nutrientSalt;
+
+  /// No description provided for @nutrientSatFat.
+  ///
+  /// In en, this message translates to:
+  /// **'saturated fat'**
+  String get nutrientSatFat;
+
+  /// No description provided for @nutrientSodiumMg.
+  ///
+  /// In en, this message translates to:
+  /// **'sodium'**
+  String get nutrientSodiumMg;
+
+  /// No description provided for @nutrientSugarsG.
+  ///
+  /// In en, this message translates to:
+  /// **'sugars'**
+  String get nutrientSugarsG;
+
   /// No description provided for @nutriscoreCalculatedBy.
   ///
   /// In en, this message translates to:
@@ -531,6 +579,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contains added sugars: {ingredients}.'**
   String reasonAddedSugars(String ingredients);
+
+  /// No description provided for @reasonAgeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Add this member\'s birth year: this food may not suit young children or babies.'**
+  String get reasonAgeUnknown;
 
   /// No description provided for @reasonAllergenContains.
   ///
@@ -559,8 +613,14 @@ abstract class AppLocalizations {
   /// No description provided for @reasonCarbsPerServingHigh.
   ///
   /// In en, this message translates to:
-  /// **'{carbs_g} g carbohydrate per serving. This may not suit your condition; check with your doctor.'**
-  String reasonCarbsPerServingHigh(String carbs_g);
+  /// **'{carbs_g} g carbohydrate {basis, select, per_serving {per serving} other {per 100 g/ml}}. This may not suit your condition; check with your doctor.'**
+  String reasonCarbsPerServingHigh(String basis, String carbs_g);
+
+  /// No description provided for @reasonCardioRiskHighIn.
+  ///
+  /// In en, this message translates to:
+  /// **'High in {high_in}. People managing blood sugar are often advised to limit these; check with your doctor.'**
+  String reasonCardioRiskHighIn(String high_in);
 
   /// No description provided for @reasonChildCaffeine.
   ///
@@ -571,20 +631,20 @@ abstract class AppLocalizations {
   /// No description provided for @reasonChildSaltHigh.
   ///
   /// In en, this message translates to:
-  /// **'{salt_g} g salt is high for a child (guide: about {limit_g} g).'**
-  String reasonChildSaltHigh(String limit_g, String salt_g);
+  /// **'{salt_g} g salt per 100 g/ml is high for a child.'**
+  String reasonChildSaltHigh(String salt_g);
 
   /// No description provided for @reasonChildSugarHigh.
   ///
   /// In en, this message translates to:
-  /// **'{sugars_g} g sugar is high for a child (guide: about {limit_g} g).'**
-  String reasonChildSugarHigh(String limit_g, String sugars_g);
+  /// **'{basis, select, per_serving {One serving} other {100 g/ml}} gives {pct}% of a child\'s daily sugar limit (about {limit_g} g a day). That is high for a child.'**
+  String reasonChildSugarHigh(String basis, String limit_g, String pct);
 
   /// No description provided for @reasonChildSugarModerate.
   ///
   /// In en, this message translates to:
-  /// **'{sugars_g} g sugar is on the higher side for a child (guide: about {limit_g} g).'**
-  String reasonChildSugarModerate(String limit_g, String sugars_g);
+  /// **'{basis, select, per_serving {One serving} other {100 g/ml}} gives {pct}% of a child\'s daily sugar limit (about {limit_g} g a day). That is on the higher side for a child.'**
+  String reasonChildSugarModerate(String basis, String limit_g, String pct);
 
   /// No description provided for @reasonConditionUnrecognised.
   ///
@@ -595,20 +655,20 @@ abstract class AppLocalizations {
   /// No description provided for @reasonDietUnknown.
   ///
   /// In en, this message translates to:
-  /// **'We can\'t tell whether this fits a {diet} diet.'**
+  /// **'We can\'t tell whether this fits the {diet} diet.'**
   String reasonDietUnknown(String diet);
 
   /// No description provided for @reasonDietViolation.
   ///
   /// In en, this message translates to:
-  /// **'May not match a {diet} diet: {ingredients}.'**
+  /// **'May not match the {diet} diet: {ingredients}.'**
   String reasonDietViolation(String diet, String ingredients);
 
   /// No description provided for @reasonEnergyDense.
   ///
   /// In en, this message translates to:
-  /// **'This is an energy-dense food. Small portions are best.'**
-  String get reasonEnergyDense;
+  /// **'This is an energy-dense food ({energy_kcal} kcal per 100 g/ml). Consider a smaller portion.'**
+  String reasonEnergyDense(String energy_kcal);
 
   /// No description provided for @reasonGoodProteinDensity.
   ///
@@ -625,37 +685,37 @@ abstract class AppLocalizations {
   /// No description provided for @reasonInfantAddedSalt.
   ///
   /// In en, this message translates to:
-  /// **'Contains added salt, which is not recommended for infants.'**
+  /// **'Contains added salt, which is not recommended for children under 2.'**
   String get reasonInfantAddedSalt;
 
   /// No description provided for @reasonInfantAddedSugar.
   ///
   /// In en, this message translates to:
-  /// **'Contains added sugar, which is not recommended for infants.'**
+  /// **'Contains added sugar, which is not recommended for children under 2.'**
   String get reasonInfantAddedSugar;
 
   /// No description provided for @reasonInfantCaffeine.
   ///
   /// In en, this message translates to:
-  /// **'Contains caffeine, which is not recommended for infants.'**
+  /// **'Contains caffeine, which is not recommended for children under 2.'**
   String get reasonInfantCaffeine;
 
   /// No description provided for @reasonInfantHoney.
   ///
   /// In en, this message translates to:
-  /// **'Contains honey, which should not be given to infants under 12 months.'**
+  /// **'Contains honey, which should not be given to babies under 1 year. For toddlers, check with your doctor.'**
   String get reasonInfantHoney;
 
   /// No description provided for @reasonInfantSaltHigh.
   ///
   /// In en, this message translates to:
-  /// **'{salt_g} g salt is high for an infant.'**
+  /// **'{salt_g} g salt per 100 g/ml is high for a child under 2.'**
   String reasonInfantSaltHigh(String salt_g);
 
   /// No description provided for @reasonInfantSugarHigh.
   ///
   /// In en, this message translates to:
-  /// **'{sugars_g} g sugar is high for an infant.'**
+  /// **'{sugars_g} g sugar per 100 g/ml is high for a child under 2.'**
   String reasonInfantSugarHigh(String sugars_g);
 
   /// No description provided for @reasonIngredientsMissing.
@@ -667,13 +727,13 @@ abstract class AppLocalizations {
   /// No description provided for @reasonMisleadingSugarClaim.
   ///
   /// In en, this message translates to:
-  /// **'The pack says \"{mark}\", but the ingredients include sugar: {ingredients}.'**
-  String reasonMisleadingSugarClaim(String ingredients, String mark);
+  /// **'The pack says \"{claim}\", but the label data does not support this claim.'**
+  String reasonMisleadingSugarClaim(String claim);
 
   /// No description provided for @reasonNutrientMissing.
   ///
   /// In en, this message translates to:
-  /// **'{nutrient} is not on the label, so this check could not be done.'**
+  /// **'The label does not show {nutrient}, so this check could not be done.'**
   String reasonNutrientMissing(String nutrient);
 
   /// No description provided for @reasonNutriscoreLow.
@@ -685,14 +745,14 @@ abstract class AppLocalizations {
   /// No description provided for @reasonSaltHigh.
   ///
   /// In en, this message translates to:
-  /// **'High in salt: {salt_g} g {basis, select, per_serving {per serving} other {per 100 g}}.'**
-  String reasonSaltHigh(String basis, String salt_g);
+  /// **'High in salt: {salt_g} g per 100 g/ml.'**
+  String reasonSaltHigh(String salt_g);
 
   /// No description provided for @reasonSaltModerate.
   ///
   /// In en, this message translates to:
-  /// **'Moderate salt: {salt_g} g {basis, select, per_serving {per serving} other {per 100 g}}.'**
-  String reasonSaltModerate(String basis, String salt_g);
+  /// **'Moderate salt: {salt_g} g per 100 g/ml.'**
+  String reasonSaltModerate(String salt_g);
 
   /// No description provided for @reasonSodiumAdditives.
   ///
@@ -703,14 +763,26 @@ abstract class AppLocalizations {
   /// No description provided for @reasonSugarHigh.
   ///
   /// In en, this message translates to:
-  /// **'High in sugar: {sugars_g} g {basis, select, per_serving {per serving} other {per 100 g}}.'**
-  String reasonSugarHigh(String basis, String sugars_g);
+  /// **'High in sugar: {sugars_g} g per 100 g/ml.'**
+  String reasonSugarHigh(String sugars_g);
 
   /// No description provided for @reasonSugarModerate.
   ///
   /// In en, this message translates to:
-  /// **'Moderate sugar: {sugars_g} g {basis, select, per_serving {per serving} other {per 100 g}}.'**
-  String reasonSugarModerate(String basis, String sugars_g);
+  /// **'Moderate sugar: {sugars_g} g per 100 g/ml.'**
+  String reasonSugarModerate(String sugars_g);
+
+  /// No description provided for @reasonVariantDietViolationMarkOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The pack has the brown non-vegetarian mark, so this may not match the {diet} diet.'**
+  String reasonVariantDietViolationMarkOnly(String diet);
+
+  /// No description provided for @reasonVariantNutrientMissingLowConfidence.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read {nutrient} clearly on the label, so this check could not be done.'**
+  String reasonVariantNutrientMissingLowConfidence(String nutrient);
 
   /// No description provided for @statusAvoid.
   ///
