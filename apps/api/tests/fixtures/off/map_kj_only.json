@@ -1,0 +1,11 @@
+{
+  "code": "8901000000035",
+  "product": {
+    "code": "8901000000035",
+    "product_name": "KJ Only",
+    "ingredients_text": "rice",
+    "nutriments": {
+      "energy-kj_100g": 1882.8
+    }
+  }
+}

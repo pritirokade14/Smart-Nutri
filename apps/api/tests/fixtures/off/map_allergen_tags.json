@@ -1,0 +1,28 @@
+{
+  "code": "8901000000158",
+  "product": {
+    "code": "8901000000158",
+    "product_name": "Allergen Zoo",
+    "ingredients_text": "x",
+    "allergens_tags": [
+      "en:nuts",
+      "en:peanuts",
+      "en:soybeans",
+      "en:sesame-seeds",
+      "en:eggs",
+      "en:fish",
+      "en:crustaceans",
+      "en:mustard",
+      "en:sulphur-dioxide-and-sulphites",
+      "en:milk",
+      "en:gluten"
+    ],
+    "traces_tags": [
+      "en:nuts",
+      "en:peanuts",
+      "fr:lait",
+      "en:celery"
+    ],
+    "nutriments": {}
+  }
+}

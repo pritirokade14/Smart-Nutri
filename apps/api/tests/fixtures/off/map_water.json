@@ -1,0 +1,17 @@
+{
+  "code": "8901000000073",
+  "product": {
+    "code": "8901000000073",
+    "product_name": "Spring Water",
+    "categories_tags": [
+      "en:beverages",
+      "en:waters",
+      "en:spring-waters"
+    ],
+    "ingredients_text": "natural mineral water",
+    "nutriments": {
+      "energy-kcal_100g": 0,
+      "sugars_100g": 0
+    }
+  }
+}

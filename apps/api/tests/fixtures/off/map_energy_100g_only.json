@@ -1,0 +1,11 @@
+{
+  "code": "8901000000042",
+  "product": {
+    "code": "8901000000042",
+    "product_name": "Energy100",
+    "ingredients_text": "rice",
+    "nutriments": {
+      "energy_100g": 1882.8
+    }
+  }
+}

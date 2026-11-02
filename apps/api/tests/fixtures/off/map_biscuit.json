@@ -1,0 +1,41 @@
+{
+  "code": "8901000000011",
+  "product": {
+    "code": "8901000000011",
+    "product_name": "Sugar Free Biscuit",
+    "brands": "Acme Foods, Acme Kids",
+    "image_front_url": "https://images.example/front.jpg",
+    "categories_tags": [
+      "en:snacks",
+      "en:biscuits"
+    ],
+    "ingredients_text_en": "wheat flour (maida), maltodextrin, edible vegetable oil (palm), milk solids, raising agent (ins 500(ii)), salt, emulsifier (ins 322)",
+    "ingredients_text": "ignored non-en text",
+    "allergens_tags": [
+      "en:gluten",
+      "en:milk"
+    ],
+    "traces_tags": [
+      "en:soybeans"
+    ],
+    "labels_tags": [
+      "en:sugar-free",
+      "en:vegetarian",
+      "en:no-gmos"
+    ],
+    "serving_quantity": "25",
+    "serving_quantity_unit": "g",
+    "nutriments": {
+      "energy-kcal_100g": 450,
+      "energy-kj_100g": 1883,
+      "proteins_100g": 8,
+      "carbohydrates_100g": 72,
+      "sugars_100g": 2.0,
+      "fat_100g": 15,
+      "saturated-fat_100g": 7,
+      "fiber_100g": 2,
+      "salt_100g": 0.9,
+      "sodium_100g": 0.36
+    }
+  }
+}

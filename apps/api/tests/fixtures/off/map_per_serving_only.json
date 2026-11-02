@@ -1,0 +1,16 @@
+{
+  "code": "8901000000028",
+  "product": {
+    "code": "8901000000028",
+    "product_name": "Serving Only Bar",
+    "ingredients_text": "oats, honey",
+    "nutriments": {
+      "energy-kcal_serving": 120,
+      "sugars_serving": 6,
+      "proteins_serving": 3,
+      "salt_serving": 0.1,
+      "energy-kcal": 120,
+      "sugars": 6
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "code": "8901000000097",
+  "product": {
+    "code": "8901000000097",
+    "product_name": "Ghee",
+    "categories_tags": [
+      "en:fats",
+      "en:ghee"
+    ],
+    "ingredients_text": "ghee",
+    "nutriments": {
+      "fat_100g": 99.5
+    }
+  }
+}
