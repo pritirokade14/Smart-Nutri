@@ -4,7 +4,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import Settings, get_settings
-from app.core.errors import install_error_handlers
+from app.core.errors import CatchAllMiddleware, install_error_handlers
 from app.core.logging import configure_logging
 from app.features.health.router import router as health_router
 
@@ -22,6 +22,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings.environment)
     app = FastAPI(title="SmartNutri API", version=_version())
+    app.add_middleware(CatchAllMiddleware)  # innermost
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,

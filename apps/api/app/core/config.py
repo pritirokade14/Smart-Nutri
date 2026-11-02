@@ -40,6 +40,13 @@ class Settings(BaseSettings):
             return [o.strip() for o in v.split(",") if o.strip()]
         return v
 
+    @field_validator("allowed_origins")
+    @classmethod
+    def _no_wildcard(cls, v: list[str]) -> list[str]:
+        if "*" in v:
+            raise ValueError("allowed_origins must not contain '*'")
+        return v
+
 
 @cache
 def get_settings() -> Settings:

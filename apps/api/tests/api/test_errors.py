@@ -48,3 +48,27 @@ async def test_cors_allow_list(client):
         headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "GET"},
     )
     assert "access-control-allow-origin" not in r.headers
+
+
+async def test_http_exception_headers_preserved(app, client):
+    @app.get("/only-get")
+    async def _():
+        return {}
+
+    r = await client.post("/only-get")
+    assert r.status_code == 405
+    assert "GET" in r.headers["allow"]
+
+
+async def test_500_carries_cors_headers(app):
+    @app.get("/boom-cors")
+    async def _():
+        raise RuntimeError("secret")
+
+    transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
+    async with httpx.AsyncClient(transport=transport, base_url="http://t") as c:
+        r = await c.get("/boom-cors", headers={"Origin": "http://localhost:3000"})
+    assert r.status_code == 500
+    assert r.json()["error"]["code"] == "internal_error"
+    assert r.headers["access-control-allow-origin"] == "http://localhost:3000"
+    assert "secret" not in r.text
