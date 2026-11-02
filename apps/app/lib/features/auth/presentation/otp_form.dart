@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+
+bool isValidEmail(String v) => v.trim().contains('@');
+bool isValidPhone(String v) => RegExp(r'^\+\d{8,15}$').hasMatch(v.trim());
+bool isValidCode(String v) => RegExp(r'^\d{6}$').hasMatch(v.trim());
 
 /// Two-step "send code, then verify" form shared by email and phone sign-in.
 class OtpForm extends StatefulWidget {
@@ -8,12 +13,14 @@ class OtpForm extends StatefulWidget {
     super.key,
     required this.identifierLabel,
     required this.keyboardType,
+    required this.isValidIdentifier,
     required this.onSend,
     required this.onVerify,
   });
 
   final String Function(AppLocalizations l10n) identifierLabel;
   final TextInputType keyboardType;
+  final bool Function(String identifier) isValidIdentifier;
   final Future<void> Function(String identifier) onSend;
   final Future<void> Function(String identifier, String code) onVerify;
 
@@ -27,6 +34,15 @@ class _OtpFormState extends State<OtpForm> {
   bool _sent = false;
   bool _busy = false;
   bool _failed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _id.addListener(_refresh);
+    _code.addListener(_refresh);
+  }
+
+  void _refresh() => setState(() {});
 
   @override
   void dispose() {
@@ -53,9 +69,19 @@ class _OtpFormState extends State<OtpForm> {
     }
   }
 
+  void _change() {
+    _code.clear();
+    setState(() {
+      _sent = false;
+      _failed = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final idOk = widget.isValidIdentifier(_id.text);
+    final codeOk = isValidCode(_code.text);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.authTitle)),
       body: Padding(
@@ -76,11 +102,15 @@ class _OtpFormState extends State<OtpForm> {
               TextField(
                 controller: _code,
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(6),
+                ],
                 decoration: InputDecoration(labelText: l10n.authCodeLabel),
               ),
               const SizedBox(height: 16),
               FilledButton(
-                onPressed: _busy
+                onPressed: _busy || !codeOk
                     ? null
                     : () => _run(
                         () =>
@@ -88,9 +118,13 @@ class _OtpFormState extends State<OtpForm> {
                       ),
                 child: Text(l10n.authVerify),
               ),
+              TextButton(
+                onPressed: _busy ? null : _change,
+                child: Text(l10n.authChange),
+              ),
             ] else
               FilledButton(
-                onPressed: _busy
+                onPressed: _busy || !idOk
                     ? null
                     : () => _run(
                         () => widget.onSend(_id.text.trim()),
@@ -101,7 +135,7 @@ class _OtpFormState extends State<OtpForm> {
             if (_failed) ...[
               const SizedBox(height: 16),
               Text(
-                l10n.errorInternalError,
+                l10n.authError,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ],

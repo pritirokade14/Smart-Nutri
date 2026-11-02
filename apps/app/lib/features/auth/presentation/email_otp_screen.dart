@@ -13,6 +13,7 @@ class EmailOtpScreen extends ConsumerWidget {
     return OtpForm(
       identifierLabel: (l10n) => l10n.authEmailLabel,
       keyboardType: TextInputType.emailAddress,
+      isValidIdentifier: isValidEmail,
       onSend: auth.sendEmailOtp,
       onVerify: auth.verifyEmailOtp,
     );

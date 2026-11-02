@@ -26,7 +26,11 @@ class AuthInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     if (err.response?.statusCode == 401) {
-      await _onUnauthorized();
+      try {
+        await _onUnauthorized();
+      } catch (_) {
+        // The original error must still reach the caller.
+      }
     }
     handler.next(err);
   }

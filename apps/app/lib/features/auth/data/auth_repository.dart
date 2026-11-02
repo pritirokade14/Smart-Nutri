@@ -16,6 +16,22 @@ abstract interface class AuthRepository {
   Future<void> signOut();
 }
 
+/// Returns [token] unless it is missing or [expired]; an expired token is
+/// refreshed, and null is returned if the refresh fails.
+Future<String?> freshAccessToken({
+  required String? token,
+  required bool expired,
+  required Future<String?> Function() refresh,
+}) async {
+  if (token == null) return null;
+  if (!expired) return token;
+  try {
+    return await refresh();
+  } on AuthException {
+    return null;
+  }
+}
+
 class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository(this._config);
 
@@ -32,7 +48,14 @@ class SupabaseAuthRepository implements AuthRepository {
   bool get isSignedIn => _auth.currentSession != null;
 
   @override
-  Future<String?> accessToken() async => _auth.currentSession?.accessToken;
+  Future<String?> accessToken() {
+    final s = _auth.currentSession;
+    return freshAccessToken(
+      token: s?.accessToken,
+      expired: s?.isExpired ?? false,
+      refresh: () async => (await _auth.refreshSession()).session?.accessToken,
+    );
+  }
 
   @override
   Future<void> signInWithGoogle() async {
@@ -41,7 +64,12 @@ class SupabaseAuthRepository implements AuthRepository {
     _googleInit ??= GoogleSignIn.instance.initialize(
       serverClientId: _config.googleWebClientId,
     );
-    await _googleInit;
+    try {
+      await _googleInit;
+    } catch (_) {
+      _googleInit = null; // allow a retry
+      rethrow;
+    }
     final account = await GoogleSignIn.instance.authenticate();
     final idToken = account.authentication.idToken;
     if (idToken == null) {

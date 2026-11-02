@@ -172,6 +172,12 @@ abstract class AppLocalizations {
   /// **'SmartNutri AI'**
   String get appName;
 
+  /// No description provided for @authChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get authChange;
+
   /// No description provided for @authCodeLabel.
   ///
   /// In en, this message translates to:

@@ -15,6 +15,7 @@
     "verify": "Verify",
     "phone": "Continue with phone",
     "phoneLabel": "Phone number (with country code)",
+    "change": "Change",
     "error": "Could not sign in. Please try again.",
     "signOut": "Sign out"
   },

@@ -39,3 +39,4 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 ## Added in Plan 2 Tasks 12 and 14 (sign-in)
 
 - [ ] **hi/mr `auth.phoneLabel`, `auth.error`**: machine drafts. Need native review; check the error's tone (no blame).
+- [ ] **hi/mr `auth.change`**: machine draft ("बदलें" / "बदला"). Needs native review.

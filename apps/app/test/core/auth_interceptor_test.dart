@@ -61,4 +61,22 @@ void main() {
     expect(calls, 1);
     expect(adapter.seen.length, 1);
   });
+
+  test('a throwing onUnauthorized still surfaces the original error', () async {
+    final dio = Dio(BaseOptions(baseUrl: 'http://x'))
+      ..httpClientAdapter = _Adapter(401)
+      ..interceptors.add(
+        AuthInterceptor(() async => 't1', () async => throw StateError('x')),
+      );
+    await expectLater(
+      dio.get<Object?>('/v1/me'),
+      throwsA(
+        isA<DioException>().having(
+          (e) => e.response?.statusCode,
+          'status',
+          401,
+        ),
+      ),
+    );
+  });
 }

@@ -141,4 +141,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(PhoneOtpScreen), findsOneWidget);
   });
+
+  testWidgets('signed-in user going to /sign-in lands on /home', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(FakeAuthRepository(signedIn: true), _FakeMe(() async => _me())),
+    );
+    await tester.pumpAndSettle();
+    GoRouter.of(tester.element(find.byType(HomeScreen))).go('/sign-in');
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(SignInScreen), findsNothing);
+  });
 }

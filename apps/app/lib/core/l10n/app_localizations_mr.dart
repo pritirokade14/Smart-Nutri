@@ -45,6 +45,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get appName => 'SmartNutri AI';
 
   @override
+  String get authChange => 'बदला';
+
+  @override
   String get authCodeLabel => '6 अंकी कोड';
 
   @override

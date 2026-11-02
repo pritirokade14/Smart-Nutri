@@ -14,6 +14,7 @@ class PhoneOtpScreen extends ConsumerWidget {
     return OtpForm(
       identifierLabel: (l10n) => l10n.authPhoneLabel,
       keyboardType: TextInputType.phone,
+      isValidIdentifier: isValidPhone,
       onSend: auth.sendPhoneOtp,
       onVerify: auth.verifyPhoneOtp,
     );
