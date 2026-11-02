@@ -84,3 +84,66 @@ def test_allow_list():
 def test_init_without_keys_is_noop():
     observability.init_observability(Settings(_env_file=None, environment="test"))
     assert observability._posthog is None
+
+
+def test_scrub_event_redacts_exception_values_and_logentry():
+    secret = "[parameters: {'conditions': ['diabetes']}]"
+    event = {
+        "exception": {
+            "values": [
+                {
+                    "type": "IntegrityError",
+                    "module": "sqlalchemy.exc",
+                    "value": f"DETAIL: Failing row contains (x) {secret}",
+                    "stacktrace": {"frames": [{"function": "f"}]},
+                }
+            ]
+        },
+        "logentry": {"message": "bad %s", "params": ["diabetes"], "formatted": "bad diabetes"},
+    }
+    out = scrub_event(event, {})
+    exc = out["exception"]["values"][0]
+    assert exc["value"] == "<redacted>"
+    assert exc["type"] == "IntegrityError"
+    assert exc["stacktrace"]["frames"] == [{"function": "f"}]
+    assert "diabetes" not in str(out)
+
+
+def test_capture_constrains_values(monkeypatch):
+    fake = MagicMock()
+    monkeypatch.setattr(observability, "_posthog", fake)
+    capture(
+        "e",
+        "d",
+        {
+            "locale": "fr",
+            "platform": "ios",
+            "screen": "Diabetes Home",
+            "source": "scan_page",
+            "status_code": "200",
+        },
+    )
+    assert fake.capture.call_args.kwargs["properties"] == {"source": "scan_page"}
+    capture("e", "d", {"locale": "hi", "platform": "api", "screen": "home", "status_code": 404})
+    assert fake.capture.call_args.kwargs["properties"] == {
+        "locale": "hi",
+        "platform": "api",
+        "screen": "home",
+        "status_code": 404,
+    }
+
+
+def test_shutdown_flushes_posthog(monkeypatch):
+    fake = MagicMock()
+    monkeypatch.setattr(observability, "_posthog", fake)
+    observability.shutdown_observability()
+    fake.shutdown.assert_called_once()
+    assert observability._posthog is None
+
+
+async def test_lifespan_shuts_down_posthog(monkeypatch, app):
+    fake = MagicMock()
+    monkeypatch.setattr(observability, "_posthog", fake)
+    async with app.router.lifespan_context(app):
+        pass
+    fake.shutdown.assert_called_once()

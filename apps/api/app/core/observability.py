@@ -1,5 +1,6 @@
 """Sentry and PostHog setup. No health data may reach either service."""
 
+import re
 from typing import Any
 
 import sentry_sdk
@@ -13,7 +14,22 @@ ALLOWED_EVENT_PROPS = frozenset({"platform", "locale", "screen", "status_code", 
 # Hard-coded ingest host (US cloud); no env var by design.
 POSTHOG_HOST = "https://us.i.posthog.com"
 
+REDACTED = "<redacted>"
+LOCALES = frozenset({"en", "hi", "mr"})
+PLATFORMS = frozenset({"android", "web", "api"})
+_TOKEN = re.compile(r"^[a-z_]{1,40}$")
+
 _posthog: Posthog | None = None
+
+
+def _valid(key: str, value: Any) -> bool:
+    if key == "locale":
+        return value in LOCALES
+    if key == "platform":
+        return value in PLATFORMS
+    if key == "status_code":
+        return isinstance(value, int) and not isinstance(value, bool)
+    return isinstance(value, str) and _TOKEN.match(value) is not None
 
 
 def scrub_event(event: dict, hint: dict) -> dict | None:
@@ -24,6 +40,12 @@ def scrub_event(event: dict, hint: dict) -> dict | None:
     log messages with health data).
     """
     event.pop("extra", None)
+    # Exception text can embed SQL parameters, DB row contents or pydantic input values.
+    for exc in (event.get("exception") or {}).get("values") or []:
+        if "value" in exc:
+            exc["value"] = REDACTED
+    # Log messages are often pre-formatted with data, so drop them entirely.
+    event.pop("logentry", None)
     event.pop("breadcrumbs", None)
     for exc in (event.get("exception") or {}).get("values") or []:
         for frame in (exc.get("stacktrace") or {}).get("frames") or []:
@@ -73,5 +95,15 @@ def init_observability(settings: Settings) -> None:
 def capture(event: str, distinct_id: str, properties: dict[str, Any] | None = None) -> None:
     if _posthog is None:
         return
-    safe = {k: v for k, v in (properties or {}).items() if k in ALLOWED_EVENT_PROPS}
+    safe = {
+        k: v for k, v in (properties or {}).items() if k in ALLOWED_EVENT_PROPS and _valid(k, v)
+    }
     _posthog.capture(event, distinct_id=distinct_id, properties=safe)
+
+
+def shutdown_observability() -> None:
+    """Flush queued PostHog events (called on app shutdown)."""
+    global _posthog
+    if _posthog is not None:
+        _posthog.shutdown()
+        _posthog = None

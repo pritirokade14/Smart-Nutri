@@ -1,4 +1,4 @@
-import { sanitizeUrl } from "./analytics";
+import { sanitizeUrl } from "./url-sanitize";
 
 type SentryLike = {
   request?: {
@@ -9,6 +9,8 @@ type SentryLike = {
     headers?: Record<string, string>;
   };
   user?: Record<string, unknown>;
+  exception?: { values?: { value?: string }[] };
+  [k: string]: unknown;
 };
 
 const SENSITIVE_HEADERS = new Set(["authorization", "cookie", "x-api-key"]);
@@ -16,6 +18,13 @@ const SENSITIVE_HEADERS = new Set(["authorization", "cookie", "x-api-key"]);
 /** Sentry beforeSend: strip bodies, cookies, auth headers, query strings and user PII. */
 export function scrubSentryEvent<T extends object>(input: T): T {
   const event = input as SentryLike;
+  // Exception text can embed SQL params, row contents or input values.
+  for (const ex of event.exception?.values ?? []) {
+    if ("value" in ex) ex.value = "<redacted>";
+  }
+  delete event.logentry;
+  delete event.breadcrumbs;
+  delete event.extra;
   const req = event.request;
   if (req) {
     delete req.data;

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -21,9 +22,23 @@ const String posthogHost = 'https://us.i.posthog.com';
 typedef AnalyticsSink =
     Future<void> Function(String event, Map<String, Object> props);
 
+const Set<String> _locales = {'en', 'hi', 'mr'};
+const Set<String> _platforms = {'android', 'web', 'api'};
+final RegExp _token = RegExp(r'^[a-z_]{1,40}$');
+
+bool _validValue(String key, Object value) => switch (key) {
+  'locale' => _locales.contains(value),
+  'platform' => _platforms.contains(value),
+  'status_code' => value is int,
+  _ => value is String && _token.hasMatch(value),
+};
+
 Map<String, Object> filterProps(Map<String, Object?>? props) => {
   for (final e in (props ?? const <String, Object?>{}).entries)
-    if (allowedEventProps.contains(e.key) && e.value != null) e.key: e.value!,
+    if (allowedEventProps.contains(e.key) &&
+        e.value != null &&
+        _validValue(e.key, e.value!))
+      e.key: e.value!,
 };
 
 class Analytics {
@@ -44,12 +59,22 @@ class Analytics {
 /// Sentry beforeSend: drop request data, cookies and headers; keep only user id.
 SentryEvent? scrubSentryEvent(SentryEvent event, Hint hint) {
   event.request = null;
+  // Exception text (e.g. DioException URIs with query strings) can hold health data.
+  for (final ex in event.exceptions ?? const <SentryException>[]) {
+    ex.value = '<redacted>';
+  }
+  event.breadcrumbs = null;
   final user = event.user;
   if (user != null) {
     event.user = user.id == null ? null : SentryUser(id: user.id);
   }
   return event;
 }
+
+/// Analytics for features; a no-op until bootstrap overrides it with the real one.
+final analyticsProvider = Provider<Analytics>(
+  (ref) => const Analytics.disabled(),
+);
 
 /// Sets up PostHog when a key is configured; otherwise returns a no-op.
 Future<Analytics> initAnalytics(AppConfig config) async {
@@ -67,7 +92,7 @@ Future<Analytics> initAnalytics(AppConfig config) async {
   return Analytics(
     (event, props) => Posthog().capture(
       eventName: event,
-      properties: {'platform': 'android', ...props},
+      properties: {'platform': 'android', r'$geoip_disable': true, ...props},
     ),
   );
 }

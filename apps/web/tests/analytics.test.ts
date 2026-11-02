@@ -1,19 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { capture, init } = vi.hoisted(() => ({
+const { capture, init, register } = vi.hoisted(() => ({
   capture: vi.fn(),
   init: vi.fn(),
+  register: vi.fn(),
 }));
-vi.mock("posthog-js", () => ({ default: { capture, init } }));
+vi.mock("posthog-js", () => ({ default: { capture, init, register } }));
 
 import {
   ALLOWED_EVENT_PROPS,
+  beforeSend,
   filterProps,
   initAnalytics,
-  sanitizeUrl,
   track,
 } from "@/lib/analytics";
 import { scrubSentryEvent } from "@/lib/sentry-scrub";
+import { sanitizeUrl } from "@/lib/url-sanitize";
 
 describe("analytics allow-list", () => {
   beforeEach(() => {
@@ -51,12 +53,80 @@ describe("analytics allow-list", () => {
     expect(cfg.capture_pageview).toBe(true);
     expect(cfg.disable_session_recording).toBe(true);
     expect(cfg.disable_surveys).toBe(true);
+    expect(cfg.mask_personal_data_properties).toBe(true);
+    expect(register).toHaveBeenCalledWith({ $geoip_disable: true });
   });
 
   it("strips query strings and hashes from urls", () => {
     expect(
       sanitizeUrl("https://x.in/en/sign-in?next=%2Fen%2Fmembers&error=a#h"),
     ).toBe("https://x.in/en/sign-in");
+  });
+});
+
+describe("allow-listed values are constrained", () => {
+  it("accepts valid values", () => {
+    const ok = {
+      locale: "hi",
+      platform: "web",
+      screen: "scan_page",
+      source: "nav",
+      status_code: 404,
+    };
+    expect(filterProps(ok)).toEqual(ok);
+  });
+  it("drops invalid values", () => {
+    expect(
+      filterProps({
+        locale: "fr",
+        platform: "ios",
+        screen: "Diabetes Home",
+        source: "a".repeat(41),
+        status_code: "200",
+      }),
+    ).toEqual({});
+  });
+});
+
+describe("posthog beforeSend", () => {
+  it("sanitizes url-like props, $set and drops titles", () => {
+    const out = beforeSend({
+      event: "$pageview",
+      properties: {
+        $current_url: "https://x.in/en/a?next=1#h",
+        $referrer: "https://g.com/?q=diabetes",
+        some_url: "https://x.in/b?c=1",
+        title: "Rahul diabetes",
+        $title: "Rahul diabetes",
+        $set: { $initial_referrer: "https://g.com/?q=x" },
+        $set_once: { $initial_current_url: "https://x.in/?e=1" },
+      },
+    });
+    expect(out?.properties).toEqual({
+      $current_url: "https://x.in/en/a",
+      $referrer: "https://g.com/",
+      some_url: "https://x.in/b",
+      $set: { $initial_referrer: "https://g.com/" },
+      $set_once: { $initial_current_url: "https://x.in/" },
+    });
+  });
+});
+
+describe("scrubSentryEvent exceptions", () => {
+  it("redacts exception values, logentry, breadcrumbs", () => {
+    const out = scrubSentryEvent({
+      exception: {
+        values: [{ type: "E", value: "[parameters: {'conditions': ['d']}]" }],
+      },
+      logentry: { message: "m", params: ["d"] },
+      breadcrumbs: [{ message: "d" }],
+      extra: { a: "d" },
+    });
+    expect(JSON.stringify(out)).not.toContain("conditions");
+    expect(out.exception.values[0].type).toBe("E");
+    expect(out.exception.values[0].value).toBe("<redacted>");
+    expect(out).not.toHaveProperty("logentry");
+    expect(out).not.toHaveProperty("breadcrumbs");
   });
 });
 

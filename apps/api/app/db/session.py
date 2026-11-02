@@ -20,6 +20,7 @@ def build_engine(settings: Settings) -> AsyncEngine:
     """Create (without connecting) the engine for these settings. Owned by the app."""
     return create_async_engine(
         settings.database_url.get_secret_value(),
+        hide_parameters=True,
         pool_pre_ping=True,
         pool_size=POOL_SIZE,
         max_overflow=MAX_OVERFLOW,

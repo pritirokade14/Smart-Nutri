@@ -13,7 +13,9 @@ class JsonFormatter(logging.Formatter):
             "message": record.getMessage(),
         }
         if record.exc_info:
-            payload["exc_info"] = self.formatException(record.exc_info)
+            # Type name only: exception text can contain SQL params or row contents.
+            exc_type = record.exc_info[0]
+            payload["exc_type"] = exc_type.__name__ if exc_type else "Exception"
         return json.dumps(payload, default=str)
 
 

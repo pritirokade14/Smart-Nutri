@@ -52,6 +52,7 @@ apps/web/
 - **Route groups:**
   - `(public)` pages must never show member names, conditions, verdicts or logs. Generic product info and the Nutri-Score are fine.
   - `(app)` pages require a session; middleware redirects to sign-in.
+- **Route segments are opaque.** Dynamic segments may hold only UUIDs or barcodes, never names, conditions or slugs: URL paths are sent to analytics.
 - **Never compute a verdict in the browser or on the web server.** Render exactly what the API returns.
 - **Generated client only.**
   - All API calls go through `@smartnutri/api-client`. No hand-written `fetch` to the API, and no hand-written response types.

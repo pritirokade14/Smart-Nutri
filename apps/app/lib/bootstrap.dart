@@ -13,12 +13,17 @@ Future<void> bootstrap() async {
 }
 
 Future<void> _start(AppConfig config) async {
-  await initAnalytics(config);
+  final analytics = await initAnalytics(config);
   if (config.missingRequired().isEmpty) {
     await Supabase.initialize(
       url: config.supabaseUrl,
       publishableKey: config.supabasePublishableKey,
     );
   }
-  runApp(const ProviderScope(child: SmartNutriApp()));
+  runApp(
+    ProviderScope(
+      overrides: [analyticsProvider.overrideWithValue(analytics)],
+      child: const SmartNutriApp(),
+    ),
+  );
 }

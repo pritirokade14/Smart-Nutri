@@ -13,6 +13,7 @@ if (dsn) {
     // No Replay integration: never record the screen of a health app.
     integrations: [],
     beforeSend: (event) => scrubSentryEvent(event),
+    beforeSendTransaction: (event) => scrubSentryEvent(event),
   });
 }
 

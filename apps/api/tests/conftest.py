@@ -9,6 +9,8 @@ from app.main import create_app
 def _isolate_settings(monkeypatch):
     """Tests must never read the real apps/api/.env."""
     monkeypatch.setitem(Settings.model_config, "env_file", None)
+    monkeypatch.delenv("SENTRY_DSN", raising=False)
+    monkeypatch.delenv("POSTHOG_API_KEY", raising=False)
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()

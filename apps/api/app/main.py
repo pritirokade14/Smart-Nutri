@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import Settings, get_settings
 from app.core.errors import CatchAllMiddleware, install_error_handlers
 from app.core.logging import configure_logging
-from app.core.observability import init_observability
+from app.core.observability import init_observability, shutdown_observability
 from app.db.session import build_engine, build_sessionmaker
 from app.features.health.router import router as health_router
 from app.features.me.router import router as me_router
@@ -34,6 +34,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             yield
         finally:
+            shutdown_observability()
             await engine.dispose()
 
     app = FastAPI(title="SmartNutri API", version=_version(), lifespan=lifespan)

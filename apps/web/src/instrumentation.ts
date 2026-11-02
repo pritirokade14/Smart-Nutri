@@ -10,6 +10,7 @@ export async function register(): Promise<void> {
     maxBreadcrumbs: 0,
     tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 0,
     beforeSend: (event) => scrubSentryEvent(event),
+    beforeSendTransaction: (event) => scrubSentryEvent(event),
   });
 }
 
