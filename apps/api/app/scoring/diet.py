@@ -20,10 +20,13 @@ def diet_violations(product: Product, cfg: ScoringConfig) -> dict[Diet, tuple[st
     result: dict[Diet, tuple[str, ...]] = {}
     for diet, lists in _TERM_LISTS.items():
         terms = [t for name in lists for t in cfg.diet.get(name, [])]
-        if not terms or not product.ingredients:
+        texts = list(product.ingredients)
+        if product.allergen_statement:
+            texts.append(product.allergen_statement)
+        if not terms or not texts:
             result[diet] = ()
         else:
-            result[diet] = tuple(find_terms(product.ingredients, terms))
+            result[diet] = tuple(find_terms(texts, terms))
     return result
 
 
@@ -35,14 +38,15 @@ def diet_reasons(product: Product, member: Member, cfg: ScoringConfig) -> list[R
     diet = member.diet
     reasons: list[Reason] = []
     violations = diet_violations(product, cfg)[diet]
-    if violations:
-        reasons.append(
-            Reason(
-                "diet_violation",
-                Status.AVOID,
-                {"diet": diet.value, "ingredients": list(violations)},
-            )
-        )
+    brown = product.veg_mark == "non_veg" and diet != Diet.NON_VEG
+    if violations or (brown and diet != Diet.EGGETARIAN):
+        params: dict[str, object] = {"diet": diet.value, "ingredients": list(violations)}
+        if brown:
+            params["mark"] = "non_veg"
+        reasons.append(Reason("diet_violation", Status.AVOID, params))
+    elif brown:
+        # Brown dot on an eggetarian's product with no non-veg term: may be egg-only.
+        return [Reason("diet_unknown", Status.UNKNOWN, {"diet": diet.value, "mark": "non_veg"})]
     if diet != Diet.NON_VEG and not ingredients_known(product, cfg):
         trusted_mark = diet in (Diet.VEG, Diet.EGGETARIAN) and product.veg_mark == "veg"
         if not trusted_mark:
