@@ -1,0 +1,30 @@
+# Supabase CLI config for local development (`supabase start`).
+# Hand-written (the CLI was not installed when this was added); the CLI fills in
+# defaults for every omitted setting.
+#
+# Auth, storage and redirect settings only. Tables and RLS policies live ONLY in
+# apps/api/alembic (ADR 0009); never add them here.
+
+project_id = "smartnutri"
+
+[db]
+major_version = 17
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = [
+  "http://localhost:3000/**",
+  "com.smartnutri.app://login-callback",
+]
+
+[auth.email]
+enable_signup = true
+
+[auth.sms]
+enable_signup = false
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+skip_nonce_check = false

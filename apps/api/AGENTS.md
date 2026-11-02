@@ -80,7 +80,7 @@ Model ids (`MODEL_EXTRACTION`, `MODEL_EXPLANATION`, `MODEL_STT`, `MODEL_TTS`), r
 
 ## Commands
 
-From the repo root: `just api`, `just test-api`, `just contract`, `just db-migrate`.
+From the repo root: `just api`, `just test-api`, `just contract`, `just db-migrate`, `just db-revision "<message>"`.
 
 From `apps/api`:
 
@@ -89,10 +89,18 @@ From `apps/api`:
 | Install | `uv sync` |
 | All tests | `uv run pytest -v` |
 | Scoring tests only | `uv run pytest tests/unit/scoring -v` |
+| DB, migration and RLS tests | `uv run pytest tests/db -v` |
 | Lint | `uv run ruff check app tests` |
 | Format | `uv run ruff format app tests` |
+| Apply migrations (`just db-migrate`) | `uv run alembic upgrade head` |
+| New migration (`just db-revision "add x"`) | `uv run alembic revision --autogenerate -m "add x"` |
+| Current revision | `uv run alembic current` |
 
-Commands for running the server, Alembic and Docker are added by Plan 2. Don't invent them before then.
+**Database tests** (`tests/db`) run against `TEST_DATABASE_URL` when it is set (CI's `postgres:17` service). Otherwise they start a throwaway `postgres:17` Docker container for the session and remove it afterwards. They skip with a reason when neither is available. They drop every table, so they refuse a Supabase-hosted URL.
+
+**Migrations:** Alembic reads `DATABASE_URL`. Autogenerate does not emit RLS. Every new table needs `ENABLE` + `FORCE ROW LEVEL SECURITY` and its `TO authenticated` policies added by hand with `op.execute(...)`, plus a case in `tests/db/test_rls.py`.
+
+Commands for running the server and Docker are added by later Plan 2 tasks. Don't invent them before then.
 
 ## Conventions
 
