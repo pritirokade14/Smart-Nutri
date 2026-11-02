@@ -280,6 +280,11 @@ export interface components {
             member_id: string;
             /** Member Name */
             member_name: string;
+            /**
+             * Profile Set Up
+             * @description False: age/allergies/diet may not be set; clients show a 'profile not set up' note. Display metadata only; never changes status or reasons.
+             */
+            profile_set_up: boolean;
             /** Reasons */
             reasons: components["schemas"]["ReasonOut"][];
             /**

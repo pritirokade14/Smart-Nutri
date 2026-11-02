@@ -454,6 +454,9 @@
       }
     }
   },
+  "verdictHideReasons": "कारणे लपवा",
+  "verdictProfileNotSetUp": "प्रोफाइल सेट केलेले नाही: वय, ॲलर्जी आणि आहार यांची अजून तपासणी झालेली नाही.",
+  "verdictReasonUnavailable": "या निकालाचे तपशील या आवृत्तीत उपलब्ध नाहीत.",
   "verdictRuleApplied": "लागू केलेला नियम: {rule}",
   "@verdictRuleApplied": {
     "placeholders": {
@@ -462,6 +465,7 @@
       }
     }
   },
+  "verdictShowAllReasons": "सर्व कारणे दाखवा",
   "verdictStatusAvoid": "टाळा",
   "verdictStatusCaution": "सावधगिरी",
   "verdictStatusOk": "ठीक आहे",

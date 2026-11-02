@@ -538,6 +538,11 @@
             "title": "Member Name",
             "type": "string"
           },
+          "profile_set_up": {
+            "description": "False: age/allergies/diet may not be set; clients show a 'profile not set up' note. Display metadata only; never changes status or reasons.",
+            "title": "Profile Set Up",
+            "type": "boolean"
+          },
           "reasons": {
             "items": {
               "$ref": "#/components/schemas/ReasonOut"
@@ -560,7 +565,8 @@
           "member_id",
           "member_name",
           "status",
-          "reasons"
+          "reasons",
+          "profile_set_up"
         ],
         "title": "VerdictOut",
         "type": "object"

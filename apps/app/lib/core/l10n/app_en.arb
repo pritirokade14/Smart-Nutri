@@ -454,6 +454,9 @@
       }
     }
   },
+  "verdictHideReasons": "Hide reasons",
+  "verdictProfileNotSetUp": "Profile not set up: age, allergies and diet aren't checked yet.",
+  "verdictReasonUnavailable": "Details for this result aren't available in this version.",
   "verdictRuleApplied": "Rule applied: {rule}",
   "@verdictRuleApplied": {
     "placeholders": {
@@ -462,6 +465,7 @@
       }
     }
   },
+  "verdictShowAllReasons": "Show all reasons",
   "verdictStatusAvoid": "Avoid",
   "verdictStatusCaution": "Caution",
   "verdictStatusOk": "OK",

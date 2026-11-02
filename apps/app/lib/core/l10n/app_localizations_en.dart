@@ -596,9 +596,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get verdictHideReasons => 'Hide reasons';
+
+  @override
+  String get verdictProfileNotSetUp =>
+      'Profile not set up: age, allergies and diet aren\'t checked yet.';
+
+  @override
+  String get verdictReasonUnavailable =>
+      'Details for this result aren\'t available in this version.';
+
+  @override
   String verdictRuleApplied(String rule) {
     return 'Rule applied: $rule';
   }
+
+  @override
+  String get verdictShowAllReasons => 'Show all reasons';
 
   @override
   String get verdictStatusAvoid => 'Avoid';

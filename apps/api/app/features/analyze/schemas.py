@@ -46,6 +46,12 @@ class VerdictOut(BaseModel):
     member_name: str
     status: VerdictStatus
     reasons: list[ReasonOut]
+    profile_set_up: bool = Field(
+        description=(
+            "False: age/allergies/diet may not be set; clients show a 'profile not set up' "
+            "note. Display metadata only; never changes status or reasons."
+        )
+    )
 
 
 class AnalyzeOut(BaseModel):

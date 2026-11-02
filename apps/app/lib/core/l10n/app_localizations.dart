@@ -1042,11 +1042,35 @@ abstract class AppLocalizations {
   /// **'{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}'**
   String verdictConfidenceNote(String reason);
 
+  /// No description provided for @verdictHideReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide reasons'**
+  String get verdictHideReasons;
+
+  /// No description provided for @verdictProfileNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile not set up: age, allergies and diet aren\'t checked yet.'**
+  String get verdictProfileNotSetUp;
+
+  /// No description provided for @verdictReasonUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Details for this result aren\'t available in this version.'**
+  String get verdictReasonUnavailable;
+
   /// No description provided for @verdictRuleApplied.
   ///
   /// In en, this message translates to:
   /// **'Rule applied: {rule}'**
   String verdictRuleApplied(String rule);
+
+  /// No description provided for @verdictShowAllReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all reasons'**
+  String get verdictShowAllReasons;
 
   /// No description provided for @verdictStatusAvoid.
   ///

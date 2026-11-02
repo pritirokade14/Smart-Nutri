@@ -55,6 +55,7 @@ def to_analyze_out(
                 member_name=member.name,
                 status=verdict["status"],
                 reasons=[ReasonOut(**r) for r in verdict["reasons"]],
+                profile_set_up=member.birth_year is not None,
             )
         )
     return AnalyzeOut(

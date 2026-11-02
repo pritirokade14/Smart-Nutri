@@ -50,3 +50,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 ### Public product page (Plan 3 Task 9)
 - [ ] **hi/mr `product.public_cta`, `product.meta_title`, `product.meta_description`**: machine drafts. Check that the page title reads naturally in search results and that the description keeps the "information, not medical advice" wording.
 - [ ] **hi/mr `product.claims_heading`, `product.label_says`**: machine drafts. The framing must read as "the pack claims this", never as SmartNutri endorsing the claim.
+
+### Verdict fallback and profile notes (R20/R21)
+- [ ] **hi/mr `verdict.reason_unavailable`, `verdict.profile_not_set_up`, `verdict.show_all_reasons`, `verdict.hide_reasons`**: machine drafts. Check tone (informational, tentative) and that "profile not set up" reads naturally.

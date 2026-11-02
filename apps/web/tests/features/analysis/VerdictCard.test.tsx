@@ -101,6 +101,7 @@ describe("VerdictCard details", () => {
     const v: VerdictOut = {
       member_id: "x",
       member_name: "A",
+      profile_set_up: true,
       status: "unknown",
       reasons: [
         {
@@ -123,6 +124,7 @@ describe("VerdictCard details", () => {
     const v: VerdictOut = {
       member_id: "x",
       member_name: "A",
+      profile_set_up: true,
       status: "caution",
       reasons: [{ code: "future_rule", severity: "caution", params: {} }],
     };
@@ -148,6 +150,7 @@ describe("VerdictCard details", () => {
     const { container } = renderCard({
       member_id: "x",
       member_name: "A",
+      profile_set_up: true,
       status: "ok",
       reasons: [],
     });

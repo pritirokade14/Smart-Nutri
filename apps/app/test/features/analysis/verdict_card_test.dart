@@ -89,6 +89,7 @@ void main() {
           verdict: VerdictOut(
             memberId: v.memberId,
             memberName: '',
+            profileSetUp: true,
             reasons: v.reasons,
             status: v.status,
           ),
@@ -108,6 +109,7 @@ void main() {
           verdict: VerdictOut.fromJson({
             'member_id': 'm',
             'member_name': 'Asha',
+            'profile_set_up': true,
             'status': 'something_new',
             'reasons': [
               {'code': 'brand_new', 'severity': 'something_new', 'params': {}},
@@ -149,6 +151,7 @@ void main() {
           verdict: VerdictOut(
             memberId: 'm',
             memberName: 'Asha',
+            profileSetUp: true,
             reasons: [
               const ReasonOut(
                 code: 'sugar_high',

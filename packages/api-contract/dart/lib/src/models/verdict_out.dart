@@ -14,6 +14,7 @@ class VerdictOut {
   const VerdictOut({
     required this.memberId,
     required this.memberName,
+    required this.profileSetUp,
     required this.reasons,
     required this.status,
   });
@@ -25,6 +26,10 @@ class VerdictOut {
   final String memberId;
   @JsonKey(name: 'member_name')
   final String memberName;
+
+  /// False: age/allergies/diet may not be set; clients show a 'profile not set up' note. Display metadata only; never changes status or reasons.
+  @JsonKey(name: 'profile_set_up')
+  final bool profileSetUp;
   final List<ReasonOut> reasons;
   final VerdictOutStatus status;
 

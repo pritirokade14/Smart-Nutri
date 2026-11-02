@@ -33,7 +33,11 @@
       "avoid": "Avoid"
     },
     "rule_applied": "Rule applied: {rule}",
-    "confidence_note": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}"
+    "confidence_note": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}",
+    "reason_unavailable": "Details for this result aren't available in this version.",
+    "profile_not_set_up": "Profile not set up: age, allergies and diet aren't checked yet.",
+    "show_all_reasons": "Show all reasons",
+    "hide_reasons": "Hide reasons"
   },
   "status": {
     "ok": "OK",

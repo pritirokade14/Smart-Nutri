@@ -454,6 +454,9 @@
       }
     }
   },
+  "verdictHideReasons": "कारण छिपाएँ",
+  "verdictProfileNotSetUp": "प्रोफ़ाइल सेट नहीं है: उम्र, एलर्जी और आहार की अभी जाँच नहीं हुई है।",
+  "verdictReasonUnavailable": "इस नतीजे की जानकारी इस संस्करण में उपलब्ध नहीं है।",
   "verdictRuleApplied": "लागू नियम: {rule}",
   "@verdictRuleApplied": {
     "placeholders": {
@@ -462,6 +465,7 @@
       }
     }
   },
+  "verdictShowAllReasons": "सभी कारण दिखाएँ",
   "verdictStatusAvoid": "बचें",
   "verdictStatusCaution": "सावधानी",
   "verdictStatusOk": "ठीक है",

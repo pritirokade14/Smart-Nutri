@@ -597,9 +597,23 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String get verdictHideReasons => 'कारणे लपवा';
+
+  @override
+  String get verdictProfileNotSetUp =>
+      'प्रोफाइल सेट केलेले नाही: वय, ॲलर्जी आणि आहार यांची अजून तपासणी झालेली नाही.';
+
+  @override
+  String get verdictReasonUnavailable =>
+      'या निकालाचे तपशील या आवृत्तीत उपलब्ध नाहीत.';
+
+  @override
   String verdictRuleApplied(String rule) {
     return 'लागू केलेला नियम: $rule';
   }
+
+  @override
+  String get verdictShowAllReasons => 'सर्व कारणे दाखवा';
 
   @override
   String get verdictStatusAvoid => 'टाळा';

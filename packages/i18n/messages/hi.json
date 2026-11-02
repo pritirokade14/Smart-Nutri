@@ -33,7 +33,11 @@
       "avoid": "बचें"
     },
     "rule_applied": "लागू नियम: {rule}",
-    "confidence_note": "{reason, select, low_confidence {लेबल पढ़ना कठिन था, इसलिए यह परिणाम कम निश्चित है।} other {कुछ डेटा अनिश्चित है।}}"
+    "confidence_note": "{reason, select, low_confidence {लेबल पढ़ना कठिन था, इसलिए यह परिणाम कम निश्चित है।} other {कुछ डेटा अनिश्चित है।}}",
+    "reason_unavailable": "इस नतीजे की जानकारी इस संस्करण में उपलब्ध नहीं है।",
+    "profile_not_set_up": "प्रोफ़ाइल सेट नहीं है: उम्र, एलर्जी और आहार की अभी जाँच नहीं हुई है।",
+    "show_all_reasons": "सभी कारण दिखाएँ",
+    "hide_reasons": "कारण छिपाएँ"
   },
   "status": {
     "ok": "ठीक है",

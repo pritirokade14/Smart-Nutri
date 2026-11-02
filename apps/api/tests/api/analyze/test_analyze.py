@@ -137,7 +137,7 @@ async def test_response_shape(auth_client, seeded_product):
     assert body["explanation"] is None and body["tips"] == []
     (v,) = body["verdicts"]
     assert v["status"] in {"ok", "caution", "unknown", "avoid"}
-    assert set(v) == {"member_id", "member_name", "status", "reasons"}
+    assert set(v) == {"member_id", "member_name", "status", "reasons", "profile_set_up"}
     for reason in v["reasons"]:
         assert set(reason) == {"code", "severity", "params"}
 
@@ -351,6 +351,16 @@ async def test_primary_member_on_cola_is_age_unknown(auth_client, cola_product):
     (v,) = r.json()["verdicts"]
     assert v["status"] == "unknown"
     assert _reason_pairs(v) == [("age_unknown", "unknown")]
+    assert v["profile_set_up"] is False
+
+
+async def test_profile_set_up_true_with_birth_year(auth_client, db_session, cola_product):
+    member = await _child(db_session, today().year - 13)
+    r = await auth_client.post(
+        URL, json={"product_id": str(cola_product.id), "member_ids": [str(member.id)]}
+    )
+    (v,) = r.json()["verdicts"]
+    assert v["profile_set_up"] is True
 
 
 async def test_duplicate_member_ids_rejected(auth_client, seeded_product, own_member):

@@ -22,6 +22,7 @@ VerdictOut _v(List<ReasonOut> reasons, [String status = 'caution']) =>
     VerdictOut(
       memberId: 'm',
       memberName: 'Asha',
+      profileSetUp: true,
       reasons: reasons,
       status: VerdictOutStatus.fromJson(status),
     );

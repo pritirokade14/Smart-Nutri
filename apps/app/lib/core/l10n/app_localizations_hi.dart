@@ -599,9 +599,23 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get verdictHideReasons => 'कारण छिपाएँ';
+
+  @override
+  String get verdictProfileNotSetUp =>
+      'प्रोफ़ाइल सेट नहीं है: उम्र, एलर्जी और आहार की अभी जाँच नहीं हुई है।';
+
+  @override
+  String get verdictReasonUnavailable =>
+      'इस नतीजे की जानकारी इस संस्करण में उपलब्ध नहीं है।';
+
+  @override
   String verdictRuleApplied(String rule) {
     return 'लागू नियम: $rule';
   }
+
+  @override
+  String get verdictShowAllReasons => 'सभी कारण दिखाएँ';
 
   @override
   String get verdictStatusAvoid => 'बचें';

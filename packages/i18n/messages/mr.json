@@ -33,7 +33,11 @@
       "avoid": "टाळा"
     },
     "rule_applied": "लागू केलेला नियम: {rule}",
-    "confidence_note": "{reason, select, low_confidence {लेबल वाचणे कठीण होते, त्यामुळे हा निकाल कमी निश्चित आहे.} other {काही माहिती अनिश्चित आहे.}}"
+    "confidence_note": "{reason, select, low_confidence {लेबल वाचणे कठीण होते, त्यामुळे हा निकाल कमी निश्चित आहे.} other {काही माहिती अनिश्चित आहे.}}",
+    "reason_unavailable": "या निकालाचे तपशील या आवृत्तीत उपलब्ध नाहीत.",
+    "profile_not_set_up": "प्रोफाइल सेट केलेले नाही: वय, ॲलर्जी आणि आहार यांची अजून तपासणी झालेली नाही.",
+    "show_all_reasons": "सर्व कारणे दाखवा",
+    "hide_reasons": "कारणे लपवा"
   },
   "status": {
     "ok": "ठीक आहे",
