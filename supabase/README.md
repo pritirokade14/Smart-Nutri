@@ -44,7 +44,7 @@ just db-migrate       # Alembic creates tables + RLS in the local database
    - In Supabase, go to Auth, then Providers, then Google, and paste the Web client ID and secret.
    - Redirect URLs:
      - The web app origins (`http://localhost:3000/**`, the prod domain).
-     - The Android deep link (`com.smartnutri.nutrition_ai://login-callback`).
+     - The Android deep link (`com.smartnutri.app://login-callback`).
 2. **Email OTP and magic link** (v1):
    - Enable the Email provider and use the 6-digit OTP template.
    - Configure custom SMTP, or a Send-Email hook via the CallMissed email API, before launch. Supabase's built-in mailer is rate-limited.

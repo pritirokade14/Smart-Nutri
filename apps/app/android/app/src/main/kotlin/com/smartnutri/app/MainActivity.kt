@@ -1,4 +1,4 @@
-package com.smartnutri.nutrition_ai
+package com.smartnutri.app
 
 import io.flutter.embedding.android.FlutterActivity
 

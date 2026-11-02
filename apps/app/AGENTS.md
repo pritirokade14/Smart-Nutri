@@ -57,7 +57,7 @@ test/  integration_test/
 **Android only for v1** (`android/app/src/main/AndroidManifest.xml`):
 - `INTERNET`, `CAMERA`, `RECORD_AUDIO`.
 - A Google sign-in redirect intent filter for Supabase OAuth.
-- `applicationId` is `com.smartnutri.nutrition_ai`. A final ID will be decided before the Play Store release.
+- `applicationId` is `com.smartnutri.app`. A final ID will be decided before the Play Store release.
 
 `ios/` is kept so an iPhone build stays possible later, but it is not a v1 target. The `web/`, `linux/`, `macos/` and `windows/` folders are removed: the web app is `apps/web`.
 
