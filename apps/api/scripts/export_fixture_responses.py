@@ -85,14 +85,18 @@ def fixture_member_record(
     reference: date = REFERENCE_DATE,
     fixtures: Path = FIXTURES,
 ) -> Member:
-    """An in-memory `members` row for members/<member_id>.json (birth_year = reference - age)."""
+    """An in-memory `members` row for members/<member_id>.json.
+
+    birth_year = reference.year - age - 1: the API maps a birth year to the youngest possible
+    age (reference.year - birth_year - 1), so this gives back exactly the fixture age.
+    """
     m = load_member(member_id, fixtures)
     return Member(
         id=fixture_id("member", member_id),
         account_id=account_id,
         name=m.name,
         relation="other",
-        birth_year=None if m.age is None else reference.year - m.age,
+        birth_year=None if m.age is None else reference.year - m.age - 1,
         diet=m.diet.value,
         allergens=list(m.allergens),
         conditions=list(m.conditions),

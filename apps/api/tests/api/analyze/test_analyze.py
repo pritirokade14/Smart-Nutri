@@ -2,18 +2,21 @@ from datetime import date
 from uuid import UUID, uuid4
 
 import httpx
+import pytest
 from sqlalchemy import func, select
 
 from app.core.config import Settings
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
+from app.features.me.service import ensure_account
 from app.features.members.models import Member
 from app.features.members.service import get_or_create_primary, to_scoring_member
 from app.features.scans.models import Scan
 from app.integrations.openfoodfacts import get_off_client
 from app.main import create_app
 from app.scoring import Diet
-from tests.api.analyze.conftest import OFF_BARCODE, A, B
+from scripts.export_fixture_responses import fixture_product_record
+from tests.api.analyze.conftest import OFF_BARCODE, A, B, today
 from tests.api.products.test_lookup_service import FakeOff
 
 URL = "/v1/analyze"
@@ -44,7 +47,7 @@ def test_to_scoring_member_maps_fields():
     )
     m = to_scoring_member(record, today=date(2026, 11, 3))
     assert m.id == str(record.id)
-    assert m.age == 60
+    assert m.age == 59  # youngest possible age (birthday may still be ahead)
     assert m.diet is Diet.JAIN
     assert m.allergens == ("peanut",) and m.conditions == ("diabetes",)
     assert m.goal == "weight_loss"
@@ -60,6 +63,17 @@ def test_to_scoring_member_future_birth_year_is_unknown_age():
         id=uuid4(), account_id=A, name="X", relation="child", birth_year=2030, diet="non_veg"
     )
     assert to_scoring_member(record, today=date(2026, 1, 1)).age is None
+
+
+@pytest.mark.parametrize(
+    ("birth_year", "age"), [(2024, 1), (2026, 0), (2025, 0), (2013, 12), (2027, None)]
+)
+def test_to_scoring_member_uses_youngest_possible_age(birth_year, age):
+    """Younger age bands are stricter, so a birth year maps to the youngest age it allows."""
+    record = Member(
+        id=uuid4(), account_id=A, name="X", relation="child", birth_year=birth_year, diet="non_veg"
+    )
+    assert to_scoring_member(record, today=date(2026, 1, 1)).age == age
 
 
 async def test_get_or_create_primary_is_idempotent(db_session, count_members, member_no_birth_year):
@@ -282,3 +296,67 @@ async def test_analyze_rate_limited(db_session, seeded_product):
         assert (await c.post(URL, json=body)).status_code == 200
         r = await c.post(URL, json=body)
     assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
+
+
+def _reason_pairs(verdict: dict) -> list[tuple[str, str]]:
+    return [(r["code"], r["severity"]) for r in verdict["reasons"]]
+
+
+async def _child(db_session, birth_year: int) -> Member:
+    await ensure_account(db_session, AccountContext(A, None))
+    member = Member(
+        account_id=A, name="Kid", relation="child", birth_year=birth_year, diet="non_veg"
+    )
+    db_session.add(member)
+    await db_session.flush()
+    return member
+
+
+async def test_birth_year_two_years_ago_is_treated_as_infant(auth_client, db_session):
+    """Born today.year - 2: may still be 1, so the infant rules apply."""
+    product = fixture_product_record("sf_biscuit")
+    db_session.add(product)
+    member = await _child(db_session, today().year - 2)
+    r = await auth_client.post(
+        URL, json={"product_id": str(product.id), "member_ids": [str(member.id)]}
+    )
+    assert r.status_code == 200
+    (v,) = r.json()["verdicts"]
+    assert v["status"] == "avoid"
+    assert _reason_pairs(v) == [
+        ("infant_added_salt", "avoid"),
+        ("infant_added_sugar", "avoid"),
+        ("infant_salt_high", "avoid"),
+    ]
+
+
+async def test_birth_year_thirteen_years_ago_is_treated_as_child(
+    auth_client, db_session, cola_product
+):
+    """Born today.year - 13: may still be 12, so the child rules apply."""
+    member = await _child(db_session, today().year - 13)
+    r = await auth_client.post(
+        URL, json={"product_id": str(cola_product.id), "member_ids": [str(member.id)]}
+    )
+    assert r.status_code == 200
+    (v,) = r.json()["verdicts"]
+    assert v["status"] == "avoid"
+    assert _reason_pairs(v) == [("child_caffeine", "avoid"), ("child_sugar_high", "avoid")]
+
+
+async def test_primary_member_on_cola_is_age_unknown(auth_client, cola_product):
+    """A new account's primary member has no birth year: cola is unknown (age_unknown) only."""
+    r = await auth_client.post(URL, json={"product_id": str(cola_product.id)})
+    assert r.status_code == 200
+    (v,) = r.json()["verdicts"]
+    assert v["status"] == "unknown"
+    assert _reason_pairs(v) == [("age_unknown", "unknown")]
+
+
+async def test_duplicate_member_ids_rejected(auth_client, seeded_product, own_member):
+    mid = str(own_member.id)
+    r = await auth_client.post(
+        URL, json={"product_id": str(seeded_product.id), "member_ids": [mid, mid]}
+    )
+    assert r.status_code == 422
+    assert r.json()["error"]["code"] == "validation_error"

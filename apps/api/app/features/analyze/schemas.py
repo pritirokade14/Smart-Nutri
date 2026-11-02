@@ -1,7 +1,7 @@
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.core.errors import ApiError
 from app.features.products.schemas import ProductOut
@@ -20,6 +20,13 @@ class AnalyzeRequest(BaseModel):
     barcode: str | None = Field(default=None, max_length=64)
     member_ids: list[UUID] | None = Field(default=None, max_length=MAX_MEMBERS)
     language: Literal["en", "hi", "mr"] = "en"  # reserved for explanations (M3); unused in M1
+
+    @field_validator("member_ids")
+    @classmethod
+    def _unique_member_ids(cls, value: list[UUID] | None) -> list[UUID] | None:
+        if value is not None and len(set(value)) != len(value):
+            raise ValueError("member_ids must be unique")
+        return value
 
     @model_validator(mode="after")
     def _exactly_one_product_ref(self) -> "AnalyzeRequest":

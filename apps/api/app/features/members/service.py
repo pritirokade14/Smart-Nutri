@@ -55,7 +55,10 @@ async def get_or_create_primary(session: AsyncSession, account_id: UUID) -> Memb
 async def get_many(
     session: AsyncSession, account_id: UUID, member_ids: Sequence[UUID]
 ) -> list[Member] | None:
-    """The account's members in ``member_ids`` order, or None if any id is unknown or foreign."""
+    """The account's members in ``member_ids`` order, or None if any id is unknown or foreign.
+
+    Duplicate ids are rejected at the API boundary (AnalyzeRequest); they are collapsed here.
+    """
     wanted = list(dict.fromkeys(member_ids))
     rows = await session.scalars(
         select(Member).where(Member.account_id == account_id, Member.id.in_(wanted))
@@ -69,13 +72,17 @@ async def get_many(
 def to_scoring_member(record: Member, *, today: date) -> scoring.Member:
     """Map a member row to the engine's Member.
 
-    age = today.year - birth_year; None (unknown, so the engine stays protective) when there
-    is no birth year or it lies in the future. ``custom_alerts`` is not mapped yet: the engine
-    has no custom-alert rules until M3 (Plan 5 Task 1).
+    Age is the YOUNGEST age the birth year allows: max(0, today.year - birth_year - 1). With
+    only a birth year, the birthday may still be ahead this year, and the engine's younger age
+    bands (infant, child) are stricter, so assuming the older age could turn an `avoid` into
+    `ok` (e.g. born two years ago may still be 1, an infant). Age is None (unknown, so the
+    engine stays protective) when there is no birth year or it lies in the future.
+    ``custom_alerts`` is not mapped yet: the engine has no custom-alert rules until M3
+    (Plan 5 Task 1).
     """
     age = None
     if record.birth_year is not None and record.birth_year <= today.year:
-        age = today.year - record.birth_year
+        age = max(0, today.year - record.birth_year - 1)
     return scoring.Member(
         id=str(record.id),
         name=record.name,
