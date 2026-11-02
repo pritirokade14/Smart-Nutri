@@ -534,6 +534,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resultTitle => 'Result';
 
   @override
+  String get resultYou => 'You';
+
+  @override
   String get scanCameraDenied =>
       'Camera access is off. You can type the barcode instead.';
 

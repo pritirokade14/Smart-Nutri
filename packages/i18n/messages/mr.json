@@ -194,7 +194,8 @@
     "for_member": "{name} साठी",
     "scan_another": "दुसरे उत्पादन स्कॅन करा",
     "ingredients": "घटक",
-    "no_ingredients": "घटक उपलब्ध नाहीत"
+    "no_ingredients": "घटक उपलब्ध नाहीत",
+    "you": "तुम्ही"
   },
   "product": {
     "public_cta": "तुमच्या कुटुंबासाठी तपासा",

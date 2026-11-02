@@ -430,6 +430,7 @@
   "resultNoIngredients": "सामग्री उपलब्ध नहीं",
   "resultScanAnother": "दूसरा उत्पाद स्कैन करें",
   "resultTitle": "परिणाम",
+  "resultYou": "आप",
   "scanCameraDenied": "कैमरा की अनुमति बंद है। आप बारकोड टाइप कर सकते हैं।",
   "scanCameraUnavailable": "कैमरा नहीं मिला। आप बारकोड टाइप कर सकते हैं।",
   "scanInvalid": "बारकोड के नीचे लिखे 8, 12, 13 या 14 अंक दर्ज करें।",

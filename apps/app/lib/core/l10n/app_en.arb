@@ -430,6 +430,7 @@
   "resultNoIngredients": "Ingredients not available",
   "resultScanAnother": "Scan another product",
   "resultTitle": "Result",
+  "resultYou": "You",
   "scanCameraDenied": "Camera access is off. You can type the barcode instead.",
   "scanCameraUnavailable": "No camera found. You can type the barcode instead.",
   "scanInvalid": "Enter the 8, 12, 13 or 14 digits under the barcode.",

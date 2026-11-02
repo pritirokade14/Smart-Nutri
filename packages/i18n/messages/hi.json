@@ -194,7 +194,8 @@
     "for_member": "{name} के लिए",
     "scan_another": "दूसरा उत्पाद स्कैन करें",
     "ingredients": "सामग्री",
-    "no_ingredients": "सामग्री उपलब्ध नहीं"
+    "no_ingredients": "सामग्री उपलब्ध नहीं",
+    "you": "आप"
   },
   "product": {
     "public_cta": "अपने परिवार के लिए जाँचें",

@@ -538,6 +538,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get resultTitle => 'परिणाम';
 
   @override
+  String get resultYou => 'आप';
+
+  @override
   String get scanCameraDenied =>
       'कैमरा की अनुमति बंद है। आप बारकोड टाइप कर सकते हैं।';
 

@@ -940,6 +940,12 @@ abstract class AppLocalizations {
   /// **'Result'**
   String get resultTitle;
 
+  /// No description provided for @resultYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get resultYou;
+
   /// No description provided for @scanCameraDenied.
   ///
   /// In en, this message translates to:

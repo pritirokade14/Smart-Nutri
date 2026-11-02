@@ -194,7 +194,8 @@
     "for_member": "For {name}",
     "scan_another": "Scan another product",
     "ingredients": "Ingredients",
-    "no_ingredients": "Ingredients not available"
+    "no_ingredients": "Ingredients not available",
+    "you": "You"
   },
   "product": {
     "public_cta": "Check it for your family",
