@@ -14,6 +14,7 @@ import re
 import time
 
 import httpx
+from fastapi import Request
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,16 @@ def normalize_barcode(raw: str) -> str:
     if not cleaned.isascii() or not cleaned.isdigit() or len(cleaned) not in VALID_LENGTHS:
         raise InvalidBarcode("barcode must be 8, 12, 13 or 14 digits")
     return cleaned
+
+
+def get_off_client(request: Request) -> "OffClient":
+    """FastAPI dependency: an OffClient over the app's shared httpx client (see create_app)."""
+    settings = request.app.state.settings
+    return OffClient(
+        request.app.state.off_http,
+        base_url=settings.off_base_url,
+        user_agent=settings.off_user_agent,
+    )
 
 
 class OffClient:

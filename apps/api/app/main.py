@@ -2,6 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from importlib.metadata import PackageNotFoundError, version
 
+import httpx
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,8 +14,9 @@ from app.core.security import JwksCache
 from app.db.session import build_engine, build_sessionmaker
 from app.features.health.router import router as health_router
 from app.features.me.router import router as me_router
+from app.features.products.router import router as products_router
 
-ROUTERS: list[APIRouter] = [health_router, me_router]
+ROUTERS: list[APIRouter] = [health_router, me_router, products_router]
 
 
 def _version() -> str:
@@ -32,10 +34,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     engine = build_engine(settings)
 
     @asynccontextmanager
-    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        app.state.off_http = httpx.AsyncClient()  # shared by get_off_client
         try:
             yield
         finally:
+            await app.state.off_http.aclose()
             shutdown_observability()
             await engine.dispose()
 

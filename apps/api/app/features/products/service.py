@@ -14,7 +14,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import scoring
-from app.core.config import get_settings
+from app.core.config import Settings
 from app.features.products.models import OffProductCache, Product
 from app.features.products.off_mapping import (
     ProductInfo,
@@ -92,7 +92,7 @@ def record_to_info(record: Product) -> ProductInfo:
     )
 
 
-def _from_off(payload: dict, barcode: str) -> ProductLookup:
+def _from_off(payload: dict, barcode: str, settings: Settings) -> ProductLookup:
     info = off_to_info(payload)
     if not info.barcode:
         info = ProductInfo(barcode, info.name, info.brand, info.image_url)
@@ -100,7 +100,7 @@ def _from_off(payload: dict, barcode: str) -> ProductLookup:
         source="openfoodfacts",
         product_id=None,
         info=info,
-        product=off_to_product(payload, confidence=get_settings().off_data_confidence),
+        product=off_to_product(payload, confidence=settings.off_data_confidence),
         attribution=OFF_ATTRIBUTION,
     )
 
@@ -117,7 +117,7 @@ async def _write_cache(session: AsyncSession, barcode: str, payload: dict) -> No
 
 
 async def lookup_by_barcode(
-    session: AsyncSession, off: OffClient, barcode: str
+    session: AsyncSession, off: OffClient, barcode: str, *, settings: Settings
 ) -> ProductLookup | None:
     barcode = normalize_barcode(barcode)
 
@@ -133,20 +133,20 @@ async def lookup_by_barcode(
             attribution=None,
         )
 
-    ttl = timedelta(hours=get_settings().off_cache_ttl_hours)
+    ttl = timedelta(hours=settings.off_cache_ttl_hours)
     cached = await session.scalar(
         select(OffProductCache)
         .where(OffProductCache.barcode == barcode)
         .execution_options(populate_existing=True)
     )
     if cached is not None and datetime.now(UTC) - cached.fetched_at < ttl:
-        return _from_off(cached.payload, barcode)
+        return _from_off(cached.payload, barcode, settings)
 
     try:
         payload = await off.get_product(barcode)
     except OffUnavailable:
         if cached is not None:
-            return _from_off(cached.payload, barcode)
+            return _from_off(cached.payload, barcode, settings)
         raise
 
     if payload is None:
@@ -156,4 +156,4 @@ async def lookup_by_barcode(
         return None
 
     await _write_cache(session, barcode, payload)
-    return _from_off(payload, barcode)
+    return _from_off(payload, barcode, settings)

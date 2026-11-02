@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 
 import 'health/health_client.dart';
 import 'me/me_client.dart';
+import 'products/products_client.dart';
 
 /// SmartNutri API `v0.0.0`
 class SmartNutriApiClient {
@@ -20,8 +21,12 @@ class SmartNutriApiClient {
 
   HealthClient? _health;
   MeClient? _me;
+  ProductsClient? _products;
 
   HealthClient get health => _health ??= HealthClient(_dio, baseUrl: _baseUrl);
 
   MeClient get me => _me ??= MeClient(_dio, baseUrl: _baseUrl);
+
+  ProductsClient get products =>
+      _products ??= ProductsClient(_dio, baseUrl: _baseUrl);
 }

@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from sqlalchemy import func, select
 
+from app.core.config import Settings
 from app.features.products.models import OffProductCache, Product
 from app.features.products.service import (
     lookup_by_barcode,
@@ -13,6 +14,7 @@ from app.integrations.openfoodfacts import OffUnavailable
 from app.scoring import Category
 
 BARCODE = "8901063201089"
+SETTINGS = Settings(_env_file=None, environment="test")
 OFF_PAYLOAD = {
     "code": BARCODE,
     "product_name": "OFF Biscuit",
@@ -80,7 +82,7 @@ async def test_own_product_wins_without_off_call(db_session, fake_off):
     p = _product()
     db_session.add(p)
     await db_session.flush()
-    r = await lookup_by_barcode(db_session, fake_off, BARCODE)
+    r = await lookup_by_barcode(db_session, fake_off, BARCODE, settings=SETTINGS)
     assert r.source == "smartnutri"
     assert r.product_id == p.id
     assert r.attribution is None
@@ -90,7 +92,7 @@ async def test_own_product_wins_without_off_call(db_session, fake_off):
 async def test_rejected_own_product_falls_through_to_off(db_session, fake_off):
     db_session.add(_product(verification_status="rejected"))
     await db_session.flush()
-    r = await lookup_by_barcode(db_session, fake_off, BARCODE)
+    r = await lookup_by_barcode(db_session, fake_off, BARCODE, settings=SETTINGS)
     assert r.source == "openfoodfacts"
     assert r.product_id is None
     assert r.attribution == "attribution.off"
@@ -99,7 +101,7 @@ async def test_rejected_own_product_falls_through_to_off(db_session, fake_off):
 
 async def test_fresh_cache_hit_no_off_call(db_session, fake_off):
     await _cache(db_session, 1)
-    r = await lookup_by_barcode(db_session, fake_off, BARCODE)
+    r = await lookup_by_barcode(db_session, fake_off, BARCODE, settings=SETTINGS)
     assert fake_off.calls == 0
     assert r.source == "openfoodfacts"
     assert r.info.name == "OFF Biscuit"
@@ -107,7 +109,7 @@ async def test_fresh_cache_hit_no_off_call(db_session, fake_off):
 
 async def test_stale_cache_refetches_and_updates(db_session, fake_off):
     await _cache(db_session, 200)
-    r = await lookup_by_barcode(db_session, fake_off, BARCODE)
+    r = await lookup_by_barcode(db_session, fake_off, BARCODE, settings=SETTINGS)
     assert fake_off.calls == 1
     assert r.source == "openfoodfacts"
     row = await db_session.get(OffProductCache, BARCODE, populate_existing=True)
@@ -115,42 +117,42 @@ async def test_stale_cache_refetches_and_updates(db_session, fake_off):
 
 
 async def test_miss_populates_cache(db_session, fake_off):
-    await lookup_by_barcode(db_session, fake_off, BARCODE)
+    await lookup_by_barcode(db_session, fake_off, BARCODE, settings=SETTINGS)
     row = await db_session.get(OffProductCache, BARCODE)
     assert row is not None and row.payload["product_name"] == "OFF Biscuit"
 
 
 async def test_off_down_uses_stale_cache(db_session, failing_off):
     await _cache(db_session, 200)
-    r = await lookup_by_barcode(db_session, failing_off, BARCODE)
+    r = await lookup_by_barcode(db_session, failing_off, BARCODE, settings=SETTINGS)
     assert failing_off.calls == 1
     assert r.info.name == "OFF Biscuit"
 
 
 async def test_off_down_no_cache_raises(db_session, failing_off):
     with pytest.raises(OffUnavailable):
-        await lookup_by_barcode(db_session, failing_off, BARCODE)
+        await lookup_by_barcode(db_session, failing_off, BARCODE, settings=SETTINGS)
 
 
 async def test_not_found_everywhere_returns_none(db_session, fake_off_empty):
-    assert await lookup_by_barcode(db_session, fake_off_empty, BARCODE) is None
+    assert await lookup_by_barcode(db_session, fake_off_empty, BARCODE, settings=SETTINGS) is None
 
 
 async def test_stale_cache_deleted_when_off_says_not_found(db_session, fake_off_empty):
     await _cache(db_session, 200)
-    assert await lookup_by_barcode(db_session, fake_off_empty, BARCODE) is None
+    assert await lookup_by_barcode(db_session, fake_off_empty, BARCODE, settings=SETTINGS) is None
     assert await db_session.get(OffProductCache, BARCODE, populate_existing=True) is None
 
 
 async def test_off_data_never_written_to_products(db_session, fake_off):
     count = select(func.count()).select_from(Product)
     before = await db_session.scalar(count)
-    await lookup_by_barcode(db_session, fake_off, BARCODE)
+    await lookup_by_barcode(db_session, fake_off, BARCODE, settings=SETTINGS)
     assert await db_session.scalar(count) == before
 
 
 async def test_barcode_is_normalised(db_session, fake_off):
-    r = await lookup_by_barcode(db_session, fake_off, "890 106-3201089")
+    r = await lookup_by_barcode(db_session, fake_off, "890 106-3201089", settings=SETTINGS)
     assert r is not None
 
 

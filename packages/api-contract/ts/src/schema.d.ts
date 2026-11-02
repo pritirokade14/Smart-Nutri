@@ -38,6 +38,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/barcode/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Products Get By Barcode */
+        get: operations["products_get_by_barcode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/{barcode}/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Products Get Public */
+        get: operations["products_get_public"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -101,6 +135,69 @@ export interface components {
              * @enum {string}
              */
             language: "en" | "hi" | "mr";
+        };
+        /** NutrientsOut */
+        NutrientsOut: {
+            /** Carbs G */
+            carbs_g: number | null;
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            /** Fat G */
+            fat_g: number | null;
+            /** Fiber G */
+            fiber_g: number | null;
+            /** Protein G */
+            protein_g: number | null;
+            /** Salt G */
+            salt_g: number | null;
+            /** Sat Fat G */
+            sat_fat_g: number | null;
+            /** Sodium Mg */
+            sodium_mg: number | null;
+            /** Sugars G */
+            sugars_g: number | null;
+        };
+        /** ProductOut */
+        ProductOut: {
+            /** Attribution */
+            attribution: string | null;
+            /** Barcode */
+            barcode: string | null;
+            /** Brand */
+            brand: string | null;
+            /** Category */
+            category: string;
+            /** Claims */
+            claims: string[];
+            /** Image Url */
+            image_url: string | null;
+            /** Ingredients */
+            ingredients: string[];
+            /** Name */
+            name: string | null;
+            per_100g: components["schemas"]["NutrientsOut"];
+            /** Product Id */
+            product_id: string | null;
+            /** Serving Size G */
+            serving_size_g: number | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "smartnutri" | "openfoodfacts";
+        };
+        /** PublicProductOut */
+        PublicProductOut: {
+            product: components["schemas"]["ProductOut"];
+            /** Report */
+            report: {
+                [key: string]: unknown;
+            };
+            /**
+             * Score Label
+             * @constant
+             */
+            score_label: "calculated_by_smartnutri";
         };
     };
     responses: never;
@@ -241,6 +338,160 @@ export interface operations {
             };
             /** @description Internal error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_get_by_barcode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_get_public: {
+        parameters: {
+            query?: {
+                language?: "en" | "hi" | "mr";
+            };
+            header?: never;
+            path: {
+                barcode: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicProductOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
