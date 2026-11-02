@@ -65,4 +65,4 @@ jobs:
       - name: TypeScript client typechecks
         run: pnpm --filter @smartnutri/api-client typecheck
       - name: Contract is up to date (no drift)
-        run: git diff --exit-code packages/api-contract
+        run: git add -N packages/api-contract && git diff --exit-code packages/api-contract

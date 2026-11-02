@@ -19,7 +19,8 @@ COPY alembic.ini ./
 COPY alembic ./alembic
 COPY app ./app
 COPY scripts ./scripts
-RUN uv sync --frozen --no-dev && chown -R app:app /app
+# Files stay root-owned and read-only for the app user (no runtime writes to /app).
+RUN uv sync --frozen --no-dev
 
 USER app
 ENV PORT=8080
