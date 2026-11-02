@@ -10,7 +10,7 @@ import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from functools import cache
-from typing import Any
+from typing import Annotated, Any
 from uuid import UUID
 
 import httpx
@@ -25,6 +25,8 @@ logger = logging.getLogger(__name__)
 ALLOWED_ALGORITHMS = frozenset({"ES256", "RS256"})
 AUDIENCE = "authenticated"
 LEEWAY_SECONDS = 30
+MAX_STALE_SECONDS = 86_400  # hard cap on serving last-good keys after failed refreshes
+MAX_TOKEN_LENGTH = 8192
 _ASYMMETRIC_KTY = frozenset({"EC", "RSA"})
 
 
@@ -66,6 +68,9 @@ def _parse_jwks(doc: Any) -> dict[str, jwt.PyJWK]:
             key = jwt.PyJWK(entry)
         except jwt.PyJWTError:
             continue
+        key_ops = entry.get("key_ops")
+        if key_ops is not None and (not isinstance(key_ops, list) or "verify" not in key_ops):
+            continue
         if key.algorithm_name in ALLOWED_ALGORITHMS:
             keys[kid] = key
     return keys
@@ -81,14 +86,18 @@ class JwksCache:
         jwks_url: str,
         ttl_seconds: int = 600,
         fetch: Callable[[str], Awaitable[dict]] | None = None,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self._jwks_url = jwks_url
         self._ttl = ttl_seconds
         self._fetch = fetch or _http_fetch
-        self._clock: Callable[[], float] = time.monotonic
+        self._clock = clock
         self._keys: dict[str, jwt.PyJWK] = {}
         self._expires_at: float | None = None
+        self._last_success: float | None = None
         self._last_forced: float | None = None
+        # Process-wide lock: one event loop per worker. Tests override get_jwks_cache, so
+        # no lock is ever shared across loops.
         self._lock = asyncio.Lock()
 
     async def key_for(self, kid: str) -> jwt.PyJWK:
@@ -117,8 +126,13 @@ class JwksCache:
             # Keep the last good keys and retry after a short backoff.
             logger.warning("jwks refresh failed: %s", type(exc).__name__)
             self._expires_at = now + self._MIN_REFETCH_SECONDS
+            if self._last_success is None or now - self._last_success > MAX_STALE_SECONDS:
+                # Fail closed: the last-good keys are too old to trust.
+                self._keys = {}
+                logger.error("jwks refresh failing and last-good keys exceed the staleness cap")
             return
         self._keys = keys
+        self._last_success = now
         self._expires_at = now + self._ttl
 
 
@@ -128,9 +142,9 @@ def get_jwks_cache() -> JwksCache:
 
 
 async def current_account(
-    authorization: str | None = Header(default=None),
-    jwks: JwksCache = Depends(get_jwks_cache),  # noqa: B008
-    settings: Settings = Depends(get_settings),  # noqa: B008
+    jwks: Annotated[JwksCache, Depends(get_jwks_cache)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    authorization: Annotated[str | None, Header()] = None,
 ) -> AccountContext:
     if not authorization:
         raise _auth_required()
@@ -138,6 +152,8 @@ async def current_account(
     token = token.strip()
     if scheme.lower() != "bearer" or not token:
         raise _auth_required()
+    if len(token) > MAX_TOKEN_LENGTH:
+        raise _auth_invalid()
 
     if not settings.supabase_url:
         logger.error("SUPABASE_URL is not configured; rejecting token")
@@ -149,7 +165,12 @@ async def current_account(
         raise _auth_invalid() from None
     alg = header.get("alg")
     kid = header.get("kid")
-    if alg not in ALLOWED_ALGORITHMS or not isinstance(kid, str) or not kid:
+    if (
+        not isinstance(alg, str)
+        or alg not in ALLOWED_ALGORITHMS
+        or not isinstance(kid, str)
+        or not kid
+    ):
         raise _auth_invalid()
 
     key = await jwks.key_for(kid)
@@ -170,12 +191,15 @@ async def current_account(
         logger.info("rejected access token: %s", type(exc).__name__)
         raise _auth_invalid() from None
 
+    if claims.get("role") != "authenticated" or claims.get("is_anonymous") is True:
+        raise _auth_invalid()
+
     sub = claims.get("sub")
     try:
         account_id = UUID(sub) if isinstance(sub, str) else None
     except ValueError:
         account_id = None
-    if account_id is None:
+    if account_id is None or str(account_id) != sub:
         raise _auth_invalid()
 
     email = claims.get("email")
