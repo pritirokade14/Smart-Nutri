@@ -5,7 +5,8 @@ import 'tokens.g.dart';
 /// Material theme built only from generated design tokens.
 ThemeData buildAppTheme() {
   final scheme = ColorScheme.fromSeed(
-    seedColor: SnTokens.gradeA,
+    // Neutral slate: never a verdict or grade colour.
+    seedColor: SnTokens.textPrimary,
     surface: SnTokens.surfaceDefault,
     onSurface: SnTokens.textPrimary,
     error: SnTokens.verdictAvoid,
