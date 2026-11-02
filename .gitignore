@@ -61,3 +61,6 @@ Thumbs.db
 
 # Claude Code agent worktrees
 .claude/worktrees/
+
+# google-github-actions/auth credential files
+gha-creds-*.json

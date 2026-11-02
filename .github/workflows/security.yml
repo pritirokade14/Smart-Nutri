@@ -4,12 +4,14 @@ on:
   push:
     branches: [main, v1-rebuild]
   pull_request:
+  workflow_call:  # reused as a test gate of deploy-dev.yml
 
 permissions:
   contents: read
 
 jobs:
   secrets:
+    name: security / secrets
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1

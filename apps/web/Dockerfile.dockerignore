@@ -8,3 +8,6 @@
 apps/api
 apps/app
 .git
+
+# google-github-actions/auth credential files
+gha-creds-*.json

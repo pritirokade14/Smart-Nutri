@@ -122,15 +122,27 @@ gcloud artifacts repositories create smartnutri \
 
 ## Dev deploy (GitHub Actions + WIF)
 
-Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federation: no service-account keys exist. Only `pritirokade14/Smart-Nutri` on `main` can deploy. The workflow `.github/workflows/deploy-dev.yml` runs the `api` and `web` workflows first and deploys only if they are green.
+Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federation: no service-account keys exist. Google trusts only this repository (by immutable id), the `main` branch, the `deploy-dev.yml` workflow file and `push` / `workflow_dispatch` events. The workflow runs the `api`, `web` and `security` workflows first and deploys only if they are all green. Each new revision is deployed with no traffic, smoke-tested on its own tag URL, and only then receives traffic.
+
+**Because anyone who can change `deploy-dev.yml` on `main` can deploy, branch protection (Step 0) is required, not optional.**
 
 **One-time steps, in order (you run them):**
 
+0. **Protect `main` in GitHub (before anything else).**
+   - Settings → Rules → Rulesets → New branch ruleset, target `main`, enforcement Active, **no bypass list**:
+     - Require a pull request before merging, required approvals **0** (solo maintainer).
+     - Require status checks to pass, using the job names `api / test`, `api / contract`, `app / test`, `web / test` and `security / secrets`.
+     - Block force pushes. Restrict deletions.
+   - Settings → Actions → General:
+     - Workflow permissions: **Read repository contents and packages permissions** (read-only default).
+     - Fork pull request workflows: **Require approval for all outside collaborators**.
+   - `.github/CODEOWNERS` already covers `.github/workflows/**` and `scripts/**`.
+   - Caveat: `api.yml`, `app.yml` and `web.yml` only run on pull requests that touch their paths. A required check that never runs blocks the PR, so if a docs-only PR gets stuck, drop the `paths` filter from that workflow's `pull_request` trigger.
 1. `bash scripts/push-secrets.sh` : copies the three dev secrets from `apps/api/.env` into Secret Manager.
-2. `bash scripts/setup-github-deploy.sh` (or `just setup-github-deploy`) : creates the runtime and deployer service accounts and the WIF pool and provider. It is safe to re-run.
+2. `bash scripts/setup-github-deploy.sh` (or `just setup-github-deploy`) : creates the service accounts, placeholder Cloud Run services with service-level roles, and the WIF pool and provider. Safe to re-run.
 3. GitHub repo → Settings → Secrets and variables → Actions → **Variables** → New repository variable `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the **public** publishable key). Optional variables: `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`.
 4. `just db-migrate` with `apps/api/.env` pointing at the dev database (applies Alembic migrations; the URL is read by the app and never printed).
-5. Merge to `main` when CI is green. The deploy runs on its own. To redeploy without a code change: `just deploy-dev` (= `gh workflow run deploy-dev.yml --ref main`).
+5. Merge to `main` through a pull request when CI is green. The deploy runs on its own. To redeploy without a code change: `just deploy-dev` (= `gh workflow run deploy-dev.yml --ref main`).
 
 **Dev URLs (deterministic):**
 
@@ -144,7 +156,10 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
 - Supabase → Auth → URL Configuration: add `https://smartnutri-web-dev-609833507754.asia-south1.run.app/**` to Redirect URLs.
 - Google Cloud → OAuth web client: add `https://smartnutri-web-dev-609833507754.asia-south1.run.app` to Authorised JavaScript origins.
 - Supabase → Auth → Email Templates: paste `supabase/templates/magic_link.html` so the email carries the OTP code.
-- Verify `TRUSTED_PROXY_HOPS=1` (set for a direct `*.run.app` URL) with a real request, as noted in `apps/api/.env.example`.
+- **Verify `TRUSTED_PROXY_HOPS=1`** (set for a direct `*.run.app` URL) once an endpoint that is rate-limited by IP (a public-bucket endpoint) exists:
+  1. Call it from a machine with a known egress IP, with `-H 'X-Forwarded-For: 203.0.113.9'`.
+  2. Inspect the new key in `rate_limit_counters`.
+  3. Your own egress IP: correct. `203.0.113.9`: the header is spoofable, lower the hops. A Google or `169.254.*` address: everyone shares one bucket, raise the hops.
 
 ---
 
