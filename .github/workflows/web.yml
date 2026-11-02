@@ -6,6 +6,7 @@ on:
     paths: ["apps/web/**", "packages/**", "pnpm-lock.yaml", "package.json", ".github/workflows/web.yml"]
   pull_request:
     paths: ["apps/web/**", "packages/**", "pnpm-lock.yaml", "package.json", ".github/workflows/web.yml"]
+  workflow_call:  # reused as the test gate of deploy-dev.yml
 
 permissions:
   contents: read

@@ -120,6 +120,34 @@ gcloud artifacts repositories create smartnutri \
 
 ---
 
+## Dev deploy (GitHub Actions + WIF)
+
+Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federation: no service-account keys exist. Only `pritirokade14/Smart-Nutri` on `main` can deploy. The workflow `.github/workflows/deploy-dev.yml` runs the `api` and `web` workflows first and deploys only if they are green.
+
+**One-time steps, in order (you run them):**
+
+1. `bash scripts/push-secrets.sh` : copies the three dev secrets from `apps/api/.env` into Secret Manager.
+2. `bash scripts/setup-github-deploy.sh` (or `just setup-github-deploy`) : creates the runtime and deployer service accounts and the WIF pool and provider. It is safe to re-run.
+3. GitHub repo → Settings → Secrets and variables → Actions → **Variables** → New repository variable `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the **public** publishable key). Optional variables: `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`.
+4. `just db-migrate` with `apps/api/.env` pointing at the dev database (applies Alembic migrations; the URL is read by the app and never printed).
+5. Merge to `main` when CI is green. The deploy runs on its own. To redeploy without a code change: `just deploy-dev` (= `gh workflow run deploy-dev.yml --ref main`).
+
+**Dev URLs (deterministic):**
+
+| Service | URL |
+|---|---|
+| API | https://smartnutri-api-dev-609833507754.asia-south1.run.app |
+| Web | https://smartnutri-web-dev-609833507754.asia-south1.run.app |
+
+**After the first deploy:**
+
+- Supabase → Auth → URL Configuration: add `https://smartnutri-web-dev-609833507754.asia-south1.run.app/**` to Redirect URLs.
+- Google Cloud → OAuth web client: add `https://smartnutri-web-dev-609833507754.asia-south1.run.app` to Authorised JavaScript origins.
+- Supabase → Auth → Email Templates: paste `supabase/templates/magic_link.html` so the email carries the OTP code.
+- Verify `TRUSTED_PROXY_HOPS=1` (set for a direct `*.run.app` URL) with a real request, as noted in `apps/api/.env.example`.
+
+---
+
 ## What to send back (public values only)
 
 | Value | From |

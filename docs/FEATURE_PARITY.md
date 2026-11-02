@@ -15,7 +15,7 @@ Status values: ⬜ not started · 🟡 in progress · ✅ done.
 
 | # | Feature | Milestone | API | Android (Flutter) | Web (Next.js) | Web-specific notes |
 |---|---|---|---|---|---|---|
-| F1 | Accounts: Google, email OTP; phone OTP behind a flag | Plan 2 / M1 | ⬜ | ⬜ | ⬜ | `@supabase/ssr` cookie session, `/auth/callback` route for OAuth and magic link, HTTP-only cookies |
+| F1 | Accounts: Google, email OTP; phone OTP behind a flag | Plan 2 / M1 | 🟡 | 🟡 | 🟡 | `@supabase/ssr` cookie session, `/auth/callback` route for OAuth and magic link, HTTP-only cookies |
 | F2 | Family members | M3 | ⬜ | ⬜ | ⬜ | react-hook-form + zod forms; same validation messages from i18n |
 | F3 | Scan by barcode | M1 | ⬜ | ⬜ | ⬜ | `BarcodeDetector` where supported, else `@zxing/browser` on the camera stream. Manual entry is always available. Desktop uses the webcam or manual entry. |
 | F4 | Scan by label photo plus confirm | M2 | ⬜ | ⬜ | ⬜ | `<input type="file" accept="image/*" capture="environment">`. Desktop: file upload or drag and drop. The confirm form is identical. |

@@ -6,6 +6,7 @@ on:
     paths: ["apps/api/**", "packages/api-contract/**", "packages/test-fixtures/**", "justfile", ".github/workflows/api.yml"]
   pull_request:
     paths: ["apps/api/**", "packages/api-contract/**", "packages/test-fixtures/**", "justfile", ".github/workflows/api.yml"]
+  workflow_call:  # reused as the test gate of deploy-dev.yml
 
 permissions:
   contents: read

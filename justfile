@@ -106,3 +106,13 @@ db-migrate:
 # New migration: just db-revision "add meal_logs"
 db-revision message:
     cd apps/api && uv run alembic revision --autogenerate -m "{{message}}"
+
+# ---------- dev deploy (GitHub Actions + Workload Identity Federation) ----------
+
+# One-time: create service accounts, WIF pool/provider and IAM for the GitHub deploy (you run it)
+setup-github-deploy:
+    bash scripts/setup-github-deploy.sh
+
+# Trigger the dev deploy workflow on main (needs `gh auth login`); it deploys only if tests pass
+deploy-dev:
+    gh workflow run deploy-dev.yml --ref main
