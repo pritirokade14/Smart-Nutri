@@ -1,5 +1,7 @@
 from dataclasses import replace
 
+import pytest
+
 from app.scoring.diet import diet_reasons, diet_violations, veg_mark_mismatch
 from app.scoring.models import Diet, Product, Status
 
@@ -118,3 +120,44 @@ def test_low_confidence_violation_still_avoid(cfg, vegan_adult):
 
 def test_unknown_ingredients_unknown_for_vegan(no_ingredients, cfg, vegan_adult):
     assert diet_reasons(no_ingredients, vegan_adult, cfg)[0].code == "diet_unknown"
+
+
+# --- final safety review: term-list regressions -------------------------------------------
+_NEW_NON_VEG = [
+    "tuna", "salmon", "mackerel", "sardine", "squid", "octopus", "lobster", "oyster sauce",
+    "cod liver oil", "collagen", "seafood", "keema", "animal fat", "bacon", "ham", "turkey",
+    "beef extract", "ins441", "ins542", "ins920", "चिकन", "मछली", "मांस", "झींगा",
+]
+
+
+@pytest.mark.parametrize("term", _NEW_NON_VEG)
+def test_veg_member_avoids_new_non_veg_terms(term, no_ingredients, cfg, diabetic_adult):
+    p = replace(no_ingredients, ingredients=("wheat flour", term))
+    reasons = diet_reasons(p, replace(diabetic_adult, diet=Diet.VEG), cfg)
+    assert reasons and reasons[0].severity == Status.AVOID
+
+
+@pytest.mark.parametrize("term", ["khoa", "दूध", "dairy whitener", "mawa", "मक्खन", "milk fat"])
+def test_vegan_avoids_dairy_terms(term, no_ingredients, cfg, vegan_adult):
+    p = replace(no_ingredients, ingredients=("sugar", term))
+    reasons = diet_reasons(p, vegan_adult, cfg)
+    assert reasons and reasons[0].severity == Status.AVOID
+
+
+@pytest.mark.parametrize("term", ["aloo", "kanda", "आलू", "mushroom", "lehsun", "yeast", "अदरक", "शकरकंद"])
+def test_jain_avoids_new_exclusions(term, no_ingredients, cfg, jain_adult):
+    p = replace(no_ingredients, ingredients=("rice", term))
+    reasons = diet_reasons(p, jain_adult, cfg)
+    assert reasons and reasons[0].severity == Status.AVOID
+
+
+def test_veg_avoids_ins1105(no_ingredients, cfg, diabetic_adult):
+    p = replace(no_ingredients, ingredients=("flour", "ins 1105"))
+    assert diet_reasons(p, replace(diabetic_adult, diet=Diet.VEG), cfg)[0].severity == Status.AVOID
+
+
+@pytest.mark.parametrize("text", ["graham flour", "steam cooked rice", "tomato", "chocolate"])
+def test_new_non_veg_terms_do_not_overmatch(text, no_ingredients, cfg, diabetic_adult):
+    p = replace(no_ingredients, ingredients=(text,))
+    reasons = diet_reasons(p, replace(diabetic_adult, diet=Diet.VEG), cfg)
+    assert not any(r.code == "diet_violation" for r in reasons)

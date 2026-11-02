@@ -1,5 +1,6 @@
-added_sugars:     [sugar, cane sugar, brown sugar, jaggery, gur, khand, mishri, honey, चीनी, गुड़]
+# PENDING DIETITIAN/CLINICIAN REVIEW — term lists
+added_sugars:     [sugar, cane sugar, brown sugar, jaggery, gur, khand, mishri, honey, चीनी, गुड़, शहद, मध, साखर, गूळ, शक्कर, खांड, मिश्री, बूरा, khandsari, misri, agave, coconut sugar, palm sugar, rice syrup, apple juice, apple juice concentrate, fruit juice, juice concentrate]
 hidden_sugars:    [maltodextrin, dextrose, glucose, glucose syrup, liquid glucose, invert sugar, invert syrup, fructose, high fructose corn syrup, corn syrup, sucrose, malt extract, maltose, date syrup, fruit juice concentrate, golden syrup, molasses]
 sodium_additives: [monosodium glutamate, ins621, sodium benzoate, ins211, sodium bicarbonate, baking soda, ins500, sodium nitrite, ins250, disodium inosinate, ins631, disodium guanylate, ins627, ins635, sodium citrate, ins331, sodium phosphate, ins339]
-caffeine:         [caffeine, coffee, guarana]
-salt:             [salt, iodised salt, rock salt, black salt, sendha namak, नमक]
+caffeine:         [caffeine, coffee, guarana, tea, chai, green tea, green tea extract, kola, kola nut, matcha, mate, चाय, कॉफी]
+salt:             [salt, iodised salt, rock salt, black salt, sendha namak, नमक, sodium chloride, namak, मीठ, lavan, सैंधव]

@@ -1,6 +1,14 @@
 from dataclasses import replace
 
-from app.scoring.warnings import added_sugar_terms, hidden_sugars, high_in, sodium_additives
+import pytest
+
+from app.scoring.warnings import (
+    added_sugar_terms,
+    hidden_sugars,
+    high_in,
+    ingredient_hits,
+    sodium_additives,
+)
 
 
 def test_high_in_biscuit(sf_biscuit, cfg):
@@ -35,3 +43,30 @@ def test_added_sugar_terms(cola, cfg):
 
 def test_sodium_additives(sf_biscuit, cfg):
     assert sodium_additives(sf_biscuit, cfg) == ("ins500",)
+
+
+# --- final safety review: term-list regressions -------------------------------------------
+def _with(base, *ings):
+    return replace(base, ingredients=tuple(ings))
+
+
+@pytest.mark.parametrize("term", ["tea", "chai", "चाय", "green tea extract", "matcha", "mate", "kola nut", "कॉफी"])
+def test_caffeine_new_terms(term, no_ingredients, cfg):
+    assert ingredient_hits(_with(no_ingredients, "water", term), cfg, "caffeine")
+
+
+@pytest.mark.parametrize("text", ["steam", "tear gas", "tomato", "chocolate"])
+def test_caffeine_no_overmatch(text, no_ingredients, cfg):
+    assert not ingredient_hits(_with(no_ingredients, text), cfg, "caffeine")
+
+
+@pytest.mark.parametrize(
+    "term", ["शहद", "साखर", "apple juice concentrate", "गूळ", "coconut sugar", "agave", "fruit juice"]
+)
+def test_added_sugar_new_terms(term, no_ingredients, cfg):
+    assert added_sugar_terms(_with(no_ingredients, "water", term), cfg)
+
+
+@pytest.mark.parametrize("term", ["sodium chloride", "मीठ", "namak", "lavan", "सैंधव"])
+def test_salt_new_terms(term, no_ingredients, cfg):
+    assert ingredient_hits(_with(no_ingredients, "flour", term), cfg, "salt")
