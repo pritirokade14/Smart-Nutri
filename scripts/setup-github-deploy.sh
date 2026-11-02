@@ -136,7 +136,7 @@ PROVIDER_ARGS=(
   --project "$PROJECT" --location global --workload-identity-pool "$POOL"
   --issuer-uri "https://token.actions.githubusercontent.com"
   --attribute-mapping "google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref,attribute.repository_owner=assertion.repository_owner,attribute.repository_id=assertion.repository_id,attribute.repository_owner_id=assertion.repository_owner_id,attribute.workflow_ref=assertion.workflow_ref,attribute.event_name=assertion.event_name"
-  --attribute-condition "assertion.repository_id == '$GITHUB_REPO_ID' && assertion.repository_owner_id == '$GITHUB_OWNER_ID' && assertion.ref == 'refs/heads/main' && assertion.workflow_ref == '$GITHUB_REPO/.github/workflows/deploy-dev.yml@refs/heads/main' && assertion.event_name in ['push', 'workflow_dispatch']"
+  --attribute-condition "assertion.repository_id == '$GITHUB_REPO_ID' && assertion.repository_owner_id == '$GITHUB_OWNER_ID' && assertion.ref == 'refs/heads/main' && assertion.workflow_ref == '$GITHUB_REPO/.github/workflows/deploy-dev.yml@refs/heads/main' && (assertion.event_name == 'push' || assertion.event_name == 'workflow_dispatch')"
 )
 if gcloud iam workload-identity-pools providers describe "$PROVIDER" \
   --project "$PROJECT" --location global --workload-identity-pool "$POOL" >/dev/null 2>&1; then
