@@ -17,12 +17,14 @@ class ApiError(Exception):
         status: int,
         message_key: str | None = None,
         details: dict | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         super().__init__(code)
         self.code = code
         self.status = status
         self.message_key = message_key or f"error.{code}"
         self.details = details or {}
+        self.headers = headers
 
 
 def _envelope(
@@ -48,7 +50,7 @@ def _envelope(
 def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(ApiError)
     async def _api_error(_: Request, exc: ApiError) -> JSONResponse:
-        return _envelope(exc.status, exc.code, exc.message_key, exc.details)
+        return _envelope(exc.status, exc.code, exc.message_key, exc.details, exc.headers)
 
     @app.exception_handler(RequestValidationError)
     async def _validation(_: Request, exc: RequestValidationError) -> JSONResponse:
