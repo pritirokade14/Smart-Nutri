@@ -1,12 +1,16 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import StyleDictionary from "style-dictionary";
+import { makeConfig, dartFormat } from "../style-dictionary.config.mjs";
 import { fileURLToPath } from "node:url";
 
 const root = new URL("../", import.meta.url);
 const tokens = JSON.parse(readFileSync(new URL("tokens.json", root), "utf8"));
 const css = fileURLToPath(new URL("build/css/tokens.css", root));
 const dart = fileURLToPath(new URL("build/dart/tokens.dart", root));
+const dartCopy = fileURLToPath(new URL("../../apps/app/lib/core/theme/tokens.g.dart", root));
 
 const tok = (path) => path.split(".").reduce((o, k) => o[k], tokens).$value;
 const lin = (c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
@@ -30,9 +34,34 @@ test("verdict colours meet WCAG AA on white", () => {
 test("primary text meets AA on default surface", () => {
   assert.ok(contrast(tok("color.text.primary"), tok("color.surface.default")) >= 4.5);
 });
+// CIE76 colour distance (Lab) between two hex colours.
+const lab = (hex) => {
+  const [r, g, b] = rgb(hex).map(lin);
+  const xyz = [
+    (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047,
+    0.2126 * r + 0.7152 * g + 0.0722 * b,
+    (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883,
+  ].map((t) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116));
+  return [116 * xyz[1] - 16, 500 * (xyz[0] - xyz[1]), 200 * (xyz[1] - xyz[2])];
+};
+const deltaE = (a, b) => Math.hypot(...lab(a).map((v, i) => v - lab(b)[i]));
+
+// Hue 70-185 is green-ish (yellow-green through teal); there, only near-grey passes.
+const isGreenish = (hex) => {
+  const [h, s] = hsl(hex);
+  return h >= 70 && h <= 185 && s >= 0.08;
+};
+const MIN_DELTA_E_FROM_OK = 25;
+const unknownOk = (hex, ok = "#15803D") => !isGreenish(hex) && deltaE(hex, ok) >= MIN_DELTA_E_FROM_OK;
+
 test("unknown is never green", () => {
-  const [h, s] = hsl(tok("color.verdict.unknown"));
-  assert.ok(s < 0.15 || h < 70 || h > 170);
+  assert.ok(!isGreenish(tok("color.verdict.unknown")));
+  assert.ok(deltaE(tok("color.verdict.unknown"), tok("color.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
+});
+test("the green check rejects teal and grey-green candidates", () => {
+  assert.ok(!unknownOk("#0F766E"));
+  assert.ok(!unknownOk("#4B5B4B"));
+  assert.ok(unknownOk("#4B5563"));
 });
 test("verdict values are pinned", () => {
   assert.equal(tok("color.verdict.ok"), "#15803D");
@@ -47,11 +76,35 @@ test("css output exposes verdict vars in a Tailwind @theme block", () => {
   assert.match(s, /@theme\s*\{/);
   assert.match(s, /--color-verdict-unknown:\s*#4B5563/i);
   assert.match(s, /--color-verdict-ok:\s*#15803D/i);
-  assert.match(s, /--space-4:\s*16px/);
+  assert.match(s, /--spacing-4:\s*16px/);
+  assert.match(s, /--text-md:\s*16px/);
+  assert.match(s, /--radius-lg:\s*16px/);
+  assert.doesNotMatch(s, /--font-size-|--space-/);
 });
 test("dart output exposes SnTokens", () => {
   const s = readFileSync(dart, "utf8");
   assert.match(s, /abstract final class SnTokens/);
   assert.match(s, /static const Color verdictOk = Color\(0xFF15803D\)/);
   assert.match(s, /static const Color verdictUnknown = Color\(0xFF4B5563\)/);
+});
+
+test("committed outputs are fresh (rebuild is byte-identical)", async () => {
+  const out = mkdtempSync(`${tmpdir()}/sn-tokens-`);
+  try {
+    const sd = new StyleDictionary(makeConfig(`${out}/`, fileURLToPath(new URL("tokens.json", root))), { verbosity: "silent" });
+    await sd.buildAllPlatforms();
+    const read = (p) => readFileSync(p, "utf8");
+    assert.equal(read(`${out}/css/tokens.css`), read(css));
+    assert.equal(read(`${out}/dart/tokens.dart`), read(dart));
+    assert.equal(read(`${out}/dart/tokens.dart`), read(dartCopy));
+  } finally {
+    rmSync(out, { recursive: true, force: true });
+  }
+});
+test("dart format rejects unexpected $type and malformed hex", () => {
+  const run = (t) => dartFormat({ dictionary: { allTokens: [{ path: ["x"], ...t }] } });
+  assert.throws(() => run({ $type: "shadow", $value: "1px" }), /unsupported \$type/);
+  assert.throws(() => run({ $type: "color", $value: "#FFF" }), /6-digit hex/);
+  assert.throws(() => run({ $type: "color", $value: "#12345678" }), /6-digit hex/);
+  assert.throws(() => run({ $type: "dimension", $value: "1rem" }), /px dimension/);
 });

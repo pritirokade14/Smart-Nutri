@@ -31,3 +31,4 @@ This runs [Style Dictionary](https://www.npmjs.com/package/style-dictionary) 5 a
 - Meet WCAG AA contrast for text on every background token. Many users are older and read on low-end screens.
 - No raw colour or spacing literals in either client. Add a token here instead.
 - Never edit the generated `build/` files or their copies in the apps.
+- CSS uses Tailwind 4 theme namespaces: `font.size.*` becomes `--text-*`, `space.*` becomes `--spacing-*`, `radius.*` stays `--radius-*`. Our spacing and radius scales **intentionally override the Tailwind defaults** (for example `p-5` is 24px and `rounded-lg` is 16px).
