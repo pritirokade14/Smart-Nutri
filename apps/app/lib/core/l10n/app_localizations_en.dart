@@ -54,6 +54,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authEmailLabel => 'Email address';
 
   @override
+  String get authError => 'Could not sign in. Please try again.';
+
+  @override
   String get authGoogle => 'Continue with Google';
 
   @override

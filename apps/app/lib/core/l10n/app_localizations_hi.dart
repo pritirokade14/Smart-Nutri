@@ -54,6 +54,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get authEmailLabel => 'ईमेल पता';
 
   @override
+  String get authError => 'साइन इन नहीं हो सका। कृपया दोबारा कोशिश करें।';
+
+  @override
   String get authGoogle => 'Google से जारी रखें';
 
   @override

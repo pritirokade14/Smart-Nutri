@@ -190,6 +190,12 @@ abstract class AppLocalizations {
   /// **'Email address'**
   String get authEmailLabel;
 
+  /// No description provided for @authError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign in. Please try again.'**
+  String get authError;
+
   /// No description provided for @authGoogle.
   ///
   /// In en, this message translates to:
