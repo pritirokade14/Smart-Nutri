@@ -28,7 +28,7 @@ dev:
 
 # FastAPI dev server on :8000 (Plan 2)
 api:
-    cd apps/api && uv run fastapi dev app/main.py --port 8000
+    cd apps/api && uv run uvicorn app.main:create_app --factory --reload --port 8000
 
 # Next.js dev server on :3000 (Plan 2)
 web:

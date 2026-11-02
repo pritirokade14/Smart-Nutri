@@ -6,8 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import Settings, get_settings
 from app.core.errors import install_error_handlers
 from app.core.logging import configure_logging
+from app.features.health.router import router as health_router
 
-ROUTERS: list[APIRouter] = []
+ROUTERS: list[APIRouter] = [health_router]
 
 
 def _version() -> str:
