@@ -1,12 +1,17 @@
-milk:       {contains: [milk, milk solids, milk powder, whey, casein, caseinate, lactose, butter, ghee, cream, cheese, paneer, khoya, khoa, curd, dahi, yoghurt, yogurt, malai, buttermilk, chhena, दूध, घी, पनीर, दही],
+# PENDING DIETITIAN/CLINICIAN REVIEW — term lists
+milk:       {contains: [milk, milk solids, milk powder, whey, casein, caseinate, lactose, butter, ghee, cream, cheese, paneer, khoya, khoa, curd, dahi, yoghurt, yogurt, malai, buttermilk, chhena, दूध, घी, पनीर, दही,
+                        dairy whitener, mawa, lactitol, ins966, milk fat, butter oil, मक्खन, मलाई, खोया, दूध पावडर],
              possible: [], exclude: [coconut milk, almond milk, oat milk, cocoa butter, peanut butter, nut butter, shea butter, cream of tartar]}
-peanut:     {contains: [peanut, groundnut, arachis oil, moongphali, मूंगफली], possible: [], exclude: []}
-gluten:     {contains: [gluten, ग्लूटेन, wheat, atta, maida, sooji, suji, semolina, rava, barley, rye, malt, malt extract, dalia, spelt, गेहूं, मैदा], possible: [oats, hing, asafoetida], exclude: []}
-soy:        {contains: [soy, soya, soybean, soy lecithin, सोया], possible: [lecithin, ins322, vegetable protein], exclude: [sunflower lecithin]}
-egg:        {contains: [egg, egg white, egg yolk, albumin, albumen, mayonnaise, अंडा, अंडे], possible: [], exclude: [eggplant]}
-tree_nut:   {contains: [almond, badam, cashew, kaju, pistachio, pista, walnut, akhrot, tree nut, tree nuts, hazelnut, pecan, macadamia], possible: [nuts], exclude: [coconut, nutmeg]}
-sesame:     {contains: [sesame, til, gingelly], possible: [], exclude: []}
-fish:       {contains: [fish, anchovy, tuna, sardine, fish sauce, fish oil], possible: [], exclude: []}
-crustacean: {contains: [crustacean, crustaceans, shellfish, prawn, shrimp, crab, lobster], possible: [], exclude: []}
-mustard:    {contains: [mustard, rai, sarson], possible: [], exclude: []}
+peanut:     {contains: [peanut, groundnut, arachis oil, moongphali, मूंगफली, शेंगदाणा], possible: [nuts, nut], exclude: []}
+gluten:     {contains: [gluten, ग्लूटेन, wheat, atta, maida, sooji, suji, semolina, rava, barley, rye, malt, malt extract, dalia, spelt, गेहूं, मैदा,
+                        rawa, vermicelli, semiya, couscous, आटा, सूजी, गहू], possible: [oats, hing, asafoetida], exclude: []}
+soy:        {contains: [soy, soya, soybean, soy lecithin, सोया, सोयाबीन, tofu], possible: [lecithin, ins322, vegetable protein], exclude: [sunflower lecithin]}
+egg:        {contains: [egg, egg white, egg yolk, albumin, albumen, mayonnaise, अंडा, अंडे, ins1105], possible: [], exclude: [eggplant]}
+tree_nut:   {contains: [almond, badam, cashew, kaju, pistachio, pista, walnut, akhrot, tree nut, tree nuts, hazelnut, pecan, macadamia,
+                        cashewnut, cashew nut, chironji, charoli, chilgoza, pine nut, brazil nut, काजू, बादाम, पिस्ता, अखरोट],
+             possible: [nuts, dry fruit, dry fruits], exclude: [coconut, nutmeg]}
+sesame:     {contains: [sesame, til, gingelly, तिल, tahini], possible: [], exclude: []}
+fish:       {contains: [fish, anchovy, tuna, sardine, fish sauce, fish oil, salmon, mackerel, मछली], possible: [], exclude: []}
+crustacean: {contains: [crustacean, crustaceans, shellfish, prawn, shrimp, crab, lobster, झींगा], possible: [], exclude: []}
+mustard:    {contains: [mustard, rai, sarson, सरसों, राई], possible: [], exclude: []}
 sulphite:   {contains: [sulphite, sulfite, sulphur dioxide, sulfur dioxide, so2, metabisulphite, metabisulfite, ins220, ins221, ins222, ins223, ins224, ins225, ins226, ins227, ins228], possible: [], exclude: []}
