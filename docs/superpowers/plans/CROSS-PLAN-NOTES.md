@@ -44,3 +44,6 @@ The web server renders `/[locale]/p/[barcode]` by calling `GET /v1/products/{bar
 
 ## 18. Public product route and unverified user products (Plan 4 / M2)
 `GET /v1/products/{barcode}/public` serves any own product that is not `rejected`, including `pending` rows that users submit from label scans (M2). Before M2 ships, decide whether the public page shows only `verified` own products (recommended) or labels pending data as user-submitted.
+
+## 19. Age from birth year is a range (engine follow-up, clinician)
+Members store only a birth year, so true age is `today.year − birth_year` or one less. M1 passes the youngest possible age (Plan 3 R19), which is protective at the 7/11/13 edges and for infants. Residual gap at the 2-year edge: infant rules (< 2) don't include the child sugar-percentage rule, so a real 2-year-old evaluated as 1 is not warned about very high natural sugar (dates, raisins). Fix in `app/scoring` (CODEOWNERS + clinician): accept an age range and apply every band it covers, or add a natural-sugar ceiling to infant rules.
