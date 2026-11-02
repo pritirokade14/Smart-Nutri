@@ -16,3 +16,13 @@ A family fixture (several members in one analyze call) matching the M3 response 
 
 ## 9. Member birth year is required (Plan 5 member form, both clients)
 Ruling R13 makes the engine return `age_unknown` UNKNOWN when age is missing and a child/infant rule would flag. Plan 5's member create/edit form on Android and web must require birth year (or an age band) so families don't see avoidable unknowns.
+
+## 10. Account deletion must also clean Supabase Auth and Storage (Plan 8 / M6)
+Also decide what `ensure_account` (GET /v1/me) does for a soft-deleted account (`deleted_at` set) that logs in again: 410 or reactivate. Today it returns it as live.
+`accounts.id` has no FK to `auth.users` (Plan 2 Task 4). Deleting an account must delete the Supabase Auth user (admin API, server-side) and the account's Storage objects (`scans.image_path`), and deleting an auth user out-of-band must not leave health data orphaned — add an auth hook or a periodic sweep. Cascades inside `public` are already in the baseline (tested).
+
+## 11. `meal_logs.product_id` is NOT NULL (FK to `products`); OFF data stays in `off_product_cache`
+Plans 3 and 6: logging or explaining a product known only from Open Food Facts needs a `products` row. Create a minimal `products` row (barcode, name, source='off', no ODbL nutrient copy) that points to the cache, or make product_id nullable with an `off_barcode` column — decide in Plan 3 Task 1 and record an ADR. Do not copy ODbL data into `products` (AGENTS rule 8).
+
+## 12. Plan 5 / Plan 6 must not recreate baseline tables
+The Plan 2 baseline (`0001_baseline`) already creates members, consents and meal_logs with the final Plan 2 class names (`Member`, `Consent`, `MealLog`) and a stricter meal_logs policy (account_id AND member ownership). Plan 5 Task 3 and Plan 6 Task 2: consume these models, do not add MemberRow/ConsentRow/MealLogRow or a new migration for them; new columns go in a new revision. Keep their RLS tests as regression tests against the baseline. Writes from clients never go through the Supabase Data API (ADR 0013): `authenticated` has SELECT only.
