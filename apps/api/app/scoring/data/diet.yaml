@@ -1,5 +1,5 @@
 non_veg:         [chicken, mutton, beef, pork, lamb, meat, meat extract, fish, anchovy, prawn, shrimp, crab, gelatin, gelatine, lard, tallow, rennet, isinglass, carmine, cochineal, ins120, bone, fish oil, fish sauce]
-egg:             [egg, egg white, egg yolk, albumin, mayonnaise, अंडा]
+egg:             [egg, egg white, egg yolk, albumin, albumen, mayonnaise, अंडा, अंडे]
 dairy:           [milk, milk solids, milk powder, whey, casein, caseinate, lactose, butter, ghee, cream, cheese, paneer, khoya, curd, dahi, yoghurt, yogurt, malai, buttermilk]
 animal_other:    [honey, beeswax, ins901, shellac, ins904, lanolin]
 jain_exclusions: [onion, garlic, potato, carrot, beetroot, radish, ginger, yam, sweet potato, arbi, प्याज, लहसुन, onion powder, garlic powder]

@@ -70,5 +70,18 @@ def test_sulphite_code_list():
     assert find_terms(["Preservatives (220, 223)"], sulphite) == ["ins220", "ins223"]
 
 
+def test_devanagari_nukta_insensitive():
+    assert find_terms(["प्याज़"], ["प्याज"]) == ["प्याज"]
+    assert find_terms(["प्याज"], ["प्याज़"]) == ["प्याज़"]
+    assert find_terms(["गुड़"], ["गुड़"]) == ["गुड़"]
+
+
+def test_ies_plurals():
+    assert find_terms(["anchovies"], ["anchovy"]) == ["anchovy"]
+    assert find_terms(["dried berries"], ["berry"]) == ["berry"]
+    assert find_terms(["candies"], ["candy"]) == ["candy"]
+    assert find_terms(["anchovy"], ["anchovy"]) == ["anchovy"]
+
+
 def test_zero_width_chars_stripped():
     assert find_terms(["pea‍nut"], ["peanut"]) == ["peanut"]

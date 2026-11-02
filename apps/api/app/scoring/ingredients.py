@@ -19,7 +19,7 @@ _INS = re.compile(
 _CODE_LIST = re.compile(r"\(\s*\d{3,4}(?:\s*(?:[,;&]|and)\s*\d{3,4})*\s*\)")
 _DIGITS = re.compile(r"\d{3,4}")
 _SEPARATORS = re.compile(r"[,;:()\[\]/|।॥\n\r]+")
-_ZERO_WIDTH = re.compile("[‌‍]")
+_ZERO_WIDTH = re.compile("[\u200c\u200d\u093c]")  # ZWNJ, ZWJ, nukta
 
 
 def _ins_sub(t: str) -> str:
@@ -54,7 +54,10 @@ def _segments(texts: Iterable[str]) -> list[str]:
 
 
 def _pattern(term: str) -> re.Pattern[str]:
-    return re.compile(rf"(?<![{_WC}]){re.escape(term)}(?:es|s)?(?![{_WC}])")
+    body = rf"{re.escape(term)}(?:es|s)?"
+    if term.endswith("y"):
+        body = rf"(?:{body}|{re.escape(term[:-1])}ies)"
+    return re.compile(rf"(?<![{_WC}]){body}(?![{_WC}])")
 
 
 def _blank(text: str, pattern: re.Pattern[str]) -> tuple[str, bool]:
