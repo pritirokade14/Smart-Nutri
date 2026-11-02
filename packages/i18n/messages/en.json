@@ -1,0 +1,134 @@
+{
+  "app": { "name": "SmartNutri AI" },
+  "common": {
+    "disclaimer": "Information, not medical advice.",
+    "loading": "Loading…",
+    "retry": "Try again"
+  },
+  "auth": {
+    "title": "Sign in",
+    "google": "Continue with Google",
+    "email": "Continue with email",
+    "emailLabel": "Email address",
+    "sendCode": "Send code",
+    "codeLabel": "6-digit code",
+    "verify": "Verify",
+    "phone": "Continue with phone",
+    "signOut": "Sign out"
+  },
+  "home": { "welcome": "Hello, {name}" },
+  "verdict": {
+    "status": { "ok": "OK", "caution": "Caution", "unknown": "Label unclear", "avoid": "Avoid" },
+    "rule_applied": "Rule applied: {rule}",
+    "confidence_note": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}"
+  },
+  "status": { "ok": "OK", "caution": "Caution", "unknown": "Label unclear", "avoid": "Avoid" },
+  "reason": {
+    "allergen_contains": "Contains {allergen}, which is on your avoid list.",
+    "allergen_may_contain": "May contain {allergen}, which is on your avoid list.",
+    "allergen_unknown": "We can't tell whether this contains {allergen}.",
+    "allergen_unrecognised": "We don't recognise the allergen \"{allergen}\" in your profile.",
+    "diet_violation": "May not match a {diet} diet: {ingredients}.",
+    "diet_unknown": "We can't tell whether this fits a {diet} diet.",
+    "sugar_high": "High in sugar: {sugars_g} g {basis, select, per_serving {per serving} other {per 100 g}}.",
+    "sugar_moderate": "Moderate sugar: {sugars_g} g {basis, select, per_serving {per serving} other {per 100 g}}.",
+    "misleading_sugar_claim": "The pack says \"{mark}\", but the ingredients include sugar: {ingredients}.",
+    "hidden_sugars": "Contains sugars listed under other names: {ingredients}.",
+    "added_sugars": "Contains added sugars: {ingredients}.",
+    "carbs_per_serving_high": "{carbs_g} g carbohydrate per serving. This may not suit your condition; check with your doctor.",
+    "salt_high": "High in salt: {salt_g} g {basis, select, per_serving {per serving} other {per 100 g}}.",
+    "salt_moderate": "Moderate salt: {salt_g} g {basis, select, per_serving {per serving} other {per 100 g}}.",
+    "sodium_additives": "Contains sodium-based additives: {ingredients}.",
+    "energy_dense": "This is an energy-dense food. Small portions are best.",
+    "nutriscore_low": "Nutri-Score {grade} points to lower overall nutrition quality.",
+    "good_protein_density": "A good amount of protein for its calories.",
+    "child_sugar_high": "{sugars_g} g sugar is high for a child (guide: about {limit_g} g).",
+    "child_sugar_moderate": "{sugars_g} g sugar is on the higher side for a child (guide: about {limit_g} g).",
+    "child_caffeine": "Contains caffeine, which is not recommended for children.",
+    "child_salt_high": "{salt_g} g salt is high for a child (guide: about {limit_g} g).",
+    "infant_added_sugar": "Contains added sugar, which is not recommended for infants.",
+    "infant_added_salt": "Contains added salt, which is not recommended for infants.",
+    "infant_honey": "Contains honey, which should not be given to infants under 12 months.",
+    "infant_caffeine": "Contains caffeine, which is not recommended for infants.",
+    "infant_sugar_high": "{sugars_g} g sugar is high for an infant.",
+    "infant_salt_high": "{salt_g} g salt is high for an infant.",
+    "ingredients_missing": "The ingredients list was not readable, so some checks could not be done.",
+    "nutrient_missing": "{nutrient} is not on the label, so this check could not be done.",
+    "condition_unrecognised": "We do not have guidance for \"{condition}\" yet."
+  },
+  "allergen": {
+    "milk": "Milk",
+    "peanut": "Peanut",
+    "gluten": "Gluten",
+    "soy": "Soy",
+    "egg": "Egg",
+    "tree_nut": "Tree nuts",
+    "sesame": "Sesame",
+    "fish": "Fish",
+    "crustacean": "Shellfish (crustaceans)",
+    "mustard": "Mustard",
+    "sulphite": "Sulphites"
+  },
+  "diet": {
+    "veg": "Vegetarian",
+    "eggetarian": "Eggetarian",
+    "vegan": "Vegan",
+    "jain": "Jain",
+    "non_veg": "Non-vegetarian"
+  },
+  "condition": {
+    "diabetes": "Diabetes",
+    "prediabetes": "Prediabetes",
+    "pcos": "PCOS",
+    "hypertension": "High blood pressure",
+    "weight_loss": "Weight loss"
+  },
+  "high_in": {
+    "sugar": "High in sugar",
+    "fat": "High in fat",
+    "sat_fat": "High in saturated fat",
+    "salt": "High in salt",
+    "percent_of_limit": "{pct}% of the limit"
+  },
+  "nutriscore": {
+    "calculated_by": "Nutri-Score calculated by SmartNutri",
+    "insufficient_data": "Not enough label data to calculate a Nutri-Score."
+  },
+  "claim": {
+    "no_added_sugar": "No added sugar",
+    "sugar_free": "Sugar free",
+    "low_sugar": "Low sugar",
+    "low_fat": "Low fat",
+    "low_sodium": "Low sodium",
+    "high_protein": "High protein",
+    "source_of_protein": "Source of protein",
+    "no_refined_sugar": "No refined sugar",
+    "diabetic_friendly": "Diabetic friendly"
+  },
+  "claim_verdict": {
+    "supported": "Label data supports this claim",
+    "contradicted": "Label data contradicts this claim",
+    "unverifiable": "Can't be checked from the label"
+  },
+  "claim_reason": {
+    "ok": "The label data is consistent with this claim.",
+    "exceeds_limit": "{value} is above the limit of {limit} for this claim.",
+    "below_minimum": "{value} is below the minimum of {limit} for this claim.",
+    "nutrient_missing": "{nutrient} is not on the label, so this claim can't be checked.",
+    "ingredients_unknown": "The ingredients list is not available, so this claim can't be checked.",
+    "added_sugar_ingredient": "The ingredients include added sugar: {ingredients}.",
+    "refined_sugar_ingredient": "The ingredients include refined sugar: {ingredients}.",
+    "no_standard": "We have no standard to check \"{claim}\" against."
+  },
+  "error": {
+    "auth_required": "Please sign in.",
+    "auth_invalid": "Your session expired. Please sign in again.",
+    "not_found": "Not found.",
+    "validation_error": "Please check the highlighted fields.",
+    "rate_limited": "Too many requests. Please wait a moment.",
+    "rate_limited_scans": "You've reached today's label-scan limit.",
+    "rate_limited_voice": "You've reached today's voice-question limit.",
+    "internal_error": "Something went wrong. Please try again.",
+    "network": "No internet connection."
+  }
+}

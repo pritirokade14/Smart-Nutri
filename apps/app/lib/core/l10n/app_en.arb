@@ -1,0 +1,379 @@
+{
+  "@@locale": "en",
+  "allergenCrustacean": "Shellfish (crustaceans)",
+  "allergenEgg": "Egg",
+  "allergenFish": "Fish",
+  "allergenGluten": "Gluten",
+  "allergenMilk": "Milk",
+  "allergenMustard": "Mustard",
+  "allergenPeanut": "Peanut",
+  "allergenSesame": "Sesame",
+  "allergenSoy": "Soy",
+  "allergenSulphite": "Sulphites",
+  "allergenTreeNut": "Tree nuts",
+  "appName": "SmartNutri AI",
+  "authCodeLabel": "6-digit code",
+  "authEmail": "Continue with email",
+  "authEmailLabel": "Email address",
+  "authGoogle": "Continue with Google",
+  "authPhone": "Continue with phone",
+  "authSendCode": "Send code",
+  "authSignOut": "Sign out",
+  "authTitle": "Sign in",
+  "authVerify": "Verify",
+  "claimDiabeticFriendly": "Diabetic friendly",
+  "claimHighProtein": "High protein",
+  "claimLowFat": "Low fat",
+  "claimLowSodium": "Low sodium",
+  "claimLowSugar": "Low sugar",
+  "claimNoAddedSugar": "No added sugar",
+  "claimNoRefinedSugar": "No refined sugar",
+  "claimReasonAddedSugarIngredient": "The ingredients include added sugar: {ingredients}.",
+  "@claimReasonAddedSugarIngredient": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonBelowMinimum": "{value} is below the minimum of {limit} for this claim.",
+  "@claimReasonBelowMinimum": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonExceedsLimit": "{value} is above the limit of {limit} for this claim.",
+  "@claimReasonExceedsLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonIngredientsUnknown": "The ingredients list is not available, so this claim can't be checked.",
+  "claimReasonNoStandard": "We have no standard to check \"{claim}\" against.",
+  "@claimReasonNoStandard": {
+    "placeholders": {
+      "claim": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonNutrientMissing": "{nutrient} is not on the label, so this claim can't be checked.",
+  "@claimReasonNutrientMissing": {
+    "placeholders": {
+      "nutrient": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonOk": "The label data is consistent with this claim.",
+  "claimReasonRefinedSugarIngredient": "The ingredients include refined sugar: {ingredients}.",
+  "@claimReasonRefinedSugarIngredient": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimSourceOfProtein": "Source of protein",
+  "claimSugarFree": "Sugar free",
+  "claimVerdictContradicted": "Label data contradicts this claim",
+  "claimVerdictSupported": "Label data supports this claim",
+  "claimVerdictUnverifiable": "Can't be checked from the label",
+  "commonDisclaimer": "Information, not medical advice.",
+  "commonLoading": "Loading…",
+  "commonRetry": "Try again",
+  "conditionDiabetes": "Diabetes",
+  "conditionHypertension": "High blood pressure",
+  "conditionPcos": "PCOS",
+  "conditionPrediabetes": "Prediabetes",
+  "conditionWeightLoss": "Weight loss",
+  "dietEggetarian": "Eggetarian",
+  "dietJain": "Jain",
+  "dietNonVeg": "Non-vegetarian",
+  "dietVeg": "Vegetarian",
+  "dietVegan": "Vegan",
+  "errorAuthInvalid": "Your session expired. Please sign in again.",
+  "errorAuthRequired": "Please sign in.",
+  "errorInternalError": "Something went wrong. Please try again.",
+  "errorNetwork": "No internet connection.",
+  "errorNotFound": "Not found.",
+  "errorRateLimited": "Too many requests. Please wait a moment.",
+  "errorRateLimitedScans": "You've reached today's label-scan limit.",
+  "errorRateLimitedVoice": "You've reached today's voice-question limit.",
+  "errorValidationError": "Please check the highlighted fields.",
+  "highInFat": "High in fat",
+  "highInPercentOfLimit": "{pct}% of the limit",
+  "@highInPercentOfLimit": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "highInSalt": "High in salt",
+  "highInSatFat": "High in saturated fat",
+  "highInSugar": "High in sugar",
+  "homeWelcome": "Hello, {name}",
+  "@homeWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutriscoreCalculatedBy": "Nutri-Score calculated by SmartNutri",
+  "nutriscoreInsufficientData": "Not enough label data to calculate a Nutri-Score.",
+  "reasonAddedSugars": "Contains added sugars: {ingredients}.",
+  "@reasonAddedSugars": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenContains": "Contains {allergen}, which is on your avoid list.",
+  "@reasonAllergenContains": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenMayContain": "May contain {allergen}, which is on your avoid list.",
+  "@reasonAllergenMayContain": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenUnknown": "We can't tell whether this contains {allergen}.",
+  "@reasonAllergenUnknown": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenUnrecognised": "We don't recognise the allergen \"{allergen}\" in your profile.",
+  "@reasonAllergenUnrecognised": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCarbsPerServingHigh": "{carbs_g} g carbohydrate per serving. This may not suit your condition; check with your doctor.",
+  "@reasonCarbsPerServingHigh": {
+    "placeholders": {
+      "carbs_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildCaffeine": "Contains caffeine, which is not recommended for children.",
+  "reasonChildSaltHigh": "{salt_g} g salt is high for a child (guide: about {limit_g} g).",
+  "@reasonChildSaltHigh": {
+    "placeholders": {
+      "limit_g": {
+        "type": "String"
+      },
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildSugarHigh": "{sugars_g} g sugar is high for a child (guide: about {limit_g} g).",
+  "@reasonChildSugarHigh": {
+    "placeholders": {
+      "limit_g": {
+        "type": "String"
+      },
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildSugarModerate": "{sugars_g} g sugar is on the higher side for a child (guide: about {limit_g} g).",
+  "@reasonChildSugarModerate": {
+    "placeholders": {
+      "limit_g": {
+        "type": "String"
+      },
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonConditionUnrecognised": "We do not have guidance for \"{condition}\" yet.",
+  "@reasonConditionUnrecognised": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonDietUnknown": "We can't tell whether this fits a {diet} diet.",
+  "@reasonDietUnknown": {
+    "placeholders": {
+      "diet": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonDietViolation": "May not match a {diet} diet: {ingredients}.",
+  "@reasonDietViolation": {
+    "placeholders": {
+      "diet": {
+        "type": "String"
+      },
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonEnergyDense": "This is an energy-dense food. Small portions are best.",
+  "reasonGoodProteinDensity": "A good amount of protein for its calories.",
+  "reasonHiddenSugars": "Contains sugars listed under other names: {ingredients}.",
+  "@reasonHiddenSugars": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonInfantAddedSalt": "Contains added salt, which is not recommended for infants.",
+  "reasonInfantAddedSugar": "Contains added sugar, which is not recommended for infants.",
+  "reasonInfantCaffeine": "Contains caffeine, which is not recommended for infants.",
+  "reasonInfantHoney": "Contains honey, which should not be given to infants under 12 months.",
+  "reasonInfantSaltHigh": "{salt_g} g salt is high for an infant.",
+  "@reasonInfantSaltHigh": {
+    "placeholders": {
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonInfantSugarHigh": "{sugars_g} g sugar is high for an infant.",
+  "@reasonInfantSugarHigh": {
+    "placeholders": {
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonIngredientsMissing": "The ingredients list was not readable, so some checks could not be done.",
+  "reasonMisleadingSugarClaim": "The pack says \"{mark}\", but the ingredients include sugar: {ingredients}.",
+  "@reasonMisleadingSugarClaim": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      },
+      "mark": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonNutrientMissing": "{nutrient} is not on the label, so this check could not be done.",
+  "@reasonNutrientMissing": {
+    "placeholders": {
+      "nutrient": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonNutriscoreLow": "Nutri-Score {grade} points to lower overall nutrition quality.",
+  "@reasonNutriscoreLow": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSaltHigh": "High in salt: {salt_g} g {basis, select, per_serving {per serving} other {per 100 g}}.",
+  "@reasonSaltHigh": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSaltModerate": "Moderate salt: {salt_g} g {basis, select, per_serving {per serving} other {per 100 g}}.",
+  "@reasonSaltModerate": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSodiumAdditives": "Contains sodium-based additives: {ingredients}.",
+  "@reasonSodiumAdditives": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSugarHigh": "High in sugar: {sugars_g} g {basis, select, per_serving {per serving} other {per 100 g}}.",
+  "@reasonSugarHigh": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSugarModerate": "Moderate sugar: {sugars_g} g {basis, select, per_serving {per serving} other {per 100 g}}.",
+  "@reasonSugarModerate": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "statusAvoid": "Avoid",
+  "statusCaution": "Caution",
+  "statusOk": "OK",
+  "statusUnknown": "Label unclear",
+  "verdictConfidenceNote": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}",
+  "@verdictConfidenceNote": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictRuleApplied": "Rule applied: {rule}",
+  "@verdictRuleApplied": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictStatusAvoid": "Avoid",
+  "verdictStatusCaution": "Caution",
+  "verdictStatusOk": "OK",
+  "verdictStatusUnknown": "Label unclear"
+}

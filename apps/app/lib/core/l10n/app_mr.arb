@@ -1,0 +1,379 @@
+{
+  "@@locale": "mr",
+  "allergenCrustacean": "शेलफिश (कोळंबी, खेकडा इ.)",
+  "allergenEgg": "अंडे",
+  "allergenFish": "मासे",
+  "allergenGluten": "ग्लूटेन",
+  "allergenMilk": "दूध",
+  "allergenMustard": "मोहरी",
+  "allergenPeanut": "शेंगदाणे",
+  "allergenSesame": "तीळ",
+  "allergenSoy": "सोया",
+  "allergenSulphite": "सल्फाइट",
+  "allergenTreeNut": "सुकामेवा (ट्री नट्स)",
+  "appName": "SmartNutri AI",
+  "authCodeLabel": "6 अंकी कोड",
+  "authEmail": "ईमेलसह पुढे जा",
+  "authEmailLabel": "ईमेल पत्ता",
+  "authGoogle": "Google सह पुढे जा",
+  "authPhone": "फोनसह पुढे जा",
+  "authSendCode": "कोड पाठवा",
+  "authSignOut": "साइन आउट करा",
+  "authTitle": "साइन इन करा",
+  "authVerify": "पडताळा",
+  "claimDiabeticFriendly": "डायबेटिसला अनुकूल",
+  "claimHighProtein": "जास्त प्रथिने",
+  "claimLowFat": "कमी फॅट",
+  "claimLowSodium": "कमी सोडियम",
+  "claimLowSugar": "कमी साखर",
+  "claimNoAddedSugar": "वरून साखर घातलेली नाही",
+  "claimNoRefinedSugar": "रिफाइंड साखर नाही",
+  "claimReasonAddedSugarIngredient": "घटकांमध्ये वरून घातलेली साखर आहे: {ingredients}.",
+  "@claimReasonAddedSugarIngredient": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonBelowMinimum": "{value} हे या दाव्याच्या किमान {limit} पेक्षा कमी आहे.",
+  "@claimReasonBelowMinimum": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonExceedsLimit": "{value} हे या दाव्याच्या {limit} मर्यादेपेक्षा जास्त आहे.",
+  "@claimReasonExceedsLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonIngredientsUnknown": "घटकांची यादी उपलब्ध नाही, त्यामुळे हा दावा तपासता येत नाही.",
+  "claimReasonNoStandard": "\"{claim}\" तपासण्यासाठी आमच्याकडे कोणतेही मानक नाही.",
+  "@claimReasonNoStandard": {
+    "placeholders": {
+      "claim": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonNutrientMissing": "लेबलवर {nutrient} दिलेले नाही, त्यामुळे हा दावा तपासता येत नाही.",
+  "@claimReasonNutrientMissing": {
+    "placeholders": {
+      "nutrient": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonOk": "लेबलवरील माहिती या दाव्याशी जुळते.",
+  "claimReasonRefinedSugarIngredient": "घटकांमध्ये रिफाइंड साखर आहे: {ingredients}.",
+  "@claimReasonRefinedSugarIngredient": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimSourceOfProtein": "प्रथिनांचा स्रोत",
+  "claimSugarFree": "साखरमुक्त",
+  "claimVerdictContradicted": "लेबलवरील माहिती या दाव्याशी जुळत नाही",
+  "claimVerdictSupported": "लेबलवरील माहिती या दाव्याला पुष्टी देते",
+  "claimVerdictUnverifiable": "लेबलवरून तपासता येत नाही",
+  "commonDisclaimer": "ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+  "commonLoading": "लोड होत आहे…",
+  "commonRetry": "पुन्हा प्रयत्न करा",
+  "conditionDiabetes": "मधुमेह (डायबेटिस)",
+  "conditionHypertension": "उच्च रक्तदाब",
+  "conditionPcos": "पीसीओएस",
+  "conditionPrediabetes": "प्रीडायबेटिस",
+  "conditionWeightLoss": "वजन कमी करणे",
+  "dietEggetarian": "अंडाहारी (अंडे खाणारा शाकाहारी)",
+  "dietJain": "जैन",
+  "dietNonVeg": "मांसाहारी",
+  "dietVeg": "शाकाहारी",
+  "dietVegan": "व्हेगन",
+  "errorAuthInvalid": "तुमचे सत्र संपले आहे. कृपया पुन्हा साइन इन करा.",
+  "errorAuthRequired": "कृपया साइन इन करा.",
+  "errorInternalError": "काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.",
+  "errorNetwork": "इंटरनेट कनेक्शन नाही.",
+  "errorNotFound": "सापडले नाही.",
+  "errorRateLimited": "खूप जास्त विनंत्या. कृपया थोडा वेळ थांबा.",
+  "errorRateLimitedScans": "तुम्ही आजच्या लेबल-स्कॅन मर्यादेपर्यंत पोहोचला आहात.",
+  "errorRateLimitedVoice": "तुम्ही आजच्या आवाजाद्वारे प्रश्न विचारण्याच्या मर्यादेपर्यंत पोहोचला आहात.",
+  "errorValidationError": "कृपया अधोरेखित केलेली फील्ड तपासा.",
+  "highInFat": "फॅट जास्त",
+  "highInPercentOfLimit": "मर्यादेच्या {pct}%",
+  "@highInPercentOfLimit": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "highInSalt": "मीठ जास्त",
+  "highInSatFat": "संतृप्त फॅट जास्त",
+  "highInSugar": "साखर जास्त",
+  "homeWelcome": "नमस्कार, {name}",
+  "@homeWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutriscoreCalculatedBy": "Nutri-Score ची गणना SmartNutri ने केली आहे",
+  "nutriscoreInsufficientData": "Nutri-Score काढण्यासाठी लेबलवर पुरेशी माहिती नाही.",
+  "reasonAddedSugars": "यात वरून घातलेली साखर आहे: {ingredients}.",
+  "@reasonAddedSugars": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenContains": "यात {allergen} आहे, जे तुमच्या टाळण्याच्या यादीत आहे.",
+  "@reasonAllergenContains": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenMayContain": "यात {allergen} असू शकते, जे तुमच्या टाळण्याच्या यादीत आहे.",
+  "@reasonAllergenMayContain": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenUnknown": "यात {allergen} आहे की नाही हे आम्ही सांगू शकत नाही.",
+  "@reasonAllergenUnknown": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenUnrecognised": "तुमच्या प्रोफाइलमधील ॲलर्जन \"{allergen}\" आम्हाला ओळखता आला नाही.",
+  "@reasonAllergenUnrecognised": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCarbsPerServingHigh": "प्रति सर्व्हिंग {carbs_g} ग्रॅम कार्बोहायड्रेट. हे तुमच्या स्थितीला योग्य नसू शकते; तुमच्या डॉक्टरांना विचारा.",
+  "@reasonCarbsPerServingHigh": {
+    "placeholders": {
+      "carbs_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildCaffeine": "यात कॅफिन आहे, जे मुलांसाठी शिफारस केलेले नाही.",
+  "reasonChildSaltHigh": "मुलासाठी {salt_g} ग्रॅम मीठ जास्त आहे (मार्गदर्शक मर्यादा: सुमारे {limit_g} ग्रॅम).",
+  "@reasonChildSaltHigh": {
+    "placeholders": {
+      "limit_g": {
+        "type": "String"
+      },
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildSugarHigh": "मुलासाठी {sugars_g} ग्रॅम साखर जास्त आहे (मार्गदर्शक मर्यादा: सुमारे {limit_g} ग्रॅम).",
+  "@reasonChildSugarHigh": {
+    "placeholders": {
+      "limit_g": {
+        "type": "String"
+      },
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildSugarModerate": "मुलासाठी {sugars_g} ग्रॅम साखर थोडी जास्त आहे (मार्गदर्शक मर्यादा: सुमारे {limit_g} ग्रॅम).",
+  "@reasonChildSugarModerate": {
+    "placeholders": {
+      "limit_g": {
+        "type": "String"
+      },
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonConditionUnrecognised": "\"{condition}\" साठी आमच्याकडे अद्याप मार्गदर्शन उपलब्ध नाही.",
+  "@reasonConditionUnrecognised": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonDietUnknown": "हे {diet} आहाराला अनुकूल आहे की नाही हे आम्ही सांगू शकत नाही.",
+  "@reasonDietUnknown": {
+    "placeholders": {
+      "diet": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonDietViolation": "हे {diet} आहाराशी जुळणार नाही असे असू शकते: {ingredients}.",
+  "@reasonDietViolation": {
+    "placeholders": {
+      "diet": {
+        "type": "String"
+      },
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonEnergyDense": "हा ऊर्जेने भरपूर (जास्त कॅलरीचा) पदार्थ आहे. कमी प्रमाणात घेणे चांगले.",
+  "reasonGoodProteinDensity": "कॅलरींच्या तुलनेत प्रथिने चांगल्या प्रमाणात आहेत.",
+  "reasonHiddenSugars": "यात इतर नावांनी लिहिलेल्या शर्करा आहेत: {ingredients}.",
+  "@reasonHiddenSugars": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonInfantAddedSalt": "यात वरून घातलेले मीठ आहे, जे लहान बाळांसाठी शिफारस केलेले नाही.",
+  "reasonInfantAddedSugar": "यात वरून घातलेली साखर आहे, जी लहान बाळांसाठी शिफारस केलेली नाही.",
+  "reasonInfantCaffeine": "यात कॅफिन आहे, जे लहान बाळांसाठी शिफारस केलेले नाही.",
+  "reasonInfantHoney": "यात मध आहे, जो 12 महिन्यांपेक्षा लहान बाळांना देऊ नये.",
+  "reasonInfantSaltHigh": "लहान बाळासाठी {salt_g} ग्रॅम मीठ जास्त आहे.",
+  "@reasonInfantSaltHigh": {
+    "placeholders": {
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonInfantSugarHigh": "लहान बाळासाठी {sugars_g} ग्रॅम साखर जास्त आहे.",
+  "@reasonInfantSugarHigh": {
+    "placeholders": {
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonIngredientsMissing": "घटकांची यादी वाचता आली नाही, त्यामुळे काही तपासण्या करता आल्या नाहीत.",
+  "reasonMisleadingSugarClaim": "पॅकवर \"{mark}\" असे लिहिले आहे, पण घटकांमध्ये साखर आहे: {ingredients}.",
+  "@reasonMisleadingSugarClaim": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      },
+      "mark": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonNutrientMissing": "लेबलवर {nutrient} दिलेले नाही, त्यामुळे ही तपासणी करता आली नाही.",
+  "@reasonNutrientMissing": {
+    "placeholders": {
+      "nutrient": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonNutriscoreLow": "Nutri-Score {grade} एकूण पोषण दर्जा कमी असल्याचे सूचित करतो.",
+  "@reasonNutriscoreLow": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSaltHigh": "मीठ जास्त आहे: {salt_g} ग्रॅम {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}}.",
+  "@reasonSaltHigh": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSaltModerate": "मीठ मध्यम आहे: {salt_g} ग्रॅम {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}}.",
+  "@reasonSaltModerate": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSodiumAdditives": "यात सोडियमयुक्त पदार्थ (ॲडिटिव्ह) आहेत: {ingredients}.",
+  "@reasonSodiumAdditives": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSugarHigh": "साखर जास्त आहे: {sugars_g} ग्रॅम {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}}.",
+  "@reasonSugarHigh": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSugarModerate": "साखर मध्यम आहे: {sugars_g} ग्रॅम {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}}.",
+  "@reasonSugarModerate": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "statusAvoid": "टाळा",
+  "statusCaution": "सावधगिरी",
+  "statusOk": "ठीक आहे",
+  "statusUnknown": "लेबल स्पष्ट नाही",
+  "verdictConfidenceNote": "{reason, select, low_confidence {लेबल वाचणे कठीण होते, त्यामुळे हा निकाल कमी निश्चित आहे.} other {काही माहिती अनिश्चित आहे.}}",
+  "@verdictConfidenceNote": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictRuleApplied": "लागू केलेला नियम: {rule}",
+  "@verdictRuleApplied": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictStatusAvoid": "टाळा",
+  "verdictStatusCaution": "सावधगिरी",
+  "verdictStatusOk": "ठीक आहे",
+  "verdictStatusUnknown": "लेबल स्पष्ट नाही"
+}

@@ -1,0 +1,134 @@
+{
+  "app": { "name": "SmartNutri AI" },
+  "common": {
+    "disclaimer": "यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+    "loading": "लोड हो रहा है…",
+    "retry": "फिर से कोशिश करें"
+  },
+  "auth": {
+    "title": "साइन इन करें",
+    "google": "Google से जारी रखें",
+    "email": "ईमेल से जारी रखें",
+    "emailLabel": "ईमेल पता",
+    "sendCode": "कोड भेजें",
+    "codeLabel": "6 अंकों का कोड",
+    "verify": "सत्यापित करें",
+    "phone": "फ़ोन से जारी रखें",
+    "signOut": "साइन आउट करें"
+  },
+  "home": { "welcome": "नमस्ते, {name}" },
+  "verdict": {
+    "status": { "ok": "ठीक है", "caution": "सावधानी", "unknown": "लेबल स्पष्ट नहीं", "avoid": "बचें" },
+    "rule_applied": "लागू नियम: {rule}",
+    "confidence_note": "{reason, select, low_confidence {लेबल पढ़ना कठिन था, इसलिए यह परिणाम कम निश्चित है।} other {कुछ डेटा अनिश्चित है।}}"
+  },
+  "status": { "ok": "ठीक है", "caution": "सावधानी", "unknown": "लेबल स्पष्ट नहीं", "avoid": "बचें" },
+  "reason": {
+    "allergen_contains": "इसमें {allergen} है, जो आपकी बचने वाली सूची में है।",
+    "allergen_may_contain": "इसमें {allergen} हो सकता है, जो आपकी बचने वाली सूची में है।",
+    "allergen_unknown": "हम यह नहीं बता सकते कि इसमें {allergen} है या नहीं।",
+    "allergen_unrecognised": "आपकी प्रोफ़ाइल में दिए गए एलर्जन \"{allergen}\" को हम पहचान नहीं पाए।",
+    "diet_violation": "यह {diet} आहार से मेल नहीं खा सकता: {ingredients}।",
+    "diet_unknown": "हम यह नहीं बता सकते कि यह {diet} आहार के अनुकूल है या नहीं।",
+    "sugar_high": "चीनी अधिक है: {sugars_g} ग्राम {basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम}}।",
+    "sugar_moderate": "चीनी मध्यम है: {sugars_g} ग्राम {basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम}}।",
+    "misleading_sugar_claim": "पैक पर \"{mark}\" लिखा है, लेकिन सामग्री में चीनी शामिल है: {ingredients}।",
+    "hidden_sugars": "इसमें अन्य नामों से लिखी गई शर्कराएँ हैं: {ingredients}।",
+    "added_sugars": "इसमें अतिरिक्त शर्करा मिलाई गई है: {ingredients}।",
+    "carbs_per_serving_high": "प्रति सर्विंग {carbs_g} ग्राम कार्बोहाइड्रेट। यह आपकी स्थिति के लिए उपयुक्त नहीं हो सकता; अपने डॉक्टर से पूछें।",
+    "salt_high": "नमक अधिक है: {salt_g} ग्राम {basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम}}।",
+    "salt_moderate": "नमक मध्यम है: {salt_g} ग्राम {basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम}}।",
+    "sodium_additives": "इसमें सोडियम वाले योजक हैं: {ingredients}।",
+    "energy_dense": "यह ऊर्जा से भरपूर (अधिक कैलोरी वाला) भोजन है। कम मात्रा में लेना बेहतर है।",
+    "nutriscore_low": "Nutri-Score {grade} कुल पोषण गुणवत्ता कम होने का संकेत देता है।",
+    "good_protein_density": "अपनी कैलोरी के हिसाब से अच्छी मात्रा में प्रोटीन।",
+    "child_sugar_high": "बच्चे के लिए {sugars_g} ग्राम चीनी अधिक है (मार्गदर्शक सीमा: लगभग {limit_g} ग्राम)।",
+    "child_sugar_moderate": "बच्चे के लिए {sugars_g} ग्राम चीनी थोड़ी अधिक है (मार्गदर्शक सीमा: लगभग {limit_g} ग्राम)।",
+    "child_caffeine": "इसमें कैफ़ीन है, जो बच्चों के लिए अनुशंसित नहीं है।",
+    "child_salt_high": "बच्चे के लिए {salt_g} ग्राम नमक अधिक है (मार्गदर्शक सीमा: लगभग {limit_g} ग्राम)।",
+    "infant_added_sugar": "इसमें अतिरिक्त चीनी है, जो शिशुओं के लिए अनुशंसित नहीं है।",
+    "infant_added_salt": "इसमें अतिरिक्त नमक है, जो शिशुओं के लिए अनुशंसित नहीं है।",
+    "infant_honey": "इसमें शहद है, जो 12 महीने से छोटे शिशुओं को नहीं देना चाहिए।",
+    "infant_caffeine": "इसमें कैफ़ीन है, जो शिशुओं के लिए अनुशंसित नहीं है।",
+    "infant_sugar_high": "शिशु के लिए {sugars_g} ग्राम चीनी अधिक है।",
+    "infant_salt_high": "शिशु के लिए {salt_g} ग्राम नमक अधिक है।",
+    "ingredients_missing": "सामग्री की सूची पढ़ी नहीं जा सकी, इसलिए कुछ जाँचें नहीं हो सकीं।",
+    "nutrient_missing": "लेबल पर {nutrient} नहीं दिया गया है, इसलिए यह जाँच नहीं हो सकी।",
+    "condition_unrecognised": "\"{condition}\" के लिए हमारे पास अभी मार्गदर्शन उपलब्ध नहीं है।"
+  },
+  "allergen": {
+    "milk": "दूध",
+    "peanut": "मूँगफली",
+    "gluten": "ग्लूटेन",
+    "soy": "सोया",
+    "egg": "अंडा",
+    "tree_nut": "सूखे मेवे (ट्री नट्स)",
+    "sesame": "तिल",
+    "fish": "मछली",
+    "crustacean": "शेलफ़िश (झींगा, केकड़ा आदि)",
+    "mustard": "सरसों",
+    "sulphite": "सल्फ़ाइट"
+  },
+  "diet": {
+    "veg": "शाकाहारी",
+    "eggetarian": "अंडाहारी (अंडा खाने वाला शाकाहारी)",
+    "vegan": "वीगन",
+    "jain": "जैन",
+    "non_veg": "मांसाहारी"
+  },
+  "condition": {
+    "diabetes": "मधुमेह (डायबिटीज़)",
+    "prediabetes": "प्रीडायबिटीज़",
+    "pcos": "पीसीओएस",
+    "hypertension": "उच्च रक्तचाप",
+    "weight_loss": "वज़न घटाना"
+  },
+  "high_in": {
+    "sugar": "चीनी अधिक",
+    "fat": "वसा अधिक",
+    "sat_fat": "संतृप्त वसा अधिक",
+    "salt": "नमक अधिक",
+    "percent_of_limit": "सीमा का {pct}%"
+  },
+  "nutriscore": {
+    "calculated_by": "Nutri-Score की गणना SmartNutri ने की है",
+    "insufficient_data": "Nutri-Score की गणना के लिए लेबल पर पर्याप्त जानकारी नहीं है।"
+  },
+  "claim": {
+    "no_added_sugar": "अतिरिक्त चीनी नहीं",
+    "sugar_free": "चीनी रहित",
+    "low_sugar": "कम चीनी",
+    "low_fat": "कम वसा",
+    "low_sodium": "कम सोडियम",
+    "high_protein": "उच्च प्रोटीन",
+    "source_of_protein": "प्रोटीन का स्रोत",
+    "no_refined_sugar": "रिफ़ाइंड चीनी नहीं",
+    "diabetic_friendly": "डायबिटीज़ के अनुकूल"
+  },
+  "claim_verdict": {
+    "supported": "लेबल की जानकारी इस दावे का समर्थन करती है",
+    "contradicted": "लेबल की जानकारी इस दावे से मेल नहीं खाती",
+    "unverifiable": "लेबल से इसकी जाँच नहीं हो सकती"
+  },
+  "claim_reason": {
+    "ok": "लेबल की जानकारी इस दावे से मेल खाती है।",
+    "exceeds_limit": "{value} इस दावे की सीमा {limit} से अधिक है।",
+    "below_minimum": "{value} इस दावे के न्यूनतम मान {limit} से कम है।",
+    "nutrient_missing": "लेबल पर {nutrient} नहीं दिया गया है, इसलिए इस दावे की जाँच नहीं हो सकती।",
+    "ingredients_unknown": "सामग्री की सूची उपलब्ध नहीं है, इसलिए इस दावे की जाँच नहीं हो सकती।",
+    "added_sugar_ingredient": "सामग्री में अतिरिक्त चीनी शामिल है: {ingredients}।",
+    "refined_sugar_ingredient": "सामग्री में रिफ़ाइंड चीनी शामिल है: {ingredients}।",
+    "no_standard": "\"{claim}\" की जाँच के लिए हमारे पास कोई मानक नहीं है।"
+  },
+  "error": {
+    "auth_required": "कृपया साइन इन करें।",
+    "auth_invalid": "आपका सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।",
+    "not_found": "नहीं मिला।",
+    "validation_error": "कृपया चिह्नित फ़ील्ड जाँचें।",
+    "rate_limited": "बहुत अधिक अनुरोध। कृपया थोड़ी देर रुकें।",
+    "rate_limited_scans": "आप आज की लेबल-स्कैन सीमा तक पहुँच गए हैं।",
+    "rate_limited_voice": "आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।",
+    "internal_error": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
+    "network": "इंटरनेट कनेक्शन नहीं है।"
+  }
+}

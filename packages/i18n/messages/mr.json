@@ -1,0 +1,134 @@
+{
+  "app": { "name": "SmartNutri AI" },
+  "common": {
+    "disclaimer": "ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+    "loading": "लोड होत आहे…",
+    "retry": "पुन्हा प्रयत्न करा"
+  },
+  "auth": {
+    "title": "साइन इन करा",
+    "google": "Google सह पुढे जा",
+    "email": "ईमेलसह पुढे जा",
+    "emailLabel": "ईमेल पत्ता",
+    "sendCode": "कोड पाठवा",
+    "codeLabel": "6 अंकी कोड",
+    "verify": "पडताळा",
+    "phone": "फोनसह पुढे जा",
+    "signOut": "साइन आउट करा"
+  },
+  "home": { "welcome": "नमस्कार, {name}" },
+  "verdict": {
+    "status": { "ok": "ठीक आहे", "caution": "सावधगिरी", "unknown": "लेबल स्पष्ट नाही", "avoid": "टाळा" },
+    "rule_applied": "लागू केलेला नियम: {rule}",
+    "confidence_note": "{reason, select, low_confidence {लेबल वाचणे कठीण होते, त्यामुळे हा निकाल कमी निश्चित आहे.} other {काही माहिती अनिश्चित आहे.}}"
+  },
+  "status": { "ok": "ठीक आहे", "caution": "सावधगिरी", "unknown": "लेबल स्पष्ट नाही", "avoid": "टाळा" },
+  "reason": {
+    "allergen_contains": "यात {allergen} आहे, जे तुमच्या टाळण्याच्या यादीत आहे.",
+    "allergen_may_contain": "यात {allergen} असू शकते, जे तुमच्या टाळण्याच्या यादीत आहे.",
+    "allergen_unknown": "यात {allergen} आहे की नाही हे आम्ही सांगू शकत नाही.",
+    "allergen_unrecognised": "तुमच्या प्रोफाइलमधील ॲलर्जन \"{allergen}\" आम्हाला ओळखता आला नाही.",
+    "diet_violation": "हे {diet} आहाराशी जुळणार नाही असे असू शकते: {ingredients}.",
+    "diet_unknown": "हे {diet} आहाराला अनुकूल आहे की नाही हे आम्ही सांगू शकत नाही.",
+    "sugar_high": "साखर जास्त आहे: {sugars_g} ग्रॅम {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}}.",
+    "sugar_moderate": "साखर मध्यम आहे: {sugars_g} ग्रॅम {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}}.",
+    "misleading_sugar_claim": "पॅकवर \"{mark}\" असे लिहिले आहे, पण घटकांमध्ये साखर आहे: {ingredients}.",
+    "hidden_sugars": "यात इतर नावांनी लिहिलेल्या शर्करा आहेत: {ingredients}.",
+    "added_sugars": "यात वरून घातलेली साखर आहे: {ingredients}.",
+    "carbs_per_serving_high": "प्रति सर्व्हिंग {carbs_g} ग्रॅम कार्बोहायड्रेट. हे तुमच्या स्थितीला योग्य नसू शकते; तुमच्या डॉक्टरांना विचारा.",
+    "salt_high": "मीठ जास्त आहे: {salt_g} ग्रॅम {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}}.",
+    "salt_moderate": "मीठ मध्यम आहे: {salt_g} ग्रॅम {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}}.",
+    "sodium_additives": "यात सोडियमयुक्त पदार्थ (ॲडिटिव्ह) आहेत: {ingredients}.",
+    "energy_dense": "हा ऊर्जेने भरपूर (जास्त कॅलरीचा) पदार्थ आहे. कमी प्रमाणात घेणे चांगले.",
+    "nutriscore_low": "Nutri-Score {grade} एकूण पोषण दर्जा कमी असल्याचे सूचित करतो.",
+    "good_protein_density": "कॅलरींच्या तुलनेत प्रथिने चांगल्या प्रमाणात आहेत.",
+    "child_sugar_high": "मुलासाठी {sugars_g} ग्रॅम साखर जास्त आहे (मार्गदर्शक मर्यादा: सुमारे {limit_g} ग्रॅम).",
+    "child_sugar_moderate": "मुलासाठी {sugars_g} ग्रॅम साखर थोडी जास्त आहे (मार्गदर्शक मर्यादा: सुमारे {limit_g} ग्रॅम).",
+    "child_caffeine": "यात कॅफिन आहे, जे मुलांसाठी शिफारस केलेले नाही.",
+    "child_salt_high": "मुलासाठी {salt_g} ग्रॅम मीठ जास्त आहे (मार्गदर्शक मर्यादा: सुमारे {limit_g} ग्रॅम).",
+    "infant_added_sugar": "यात वरून घातलेली साखर आहे, जी लहान बाळांसाठी शिफारस केलेली नाही.",
+    "infant_added_salt": "यात वरून घातलेले मीठ आहे, जे लहान बाळांसाठी शिफारस केलेले नाही.",
+    "infant_honey": "यात मध आहे, जो 12 महिन्यांपेक्षा लहान बाळांना देऊ नये.",
+    "infant_caffeine": "यात कॅफिन आहे, जे लहान बाळांसाठी शिफारस केलेले नाही.",
+    "infant_sugar_high": "लहान बाळासाठी {sugars_g} ग्रॅम साखर जास्त आहे.",
+    "infant_salt_high": "लहान बाळासाठी {salt_g} ग्रॅम मीठ जास्त आहे.",
+    "ingredients_missing": "घटकांची यादी वाचता आली नाही, त्यामुळे काही तपासण्या करता आल्या नाहीत.",
+    "nutrient_missing": "लेबलवर {nutrient} दिलेले नाही, त्यामुळे ही तपासणी करता आली नाही.",
+    "condition_unrecognised": "\"{condition}\" साठी आमच्याकडे अद्याप मार्गदर्शन उपलब्ध नाही."
+  },
+  "allergen": {
+    "milk": "दूध",
+    "peanut": "शेंगदाणे",
+    "gluten": "ग्लूटेन",
+    "soy": "सोया",
+    "egg": "अंडे",
+    "tree_nut": "सुकामेवा (ट्री नट्स)",
+    "sesame": "तीळ",
+    "fish": "मासे",
+    "crustacean": "शेलफिश (कोळंबी, खेकडा इ.)",
+    "mustard": "मोहरी",
+    "sulphite": "सल्फाइट"
+  },
+  "diet": {
+    "veg": "शाकाहारी",
+    "eggetarian": "अंडाहारी (अंडे खाणारा शाकाहारी)",
+    "vegan": "व्हेगन",
+    "jain": "जैन",
+    "non_veg": "मांसाहारी"
+  },
+  "condition": {
+    "diabetes": "मधुमेह (डायबेटिस)",
+    "prediabetes": "प्रीडायबेटिस",
+    "pcos": "पीसीओएस",
+    "hypertension": "उच्च रक्तदाब",
+    "weight_loss": "वजन कमी करणे"
+  },
+  "high_in": {
+    "sugar": "साखर जास्त",
+    "fat": "फॅट जास्त",
+    "sat_fat": "संतृप्त फॅट जास्त",
+    "salt": "मीठ जास्त",
+    "percent_of_limit": "मर्यादेच्या {pct}%"
+  },
+  "nutriscore": {
+    "calculated_by": "Nutri-Score ची गणना SmartNutri ने केली आहे",
+    "insufficient_data": "Nutri-Score काढण्यासाठी लेबलवर पुरेशी माहिती नाही."
+  },
+  "claim": {
+    "no_added_sugar": "वरून साखर घातलेली नाही",
+    "sugar_free": "साखरमुक्त",
+    "low_sugar": "कमी साखर",
+    "low_fat": "कमी फॅट",
+    "low_sodium": "कमी सोडियम",
+    "high_protein": "जास्त प्रथिने",
+    "source_of_protein": "प्रथिनांचा स्रोत",
+    "no_refined_sugar": "रिफाइंड साखर नाही",
+    "diabetic_friendly": "डायबेटिसला अनुकूल"
+  },
+  "claim_verdict": {
+    "supported": "लेबलवरील माहिती या दाव्याला पुष्टी देते",
+    "contradicted": "लेबलवरील माहिती या दाव्याशी जुळत नाही",
+    "unverifiable": "लेबलवरून तपासता येत नाही"
+  },
+  "claim_reason": {
+    "ok": "लेबलवरील माहिती या दाव्याशी जुळते.",
+    "exceeds_limit": "{value} हे या दाव्याच्या {limit} मर्यादेपेक्षा जास्त आहे.",
+    "below_minimum": "{value} हे या दाव्याच्या किमान {limit} पेक्षा कमी आहे.",
+    "nutrient_missing": "लेबलवर {nutrient} दिलेले नाही, त्यामुळे हा दावा तपासता येत नाही.",
+    "ingredients_unknown": "घटकांची यादी उपलब्ध नाही, त्यामुळे हा दावा तपासता येत नाही.",
+    "added_sugar_ingredient": "घटकांमध्ये वरून घातलेली साखर आहे: {ingredients}.",
+    "refined_sugar_ingredient": "घटकांमध्ये रिफाइंड साखर आहे: {ingredients}.",
+    "no_standard": "\"{claim}\" तपासण्यासाठी आमच्याकडे कोणतेही मानक नाही."
+  },
+  "error": {
+    "auth_required": "कृपया साइन इन करा.",
+    "auth_invalid": "तुमचे सत्र संपले आहे. कृपया पुन्हा साइन इन करा.",
+    "not_found": "सापडले नाही.",
+    "validation_error": "कृपया अधोरेखित केलेली फील्ड तपासा.",
+    "rate_limited": "खूप जास्त विनंत्या. कृपया थोडा वेळ थांबा.",
+    "rate_limited_scans": "तुम्ही आजच्या लेबल-स्कॅन मर्यादेपर्यंत पोहोचला आहात.",
+    "rate_limited_voice": "तुम्ही आजच्या आवाजाद्वारे प्रश्न विचारण्याच्या मर्यादेपर्यंत पोहोचला आहात.",
+    "internal_error": "काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.",
+    "network": "इंटरनेट कनेक्शन नाही."
+  }
+}
