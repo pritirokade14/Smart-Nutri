@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { placeholders } from "./check-keys.mjs";
+import { argInfo } from "./check-keys.mjs";
 
 export const LOCALES = ["en", "hi", "mr"];
 
@@ -27,10 +27,15 @@ export function buildArb(locale, flat) {
   const arb = { "@@locale": locale };
   for (const key of Object.keys(flat).sort()) {
     arb[key] = flat[key];
-    const names = placeholders(flat[key]);
-    if (names.length) {
+    const info = argInfo(flat[key]);
+    if (info.size) {
+      // gen-l10n needs a numeric type for plural arguments; everything else is passed as a
+      // pre-formatted String (numbers are formatted by the client for the locale).
+      const type = (e) => (e.kinds.has("plural") || e.kinds.has("selectordinal") ? "num" : "String");
       arb["@" + key] = {
-        placeholders: Object.fromEntries(names.map((n) => [n, { type: "String" }])),
+        placeholders: Object.fromEntries(
+          [...info.keys()].sort().map((n) => [n, { type: type(info.get(n)) }]),
+        ),
       };
     }
   }

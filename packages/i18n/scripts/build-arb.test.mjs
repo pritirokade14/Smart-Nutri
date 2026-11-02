@@ -12,5 +12,17 @@ test("buildArb carries locale, sorted keys and placeholder metadata", () => {
   assert.deepEqual(Object.keys(arb), ["@@locale", "a", "@a", "b"]);
   assert.deepEqual(arb["@a"], { placeholders: { name: { type: "String" } } });
 });
+test("buildArb types plural arguments as num, select and plain ones as String", () => {
+  const arb = JSON.parse(
+    buildArb("en", {
+      m: "{n, plural, one {# item of {kind}} other {# items}} {b, select, x {X} other {Y}}",
+    }),
+  );
+  assert.deepEqual(arb["@m"].placeholders, {
+    b: { type: "String" },
+    kind: { type: "String" },
+    n: { type: "num" },
+  });
+});
 test("buildArb is deterministic", () =>
   assert.equal(buildArb("en", { b: "1", a: "2" }), buildArb("en", { a: "2", b: "1" })));
