@@ -41,3 +41,6 @@ The API connects to dev as `postgres` (owner, BYPASSRLS). Before prod, create a 
 
 ## 17. Public product page vs per-IP rate limit (Plan 3 Task 9 / Plan 8)
 The web server renders `/[locale]/p/[barcode]` by calling `GET /v1/products/{barcode}/public`. All those calls come from the web service's egress IP, so they share one `public` bucket. M1 relies on Next's data cache (`revalidate: 3600`). If crawling causes 429s, add a server-to-server header key (Secret Manager, web server only) with its own larger bucket.
+
+## 18. Public product route and unverified user products (Plan 4 / M2)
+`GET /v1/products/{barcode}/public` serves any own product that is not `rejected`, including `pending` rows that users submit from label scans (M2). Before M2 ships, decide whether the public page shows only `verified` own products (recommended) or labels pending data as user-submitted.
