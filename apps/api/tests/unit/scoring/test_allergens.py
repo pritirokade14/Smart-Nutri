@@ -336,3 +336,34 @@ def test_may_contain_without_ingredients_also_unknown(no_ingredients, cfg, peanu
         ("allergen_may_contain", Status.CAUTION, "peanut"),
         ("allergen_unknown", Status.UNKNOWN, "peanut"),
     ]
+
+
+# --- R30: generic "nuts" is peanut may-contain; named tree nuts are not ---
+
+
+@pytest.mark.parametrize(
+    "field,text",
+    [
+        ("allergen_statement", "Contains: Nuts"),
+        ("may_contain_statement", "May contain traces of nuts"),
+    ],
+)
+def test_generic_nuts_still_peanut_may_contain(oats, cfg, peanut_allergic, field, text):
+    p = replace(oats, ingredients=("starch",), **{field: text})
+    assert _reasons(p, peanut_allergic, cfg) == [("allergen_may_contain", Status.AVOID, "peanut")]
+
+
+@pytest.mark.parametrize(
+    "ings,statement",
+    [
+        (("cashew nuts", "sugar"), None),
+        (("cashew nut",), None),
+        (("roasted cashew nuts (10%)", "salt"), None),
+        (("mixed tree nuts", "sugar"), None),
+        (("sugar",), "May contain tree nuts"),
+    ],
+)
+def test_named_tree_nuts_are_not_peanut(oats, cfg, peanut_allergic, ings, statement):
+    p = replace(oats, ingredients=ings, may_contain_statement=statement)
+    assert "peanut" not in detect_allergens(p, cfg)
+    assert _reasons(p, peanut_allergic, cfg) == []

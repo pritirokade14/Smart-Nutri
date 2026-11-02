@@ -1,6 +1,6 @@
 # PENDING DIETITIAN/CLINICIAN REVIEW — term lists
 non_veg:         [chicken, mutton, beef, pork, lamb, meat, meat extract, fish, anchovy, prawn, shrimp, crab, gelatin, gelatine, lard, tallow, rennet, isinglass, carmine, cochineal, ins120, bone, fish oil, fish sauce, tuna, salmon, mackerel, sardine, squid, octopus, lobster, oyster sauce, cod liver oil, collagen, seafood, keema, animal fat, bacon, ham, turkey, beef extract, ins441, ins542, ins920, चिकन, मछली, मांस, झींगा]
 egg:             [egg, egg white, egg yolk, albumin, albumen, mayonnaise, अंडा, अंडे, ins1105]
-dairy:           [milk, milk solids, milk powder, whey, casein, caseinate, lactose, butter, ghee, cream, cheese, paneer, khoya, khoa, curd, dahi, yoghurt, yogurt, malai, buttermilk, chhena, दूध, घी, पनीर, दही, मक्खन, मलाई, खोया, dairy whitener, mawa, lactitol, ins966, milk fat, butter oil]
+dairy:           [milk, milk solids, milk powder, whey, casein, caseinate, lactose, butter, ghee, cream, cheese, paneer, khoya, khoa, curd, dahi, yoghurt, yogurt, malai, buttermilk, chhena, दूध, घी, पनीर, दही, मक्खन, मलाई, खोया, dairy whitener, mawa, lactitol, ins966, milk fat, butter oil, दूध पावडर]
 animal_other:    [honey, beeswax, ins901, shellac, ins904, lanolin]
 jain_exclusions: [onion, garlic, potato, carrot, beetroot, radish, ginger, yam, sweet potato, arbi, प्याज, लहसुन, onion powder, garlic powder, aloo, kanda, pyaz, pyaaz, lehsun, lahsun, adrak, gajar, shallot, leek, spring onion, mushroom, yeast, आलू, अदरक, गाजर, कांदा, लसूण, मूली, शकरकंद]

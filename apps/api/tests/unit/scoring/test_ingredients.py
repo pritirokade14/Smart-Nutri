@@ -5,6 +5,7 @@ from app.scoring.ingredients import (
     excluded_hits,
     find_terms,
     has_ingredient_content,
+    modifier_excludes,
     normalize,
 )
 
@@ -130,6 +131,17 @@ def test_excluded_hits_reports_partial_segments_only():
     assert excluded_hits(["coconut milk", "sugar"], MILK_EX) == []
     assert excluded_hits(["Coconut Milk (60%)"], MILK_EX) == []
     assert excluded_hits(["sugar"], MILK_EX) == []
+
+
+def test_modifier_excludes_need_trailing_words():
+    # R30: an exclude phrase only hides a trigger when it modifies a following noun.
+    assert modifier_excludes(["almond milk chocolate"], MILK_EX) == ["almond milk"]
+    assert modifier_excludes(["peanut butter cookies"], MILK_EX) == ["peanut butter"]
+    assert modifier_excludes(["light coconut milk", "coconut milk"], MILK_EX) == []
+    nuts_ex = ["tree nuts", "cashew nuts", "mixed tree nuts"]
+    assert modifier_excludes(["roasted cashew nuts", "mixed tree nuts"], nuts_ex) == []
+    assert modifier_excludes(["may contain tree nuts"], nuts_ex) == []
+    assert modifier_excludes(["tree nuts paste"], nuts_ex) == ["tree nuts"]
 
 
 # --- A2: chandrabindu folds to anusvara ---

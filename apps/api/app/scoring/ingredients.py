@@ -151,3 +151,19 @@ def excluded_hits(texts: Iterable[str], exclude: Iterable[str]) -> list[str]:
             if pat.search(seg) and not pat.fullmatch(core):
                 hits.add(original)
     return sorted(hits)
+
+
+def modifier_excludes(texts: Iterable[str], exclude: Iterable[str]) -> list[str]:
+    """Exclude phrases followed by more words in their segment, i.e. used as a modifier.
+
+    "almond milk chocolate" -> ["almond milk"] (the product is chocolate, which may
+    contain milk). "roasted cashew nuts" or "may contain tree nuts" are not reported:
+    there the exclude phrase is the head noun, so excluding it is correct (R19, R30).
+    """
+    patterns = _exclude_patterns(exclude)
+    hits: set[str] = set()
+    for seg in _segments(texts):
+        for original, pat in patterns:
+            if any(seg[m.end() :].strip() for m in pat.finditer(seg)):
+                hits.add(original)
+    return sorted(hits)

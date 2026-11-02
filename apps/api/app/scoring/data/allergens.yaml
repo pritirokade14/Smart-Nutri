@@ -2,7 +2,8 @@
 milk:       {contains: [milk, milk solids, milk powder, whey, casein, caseinate, lactose, butter, ghee, cream, cheese, paneer, khoya, khoa, curd, dahi, yoghurt, yogurt, malai, buttermilk, chhena, दूध, घी, पनीर, दही,
                         dairy whitener, mawa, lactitol, ins966, milk fat, butter oil, मक्खन, मलाई, खोया, दूध पावडर],
              possible: [], exclude: [coconut milk, almond milk, oat milk, cocoa butter, peanut butter, nut butter, shea butter, cream of tartar]}
-peanut:     {contains: [peanut, groundnut, arachis oil, moongphali, मूंगफली, शेंगदाणा], possible: [nuts, nut], exclude: []}
+peanut:     {contains: [peanut, groundnut, arachis oil, moongphali, मूंगफली, शेंगदाणा], possible: [nuts],
+             exclude: [tree nuts, cashew nuts, pine nuts, brazil nuts, hazel nuts, macadamia nuts, pecan nuts, mixed tree nuts]}
 gluten:     {contains: [gluten, ग्लूटेन, wheat, atta, maida, sooji, suji, semolina, rava, barley, rye, malt, malt extract, dalia, spelt, गेहूं, मैदा,
                         rawa, vermicelli, semiya, couscous, आटा, सूजी, गहू], possible: [oats, hing, asafoetida], exclude: []}
 soy:        {contains: [soy, soya, soybean, soy lecithin, सोया, सोयाबीन, tofu], possible: [lecithin, ins322, vegetable protein], exclude: [sunflower lecithin]}

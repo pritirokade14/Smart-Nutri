@@ -6,7 +6,12 @@ from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
 
 from app.scoring.config import ScoringConfig
-from app.scoring.ingredients import excluded_hits, find_terms, has_ingredient_content, normalize
+from app.scoring.ingredients import (
+    find_terms,
+    has_ingredient_content,
+    modifier_excludes,
+    normalize,
+)
 from app.scoring.models import AllergenState, Member, Product, Reason, Status
 
 # Words a member may add around an allergen name ("peanut allergy", "lactose intolerance").
@@ -111,8 +116,8 @@ def ingredients_known(product: Product, cfg: ScoringConfig) -> bool:
 
 
 def _partial_exclude(texts: list[str], exclude: list[str], triggers: list[str]) -> bool:
-    """An exclude phrase that hides a trigger term sat inside a longer segment (R19)."""
-    return any(find_terms([hit], triggers) for hit in excluded_hits(texts, exclude))
+    """An exclude phrase that hides a trigger term modifies a following noun (R19, R30)."""
+    return any(find_terms([hit], triggers) for hit in modifier_excludes(texts, exclude))
 
 
 def _detect_one(product: Product, entry: Mapping[str, list[str]]) -> AllergenState | None:
