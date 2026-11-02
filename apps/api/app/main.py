@@ -6,9 +6,10 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import Settings, get_settings
-from app.core.errors import CatchAllMiddleware, install_error_handlers
+from app.core.errors import ERROR_RESPONSES, CatchAllMiddleware, install_error_handlers
 from app.core.logging import configure_logging
 from app.core.observability import init_observability, shutdown_observability
+from app.core.security import JwksCache
 from app.db.session import build_engine, build_sessionmaker
 from app.features.health.router import router as health_router
 from app.features.me.router import router as me_router
@@ -24,8 +25,9 @@ def _version() -> str:
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
+    """Build the app. Request-time code reads these settings via `get_app_settings`."""
     settings = settings or get_settings()
-    configure_logging(settings.environment)
+    configure_logging(settings.log_level)
     init_observability(settings)
     engine = build_engine(settings)
 
@@ -37,16 +39,26 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             shutdown_observability()
             await engine.dispose()
 
-    app = FastAPI(title="SmartNutri API", version=_version(), lifespan=lifespan)
+    app = FastAPI(
+        title="SmartNutri API",
+        version=_version(),
+        lifespan=lifespan,
+        responses=ERROR_RESPONSES,
+    )
+    app.state.settings = settings
     app.state.engine = engine
     app.state.sessionmaker = build_sessionmaker(engine)
+    app.state.jwks_cache = JwksCache(settings.supabase_jwks_url)
     app.add_middleware(CatchAllMiddleware)  # innermost
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
         allow_methods=["*"],
         allow_headers=["*"],
-        allow_credentials=True,
+        # Bearer tokens, never cookies: browsers must not send credentials cross-origin.
+        allow_credentials=False,
+        # Lets the web app read the back-off on 429 responses.
+        expose_headers=["Retry-After"],
     )
     install_error_handlers(app)
     for router in ROUTERS:

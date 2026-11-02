@@ -13,13 +13,15 @@ import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from fastapi import Depends
+from starlette.requests import Request
 
-from app.core.config import Settings, get_settings
+from app.core.config import Settings, get_app_settings
 from app.core.errors import ApiError
 from app.core.security import (
     MAX_STALE_SECONDS,
     AccountContext,
     JwksCache,
+    bearer_scheme,
     current_account,
     get_jwks_cache,
 )
@@ -111,9 +113,17 @@ def make_token(ec_key):
     return _make
 
 
+async def _auth(authorization: str | None, jwks, cfg=settings) -> AccountContext:
+    """Run the real bearer scheme on an Authorization header, then current_account."""
+    headers = [] if authorization is None else [(b"authorization", authorization.encode())]
+    request = Request({"type": "http", "headers": headers})
+    credentials = await bearer_scheme(request)
+    return await current_account(jwks=jwks, settings=cfg, credentials=credentials)
+
+
 async def _expect(code: str, authorization, jwks, cfg=settings) -> None:
     with pytest.raises(ApiError) as e:
-        await current_account(authorization=authorization, jwks=jwks, settings=cfg)
+        await _auth(authorization, jwks, cfg)
     assert (e.value.code, e.value.status) == (code, 401)
 
 
@@ -121,30 +131,24 @@ async def _expect(code: str, authorization, jwks, cfg=settings) -> None:
 
 
 async def test_valid_token(make_token, jwks):
-    ctx = await current_account(
-        authorization=f"Bearer {make_token()}", jwks=jwks, settings=settings
-    )
+    ctx = await _auth(f"Bearer {make_token()}", jwks)
     assert isinstance(ctx, AccountContext)
     assert ctx.account_id == UUID(SUB) and ctx.email == "a@b.c"
 
 
 async def test_valid_rs256_token(make_token, rsa_key, jwks):
     token = make_token(key=rsa_key, kid=RSA_KID, alg="RS256")
-    ctx = await current_account(authorization=f"bearer {token}", jwks=jwks, settings=settings)
+    ctx = await _auth(f"bearer {token}", jwks)
     assert ctx.account_id == UUID(SUB)
 
 
 async def test_email_optional(make_token, jwks):
-    ctx = await current_account(
-        authorization=f"Bearer {make_token(email=None)}", jwks=jwks, settings=settings
-    )
+    ctx = await _auth(f"Bearer {make_token(email=None)}", jwks)
     assert ctx.email is None
 
 
 async def test_expiry_within_leeway_accepted(make_token, jwks):
-    ctx = await current_account(
-        authorization=f"Bearer {make_token(exp=-10)}", jwks=jwks, settings=settings
-    )
+    ctx = await _auth(f"Bearer {make_token(exp=-10)}", jwks)
     assert ctx.account_id == UUID(SUB)
 
 
@@ -246,7 +250,7 @@ async def test_symmetric_keys_in_jwks_ignored(make_token):
 
 async def test_jwks_cached_between_requests(make_token, jwks):
     for _ in range(3):
-        await current_account(authorization=f"Bearer {make_token()}", jwks=jwks, settings=settings)
+        await _auth(f"Bearer {make_token()}", jwks)
     assert jwks._fetch.calls == 1
 
 
@@ -261,18 +265,18 @@ def rotating_fetch(ec_key):
 async def test_unknown_kid_refetches_once(make_token, rotating_fetch):
     fetch, new_key = rotating_fetch
     cache = JwksCache(JWKS_URL, fetch=fetch)
-    await current_account(authorization=f"Bearer {make_token()}", jwks=cache, settings=settings)
+    await _auth(f"Bearer {make_token()}", cache)
     assert fetch.calls == 1
     token = make_token(key=new_key, kid="ec-2")
-    ctx = await current_account(authorization=f"Bearer {token}", jwks=cache, settings=settings)
+    ctx = await _auth(f"Bearer {token}", cache)
     assert ctx.account_id == UUID(SUB)
     assert fetch.calls == 2
-    await current_account(authorization=f"Bearer {token}", jwks=cache, settings=settings)
+    await _auth(f"Bearer {token}", cache)
     assert fetch.calls == 2
 
 
 async def test_unknown_kid_still_unknown_after_refetch(make_token, jwks):
-    await current_account(authorization=f"Bearer {make_token()}", jwks=jwks, settings=settings)
+    await _auth(f"Bearer {make_token()}", jwks)
     await _expect("auth_invalid", f"Bearer {make_token(kid='nope-1')}", jwks)
     assert jwks._fetch.calls == 2
     # A flood of random kids must not turn into a flood of JWKS fetches.
@@ -290,12 +294,12 @@ async def test_ttl_expiry_refetches(make_token, jwks_doc):
     fetch = CountingFetch(jwks_doc)
     now = [1000.0]
     cache = JwksCache(JWKS_URL, ttl_seconds=600, fetch=fetch, clock=lambda: now[0])
-    await current_account(authorization=f"Bearer {make_token()}", jwks=cache, settings=settings)
+    await _auth(f"Bearer {make_token()}", cache)
     now[0] += 599
-    await current_account(authorization=f"Bearer {make_token()}", jwks=cache, settings=settings)
+    await _auth(f"Bearer {make_token()}", cache)
     assert fetch.calls == 1
     now[0] += 2
-    await current_account(authorization=f"Bearer {make_token()}", jwks=cache, settings=settings)
+    await _auth(f"Bearer {make_token()}", cache)
     assert fetch.calls == 2
 
 
@@ -313,11 +317,9 @@ async def test_failed_refresh_keeps_last_good_keys(make_token, jwks_doc):
     fetch = CountingFetch(jwks_doc, httpx.ConnectError("down"))
     now = [1000.0]
     cache = JwksCache(JWKS_URL, ttl_seconds=600, fetch=fetch, clock=lambda: now[0])
-    await current_account(authorization=f"Bearer {make_token()}", jwks=cache, settings=settings)
+    await _auth(f"Bearer {make_token()}", cache)
     now[0] += 601
-    ctx = await current_account(
-        authorization=f"Bearer {make_token()}", jwks=cache, settings=settings
-    )
+    ctx = await _auth(f"Bearer {make_token()}", cache)
     assert ctx.account_id == UUID(SUB) and fetch.calls == 2
 
 
@@ -336,23 +338,19 @@ async def test_default_fetch_uses_httpx(monkeypatch, jwks_doc, make_token):
 
     monkeypatch.setattr("app.core.security.httpx.AsyncClient", fake_client)
     cache = JwksCache(JWKS_URL)
-    ctx = await current_account(
-        authorization=f"Bearer {make_token()}", jwks=cache, settings=settings
-    )
+    ctx = await _auth(f"Bearer {make_token()}", cache)
     assert ctx.account_id == UUID(SUB) and seen == [JWKS_URL]
 
 
-def test_get_jwks_cache_is_process_cached(monkeypatch):
-    get_jwks_cache.cache_clear()
-    get_settings.cache_clear()
-    monkeypatch.setenv("SUPABASE_JWKS_URL", JWKS_URL)
-    try:
-        cache = get_jwks_cache()
-        assert cache is get_jwks_cache()
-        assert cache._jwks_url == JWKS_URL
-    finally:
-        get_jwks_cache.cache_clear()
-        get_settings.cache_clear()
+def test_jwks_cache_is_per_app_from_its_settings():
+    from app.main import create_app
+
+    a = create_app(Settings(_env_file=None, environment="test", supabase_jwks_url=JWKS_URL))
+    b = create_app(Settings(_env_file=None, environment="test", supabase_jwks_url="https://x/j"))
+    request = Request({"type": "http", "headers": [], "app": a})
+    assert get_jwks_cache(request) is a.state.jwks_cache
+    assert a.state.jwks_cache._jwks_url == JWKS_URL
+    assert b.state.jwks_cache is not a.state.jwks_cache
 
 
 # --- through the app: error envelope -------------------------------------------------
@@ -364,7 +362,7 @@ async def test_endpoint_error_envelope(app, client, make_token, jwks):
         return {"account_id": str(account.account_id)}
 
     app.dependency_overrides[get_jwks_cache] = lambda: jwks
-    app.dependency_overrides[get_settings] = lambda: settings
+    app.dependency_overrides[get_app_settings] = lambda: settings
 
     r = await client.get("/whoami")
     assert r.status_code == 401
@@ -407,7 +405,7 @@ async def test_non_string_alg_or_kid_is_401_through_app(app, client, jwks, heade
         return {}
 
     app.dependency_overrides[get_jwks_cache] = lambda: jwks
-    app.dependency_overrides[get_settings] = lambda: settings
+    app.dependency_overrides[get_app_settings] = lambda: settings
     r = await client.get("/whoami", headers={"Authorization": f"Bearer {_raw_token(header)}"})
     assert r.status_code == 401 and r.json()["error"]["code"] == "auth_invalid"
 
@@ -423,9 +421,7 @@ async def test_anonymous_rejected(make_token, jwks, value):
 
 
 async def test_is_anonymous_false_accepted(make_token, jwks):
-    ctx = await current_account(
-        authorization=f"Bearer {make_token(is_anonymous=False)}", jwks=jwks, settings=settings
-    )
+    ctx = await _auth(f"Bearer {make_token(is_anonymous=False)}", jwks)
     assert ctx.account_id == UUID(SUB)
 
 
@@ -442,10 +438,10 @@ async def test_stale_keys_served_within_cap_then_fail_closed(make_token, jwks_do
     now = [1000.0]
     cache = JwksCache(JWKS_URL, ttl_seconds=600, fetch=fetch, clock=lambda: now[0])
     auth = f"Bearer {make_token()}"
-    await current_account(authorization=auth, jwks=cache, settings=settings)
+    await _auth(auth, cache)
     now[0] += MAX_STALE_SECONDS - 1
     with caplog.at_level(logging.WARNING, logger="app.core.security"):
-        await current_account(authorization=auth, jwks=cache, settings=settings)
+        await _auth(auth, cache)
     assert any(r.levelno == logging.WARNING for r in caplog.records)
     assert not any(r.levelno >= logging.ERROR for r in caplog.records)
     now[0] += 11  # backoff elapsed, keys now older than the cap
@@ -462,11 +458,11 @@ async def test_recovers_after_stale_cap_when_fetch_succeeds(make_token, jwks_doc
     now = [1000.0]
     cache = JwksCache(JWKS_URL, ttl_seconds=600, fetch=fetch, clock=lambda: now[0])
     auth = f"Bearer {make_token()}"
-    await current_account(authorization=auth, jwks=cache, settings=settings)
+    await _auth(auth, cache)
     now[0] += MAX_STALE_SECONDS + 1
     await _expect("auth_invalid", auth, cache)
     now[0] += 11
-    ctx = await current_account(authorization=auth, jwks=cache, settings=settings)
+    ctx = await _auth(auth, cache)
     assert ctx.account_id == UUID(SUB)
 
 
@@ -479,9 +475,7 @@ async def test_key_ops_without_verify_dropped(ec_key, make_token):
 async def test_key_ops_with_verify_kept(ec_key, make_token):
     entry = _public_jwk(ec_key, EC_KID, "ES256")
     cache = JwksCache(JWKS_URL, fetch=CountingFetch({"keys": [{**entry, "key_ops": ["verify"]}]}))
-    ctx = await current_account(
-        authorization=f"Bearer {make_token()}", jwks=cache, settings=settings
-    )
+    ctx = await _auth(f"Bearer {make_token()}", cache)
     assert ctx.account_id == UUID(SUB)
 
 
@@ -499,7 +493,7 @@ async def test_401s_send_www_authenticate(app, client, make_token, jwks):
         return {}
 
     app.dependency_overrides[get_jwks_cache] = lambda: jwks
-    app.dependency_overrides[get_settings] = lambda: settings
+    app.dependency_overrides[get_app_settings] = lambda: settings
 
     r = await client.get("/whoami2")
     assert r.status_code == 401 and r.headers["www-authenticate"] == "Bearer"

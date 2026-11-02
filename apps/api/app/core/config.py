@@ -1,6 +1,7 @@
 from functools import cache
 from typing import Annotated, Any, Literal
 
+from fastapi import Request
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
@@ -9,6 +10,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     environment: Literal["dev", "staging", "prod", "test"] = "dev"
+    # Root log level (env LOG_LEVEL). Independent of `environment`: DEBUG can log SQL/HTTP detail.
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     callmissed_api_key: SecretStr | None = None
     callmissed_base_url: str = "https://api.callmissed.com/v1"
     callmissed_resource_url: str = "https://api.callmissed.com/api/v1"
@@ -39,6 +42,11 @@ class Settings(BaseSettings):
     sentry_dsn: str | None = None
     posthog_api_key: str | None = None
 
+    @field_validator("log_level", mode="before")
+    @classmethod
+    def _upper_level(cls, v: Any) -> Any:
+        return v.strip().upper() if isinstance(v, str) else v
+
     @field_validator("allowed_origins", mode="before")
     @classmethod
     def _split_origins(cls, v: Any) -> Any:
@@ -56,4 +64,11 @@ class Settings(BaseSettings):
 
 @cache
 def get_settings() -> Settings:
+    """Process settings from the environment (and apps/api/.env). Only `create_app()` with no
+    arguments and Alembic use this; request-time code uses `get_app_settings`."""
     return Settings()
+
+
+def get_app_settings(request: Request) -> Settings:
+    """FastAPI dependency: the Settings the app was created with (`create_app(settings)`)."""
+    return request.app.state.settings

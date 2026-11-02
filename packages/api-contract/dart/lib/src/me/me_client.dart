@@ -15,5 +15,5 @@ abstract class MeClient {
 
   /// Me Get
   @GET('/v1/me')
-  Future<MeOut> meGet({@Header('authorization') String? authorization});
+  Future<MeOut> meGet();
 }

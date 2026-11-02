@@ -20,7 +20,7 @@ class _FakeMe implements MeClient {
   _FakeMe(this.result);
   final Future<MeOut> Function() result;
   @override
-  Future<MeOut> meGet({String? authorization}) => result();
+  Future<MeOut> meGet() => result();
 }
 
 class _FakeApi implements SmartNutriApiClient {

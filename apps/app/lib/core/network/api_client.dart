@@ -17,14 +17,23 @@ final apiClientProvider = Provider<SmartNutriApiClient>((ref) {
   return SmartNutriApiClient(dio);
 });
 
-/// Extracts `error.code` from the API error envelope, or null.
+/// Parses the API error envelope (`{"error": {"code", "message_key",
+/// "details"}}`) with the generated model, or null if [data] is not one.
+ErrorEnvelope? parseErrorEnvelope(Object? data) {
+  if (data is! Map) return null;
+  try {
+    return ErrorEnvelope.fromJson(Map<String, Object?>.from(data));
+  } on Object {
+    return null; // not the envelope (proxy HTML, empty body, wrong types)
+  }
+}
+
+/// Extracts `error.code` from the API error envelope, `network` when there was
+/// no response at all, or null.
 String? apiErrorCode(Object error) {
   if (error is DioException) {
-    final data = error.response?.data;
-    if (data is Map && data['error'] is Map) {
-      final code = (data['error'] as Map)['code'];
-      if (code is String) return code;
-    }
+    final envelope = parseErrorEnvelope(error.response?.data);
+    if (envelope != null) return envelope.error.code;
     if (error.response == null) return 'network';
   }
   return null;
@@ -36,6 +45,10 @@ String localizedApiError(AppLocalizations l10n, Object error) {
   return switch (apiErrorCode(error)) {
     'auth_required' => l10n.errorAuthRequired,
     'auth_invalid' => l10n.errorAuthInvalid,
+    'unauthorized' => l10n.errorUnauthorized,
+    'forbidden' => l10n.errorForbidden,
+    'method_not_allowed' => l10n.errorMethodNotAllowed,
+    'http_error' => l10n.errorHttpError,
     'not_found' => l10n.errorNotFound,
     'validation_error' => l10n.errorValidationError,
     'rate_limited' => l10n.errorRateLimited,

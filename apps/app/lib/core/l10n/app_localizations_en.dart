@@ -201,6 +201,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthRequired => 'Please sign in.';
 
   @override
+  String get errorForbidden => 'You don\'t have access to this.';
+
+  @override
+  String get errorHttpError => 'Something went wrong. Please try again.';
+
+  @override
   String get errorInternalError => 'Something went wrong. Please try again.';
 
   @override
@@ -211,6 +217,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorMemberNotFound => 'That family member wasn\'t found.';
+
+  @override
+  String get errorMethodNotAllowed =>
+      'This action isn\'t supported. Please update the app.';
 
   @override
   String get errorNetwork => 'No internet connection.';
@@ -235,6 +245,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorRateLimitedVoice =>
       'You\'ve reached today\'s voice-question limit.';
+
+  @override
+  String get errorUnauthorized => 'Please sign in.';
 
   @override
   String get errorValidationError => 'Please check the highlighted fields.';

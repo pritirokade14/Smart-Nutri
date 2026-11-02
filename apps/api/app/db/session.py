@@ -10,8 +10,12 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.config import Settings
 
-POOL_SIZE = 5
-MAX_OVERFLOW = 5
+# Per process. The API runs on Cloud Run with up to 3 instances against the Supabase session
+# pooler, which holds one Postgres connection per client and has a small client limit shared
+# with migrations and the dashboard. Budget: 3 instances x (3 + 2) = 15 connections at most.
+# Raise these only together with the pooler size / max instances.
+POOL_SIZE = 3
+MAX_OVERFLOW = 2
 POOL_TIMEOUT_S = 10
 CONNECT_TIMEOUT_S = 5
 

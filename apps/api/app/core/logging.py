@@ -19,12 +19,13 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(payload, default=str)
 
 
-def configure_logging(environment: str) -> None:
+def configure_logging(level: str = "INFO") -> None:
+    """JSON logs to stdout at ``level`` (Settings.log_level, env LOG_LEVEL)."""
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(JsonFormatter())
     root = logging.getLogger()
     root.handlers = [handler]
-    root.setLevel(logging.DEBUG if environment == "dev" else logging.INFO)
+    root.setLevel(logging.getLevelNamesMapping()[level.upper()])
     # Chatty HTTP client libraries can log URLs/headers at INFO/DEBUG; keep them quiet.
     for name in ("httpx", "httpcore"):
         logging.getLogger(name).setLevel(logging.WARNING)

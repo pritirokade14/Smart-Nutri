@@ -161,6 +161,17 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
   2. Inspect the new key in `rate_limit_counters`.
   3. Your own egress IP: correct. `203.0.113.9`: the header is spoofable, lower the hops. A Google or `169.254.*` address: everyone shares one bucket, raise the hops.
 
+## Schema changes: migrate, then merge
+
+Each API build knows the Alembic head it was built with. `GET /v1/health` returns `503 {"status": "unavailable", "database": "schema_behind"}` until the database's `alembic_version` equals that head, so a new revision is never smoke-tested green, or given traffic, against an old schema.
+
+For a PR that adds a migration:
+
+1. Run `just db-migrate` against the dev database from the PR branch, before merging. Migrations must be backward-compatible with the API revision that is still serving (add columns and tables; drop or rename only in a later PR).
+2. Then merge. The deploy's smoke test on `/v1/health` now passes.
+
+The database role the API connects with needs `SELECT` on `public.alembic_version` (the dev `postgres` role has it). Keep that grant when the dedicated production role is created.
+
 ---
 
 ## What to send back (public values only)

@@ -50,6 +50,46 @@ async def test_cors_allow_list(client):
     assert "access-control-allow-origin" not in r.headers
 
 
+async def test_cors_no_credentials_for_bearer_auth(client):
+    r = await client.options(
+        "/v1/me",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "authorization",
+        },
+    )
+    assert r.status_code == 200
+    assert r.headers["access-control-allow-origin"] == "http://localhost:3000"
+    assert "access-control-allow-credentials" not in r.headers
+
+
+async def test_cors_exposes_retry_after(app, client):
+    @app.get("/limited")
+    async def _():
+        raise ApiError("rate_limited", 429, headers={"Retry-After": "5"})
+
+    r = await client.get("/limited", headers={"Origin": "http://localhost:3000"})
+    assert r.status_code == 429 and r.headers["retry-after"] == "5"
+    assert r.headers["access-control-expose-headers"] == "Retry-After"
+    assert "access-control-allow-credentials" not in r.headers
+
+
+async def test_method_not_allowed_code(app, client):
+    @app.get("/only-get-2")
+    async def _():
+        return {}
+
+    r = await client.post("/only-get-2")
+    assert r.json() == {
+        "error": {
+            "code": "method_not_allowed",
+            "message_key": "error.method_not_allowed",
+            "details": {},
+        }
+    }
+
+
 async def test_http_exception_headers_preserved(app, client):
     @app.get("/only-get")
     async def _():

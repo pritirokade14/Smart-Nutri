@@ -21,12 +21,10 @@ class _MeClient implements MeClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<MeOut> meGet({String? authorization}) async {
+  Future<MeOut> meGet() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{r'authorization': authorization};
-    _headers.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<MeOut>(
       Options(method: 'GET', headers: _headers, extra: _extra)

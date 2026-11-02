@@ -3,7 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { ApiError, fetchMe } from "@/features/me/api/me";
+import { fetchMe } from "@/features/me/api/me";
+import { ApiError } from "@/lib/api/errors";
 
 export default function HomePage() {
   const t = useTranslations();

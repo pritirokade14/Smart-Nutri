@@ -1,7 +1,10 @@
 import createClient, { type Client } from "openapi-fetch";
-import type { paths } from "./schema";
+import type { components, paths } from "./schema";
 
 export type { components, paths } from "./schema";
+
+/** The API's only error shape: `{ error: { code, message_key, details } }`. */
+export type ErrorEnvelope = components["schemas"]["ErrorEnvelope"];
 
 export function createApiClient(
   baseUrl: string,

@@ -54,6 +54,10 @@ A feature folder owns its route, schemas, SQLAlchemy models and service. Cross-f
 - **Prompts** are Markdown files in `app/prompts/` named `<name>_v<N>.md`. Each LLM call logs the prompt version.
 - **Endpoints:**
   - Auth on everything except `/v1/health`, `/v1/methodology` and public product info (`GET /v1/products/{barcode}/public`, which returns generic data only, no verdicts).
+  - Auth is `Depends(current_account)` (`app/core/security.py`), a `bearerAuth` HTTP bearer scheme in OpenAPI. Never declare an `authorization` header parameter: the generated clients set the header in an interceptor.
+  - **Every route that writes account-owned rows** (members, consents, scans, meal logs, reports, ...) **must depend on `current_account_row`** (`app/features/me/dependencies.py`), not just `current_account`. It creates the `accounts` row on first use, so a brand-new user's first write cannot fail its foreign key. It returns `CurrentAccount(account, ctx)`.
+  - Request-time code reads settings with `Depends(get_app_settings)` (the `Settings` given to `create_app`), never `get_settings()`.
+  - Errors are always the `ErrorEnvelope` (`{"error": {"code", "message_key", "details"}}`), documented on every operation for 401, 404, 422, 429 and 500. Every new error code needs `error.<code>` in `packages/i18n/messages/{en,hi,mr}.json` (`tests/unit/test_error_codes_i18n.py` checks this).
   - Every query is scoped by `account_id`.
   - No exception text in responses.
   - Use the `api-endpoint` skill.
@@ -74,6 +78,7 @@ A feature folder owns its route, schemas, SQLAlchemy models and service. Cross-f
 | `DATABASE_URL` | Postgres connection (`postgresql+psycopg://...`) |
 | `SENTRY_DSN` | Error reporting (optional in dev) |
 | `ALLOWED_ORIGINS` | Comma-separated CORS origins (the web app origins) |
+| `LOG_LEVEL` | Root log level, default `INFO` (independent of `ENVIRONMENT`) |
 | `POSTHOG_API_KEY` | Optional server-side analytics (no health data) |
 
 Model ids (`MODEL_EXTRACTION`, `MODEL_EXPLANATION`, `MODEL_STT`, `MODEL_TTS`), rate-limit values and the storage bucket name are added in Plan 2. Keep `.env.example` in sync. Never commit `.env`.
@@ -97,6 +102,8 @@ From `apps/api`:
 | Current revision | `uv run alembic current` |
 
 **Database tests** (`tests/db`) run against `TEST_DATABASE_URL` when it is set (CI's `postgres:17` service). Otherwise they start a throwaway `postgres:17` Docker container for the session and remove it afterwards. They skip with a reason when neither is available. They drop every table, so they refuse a Supabase-hosted URL.
+
+**Migrate, then merge:** `/v1/health` returns 503 `schema_behind` until the database is at the Alembic head bundled with the build (`app/db/schema.py`). Apply a PR's migration to dev before merging it (see `docs/SETUP_ACCOUNTS.md`).
 
 **Migrations:** Alembic reads `DATABASE_URL`. Autogenerate does not emit RLS. Every new table needs `ENABLE` + `FORCE ROW LEVEL SECURITY` and its `TO authenticated` policies added by hand with `op.execute(...)`, plus a case in `tests/db/test_rls.py`.
 

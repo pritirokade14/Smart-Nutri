@@ -13,7 +13,7 @@ from fastapi import Depends, Request
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import Settings, get_settings
+from app.core.config import Settings, get_app_settings
 from app.core.errors import ApiError
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
@@ -86,7 +86,7 @@ def limit(bucket: str) -> Callable[..., Awaitable[None]]:
         async def _by_ip(
             request: Request,
             session: Annotated[AsyncSession, Depends(get_session)],
-            settings: Annotated[Settings, Depends(get_settings)],
+            settings: Annotated[Settings, Depends(get_app_settings)],
         ) -> None:
             ip = client_ip(request, settings)
             await _hit(session, settings, f"ip:{ip}", bucket)
@@ -96,7 +96,7 @@ def limit(bucket: str) -> Callable[..., Awaitable[None]]:
     async def _by_account(
         account: Annotated[AccountContext, Depends(current_account)],
         session: Annotated[AsyncSession, Depends(get_session)],
-        settings: Annotated[Settings, Depends(get_settings)],
+        settings: Annotated[Settings, Depends(get_app_settings)],
     ) -> None:
         await _hit(session, settings, f"acct:{account.account_id}", bucket)
 

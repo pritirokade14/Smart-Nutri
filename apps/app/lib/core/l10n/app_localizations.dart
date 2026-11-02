@@ -460,6 +460,18 @@ abstract class AppLocalizations {
   /// **'Please sign in.'**
   String get errorAuthRequired;
 
+  /// No description provided for @errorForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have access to this.'**
+  String get errorForbidden;
+
+  /// No description provided for @errorHttpError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get errorHttpError;
+
   /// No description provided for @errorInternalError.
   ///
   /// In en, this message translates to:
@@ -483,6 +495,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That family member wasn\'t found.'**
   String get errorMemberNotFound;
+
+  /// No description provided for @errorMethodNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This action isn\'t supported. Please update the app.'**
+  String get errorMethodNotAllowed;
 
   /// No description provided for @errorNetwork.
   ///
@@ -525,6 +543,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'ve reached today\'s voice-question limit.'**
   String get errorRateLimitedVoice;
+
+  /// No description provided for @errorUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in.'**
+  String get errorUnauthorized;
 
   /// No description provided for @errorValidationError.
   ///

@@ -203,6 +203,12 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करा.';
 
   @override
+  String get errorForbidden => 'तुम्हाला याचा प्रवेश नाही.';
+
+  @override
+  String get errorHttpError => 'काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.';
+
+  @override
   String get errorInternalError => 'काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.';
 
   @override
@@ -213,6 +219,10 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get errorMemberNotFound => 'कुटुंबातील हा सदस्य सापडला नाही.';
+
+  @override
+  String get errorMethodNotAllowed =>
+      'ही क्रिया समर्थित नाही. कृपया ॲप अपडेट करा.';
 
   @override
   String get errorNetwork => 'इंटरनेट कनेक्शन नाही.';
@@ -237,6 +247,9 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get errorRateLimitedVoice =>
       'तुम्ही आजच्या आवाजाद्वारे प्रश्न विचारण्याच्या मर्यादेपर्यंत पोहोचला आहात.';
+
+  @override
+  String get errorUnauthorized => 'कृपया साइन इन करा.';
 
   @override
   String get errorValidationError => 'कृपया अधोरेखित केलेली फील्ड तपासा.';

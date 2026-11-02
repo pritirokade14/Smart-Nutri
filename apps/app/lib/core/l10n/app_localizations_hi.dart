@@ -204,6 +204,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करें।';
 
   @override
+  String get errorForbidden => 'आपके पास इसकी पहुँच नहीं है।';
+
+  @override
+  String get errorHttpError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
+
+  @override
   String get errorInternalError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
 
   @override
@@ -214,6 +220,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get errorMemberNotFound => 'परिवार का यह सदस्य नहीं मिला।';
+
+  @override
+  String get errorMethodNotAllowed =>
+      'यह कार्य समर्थित नहीं है। कृपया ऐप अपडेट करें।';
 
   @override
   String get errorNetwork => 'इंटरनेट कनेक्शन नहीं है।';
@@ -238,6 +248,9 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get errorRateLimitedVoice =>
       'आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।';
+
+  @override
+  String get errorUnauthorized => 'कृपया साइन इन करें।';
 
   @override
   String get errorValidationError => 'कृपया चिह्नित फ़ील्ड जाँचें।';

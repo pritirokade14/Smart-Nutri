@@ -9,15 +9,15 @@ import logging
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from functools import cache
 from typing import Annotated, Any
 from uuid import UUID
 
 import httpx
 import jwt
-from fastapi import Depends, Header
+from fastapi import Depends, Request, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.config import Settings, get_settings
+from app.core.config import Settings, get_app_settings
 from app.core.errors import ApiError
 
 logger = logging.getLogger(__name__)
@@ -28,6 +28,11 @@ LEEWAY_SECONDS = 30
 MAX_STALE_SECONDS = 86_400  # hard cap on serving last-good keys after failed refreshes
 MAX_TOKEN_LENGTH = 8192
 _ASYMMETRIC_KTY = frozenset({"EC", "RSA"})
+
+# OpenAPI: components.securitySchemes.bearerAuth plus per-operation `security`, so the
+# generated clients carry no `authorization` parameter (their interceptors set the header).
+# auto_error=False: a missing/non-Bearer header returns None and we raise our own envelope.
+bearer_scheme = HTTPBearer(auto_error=False, scheme_name="bearerAuth")
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,8 +103,7 @@ class JwksCache:
         self._expires_at: float | None = None
         self._last_success: float | None = None
         self._last_forced: float | None = None
-        # Process-wide lock: one event loop per worker. Tests override get_jwks_cache, so
-        # no lock is ever shared across loops.
+        # One cache (and lock) per app instance, which runs on one event loop per worker.
         self._lock = asyncio.Lock()
 
     async def key_for(self, kid: str) -> jwt.PyJWK:
@@ -138,21 +142,21 @@ class JwksCache:
         self._expires_at = now + self._ttl
 
 
-@cache
-def get_jwks_cache() -> JwksCache:
-    return JwksCache(get_settings().supabase_jwks_url)
+def get_jwks_cache(request: Request) -> JwksCache:
+    """The app's JWKS cache, built by `create_app()` from its Settings."""
+    return request.app.state.jwks_cache
 
 
 async def current_account(
     jwks: Annotated[JwksCache, Depends(get_jwks_cache)],
-    settings: Annotated[Settings, Depends(get_settings)],
-    authorization: Annotated[str | None, Header()] = None,
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Security(bearer_scheme)] = None,
 ) -> AccountContext:
-    if not authorization:
+    # bearer_scheme returns None for a missing header, a non-Bearer scheme or an empty token.
+    if credentials is None or credentials.scheme.lower() != "bearer":
         raise _auth_required()
-    scheme, _, token = authorization.partition(" ")
-    token = token.strip()
-    if scheme.lower() != "bearer" or not token:
+    token = credentials.credentials.strip()
+    if not token:
         raise _auth_required()
     if len(token) > MAX_TOKEN_LENGTH:
         raise _auth_invalid()
