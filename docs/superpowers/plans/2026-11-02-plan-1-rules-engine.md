@@ -280,6 +280,7 @@ git commit -m "feat(scoring): domain models, plausibility checks and test fixtur
   - `apps/api/app/scoring/config.py`, `apps/api/app/scoring/ingredients.py`
   - `apps/api/app/scoring/data/{allergens,diet,ingredients,thresholds}.yaml`
   - `apps/api/tests/unit/scoring/test_ingredients.py`, `apps/api/tests/unit/scoring/test_config.py`
+- Modify: `apps/api/tests/unit/scoring/conftest.py` (add `cfg` fixture)
 
 **Interfaces:** Produces:
 
@@ -428,6 +429,7 @@ Expected: FAIL (modules missing).
 - [ ] **Step 4: Implement `config.py` and `ingredients.py`** to the Interfaces block.
   - `load_config` reads YAML with `yaml.safe_load` and caches the default with `functools.cache`.
   - Data files ship as package data. Load them via `Path(__file__).parent / "data"`.
+  - Add a session-scoped `cfg` fixture (`load_config()`) to `tests/unit/scoring/conftest.py`. Tasks 5–10 use it.
 
 - [ ] **Step 5: Run the tests to verify they pass**, then commit
 
@@ -553,7 +555,7 @@ def test_added_sugar_terms(cola, cfg):      assert added_sugar_terms(cola, cfg) 
 def test_sodium_additives(sf_biscuit, cfg): assert sodium_additives(sf_biscuit, cfg) == ("ins500",)
 ```
 
-Add a `cfg` fixture (`load_config()`) to `conftest.py`.
+The `cfg` fixture already exists in `conftest.py` (added by Task 3).
 
 - [ ] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/unit/scoring/test_warnings.py -v`. Expected: FAIL.
 - [ ] **Step 3: Implement** to the Interfaces block. Each function returns a sorted tuple, except `high_in`, which uses the fixed order.

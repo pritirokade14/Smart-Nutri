@@ -1,5 +1,7 @@
 # AGENTS.md
 
+> **Start with [CONTEXT.md](CONTEXT.md).** It's the one-page snapshot: what we're building, the decisions, account IDs, current status and open items.
+
 Shared instructions for AI coding agents working in this repository (Claude Code, Codex, Cursor and others). `CLAUDE.md` imports this file. Keep it short; put detail in `docs/`.
 
 ## What we are building
