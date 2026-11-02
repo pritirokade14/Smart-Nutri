@@ -17,10 +17,15 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+# Must cover every field off_mapping.py reads (a test enforces this): a missing field would
+# silently drop allergen or nutrient data.
 PRODUCT_FIELDS = (
-    "code,product_name,brands,image_front_url,categories_tags,nutriments,"
-    "serving_quantity,ingredients_text,allergens_tags,traces_tags,labels_tags"
+    "code,product_name,brands,image_front_url,image_url,categories_tags,nutriments,"
+    "serving_quantity,serving_quantity_unit,ingredients_text,ingredients_text_en,"
+    "allergens_tags,traces_tags,labels_tags"
 )
+# Sent when OFF_USER_AGENT is blank or still the .env.example placeholder (OFF requires a real UA).
+DEFAULT_USER_AGENT = "SmartNutri/0.1 (+https://github.com/pritirokade14/Smart-Nutri)"
 _TIMEOUT = httpx.Timeout(5.0, connect=3.0)
 _NOT_FOUND_IDS = {"product_not_found"}
 
@@ -48,9 +53,15 @@ class OffClient:
     def __init__(self, http: httpx.AsyncClient, *, base_url: str, user_agent: str) -> None:
         self._http = http
         self._base_url = base_url.rstrip("/")
-        self._user_agent = user_agent
+        ua = (user_agent or "").strip()
+        self._user_agent = DEFAULT_USER_AGENT if not ua or "your-team-email@" in ua else ua
 
     async def get_product(self, barcode: str) -> dict | None:
+        """Return OFF's v3 product object, None when OFF has no such product.
+
+        The injected httpx client is owned (and closed) by the caller, e.g. the app lifespan.
+        """
+        barcode = normalize_barcode(barcode)  # never interpolate unvalidated input into the path
         url = f"{self._base_url}/api/v3/product/{barcode}"
         start = time.monotonic()
         outcome = "unavailable"

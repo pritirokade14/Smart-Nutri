@@ -5,6 +5,8 @@ import httpx
 import pytest
 
 from app.integrations.openfoodfacts import (
+    DEFAULT_USER_AGENT,
+    PRODUCT_FIELDS,
     InvalidBarcode,
     OffClient,
     OffUnavailable,
@@ -59,10 +61,54 @@ async def test_sends_user_agent_v3_path_and_fields():
     assert product is not None and product["code"] == "8901063201089"
     assert seen["ua"] == UA
     assert seen["path"] == "/api/v3/product/8901063201089"
-    assert seen["fields"] == (
-        "code,product_name,brands,image_front_url,categories_tags,nutriments,"
-        "serving_quantity,ingredients_text,allergens_tags,traces_tags,labels_tags"
+    assert set(seen["fields"].split(",")) == set(PRODUCT_FIELDS.split(","))
+
+
+def test_fields_cover_everything_the_mapper_reads():
+    import re
+
+    src = (Path(__file__).resolve().parents[3] / "app/features/products/off_mapping.py").read_text()
+    read = set(re.findall(r'(?:product|p|payload)\.get\("([a-z_]+)"', src))
+    read -= {"product"}  # the v3 envelope key, not a product field
+    missing = read - set(PRODUCT_FIELDS.split(","))
+    assert not missing, f"OFF fields read by the mapper but not requested: {sorted(missing)}"
+
+
+@pytest.mark.parametrize("ua", ["", "   ", "SmartNutri/0.1 (contact: your-team-email@example.com)"])
+async def test_blank_or_placeholder_user_agent_falls_back(ua):
+    seen = {}
+
+    def handler(req):
+        seen["ua"] = req.headers["user-agent"]
+        return httpx.Response(200, json=_load("client_found.json"))
+
+    client = OffClient(
+        httpx.AsyncClient(transport=httpx.MockTransport(handler)),
+        base_url="https://off.test",
+        user_agent=ua,
     )
+    await client.get_product("8901063201089")
+    assert seen["ua"] == DEFAULT_USER_AGENT
+
+
+async def test_404_with_non_json_body_is_not_found():
+    def handler(req):
+        return httpx.Response(404, content=b"<html>nope</html>")
+
+    assert await _client(handler).get_product("8901063201089") is None
+
+
+async def test_429_raises_unavailable():
+    def handler(req):
+        return httpx.Response(429, json={"status": "failure"})
+
+    with pytest.raises(OffUnavailable):
+        await _client(handler).get_product("8901063201089")
+
+
+async def test_get_product_rejects_unnormalised_input():
+    with pytest.raises(InvalidBarcode):
+        await _client(lambda req: httpx.Response(200)).get_product("../../admin")
 
 
 async def test_not_found_returns_none():
