@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
+import { clientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -22,10 +23,14 @@ export default async function LocaleLayout({
   // Reading request headers opts every page into dynamic rendering, which the
   // per-request CSP nonce requires (Next stamps its inline scripts with it).
   await headers();
+  // Client components get the catalogue minus the verdict/health namespaces.
+  const messages = clientMessages(await getMessages());
   return (
     <html lang={locale}>
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

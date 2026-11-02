@@ -312,6 +312,14 @@ class AppLocalizationsMr extends AppLocalizations {
       'Nutri-Score काढण्यासाठी लेबलवर पुरेशी माहिती नाही.';
 
   @override
+  String get productClaimsHeading => 'लेबलवरील दावे, SmartNutri ने तपासलेले';
+
+  @override
+  String productLabelSays(String claim) {
+    return 'लेबलवर लिहिले आहे: $claim';
+  }
+
+  @override
   String get productMetaDescription =>
       'या पॅकेटबंद अन्नपदार्थाची पोषण माहिती, SmartNutri ने मोजलेला Nutri-Score आणि घटक. माहिती, वैद्यकीय सल्ला नाही.';
 

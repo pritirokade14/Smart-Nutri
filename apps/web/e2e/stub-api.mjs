@@ -1,7 +1,7 @@
 // Minimal stand-in for the API (server-side fetches can't be mocked by page.route).
 import { createServer } from "node:http";
 
-const port = Number(process.env.STUB_API_PORT ?? 8000);
+const port = Number(process.env.STUB_API_PORT ?? 18000);
 
 const body = {
   product: {

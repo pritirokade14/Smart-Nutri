@@ -49,3 +49,4 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ### Public product page (Plan 3 Task 9)
 - [ ] **hi/mr `product.public_cta`, `product.meta_title`, `product.meta_description`**: machine drafts. Check that the page title reads naturally in search results and that the description keeps the "information, not medical advice" wording.
+- [ ] **hi/mr `product.claims_heading`, `product.label_says`**: machine drafts. The framing must read as "the pack claims this", never as SmartNutri endorsing the claim.

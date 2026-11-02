@@ -658,6 +658,18 @@ abstract class AppLocalizations {
   /// **'Not enough label data to calculate a Nutri-Score.'**
   String get nutriscoreInsufficientData;
 
+  /// No description provided for @productClaimsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Claims on the label, checked by SmartNutri'**
+  String get productClaimsHeading;
+
+  /// No description provided for @productLabelSays.
+  ///
+  /// In en, this message translates to:
+  /// **'Label says: {claim}'**
+  String productLabelSays(String claim);
+
   /// No description provided for @productMetaDescription.
   ///
   /// In en, this message translates to:

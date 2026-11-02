@@ -26,7 +26,7 @@ export async function loadPublicProduct(
     const { data, error, response } = await client.GET(
       "/v1/products/{barcode}/public",
       {
-        params: { path: { barcode }, query: { language: "en" } },
+        params: { path: { barcode } },
         fetch: (req) =>
           fetch(req, { next: { revalidate: PUBLIC_REVALIDATE_SECONDS } }),
       },

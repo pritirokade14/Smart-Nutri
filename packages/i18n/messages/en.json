@@ -199,7 +199,9 @@
   "product": {
     "public_cta": "Check it for your family",
     "meta_title": "{name} – nutrition facts | SmartNutri",
-    "meta_description": "Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice."
+    "meta_description": "Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice.",
+    "claims_heading": "Claims on the label, checked by SmartNutri",
+    "label_says": "Label says: {claim}"
   },
   "attribution": {
     "off": "Data from Open Food Facts (ODbL)"

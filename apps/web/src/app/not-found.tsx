@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
+import { clientMessages } from "@/i18n/client-messages";
 import "./globals.css";
 
 // There is no root layout (the [locale] layout owns <html>), so unmatched URLs
@@ -13,7 +14,7 @@ export default async function RootNotFound() {
   return (
     <html lang="en">
       <body>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={clientMessages(messages)}>
           <main className="mx-auto max-w-xl p-(--spacing-4)">
             <h1 className="text-(length:--text-xl)">{t("error.not_found")}</h1>
           </main>

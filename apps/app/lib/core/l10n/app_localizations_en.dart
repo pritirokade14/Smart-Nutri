@@ -309,6 +309,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Not enough label data to calculate a Nutri-Score.';
 
   @override
+  String get productClaimsHeading =>
+      'Claims on the label, checked by SmartNutri';
+
+  @override
+  String productLabelSays(String claim) {
+    return 'Label says: $claim';
+  }
+
+  @override
   String get productMetaDescription =>
       'Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice.';
 

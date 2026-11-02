@@ -19,16 +19,12 @@ test("public product page renders without login, no CSP violations, no verdict",
   await expect(page.getByText(/calculated by SmartNutri/i)).toBeVisible();
   await page.waitForLoadState("networkidle");
   expect(violations).toEqual([]);
-  // The root layout serializes the whole message catalogue (which has verdict.*
-  // keys) for client components, so assert on the rendered page content and on
-  // verdict UI markers instead of the raw HTML string.
-  const main = (await page.locator("main").innerHTML()).toLowerCase();
-  expect(main).not.toContain("verdict");
+  // Messages are scoped for client components, so the anonymous HTML carries
+  // no verdict catalogue at all.
   const raw = (
     await (await page.request.get("/en/p/8901063201089")).text()
   ).toLowerCase();
-  expect(raw).not.toContain("verdict-card");
-  expect(raw).not.toContain("data-testid");
+  expect(raw).not.toContain("verdict");
 });
 
 test("unknown barcode is a 404", async ({ page }) => {

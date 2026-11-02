@@ -148,6 +148,15 @@
   "nutrientSugarsG": "शर्करा (चीनी)",
   "nutriscoreCalculatedBy": "Nutri-Score की गणना SmartNutri ने की है",
   "nutriscoreInsufficientData": "Nutri-Score की गणना के लिए लेबल पर पर्याप्त जानकारी नहीं है।",
+  "productClaimsHeading": "लेबल पर किए गए दावे, SmartNutri द्वारा जाँचे गए",
+  "productLabelSays": "लेबल पर लिखा है: {claim}",
+  "@productLabelSays": {
+    "placeholders": {
+      "claim": {
+        "type": "String"
+      }
+    }
+  },
   "productMetaDescription": "इस पैकेट वाले खाद्य पदार्थ की पोषण जानकारी, SmartNutri द्वारा गणना किया गया Nutri-Score और सामग्री। जानकारी, चिकित्सकीय सलाह नहीं।",
   "productMetaTitle": "{name} – पोषण जानकारी | SmartNutri",
   "@productMetaTitle": {

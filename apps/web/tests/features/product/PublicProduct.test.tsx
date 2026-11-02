@@ -57,7 +57,7 @@ describe("PublicProduct", () => {
     const { container } = view(data);
     expect(screen.getByText(/calculated by SmartNutri/i)).toBeTruthy();
     expect(screen.queryByTestId("verdict-card")).toBeNull();
-    expect(container.innerHTML.toLowerCase()).not.toContain("verdict-card");
+    expect(container.innerHTML.toLowerCase()).not.toContain("verdict");
     expect(screen.getByText(enMessages.common.disclaimer)).toBeTruthy();
   });
 
@@ -68,7 +68,8 @@ describe("PublicProduct", () => {
     expect(screen.getByText("Nutri-Score D")).toBeTruthy();
     expect(screen.getByText("High in sugar")).toBeTruthy();
     expect(screen.getByText("High in fat")).toBeTruthy();
-    expect(screen.getByText("No added sugar")).toBeTruthy();
+    expect(screen.getByText("Label says: No added sugar")).toBeTruthy();
+    expect(screen.queryByText("No added sugar")).toBeNull();
     expect(screen.getByText("Label data contradicts this claim")).toBeTruthy();
     expect(
       screen.getByText("The ingredients include added sugar: sugar."),
@@ -77,6 +78,44 @@ describe("PublicProduct", () => {
     const img = container.querySelector("img");
     expect(img?.getAttribute("alt")).toBe("Parle-G");
     expect(container.querySelector("[style]")).toBeNull();
+  });
+
+  it("frames diabetic_friendly as a label claim with its no-standard reason", () => {
+    const d = structuredClone(offProduct);
+    d.report.claims = [
+      {
+        claim: "diabetic_friendly",
+        verdict: "unverifiable",
+        reason_code: "no_standard",
+        params: {},
+      },
+    ];
+    view(d);
+    expect(screen.getByText(enMessages.product.claims_heading)).toBeTruthy();
+    expect(screen.getByText("Label says: Diabetic friendly")).toBeTruthy();
+    expect(screen.queryByText("Diabetic friendly")).toBeNull();
+    expect(
+      screen.getByText(enMessages.claim_verdict.unverifiable),
+    ).toBeTruthy();
+    expect(screen.getByText(enMessages.claim_reason.no_standard)).toBeTruthy();
+  });
+
+  it("drops an unknown claim key and an unknown high_in key", () => {
+    const d = structuredClone(offProduct);
+    d.report.claims = [
+      {
+        claim: "made_up_claim",
+        verdict: "supported",
+        reason_code: "ok",
+        params: {},
+      },
+    ];
+    d.report.high_in = ["sugar", "mystery"];
+    const { container } = view(d);
+    expect(container.textContent).not.toContain("made_up_claim");
+    expect(container.textContent).not.toContain("mystery");
+    expect(screen.queryByText(enMessages.product.claims_heading)).toBeNull();
+    expect(screen.getByText("High in sugar")).toBeTruthy();
   });
 
   it("omits an image that is not on the Open Food Facts host", () => {
@@ -146,6 +185,38 @@ describe("page", () => {
       "mr",
     ]);
     expect(String(alt?.languages?.mr)).toMatch(/\/mr\/p\/8901063201089$/);
+  });
+
+  it("metadata is noindex for not_found and unavailable", async () => {
+    const { generateMetadata } = await import(
+      "@/app/[locale]/(public)/p/[barcode]/page"
+    );
+    for (const kind of ["not_found", "unavailable"]) {
+      loadPublicProduct.mockResolvedValue({ kind });
+      const m = await generateMetadata({
+        params: Promise.resolve({ locale: "en", barcode: "8901063201089" }),
+      });
+      expect(m.robots).toEqual({ index: false });
+    }
+  });
+
+  it("metadataBase is the site origin, so canonical resolves absolute", async () => {
+    loadPublicProduct.mockResolvedValue({ kind: "ok", data: offProduct });
+    const { generateMetadata } = await import(
+      "@/app/[locale]/(public)/p/[barcode]/page"
+    );
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://smartnutri.example");
+    const m = await generateMetadata({
+      params: Promise.resolve({ locale: "en", barcode: "8901063201089" }),
+    });
+    expect(String(m.metadataBase)).toBe("https://smartnutri.example/");
+    expect(m.alternates?.canonical).toBe("/en/p/8901063201089");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
+    const rel = await generateMetadata({
+      params: Promise.resolve({ locale: "en", barcode: "8901063201089" }),
+    });
+    expect(rel.metadataBase).toBeUndefined();
+    vi.unstubAllEnvs();
   });
 
   it("invalid barcode -> notFound without calling the API", async () => {

@@ -9,9 +9,17 @@ import { routing } from "@/i18n/routing";
 
 type Params = Promise<{ locale: string; barcode: string }>;
 
-const site = () => (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
-const path = (locale: string, barcode: string) =>
-  `${site()}/${locale}/p/${barcode}`;
+// Paths stay relative; Next resolves them against metadataBase (the site
+// origin), so canonical and hreflang come out absolute when it is set.
+function metadataBase(): URL | undefined {
+  try {
+    const site = process.env.NEXT_PUBLIC_SITE_URL;
+    return site ? new URL(site) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+const path = (locale: string, barcode: string) => `/${locale}/p/${barcode}`;
 
 export async function generateMetadata({
   params,
@@ -23,9 +31,11 @@ export async function generateMetadata({
   if (!hasLocale(routing.locales, locale) || !barcode) return {};
   const t = await getTranslations({ locale });
   const result = await loadPublicProduct(barcode);
-  if (result.kind !== "ok") return { robots: { index: false } };
+  if (result.kind !== "ok")
+    return { metadataBase: metadataBase(), robots: { index: false } };
   const name = result.data.product.name ?? barcode;
   return {
+    metadataBase: metadataBase(),
     title: t("product.meta_title", { name }),
     description: t("product.meta_description"),
     alternates: {

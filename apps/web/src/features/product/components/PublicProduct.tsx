@@ -3,11 +3,11 @@ import type { PublicProductOut } from "../api/public-product";
 
 const OFF_IMAGE_PREFIX = "https://images.openfoodfacts.org/";
 const GRADE_CLASS: Record<string, string> = {
-  A: "bg-(--color-grade-a)",
-  B: "bg-(--color-grade-b)",
-  C: "bg-(--color-grade-c)",
-  D: "bg-(--color-grade-d)",
-  E: "bg-(--color-grade-e)",
+  A: "bg-(--color-grade-a) text-(--color-surface-default)",
+  B: "bg-(--color-grade-b) text-(--color-text-primary)",
+  C: "bg-(--color-grade-c) text-(--color-text-primary)",
+  D: "bg-(--color-grade-d) text-(--color-text-primary)",
+  E: "bg-(--color-grade-e) text-(--color-text-primary)",
 };
 const HIGH_IN = new Set(["sugar", "fat", "sat_fat", "salt"]);
 const CLAIM_VERDICTS = new Set(["supported", "contradicted", "unverifiable"]);
@@ -128,11 +128,14 @@ export function PublicProduct({
 
       {shownClaims.length > 0 ? (
         <section className="space-y-(--spacing-2)">
+          <h2 className="text-(length:--text-md)">
+            {t("product.claims_heading")}
+          </h2>
           <ul className="space-y-(--spacing-2)">
             {shownClaims.map((c) => (
               <li key={c.claim} className="text-(length:--text-sm)">
                 <p className="text-(length:--text-md)">
-                  {t(`claim.${c.claim}`)}
+                  {t("product.label_says", { claim: t(`claim.${c.claim}`) })}
                 </p>
                 <p>{t(`claim_verdict.${c.verdict}`)}</p>
                 {t.has(`claim_reason.${c.reason_code}`) ? (

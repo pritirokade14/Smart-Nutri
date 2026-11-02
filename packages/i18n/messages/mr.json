@@ -199,7 +199,9 @@
   "product": {
     "public_cta": "तुमच्या कुटुंबासाठी तपासा",
     "meta_title": "{name} – पोषण माहिती | SmartNutri",
-    "meta_description": "या पॅकेटबंद अन्नपदार्थाची पोषण माहिती, SmartNutri ने मोजलेला Nutri-Score आणि घटक. माहिती, वैद्यकीय सल्ला नाही."
+    "meta_description": "या पॅकेटबंद अन्नपदार्थाची पोषण माहिती, SmartNutri ने मोजलेला Nutri-Score आणि घटक. माहिती, वैद्यकीय सल्ला नाही.",
+    "claims_heading": "लेबलवरील दावे, SmartNutri ने तपासलेले",
+    "label_says": "लेबलवर लिहिले आहे: {claim}"
   },
   "attribution": {
     "off": "डेटा: Open Food Facts (ODbL)"
