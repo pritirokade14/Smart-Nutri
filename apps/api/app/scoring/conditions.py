@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from typing import Any
 
+from app.scoring.allergens import ingredients_known
 from app.scoring.claims import ClaimCheck
 from app.scoring.config import ScoringConfig
 from app.scoring.models import ClaimVerdict, Member, Product, Reason, Status
@@ -24,15 +26,20 @@ def _r(n: float) -> float:
     return round(float(n), 2)
 
 
+def _norm(value: str) -> str:
+    return re.sub(r"[\s\-]+", "_", value.strip().lower())
+
+
 def _active_groups(member: Member, cond: dict[str, Any]) -> list[str]:
     groups: list[str] = []
+    conditions = {_norm(c) for c in member.conditions}
+    goal = _norm(member.goal) if member.goal else None
     for name, rule in cond.items():
         applies = rule.get("applies_to")
         if not applies:
             continue
-        if any(c in applies for c in member.conditions) or (
-            member.goal is not None and member.goal in applies
-        ):
+        wanted = {_norm(a) for a in applies}
+        if conditions & wanted or (goal is not None and goal in wanted):
             groups.append(name)
     age = member.age
     if age is not None:
@@ -44,8 +51,9 @@ def _active_groups(member: Member, cond: dict[str, Any]) -> list[str]:
 
 
 def _child_limit(age: int, bands: dict[int, float]) -> float | None:
-    eligible = [k for k in bands if int(k) <= age]
-    return bands[max(eligible)] if eligible else None
+    norm = {int(k): v for k, v in bands.items()}
+    eligible = [k for k in norm if k <= age]
+    return norm[max(eligible)] if eligible else None
 
 
 def condition_reasons(
@@ -82,9 +90,14 @@ def condition_reasons(
         if hs:
             out.append(Reason("hidden_sugars", Status.CAUTION, {"ingredients": list(hs)}))
         carbs = need("carbs_g", n.carbs_g, "blood_sugar")
-        per_serv = product.per_serving(carbs)
-        if per_serv is not None and per_serv > c["caution_carbs_per_serving_g"]:
-            out.append(Reason("carbs_per_serving_high", Status.CAUTION, {"carbs_g": _r(per_serv)}))
+        if carbs is not None:
+            has_serving = product.serving_size_g is not None
+            amount = product.per_serving(carbs) if has_serving else carbs
+            if amount is not None and amount > c["caution_carbs_per_serving_g"]:
+                basis = "per_serving" if has_serving else "per_100g"
+                out.append(
+                    Reason("carbs_per_serving_high", Status.CAUTION, {"carbs_g": _r(amount), "basis": basis})
+                )
 
     if "hypertension" in groups:
         c = cond["hypertension"]
@@ -128,10 +141,18 @@ def condition_reasons(
         caf = ingredient_hits(product, cfg, "caffeine")
         if caf:
             out.append(Reason("child_caffeine", Status.AVOID, {"ingredients": list(caf)}))
-        if "salt" in high_in(product, cfg):
-            out.append(Reason("salt_high", Status.CAUTION, {}))
+        salt = need("salt", n.salt(), "child")
+        if salt is not None and "salt" in high_in(product, cfg):
+            out.append(Reason("salt_high", Status.CAUTION, {"salt_g": _r(salt)}))
+        if not ingredients_known(product, cfg):
+            out.append(Reason("ingredients_missing", Status.UNKNOWN, {"rule": "child"}))
 
     if "infant" in groups:
+        if not ingredients_known(product, cfg):
+            out.append(Reason("ingredients_missing", Status.UNKNOWN, {"rule": "infant"}))
+        inf_caf = ingredient_hits(product, cfg, "caffeine")
+        if inf_caf:
+            out.append(Reason("infant_caffeine", Status.AVOID, {"ingredients": list(inf_caf)}))
         sugar_terms = added_sugar_terms(product, cfg)
         if sugar_terms:
             out.append(Reason("infant_added_sugar", Status.AVOID, {"ingredients": list(sugar_terms)}))
