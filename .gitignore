@@ -1,0 +1,27 @@
+# Environment Variables & Secrets
+.env
+*.env
+backend/.env
+
+# Python & Virtual Envs
+.venv/
+__pycache__/
+*.pyc
+backend/__pycache__/
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Flutter / Dart Build Caches
+.dart_tool/
+.flutter-plugins-dependencies
+build/
+frontend/.dart_tool/
+frontend/build/
+
+# Logs & System Junk
+*.log
+hs_err_pid*.log
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
