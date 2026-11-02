@@ -38,3 +38,6 @@ The API connects to dev as `postgres` (owner, BYPASSRLS). Before prod, create a 
 
 ## 16. `products.per_100g` JSONB keys = scoring `Nutrients` field names (Plan 3 Task 3)
 `record_to_product` reads `products.per_100g` with the engine's `Nutrients` field names as keys (energy_kcal, protein_g, carbs_g, sugars_g, fat_g, sat_fat_g, fiber_g, salt_g, sodium_mg, fvl_percent). Plan 4 (label scan → confirmed product) must write exactly these keys. An own product with NULL `extraction_confidence` is treated as 1.0 when verified, 0.5 otherwise (below the 0.7 floor, so allergic members never get `ok`).
+
+## 17. Public product page vs per-IP rate limit (Plan 3 Task 9 / Plan 8)
+The web server renders `/[locale]/p/[barcode]` by calling `GET /v1/products/{barcode}/public`. All those calls come from the web service's egress IP, so they share one `public` bucket. M1 relies on Next's data cache (`revalidate: 3600`). If crawling causes 429s, add a server-to-server header key (Secret Manager, web server only) with its own larger bucket.
