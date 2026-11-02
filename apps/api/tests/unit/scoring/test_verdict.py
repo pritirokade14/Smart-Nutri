@@ -1,12 +1,17 @@
 import json
+import math
 from dataclasses import replace
 
+import pytest
+
 from app.scoring import analyze
-from app.scoring.models import Status
+from app.scoring.models import Diet, Status
 from app.scoring.verdict import build_report
 
 
-def test_family_on_sugar_free_biscuit(sf_biscuit, diabetic_adult, milk_allergic_child, weight_loss_adult):
+def test_family_on_sugar_free_biscuit(
+    sf_biscuit, diabetic_adult, milk_allergic_child, weight_loss_adult
+):
     r = analyze(sf_biscuit, [diabetic_adult, milk_allergic_child, weight_loss_adult])
     assert [v.status for v in r.verdicts] == [Status.AVOID, Status.AVOID, Status.CAUTION]
     assert r.report.hidden_sugars == ("maltodextrin",)
@@ -35,7 +40,9 @@ def test_implausible_value_dropped_and_unknown(curd, diabetic_adult):
 
 def test_reasons_sorted_most_severe_first(sf_biscuit, diabetic_adult):
     reasons = analyze(sf_biscuit, [diabetic_adult]).verdicts[0].reasons
-    assert [r.severity.rank for r in reasons] == sorted((r.severity.rank for r in reasons), reverse=True)
+    assert [r.severity.rank for r in reasons] == sorted(
+        (r.severity.rank for r in reasons), reverse=True
+    )
 
 
 def test_to_dict_is_json_serialisable(namkeen, jain_adult):
@@ -60,7 +67,9 @@ def test_nothing_dropped_and_exact_duplicates_collapse(namkeen, bp_parent, cfg):
     raw = [
         *allergen_reasons(namkeen, bp_parent, cfg),
         *diet_reasons(namkeen, bp_parent, cfg),
-        *condition_reasons(namkeen, bp_parent, compute_nutriscore(namkeen), check_claims(namkeen, cfg), cfg),
+        *condition_reasons(
+            namkeen, bp_parent, compute_nutriscore(namkeen), check_claims(namkeen, cfg), cfg
+        ),
     ]
     got = analyze(namkeen, [bp_parent], cfg).verdicts[0].reasons
     assert len(got) == len(raw) and all(r in got for r in raw)
@@ -71,7 +80,7 @@ def test_nothing_dropped_and_exact_duplicates_collapse(namkeen, bp_parent, cfg):
 def test_multiple_sugar_claims_all_survive(curd, diabetic_adult):
     p = replace(
         curd,
-        per_100g=replace(curd.per_100g, sugars_g=20),
+        per_100g=replace(curd.per_100g, sugars_g=20, carbs_g=25),  # carbs >= sugars (Ruling R23)
         ingredients=(*curd.ingredients, "sugar"),
         claims=("Sugar Free", "No Added Sugar", "Low Sugar"),
     )
@@ -95,3 +104,61 @@ def test_no_members_and_order(curd, vegan_adult, diabetic_adult):
     assert analyze(curd, []).verdicts == ()
     r = analyze(curd, [vegan_adult, diabetic_adult])
     assert [v.member_id for v in r.verdicts] == ["m6", "m1"]
+
+
+# --- C1: serving_size_g sanitised ---
+
+
+@pytest.mark.parametrize("serving", [0, -10, math.nan, math.inf])
+def test_bad_serving_dropped_child_falls_back_to_per_100(cola, milk_allergic_child, cfg, serving):
+    p = replace(cola, serving_size_g=serving)
+    r = analyze(p, [milk_allergic_child])
+    assert "serving_size_g" in r.report.dropped_fields
+    assert "serving_size_g" in build_report(p, cfg).dropped_fields
+    sugar = next(x for x in r.verdicts[0].reasons if x.code.startswith("child_sugar"))
+    assert sugar.params["basis"] == "per_100g" and sugar.params["pct"] == round(10.6 / 24 * 100, 2)
+    json.dumps(r.to_dict(), allow_nan=False)
+
+
+def test_infinite_serving_never_reaches_json(sf_biscuit, diabetic_adult):
+    r = analyze(replace(sf_biscuit, serving_size_g=math.inf), [diabetic_adult])
+    json.dumps(r.to_dict(), allow_nan=False)
+
+
+# --- C6: low confidence nutrients -> UNKNOWN for affected members ---
+
+
+def test_low_confidence_label_unknown_for_diabetic(curd, diabetic_adult):
+    # No diet rule, so only the nutrient rule decides.
+    m = replace(diabetic_adult, diet=Diet.NON_VEG)
+    p = replace(curd, per_100g=replace(curd.per_100g, sugars_g=3), extraction_confidence=0.2)
+    assert analyze(p, [m]).verdicts[0].status == Status.UNKNOWN
+
+
+# --- C7 golden (Ruling R26) ---
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="Ruling R26 drink avoid band is 11.25 g/100 ml; cola is 10.6 g -> CAUTION, not AVOID. "
+    "Needs a controller ruling (see Fixer C report).",
+)
+def test_diabetic_and_cola_is_avoid(cola, diabetic_adult):
+    assert analyze(cola, [diabetic_adult]).verdicts[0].status == Status.AVOID
+
+
+def test_diabetic_and_cola_not_ok(cola, diabetic_adult):
+    v = analyze(cola, [diabetic_adult]).verdicts[0]
+    codes = {r.code for r in v.reasons}
+    assert v.status != Status.OK and {"sugar_moderate", "added_sugars"} <= codes
+
+
+# --- C14: public exports ---
+
+
+def test_result_types_exported():
+    from app.scoring import ClaimCheck, NutriScoreResult
+    from app.scoring.claims import ClaimCheck as C
+    from app.scoring.nutriscore import NutriScoreResult as N
+
+    assert ClaimCheck is C and NutriScoreResult is N

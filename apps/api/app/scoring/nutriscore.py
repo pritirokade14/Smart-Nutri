@@ -65,8 +65,17 @@ def _grade(points: int, bands: Sequence[tuple[str, int]]) -> str:
     return "E"
 
 
+def _effective_category(product: Product) -> Category:
+    """WATER with any energy or sugar is a flavoured/sweetened drink: score it as BEVERAGE."""
+    n = product.per_100g
+    if product.category == Category.WATER and ((n.energy_kcal or 0) > 0 or (n.sugars_g or 0) > 0):
+        return Category.BEVERAGE
+    return product.category
+
+
 def compute_nutriscore(product: Product) -> NutriScoreResult:
-    if product.category == Category.WATER:
+    category = _effective_category(product)
+    if category == Category.WATER:
         return NutriScoreResult("A", None, False, False, None)
 
     n = product.per_100g
@@ -74,8 +83,8 @@ def compute_nutriscore(product: Product) -> NutriScoreResult:
     if energy is None or sugars is None or sat is None or salt is None:
         return NutriScoreResult(None, None, False, False, "insufficient_data")
 
-    beverage = product.category == Category.BEVERAGE
-    approximated = product.category in (Category.CHEESE, Category.FAT)
+    beverage = category == Category.BEVERAGE
+    approximated = category in (Category.CHEESE, Category.FAT)
     partial = n.fiber_g is None or n.protein_g is None or n.fvl_percent is None
 
     negative = (
@@ -90,11 +99,7 @@ def compute_nutriscore(product: Product) -> NutriScoreResult:
     fibre_pts = _points(n.fiber_g or 0.0, FIBRE)
     fvl_pts = _points(n.fvl_percent or 0.0, FVL_BEVERAGE if beverage else FVL)
     protein_pts = _points(n.protein_g or 0.0, PROTEIN_BEVERAGE if beverage else PROTEIN)
-    if (
-        not beverage
-        and product.category != Category.CHEESE
-        and negative >= PROTEIN_CUTOFF_NEGATIVE_POINTS
-    ):
+    if not beverage and category != Category.CHEESE and negative >= PROTEIN_CUTOFF_NEGATIVE_POINTS:
         protein_pts = 0
 
     points = negative - fibre_pts - fvl_pts - protein_pts

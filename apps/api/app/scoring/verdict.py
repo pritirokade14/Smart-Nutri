@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Any
 
@@ -58,8 +58,7 @@ class AnalysisResult:
 
 
 def _sanitize(product: Product) -> tuple[Product, tuple[str, ...]]:
-    clean, dropped = product.per_100g.sanitized()
-    return replace(product, per_100g=clean), dropped
+    return product.sanitized()
 
 
 def _build(
@@ -118,7 +117,7 @@ def evaluate_member(
             *condition_reasons(product, member, report.nutriscore, report.claims, cfg),
         ]
     )
-    status = max((r.severity for r in reasons), key=lambda s: s.rank, default=Status.OK)
+    status = Status.worst(r.severity for r in reasons)
     return MemberVerdict(member_id=member.id, status=status, reasons=reasons)
 
 

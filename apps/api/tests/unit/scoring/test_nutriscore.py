@@ -35,6 +35,21 @@ def test_water_is_A(water):
     assert compute_nutriscore(water).grade == "A"
 
 
+def test_flavoured_water_with_sugar_scored_as_beverage(water):  # C12
+    # 40 kcal = 167 kJ -> 3; 10 g sugars -> 8 (beverage table) => 11 -> E
+    p = replace(water, per_100g=replace(water.per_100g, energy_kcal=40, sugars_g=10))
+    r = compute_nutriscore(p)
+    assert (r.grade, r.points) == ("E", 11)
+    assert (
+        compute_nutriscore(replace(water, per_100g=replace(water.per_100g, energy_kcal=5))).grade
+        != "A"
+    )
+    assert (
+        compute_nutriscore(replace(water, per_100g=replace(water.per_100g, sugars_g=1))).grade
+        != "A"
+    )
+
+
 def test_missing_sat_fat_is_insufficient(curd):
     r = compute_nutriscore(replace(curd, per_100g=replace(curd.per_100g, sat_fat_g=None)))
     assert (r.grade, r.reason) == (None, "insufficient_data")

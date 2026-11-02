@@ -11,11 +11,35 @@ claims:   # verify values against FSSAI (Advertising & Claims) Regulations 2018,
   low_sodium_max_mg: 120
   source_of_protein_min_energy_pct: 10
   high_protein_min_energy_pct: 20
+  # "No refined sugar" is contradicted by any of these ingredients (Ruling R28; pending clinician review)
+  refined_sugar_terms: [sugar, cane sugar, refined sugar, sucrose, brown sugar, icing sugar]
+# Member-entered condition/goal names -> canonical applies_to names (Ruling R24; pending clinician review).
+# Keys are normalised (lowercase, non-word runs -> "_"). Anything unrecognised -> condition_unrecognised (UNKNOWN).
+condition_aliases:
+  type_2_diabetes: diabetes
+  type_1_diabetes: diabetes
+  t2dm: diabetes
+  t1dm: diabetes
+  diabetic: diabetes
+  sugar: diabetes
+  gestational_diabetes: diabetes
+  pre_diabetes: prediabetes
+  prediabetic: prediabetes
+  borderline_diabetes: prediabetes
+  pcod: pcos
+  high_bp: hypertension
+  high_blood_pressure: hypertension
+  bp: hypertension
+  blood_pressure: hypertension
+  lose_weight: weight_loss
+  obesity: weight_loss
+  overweight: weight_loss
 conditions:
   blood_sugar:   # diabetes, prediabetes, pcos
     applies_to: [diabetes, prediabetes, pcos]
-    avoid_sugars_g: 22.5
-    caution_sugars_g: 5.0
+    # food = UK FSA high-in / FSSAI low-sugar bands; drink = the drink bands (Ruling R26; pending clinician review)
+    avoid_sugars_g: {food: 22.5, drink: 11.25}
+    caution_sugars_g: {food: 5.0, drink: 2.5}
     caution_carbs_per_serving_g: 30
   hypertension:
     applies_to: [hypertension]
@@ -33,3 +57,7 @@ conditions:
     avoid_pct_of_limit: 50
   infant:         # age < 2
     max_age: 2
+    # per 100 g / 100 ml; above -> AVOID (Ruling R27; pending clinician review —
+    # 5 g lets plain milk (~4.7 g lactose) pass; infant formula (~7 g) would be flagged)
+    avoid_sugars_g: 5.0
+    avoid_salt_g: 0.3

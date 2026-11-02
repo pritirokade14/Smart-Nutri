@@ -1,7 +1,9 @@
 from dataclasses import replace
 
+import pytest
+
 from app.scoring.claims import check_claims
-from app.scoring.models import Category, ClaimVerdict
+from app.scoring.models import Category, ClaimVerdict, Nutrients
 
 
 def test_sugar_free_biscuit_contradicted(sf_biscuit, cfg):
@@ -115,3 +117,81 @@ def test_boundaries_inclusive(curd, cfg):
 def test_breach_never_displays_equal_to_limit(curd, cfg):
     (c,) = check_claims(_with(curd, ("Sugar Free",), sugars_g=0.504), cfg)
     assert c.params == {"value": 0.504, "limit": 0.5}
+
+
+# --- C11 (Ruling R28): claim phrasing gaps ---
+
+
+@pytest.mark.parametrize("text", ["Sugarfree", "SUGARLESS", "0% Sugar", "0g sugar", "0 g Sugar"])
+def test_sugar_free_variants(curd, cfg, text):
+    (c,) = check_claims(_with(curd, (text,), sugars_g=4.0), cfg)
+    assert (c.claim, c.verdict) == ("sugar_free", ClaimVerdict.CONTRADICTED), text
+
+
+@pytest.mark.parametrize(
+    "text", ["Added Sugar Free", "0% Added Sugar", "No added sugar or sweeteners"]
+)
+def test_no_added_sugar_more_variants(sf_biscuit, cfg, text):
+    (c,) = check_claims(replace(sf_biscuit, claims=(text,)), cfg)
+    assert (c.claim, c.verdict) == ("no_added_sugar", ClaimVerdict.CONTRADICTED), text
+
+
+@pytest.mark.parametrize(
+    "ingredient", ["sugar", "cane sugar", "refined sugar", "sucrose", "brown sugar", "icing sugar"]
+)
+def test_no_refined_sugar_contradicted(curd, cfg, ingredient):
+    for text in ("No Refined Sugar", "no refined sugar added"):
+        p = replace(curd, claims=(text,), ingredients=("oats", ingredient))
+        (c,) = check_claims(p, cfg)
+        assert (c.claim, c.verdict, c.reason_code) == (
+            "no_refined_sugar",
+            ClaimVerdict.CONTRADICTED,
+            "refined_sugar_ingredient",
+        )
+        assert c.params == {"ingredients": [ingredient]}
+
+
+def test_no_refined_sugar_supported_or_unverifiable(curd, no_ingredients, cfg):
+    p = replace(curd, claims=("No Refined Sugar",), ingredients=("oats", "jaggery"))
+    (c,) = check_claims(p, cfg)
+    assert (c.claim, c.verdict, c.reason_code) == ("no_refined_sugar", ClaimVerdict.SUPPORTED, "ok")
+    (c,) = check_claims(replace(no_ingredients, claims=("No Refined Sugar",)), cfg)
+    assert (c.verdict, c.reason_code) == (ClaimVerdict.UNVERIFIABLE, "ingredients_unknown")
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["Diabetic Friendly", "diabetes-friendly", "Suitable for Diabetics", "Low GI", "low glycemic"],
+)
+def test_diabetic_friendly_always_unverifiable(oats, cfg, text):
+    (c,) = check_claims(replace(oats, claims=(text,)), cfg)
+    assert (c.claim, c.verdict, c.reason_code) == (
+        "diabetic_friendly",
+        ClaimVerdict.UNVERIFIABLE,
+        "no_standard",
+    )
+
+
+def test_nutrient_missing_names_the_nutrient(no_ingredients, cfg):
+    p = replace(
+        no_ingredients,
+        claims=("Sugar Free", "Low Fat", "Low Sodium", "High Protein"),
+        per_100g=replace(
+            no_ingredients.per_100g, sugars_g=None, fat_g=None, salt_g=None, protein_g=None
+        ),
+    )
+    got = [(c.claim, c.reason_code, dict(c.params)) for c in check_claims(p, cfg)]
+    assert got == [
+        ("sugar_free", "nutrient_missing", {"nutrient": "sugars_g"}),
+        ("low_fat", "nutrient_missing", {"nutrient": "fat_g"}),
+        ("low_sodium", "nutrient_missing", {"nutrient": "sodium_mg"}),
+        ("high_protein", "nutrient_missing", {"nutrient": "protein_g"}),
+    ]
+    q = replace(p, claims=("High Protein",), per_100g=Nutrients(protein_g=10))
+    assert check_claims(q, cfg)[0].params == {"nutrient": "energy_kcal"}
+
+
+def test_low_sodium_uses_higher_of_salt_and_sodium(curd, cfg):  # consistent with Ruling R22
+    p = _with(curd, ("Low Sodium",), sodium_mg=10, salt_g=2.0)
+    (c,) = check_claims(p, cfg)
+    assert c.verdict == ClaimVerdict.CONTRADICTED and c.params["value"] == 800
