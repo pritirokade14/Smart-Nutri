@@ -187,3 +187,26 @@ def test_more_powder_and_dry_tea_tags_are_general(tags):
 def test_green_tea_that_is_ready_to_drink_stays_a_beverage():
     tags = ["en:beverages", "en:teas", "en:green-teas", "en:iced-teas"]
     assert off_to_product({"categories_tags": tags}, confidence=0.9).category == Category.BEVERAGE
+
+
+@pytest.mark.parametrize("size", ["15 g x 2", "15g × 2", "15 g X 2"])
+def test_trailing_multiplier_serving_rejected(size):
+    from app.features.products.off_mapping import _serving_from_text
+
+    assert _serving_from_text(size) is None
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "latte, zucchero, nocciole",
+        "melk, suiker, noten",
+        "leite, açúcar, farinha",
+        "sel, blé, arachides",
+    ],
+)
+def test_more_foreign_lists_are_unreadable(text):
+    from app.features.products.off_mapping import off_to_product
+
+    p = off_to_product({"lang": "en", "ingredients_text": text, "nutriments": {}}, confidence=0.9)
+    assert p.ingredients == ()

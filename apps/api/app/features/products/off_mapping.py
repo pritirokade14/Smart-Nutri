@@ -141,7 +141,8 @@ _PAREN_AMOUNT = re.compile(rf"\(\s*(\d+(?:\.\d+)?)\s*{_G_ML}\s*\)", re.IGNORECAS
 _ANY_AMOUNT = re.compile(
     r"(\d+(?:[.,]\d+)?)\s*(?:g|gm|gms|grams?|ml|cl|dl|l|litres?|liters?|kg|oz)\b", re.IGNORECASE
 )
-_MULTIPLIER = re.compile(r"\d\s*[x\u00d7]\s*\d", re.IGNORECASE)
+# "2 x 15 g" and also a trailing "15 g x 2" / "15g × 2".
+_MULTIPLIER = re.compile(r"\d\s*[x\u00d7]\s*\d|[x\u00d7]\s*\d", re.IGNORECASE)
 
 # Common non-English ingredient words that are NOT English words. A text containing any of
 # these is treated as unreadable even if labelled en/hi/mr (OFF language labels are unreliable).
@@ -149,6 +150,23 @@ FOREIGN_INGREDIENT_WORDS = frozenset(
     {
         "lait",
         "sucre",
+        "noix",
+        "arachides",
+        "bl\u00e9",
+        # Italian
+        "latte",
+        "zucchero",
+        "farina",
+        "uova",
+        "nocciole",
+        # Dutch
+        "melk",
+        "suiker",
+        "tarwe",
+        # Portuguese
+        "leite",
+        "a\u00e7\u00facar",
+        "farinha",
         "farine",
         "huile",
         "beurre",
