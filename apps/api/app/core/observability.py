@@ -17,7 +17,20 @@ _posthog: Posthog | None = None
 
 
 def scrub_event(event: dict, hint: dict) -> dict | None:
-    """Sentry before_send: drop request body, cookies, auth header, user email and IP."""
+    """Sentry before_send / before_send_transaction.
+
+    Drops request body, cookies, query string, auth headers, user email/IP/username,
+    stack-frame local variables, `extra`, and breadcrumbs (which can hold SQL params or
+    log messages with health data).
+    """
+    event.pop("extra", None)
+    event.pop("breadcrumbs", None)
+    for exc in (event.get("exception") or {}).get("values") or []:
+        for frame in (exc.get("stacktrace") or {}).get("frames") or []:
+            frame.pop("vars", None)
+    for thread in (event.get("threads") or {}).get("values") or []:
+        for frame in (thread.get("stacktrace") or {}).get("frames") or []:
+            frame.pop("vars", None)
     request = event.get("request")
     if isinstance(request, dict):
         request.pop("data", None)
@@ -44,7 +57,10 @@ def init_observability(settings: Settings) -> None:
             environment=settings.environment,
             send_default_pii=False,
             traces_sample_rate=0.1 if settings.environment == "prod" else 0.0,
+            include_local_variables=False,
+            max_breadcrumbs=0,
             before_send=scrub_event,
+            before_send_transaction=scrub_event,
         )
     if settings.posthog_api_key and _posthog is None:
         _posthog = Posthog(

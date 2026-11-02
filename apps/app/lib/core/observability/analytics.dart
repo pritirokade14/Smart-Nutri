@@ -88,5 +88,6 @@ Future<void> runWithSentry(
     o.attachScreenshot = false;
     o.tracesSampleRate = config.environment == 'prod' ? 0.1 : 0;
     o.beforeSend = scrubSentryEvent;
+    o.maxBreadcrumbs = 0;
   }, appRunner: appRunner);
 }

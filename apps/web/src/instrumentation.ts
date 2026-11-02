@@ -7,6 +7,7 @@ export async function register(): Promise<void> {
   Sentry.init({
     dsn,
     dataCollection: { ...SENTRY_DATA_COLLECTION, httpBodies: [] },
+    maxBreadcrumbs: 0,
     tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 0,
     beforeSend: (event) => scrubSentryEvent(event),
   });

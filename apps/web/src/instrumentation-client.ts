@@ -8,6 +8,7 @@ if (dsn) {
   Sentry.init({
     dsn,
     dataCollection: { ...SENTRY_DATA_COLLECTION, httpBodies: [] },
+    maxBreadcrumbs: 0,
     tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 0,
     // No Replay integration: never record the screen of a health app.
     integrations: [],

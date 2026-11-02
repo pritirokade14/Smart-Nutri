@@ -26,6 +26,38 @@ def test_scrub_event_removes_pii():
     assert out["user"]["id"] == "u1"
 
 
+def test_scrub_event_removes_frame_vars_extra_and_breadcrumbs():
+    event = {
+        "extra": {"member": {"conditions": ["diabetes"]}},
+        "breadcrumbs": {"values": [{"message": "SELECT ... allergens"}]},
+        "exception": {
+            "values": [
+                {"stacktrace": {"frames": [{"function": "f", "vars": {"allergies": "peanut"}}]}}
+            ]
+        },
+        "threads": {"values": [{"stacktrace": {"frames": [{"vars": {"x": 1}}]}}]},
+    }
+    out = scrub_event(event, {})
+    assert out is not None
+    assert "extra" not in out and "breadcrumbs" not in out
+    assert "vars" not in out["exception"]["values"][0]["stacktrace"]["frames"][0]
+    assert out["exception"]["values"][0]["stacktrace"]["frames"][0]["function"] == "f"
+    assert "vars" not in out["threads"]["values"][0]["stacktrace"]["frames"][0]
+
+
+def test_init_passes_pii_safe_sentry_options(monkeypatch):
+    calls = {}
+    monkeypatch.setattr(observability.sentry_sdk, "init", lambda **kw: calls.update(kw))
+    observability.init_observability(
+        Settings(_env_file=None, environment="test", sentry_dsn="https://k@o0.ingest.sentry.io/1")
+    )
+    assert calls["send_default_pii"] is False
+    assert calls["include_local_variables"] is False
+    assert calls["max_breadcrumbs"] == 0
+    assert calls["before_send"] is scrub_event
+    assert calls["before_send_transaction"] is scrub_event
+
+
 def test_scrub_event_without_request_or_user():
     assert scrub_event({"message": "x"}, {}) == {"message": "x"}
 
