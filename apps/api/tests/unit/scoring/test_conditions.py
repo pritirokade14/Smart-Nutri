@@ -63,10 +63,6 @@ def test_infant_cola(cola, infant, cfg):
     assert {"infant_added_sugar"} <= _codes(cola, infant, cfg)
 
 
-def test_no_age_child_rules_give_age_unknown(cola, no_age, cfg):  # Ruling R13
-    assert _codes(cola, no_age, cfg) == {"age_unknown"}
-
-
 def test_missing_sugar_for_diabetic_is_unknown(curd, diabetic_adult, cfg):
     p = replace(curd, per_100g=replace(curd.per_100g, sugars_g=None))
     assert ("nutrient_missing", Status.UNKNOWN) in _pairs(p, diabetic_adult, cfg)
@@ -479,6 +475,101 @@ def test_cardio_high_in_config_keys_are_valid(cfg):
     keys = cfg.thresholds["conditions"]["blood_sugar"]["cardio_high_in"]
     assert set(keys) == {"salt", "sat_fat"}
     assert set(keys) <= {name for name, _ in _HIGH_IN_ORDER}
+
+
+# --- R25: missing sat fat / salt is unknown for blood-sugar members ---
+
+
+def _chips(namkeen, **n):
+    base = {"sugars_g": 2, "carbs_g": 20, "fat_g": 35, "sat_fat_g": None, "salt_g": None}
+    return replace(namkeen, per_100g=Nutrients(**{**base, **n}), serving_size_g=None)
+
+
+def _missing(product, member, cfg):
+    return [
+        (dict(r.params)["nutrient"], dict(r.params)["rule"])
+        for r in _reasons(product, member, cfg)
+        if r.code == "nutrient_missing"
+    ]
+
+
+def test_diabetic_chips_missing_satfat_and_salt_is_unknown(namkeen, diabetic_adult, cfg):
+    p = _chips(namkeen)
+    rs = _reasons(p, diabetic_adult, cfg)
+    assert {(r.code, r.severity) for r in rs} == {("nutrient_missing", Status.UNKNOWN)}
+    assert sorted(_missing(p, diabetic_adult, cfg)) == [
+        ("salt", "blood_sugar"),
+        ("sat_fat", "blood_sugar"),
+    ]
+    for r in rs:
+        assert dict(r.params).keys() == {"nutrient", "rule"}
+
+
+def test_hypertensive_chips_missing_salt_is_unknown_same_as_diabetic(namkeen, bp_parent, cfg):
+    assert _missing(_chips(namkeen), bp_parent, cfg) == [("salt", "hypertension")]
+
+
+@pytest.mark.parametrize("raw", ["prediabetes", "pcos", "PCOD", "Type 2 Diabetes"])
+def test_blood_sugar_aliases_missing_satfat_salt_unknown(namkeen, cfg, raw):
+    m = _m(age=40, conditions=(raw,))
+    assert sorted(_missing(_chips(namkeen), m, cfg)) == [
+        ("salt", "blood_sugar"),
+        ("sat_fat", "blood_sugar"),
+    ], raw
+
+
+def test_sodium_only_label_has_no_salt_missing(namkeen, diabetic_adult, cfg):
+    p = _chips(namkeen, sat_fat_g=1, sodium_mg=100)
+    assert _missing(p, diabetic_adult, cfg) == []
+    assert _codes(p, diabetic_adult, cfg) == set()
+
+
+def test_only_missing_key_is_reported(namkeen, diabetic_adult, cfg):
+    p = _chips(namkeen, sat_fat_g=1)
+    assert _missing(p, diabetic_adult, cfg) == [("salt", "blood_sugar")]
+
+
+def test_diabetic_hypertensive_salt_missing_one_per_rule(namkeen, cfg):
+    # need() dedupes per (nutrient, rule): one salt entry for blood_sugar, one for hypertension.
+    m = _m(age=60, conditions=("diabetes", "hypertension"))
+    got = _missing(_chips(namkeen, sat_fat_g=1), m, cfg)
+    assert sorted(got) == [("salt", "blood_sugar"), ("salt", "hypertension")]
+    assert len(got) == len(set(got))
+
+
+def test_cardio_low_confidence_missing_reason(namkeen, diabetic_adult, cfg):
+    rs = [
+        r
+        for r in _reasons(replace(namkeen, extraction_confidence=0.2), diabetic_adult, cfg)
+        if r.code == "nutrient_missing" and dict(r.params)["nutrient"] in ("salt", "sat_fat")
+    ]
+    assert len(rs) == 2 and all(dict(r.params)["reason"] == "low_confidence" for r in rs)
+
+
+def test_unknown_cardio_key_in_yaml_raises(namkeen, diabetic_adult, cfg):
+    from app.scoring.config import ScoringConfig
+
+    t = {**cfg.thresholds}
+    t["conditions"] = {**t["conditions"]}
+    t["conditions"]["blood_sugar"] = {**t["conditions"]["blood_sugar"], "cardio_high_in": ["fat"]}
+    bad = ScoringConfig(cfg.allergens, cfg.diet, cfg.ingredient_lists, t)
+    with pytest.raises(ValueError, match="cardio_high_in"):
+        _reasons(namkeen, diabetic_adult, bad)
+
+
+def test_protective_child_age_uses_real_age_with_lowest_limit():
+    from app.scoring.conditions import _protective_child_age
+
+    cond = {
+        "infant": {"max_age": 2},
+        "child": {"max_age": 13, "free_sugar_daily_limit_g": {1: 15, 4: 19}},
+    }
+    # Band key 1 is below infant.max_age; ages 2-3 use the band-1 limit (15 g): youngest is 2.
+    assert _protective_child_age(cond) == 2
+    cond["child"]["free_sugar_daily_limit_g"] = {1: 30, 5: 19, 9: 19}
+    assert _protective_child_age(cond) == 5  # tie at 19 -> youngest
+    cond["child"]["free_sugar_daily_limit_g"] = {2: 19, 7: 24, 11: 30}
+    assert _protective_child_age(cond) == 2
 
 
 # --- R13: unknown age is not safe (age_unknown) ---

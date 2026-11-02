@@ -82,13 +82,23 @@ def _child_limit(age: int, bands: dict[int, float]) -> float | None:
 
 
 def _protective_child_age(cond: Mapping[str, Any]) -> int:
-    """The child age with the lowest free-sugar limit (youngest on a tie), for unknown ages."""
+    """The real child age with the lowest free-sugar limit (youngest on a tie), for unknown ages."""
     c, lo = cond["child"], cond["infant"]["max_age"]
-    bands = {int(k): v for k, v in c["free_sugar_daily_limit_g"].items()}
-    eligible = [k for k in bands if lo <= k < c["max_age"]]
-    if not eligible:
+    limits = {
+        age: lim
+        for age in range(lo, c["max_age"])
+        if (lim := _child_limit(age, c["free_sugar_daily_limit_g"])) is not None
+    }
+    if not limits:
         return lo
-    return min(eligible, key=lambda k: (bands[k], k))
+    return min(limits, key=lambda age: (limits[age], age))
+
+
+# cardio_high_in yaml key -> nutrient accessor (explicit; an unknown key raises).
+_CARDIO_NUTRIENTS: dict[str, Callable[[Any], float | None]] = {
+    "sat_fat": lambda n: n.sat_fat_g,
+    "salt": lambda n: n.salt(),
+}
 
 
 Need = Callable[[str, float | None, str], float | None]
@@ -247,8 +257,14 @@ def condition_reasons(
                 )
         # Ruling R12: high_in salt / sat_fat (keys from data) adds a CAUTION. Skipped on low
         # confidence: the values are untrusted and nutrient_missing already makes it UNKNOWN.
+        keys = set(c.get("cardio_high_in") or ())
+        unsupported = keys - _CARDIO_NUTRIENTS.keys()
+        if unsupported:
+            raise ValueError(f"unsupported cardio_high_in keys: {sorted(unsupported)}")
+        # R25: a missing sat fat / salt value is UNKNOWN (never a silent OK).
+        for key in sorted(keys):
+            need(key, _CARDIO_NUTRIENTS[key](n), "blood_sugar")
         if not low_confidence:
-            keys = set(c.get("cardio_high_in") or ())
             cardio_hits = [k for k in high_in(product, cfg) if k in keys]
 
     if "hypertension" in groups:
