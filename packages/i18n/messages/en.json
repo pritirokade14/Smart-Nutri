@@ -196,6 +196,11 @@
     "ingredients": "Ingredients",
     "no_ingredients": "Ingredients not available"
   },
+  "product": {
+    "public_cta": "Check it for your family",
+    "meta_title": "{name} – nutrition facts | SmartNutri",
+    "meta_description": "Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice."
+  },
   "attribution": {
     "off": "Data from Open Food Facts (ODbL)"
   }

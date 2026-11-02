@@ -196,6 +196,11 @@
     "ingredients": "सामग्री",
     "no_ingredients": "सामग्री उपलब्ध नहीं"
   },
+  "product": {
+    "public_cta": "अपने परिवार के लिए जाँचें",
+    "meta_title": "{name} – पोषण जानकारी | SmartNutri",
+    "meta_description": "इस पैकेट वाले खाद्य पदार्थ की पोषण जानकारी, SmartNutri द्वारा गणना किया गया Nutri-Score और सामग्री। जानकारी, चिकित्सकीय सलाह नहीं।"
+  },
   "attribution": {
     "off": "डेटा: Open Food Facts (ODbL)"
   }

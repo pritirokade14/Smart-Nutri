@@ -148,6 +148,16 @@
   "nutrientSugarsG": "शर्करा (साखर)",
   "nutriscoreCalculatedBy": "Nutri-Score ची गणना SmartNutri ने केली आहे",
   "nutriscoreInsufficientData": "Nutri-Score काढण्यासाठी लेबलवर पुरेशी माहिती नाही.",
+  "productMetaDescription": "या पॅकेटबंद अन्नपदार्थाची पोषण माहिती, SmartNutri ने मोजलेला Nutri-Score आणि घटक. माहिती, वैद्यकीय सल्ला नाही.",
+  "productMetaTitle": "{name} – पोषण माहिती | SmartNutri",
+  "@productMetaTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productPublicCta": "तुमच्या कुटुंबासाठी तपासा",
   "reasonAddedSugars": "यात वरून घातलेली साखर आहे: {ingredients}.",
   "@reasonAddedSugars": {
     "placeholders": {

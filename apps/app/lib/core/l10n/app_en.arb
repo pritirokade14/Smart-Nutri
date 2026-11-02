@@ -148,6 +148,16 @@
   "nutrientSugarsG": "sugars",
   "nutriscoreCalculatedBy": "Nutri-Score calculated by SmartNutri",
   "nutriscoreInsufficientData": "Not enough label data to calculate a Nutri-Score.",
+  "productMetaDescription": "Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice.",
+  "productMetaTitle": "{name} – nutrition facts | SmartNutri",
+  "@productMetaTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productPublicCta": "Check it for your family",
   "reasonAddedSugars": "Contains added sugars: {ingredients}.",
   "@reasonAddedSugars": {
     "placeholders": {

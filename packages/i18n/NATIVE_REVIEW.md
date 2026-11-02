@@ -46,3 +46,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Added for Plan 3 (M1 scan and result screens)
 - [ ] **hi/mr `scan.*`, `result.*` (use the existing `nutriscore.calculated_by` for the score label), `attribution.off`, `error.{invalid_barcode,product_not_found,off_unavailable,member_not_found,invalid_product_ref}`, `home.scan_cta`**: machine drafts. Check "न्यूट्री-स्कोर"/"न्यूट्री-स्कोअर" transliteration and the tone of the "busy" message.
+
+### Public product page (Plan 3 Task 9)
+- [ ] **hi/mr `product.public_cta`, `product.meta_title`, `product.meta_description`**: machine drafts. Check that the page title reads naturally in search results and that the description keeps the "information, not medical advice" wording.
