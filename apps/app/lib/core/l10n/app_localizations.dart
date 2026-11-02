@@ -172,6 +172,12 @@ abstract class AppLocalizations {
   /// **'SmartNutri AI'**
   String get appName;
 
+  /// No description provided for @attributionOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Data from Open Food Facts (ODbL)'**
+  String get attributionOff;
+
   /// No description provided for @authChange.
   ///
   /// In en, this message translates to:
@@ -460,6 +466,24 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get errorInternalError;
 
+  /// No description provided for @errorInvalidBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t look like a valid barcode.'**
+  String get errorInvalidBarcode;
+
+  /// No description provided for @errorInvalidProductRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a product to check.'**
+  String get errorInvalidProductRef;
+
+  /// No description provided for @errorMemberNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That family member wasn\'t found.'**
+  String get errorMemberNotFound;
+
   /// No description provided for @errorNetwork.
   ///
   /// In en, this message translates to:
@@ -471,6 +495,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not found.'**
   String get errorNotFound;
+
+  /// No description provided for @errorOffUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The product database is busy right now. Please try again in a moment.'**
+  String get errorOffUnavailable;
+
+  /// No description provided for @errorProductNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find this product yet.'**
+  String get errorProductNotFound;
 
   /// No description provided for @errorRateLimited.
   ///
@@ -525,6 +561,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'High in sugar'**
   String get highInSugar;
+
+  /// No description provided for @homeScanCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a product'**
+  String get homeScanCta;
 
   /// No description provided for @homeWelcome.
   ///
@@ -801,6 +843,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn\'t read {nutrient} clearly on the label, so this check could not be done.'**
   String reasonVariantNutrientMissingLowConfidence(String nutrient);
+
+  /// No description provided for @resultForMember.
+  ///
+  /// In en, this message translates to:
+  /// **'For {name}'**
+  String resultForMember(String name);
+
+  /// No description provided for @resultGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutri-Score {grade}'**
+  String resultGrade(String grade);
+
+  /// No description provided for @resultHighInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'High in'**
+  String get resultHighInTitle;
+
+  /// No description provided for @resultIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get resultIngredients;
+
+  /// No description provided for @resultNoIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients not available'**
+  String get resultNoIngredients;
+
+  /// No description provided for @resultScanAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan another product'**
+  String get resultScanAnother;
+
+  /// No description provided for @resultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get resultTitle;
+
+  /// No description provided for @scanCameraDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is off. You can type the barcode instead.'**
+  String get scanCameraDenied;
+
+  /// No description provided for @scanCameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No camera found. You can type the barcode instead.'**
+  String get scanCameraUnavailable;
+
+  /// No description provided for @scanInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 8, 12, 13 or 14 digits under the barcode.'**
+  String get scanInvalid;
+
+  /// No description provided for @scanManualEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Or type the barcode'**
+  String get scanManualEntry;
+
+  /// No description provided for @scanManualPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 8901063201089'**
+  String get scanManualPlaceholder;
+
+  /// No description provided for @scanNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find this product yet.'**
+  String get scanNotFound;
+
+  /// No description provided for @scanOffUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The product database is busy right now. Please try again in a moment.'**
+  String get scanOffUnavailable;
+
+  /// No description provided for @scanRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get scanRetry;
+
+  /// No description provided for @scanScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the barcode'**
+  String get scanScanning;
+
+  /// No description provided for @scanSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this product'**
+  String get scanSubmit;
+
+  /// No description provided for @scanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode'**
+  String get scanTitle;
 
   /// No description provided for @statusAvoid.
   ///

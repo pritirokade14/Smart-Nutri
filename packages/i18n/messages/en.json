@@ -1,5 +1,7 @@
 {
-  "app": { "name": "SmartNutri AI" },
+  "app": {
+    "name": "SmartNutri AI"
+  },
   "common": {
     "disclaimer": "Information, not medical advice.",
     "loading": "Loading…",
@@ -19,13 +21,26 @@
     "error": "Could not sign in. Please try again.",
     "signOut": "Sign out"
   },
-  "home": { "welcome": "Hello, {name}" },
+  "home": {
+    "welcome": "Hello, {name}",
+    "scan_cta": "Scan a product"
+  },
   "verdict": {
-    "status": { "ok": "OK", "caution": "Caution", "unknown": "Label unclear", "avoid": "Avoid" },
+    "status": {
+      "ok": "OK",
+      "caution": "Caution",
+      "unknown": "Label unclear",
+      "avoid": "Avoid"
+    },
     "rule_applied": "Rule applied: {rule}",
     "confidence_note": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}"
   },
-  "status": { "ok": "OK", "caution": "Caution", "unknown": "Label unclear", "avoid": "Avoid" },
+  "status": {
+    "ok": "OK",
+    "caution": "Caution",
+    "unknown": "Label unclear",
+    "avoid": "Avoid"
+  },
   "reason": {
     "allergen_contains": "Contains {allergen}, which is on your avoid list.",
     "allergen_may_contain": "May contain {allergen}, which is on your avoid list.",
@@ -148,6 +163,36 @@
     "rate_limited_scans": "You've reached today's label-scan limit.",
     "rate_limited_voice": "You've reached today's voice-question limit.",
     "internal_error": "Something went wrong. Please try again.",
-    "network": "No internet connection."
+    "network": "No internet connection.",
+    "invalid_barcode": "That doesn't look like a valid barcode.",
+    "product_not_found": "We couldn't find this product yet.",
+    "off_unavailable": "The product database is busy right now. Please try again in a moment.",
+    "member_not_found": "That family member wasn't found.",
+    "invalid_product_ref": "Choose a product to check."
+  },
+  "scan": {
+    "title": "Scan a barcode",
+    "manual_entry": "Or type the barcode",
+    "manual_placeholder": "e.g. 8901063201089",
+    "submit": "Check this product",
+    "invalid": "Enter the 8, 12, 13 or 14 digits under the barcode.",
+    "camera_denied": "Camera access is off. You can type the barcode instead.",
+    "camera_unavailable": "No camera found. You can type the barcode instead.",
+    "not_found": "We couldn't find this product yet.",
+    "retry": "Try again",
+    "off_unavailable": "The product database is busy right now. Please try again in a moment.",
+    "scanning": "Point the camera at the barcode"
+  },
+  "result": {
+    "title": "Result",
+    "grade": "Nutri-Score {grade}",
+    "high_in_title": "High in",
+    "for_member": "For {name}",
+    "scan_another": "Scan another product",
+    "ingredients": "Ingredients",
+    "no_ingredients": "Ingredients not available"
+  },
+  "attribution": {
+    "off": "Data from Open Food Facts (ODbL)"
   }
 }

@@ -45,6 +45,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get appName => 'SmartNutri AI';
 
   @override
+  String get attributionOff => 'डेटा: Open Food Facts (ODbL)';
+
+  @override
   String get authChange => 'बदलें';
 
   @override
@@ -204,10 +207,26 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorInternalError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
 
   @override
+  String get errorInvalidBarcode => 'यह सही बारकोड नहीं लगता।';
+
+  @override
+  String get errorInvalidProductRef => 'जाँचने के लिए एक उत्पाद चुनें।';
+
+  @override
+  String get errorMemberNotFound => 'परिवार का यह सदस्य नहीं मिला।';
+
+  @override
   String get errorNetwork => 'इंटरनेट कनेक्शन नहीं है।';
 
   @override
   String get errorNotFound => 'नहीं मिला।';
+
+  @override
+  String get errorOffUnavailable =>
+      'उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
+
+  @override
+  String get errorProductNotFound => 'यह उत्पाद अभी हमें नहीं मिला।';
 
   @override
   String get errorRateLimited => 'बहुत अधिक अनुरोध। कृपया थोड़ी देर रुकें।';
@@ -239,6 +258,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get highInSugar => 'चीनी अधिक';
+
+  @override
+  String get homeScanCta => 'उत्पाद स्कैन करें';
 
   @override
   String homeWelcome(String name) {
@@ -455,6 +477,68 @@ class AppLocalizationsHi extends AppLocalizations {
   String reasonVariantNutrientMissingLowConfidence(String nutrient) {
     return 'लेबल पर $nutrient साफ़ नहीं पढ़ा जा सका, इसलिए यह जाँच नहीं हो सकी।';
   }
+
+  @override
+  String resultForMember(String name) {
+    return '$name के लिए';
+  }
+
+  @override
+  String resultGrade(String grade) {
+    return 'न्यूट्री-स्कोर $grade';
+  }
+
+  @override
+  String get resultHighInTitle => 'इनमें अधिक';
+
+  @override
+  String get resultIngredients => 'सामग्री';
+
+  @override
+  String get resultNoIngredients => 'सामग्री उपलब्ध नहीं';
+
+  @override
+  String get resultScanAnother => 'दूसरा उत्पाद स्कैन करें';
+
+  @override
+  String get resultTitle => 'परिणाम';
+
+  @override
+  String get scanCameraDenied =>
+      'कैमरा की अनुमति बंद है। आप बारकोड टाइप कर सकते हैं।';
+
+  @override
+  String get scanCameraUnavailable =>
+      'कैमरा नहीं मिला। आप बारकोड टाइप कर सकते हैं।';
+
+  @override
+  String get scanInvalid =>
+      'बारकोड के नीचे लिखे 8, 12, 13 या 14 अंक दर्ज करें।';
+
+  @override
+  String get scanManualEntry => 'या बारकोड टाइप करें';
+
+  @override
+  String get scanManualPlaceholder => 'जैसे 8901063201089';
+
+  @override
+  String get scanNotFound => 'यह उत्पाद अभी हमें नहीं मिला।';
+
+  @override
+  String get scanOffUnavailable =>
+      'उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
+
+  @override
+  String get scanRetry => 'फिर से कोशिश करें';
+
+  @override
+  String get scanScanning => 'कैमरा बारकोड की ओर रखें';
+
+  @override
+  String get scanSubmit => 'यह उत्पाद जाँचें';
+
+  @override
+  String get scanTitle => 'बारकोड स्कैन करें';
 
   @override
   String get statusAvoid => 'बचें';

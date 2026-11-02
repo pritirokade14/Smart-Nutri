@@ -12,6 +12,7 @@
   "allergenSulphite": "Sulphites",
   "allergenTreeNut": "Tree nuts",
   "appName": "SmartNutri AI",
+  "attributionOff": "Data from Open Food Facts (ODbL)",
   "authChange": "Change",
   "authCodeLabel": "6-digit code",
   "authEmail": "Continue with email",
@@ -101,8 +102,13 @@
   "errorAuthInvalid": "Your session expired. Please sign in again.",
   "errorAuthRequired": "Please sign in.",
   "errorInternalError": "Something went wrong. Please try again.",
+  "errorInvalidBarcode": "That doesn't look like a valid barcode.",
+  "errorInvalidProductRef": "Choose a product to check.",
+  "errorMemberNotFound": "That family member wasn't found.",
   "errorNetwork": "No internet connection.",
   "errorNotFound": "Not found.",
+  "errorOffUnavailable": "The product database is busy right now. Please try again in a moment.",
+  "errorProductNotFound": "We couldn't find this product yet.",
   "errorRateLimited": "Too many requests. Please wait a moment.",
   "errorRateLimitedScans": "You've reached today's label-scan limit.",
   "errorRateLimitedVoice": "You've reached today's voice-question limit.",
@@ -119,6 +125,7 @@
   "highInSalt": "High in salt",
   "highInSatFat": "High in saturated fat",
   "highInSugar": "High in sugar",
+  "homeScanCta": "Scan a product",
   "homeWelcome": "Hello, {name}",
   "@homeWelcome": {
     "placeholders": {
@@ -379,6 +386,38 @@
       }
     }
   },
+  "resultForMember": "For {name}",
+  "@resultForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resultGrade": "Nutri-Score {grade}",
+  "@resultGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "resultHighInTitle": "High in",
+  "resultIngredients": "Ingredients",
+  "resultNoIngredients": "Ingredients not available",
+  "resultScanAnother": "Scan another product",
+  "resultTitle": "Result",
+  "scanCameraDenied": "Camera access is off. You can type the barcode instead.",
+  "scanCameraUnavailable": "No camera found. You can type the barcode instead.",
+  "scanInvalid": "Enter the 8, 12, 13 or 14 digits under the barcode.",
+  "scanManualEntry": "Or type the barcode",
+  "scanManualPlaceholder": "e.g. 8901063201089",
+  "scanNotFound": "We couldn't find this product yet.",
+  "scanOffUnavailable": "The product database is busy right now. Please try again in a moment.",
+  "scanRetry": "Try again",
+  "scanScanning": "Point the camera at the barcode",
+  "scanSubmit": "Check this product",
+  "scanTitle": "Scan a barcode",
   "statusAvoid": "Avoid",
   "statusCaution": "Caution",
   "statusOk": "OK",

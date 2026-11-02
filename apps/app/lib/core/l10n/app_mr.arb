@@ -12,6 +12,7 @@
   "allergenSulphite": "सल्फाइट",
   "allergenTreeNut": "ट्री नट्स (बदाम, काजू, अक्रोड इ.)",
   "appName": "SmartNutri AI",
+  "attributionOff": "डेटा: Open Food Facts (ODbL)",
   "authChange": "बदला",
   "authCodeLabel": "6 अंकी कोड",
   "authEmail": "ईमेलसह पुढे जा",
@@ -101,8 +102,13 @@
   "errorAuthInvalid": "तुमचे सत्र संपले आहे. कृपया पुन्हा साइन इन करा.",
   "errorAuthRequired": "कृपया साइन इन करा.",
   "errorInternalError": "काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.",
+  "errorInvalidBarcode": "हा योग्य बारकोड वाटत नाही.",
+  "errorInvalidProductRef": "तपासण्यासाठी एक उत्पादन निवडा.",
+  "errorMemberNotFound": "कुटुंबातील हा सदस्य सापडला नाही.",
   "errorNetwork": "इंटरनेट कनेक्शन नाही.",
   "errorNotFound": "सापडले नाही.",
+  "errorOffUnavailable": "उत्पादन डेटाबेस सध्या व्यस्त आहे. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.",
+  "errorProductNotFound": "हे उत्पादन आम्हाला अजून सापडले नाही.",
   "errorRateLimited": "खूप जास्त विनंत्या. कृपया थोडा वेळ थांबा.",
   "errorRateLimitedScans": "तुम्ही आजच्या लेबल-स्कॅन मर्यादेपर्यंत पोहोचला आहात.",
   "errorRateLimitedVoice": "तुम्ही आजच्या आवाजाद्वारे प्रश्न विचारण्याच्या मर्यादेपर्यंत पोहोचला आहात.",
@@ -119,6 +125,7 @@
   "highInSalt": "मीठ जास्त",
   "highInSatFat": "संतृप्त फॅट जास्त",
   "highInSugar": "साखर जास्त",
+  "homeScanCta": "उत्पादन स्कॅन करा",
   "homeWelcome": "नमस्कार, {name}",
   "@homeWelcome": {
     "placeholders": {
@@ -379,6 +386,38 @@
       }
     }
   },
+  "resultForMember": "{name} साठी",
+  "@resultForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resultGrade": "न्यूट्री-स्कोअर {grade}",
+  "@resultGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "resultHighInTitle": "यामध्ये जास्त",
+  "resultIngredients": "घटक",
+  "resultNoIngredients": "घटक उपलब्ध नाहीत",
+  "resultScanAnother": "दुसरे उत्पादन स्कॅन करा",
+  "resultTitle": "निकाल",
+  "scanCameraDenied": "कॅमेरा परवानगी बंद आहे. तुम्ही बारकोड टाइप करू शकता.",
+  "scanCameraUnavailable": "कॅमेरा सापडला नाही. तुम्ही बारकोड टाइप करू शकता.",
+  "scanInvalid": "बारकोडखालील 8, 12, 13 किंवा 14 अंक टाका.",
+  "scanManualEntry": "किंवा बारकोड टाइप करा",
+  "scanManualPlaceholder": "उदा. 8901063201089",
+  "scanNotFound": "हे उत्पादन आम्हाला अजून सापडले नाही.",
+  "scanOffUnavailable": "उत्पादन डेटाबेस सध्या व्यस्त आहे. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.",
+  "scanRetry": "पुन्हा प्रयत्न करा",
+  "scanScanning": "कॅमेरा बारकोडकडे धरा",
+  "scanSubmit": "हे उत्पादन तपासा",
+  "scanTitle": "बारकोड स्कॅन करा",
   "statusAvoid": "टाळा",
   "statusCaution": "सावधगिरी",
   "statusOk": "ठीक आहे",

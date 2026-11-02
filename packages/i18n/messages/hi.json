@@ -1,5 +1,7 @@
 {
-  "app": { "name": "SmartNutri AI" },
+  "app": {
+    "name": "SmartNutri AI"
+  },
   "common": {
     "disclaimer": "यह जानकारी है, चिकित्सकीय सलाह नहीं।",
     "loading": "लोड हो रहा है…",
@@ -19,13 +21,26 @@
     "error": "साइन इन नहीं हो सका। कृपया दोबारा कोशिश करें।",
     "signOut": "साइन आउट करें"
   },
-  "home": { "welcome": "नमस्ते, {name}" },
+  "home": {
+    "welcome": "नमस्ते, {name}",
+    "scan_cta": "उत्पाद स्कैन करें"
+  },
   "verdict": {
-    "status": { "ok": "ठीक है", "caution": "सावधानी", "unknown": "लेबल स्पष्ट नहीं", "avoid": "बचें" },
+    "status": {
+      "ok": "ठीक है",
+      "caution": "सावधानी",
+      "unknown": "लेबल स्पष्ट नहीं",
+      "avoid": "बचें"
+    },
     "rule_applied": "लागू नियम: {rule}",
     "confidence_note": "{reason, select, low_confidence {लेबल पढ़ना कठिन था, इसलिए यह परिणाम कम निश्चित है।} other {कुछ डेटा अनिश्चित है।}}"
   },
-  "status": { "ok": "ठीक है", "caution": "सावधानी", "unknown": "लेबल स्पष्ट नहीं", "avoid": "बचें" },
+  "status": {
+    "ok": "ठीक है",
+    "caution": "सावधानी",
+    "unknown": "लेबल स्पष्ट नहीं",
+    "avoid": "बचें"
+  },
   "reason": {
     "allergen_contains": "इसमें {allergen} है, जो आपकी बचने वाली सूची में है।",
     "allergen_may_contain": "इसमें {allergen} हो सकता है, जो आपकी बचने वाली सूची में है।",
@@ -148,6 +163,36 @@
     "rate_limited_scans": "आप आज की लेबल-स्कैन सीमा तक पहुँच गए हैं।",
     "rate_limited_voice": "आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।",
     "internal_error": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
-    "network": "इंटरनेट कनेक्शन नहीं है।"
+    "network": "इंटरनेट कनेक्शन नहीं है।",
+    "invalid_barcode": "यह सही बारकोड नहीं लगता।",
+    "product_not_found": "यह उत्पाद अभी हमें नहीं मिला।",
+    "off_unavailable": "उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।",
+    "member_not_found": "परिवार का यह सदस्य नहीं मिला।",
+    "invalid_product_ref": "जाँचने के लिए एक उत्पाद चुनें।"
+  },
+  "scan": {
+    "title": "बारकोड स्कैन करें",
+    "manual_entry": "या बारकोड टाइप करें",
+    "manual_placeholder": "जैसे 8901063201089",
+    "submit": "यह उत्पाद जाँचें",
+    "invalid": "बारकोड के नीचे लिखे 8, 12, 13 या 14 अंक दर्ज करें।",
+    "camera_denied": "कैमरा की अनुमति बंद है। आप बारकोड टाइप कर सकते हैं।",
+    "camera_unavailable": "कैमरा नहीं मिला। आप बारकोड टाइप कर सकते हैं।",
+    "not_found": "यह उत्पाद अभी हमें नहीं मिला।",
+    "retry": "फिर से कोशिश करें",
+    "off_unavailable": "उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।",
+    "scanning": "कैमरा बारकोड की ओर रखें"
+  },
+  "result": {
+    "title": "परिणाम",
+    "grade": "न्यूट्री-स्कोर {grade}",
+    "high_in_title": "इनमें अधिक",
+    "for_member": "{name} के लिए",
+    "scan_another": "दूसरा उत्पाद स्कैन करें",
+    "ingredients": "सामग्री",
+    "no_ingredients": "सामग्री उपलब्ध नहीं"
+  },
+  "attribution": {
+    "off": "डेटा: Open Food Facts (ODbL)"
   }
 }

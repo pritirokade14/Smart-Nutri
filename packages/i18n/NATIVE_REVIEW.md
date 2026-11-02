@@ -40,3 +40,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 - [ ] **hi/mr `auth.phoneLabel`, `auth.error`**: machine drafts. Need native review; check the error's tone (no blame).
 - [ ] **hi/mr `auth.change`**: machine draft ("बदलें" / "बदला"). Needs native review.
+
+## Added for Plan 3 (M1 scan and result screens)
+- [ ] **hi/mr `scan.*`, `result.*` (use the existing `nutriscore.calculated_by` for the score label), `attribution.off`, `error.{invalid_barcode,product_not_found,off_unavailable,member_not_found,invalid_product_ref}`, `home.scan_cta`**: machine drafts. Check "न्यूट्री-स्कोर"/"न्यूट्री-स्कोअर" transliteration and the tone of the "busy" message.

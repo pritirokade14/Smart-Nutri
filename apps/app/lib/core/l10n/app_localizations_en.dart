@@ -45,6 +45,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'SmartNutri AI';
 
   @override
+  String get attributionOff => 'Data from Open Food Facts (ODbL)';
+
+  @override
   String get authChange => 'Change';
 
   @override
@@ -201,10 +204,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorInternalError => 'Something went wrong. Please try again.';
 
   @override
+  String get errorInvalidBarcode => 'That doesn\'t look like a valid barcode.';
+
+  @override
+  String get errorInvalidProductRef => 'Choose a product to check.';
+
+  @override
+  String get errorMemberNotFound => 'That family member wasn\'t found.';
+
+  @override
   String get errorNetwork => 'No internet connection.';
 
   @override
   String get errorNotFound => 'Not found.';
+
+  @override
+  String get errorOffUnavailable =>
+      'The product database is busy right now. Please try again in a moment.';
+
+  @override
+  String get errorProductNotFound => 'We couldn\'t find this product yet.';
 
   @override
   String get errorRateLimited => 'Too many requests. Please wait a moment.';
@@ -236,6 +255,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get highInSugar => 'High in sugar';
+
+  @override
+  String get homeScanCta => 'Scan a product';
 
   @override
   String homeWelcome(String name) {
@@ -451,6 +473,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String reasonVariantNutrientMissingLowConfidence(String nutrient) {
     return 'We couldn\'t read $nutrient clearly on the label, so this check could not be done.';
   }
+
+  @override
+  String resultForMember(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String resultGrade(String grade) {
+    return 'Nutri-Score $grade';
+  }
+
+  @override
+  String get resultHighInTitle => 'High in';
+
+  @override
+  String get resultIngredients => 'Ingredients';
+
+  @override
+  String get resultNoIngredients => 'Ingredients not available';
+
+  @override
+  String get resultScanAnother => 'Scan another product';
+
+  @override
+  String get resultTitle => 'Result';
+
+  @override
+  String get scanCameraDenied =>
+      'Camera access is off. You can type the barcode instead.';
+
+  @override
+  String get scanCameraUnavailable =>
+      'No camera found. You can type the barcode instead.';
+
+  @override
+  String get scanInvalid =>
+      'Enter the 8, 12, 13 or 14 digits under the barcode.';
+
+  @override
+  String get scanManualEntry => 'Or type the barcode';
+
+  @override
+  String get scanManualPlaceholder => 'e.g. 8901063201089';
+
+  @override
+  String get scanNotFound => 'We couldn\'t find this product yet.';
+
+  @override
+  String get scanOffUnavailable =>
+      'The product database is busy right now. Please try again in a moment.';
+
+  @override
+  String get scanRetry => 'Try again';
+
+  @override
+  String get scanScanning => 'Point the camera at the barcode';
+
+  @override
+  String get scanSubmit => 'Check this product';
+
+  @override
+  String get scanTitle => 'Scan a barcode';
 
   @override
   String get statusAvoid => 'Avoid';
