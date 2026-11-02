@@ -152,7 +152,19 @@ describe("reasonText", () => {
     const mr = translator("mr");
     expect(
       reasonText(mr, r("salt_moderate", { salt_g: 41.67 }), "mr"),
-    ).toContain(new Intl.NumberFormat("mr").format(41.67));
+    ).toContain("41.67");
+  });
+
+  it("uses Latin digits in every locale (R21)", () => {
+    for (const locale of LOCALES) {
+      const text = reasonText(
+        translator(locale),
+        r("child_salt_high", { salt_g: 2.5 }),
+        locale,
+      );
+      expect(text, locale).toContain("2.5");
+      expect(text, locale).not.toMatch(/[\u0966-\u096F]/); // Devanagari digits
+    }
   });
 
   it("an unknown reason code falls back to generic text, never a crash", () => {
@@ -254,6 +266,7 @@ describe("every reason in every golden response renders in en, hi and mr", () =>
         count++;
         expect(text, `${c.name} ${reason.code}`).not.toMatch(/[{}]/);
         expect(text, `${c.name} ${reason.code}`).not.toMatch(/^reason/);
+        expect(text, `${c.name} ${reason.code}`).not.toMatch(/[\u0966-\u096F]/);
         // A real reason message, not the generic status fallback.
         expect(
           t.has(reasonKey(reason)),

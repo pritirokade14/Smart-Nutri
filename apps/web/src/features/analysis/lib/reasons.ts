@@ -52,7 +52,10 @@ export function reasonValues(
   locale: string,
 ): Record<string, string> {
   const list = new Intl.ListFormat(locale, { type: "conjunction" });
-  const num = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
+  // Ruling R21: Latin digits in every locale (packs print Latin digits).
+  const num = new Intl.NumberFormat(`${locale}-u-nu-latn`, {
+    maximumFractionDigits: 2,
+  });
   const values: Record<string, string> = {};
   for (const [k, v] of Object.entries(reason.params ?? {})) {
     if (k === "high_in" && Array.isArray(v)) {
@@ -70,6 +73,9 @@ export function reasonValues(
   return values;
 }
 
+// TODO(verdict.reason_unavailable): temporary fallback for an unknown reason
+// code (the localised severity). Switch to the dedicated key once the
+// controller adds it for both clients.
 function genericText(t: Translator, severity: string): string {
   const key = `status.${severity}`;
   return t.has(key) ? t(key) : t("status.unknown");

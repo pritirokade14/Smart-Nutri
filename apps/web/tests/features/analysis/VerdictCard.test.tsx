@@ -131,6 +131,19 @@ describe("VerdictCard details", () => {
     expect(screen.getAllByText(MESSAGES.en.status.caution).length).toBe(2);
   });
 
+  it("an unexpected status string renders as unknown (grey), never ok", () => {
+    renderCard({
+      member_id: "x",
+      member_name: "A",
+      status: "safe" as VerdictOut["status"],
+      reasons: [],
+    });
+    const card = screen.getByTestId("verdict-card");
+    expect(card.getAttribute("data-status")).toBe("unknown");
+    expect(within(card).getByText(MESSAGES.en.status.unknown)).toBeTruthy();
+    expect(within(card).queryByText(MESSAGES.en.status.ok)).toBeNull();
+  });
+
   it("a status with no reasons renders just the status", () => {
     const { container } = renderCard({
       member_id: "x",

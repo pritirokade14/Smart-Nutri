@@ -90,13 +90,31 @@ describe("ResultView success", () => {
     expect(cards.map((c) => c.getAttribute("data-status"))).toEqual(
       body.verdicts.map((v) => v.status),
     );
-    expect(screen.getByText(MESSAGES.hi.common.disclaimer)).toBeTruthy();
+    // Once per result view, not per card.
+    expect(screen.getAllByText(MESSAGES.hi.common.disclaimer).length).toBe(1);
     expect(screen.queryByText(MESSAGES.hi.attribution.off)).toBeNull();
     const again = screen.getByRole("link", {
       name: MESSAGES.hi.result.scan_another,
     });
     expect(again.getAttribute("href")).toBe("/hi/scan");
     expect(container.querySelector("[style]")).toBeNull();
+  });
+
+  it("treats a grade outside A–E as no grade and hides unknown high_in codes", async () => {
+    const body = structuredClone(analyzeResponse("sf_biscuit"));
+    body.report = {
+      ...body.report,
+      nutriscore: { grade: "F" },
+      high_in: ["salt", "mystery"],
+    };
+    fetchMock.mockResolvedValue(json(200, body));
+    const { container } = view();
+    expect(
+      await screen.findByText(en.nutriscore.insufficient_data),
+    ).toBeTruthy();
+    expect(container.textContent).not.toContain("Nutri-Score F");
+    expect(screen.getByText(en.high_in.salt)).toBeTruthy();
+    expect(container.textContent).not.toContain("mystery");
   });
 
   it("shows the insufficient-data note when there is no grade", async () => {

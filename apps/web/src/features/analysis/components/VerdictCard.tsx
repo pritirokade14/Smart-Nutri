@@ -2,6 +2,8 @@ import { useTranslations } from "next-intl";
 import { displayReasons, type VerdictOut } from "../lib/reasons";
 import { ReasonLine } from "./ReasonLine";
 
+const KNOWN_STATUS = new Set<string>(["ok", "caution", "unknown", "avoid"]);
+
 /**
  * One member's verdict, exactly as the API returned it. The colour comes from
  * CSS keyed on data-status (globals.css: .verdict-card → --color-verdict-*),
@@ -10,13 +12,14 @@ import { ReasonLine } from "./ReasonLine";
 export function VerdictCard({ verdict }: { verdict: VerdictOut }) {
   const t = useTranslations();
   const name = verdict.member_name.trim() || t("result.you");
-  const statusKey = `status.${verdict.status}`;
+  // An unexpected status string renders as unknown (grey), never ok.
+  const status = KNOWN_STATUS.has(verdict.status) ? verdict.status : "unknown";
   const [top, ...rest] = displayReasons(verdict.reasons);
 
   return (
     <article
       data-testid="verdict-card"
-      data-status={verdict.status}
+      data-status={status}
       className="verdict-card space-y-(--spacing-2) rounded-(--radius-md) border p-(--spacing-4)"
     >
       <header className="flex flex-wrap items-center justify-between gap-(--spacing-2)">
@@ -24,7 +27,7 @@ export function VerdictCard({ verdict }: { verdict: VerdictOut }) {
           {t("result.for_member", { name })}
         </h2>
         <span className="verdict-badge rounded-(--radius-sm) px-(--spacing-2) py-(--spacing-1) text-(length:--text-md) font-semibold">
-          {t.has(statusKey) ? t(statusKey) : t("status.unknown")}
+          {t(`status.${status}`)}
         </span>
       </header>
       {top && rest.length > 0 ? (
