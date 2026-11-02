@@ -137,6 +137,7 @@ describe("VerdictCard details", () => {
     renderCard({
       member_id: "x",
       member_name: "A",
+      profile_set_up: true,
       status: "safe" as VerdictOut["status"],
       reasons: [],
     });
