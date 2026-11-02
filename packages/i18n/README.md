@@ -41,7 +41,7 @@ Claim results use `claim_reason.<reason_code>`; the claim itself is shown next t
 | `{nutrient}` | `nutrient.<code>` | Codes: `energy_kcal`, `protein_g`, `carbs_g`, `sugars_g`, `fat_g`, `sat_fat`, `salt`, `sodium_mg`. Labels are lower-case because they sit mid-sentence. |
 | `{high_in}` | `nutrient.<code>` for each item, then join | A list of codes (`sat_fat`, `salt`). Not `high_in.*`, whose labels are whole phrases ("High in salt"). |
 
-**3. Lists.** `{ingredients}` (and `{high_in}` after mapping) is a list: join it with the locale's list separator (`Intl.ListFormat` on web, a `, ` / locale conjunction on Flutter) and pass the result as one string.
+**3. Lists.** `{ingredients}` (and `{high_in}` after mapping) is a list: join lists with ", " (comma + space) in every locale (no `Intl.ListFormat`, no locale conjunction) and pass the result as one string.
 
 **4. Numbers.** Numeric params (`sugars_g`, `salt_g`, `carbs_g`, `energy_kcal`, `pct`, `limit_g`, `value`, `limit`, …) are formatted by the client for the locale and passed as strings (ARB type `String`). Only `plural` arguments are numeric (ARB type `num`).
 

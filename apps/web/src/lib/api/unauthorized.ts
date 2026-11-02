@@ -1,12 +1,15 @@
 export type UnauthorizedDeps = {
   locale: string;
   signOut: () => Promise<unknown>;
+  /** Drop cached health data (verdicts) before leaving. */
+  clearCache?: () => void;
   currentPath: () => string;
   navigate: (url: string) => void;
 };
 
 /** Sign out in the browser, then go to sign-in carrying the current path. */
 export async function handleUnauthorized(d: UnauthorizedDeps): Promise<void> {
+  d.clearCache?.();
   try {
     await d.signOut();
   } catch {

@@ -28,6 +28,7 @@ export function clientMessages(
 // root client catalogue. `condition` is not needed: condition_unrecognised
 // carries the member's own wording (packages/i18n README, rule 2).
 const RESULT_NAMESPACES = [
+  "verdict",
   "status",
   "reason",
   "reason_variant",

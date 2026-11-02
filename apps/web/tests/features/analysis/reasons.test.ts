@@ -105,7 +105,7 @@ describe("reasonText", () => {
     ).toBe('We do not have guidance for "diabetes" yet.');
   });
 
-  it("maps high_in through nutrient.* and joins lists with Intl.ListFormat", () => {
+  it("maps high_in through nutrient.* and joins lists with ', ' in every locale", () => {
     expect(
       reasonText(
         en,
@@ -113,7 +113,7 @@ describe("reasonText", () => {
         "en",
       ),
     ).toBe(
-      "High in saturated fat and salt. People managing blood sugar are often advised to limit these; check with your doctor.",
+      "High in saturated fat, salt. People managing blood sugar are often advised to limit these; check with your doctor.",
     );
     expect(
       reasonText(
@@ -122,13 +122,12 @@ describe("reasonText", () => {
         "en",
       ),
     ).toBe(
-      "Contains sugars listed under other names: maltodextrin, dextrose, and x.",
+      "Contains sugars listed under other names: maltodextrin, dextrose, x.",
     );
     const hi = translator("hi");
-    const list = new Intl.ListFormat("hi", { type: "conjunction" }).format([
-      MESSAGES.hi.nutrient.sat_fat,
-      MESSAGES.hi.nutrient.salt,
-    ]);
+    const list = [MESSAGES.hi.nutrient.sat_fat, MESSAGES.hi.nutrient.salt].join(
+      ", ",
+    );
     expect(
       reasonText(
         hi,
@@ -167,11 +166,11 @@ describe("reasonText", () => {
     }
   });
 
-  it("an unknown reason code falls back to generic text, never a crash", () => {
+  it("an unknown reason code shows verdict.reason_unavailable, never a crash", () => {
     const errors: unknown[] = [];
     const t = translator("en", errors);
     expect(reasonText(t, r("brand_new_rule", {}, "avoid"), "en")).toBe(
-      MESSAGES.en.status.avoid,
+      MESSAGES.en.verdict.reason_unavailable,
     );
     expect(errors).toEqual([]);
   });
@@ -179,7 +178,7 @@ describe("reasonText", () => {
   it("a reason missing a param falls back instead of leaking the key or {", () => {
     const t = translator("en", []);
     const text = reasonText(t, r("sugar_high", {}, "caution"), "en");
-    expect(text).toBe(MESSAGES.en.status.caution);
+    expect(text).toBe(MESSAGES.en.verdict.reason_unavailable);
   });
 
   it("variant selection renders in every locale", () => {
@@ -224,6 +223,23 @@ describe("displayReasons (CROSS-PLAN 13)", () => {
       ["sugar_high", null],
       ["nutrient_missing", "sugars_g"],
     ]);
+  });
+  it("keeps a low_confidence and a plain nutrient_missing for the same nutrient", () => {
+    const shown = displayReasons([
+      r("nutrient_missing", { nutrient: "salt" }, "unknown"),
+      r(
+        "nutrient_missing",
+        { nutrient: "salt", reason: "low_confidence" },
+        "unknown",
+      ),
+      r("nutrient_missing", { nutrient: "salt", rule: "b" }, "unknown"),
+      r(
+        "nutrient_missing",
+        { nutrient: "salt", reason: "low_confidence", rule: "c" },
+        "unknown",
+      ),
+    ]);
+    expect(shown.length).toBe(2);
   });
   it("does not re-sort", () => {
     const input = [

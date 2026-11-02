@@ -1,4 +1,6 @@
+import { QueryClient } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { clearAnalyzeCache } from "@/features/analysis/api/useAnalyzeBarcode";
 
 const getSession = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/supabase/client", () => ({
@@ -40,6 +42,28 @@ function run(token: string | null, status: number | "network") {
 
 afterEach(() => {
   setUnauthorizedHandler(undefined);
+});
+
+describe("sign-out clears cached verdicts", () => {
+  it("clearAnalyzeCache removes only ['analyze'] queries", () => {
+    const client = new QueryClient();
+    client.setQueryData(["analyze", "8901", "en"], { x: 1 });
+    client.setQueryData(["other"], { y: 2 });
+    clearAnalyzeCache(client);
+    expect(client.getQueryData(["analyze", "8901", "en"])).toBeUndefined();
+    expect(client.getQueryData(["other"])).toEqual({ y: 2 });
+  });
+  it("handleUnauthorized clears the cache before navigating", async () => {
+    const order: string[] = [];
+    await handleUnauthorized({
+      locale: "en",
+      clearCache: () => order.push("clear"),
+      signOut: async () => order.push("signOut"),
+      currentPath: () => "/en/scan",
+      navigate: () => order.push("navigate"),
+    });
+    expect(order).toEqual(["clear", "signOut", "navigate"]);
+  });
 });
 
 describe("401 policy", () => {

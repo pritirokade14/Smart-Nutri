@@ -38,10 +38,13 @@ const envelope = (code: string) => ({
   error: { code, message_key: `error.${code}`, details: {} },
 });
 
+let lastClient: QueryClient;
+
 function view(barcode = "8901063201089", locale: TestLocale = "en") {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
+  lastClient = client;
   return render(
     <QueryClientProvider client={client}>
       <NextIntlClientProvider
@@ -81,7 +84,7 @@ describe("ResultView success", () => {
       screen.getByRole("heading", { level: 1, name: "Sugar Free Biscuit" }),
     ).toBeTruthy();
     expect(
-      screen.getByText(MESSAGES.hi.result.grade.replace("{grade}", "D")),
+      screen.getByLabelText(MESSAGES.hi.result.grade.replace("{grade}", "D")),
     ).toBeTruthy();
     expect(screen.getByText(MESSAGES.hi.nutriscore.calculated_by)).toBeTruthy();
     expect(screen.getByText(MESSAGES.hi.high_in.sat_fat)).toBeTruthy();
@@ -100,6 +103,33 @@ describe("ResultView success", () => {
     expect(container.querySelector("[style]")).toBeNull();
   });
 
+  it("shows the grade as a square letter tile, not a status pill, with the SmartNutri label", async () => {
+    fetchMock.mockResolvedValue(json(200, analyzeResponse("sf_biscuit")));
+    view();
+    const tile = await screen.findByTestId("grade-tile");
+    expect(tile.textContent).toBe("D");
+    expect(tile.getAttribute("aria-label")).toBe("Nutri-Score D");
+    expect(tile.className).toContain("h-12");
+    expect(tile.className).toContain("w-12");
+    expect(tile.className).not.toContain("verdict-badge");
+    expect(screen.getByText(en.nutriscore.calculated_by)).toBeTruthy();
+  });
+
+  it("keeps no verdicts in the query cache once the view is gone (gcTime 0)", async () => {
+    fetchMock.mockResolvedValue(json(200, analyzeResponse("sf_biscuit")));
+    view();
+    await screen.findAllByTestId("verdict-card");
+    expect(
+      lastClient.getQueryCache().findAll({ queryKey: ["analyze"] }),
+    ).toHaveLength(1);
+    cleanup();
+    await waitFor(() =>
+      expect(
+        lastClient.getQueryCache().findAll({ queryKey: ["analyze"] }),
+      ).toHaveLength(0),
+    );
+  });
+
   it("treats a grade outside A–E as no grade and hides unknown high_in codes", async () => {
     const body = structuredClone(analyzeResponse("sf_biscuit"));
     body.report = {
@@ -112,6 +142,8 @@ describe("ResultView success", () => {
     expect(
       await screen.findByText(en.nutriscore.insufficient_data),
     ).toBeTruthy();
+    expect(screen.queryByText(en.nutriscore.calculated_by)).toBeNull();
+    expect(screen.queryByTestId("grade-tile")).toBeNull();
     expect(container.textContent).not.toContain("Nutri-Score F");
     expect(screen.getByText(en.high_in.salt)).toBeTruthy();
     expect(container.textContent).not.toContain("mystery");

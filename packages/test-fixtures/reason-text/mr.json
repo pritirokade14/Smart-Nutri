@@ -1,0 +1,230 @@
+[
+  {
+    "key": "reason.allergen_contains",
+    "member": "milk_allergic_child",
+    "product": "curd",
+    "reason": {
+      "code": "allergen_contains",
+      "params": {
+        "allergen": "milk"
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "यात दूध आहे, जे तुमच्या टाळण्याच्या यादीत आहे."
+  },
+  {
+    "key": "reason.allergen_unknown",
+    "member": "milk_allergic_child",
+    "product": "no_ingredients",
+    "reason": {
+      "code": "allergen_unknown",
+      "params": {
+        "allergen": "milk"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "यात दूध आहे की नाही हे आम्ही सांगू शकत नाही."
+  },
+  {
+    "key": "reason.diet_violation",
+    "member": "vegan_adult",
+    "product": "curd",
+    "reason": {
+      "code": "diet_violation",
+      "params": {
+        "diet": "vegan",
+        "ingredients": [
+          "milk"
+        ]
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "हे कदाचित व्हेगन आहाराशी जुळणार नाही: milk."
+  },
+  {
+    "key": "reason_variant.diet_violation_mark_only",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "diet_violation",
+      "params": {
+        "diet": "veg",
+        "ingredients": [],
+        "mark": "brown"
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "पॅकवर तपकिरी रंगाची मांसाहारी खूण आहे, त्यामुळे हे कदाचित शाकाहारी आहाराशी जुळणार नाही."
+  },
+  {
+    "key": "reason.sugar_high",
+    "member": "diabetic_adult",
+    "product": "cola",
+    "reason": {
+      "code": "sugar_high",
+      "params": {
+        "sugars_g": 10.6
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "साखर जास्त आहे: प्रति 100 ग्रॅम/मि.ली. 10.6 ग्रॅम."
+  },
+  {
+    "key": "reason.child_sugar_high",
+    "member": "milk_allergic_child",
+    "product": "cola",
+    "reason": {
+      "code": "child_sugar_high",
+      "params": {
+        "basis": "per_serving",
+        "limit_g": 24,
+        "pct": 132.5
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 1,
+    "text": "एका सर्व्हिंगमध्ये मुलाच्या दैनिक साखर मर्यादेच्या (दिवसाला सुमारे 24 ग्रॅम) 132.5% साखर आहे. हे मुलासाठी जास्त आहे."
+  },
+  {
+    "key": "reason.child_sugar_moderate",
+    "member": "milk_allergic_child",
+    "product": "no_ingredients",
+    "reason": {
+      "code": "child_sugar_moderate",
+      "params": {
+        "basis": "per_100g",
+        "limit_g": 24,
+        "pct": 41.67
+      },
+      "severity": "caution"
+    },
+    "reason_index": 3,
+    "text": "100 ग्रॅम/मि.ली. मध्ये मुलाच्या दैनिक साखर मर्यादेच्या (दिवसाला सुमारे 24 ग्रॅम) 41.67% साखर आहे. हे मुलासाठी थोडे जास्त आहे."
+  },
+  {
+    "key": "reason.carbs_per_serving_high",
+    "member": "diabetic_adult",
+    "product": "cola",
+    "reason": {
+      "code": "carbs_per_serving_high",
+      "params": {
+        "basis": "per_serving",
+        "carbs_g": 31.8
+      },
+      "severity": "caution"
+    },
+    "reason_index": 2,
+    "text": "प्रति सर्व्हिंग 31.8 ग्रॅम कार्बोहायड्रेट. हे तुमच्या स्थितीला कदाचित योग्य नसेल; तुमच्या डॉक्टरांना विचारा."
+  },
+  {
+    "key": "reason.misleading_sugar_claim",
+    "member": "diabetic_adult",
+    "product": "sf_biscuit",
+    "reason": {
+      "code": "misleading_sugar_claim",
+      "params": {
+        "claim": "sugar_free"
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "पॅकवर \"साखरमुक्त\" असे लिहिले आहे, पण लेबलवरील माहिती या दाव्याला पुष्टी देत नाही."
+  },
+  {
+    "key": "reason.nutrient_missing",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "nutrient_missing",
+      "params": {
+        "nutrient": "sat_fat",
+        "rule": "diabetes"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "लेबलवर संतृप्त फॅट ची माहिती नाही, त्यामुळे ही तपासणी करता आली नाही."
+  },
+  {
+    "key": "reason_variant.nutrient_missing_low_confidence",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "nutrient_missing",
+      "params": {
+        "nutrient": "salt",
+        "reason": "low_confidence",
+        "rule": "bp"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "लेबलवरील मीठ स्पष्टपणे वाचता आले नाही, त्यामुळे ही तपासणी करता आली नाही."
+  },
+  {
+    "key": "reason.cardio_risk_high_in",
+    "member": "diabetic_adult",
+    "product": "namkeen",
+    "reason": {
+      "code": "cardio_risk_high_in",
+      "params": {
+        "high_in": [
+          "sat_fat",
+          "salt"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "यात संतृप्त फॅट, मीठ जास्त आहे. रक्तातील साखरेकडे लक्ष देणाऱ्या लोकांना हे मर्यादित ठेवण्याचा सल्ला अनेकदा दिला जातो; तुमच्या डॉक्टरांना विचारा."
+  },
+  {
+    "key": "reason.hidden_sugars",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "hidden_sugars",
+      "params": {
+        "ingredients": [
+          "maltodextrin",
+          "dextrose",
+          "glucose syrup"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "यात इतर नावांनी लिहिलेल्या शर्करा आहेत: maltodextrin, dextrose, glucose syrup."
+  },
+  {
+    "key": "reason.age_unknown",
+    "member": "no_age",
+    "product": "cola",
+    "reason": {
+      "code": "age_unknown",
+      "params": {},
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "या सदस्याचे जन्मवर्ष जोडा: हा पदार्थ कदाचित लहान मुलांना किंवा बाळांना योग्य नसेल."
+  },
+  {
+    "key": "reason.salt_high",
+    "member": "bp_parent",
+    "product": "namkeen",
+    "reason": {
+      "code": "salt_high",
+      "params": {
+        "salt_g": 2.5
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "मीठ जास्त आहे: प्रति 100 ग्रॅम/मि.ली. 2.5 ग्रॅम."
+  }
+]

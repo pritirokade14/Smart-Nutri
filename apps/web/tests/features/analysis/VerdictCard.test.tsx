@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it } from "vitest";
 import { VerdictCard } from "@/features/analysis/components/VerdictCard";
@@ -60,6 +61,28 @@ describe.each(cases)(
   },
 );
 
+type Rs = VerdictOut["reasons"][number];
+const rs = (
+  code: string,
+  severity: Rs["severity"],
+  params: Record<string, unknown>,
+): Rs => ({ code, severity, params });
+const synth = (status: string, reasons: Rs[]): VerdictOut => ({
+  member_id: "x",
+  member_name: "A",
+  profile_set_up: true,
+  status: status as VerdictOut["status"],
+  reasons,
+});
+const codesIn = (testId: string) =>
+  [...screen.getByTestId(testId).querySelectorAll("[data-reason-code]")].map(
+    (e) => e.getAttribute("data-reason-code"),
+  );
+const visibleCodes = () => codesIn("visible-reasons");
+const collapsedCodes = () => codesIn("collapsed-reasons");
+const collapsedHidden = () =>
+  screen.getByTestId("collapsed-reasons").hasAttribute("hidden");
+
 describe("VerdictCard details", () => {
   const all = sharedFixtureCases();
   const pick = (name: string) => {
@@ -70,17 +93,21 @@ describe("VerdictCard details", () => {
 
   it("shows the member name, and 'You' for the primary member with no name", () => {
     renderCard(pick("sf_biscuit.diabetic_adult"));
-    expect(screen.getByText("For Diabetic Adult")).toBeTruthy();
-    cleanup();
-    renderCard({ ...pick("sf_biscuit.diabetic_adult"), member_name: " " });
     expect(
-      screen.getByText(
-        MESSAGES.en.result.for_member.replace("{name}", MESSAGES.en.result.you),
-      ),
+      screen.getByRole("heading", { level: 2, name: "Diabetic Adult" }),
     ).toBeTruthy();
+    cleanup();
+    renderCard({ ...pick("sf_biscuit.diabetic_adult"), member_name: "" });
+    expect(
+      screen.getByRole("heading", { level: 2, name: MESSAGES.en.result.you }),
+    ).toBeTruthy();
+    cleanup();
+    // No trimming (parity with Android): a whitespace name is shown as sent.
+    renderCard({ ...pick("sf_biscuit.diabetic_adult"), member_name: " A " });
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(" A ");
   });
 
-  it("top line is the first API reason; the rest are in an expandable list in order", () => {
+  it("the avoid reason is visible; caution reasons sit behind the toggle, in API order", async () => {
     const { container } = renderCard(pick("sf_biscuit.diabetic_adult"));
     const codes = [...container.querySelectorAll("[data-reason-code]")].map(
       (e) => e.getAttribute("data-reason-code"),
@@ -90,11 +117,17 @@ describe("VerdictCard details", () => {
       "cardio_risk_high_in",
       "hidden_sugars",
     ]);
-    const details = container.querySelector("details");
-    expect(details).not.toBeNull();
-    expect(details?.querySelector("summary")?.textContent).toBe(
-      'The pack says "Sugar free", but the label data does not support this claim.',
+    expect(visibleCodes()).toEqual(["misleading_sugar_claim"]);
+    expect(collapsedHidden()).toBe(true);
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: MESSAGES.en.verdict.show_all_reasons,
+      }),
     );
+    expect(collapsedHidden()).toBe(false);
+    expect(
+      screen.getByRole("button", { name: MESSAGES.en.verdict.hide_reasons }),
+    ).toBeTruthy();
   });
 
   it("collapses duplicate nutrient_missing lines", () => {
@@ -130,7 +163,72 @@ describe("VerdictCard details", () => {
     };
     const { container } = renderCard(v);
     expect(container.textContent).not.toContain("future_rule");
-    expect(screen.getAllByText(MESSAGES.en.status.caution).length).toBe(2);
+    expect(
+      screen.getByText(MESSAGES.en.verdict.reason_unavailable),
+    ).toBeTruthy();
+  });
+
+  it("R22 (a): two allergen_contains avoid reasons are both visible", () => {
+    renderCard(
+      synth("avoid", [
+        rs("allergen_contains", "avoid", { allergen: "milk" }),
+        rs("allergen_contains", "avoid", { allergen: "peanut" }),
+      ]),
+    );
+    expect(visibleCodes()).toEqual(["allergen_contains", "allergen_contains"]);
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
+  it("R22 (b): avoid + allergen_unknown (unknown) are both visible", () => {
+    renderCard(
+      synth("avoid", [
+        rs("sugar_high", "avoid", { sugars_g: 20 }),
+        rs("allergen_unknown", "unknown", { allergen: "peanut" }),
+      ]),
+    );
+    expect(visibleCodes()).toEqual(["sugar_high", "allergen_unknown"]);
+  });
+
+  it("R22 (c): age_unknown + allergen_unknown are both visible", () => {
+    renderCard(
+      synth("unknown", [
+        rs("age_unknown", "unknown", {}),
+        rs("allergen_unknown", "unknown", { allergen: "peanut" }),
+      ]),
+    );
+    expect(visibleCodes()).toEqual(["age_unknown", "allergen_unknown"]);
+  });
+
+  it("R22 (d): caution lines are collapsed behind the toggle; an allergen_ caution stays visible", () => {
+    renderCard(
+      synth("avoid", [
+        rs("sugar_high", "avoid", { sugars_g: 20 }),
+        rs("energy_dense", "caution", { energy_kcal: 500 }),
+        rs("allergen_may_contain", "caution", { allergen: "soy" }),
+        rs("nutriscore_low", "caution", { grade: "D" }),
+      ]),
+    );
+    expect(visibleCodes()).toEqual(["sugar_high", "allergen_may_contain"]);
+    expect(collapsedCodes()).toEqual(["energy_dense", "nutriscore_low"]);
+    expect(collapsedHidden()).toBe(true);
+  });
+
+  it("an unrecognised severity is shown, not collapsed; no toggle without a collapsed group", () => {
+    renderCard(
+      synth("caution", [rs("future_rule", "mystery" as Rs["severity"], {})]),
+    );
+    expect(visibleCodes()).toEqual(["future_rule"]);
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
+  it("profile_set_up false shows a neutral note; true does not", () => {
+    renderCard({ ...synth("ok", []), profile_set_up: false });
+    const note = screen.getByTestId("profile-note");
+    expect(note.textContent).toBe(MESSAGES.en.verdict.profile_not_set_up);
+    expect(note.className).not.toMatch(/verdict/);
+    cleanup();
+    renderCard(synth("ok", []));
+    expect(screen.queryByTestId("profile-note")).toBeNull();
   });
 
   it("an unexpected status string renders as unknown (grey), never ok", () => {
@@ -156,7 +254,7 @@ describe("VerdictCard details", () => {
       reasons: [],
     });
     expect(screen.getByText(MESSAGES.en.status.ok)).toBeTruthy();
-    expect(container.querySelector("details")).toBeNull();
+    expect(container.querySelector("button")).toBeNull();
   });
 });
 

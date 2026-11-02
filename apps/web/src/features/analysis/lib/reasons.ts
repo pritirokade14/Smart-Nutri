@@ -49,21 +49,21 @@ function label(t: Translator, namespace: string, code: string): string {
 export function reasonValues(
   t: Translator,
   reason: ReasonOut,
-  locale: string,
+  _locale: string,
 ): Record<string, string> {
-  const list = new Intl.ListFormat(locale, { type: "conjunction" });
-  // Ruling R21: Latin digits in every locale (packs print Latin digits).
-  const num = new Intl.NumberFormat(`${locale}-u-nu-latn`, {
-    maximumFractionDigits: 2,
-  });
+  // Ruling R22: lists are joined with ", " in every locale (same as Android).
+  const join = (items: string[]) => items.join(", ");
+  // Latin digits and the English decimal pattern in every locale (same as
+  // Android's NumberFormat.decimalPattern('en'): up to 3 fraction digits).
+  const num = new Intl.NumberFormat("en", { maximumFractionDigits: 3 });
   const values: Record<string, string> = {};
   for (const [k, v] of Object.entries(reason.params ?? {})) {
     if (k === "high_in" && Array.isArray(v)) {
-      values[k] = list.format(v.map((c) => label(t, "nutrient", String(c))));
+      values[k] = join(v.map((c) => label(t, "nutrient", String(c))));
     } else if (k in CODE_PARAM_NAMESPACE && typeof v === "string") {
       values[k] = label(t, CODE_PARAM_NAMESPACE[k] as string, v);
     } else if (Array.isArray(v)) {
-      values[k] = list.format(v.map(String));
+      values[k] = join(v.map(String));
     } else if (typeof v === "number") {
       values[k] = num.format(v);
     } else if (typeof v === "string" || typeof v === "boolean") {
@@ -73,18 +73,10 @@ export function reasonValues(
   return values;
 }
 
-// TODO(verdict.reason_unavailable): temporary fallback for an unknown reason
-// code (the localised severity). Switch to the dedicated key once the
-// controller adds it for both clients.
-function genericText(t: Translator, severity: string): string {
-  const key = `status.${severity}`;
-  return t.has(key) ? t(key) : t("status.unknown");
-}
-
 /**
  * Localised text for one reason. An unknown code, or a message whose params
- * the API did not send, falls back to the localised severity ("Caution"),
- * never to a raw key or a crash.
+ * the API did not send, shows verdict.reason_unavailable, never a raw
+ * key, a severity label or a crash.
  */
 export function reasonText(
   t: Translator,
@@ -92,7 +84,7 @@ export function reasonText(
   locale: string,
 ): string {
   const key = reasonKey(reason);
-  const fallback = genericText(t, reason.severity);
+  const fallback = t("verdict.reason_unavailable");
   if (!t.has(key)) return fallback;
   let text: string;
   try {
@@ -106,17 +98,39 @@ export function reasonText(
 
 /**
  * The reasons to show, in API order. The engine emits nutrient_missing once
- * per (nutrient, rule); show one line per missing nutrient (CROSS-PLAN 13).
+ * per (nutrient, rule); show one line per (nutrient, message key), so a
+ * low_confidence variant and a plain one for the same nutrient both appear.
  */
 export function displayReasons(reasons: readonly ReasonOut[]): ReasonOut[] {
   const seen = new Set<string>();
   return reasons.filter((r) => {
     if (r.code !== "nutrient_missing") return true;
-    const nutrient = String(r.params?.nutrient ?? "");
-    if (seen.has(nutrient)) return false;
-    seen.add(nutrient);
+    const id = `${String(r.params?.nutrient ?? "")}|${reasonKey(r)}`;
+    if (seen.has(id)) return false;
+    seen.add(id);
     return true;
   });
+}
+
+/** Ruling R22: allergen_* and every severity except caution/ok are never collapsed. */
+export function isAlwaysVisible(r: ReasonOut): boolean {
+  // Only caution and ok may collapse: an unrecognised severity is shown.
+  return (
+    r.code.startsWith("allergen_") ||
+    (r.severity !== "caution" && r.severity !== "ok")
+  );
+}
+
+/** Visible group first, collapsed group after; API order within each. */
+export function partitionReasons(reasons: readonly ReasonOut[]): {
+  visible: ReasonOut[];
+  collapsed: ReasonOut[];
+} {
+  const all = displayReasons(reasons);
+  return {
+    visible: all.filter(isAlwaysVisible),
+    collapsed: all.filter((r) => !isAlwaysVisible(r)),
+  };
 }
 
 /** The first reason (the API already sorts by severity); "" when none. */

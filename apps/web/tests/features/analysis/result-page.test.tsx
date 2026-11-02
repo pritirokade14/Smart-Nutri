@@ -26,6 +26,7 @@ const fetchMock = vi.hoisted(() => {
 afterEach(cleanup);
 
 const VERDICT_NAMESPACES = [
+  "verdict",
   "status",
   "reason",
   "reason_variant",
@@ -42,7 +43,7 @@ describe("result messages", () => {
   it("the result catalogue adds back exactly what the verdict UI needs", () => {
     const m = resultMessages(MESSAGES.en);
     for (const ns of VERDICT_NAMESPACES) expect(m).toHaveProperty(ns);
-    for (const ns of ["claim_verdict", "claim_reason", "verdict", "condition"])
+    for (const ns of ["claim_verdict", "claim_reason", "condition"])
       expect(m).not.toHaveProperty(ns);
     // Everything the root client provider has is still there.
     for (const ns of Object.keys(clientMessages(MESSAGES.en)))

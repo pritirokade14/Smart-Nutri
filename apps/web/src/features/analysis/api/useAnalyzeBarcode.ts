@@ -1,5 +1,9 @@
 import type { components } from "@smartnutri/api-client";
-import { type UseQueryResult, useQuery } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  type UseQueryResult,
+  useQuery,
+} from "@tanstack/react-query";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
 import { getApi } from "@/lib/api/client";
 import { type ApiError, networkError, toApiError } from "@/lib/api/errors";
@@ -52,6 +56,11 @@ export function analyzeErrorView(error: ApiError): AnalyzeErrorView {
   }
 }
 
+/** Drops every cached verdict (health data) on sign-out. */
+export function clearAnalyzeCache(client: QueryClient): void {
+  client.removeQueries({ queryKey: ["analyze"] });
+}
+
 /**
  * Analyse a barcode. Each call records a scan on the server, so the result is
  * never refetched in the background (focus, reconnect, remount).
@@ -66,6 +75,7 @@ export function useAnalyzeBarcode(
     queryFn: () => analyzeBarcode(code as string, language),
     enabled: code !== null,
     retry: shouldRetryAnalyze,
+    gcTime: 0, // health data: not kept once nobody is looking at it
     staleTime: Number.POSITIVE_INFINITY,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
