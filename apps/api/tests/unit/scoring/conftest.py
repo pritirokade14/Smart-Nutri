@@ -1,6 +1,12 @@
 import pytest
 
+from app.scoring.config import load_config
 from app.scoring.models import Category, Diet, Member, Nutrients, Product
+
+
+@pytest.fixture(scope="session")
+def cfg():
+    return load_config()
 
 
 def _p(name, category, kcal, protein, carbs, sugars, fat, sat, fiber, salt, serving, ingredients, claims):

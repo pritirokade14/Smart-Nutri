@@ -1,0 +1,34 @@
+# PENDING CLINICIAN REVIEW — defaults from UK FSA (high-in), FSSAI Advertising & Claims Regs 2018 (claims), NHS (child sugar)
+min_extraction_confidence: 0.7
+allergen_may_contain_status: avoid
+high_in:
+  food:  {sugars_g: 22.5, fat_g: 17.5, sat_fat_g: 5.0, salt_g: 1.5}
+  drink: {sugars_g: 11.25, fat_g: 8.75, sat_fat_g: 2.5, salt_g: 0.75}
+claims:   # verify values against FSSAI (Advertising & Claims) Regulations 2018, Schedule I
+  sugar_free_max_g: 0.5
+  low_sugar_max_g: {food: 5.0, drink: 2.5}
+  low_fat_max_g: {food: 3.0, drink: 1.5}
+  low_sodium_max_mg: 120
+  source_of_protein_min_energy_pct: 10
+  high_protein_min_energy_pct: 20
+conditions:
+  blood_sugar:   # diabetes, prediabetes, pcos
+    applies_to: [diabetes, prediabetes, pcos]
+    avoid_sugars_g: 22.5
+    caution_sugars_g: 5.0
+    caution_carbs_per_serving_g: 30
+  hypertension:
+    applies_to: [hypertension]
+    avoid_salt_g: 1.5
+    caution_salt_g: 0.3
+  weight_loss:
+    applies_to: [weight_loss]
+    caution_energy_kcal: 400
+    caution_nutriscore: [D, E]
+    good_protein_g_per_100kcal: 5
+  child:          # 2 <= age < 13
+    free_sugar_daily_limit_g: {2: 19, 7: 24, 11: 30}   # key = min age of band (NHS; 2–3 uses 4–6 value)
+    caution_pct_of_limit: 25
+    avoid_pct_of_limit: 50
+  infant:         # age < 2
+    max_age: 2
