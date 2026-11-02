@@ -82,19 +82,30 @@ class NutritionExtraction(BaseModel):
 
 
 def _strictify(node: Any) -> None:
-    if isinstance(node, dict):
-        if node.get("type") == "object" or "properties" in node:
-            node["additionalProperties"] = False
-            node["required"] = list(node.get("properties", {}))
-        node.pop("default", None)
-        # strict mode rejects numeric bounds; Pydantic still enforces them on parse
-        node.pop("minimum", None)
-        node.pop("maximum", None)
-        for value in node.values():
-            _strictify(value)
-    elif isinstance(node, list):
+    """Make a JSON-schema node strict-mode compatible, in place.
+
+    Only schema nodes are edited. The names inside a ``properties`` (or ``$defs``) map
+    are field/definition names, so a field called ``default`` or ``minimum`` is kept.
+    """
+    if isinstance(node, list):
         for item in node:
             _strictify(item)
+        return
+    if not isinstance(node, dict):
+        return
+    if node.get("type") == "object" or "properties" in node:
+        node["additionalProperties"] = False
+        node["required"] = list(node.get("properties", {}))
+    node.pop("default", None)
+    # strict mode rejects numeric bounds; Pydantic still enforces them on parse
+    node.pop("minimum", None)
+    node.pop("maximum", None)
+    for key, value in node.items():
+        if key in ("properties", "$defs") and isinstance(value, dict):
+            for sub in value.values():  # values are schema nodes; keys are names
+                _strictify(sub)
+        else:
+            _strictify(value)
 
 
 def extraction_json_schema() -> dict[str, Any]:

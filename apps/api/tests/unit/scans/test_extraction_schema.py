@@ -193,3 +193,29 @@ def test_accepts_units_and_paths():
 def test_prompt_has_rule(phrase):
     text = (PROMPTS / "extraction_v1.md").read_text(encoding="utf-8")
     assert phrase.lower() in text.lower()
+
+
+def test_strictify_keeps_fields_named_like_schema_keywords():
+    from app.features.scans.schemas import _strictify
+
+    schema = {
+        "type": "object",
+        "properties": {
+            "default": {"type": "number", "default": 1},
+            "minimum": {"type": "number", "minimum": 0},
+        },
+    }
+    _strictify(schema)
+    assert set(schema["properties"]) == {"default", "minimum"}
+    assert schema["required"] == ["default", "minimum"]
+    assert "default" not in schema["properties"]["default"]
+    assert "minimum" not in schema["properties"]["minimum"]
+
+
+def test_prompt_allergen_declaration_and_join_rules():
+    from app.prompts import load_extraction_prompt
+
+    text, _ = load_extraction_prompt()
+    assert "Allergen information" in text
+    assert "different statements and different languages" in text
+    assert "whatever its unit" in text
