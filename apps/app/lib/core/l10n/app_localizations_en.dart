@@ -60,6 +60,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authPhone => 'Continue with phone';
 
   @override
+  String get authPhoneLabel => 'Phone number (with country code)';
+
+  @override
   String get authSendCode => 'Send code';
 
   @override

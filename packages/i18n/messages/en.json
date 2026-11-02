@@ -14,6 +14,7 @@
     "codeLabel": "6-digit code",
     "verify": "Verify",
     "phone": "Continue with phone",
+    "phoneLabel": "Phone number (with country code)",
     "signOut": "Sign out"
   },
   "home": { "welcome": "Hello, {name}" },

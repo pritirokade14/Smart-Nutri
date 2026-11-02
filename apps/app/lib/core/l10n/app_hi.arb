@@ -17,6 +17,7 @@
   "authEmailLabel": "ईमेल पता",
   "authGoogle": "Google से जारी रखें",
   "authPhone": "फ़ोन से जारी रखें",
+  "authPhoneLabel": "फ़ोन नंबर (देश कोड सहित)",
   "authSendCode": "कोड भेजें",
   "authSignOut": "साइन आउट करें",
   "authTitle": "साइन इन करें",

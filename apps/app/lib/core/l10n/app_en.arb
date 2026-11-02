@@ -17,6 +17,7 @@
   "authEmailLabel": "Email address",
   "authGoogle": "Continue with Google",
   "authPhone": "Continue with phone",
+  "authPhoneLabel": "Phone number (with country code)",
   "authSendCode": "Send code",
   "authSignOut": "Sign out",
   "authTitle": "Sign in",

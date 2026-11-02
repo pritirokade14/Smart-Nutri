@@ -733,6 +733,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.2"
+  retrofit:
+    dependency: transitive
+    description:
+      name: retrofit
+      sha256: d700c1e7599bc6327cbe19ec7a2c87b595f6063ce888e8015f30cab655972331
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.10.0"
   riverpod:
     dependency: transitive
     description:
@@ -874,6 +882,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  smartnutri_api:
+    dependency: "direct main"
+    description:
+      path: "../../packages/api-contract/dart"
+      relative: true
+    source: path
+    version: "0.1.0"
   source_gen:
     dependency: transitive
     description:

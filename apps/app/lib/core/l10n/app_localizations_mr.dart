@@ -60,6 +60,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get authPhone => 'फोनसह पुढे जा';
 
   @override
+  String get authPhoneLabel => 'फोन नंबर (देश कोडसह)';
+
+  @override
   String get authSendCode => 'कोड पाठवा';
 
   @override

@@ -14,6 +14,7 @@
     "codeLabel": "6 अंकी कोड",
     "verify": "पडताळा",
     "phone": "फोनसह पुढे जा",
+    "phoneLabel": "फोन नंबर (देश कोडसह)",
     "signOut": "साइन आउट करा"
   },
   "home": { "welcome": "नमस्कार, {name}" },

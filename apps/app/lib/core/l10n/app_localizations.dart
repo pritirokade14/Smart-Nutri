@@ -202,6 +202,12 @@ abstract class AppLocalizations {
   /// **'Continue with phone'**
   String get authPhone;
 
+  /// No description provided for @authPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number (with country code)'**
+  String get authPhoneLabel;
+
   /// No description provided for @authSendCode.
   ///
   /// In en, this message translates to:
