@@ -15,6 +15,7 @@
   "authCodeLabel": "6 अंकों का कोड",
   "authEmail": "ईमेल से जारी रखें",
   "authEmailLabel": "ईमेल पता",
+  "authError": "साइन इन नहीं हो सका। कृपया दोबारा कोशिश करें।",
   "authGoogle": "Google से जारी रखें",
   "authPhone": "फ़ोन से जारी रखें",
   "authPhoneLabel": "फ़ोन नंबर (देश कोड सहित)",

@@ -15,6 +15,7 @@
   "authCodeLabel": "6-digit code",
   "authEmail": "Continue with email",
   "authEmailLabel": "Email address",
+  "authError": "Could not sign in. Please try again.",
   "authGoogle": "Continue with Google",
   "authPhone": "Continue with phone",
   "authPhoneLabel": "Phone number (with country code)",

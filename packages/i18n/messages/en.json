@@ -15,6 +15,7 @@
     "verify": "Verify",
     "phone": "Continue with phone",
     "phoneLabel": "Phone number (with country code)",
+    "error": "Could not sign in. Please try again.",
     "signOut": "Sign out"
   },
   "home": { "welcome": "Hello, {name}" },

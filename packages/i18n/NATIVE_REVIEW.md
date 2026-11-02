@@ -36,6 +36,6 @@ Tick an item once a native speaker has signed it off, and note who signed it off
 
 The following were rewritten or added: all of `reason.*` that mention amounts, the infant band ("under 2" / "2 साल से छोटे" / "2 वर्षांखालील"), `misleading_sugar_claim`, `nutrient_missing`, `cardio_risk_high_in`, `age_unknown`, every `reason_variant.*` and `nutrient.*` key, and `claim_reason.exceeds_limit`, `below_minimum`, `nutrient_missing` and `no_standard`.
 
-## Added in Task 12
+## Added in Plan 2 Tasks 12 and 14 (sign-in)
 
-- [ ] **hi/mr `auth.phoneLabel`**: machine draft. Needs native review.
+- [ ] **hi/mr `auth.phoneLabel`, `auth.error`**: machine drafts. Need native review; check the error's tone (no blame).
