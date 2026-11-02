@@ -10,6 +10,7 @@ checks more cautious).
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -17,10 +18,28 @@ from app.scoring import Category, Nutrients, Product
 
 _KJ_PER_KCAL = 4.184
 
-# categories_tags -> engine category. First match wins, in this order.
-# OFF lists every ancestor, so `en:beverages` covers most drinks; the extra tags
-# keep drinks that are tagged only by a child category on per-100 ml thresholds.
+# categories_tags -> engine category. Order: dry/powder exclusion (GENERAL), WATER, BEVERAGE,
+# CHEESE, FAT. OFF lists every ancestor, so powders and tea bags also carry `en:beverages`;
+# they are per-100 g of dry product and must NOT get per-100 ml drink thresholds.
+DRY_DRINK_TAGS = frozenset(
+    {
+        "en:beverage-preparations",
+        "en:instant-beverages",
+        "en:chocolate-powders",
+        "en:cocoa-powders",
+        "en:malted-drinks",
+        "en:tea-bags",
+        "en:loose-leaf-teas",
+        "en:instant-teas",
+        "en:ground-coffees",
+        "en:coffee-beans",
+        "en:instant-coffees",
+    }
+)
 WATER_TAGS = frozenset({"en:waters"})
+# en:coffees / en:teas alone are deliberately NOT here (often dry leaves/grounds);
+# ready-to-drink children are. Plain en:milks stays GENERAL.
+# PENDING CLINICIAN REVIEW: whether plain milk should use per-100 ml drink thresholds.
 BEVERAGE_TAGS = frozenset(
     {
         "en:beverages",
@@ -33,10 +52,16 @@ BEVERAGE_TAGS = frozenset(
         "en:fruit-juices",
         "en:juices-and-nectars",
         "en:energy-drinks",
-        "en:plant-based-beverages",
-        "en:teas",
-        "en:coffees",
         "en:iced-teas",
+        "en:tea-based-beverages",
+        "en:coffee-drinks",
+        "en:dairy-drinks",
+        "en:flavoured-milks",
+        "en:fermented-milk-drinks",
+        "en:buttermilks",
+        "en:lassi",
+        "en:plant-based-milks",
+        "en:plant-based-beverages",
     }
 )
 CHEESE_TAGS = frozenset({"en:cheeses"})
@@ -48,7 +73,9 @@ FAT_TAGS = frozenset({"en:fats"})
 ALLERGEN_TEXT = {
     "en:milk": "milk",
     "en:gluten": "gluten",
-    "en:nuts": "tree nuts",
+    # OFF en:nuts = tree nuts. The extra "nuts" is the engine's weak peanut term, so a peanut
+    # allergic member gets may_contain (cross-reactivity) but never contains.
+    "en:nuts": "tree nuts, nuts",
     "en:peanuts": "peanuts",
     "en:soybeans": "soybeans",
     "en:sesame-seeds": "sesame seeds",
@@ -57,6 +84,25 @@ ALLERGEN_TEXT = {
     "en:crustaceans": "crustaceans",
     "en:mustard": "mustard",
     "en:sulphur-dioxide-and-sulphites": "sulphur dioxide, sulphites",
+    "en:lupin": "lupin",
+    "en:celery": "celery",
+    "en:molluscs": "molluscs",
+    # Common non-English tags (OFF often tags by the product's country language).
+    "fr:lait": "milk",
+    "de:milch": "milk",
+    "es:leche": "milk",
+    "fr:gluten": "gluten",
+    "de:gluten": "gluten",
+    "fr:arachides": "peanuts",
+    "de:erdnüsse": "peanuts",
+    "fr:fruits-a-coque": "tree nuts, nuts",
+    "de:schalenfrüchte": "tree nuts, nuts",
+    "fr:soja": "soybeans",
+    "de:soja": "soybeans",
+    "fr:oeufs": "eggs",
+    "de:eier": "eggs",
+    "fr:sesame": "sesame seeds",
+    "de:sesam": "sesame seeds",
 }
 
 # labels_tags -> claim text the engine's claim matcher recognises. Exact tags only.
@@ -69,6 +115,16 @@ CLAIM_TAGS = {
     "en:high-protein": "high protein",
     "en:source-of-protein": "source of protein",
 }
+
+
+# Languages the engine's term lists can read.
+READABLE_LANGS = frozenset({"en", "hi", "mr"})
+# Intense/low-calorie sweetener E-numbers (not sugar alcohols such as E420/E421).
+SWEETENER_E_NUMBERS = frozenset(
+    {950, 951, 952, 954, 955, 957, 959, 960, 961, 962, 965, 966, 967, 968, 969}
+)
+_ADDITIVE_TAG = re.compile(r"^en:e(\d{3,4})[a-z]?$")
+_SERVING_SIZE = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*(?:g|ml)\s*$", re.IGNORECASE)
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,6 +170,9 @@ def _tags(product: dict, key: str) -> list[str]:
 def _nutriments(product: dict) -> Nutrients:
     raw = product.get("nutriments")
     nm: dict = raw if isinstance(raw, dict) else {}
+    per = product.get("nutrition_data_per")
+    if isinstance(per, str) and per.strip().lower() == "serving":
+        return Nutrients()  # *_100g values are derived from per-serving: never trust (M1)
 
     energy = _num(nm.get("energy-kcal_100g"))
     if energy is None:
@@ -139,6 +198,8 @@ def _nutriments(product: dict) -> Nutrients:
 
 def _category(tags: list[str]) -> Category:
     found = set(tags)
+    if found & DRY_DRINK_TAGS:
+        return Category.GENERAL
     if found & WATER_TAGS:
         return Category.WATER
     if found & BEVERAGE_TAGS:
@@ -163,10 +224,47 @@ def _statement(prefix: str, tags: list[str]) -> str | None:
 
 
 def _serving_size(product: dict) -> float | None:
+    """Grams/ml per serving, only with an explicit g or ml unit (never guess the unit)."""
     unit = _text(product.get("serving_quantity_unit"))
-    if unit is not None and unit.lower() not in ("g", "ml"):
-        return None
-    return _num(product.get("serving_quantity"))
+    if unit is not None and unit.lower() in ("g", "ml"):
+        qty = _num(product.get("serving_quantity"))
+        if qty is not None:
+            return qty
+    size = _text(product.get("serving_size"))
+    if size is not None and (m := _SERVING_SIZE.match(size)):
+        return float(m.group(1))
+    return None
+
+
+def _lang_prefix(value: Any) -> str | None:
+    text = _text(value)
+    return text.lower().replace("_", "-").split("-")[0] if text else None
+
+
+def _ingredient_items(product: dict) -> tuple[str, ...]:
+    """Union of every text the engine can read, main language first, de-duplicated.
+
+    `ingredients_text` is used only when its language (ingredients_lc, else lang) is en/hi/mr;
+    unreadable text (e.g. French) must not count as a known ingredient list.
+    """
+    texts: list[str | None] = []
+    main_lang = _lang_prefix(product.get("ingredients_lc")) or _lang_prefix(product.get("lang"))
+    if main_lang in READABLE_LANGS:
+        texts.append(_text(product.get("ingredients_text")))
+    texts += [_text(product.get(f"ingredients_text_{lang}")) for lang in ("en", "hi", "mr")]
+    items: dict[str, None] = {}
+    for text in texts:
+        for item in split_ingredients(text):
+            items.setdefault(item, None)
+    return tuple(items)
+
+
+def _contains_sweeteners(product: dict) -> bool:
+    for tag in _tags(product, "additives_tags"):
+        m = _ADDITIVE_TAG.match(tag)
+        if m and int(m.group(1)) in SWEETENER_E_NUMBERS:
+            return True
+    return False
 
 
 def split_ingredients(text: str | None) -> tuple[str, ...]:
@@ -190,9 +288,6 @@ def split_ingredients(text: str | None) -> tuple[str, ...]:
 
 def off_to_product(payload: dict, *, confidence: float) -> Product:
     product, _ = _unwrap(payload)
-    ingredients_text = _text(product.get("ingredients_text_en")) or _text(
-        product.get("ingredients_text")
-    )
     claims = tuple(
         dict.fromkeys(CLAIM_TAGS[t] for t in _tags(product, "labels_tags") if t in CLAIM_TAGS)
     )
@@ -201,11 +296,12 @@ def off_to_product(payload: dict, *, confidence: float) -> Product:
         category=_category(_tags(product, "categories_tags")),
         per_100g=_nutriments(product),
         serving_size_g=_serving_size(product),
-        ingredients=split_ingredients(ingredients_text),
+        ingredients=_ingredient_items(product),
         allergen_statement=_statement("Contains: ", _tags(product, "allergens_tags")),
         may_contain_statement=_statement("May contain: ", _tags(product, "traces_tags")),
         claims=claims,
         veg_mark=None,
+        contains_sweeteners=_contains_sweeteners(product),
         extraction_confidence=confidence,
     )
 

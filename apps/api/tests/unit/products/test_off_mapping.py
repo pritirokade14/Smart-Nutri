@@ -50,8 +50,12 @@ def test_per_serving_only_stays_none():
 
 
 def test_per_serving_only_gives_unknown_for_allergic_member():
-    result = analyze(prod("per_serving_only"), [Member(id="m", name="m", allergens=("milk",))])
-    assert result.verdicts[0].status != Status.OK
+    member = Member(id="m", name="m", age=30, allergens=("milk",))
+    v = analyze(prod("per_serving_only"), [member]).verdicts[0]
+    assert v.status == Status.UNKNOWN
+    assert [(r.code, r.severity, dict(r.params)) for r in v.reasons] == [
+        ("allergen_unknown", Status.UNKNOWN, {"allergen": "milk"})
+    ]
 
 
 def test_energy_from_kj():
@@ -204,9 +208,10 @@ def test_nuts_is_tree_nut_and_not_peanut_and_peanuts_is_peanut_only():
 
 def test_allergen_zoo_statement_dedupes_and_passes_unknown_tags_through():
     p = prod("allergen_tags")
-    assert p.may_contain_statement == "May contain: tree nuts, peanuts, lait, celery"
-    assert p.allergen_statement is not None and p.allergen_statement.startswith(
-        "Contains: tree nuts, peanuts"
+    assert p.may_contain_statement == "May contain: tree nuts, nuts, peanuts, milk, celery"
+    assert p.allergen_statement == (
+        "Contains: tree nuts, nuts, peanuts, soybeans, sesame seeds, eggs, fish, crustaceans, "
+        "mustard, sulphur dioxide, sulphites, milk, gluten"
     )
 
 
@@ -217,8 +222,11 @@ def test_milk_allergic_member_avoids_biscuit():
 
 def test_low_confidence_allergic_member_is_not_ok():
     p = prod("biscuit", 0.5)
-    result = analyze(p, [Member(id="m", name="m", allergens=("peanut",))])
-    assert result.verdicts[0].status != Status.OK
+    v = analyze(p, [Member(id="m", name="m", age=30, allergens=("peanut",))]).verdicts[0]
+    assert v.status == Status.UNKNOWN
+    assert [(r.code, r.severity, dict(r.params)) for r in v.reasons] == [
+        ("allergen_unknown", Status.UNKNOWN, {"allergen": "peanut"})
+    ]
 
 
 def test_off_to_info():

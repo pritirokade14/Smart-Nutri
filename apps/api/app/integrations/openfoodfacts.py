@@ -22,7 +22,8 @@ logger = logging.getLogger(__name__)
 PRODUCT_FIELDS = (
     "code,product_name,brands,image_front_url,image_url,categories_tags,nutriments,"
     "serving_quantity,serving_quantity_unit,ingredients_text,ingredients_text_en,"
-    "allergens_tags,traces_tags,labels_tags"
+    "ingredients_text_hi,ingredients_text_mr,ingredients_lc,lang,additives_tags,"
+    "nutrition_data_per,serving_size,allergens_tags,traces_tags,labels_tags"
 )
 # Sent when OFF_USER_AGENT is blank or still the .env.example placeholder (OFF requires a real UA).
 DEFAULT_USER_AGENT = "SmartNutri/0.1 (+https://github.com/pritirokade14/Smart-Nutri)"

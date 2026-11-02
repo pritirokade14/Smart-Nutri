@@ -11,6 +11,7 @@
     ],
     "ingredients_text_en": "carbonated water, sugar, caffeine",
     "serving_quantity": 300,
+    "serving_quantity_unit": "ml",
     "nutriments": {
       "energy-kcal_100g": 42,
       "sugars_100g": 10.6,
