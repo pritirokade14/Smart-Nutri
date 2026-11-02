@@ -1,6 +1,6 @@
 from collections.abc import AsyncIterator
-from functools import cache
 
+from fastapi import Request
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from app.core.config import get_settings
+from app.core.config import Settings
 
 POOL_SIZE = 5
 MAX_OVERFLOW = 5
@@ -16,11 +16,10 @@ POOL_TIMEOUT_S = 10
 CONNECT_TIMEOUT_S = 5
 
 
-@cache
-def get_engine() -> AsyncEngine:
-    url = get_settings().database_url.get_secret_value()
+def build_engine(settings: Settings) -> AsyncEngine:
+    """Create (without connecting) the engine for these settings. Owned by the app."""
     return create_async_engine(
-        url,
+        settings.database_url.get_secret_value(),
         pool_pre_ping=True,
         pool_size=POOL_SIZE,
         max_overflow=MAX_OVERFLOW,
@@ -29,11 +28,10 @@ def get_engine() -> AsyncEngine:
     )
 
 
-@cache
-def _sessionmaker() -> async_sessionmaker[AsyncSession]:
-    return async_sessionmaker(get_engine(), expire_on_commit=False)
+def build_sessionmaker(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    return async_sessionmaker(engine, expire_on_commit=False)
 
 
-async def get_session() -> AsyncIterator[AsyncSession]:
-    async with _sessionmaker()() as session:
+async def get_session(request: Request) -> AsyncIterator[AsyncSession]:
+    async with request.app.state.sessionmaker() as session:
         yield session

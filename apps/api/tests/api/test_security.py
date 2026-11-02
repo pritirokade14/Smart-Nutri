@@ -491,3 +491,19 @@ async def test_oversized_token_rejected_without_parsing(jwks, monkeypatch):
 
     monkeypatch.setattr("app.core.security.jwt.get_unverified_header", boom)
     await _expect("auth_invalid", "Bearer " + "a" * 8193, jwks)
+
+
+async def test_401s_send_www_authenticate(app, client, make_token, jwks):
+    @app.get("/whoami2")
+    async def _(account: Annotated[AccountContext, Depends(current_account)]):
+        return {}
+
+    app.dependency_overrides[get_jwks_cache] = lambda: jwks
+    app.dependency_overrides[get_settings] = lambda: settings
+
+    r = await client.get("/whoami2")
+    assert r.status_code == 401 and r.headers["www-authenticate"] == "Bearer"
+
+    r = await client.get("/whoami2", headers={"Authorization": f"Bearer {make_token(aud='x')}"})
+    assert r.status_code == 401
+    assert r.headers["www-authenticate"] == 'Bearer error="invalid_token"'

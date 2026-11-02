@@ -1,3 +1,5 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from importlib.metadata import PackageNotFoundError, version
 
 from fastapi import APIRouter, FastAPI
@@ -6,9 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import Settings, get_settings
 from app.core.errors import CatchAllMiddleware, install_error_handlers
 from app.core.logging import configure_logging
+from app.db.session import build_engine, build_sessionmaker
 from app.features.health.router import router as health_router
+from app.features.me.router import router as me_router
 
-ROUTERS: list[APIRouter] = [health_router]
+ROUTERS: list[APIRouter] = [health_router, me_router]
 
 
 def _version() -> str:
@@ -21,7 +25,18 @@ def _version() -> str:
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings.environment)
-    app = FastAPI(title="SmartNutri API", version=_version())
+    engine = build_engine(settings)
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        try:
+            yield
+        finally:
+            await engine.dispose()
+
+    app = FastAPI(title="SmartNutri API", version=_version(), lifespan=lifespan)
+    app.state.engine = engine
+    app.state.sessionmaker = build_sessionmaker(engine)
     app.add_middleware(CatchAllMiddleware)  # innermost
     app.add_middleware(
         CORSMiddleware,

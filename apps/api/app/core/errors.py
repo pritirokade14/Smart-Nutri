@@ -17,14 +17,14 @@ class ApiError(Exception):
         status: int,
         message_key: str | None = None,
         details: dict | None = None,
-        headers: dict[str, str] | None = None,
+        headers: Mapping[str, str] | None = None,
     ) -> None:
         super().__init__(code)
+        self.headers = dict(headers) if headers else None
         self.code = code
         self.status = status
         self.message_key = message_key or f"error.{code}"
         self.details = details or {}
-        self.headers = headers
 
 
 def _envelope(

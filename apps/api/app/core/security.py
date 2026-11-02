@@ -37,11 +37,13 @@ class AccountContext:
 
 
 def _auth_required() -> ApiError:
-    return ApiError("auth_required", 401)
+    return ApiError("auth_required", 401, headers={"WWW-Authenticate": "Bearer"})
 
 
 def _auth_invalid() -> ApiError:
-    return ApiError("auth_invalid", 401)
+    return ApiError(
+        "auth_invalid", 401, headers={"WWW-Authenticate": 'Bearer error="invalid_token"'}
+    )
 
 
 async def _http_fetch(url: str) -> dict:
