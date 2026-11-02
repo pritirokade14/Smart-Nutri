@@ -18,9 +18,24 @@ const PROTECTED = new Set([
   "settings",
 ]);
 
-function localeAndSegment(pathname: string): [string | undefined, string?] {
-  const [, locale, segment] = pathname.split("/");
-  return [locale, segment];
+type Decision = { protected: boolean; locale: string; path: string };
+
+// Next and next-intl route on the DECODED path (/en/%68ome serves /en/home),
+// so the gate must decide on the decoded path too. Undecodable = protected.
+function classify(pathname: string): Decision {
+  let path: string;
+  try {
+    path = decodeURI(pathname);
+  } catch {
+    return { protected: true, locale: routing.defaultLocale, path: "" };
+  }
+  const [, first, segment] = path.split("/");
+  const known = (routing.locales as readonly string[]).includes(first ?? "");
+  return {
+    protected: known && segment !== undefined && PROTECTED.has(segment),
+    locale: known ? (first as string) : routing.defaultLocale,
+    path,
+  };
 }
 
 function withHeaders(res: NextResponse, h: Record<string, string>) {
@@ -40,28 +55,23 @@ export async function proxy(req: NextRequest): Promise<NextResponse> {
 
   // 1. locale
   const res = intl(intlReq) as NextResponse;
-  if (res.status >= 300 && res.status < 400) return withHeaders(res, headers);
+  const decision = classify(req.nextUrl.pathname);
+  if (!decision.protected) return withHeaders(res, headers);
 
-  // 2. session refresh
+  // 2. session refresh (also for next-intl redirects: the target is re-gated,
+  //    but never trust that on a protected path)
   const { signedIn } = await updateSession(intlReq, res);
 
   // 3. protect
-  const { pathname } = req.nextUrl;
-  const [locale, segment] = localeAndSegment(pathname);
-  const isProtected =
-    locale !== undefined &&
-    (routing.locales as readonly string[]).includes(locale) &&
-    segment !== undefined &&
-    PROTECTED.has(segment);
-  if (isProtected && !signedIn) {
+  if (!signedIn) {
     const url = req.nextUrl.clone();
-    url.pathname = `/${locale}/sign-in`;
+    url.pathname = `/${decision.locale}/sign-in`;
     url.search = "";
-    url.searchParams.set("next", pathname);
-    return withHeaders(NextResponse.redirect(url, 302), headers);
+    if (decision.path) url.searchParams.set("next", decision.path);
+    const redirect = NextResponse.redirect(url, 302);
+    for (const c of res.cookies.getAll()) redirect.cookies.set(c);
+    return withHeaders(redirect, headers);
   }
-
-  // 4. headers
   return withHeaders(res, headers);
 }
 

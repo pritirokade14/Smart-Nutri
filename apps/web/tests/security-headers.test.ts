@@ -16,6 +16,15 @@ describe("securityHeaders", () => {
     );
   });
 
+  it("sends HSTS in production only", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(securityHeaders("n")["Strict-Transport-Security"]).toBe(
+      "max-age=63072000; includeSubDomains",
+    );
+    vi.stubEnv("NODE_ENV", "development");
+    expect(securityHeaders("n")["Strict-Transport-Security"]).toBeUndefined();
+  });
+
   it("limits connect-src to API, Supabase, Sentry and PostHog", () => {
     const csp = securityHeaders("n")["Content-Security-Policy"];
     expect(csp).toContain("http://127.0.0.1:8000");

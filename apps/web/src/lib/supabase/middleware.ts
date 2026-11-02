@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import type { NextRequest, NextResponse } from "next/server";
+import { supabaseCookieOptions } from "./options";
 
 /**
  * Refreshes the Supabase session cookies onto `res` and reports whether the
@@ -14,10 +15,12 @@ export async function updateSession(
       process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
       {
+        cookieOptions: supabaseCookieOptions(),
         cookies: {
           getAll: () => req.cookies.getAll(),
           setAll(cookiesToSet, headers) {
             for (const { name, value, options } of cookiesToSet) {
+              req.cookies.set(name, value);
               res.cookies.set(name, value, options);
             }
             for (const [k, v] of Object.entries(headers ?? {})) {

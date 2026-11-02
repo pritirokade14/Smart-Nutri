@@ -33,6 +33,9 @@ export function securityHeaders(nonce: string): Record<string, string> {
   ].join("; ");
 
   return {
+    ...(process.env.NODE_ENV === "production"
+      ? { "Strict-Transport-Security": "max-age=63072000; includeSubDomains" }
+      : {}),
     "Content-Security-Policy": csp,
     "X-Frame-Options": "DENY",
     "X-Content-Type-Options": "nosniff",

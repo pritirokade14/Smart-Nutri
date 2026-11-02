@@ -60,6 +60,15 @@ describe("proxy", () => {
     expect(a).not.toBe(b);
   });
 
+  it.each(["/en/%68ome", "/en/hom%65", "/%65n/home", "/en/%E0%A4%A"])(
+    "encoded protected path %s redirects when signed out",
+    async (p) => {
+      const res = await proxy(req(p));
+      expect(res.status).toBe(302);
+      expect(res.headers.get("location")).toMatch(/\/en\/sign-in/);
+    },
+  );
+
   it("redirects also carry security headers", async () => {
     const res = await proxy(req("/en/home"));
     expect(res.headers.get("x-frame-options")).toBe("DENY");

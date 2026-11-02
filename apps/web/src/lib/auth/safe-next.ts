@@ -1,3 +1,5 @@
+const BASE = "http://safe.invalid";
+
 function hasControlChars(v: string): boolean {
   for (let i = 0; i < v.length; i++) {
     const c = v.charCodeAt(i);
@@ -15,7 +17,10 @@ function isSafe(v: string): boolean {
   );
 }
 
-/** Returns `next` only if it is a same-origin relative path, else `fallback`. */
+/**
+ * Returns a normalised same-origin relative path for `next`, else `fallback`.
+ * Normalising (dot segments, encoded dots) closes `/.//evil.com`-style tricks.
+ */
 export function safeNext(
   next: string | null | undefined,
   fallback: string,
@@ -29,10 +34,10 @@ export function safeNext(
   }
   if (!isSafe(next) || !isSafe(decoded)) return fallback;
   try {
-    const base = "http://safe.invalid";
-    if (new URL(next, base).origin !== base) return fallback;
+    const u = new URL(next, BASE);
+    if (u.origin !== BASE || u.pathname.startsWith("//")) return fallback;
+    return u.pathname + u.search + u.hash;
   } catch {
     return fallback;
   }
-  return next;
 }
