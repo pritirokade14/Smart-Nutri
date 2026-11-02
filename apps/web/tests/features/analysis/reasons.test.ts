@@ -5,11 +5,9 @@ import {
   reasonKey,
   reasonText,
   type Translator,
-  topReasonText,
 } from "@/features/analysis/lib/reasons";
 import { resultMessages } from "@/i18n/client-messages";
 import {
-  analyzeResponse,
   LOCALES,
   MESSAGES,
   sharedFixtureCases,
@@ -49,13 +47,31 @@ describe("reasonKey (packages/i18n README rule 1)", () => {
       "reason.nutrient_missing",
     );
   });
-  it("diet_violation with no ingredients → mark-only variant", () => {
+  it("diet_violation with no ingredients and mark non_veg → mark-only variant", () => {
     expect(
-      reasonKey(r("diet_violation", { diet: "veg", ingredients: [] })),
+      reasonKey(
+        r("diet_violation", { diet: "veg", ingredients: [], mark: "non_veg" }),
+      ),
     ).toBe("reason_variant.diet_violation_mark_only");
-    expect(reasonKey(r("diet_violation", { diet: "veg" }))).toBe(
-      "reason_variant.diet_violation_mark_only",
-    );
+    expect(
+      reasonKey(r("diet_violation", { diet: "veg", mark: "non_veg" })),
+    ).toBe("reason_variant.diet_violation_mark_only");
+  });
+  it("diet_violation with no ingredients and no/other mark → reason_unavailable", () => {
+    const en = translator("en");
+    for (const params of [
+      { diet: "veg", ingredients: [] },
+      { diet: "veg" },
+      { diet: "veg", ingredients: [], mark: "brown" },
+    ]) {
+      const reason = r("diet_violation", params, "avoid");
+      expect(reasonKey(reason)).toBe("verdict.reason_unavailable");
+      expect(reasonText(en, reason, "en")).toBe(
+        MESSAGES.en.verdict.reason_unavailable,
+      );
+    }
+  });
+  it("diet_violation with ingredients keeps the plain key", () => {
     expect(
       reasonKey(r("diet_violation", { diet: "veg", ingredients: ["egg"] })),
     ).toBe("reason.diet_violation");
@@ -193,7 +209,7 @@ describe("reasonText", () => {
       expect(low).toContain(MESSAGES[locale].nutrient.salt);
       const mark = reasonText(
         t,
-        r("diet_violation", { diet: "veg", ingredients: [], mark: "brown" }),
+        r("diet_violation", { diet: "veg", ingredients: [], mark: "non_veg" }),
         locale,
       );
       expect(mark).toContain(MESSAGES[locale].diet.veg);
@@ -247,26 +263,6 @@ describe("displayReasons (CROSS-PLAN 13)", () => {
       r("allergen_contains", { allergen: "milk" }, "avoid"),
     ];
     expect(displayReasons(input)).toEqual(input);
-  });
-});
-
-describe("topReasonText", () => {
-  it("sf_biscuit diabetic → misleading_sugar_claim (first in API order)", () => {
-    const c = sharedFixtureCases().find(
-      (x) => x.name === "sf_biscuit.diabetic_adult",
-    );
-    expect(c).toBeDefined();
-    expect(
-      topReasonText(translator("en"), c?.verdict as VerdictOut, "en"),
-    ).toBe(
-      'The pack says "Sugar free", but the label data does not support this claim.',
-    );
-  });
-  it("returns empty string when there are no reasons", () => {
-    const v = analyzeResponse("water").verdicts[0] as VerdictOut;
-    expect(topReasonText(translator("en"), { ...v, reasons: [] }, "en")).toBe(
-      "",
-    );
   });
 });
 

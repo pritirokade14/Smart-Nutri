@@ -34,7 +34,11 @@ export function reasonKey(reason: ReasonOut): string {
     reason.code === "diet_violation" &&
     !(Array.isArray(p.ingredients) && p.ingredients.length > 0)
   ) {
-    return "reason_variant.diet_violation_mark_only";
+    // Mark-only wording is valid only for the brown non-veg mark; any other
+    // shape is not something the engine emits, so show the generic line.
+    return p.mark === "non_veg"
+      ? "reason_variant.diet_violation_mark_only"
+      : "verdict.reason_unavailable";
   }
   return `reason.${reason.code}`;
 }
@@ -121,24 +125,19 @@ export function isAlwaysVisible(r: ReasonOut): boolean {
   );
 }
 
-/** Visible group first, collapsed group after; API order within each. */
+/**
+ * Visible group first, collapsed group after; API order within each. When no
+ * reason is always visible, the first one is shown and the rest collapse.
+ */
 export function partitionReasons(reasons: readonly ReasonOut[]): {
   visible: ReasonOut[];
   collapsed: ReasonOut[];
 } {
   const all = displayReasons(reasons);
-  return {
-    visible: all.filter(isAlwaysVisible),
-    collapsed: all.filter((r) => !isAlwaysVisible(r)),
-  };
-}
-
-/** The first reason (the API already sorts by severity); "" when none. */
-export function topReasonText(
-  t: Translator,
-  v: VerdictOut,
-  locale: string,
-): string {
-  const [top] = displayReasons(v.reasons);
-  return top ? reasonText(t, top, locale) : "";
+  const visible = all.filter(isAlwaysVisible);
+  const collapsed = all.filter((r) => !isAlwaysVisible(r));
+  // Nothing must-show: lead with the first reason so the card is never bare.
+  const first = visible.length === 0 ? collapsed.shift() : undefined;
+  if (first) visible.push(first);
+  return { visible, collapsed };
 }

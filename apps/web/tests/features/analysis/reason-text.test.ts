@@ -38,8 +38,8 @@ const GOLDEN: Golden[] = [
     index: 0,
     reason: {
       code: "diet_violation",
-      severity: "caution",
-      params: { diet: "veg", ingredients: [], mark: "brown" },
+      severity: "avoid",
+      params: { diet: "veg", ingredients: [], mark: "non_veg" },
     },
   }, // diet mark-only
   { product: "cola", member: "diabetic_adult", index: 0 }, // sugar numbers

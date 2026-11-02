@@ -53,9 +53,9 @@
       "params": {
         "diet": "veg",
         "ingredients": [],
-        "mark": "brown"
+        "mark": "non_veg"
       },
-      "severity": "caution"
+      "severity": "avoid"
     },
     "reason_index": 0,
     "text": "पैक पर भूरे रंग का मांसाहारी निशान है, इसलिए यह शायद शाकाहारी आहार के अनुरूप न हो।"

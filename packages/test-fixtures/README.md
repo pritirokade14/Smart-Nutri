@@ -57,7 +57,7 @@ Golden reasons (every param type: allergen, diet with and without ingredients, s
 
 - `product`/`member`/`reason_index` point into `responses/analyze/<product>.json` (member by name via `responses/index.json`). Reasons the golden products never emit use `product` and `member` `"synthetic"`; every entry carries the full `reason` (`{code, severity, params}`) so a client can assert from the file alone.
 - `key` is the message key the client must pick (`reason.<code>` or a `reason_variant.*`).
-- Rules baked in: lists joined with `", "`, numbers with Latin digits and at most 2 decimals, code params mapped through their namespaces (see `packages/i18n/README.md`).
+- Rules baked in: lists joined with `", "`, numbers with Latin digits and at most 3 decimals, code params mapped through their namespaces (see `packages/i18n/README.md`).
 - Files use sorted keys, 2-space indent and a trailing newline. The web test `apps/web/tests/features/analysis/reason-text.test.ts` asserts them; regenerate with `UPDATE_REASON_TEXT=1 pnpm test reason-text` (from `apps/web`) and review the diff. A change needs `nutrition-safety-reviewer`.
 
 ## How each project uses them

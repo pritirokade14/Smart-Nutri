@@ -53,9 +53,9 @@
       "params": {
         "diet": "veg",
         "ingredients": [],
-        "mark": "brown"
+        "mark": "non_veg"
       },
-      "severity": "caution"
+      "severity": "avoid"
     },
     "reason_index": 0,
     "text": "The pack has the brown non-vegetarian mark, so this may not match the Vegetarian diet."

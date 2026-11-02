@@ -53,9 +53,9 @@
       "params": {
         "diet": "veg",
         "ingredients": [],
-        "mark": "brown"
+        "mark": "non_veg"
       },
-      "severity": "caution"
+      "severity": "avoid"
     },
     "reason_index": 0,
     "text": "पॅकवर तपकिरी रंगाची मांसाहारी खूण आहे, त्यामुळे हे कदाचित शाकाहारी आहाराशी जुळणार नाही."

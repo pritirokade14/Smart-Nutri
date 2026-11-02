@@ -199,6 +199,24 @@ describe("VerdictCard details", () => {
     expect(visibleCodes()).toEqual(["age_unknown", "allergen_unknown"]);
   });
 
+  it("caution-only card shows the first reason without interaction; the rest are collapsed", () => {
+    renderCard(
+      synth("caution", [
+        rs("energy_dense", "caution", { energy_kcal: 500 }),
+        rs("nutriscore_low", "caution", { grade: "D" }),
+      ]),
+    );
+    expect(visibleCodes()).toEqual(["energy_dense"]);
+    expect(collapsedCodes()).toEqual(["nutriscore_low"]);
+    expect(collapsedHidden()).toBe(true);
+    cleanup();
+    renderCard(
+      synth("caution", [rs("energy_dense", "caution", { energy_kcal: 500 })]),
+    );
+    expect(visibleCodes()).toEqual(["energy_dense"]);
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
   it("R22 (d): caution lines are collapsed behind the toggle; an allergen_ caution stays visible", () => {
     renderCard(
       synth("avoid", [
