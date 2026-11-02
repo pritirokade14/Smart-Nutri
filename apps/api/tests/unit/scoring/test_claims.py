@@ -160,6 +160,21 @@ def test_no_refined_sugar_supported_or_unverifiable(curd, no_ingredients, cfg):
 
 
 @pytest.mark.parametrize(
+    "unrefined", ["coconut sugar", "palm sugar", "date sugar", "jaggery", "gur", "khandsari", "गुड़"]
+)
+def test_no_refined_sugar_allows_unrefined_sugars(curd, cfg, unrefined):  # Ruling R33
+    p = replace(curd, claims=("No Refined Sugar",), ingredients=("oats", unrefined))
+    (c,) = check_claims(p, cfg)
+    assert (c.claim, c.verdict) == ("no_refined_sugar", ClaimVerdict.SUPPORTED), unrefined
+
+
+def test_no_refined_sugar_unrefined_plus_plain_sugar_contradicted(curd, cfg):
+    p = replace(curd, claims=("No Refined Sugar",), ingredients=("coconut sugar", "sugar"))
+    (c,) = check_claims(p, cfg)
+    assert c.verdict == ClaimVerdict.CONTRADICTED and c.params == {"ingredients": ["sugar"]}
+
+
+@pytest.mark.parametrize(
     "text",
     ["Diabetic Friendly", "diabetes-friendly", "Suitable for Diabetics", "Low GI", "low glycemic"],
 )

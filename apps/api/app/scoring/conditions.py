@@ -40,20 +40,25 @@ def _band(value: Any, product: Product) -> float:
 def _active_groups(
     member: Member, cond: Mapping[str, Any], aliases: Mapping[str, str]
 ) -> tuple[list[str], list[str]]:
-    """Return (rule groups that apply, raw condition/goal names that were not recognised)."""
+    """Return (rule groups that apply, raw CONDITION names that were not recognised).
+
+    An unrecognised goal is ignored (Ruling R34): goals are preferences, not health risks.
+    """
     alias = {_norm(k): _norm(v) for k, v in aliases.items()}
     known = {_norm(a) for rule in cond.values() for a in (rule.get("applies_to") or ())}
     wanted_by_member: set[str] = set()
     unrecognised: list[str] = []
-    raws = [*member.conditions, *([member.goal] if member.goal is not None else [])]
-    for raw in raws:
+    raws = [(c, True) for c in member.conditions]
+    if member.goal is not None:
+        raws.append((member.goal, False))
+    for raw, is_condition in raws:
         n = _norm(raw)
         if not n:
             continue
         canonical = alias.get(n, n)
         if canonical in known:
             wanted_by_member.add(canonical)
-        else:
+        elif is_condition:
             unrecognised.append(raw)
 
     groups: list[str] = []
@@ -213,9 +218,12 @@ def condition_reasons(
             out.append(Reason("infant_added_salt", Status.AVOID, {"ingredients": list(salt_hits)}))
         if "honey" in sugar_terms:
             out.append(Reason("infant_honey", Status.AVOID, {}))
-        sugars = need("sugars_g", n.sugars_g, "infant")
-        if sugars is not None and sugars > c["avoid_sugars_g"]:
-            out.append(Reason("infant_sugar_high", Status.AVOID, {"sugars_g": _r(sugars)}))
+        # Numeric sugar rule only when ingredients are unknown; with a known list,
+        # infant_added_sugar decides, so milk/formula lactose is not flagged (Ruling R32).
+        if not ingredients_known(product, cfg):
+            sugars = need("sugars_g", n.sugars_g, "infant")
+            if sugars is not None and sugars > c["avoid_sugars_g"]:
+                out.append(Reason("infant_sugar_high", Status.AVOID, {"sugars_g": _r(sugars)}))
         salt = need("salt", n.salt(), "infant")
         if salt is not None and salt > c["avoid_salt_g"]:
             out.append(Reason("infant_salt_high", Status.AVOID, {"salt_g": _r(salt)}))

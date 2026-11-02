@@ -35,6 +35,12 @@ def test_water_is_A(water):
     assert compute_nutriscore(water).grade == "A"
 
 
+def test_sweetened_zero_kcal_water_scored_as_beverage(water):  # Ruling R35
+    # 0 kJ, 0 sugars, sweetener +4 => 4 -> beverage band C (<= 6)
+    r = compute_nutriscore(replace(water, contains_sweeteners=True))
+    assert (r.grade, r.points) == ("C", 4)
+
+
 def test_flavoured_water_with_sugar_scored_as_beverage(water):  # C12
     # 40 kcal = 167 kJ -> 3; 10 g sugars -> 8 (beverage table) => 11 -> E
     p = replace(water, per_100g=replace(water.per_100g, energy_kcal=40, sugars_g=10))

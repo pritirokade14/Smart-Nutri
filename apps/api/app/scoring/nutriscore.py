@@ -66,9 +66,11 @@ def _grade(points: int, bands: Sequence[tuple[str, int]]) -> str:
 
 
 def _effective_category(product: Product) -> Category:
-    """WATER with any energy or sugar is a flavoured/sweetened drink: score it as BEVERAGE."""
+    """WATER with energy, sugar or sweeteners is a flavoured drink: score it as BEVERAGE."""
     n = product.per_100g
-    if product.category == Category.WATER and ((n.energy_kcal or 0) > 0 or (n.sugars_g or 0) > 0):
+    if product.category == Category.WATER and (
+        (n.energy_kcal or 0) > 0 or (n.sugars_g or 0) > 0 or product.contains_sweeteners
+    ):
         return Category.BEVERAGE
     return product.category
 

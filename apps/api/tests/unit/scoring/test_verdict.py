@@ -135,22 +135,14 @@ def test_low_confidence_label_unknown_for_diabetic(curd, diabetic_adult):
     assert analyze(p, [m]).verdicts[0].status == Status.UNKNOWN
 
 
-# --- C7 golden (Ruling R26) ---
+# --- C7 golden (Rulings R26, R31: drink avoid > 5 g/100 ml) ---
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Ruling R26 drink avoid band is 11.25 g/100 ml; cola is 10.6 g -> CAUTION, not AVOID. "
-    "Needs a controller ruling (see Fixer C report).",
-)
 def test_diabetic_and_cola_is_avoid(cola, diabetic_adult):
-    assert analyze(cola, [diabetic_adult]).verdicts[0].status == Status.AVOID
-
-
-def test_diabetic_and_cola_not_ok(cola, diabetic_adult):
     v = analyze(cola, [diabetic_adult]).verdicts[0]
-    codes = {r.code for r in v.reasons}
-    assert v.status != Status.OK and {"sugar_moderate", "added_sugars"} <= codes
+    pairs = {(r.code, r.severity) for r in v.reasons}
+    assert v.status == Status.AVOID
+    assert {("sugar_high", Status.AVOID), ("added_sugars", Status.CAUTION)} <= pairs
 
 
 # --- C14: public exports ---

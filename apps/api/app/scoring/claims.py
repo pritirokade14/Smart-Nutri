@@ -154,7 +154,10 @@ def _no_added_sugar(product: Product, cfg: ScoringConfig) -> ClaimCheck:
 
 
 def _no_refined_sugar(product: Product, cfg: ScoringConfig) -> ClaimCheck:
-    terms = find_terms(product.ingredients, cfg.thresholds["claims"]["refined_sugar_terms"])
+    c = cfg.thresholds["claims"]
+    terms = find_terms(
+        product.ingredients, c["refined_sugar_terms"], c.get("unrefined_sugar_excludes", ())
+    )
     return _ingredient_rule("no_refined_sugar", product, cfg, terms, "refined_sugar_ingredient")
 
 

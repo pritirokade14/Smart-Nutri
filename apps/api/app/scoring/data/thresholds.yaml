@@ -13,6 +13,8 @@ claims:   # verify values against FSSAI (Advertising & Claims) Regulations 2018,
   high_protein_min_energy_pct: 20
   # "No refined sugar" is contradicted by any of these ingredients (Ruling R28; pending clinician review)
   refined_sugar_terms: [sugar, cane sugar, refined sugar, sucrose, brown sugar, icing sugar]
+  # Unrefined sugars are not "refined sugar": excluded before matching (Ruling R33; pending clinician review)
+  unrefined_sugar_excludes: [coconut sugar, palm sugar, date sugar, jaggery, gur, khandsari, गुड़]
 # Member-entered condition/goal names -> canonical applies_to names (Ruling R24; pending clinician review).
 # Keys are normalised (lowercase, non-word runs -> "_"). Anything unrecognised -> condition_unrecognised (UNKNOWN).
 condition_aliases:
@@ -37,8 +39,9 @@ condition_aliases:
 conditions:
   blood_sugar:   # diabetes, prediabetes, pcos
     applies_to: [diabetes, prediabetes, pcos]
-    # food = UK FSA high-in / FSSAI low-sugar bands; drink = the drink bands (Ruling R26; pending clinician review)
-    avoid_sugars_g: {food: 22.5, drink: 11.25}
+    # food = UK FSA high-in / FSSAI low-sugar bands (Ruling R26; pending clinician review)
+    # drink avoid basis: UK Soft Drinks Industry Levy 5 g/100 ml; pending clinician review (Ruling R31)
+    avoid_sugars_g: {food: 22.5, drink: 5.0}
     caution_sugars_g: {food: 5.0, drink: 2.5}
     caution_carbs_per_serving_g: 30
   hypertension:

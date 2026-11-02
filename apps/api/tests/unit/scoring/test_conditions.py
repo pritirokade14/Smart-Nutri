@@ -119,7 +119,7 @@ def test_condition_normalisation(curd, cfg):
 
 def test_prediabetes_and_pcos(cola, cfg):
     for c in ("prediabetes", "pcos"):
-        assert "sugar_moderate" in _codes(cola, _m(age=30, conditions=(c,)), cfg)
+        assert "sugar_high" in _codes(cola, _m(age=30, conditions=(c,)), cfg)
 
 
 def test_sodium_only_hypertension(namkeen, cfg):
@@ -192,7 +192,7 @@ def test_infant_honey_and_salt(cola, cfg):
 )
 def test_blood_sugar_aliases(cola, cfg, raw):
     pairs = _pairs(cola, _m(age=40, conditions=(raw,)), cfg)
-    assert ("sugar_moderate", Status.CAUTION) in pairs, raw
+    assert ("sugar_high", Status.AVOID) in pairs, raw
     assert "condition_unrecognised" not in {c for c, _ in pairs}
 
 
@@ -207,12 +207,21 @@ def test_weight_loss_aliases_as_goal_and_condition(namkeen, cfg, raw):
     assert "energy_dense" in _codes(namkeen, _m(age=40, conditions=(raw,)), cfg), raw
 
 
-def test_unrecognised_condition_and_goal_are_unknown(curd, cfg):
-    rs = _reasons(curd, _m(age=40, conditions=("Kidney Stones", " "), goal="Bulk Up"), cfg)
+def test_unrecognised_condition_is_unknown(curd, cfg):
+    rs = _reasons(curd, _m(age=40, conditions=("Kidney Stones", " ", "xyz")), cfg)
     got = [(r.code, r.severity, dict(r.params)) for r in rs if r.code == "condition_unrecognised"]
     assert got == [
         ("condition_unrecognised", Status.UNKNOWN, {"condition": "Kidney Stones"}),
-        ("condition_unrecognised", Status.UNKNOWN, {"condition": "Bulk Up"}),
+        ("condition_unrecognised", Status.UNKNOWN, {"condition": "xyz"}),
+    ]
+
+
+def test_unrecognised_goal_is_ignored(curd, cfg):  # Ruling R34
+    for goal in ("muscle gain", "Bulk Up"):
+        assert "condition_unrecognised" not in _codes(curd, _m(age=40, goal=goal), cfg), goal
+    rs = _reasons(curd, _m(age=40, conditions=("xyz",), goal="muscle gain"), cfg)
+    assert [dict(r.params) for r in rs if r.code == "condition_unrecognised"] == [
+        {"condition": "xyz"}
     ]
 
 
@@ -253,6 +262,22 @@ def test_blood_sugar_uses_drink_bands(cola, curd, cfg):
     assert "sugar_moderate" not in _codes(food3, d, cfg)
 
 
+def test_diabetic_drink_bands_r31(cola, cfg):  # Ruling R31: drink avoid 5.0, caution 2.5
+    d = _m(age=40, conditions=("diabetes",))
+    juice = replace(
+        cola,
+        ingredients=("orange juice",),
+        serving_size_g=200,
+        per_100g=Nutrients(sugars_g=10, carbs_g=10),
+    )
+    assert ("sugar_high", Status.AVOID) in _pairs(juice, d, cfg)
+    drink3 = replace(juice, per_100g=Nutrients(sugars_g=3, carbs_g=3))
+    pairs = _pairs(drink3, d, cfg)
+    assert ("sugar_moderate", Status.CAUTION) in pairs and "sugar_high" not in {c for c, _ in pairs}
+    edge = replace(juice, per_100g=Nutrients(sugars_g=5.0, carbs_g=5.0))
+    assert "sugar_high" not in _codes(edge, d, cfg)
+
+
 # --- C8: infant nutrient rules (Ruling R27) ---
 
 
@@ -260,11 +285,24 @@ def _plain(cola, **n):
     return replace(cola, category=Category.GENERAL, ingredients=("rice",), per_100g=Nutrients(**n))
 
 
-def test_infant_high_sugar_without_sugar_term(cola, cfg):
-    rs = _reasons(_plain(cola, sugars_g=40, salt_g=0), _m(age=1), cfg)
+def test_infant_high_sugar_unknown_ingredients(cola, cfg):  # Ruling R32
+    p = replace(_plain(cola, sugars_g=40, salt_g=0), ingredients=())
+    rs = _reasons(p, _m(age=1), cfg)
     r = next(x for x in rs if x.code == "infant_sugar_high")
     assert r.severity == Status.AVOID and r.params == {"sugars_g": 40.0}
-    assert "infant_added_sugar" not in {x.code for x in rs}
+    assert ("ingredients_missing", Status.UNKNOWN) in {(x.code, x.severity) for x in rs}
+
+
+def test_infant_sugar_numeric_rule_skipped_when_ingredients_known(cola, cfg):  # Ruling R32
+    formula = replace(
+        _plain(cola, sugars_g=7, salt_g=0.1),
+        ingredients=("skimmed milk powder", "lactose", "vegetable oil"),
+    )
+    codes = _codes(formula, _m(age=1), cfg)
+    assert "infant_sugar_high" not in codes and "infant_added_sugar" not in codes
+    assert "nutrient_missing" not in codes
+    sweet = _plain(cola, sugars_g=40, salt_g=0)  # known ingredients ("rice"), no sugar term
+    assert "infant_sugar_high" not in _codes(sweet, _m(age=1), cfg)
 
 
 def test_infant_high_salt_without_salt_term(cola, cfg):
@@ -279,7 +317,11 @@ def test_infant_plain_milk_sugar_not_flagged(cola, cfg):
 
 
 def test_infant_missing_nutrients_unknown(cola, cfg):
+    # Known ingredients: only salt is needed numerically (Ruling R32).
     rs = _reasons(_plain(cola), _m(age=1), cfg)
+    assert [r.params["nutrient"] for r in rs if r.code == "nutrient_missing"] == ["salt"]
+    # Unknown ingredients: sugar is needed too.
+    rs = _reasons(replace(_plain(cola), ingredients=()), _m(age=1), cfg)
     assert sorted(r.params["nutrient"] for r in rs if r.code == "nutrient_missing") == [
         "salt",
         "sugars_g",
