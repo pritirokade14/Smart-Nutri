@@ -28,6 +28,15 @@ describe("proxy", () => {
     );
   });
 
+  it.each(["/en/scan", "/en/result/8901063201089"])(
+    "protects %s",
+    async (path) => {
+      const res = await proxy(req(path));
+      expect(res.status).toBe(302);
+      expect(res.headers.get("location")).toContain("/en/sign-in");
+    },
+  );
+
   it("protected path passes when signed in", async () => {
     claims.value = { sub: "u1" };
     const res = await proxy(req("/en/home"));

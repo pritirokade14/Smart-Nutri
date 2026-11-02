@@ -11,6 +11,7 @@ export const PROTECTED_SEGMENT = "(app)";
 const PROTECTED = new Set([
   "home",
   "scan",
+  "result",
   "members",
   "history",
   "meals",
