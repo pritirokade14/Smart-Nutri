@@ -1,0 +1,11 @@
+{
+  "code": "8901000000103",
+  "product": {
+    "code": "8901000000103",
+    "product_name": "Mystery Snack",
+    "nutriments": {
+      "energy-kcal_100g": 500,
+      "sugars_100g": 20
+    }
+  }
+}

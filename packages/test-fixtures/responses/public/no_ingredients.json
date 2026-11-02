@@ -1,0 +1,51 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [],
+    "image_url": null,
+    "ingredients": [],
+    "name": "No Ingredients",
+    "per_100g": {
+      "carbs_g": 60.0,
+      "energy_kcal": 400.0,
+      "fat_g": 15.0,
+      "fiber_g": 2.0,
+      "protein_g": 5.0,
+      "salt_g": 1.0,
+      "sat_fat_g": 5.0,
+      "sodium_mg": null,
+      "sugars_g": 10.0
+    },
+    "product_id": "138bb898-65c6-51ec-be17-8ea229e1aacd",
+    "serving_size_g": null,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {},
+    "claims": [],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": []
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [],
+    "ingredients_known": false,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "D",
+      "partial": true,
+      "points": 14,
+      "reason": null
+    },
+    "sodium_additives": [],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

@@ -1,0 +1,58 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [],
+    "image_url": null,
+    "ingredients": [
+      "pasteurised toned milk",
+      "active cultures"
+    ],
+    "name": "Curd",
+    "per_100g": {
+      "carbs_g": 4.7,
+      "energy_kcal": 60.0,
+      "fat_g": 3.1,
+      "fiber_g": 0.0,
+      "protein_g": 3.5,
+      "salt_g": 0.1,
+      "sat_fat_g": 2.0,
+      "sodium_mg": null,
+      "sugars_g": 4.0
+    },
+    "product_id": "43948b49-ca14-5ecd-bf3e-15743470067f",
+    "serving_size_g": 100.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "milk": "contains"
+    },
+    "claims": [],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": [
+        "milk"
+      ]
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "B",
+      "partial": true,
+      "points": 1,
+      "reason": null
+    },
+    "sodium_additives": [],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

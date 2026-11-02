@@ -1,0 +1,9 @@
+{
+  "id": "vegan_adult",
+  "name": "Vegan Adult",
+  "age": 28,
+  "diet": "vegan",
+  "allergens": [],
+  "conditions": [],
+  "goal": null
+}

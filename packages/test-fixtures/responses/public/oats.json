@@ -1,0 +1,67 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [
+      "High Protein"
+    ],
+    "image_url": null,
+    "ingredients": [
+      "whole grain rolled oats"
+    ],
+    "name": "Oats",
+    "per_100g": {
+      "carbs_g": 66.0,
+      "energy_kcal": 389.0,
+      "fat_g": 7.0,
+      "fiber_g": 10.6,
+      "protein_g": 13.0,
+      "salt_g": 0.01,
+      "sat_fat_g": 1.2,
+      "sodium_mg": null,
+      "sugars_g": 1.0
+    },
+    "product_id": "38d1b07a-33fa-5df5-bc0f-5f00a938865d",
+    "serving_size_g": 40.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "gluten": "may_contain"
+    },
+    "claims": [
+      {
+        "claim": "high_protein",
+        "params": {
+          "limit": 20.0,
+          "value": 13.368
+        },
+        "reason_code": "below_minimum",
+        "verdict": "contradicted"
+      }
+    ],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": []
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "A",
+      "partial": true,
+      "points": -5,
+      "reason": null
+    },
+    "sodium_additives": [],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

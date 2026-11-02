@@ -1,0 +1,11 @@
+{
+  "code": "8901000000127",
+  "product": {
+    "code": "8901000000127",
+    "product_name": "Sodium Only",
+    "ingredients_text": "salt",
+    "nutriments": {
+      "sodium_100g": 1.2
+    }
+  }
+}

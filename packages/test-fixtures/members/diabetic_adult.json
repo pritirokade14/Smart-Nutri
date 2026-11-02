@@ -1,0 +1,11 @@
+{
+  "id": "diabetic_adult",
+  "name": "Diabetic Adult",
+  "age": 52,
+  "diet": "veg",
+  "allergens": [],
+  "conditions": [
+    "diabetes"
+  ],
+  "goal": null
+}

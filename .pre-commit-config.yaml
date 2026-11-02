@@ -1,0 +1,47 @@
+# Install: `uv tool install pre-commit && pre-commit install` (or `just setup`).
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+        exclude: ^apps/app/
+      - id: end-of-file-fixer
+        exclude: ^apps/app/(ios|macos|linux|windows|web)/
+      - id: trailing-whitespace
+        exclude: \.md$
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.3
+    hooks:
+      - id: ruff-check
+        files: ^apps/api/
+        args: [--fix]
+      - id: ruff-format
+        files: ^apps/api/
+
+  - repo: local
+    hooks:
+      # Local instead of biomejs/pre-commit: that hook installs through an npm git dependency,
+      # which current npm refuses (EALLOWGIT). This uses the workspace's pinned biome.
+      - id: biome-check
+        name: biome check (web)
+        entry: pnpm --filter @smartnutri/web lint
+        language: system
+        pass_filenames: false
+        files: ^apps/web/.*\.(ts|tsx|js|jsx|json|css)$
+      - id: dart-format
+        name: dart format
+        entry: dart format
+        language: system
+        files: ^apps/app/.*\.dart$
+        exclude: \.(g|freezed)\.dart$

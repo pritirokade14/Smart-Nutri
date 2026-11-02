@@ -1,0 +1,20 @@
+{
+  "code": "8901000000134",
+  "product": {
+    "code": "8901000000134",
+    "product_name": "Strings",
+    "ingredients_text": "x",
+    "serving_quantity": "30.5",
+    "serving_quantity_unit": "g",
+    "nutriments": {
+      "energy-kcal_100g": "250",
+      "proteins_100g": "12.5",
+      "sugars_100g": "",
+      "fat_100g": "n/a",
+      "fiber_100g": null,
+      "salt_100g": "NaN",
+      "carbohydrates_100g": "inf",
+      "saturated-fat_100g": true
+    }
+  }
+}

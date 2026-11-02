@@ -1,0 +1,71 @@
+name: api
+
+on:
+  push:
+    branches: [main, v1-rebuild]
+    paths: ["apps/api/**", "packages/api-contract/**", "packages/test-fixtures/**", "justfile", ".github/workflows/api.yml"]
+  pull_request:  # no paths filter: these checks are required on PRs to main (R35)
+    branches: [main]
+  workflow_call:  # reused as the test gate of deploy-dev.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: api / test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # tests/db allowlists host localhost/postgres; the service container is published on localhost.
+      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+      - run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check app tests && uv run ruff format --check app tests
+      - name: Tests (includes tests/db against the postgres:17 service)
+        run: uv run pytest -q
+
+  contract:
+    name: api / contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+      - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d  # v1.8.1
+        with:
+          sdk: stable  # must satisfy `sdk: ^3.12.0` in packages/api-contract/dart/pubspec.yaml
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413  # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --frozen
+        working-directory: apps/api
+      - name: Regenerate the API contract and clients
+        run: just contract
+      - name: Dart client analyzes
+        run: dart analyze
+        working-directory: packages/api-contract/dart
+      - name: TypeScript client typechecks
+        run: pnpm --filter @smartnutri/api-client typecheck
+      - name: Contract is up to date (no drift)
+        run: git add -N packages/api-contract && git diff --exit-code packages/api-contract

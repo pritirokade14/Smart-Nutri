@@ -1,0 +1,190 @@
+name: deploy-dev
+
+# Deploys the DEV API + web to Cloud Run (asia-south1) from main, only after the api and web
+# workflows pass. Keyless auth via Workload Identity Federation (see docs/adr/0015).
+# NEVER add pull_request / pull_request_target here. The WIF provider trusts only this repository
+# (by id), refs/heads/main, this workflow file on main, and push / workflow_dispatch events.
+# Branch protection on main is REQUIRED (docs/adr/0015): whoever can change this file on main deploys.
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/api/**
+      - apps/web/**
+      - packages/**
+      - pnpm-lock.yaml
+      - package.json
+      - pnpm-workspace.yaml
+      - .dockerignore
+      - apps/web/Dockerfile.dockerignore
+      - .github/workflows/deploy-dev.yml
+      - .github/workflows/api.yml
+      - .github/workflows/web.yml
+      - .github/workflows/packages.yml
+      - apps/app/lib/core/**
+      - .github/workflows/security.yml
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # Not secrets: resource names and public URLs.
+  GCP_PROJECT: smartnutri-513518
+  REGION: asia-south1
+  AR_HOST: asia-south1-docker.pkg.dev
+  AR_REPO: asia-south1-docker.pkg.dev/smartnutri-513518/smartnutri
+  WIF_PROVIDER: projects/609833507754/locations/global/workloadIdentityPools/github/providers/github-smartnutri
+  DEPLOYER_SA: github-deployer@smartnutri-513518.iam.gserviceaccount.com
+  API_SA: smartnutri-api-dev@smartnutri-513518.iam.gserviceaccount.com
+  WEB_SA: smartnutri-web-dev@smartnutri-513518.iam.gserviceaccount.com
+  API_URL: https://smartnutri-api-dev-609833507754.asia-south1.run.app
+  WEB_URL: https://smartnutri-web-dev-609833507754.asia-south1.run.app
+
+jobs:
+  # Gate: the existing workflows (called via workflow_call) must be green before anything deploys.
+  # Reusing them means deploy can never drift from what CI checks (lint, tests, contract drift, e2e).
+  api-checks:
+    uses: ./.github/workflows/api.yml
+    permissions:
+      contents: read
+
+  web-checks:
+    uses: ./.github/workflows/web.yml
+    permissions:
+      contents: read
+
+  packages-checks:
+    uses: ./.github/workflows/packages.yml
+    permissions:
+      contents: read
+
+  security-checks:
+    uses: ./.github/workflows/security.yml
+    permissions:
+      contents: read
+
+  deploy-api:
+    needs: [api-checks, web-checks, packages-checks, security-checks]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093  # v3.0.0
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db  # v3.0.1
+      - run: gcloud auth configure-docker "$AR_HOST" --quiet
+      - name: Build and push the API image
+        run: |
+          docker build -t "$AR_REPO/api:${{ github.sha }}" apps/api
+          docker push "$AR_REPO/api:${{ github.sha }}"
+          echo "IMAGE=$(docker inspect --format '{{index .RepoDigests 0}}' "$AR_REPO/api:${{ github.sha }}")" >> "$GITHUB_ENV"
+      - name: Deploy smartnutri-api-dev (no traffic, tagged)
+        # '^@^' makes '@' the list delimiter because ALLOWED_ORIGINS contains a comma.
+        # The localhost origin is dev-only: never carry it into a prod deploy.
+        # TRUSTED_PROXY_HOPS=1: documented value for a direct *.run.app URL.
+        # TODO: verify with a real request after the first deploy (docs/SETUP_ACCOUNTS.md).
+        run: |
+          gcloud run deploy smartnutri-api-dev \
+            --project "$GCP_PROJECT" --region "$REGION" \
+            --image "$IMAGE" \
+            --service-account "$API_SA" \
+            --no-traffic --tag "c${GITHUB_SHA::7}" \
+            --min-instances 0 --max-instances 3 --memory 512Mi --cpu 1 \
+            --set-secrets "CALLMISSED_API_KEY=callmissed-api-key-dev:latest,SUPABASE_SECRET_KEY=supabase-secret-key-dev:latest,DATABASE_URL=database-url-dev:latest" \
+            --set-env-vars "^@^ENVIRONMENT=dev@CALLMISSED_BASE_URL=https://api.callmissed.com/v1@CALLMISSED_RESOURCE_URL=https://api.callmissed.com/api/v1@CALLMISSED_EXTRACTION_MODEL=kimi-k2.5@CALLMISSED_EXPLANATION_MODEL=sarvam-105b@CALLMISSED_STT_MODEL=saaras:v4@CALLMISSED_TTS_MODEL=bulbul:v3@SUPABASE_URL=https://uhjopvrewcwqvugmdhdw.supabase.co@SUPABASE_PROJECT_REF=uhjopvrewcwqvugmdhdw@SUPABASE_JWKS_URL=https://uhjopvrewcwqvugmdhdw.supabase.co/auth/v1/.well-known/jwks.json@SUPABASE_STORAGE_BUCKET=label-photos@ALLOWED_ORIGINS=${WEB_URL},http://localhost:3000@OFF_USER_AGENT=SmartNutri/0.1 (contact: https://github.com/pritirokade14/Smart-Nutri)@RATE_LIMIT_LABEL_SCANS_PER_DAY=30@RATE_LIMIT_VOICE_PER_DAY=20@RATE_LIMIT_ANALYZE_PER_HOUR=120@RATE_LIMIT_PUBLIC_PER_MINUTE=60@TRUSTED_PROXY_HOPS=1"
+      - name: Smoke test the new API revision (tag URL), then shift traffic
+        run: |
+          TAG_URL="https://c${GITHUB_SHA::7}---smartnutri-api-dev-609833507754.asia-south1.run.app"
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors "$TAG_URL/v1/health" | tee health.json
+          grep -q '"status":[[:space:]]*"ok"' health.json
+          gcloud run services update-traffic smartnutri-api-dev \
+            --project "$GCP_PROJECT" --region "$REGION" --to-latest
+      - name: Remove the per-deploy tag URL (also after a failed smoke test)
+        if: always()
+        run: |
+          # A leftover c<sha> tag would keep an old or broken revision publicly reachable.
+          gcloud run services update-traffic smartnutri-api-dev \
+            --project "$GCP_PROJECT" --region "$REGION" \
+            --remove-tags "c${GITHUB_SHA::7}" || echo "no tag to remove"
+
+  deploy-web:
+    # After the API so the first web build points at a live API.
+    needs: [deploy-api]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093  # v3.0.0
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db  # v3.0.1
+      - run: gcloud auth configure-docker "$AR_HOST" --quiet
+      - name: Build and push the web image
+        # NEXT_PUBLIC_* are public by definition (baked into the browser bundle). The publishable
+        # key and optional PostHog/Sentry keys come from repository VARIABLES (not secrets).
+        env:
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_POSTHOG_KEY: ${{ vars.NEXT_PUBLIC_POSTHOG_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+          NEXT_PUBLIC_FEATURE_PHONE_OTP: ${{ vars.NEXT_PUBLIC_FEATURE_PHONE_OTP || 'false' }}
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "Set the repository variable NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Settings > Secrets and variables > Actions > Variables)." >&2
+            exit 1
+          fi
+          docker build -f apps/web/Dockerfile -t "$AR_REPO/web:${{ github.sha }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL=https://uhjopvrewcwqvugmdhdw.supabase.co \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" \
+            --build-arg NEXT_PUBLIC_API_BASE_URL="$API_URL" \
+            --build-arg NEXT_PUBLIC_SITE_URL="$WEB_URL" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="$NEXT_PUBLIC_POSTHOG_KEY" \
+            --build-arg NEXT_PUBLIC_SENTRY_DSN="$NEXT_PUBLIC_SENTRY_DSN" \
+            --build-arg NEXT_PUBLIC_FEATURE_PHONE_OTP="$NEXT_PUBLIC_FEATURE_PHONE_OTP" \
+            .
+          docker push "$AR_REPO/web:${{ github.sha }}"
+          echo "IMAGE=$(docker inspect --format '{{index .RepoDigests 0}}' "$AR_REPO/web:${{ github.sha }}")" >> "$GITHUB_ENV"
+      - name: Deploy smartnutri-web-dev (no traffic, tagged)
+        env:
+          SENTRY_DSN: ${{ vars.SENTRY_DSN }}
+        run: |
+          ENV_VARS="NODE_ENV=production"
+          if [ -n "$SENTRY_DSN" ]; then ENV_VARS="$ENV_VARS,SENTRY_DSN=$SENTRY_DSN"; fi
+          gcloud run deploy smartnutri-web-dev \
+            --project "$GCP_PROJECT" --region "$REGION" \
+            --image "$IMAGE" \
+            --service-account "$WEB_SA" \
+            --no-traffic --tag "c${GITHUB_SHA::7}" \
+            --min-instances 0 --max-instances 3 \
+            --set-env-vars "$ENV_VARS"
+      - name: Smoke test the new web revision (tag URL, CSP header), then shift traffic
+        run: |
+          TAG_URL="https://c${GITHUB_SHA::7}---smartnutri-web-dev-609833507754.asia-south1.run.app"
+          curl -fsSI --retry 5 --retry-delay 5 --retry-all-errors "$TAG_URL/en" | tee headers.txt
+          grep -qi '^content-security-policy:' headers.txt
+          gcloud run services update-traffic smartnutri-web-dev \
+            --project "$GCP_PROJECT" --region "$REGION" --to-latest
+      - name: Remove the per-deploy tag URL (also after a failed smoke test)
+        if: always()
+        run: |
+          # A leftover c<sha> tag would keep an old or broken revision publicly reachable.
+          gcloud run services update-traffic smartnutri-web-dev \
+            --project "$GCP_PROJECT" --region "$REGION" \
+            --remove-tags "c${GITHUB_SHA::7}" || echo "no tag to remove"

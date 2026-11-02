@@ -1,0 +1,15 @@
+{
+  "code": "8901000000080",
+  "product": {
+    "code": "8901000000080",
+    "product_name": "Cheddar",
+    "categories_tags": [
+      "en:dairies",
+      "en:cheeses"
+    ],
+    "ingredients_text": "milk, salt",
+    "nutriments": {
+      "fat_100g": 33
+    }
+  }
+}

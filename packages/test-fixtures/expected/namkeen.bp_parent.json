@@ -1,0 +1,9 @@
+{
+  "status": "avoid",
+  "reasons": [
+    {
+      "code": "salt_high",
+      "severity": "avoid"
+    }
+  ]
+}

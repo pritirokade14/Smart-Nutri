@@ -1,0 +1,7 @@
+swagger_parser:
+  schema_path: ../openapi.json
+  output_directory: lib/src
+  language: dart
+  json_serializer: json_serializable
+  root_client: true
+  root_client_name: SmartNutriApiClient

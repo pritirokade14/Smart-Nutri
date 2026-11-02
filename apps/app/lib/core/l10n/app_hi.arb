@@ -1,0 +1,473 @@
+{
+  "@@locale": "hi",
+  "allergenCrustacean": "शेलफ़िश (झींगा, केकड़ा आदि)",
+  "allergenEgg": "अंडा",
+  "allergenFish": "मछली",
+  "allergenGluten": "ग्लूटेन",
+  "allergenMilk": "दूध",
+  "allergenMustard": "सरसों",
+  "allergenPeanut": "मूँगफली",
+  "allergenSesame": "तिल",
+  "allergenSoy": "सोया",
+  "allergenSulphite": "सल्फ़ाइट",
+  "allergenTreeNut": "ट्री नट्स (बादाम, काजू, अखरोट आदि)",
+  "appName": "SmartNutri AI",
+  "attributionOff": "डेटा: Open Food Facts (ODbL)",
+  "authChange": "बदलें",
+  "authCodeLabel": "6 अंकों का कोड",
+  "authEmail": "ईमेल से जारी रखें",
+  "authEmailLabel": "ईमेल पता",
+  "authError": "साइन इन नहीं हो सका। कृपया दोबारा कोशिश करें।",
+  "authGoogle": "Google से जारी रखें",
+  "authPhone": "फ़ोन से जारी रखें",
+  "authPhoneLabel": "फ़ोन नंबर (देश कोड सहित)",
+  "authSendCode": "कोड भेजें",
+  "authSignOut": "साइन आउट करें",
+  "authTitle": "साइन इन करें",
+  "authVerify": "सत्यापित करें",
+  "claimDiabeticFriendly": "डायबिटीज़ के अनुकूल",
+  "claimHighProtein": "उच्च प्रोटीन",
+  "claimLowFat": "कम वसा",
+  "claimLowSodium": "कम सोडियम",
+  "claimLowSugar": "कम चीनी",
+  "claimNoAddedSugar": "अतिरिक्त चीनी नहीं",
+  "claimNoRefinedSugar": "रिफ़ाइंड चीनी नहीं",
+  "claimReasonAddedSugarIngredient": "सामग्री में अतिरिक्त चीनी शामिल है: {ingredients}।",
+  "@claimReasonAddedSugarIngredient": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonBelowMinimum": "प्रोटीन से {value}% ऊर्जा मिलती है, जो इस दावे के लिए ज़रूरी {limit}% से कम है।",
+  "@claimReasonBelowMinimum": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonExceedsLimit": "लेबल पर प्रति 100 ग्राम/मि.ली. {value} है, जो इस दावे की सीमा {limit} से अधिक है।",
+  "@claimReasonExceedsLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonIngredientsUnknown": "सामग्री की सूची उपलब्ध नहीं है, इसलिए इस दावे की जाँच नहीं हो सकती।",
+  "claimReasonNoStandard": "इस दावे की जाँच के लिए हमारे पास कोई मानक नहीं है।",
+  "claimReasonNutrientMissing": "लेबल पर {nutrient} की जानकारी नहीं है, इसलिए इस दावे की जाँच नहीं हो सकती।",
+  "@claimReasonNutrientMissing": {
+    "placeholders": {
+      "nutrient": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonOk": "लेबल की जानकारी इस दावे से मेल खाती है।",
+  "claimReasonRefinedSugarIngredient": "सामग्री में रिफ़ाइंड चीनी शामिल है: {ingredients}।",
+  "@claimReasonRefinedSugarIngredient": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimSourceOfProtein": "प्रोटीन का स्रोत",
+  "claimSugarFree": "चीनी रहित",
+  "claimVerdictContradicted": "लेबल की जानकारी इस दावे से मेल नहीं खाती",
+  "claimVerdictSupported": "लेबल की जानकारी इस दावे का समर्थन करती है",
+  "claimVerdictUnverifiable": "लेबल से इसकी जाँच नहीं हो सकती",
+  "commonDisclaimer": "यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "commonLoading": "लोड हो रहा है…",
+  "commonRetry": "फिर से कोशिश करें",
+  "conditionDiabetes": "मधुमेह (डायबिटीज़)",
+  "conditionHypertension": "उच्च रक्तचाप",
+  "conditionPcos": "पीसीओएस",
+  "conditionPrediabetes": "प्रीडायबिटीज़",
+  "conditionWeightLoss": "वज़न घटाना",
+  "dietEggetarian": "अंडाहारी (अंडा खाने वाला शाकाहारी)",
+  "dietJain": "जैन",
+  "dietNonVeg": "मांसाहारी",
+  "dietVeg": "शाकाहारी",
+  "dietVegan": "वीगन",
+  "errorAuthInvalid": "आपका सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।",
+  "errorAuthRequired": "कृपया साइन इन करें।",
+  "errorForbidden": "आपके पास इसकी पहुँच नहीं है।",
+  "errorHttpError": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
+  "errorInternalError": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
+  "errorInvalidBarcode": "यह सही बारकोड नहीं लगता।",
+  "errorInvalidProductRef": "जाँचने के लिए एक उत्पाद चुनें।",
+  "errorMemberNotFound": "परिवार का यह सदस्य नहीं मिला।",
+  "errorMethodNotAllowed": "यह कार्य समर्थित नहीं है। कृपया ऐप अपडेट करें।",
+  "errorNetwork": "इंटरनेट कनेक्शन नहीं है।",
+  "errorNotFound": "नहीं मिला।",
+  "errorOffUnavailable": "उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।",
+  "errorProductNotFound": "यह उत्पाद अभी हमें नहीं मिला।",
+  "errorRateLimited": "बहुत अधिक अनुरोध। कृपया थोड़ी देर रुकें।",
+  "errorRateLimitedScans": "आप आज की लेबल-स्कैन सीमा तक पहुँच गए हैं।",
+  "errorRateLimitedVoice": "आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।",
+  "errorUnauthorized": "कृपया साइन इन करें।",
+  "errorValidationError": "कृपया चिह्नित फ़ील्ड जाँचें।",
+  "highInFat": "वसा अधिक",
+  "highInPercentOfLimit": "सीमा का {pct}%",
+  "@highInPercentOfLimit": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "highInSalt": "नमक अधिक",
+  "highInSatFat": "संतृप्त वसा अधिक",
+  "highInSugar": "चीनी अधिक",
+  "homeScanCta": "उत्पाद स्कैन करें",
+  "homeWelcome": "नमस्ते, {name}",
+  "@homeWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutrientCarbsG": "कार्बोहाइड्रेट",
+  "nutrientEnergyKcal": "ऊर्जा (कैलोरी)",
+  "nutrientFatG": "वसा",
+  "nutrientProteinG": "प्रोटीन",
+  "nutrientSalt": "नमक",
+  "nutrientSatFat": "संतृप्त वसा",
+  "nutrientSodiumMg": "सोडियम",
+  "nutrientSugarsG": "शर्करा (चीनी)",
+  "nutriscoreCalculatedBy": "Nutri-Score की गणना SmartNutri ने की है",
+  "nutriscoreInsufficientData": "Nutri-Score की गणना के लिए लेबल पर पर्याप्त जानकारी नहीं है।",
+  "productClaimsHeading": "लेबल पर किए गए दावे, SmartNutri द्वारा जाँचे गए",
+  "productLabelSays": "लेबल पर लिखा है: {claim}",
+  "@productLabelSays": {
+    "placeholders": {
+      "claim": {
+        "type": "String"
+      }
+    }
+  },
+  "productMetaDescription": "इस पैकेट वाले खाद्य पदार्थ की पोषण जानकारी, SmartNutri द्वारा गणना किया गया Nutri-Score और सामग्री। जानकारी, चिकित्सकीय सलाह नहीं।",
+  "productMetaTitle": "{name} – पोषण जानकारी | SmartNutri",
+  "@productMetaTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productPublicCta": "अपने परिवार के लिए जाँचें",
+  "reasonAddedSugars": "इसमें अतिरिक्त शर्करा मिलाई गई है: {ingredients}।",
+  "@reasonAddedSugars": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAgeUnknown": "इस सदस्य का जन्म वर्ष जोड़ें: यह भोजन शायद छोटे बच्चों या शिशुओं के लिए उपयुक्त न हो।",
+  "reasonAllergenContains": "इसमें {allergen} है, जो आपकी बचने वाली सूची में है।",
+  "@reasonAllergenContains": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenMayContain": "इसमें {allergen} हो सकता है, जो आपकी बचने वाली सूची में है।",
+  "@reasonAllergenMayContain": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenUnknown": "हम यह नहीं बता सकते कि इसमें {allergen} है या नहीं।",
+  "@reasonAllergenUnknown": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonAllergenUnrecognised": "आपकी प्रोफ़ाइल में दिए गए एलर्जन \"{allergen}\" को हम पहचान नहीं पाए।",
+  "@reasonAllergenUnrecognised": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCarbsPerServingHigh": "{basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम/मि.ली.}} {carbs_g} ग्राम कार्बोहाइड्रेट। यह शायद आपकी स्थिति के लिए उपयुक्त न हो; अपने डॉक्टर से पूछें।",
+  "@reasonCarbsPerServingHigh": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "carbs_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCardioRiskHighIn": "इसमें {high_in} अधिक है। ब्लड शुगर पर ध्यान रखने वाले लोगों को अक्सर इन्हें सीमित करने की सलाह दी जाती है; अपने डॉक्टर से पूछें।",
+  "@reasonCardioRiskHighIn": {
+    "placeholders": {
+      "high_in": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildCaffeine": "इसमें कैफ़ीन है, जो बच्चों के लिए अनुशंसित नहीं है।",
+  "reasonChildSaltHigh": "प्रति 100 ग्राम/मि.ली. {salt_g} ग्राम नमक बच्चे के लिए अधिक है।",
+  "@reasonChildSaltHigh": {
+    "placeholders": {
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildSugarHigh": "{basis, select, per_serving {एक सर्विंग में} other {100 ग्राम/मि.ली. में}} बच्चे की दैनिक चीनी सीमा (लगभग {limit_g} ग्राम प्रतिदिन) का {pct}% है। यह बच्चे के लिए अधिक है।",
+  "@reasonChildSugarHigh": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "limit_g": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonChildSugarModerate": "{basis, select, per_serving {एक सर्विंग में} other {100 ग्राम/मि.ली. में}} बच्चे की दैनिक चीनी सीमा (लगभग {limit_g} ग्राम प्रतिदिन) का {pct}% है। यह बच्चे के लिए थोड़ा अधिक है।",
+  "@reasonChildSugarModerate": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "limit_g": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonConditionUnrecognised": "\"{condition}\" के लिए हमारे पास अभी मार्गदर्शन उपलब्ध नहीं है।",
+  "@reasonConditionUnrecognised": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonDietUnknown": "हम यह नहीं बता सकते कि यह {diet} आहार के अनुकूल है या नहीं।",
+  "@reasonDietUnknown": {
+    "placeholders": {
+      "diet": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonDietViolation": "यह शायद {diet} आहार के अनुरूप न हो: {ingredients}।",
+  "@reasonDietViolation": {
+    "placeholders": {
+      "diet": {
+        "type": "String"
+      },
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonEnergyDense": "यह ऊर्जा से भरपूर (अधिक कैलोरी वाला) भोजन है (प्रति 100 ग्राम/मि.ली. {energy_kcal} किलो कैलोरी)। कम मात्रा लेने पर विचार करें।",
+  "@reasonEnergyDense": {
+    "placeholders": {
+      "energy_kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonGoodProteinDensity": "अपनी कैलोरी के हिसाब से अच्छी मात्रा में प्रोटीन।",
+  "reasonHiddenSugars": "इसमें अन्य नामों से लिखी गई शर्कराएँ हैं: {ingredients}।",
+  "@reasonHiddenSugars": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonInfantAddedSalt": "इसमें अतिरिक्त नमक है, जो 2 साल से छोटे बच्चों के लिए अनुशंसित नहीं है।",
+  "reasonInfantAddedSugar": "इसमें अतिरिक्त चीनी है, जो 2 साल से छोटे बच्चों के लिए अनुशंसित नहीं है।",
+  "reasonInfantCaffeine": "इसमें कैफ़ीन है, जो 2 साल से छोटे बच्चों के लिए अनुशंसित नहीं है।",
+  "reasonInfantHoney": "इसमें शहद है, जो 1 साल से छोटे शिशुओं को नहीं देना चाहिए। इससे बड़े छोटे बच्चों के लिए अपने डॉक्टर से पूछें।",
+  "reasonInfantSaltHigh": "प्रति 100 ग्राम/मि.ली. {salt_g} ग्राम नमक 2 साल से छोटे बच्चे के लिए अधिक है।",
+  "@reasonInfantSaltHigh": {
+    "placeholders": {
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonInfantSugarHigh": "प्रति 100 ग्राम/मि.ली. {sugars_g} ग्राम चीनी 2 साल से छोटे बच्चे के लिए अधिक है।",
+  "@reasonInfantSugarHigh": {
+    "placeholders": {
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonIngredientsMissing": "सामग्री की सूची पढ़ी नहीं जा सकी, इसलिए कुछ जाँचें नहीं हो सकीं।",
+  "reasonMisleadingSugarClaim": "पैक पर \"{claim}\" लिखा है, लेकिन लेबल की जानकारी इस दावे का समर्थन नहीं करती।",
+  "@reasonMisleadingSugarClaim": {
+    "placeholders": {
+      "claim": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonNutrientMissing": "लेबल पर {nutrient} की जानकारी नहीं है, इसलिए यह जाँच नहीं हो सकी।",
+  "@reasonNutrientMissing": {
+    "placeholders": {
+      "nutrient": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonNutriscoreLow": "Nutri-Score {grade} कुल पोषण गुणवत्ता कम होने का संकेत देता है।",
+  "@reasonNutriscoreLow": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSaltHigh": "नमक अधिक है: प्रति 100 ग्राम/मि.ली. {salt_g} ग्राम।",
+  "@reasonSaltHigh": {
+    "placeholders": {
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSaltModerate": "नमक मध्यम है: प्रति 100 ग्राम/मि.ली. {salt_g} ग्राम।",
+  "@reasonSaltModerate": {
+    "placeholders": {
+      "salt_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSodiumAdditives": "इसमें सोडियम वाले योजक हैं: {ingredients}।",
+  "@reasonSodiumAdditives": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSugarHigh": "चीनी अधिक है: प्रति 100 ग्राम/मि.ली. {sugars_g} ग्राम।",
+  "@reasonSugarHigh": {
+    "placeholders": {
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSugarModerate": "चीनी मध्यम है: प्रति 100 ग्राम/मि.ली. {sugars_g} ग्राम।",
+  "@reasonSugarModerate": {
+    "placeholders": {
+      "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonVariantDietViolationMarkOnly": "पैक पर भूरे रंग का मांसाहारी निशान है, इसलिए यह शायद {diet} आहार के अनुरूप न हो।",
+  "@reasonVariantDietViolationMarkOnly": {
+    "placeholders": {
+      "diet": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonVariantNutrientMissingLowConfidence": "लेबल पर {nutrient} साफ़ नहीं पढ़ा जा सका, इसलिए यह जाँच नहीं हो सकी।",
+  "@reasonVariantNutrientMissingLowConfidence": {
+    "placeholders": {
+      "nutrient": {
+        "type": "String"
+      }
+    }
+  },
+  "resultForMember": "{name} के लिए",
+  "@resultForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resultGrade": "न्यूट्री-स्कोर {grade}",
+  "@resultGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "resultHighInTitle": "इनमें अधिक",
+  "resultIngredients": "सामग्री",
+  "resultNoIngredients": "सामग्री उपलब्ध नहीं",
+  "resultScanAnother": "दूसरा उत्पाद स्कैन करें",
+  "resultTitle": "परिणाम",
+  "resultYou": "आप",
+  "scanCameraDenied": "कैमरा की अनुमति बंद है। आप बारकोड टाइप कर सकते हैं।",
+  "scanCameraUnavailable": "कैमरा नहीं मिला। आप बारकोड टाइप कर सकते हैं।",
+  "scanInvalid": "बारकोड के नीचे लिखे 8, 12, 13 या 14 अंक दर्ज करें।",
+  "scanManualEntry": "या बारकोड टाइप करें",
+  "scanManualPlaceholder": "जैसे 8901063201089",
+  "scanNotFound": "यह उत्पाद अभी हमें नहीं मिला।",
+  "scanOffUnavailable": "उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।",
+  "scanRetry": "फिर से कोशिश करें",
+  "scanScanning": "कैमरा बारकोड की ओर रखें",
+  "scanSubmit": "यह उत्पाद जाँचें",
+  "scanTitle": "बारकोड स्कैन करें",
+  "statusAvoid": "बचें",
+  "statusCaution": "सावधानी",
+  "statusOk": "ठीक है",
+  "statusUnknown": "लेबल स्पष्ट नहीं",
+  "verdictConfidenceNote": "{reason, select, low_confidence {लेबल पढ़ना कठिन था, इसलिए यह परिणाम कम निश्चित है।} other {कुछ डेटा अनिश्चित है।}}",
+  "@verdictConfidenceNote": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictHideReasons": "कारण छिपाएँ",
+  "verdictProfileNotSetUp": "प्रोफ़ाइल सेट नहीं है: उम्र, एलर्जी और आहार की अभी जाँच नहीं हुई है।",
+  "verdictReasonUnavailable": "इस नतीजे की जानकारी इस संस्करण में उपलब्ध नहीं है।",
+  "verdictRuleApplied": "लागू नियम: {rule}",
+  "@verdictRuleApplied": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictShowAllReasons": "सभी कारण दिखाएँ",
+  "verdictStatusAvoid": "बचें",
+  "verdictStatusCaution": "सावधानी",
+  "verdictStatusOk": "ठीक है",
+  "verdictStatusUnknown": "लेबल स्पष्ट नहीं"
+}

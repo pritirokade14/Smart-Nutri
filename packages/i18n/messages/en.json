@@ -1,0 +1,214 @@
+{
+  "app": {
+    "name": "SmartNutri AI"
+  },
+  "common": {
+    "disclaimer": "Information, not medical advice.",
+    "loading": "Loading…",
+    "retry": "Try again"
+  },
+  "auth": {
+    "title": "Sign in",
+    "google": "Continue with Google",
+    "email": "Continue with email",
+    "emailLabel": "Email address",
+    "sendCode": "Send code",
+    "codeLabel": "6-digit code",
+    "verify": "Verify",
+    "phone": "Continue with phone",
+    "phoneLabel": "Phone number (with country code)",
+    "change": "Change",
+    "error": "Could not sign in. Please try again.",
+    "signOut": "Sign out"
+  },
+  "home": {
+    "welcome": "Hello, {name}",
+    "scan_cta": "Scan a product"
+  },
+  "verdict": {
+    "status": {
+      "ok": "OK",
+      "caution": "Caution",
+      "unknown": "Label unclear",
+      "avoid": "Avoid"
+    },
+    "rule_applied": "Rule applied: {rule}",
+    "confidence_note": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}",
+    "reason_unavailable": "Details for this result aren't available in this version.",
+    "profile_not_set_up": "Profile not set up: age, allergies and diet aren't checked yet.",
+    "show_all_reasons": "Show all reasons",
+    "hide_reasons": "Hide reasons"
+  },
+  "status": {
+    "ok": "OK",
+    "caution": "Caution",
+    "unknown": "Label unclear",
+    "avoid": "Avoid"
+  },
+  "reason": {
+    "allergen_contains": "Contains {allergen}, which is on your avoid list.",
+    "allergen_may_contain": "May contain {allergen}, which is on your avoid list.",
+    "allergen_unknown": "We can't tell whether this contains {allergen}.",
+    "allergen_unrecognised": "We don't recognise the allergen \"{allergen}\" in your profile.",
+    "diet_violation": "May not match the {diet} diet: {ingredients}.",
+    "diet_unknown": "We can't tell whether this fits the {diet} diet.",
+    "sugar_high": "High in sugar: {sugars_g} g per 100 g/ml.",
+    "sugar_moderate": "Moderate sugar: {sugars_g} g per 100 g/ml.",
+    "misleading_sugar_claim": "The pack says \"{claim}\", but the label data does not support this claim.",
+    "hidden_sugars": "Contains sugars listed under other names: {ingredients}.",
+    "added_sugars": "Contains added sugars: {ingredients}.",
+    "carbs_per_serving_high": "{carbs_g} g carbohydrate {basis, select, per_serving {per serving} other {per 100 g/ml}}. This may not suit your condition; check with your doctor.",
+    "salt_high": "High in salt: {salt_g} g per 100 g/ml.",
+    "salt_moderate": "Moderate salt: {salt_g} g per 100 g/ml.",
+    "sodium_additives": "Contains sodium-based additives: {ingredients}.",
+    "energy_dense": "This is an energy-dense food ({energy_kcal} kcal per 100 g/ml). Consider a smaller portion.",
+    "nutriscore_low": "Nutri-Score {grade} points to lower overall nutrition quality.",
+    "good_protein_density": "A good amount of protein for its calories.",
+    "child_sugar_high": "{basis, select, per_serving {One serving} other {100 g/ml}} gives {pct}% of a child's daily sugar limit (about {limit_g} g a day). That is high for a child.",
+    "child_sugar_moderate": "{basis, select, per_serving {One serving} other {100 g/ml}} gives {pct}% of a child's daily sugar limit (about {limit_g} g a day). That is on the higher side for a child.",
+    "child_caffeine": "Contains caffeine, which is not recommended for children.",
+    "child_salt_high": "{salt_g} g salt per 100 g/ml is high for a child.",
+    "infant_added_sugar": "Contains added sugar, which is not recommended for children under 2.",
+    "infant_added_salt": "Contains added salt, which is not recommended for children under 2.",
+    "infant_honey": "Contains honey, which should not be given to babies under 1 year. For toddlers, check with your doctor.",
+    "infant_caffeine": "Contains caffeine, which is not recommended for children under 2.",
+    "infant_sugar_high": "{sugars_g} g sugar per 100 g/ml is high for a child under 2.",
+    "infant_salt_high": "{salt_g} g salt per 100 g/ml is high for a child under 2.",
+    "ingredients_missing": "The ingredients list was not readable, so some checks could not be done.",
+    "nutrient_missing": "The label does not show {nutrient}, so this check could not be done.",
+    "condition_unrecognised": "We do not have guidance for \"{condition}\" yet.",
+    "cardio_risk_high_in": "High in {high_in}. People managing blood sugar are often advised to limit these; check with your doctor.",
+    "age_unknown": "Add this member's birth year: this food may not suit young children or babies."
+  },
+  "reason_variant": {
+    "nutrient_missing_low_confidence": "We couldn't read {nutrient} clearly on the label, so this check could not be done.",
+    "diet_violation_mark_only": "The pack has the brown non-vegetarian mark, so this may not match the {diet} diet."
+  },
+  "nutrient": {
+    "energy_kcal": "energy (calories)",
+    "protein_g": "protein",
+    "carbs_g": "carbohydrate",
+    "sugars_g": "sugars",
+    "fat_g": "fat",
+    "sat_fat": "saturated fat",
+    "salt": "salt",
+    "sodium_mg": "sodium"
+  },
+  "allergen": {
+    "milk": "Milk",
+    "peanut": "Peanut",
+    "gluten": "Gluten",
+    "soy": "Soy",
+    "egg": "Egg",
+    "tree_nut": "Tree nuts",
+    "sesame": "Sesame",
+    "fish": "Fish",
+    "crustacean": "Shellfish (crustaceans)",
+    "mustard": "Mustard",
+    "sulphite": "Sulphites"
+  },
+  "diet": {
+    "veg": "Vegetarian",
+    "eggetarian": "Eggetarian",
+    "vegan": "Vegan",
+    "jain": "Jain",
+    "non_veg": "Non-vegetarian"
+  },
+  "condition": {
+    "diabetes": "Diabetes",
+    "prediabetes": "Prediabetes",
+    "pcos": "PCOS",
+    "hypertension": "High blood pressure",
+    "weight_loss": "Weight loss"
+  },
+  "high_in": {
+    "sugar": "High in sugar",
+    "fat": "High in fat",
+    "sat_fat": "High in saturated fat",
+    "salt": "High in salt",
+    "percent_of_limit": "{pct}% of the limit"
+  },
+  "nutriscore": {
+    "calculated_by": "Nutri-Score calculated by SmartNutri",
+    "insufficient_data": "Not enough label data to calculate a Nutri-Score."
+  },
+  "claim": {
+    "no_added_sugar": "No added sugar",
+    "sugar_free": "Sugar free",
+    "low_sugar": "Low sugar",
+    "low_fat": "Low fat",
+    "low_sodium": "Low sodium",
+    "high_protein": "High protein",
+    "source_of_protein": "Source of protein",
+    "no_refined_sugar": "No refined sugar",
+    "diabetic_friendly": "Diabetic friendly"
+  },
+  "claim_verdict": {
+    "supported": "Label data supports this claim",
+    "contradicted": "Label data contradicts this claim",
+    "unverifiable": "Can't be checked from the label"
+  },
+  "claim_reason": {
+    "ok": "The label data is consistent with this claim.",
+    "exceeds_limit": "The label shows {value} per 100 g/ml, above this claim's limit of {limit}.",
+    "below_minimum": "Protein gives {value}% of the energy, below the {limit}% this claim needs.",
+    "nutrient_missing": "The label does not show {nutrient}, so this claim can't be checked.",
+    "ingredients_unknown": "The ingredients list is not available, so this claim can't be checked.",
+    "added_sugar_ingredient": "The ingredients include added sugar: {ingredients}.",
+    "refined_sugar_ingredient": "The ingredients include refined sugar: {ingredients}.",
+    "no_standard": "There is no standard to check this claim against."
+  },
+  "error": {
+    "auth_required": "Please sign in.",
+    "auth_invalid": "Your session expired. Please sign in again.",
+    "not_found": "Not found.",
+    "validation_error": "Please check the highlighted fields.",
+    "rate_limited": "Too many requests. Please wait a moment.",
+    "rate_limited_scans": "You've reached today's label-scan limit.",
+    "rate_limited_voice": "You've reached today's voice-question limit.",
+    "internal_error": "Something went wrong. Please try again.",
+    "network": "No internet connection.",
+    "unauthorized": "Please sign in.",
+    "forbidden": "You don't have access to this.",
+    "method_not_allowed": "This action isn't supported. Please update the app.",
+    "http_error": "Something went wrong. Please try again.",
+    "invalid_barcode": "That doesn't look like a valid barcode.",
+    "product_not_found": "We couldn't find this product yet.",
+    "off_unavailable": "The product database is busy right now. Please try again in a moment.",
+    "member_not_found": "That family member wasn't found.",
+    "invalid_product_ref": "Choose a product to check."
+  },
+  "scan": {
+    "title": "Scan a barcode",
+    "manual_entry": "Or type the barcode",
+    "manual_placeholder": "e.g. 8901063201089",
+    "submit": "Check this product",
+    "invalid": "Enter the 8, 12, 13 or 14 digits under the barcode.",
+    "camera_denied": "Camera access is off. You can type the barcode instead.",
+    "camera_unavailable": "No camera found. You can type the barcode instead.",
+    "not_found": "We couldn't find this product yet.",
+    "retry": "Try again",
+    "off_unavailable": "The product database is busy right now. Please try again in a moment.",
+    "scanning": "Point the camera at the barcode"
+  },
+  "result": {
+    "title": "Result",
+    "grade": "Nutri-Score {grade}",
+    "high_in_title": "High in",
+    "for_member": "For {name}",
+    "scan_another": "Scan another product",
+    "ingredients": "Ingredients",
+    "no_ingredients": "Ingredients not available",
+    "you": "You"
+  },
+  "product": {
+    "public_cta": "Check it for your family",
+    "meta_title": "{name} – nutrition facts | SmartNutri",
+    "meta_description": "Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice.",
+    "claims_heading": "Claims on the label, checked by SmartNutri",
+    "label_says": "Label says: {claim}"
+  },
+  "attribution": {
+    "off": "Data from Open Food Facts (ODbL)"
+  }
+}

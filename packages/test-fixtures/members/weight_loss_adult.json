@@ -1,0 +1,9 @@
+{
+  "id": "weight_loss_adult",
+  "name": "Weight Loss Adult",
+  "age": 35,
+  "diet": "non_veg",
+  "allergens": [],
+  "conditions": [],
+  "goal": "weight_loss"
+}

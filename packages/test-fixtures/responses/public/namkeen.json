@@ -1,0 +1,68 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [],
+    "image_url": null,
+    "ingredients": [
+      "gram flour (besan)",
+      "edible vegetable oil",
+      "peanuts",
+      "salt",
+      "spices",
+      "onion powder",
+      "garlic powder"
+    ],
+    "name": "Namkeen",
+    "per_100g": {
+      "carbs_g": 40.0,
+      "energy_kcal": 550.0,
+      "fat_g": 35.0,
+      "fiber_g": 5.0,
+      "protein_g": 15.0,
+      "salt_g": 2.5,
+      "sat_fat_g": 10.0,
+      "sodium_mg": null,
+      "sugars_g": 3.0
+    },
+    "product_id": "ad4d8031-067b-5080-bc60-a298160154ae",
+    "serving_size_g": 30.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "peanut": "contains"
+    },
+    "claims": [],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [
+        "garlic powder",
+        "onion powder"
+      ],
+      "non_veg": [],
+      "veg": [],
+      "vegan": []
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [
+      "fat",
+      "sat_fat",
+      "salt"
+    ],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "E",
+      "partial": true,
+      "points": 25,
+      "reason": null
+    },
+    "sodium_additives": [],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

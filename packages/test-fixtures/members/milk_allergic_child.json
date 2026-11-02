@@ -1,0 +1,11 @@
+{
+  "id": "milk_allergic_child",
+  "name": "Milk Allergic Child",
+  "age": 8,
+  "diet": "veg",
+  "allergens": [
+    "milk"
+  ],
+  "conditions": [],
+  "goal": null
+}

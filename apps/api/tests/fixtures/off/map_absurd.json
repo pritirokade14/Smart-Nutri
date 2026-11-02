@@ -1,0 +1,14 @@
+{
+  "code": "8901000000141",
+  "product": {
+    "code": "8901000000141",
+    "product_name": "Absurd",
+    "ingredients_text": "x",
+    "nutriments": {
+      "sugars_100g": -5,
+      "fat_100g": 250,
+      "energy-kcal_100g": 5000,
+      "sodium_100g": 900
+    }
+  }
+}

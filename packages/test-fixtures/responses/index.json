@@ -1,0 +1,33 @@
+{
+  "account_id": "91587d0e-4be2-5092-91e3-d04acdb2853d",
+  "members": {
+    "bp_parent": "1e329317-586f-5b80-aaee-d07fd72fc6d6",
+    "diabetic_adult": "03205f4c-4228-5936-93f2-d182aeb2743b",
+    "infant": "1d7fee7b-8981-5115-941a-65bb357864d3",
+    "jain_adult": "4aac1a45-e2cc-57f2-af48-8896e0b62866",
+    "milk_allergic_child": "834da0b9-324c-51a2-b07a-719afc7d08f0",
+    "no_age": "d4a4c7e7-01cc-521a-a16d-3b3002846e7c",
+    "peanut_allergic": "defbaa80-4fb3-5075-9f8a-befcf6f78518",
+    "vegan_adult": "4f12ed5d-c075-5b3f-8750-fd594b080946",
+    "weight_loss_adult": "e5e07704-c60d-5ba7-9330-5e575fb9ff36"
+  },
+  "products": {
+    "cola": "62e22ce8-476b-5780-b460-b6230c4c5d6e",
+    "curd": "43948b49-ca14-5ecd-bf3e-15743470067f",
+    "namkeen": "ad4d8031-067b-5080-bc60-a298160154ae",
+    "no_ingredients": "138bb898-65c6-51ec-be17-8ea229e1aacd",
+    "oats": "38d1b07a-33fa-5df5-bc0f-5f00a938865d",
+    "sf_biscuit": "bd9cf825-bcc0-53e2-bb3f-f934f94ceb6d",
+    "water": "6daaecc5-83d5-5875-9059-725da80ee7f2"
+  },
+  "reference_date": "2026-01-01",
+  "scans": {
+    "cola": "c7d43339-f611-5f90-afaf-f72e8f2e12cd",
+    "curd": "ff6eaf5a-cc67-5a2a-9348-7516bdb9c183",
+    "namkeen": "16495784-ba60-5e06-b164-a290f42554be",
+    "no_ingredients": "fee2ddc8-be54-5a95-aa8d-6af75d544a9e",
+    "oats": "cbde679e-a2ef-5151-8648-08cb47143c1b",
+    "sf_biscuit": "2ed7da37-950d-5f59-bbc4-3485f113aed6",
+    "water": "503efc66-03a5-55ce-8c6e-3d5e08e40b83"
+  }
+}

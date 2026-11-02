@@ -1,0 +1,9 @@
+{
+  "id": "infant",
+  "name": "Infant",
+  "age": 1,
+  "diet": "non_veg",
+  "allergens": [],
+  "conditions": [],
+  "goal": null
+}

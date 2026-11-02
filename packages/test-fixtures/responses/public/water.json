@@ -1,0 +1,53 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "water",
+    "claims": [],
+    "image_url": null,
+    "ingredients": [
+      "water"
+    ],
+    "name": "Water",
+    "per_100g": {
+      "carbs_g": 0.0,
+      "energy_kcal": 0.0,
+      "fat_g": 0.0,
+      "fiber_g": 0.0,
+      "protein_g": 0.0,
+      "salt_g": 0.0,
+      "sat_fat_g": 0.0,
+      "sodium_mg": null,
+      "sugars_g": 0.0
+    },
+    "product_id": "6daaecc5-83d5-5875-9059-725da80ee7f2",
+    "serving_size_g": 500.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {},
+    "claims": [],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": []
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "A",
+      "partial": false,
+      "points": null,
+      "reason": null
+    },
+    "sodium_additives": [],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

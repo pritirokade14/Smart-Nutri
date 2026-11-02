@@ -1,0 +1,103 @@
+"""Fixed-window rate limiting backed by ``rate_limit_counters``.
+
+Each request atomically upserts ``count + 1`` for (key, bucket, window_start) and compares the
+returned count with the configured limit. Windows are UTC-aligned (``date_trunc(..., 'UTC')``)
+and computed in the database, so every API instance agrees. The counter is committed
+immediately, so rejected requests still count and a failed route does not refund the quota.
+"""
+
+from collections.abc import Awaitable, Callable
+from typing import Annotated
+
+from fastapi import Depends, Request
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import Settings, get_app_settings
+from app.core.errors import ApiError
+from app.core.security import AccountContext, current_account
+from app.db.session import get_session
+
+# bucket -> (window, settings attribute holding the limit)
+BUCKETS: dict[str, tuple[str, str]] = {
+    "label_scans": ("day", "rate_limit_label_scans_per_day"),
+    "voice": ("day", "rate_limit_voice_per_day"),
+    "analyze": ("hour", "rate_limit_analyze_per_hour"),
+    "public": ("minute", "rate_limit_public_per_minute"),
+}
+ERROR_CODES = {"label_scans": "rate_limited_scans", "voice": "rate_limited_voice"}
+_DEFAULT_CODE = "rate_limited"
+
+# Fixed literals only (never user input): safe to interpolate into the statement.
+_INTERVALS = {"day": "1 day", "hour": "1 hour", "minute": "1 minute"}
+
+
+def client_ip(request: Request, settings: Settings) -> str:
+    """Client IP for the ``public`` bucket.
+
+    With ``trusted_proxy_hops`` = N > 0 the IP is the Nth entry from the right of
+    X-Forwarded-For: trusted proxies append to the right, so anything further left is
+    client-controlled and ignored. Falls back to the socket peer if the header is missing/short.
+    """
+    hops = settings.trusted_proxy_hops
+    if hops > 0:
+        header = request.headers.get("x-forwarded-for", "")
+        parts = [p.strip() for p in header.split(",") if p.strip()]
+        if len(parts) >= hops:
+            return parts[-hops]
+    return request.client.host if request.client else "unknown"
+
+
+def _statement(window: str) -> str:
+    return f"""
+        WITH w AS (SELECT date_trunc('{window}', now(), 'UTC') AS start)
+        INSERT INTO rate_limit_counters (key, bucket, window_start, count)
+        SELECT :key, :bucket, w.start, 1 FROM w
+        ON CONFLICT (key, bucket, window_start)
+        DO UPDATE SET count = rate_limit_counters.count + 1
+        RETURNING count,
+            CEIL(EXTRACT(EPOCH FROM (window_start + interval '{_INTERVALS[window]}' - now())))
+                AS retry_after
+    """
+
+
+async def _hit(session: AsyncSession, settings: Settings, key: str, bucket: str) -> None:
+    window, attr = BUCKETS[bucket]
+    max_count: int = getattr(settings, attr)
+    row = (await session.execute(text(_statement(window)), {"key": key, "bucket": bucket})).one()
+    await session.commit()
+    if row.count > max_count:
+        retry_after = max(1, int(row.retry_after))
+        raise ApiError(
+            ERROR_CODES.get(bucket, _DEFAULT_CODE),
+            429,
+            details={"retry_after": retry_after},
+            headers={"Retry-After": str(retry_after)},
+        )
+
+
+def limit(bucket: str) -> Callable[..., Awaitable[None]]:
+    """FastAPI dependency enforcing ``bucket``. ``public`` is keyed by client IP, no auth."""
+    if bucket not in BUCKETS:
+        raise KeyError(f"unknown rate-limit bucket: {bucket}")
+
+    if bucket == "public":
+
+        async def _by_ip(
+            request: Request,
+            session: Annotated[AsyncSession, Depends(get_session)],
+            settings: Annotated[Settings, Depends(get_app_settings)],
+        ) -> None:
+            ip = client_ip(request, settings)
+            await _hit(session, settings, f"ip:{ip}", bucket)
+
+        return _by_ip
+
+    async def _by_account(
+        account: Annotated[AccountContext, Depends(current_account)],
+        session: Annotated[AsyncSession, Depends(get_session)],
+        settings: Annotated[Settings, Depends(get_app_settings)],
+    ) -> None:
+        await _hit(session, settings, f"acct:{account.account_id}", bucket)
+
+    return _by_account

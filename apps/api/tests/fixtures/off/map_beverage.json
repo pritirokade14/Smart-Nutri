@@ -1,0 +1,22 @@
+{
+  "code": "8901000000066",
+  "product": {
+    "code": "8901000000066",
+    "product_name": "Fizz Cola",
+    "brands": "FizzCo",
+    "categories_tags": [
+      "en:beverages",
+      "en:carbonated-drinks",
+      "en:sodas"
+    ],
+    "ingredients_text_en": "carbonated water, sugar, caffeine",
+    "serving_quantity": 300,
+    "serving_quantity_unit": "ml",
+    "nutriments": {
+      "energy-kcal_100g": 42,
+      "sugars_100g": 10.6,
+      "carbohydrates_100g": 10.6,
+      "sodium_100g": 0.01
+    }
+  }
+}

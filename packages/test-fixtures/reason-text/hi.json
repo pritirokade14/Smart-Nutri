@@ -1,0 +1,230 @@
+[
+  {
+    "key": "reason.allergen_contains",
+    "member": "milk_allergic_child",
+    "product": "curd",
+    "reason": {
+      "code": "allergen_contains",
+      "params": {
+        "allergen": "milk"
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "इसमें दूध है, जो आपकी बचने वाली सूची में है।"
+  },
+  {
+    "key": "reason.allergen_unknown",
+    "member": "milk_allergic_child",
+    "product": "no_ingredients",
+    "reason": {
+      "code": "allergen_unknown",
+      "params": {
+        "allergen": "milk"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "हम यह नहीं बता सकते कि इसमें दूध है या नहीं।"
+  },
+  {
+    "key": "reason.diet_violation",
+    "member": "vegan_adult",
+    "product": "curd",
+    "reason": {
+      "code": "diet_violation",
+      "params": {
+        "diet": "vegan",
+        "ingredients": [
+          "milk"
+        ]
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "यह शायद वीगन आहार के अनुरूप न हो: milk।"
+  },
+  {
+    "key": "reason_variant.diet_violation_mark_only",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "diet_violation",
+      "params": {
+        "diet": "veg",
+        "ingredients": [],
+        "mark": "non_veg"
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "पैक पर भूरे रंग का मांसाहारी निशान है, इसलिए यह शायद शाकाहारी आहार के अनुरूप न हो।"
+  },
+  {
+    "key": "reason.sugar_high",
+    "member": "diabetic_adult",
+    "product": "cola",
+    "reason": {
+      "code": "sugar_high",
+      "params": {
+        "sugars_g": 10.6
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "चीनी अधिक है: प्रति 100 ग्राम/मि.ली. 10.6 ग्राम।"
+  },
+  {
+    "key": "reason.child_sugar_high",
+    "member": "milk_allergic_child",
+    "product": "cola",
+    "reason": {
+      "code": "child_sugar_high",
+      "params": {
+        "basis": "per_serving",
+        "limit_g": 24,
+        "pct": 132.5
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 1,
+    "text": "एक सर्विंग में बच्चे की दैनिक चीनी सीमा (लगभग 24 ग्राम प्रतिदिन) का 132.5% है। यह बच्चे के लिए अधिक है।"
+  },
+  {
+    "key": "reason.child_sugar_moderate",
+    "member": "milk_allergic_child",
+    "product": "no_ingredients",
+    "reason": {
+      "code": "child_sugar_moderate",
+      "params": {
+        "basis": "per_100g",
+        "limit_g": 24,
+        "pct": 41.67
+      },
+      "severity": "caution"
+    },
+    "reason_index": 3,
+    "text": "100 ग्राम/मि.ली. में बच्चे की दैनिक चीनी सीमा (लगभग 24 ग्राम प्रतिदिन) का 41.67% है। यह बच्चे के लिए थोड़ा अधिक है।"
+  },
+  {
+    "key": "reason.carbs_per_serving_high",
+    "member": "diabetic_adult",
+    "product": "cola",
+    "reason": {
+      "code": "carbs_per_serving_high",
+      "params": {
+        "basis": "per_serving",
+        "carbs_g": 31.8
+      },
+      "severity": "caution"
+    },
+    "reason_index": 2,
+    "text": "प्रति सर्विंग 31.8 ग्राम कार्बोहाइड्रेट। यह शायद आपकी स्थिति के लिए उपयुक्त न हो; अपने डॉक्टर से पूछें।"
+  },
+  {
+    "key": "reason.misleading_sugar_claim",
+    "member": "diabetic_adult",
+    "product": "sf_biscuit",
+    "reason": {
+      "code": "misleading_sugar_claim",
+      "params": {
+        "claim": "sugar_free"
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "पैक पर \"चीनी रहित\" लिखा है, लेकिन लेबल की जानकारी इस दावे का समर्थन नहीं करती।"
+  },
+  {
+    "key": "reason.nutrient_missing",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "nutrient_missing",
+      "params": {
+        "nutrient": "sat_fat",
+        "rule": "diabetes"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "लेबल पर संतृप्त वसा की जानकारी नहीं है, इसलिए यह जाँच नहीं हो सकी।"
+  },
+  {
+    "key": "reason_variant.nutrient_missing_low_confidence",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "nutrient_missing",
+      "params": {
+        "nutrient": "salt",
+        "reason": "low_confidence",
+        "rule": "bp"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "लेबल पर नमक साफ़ नहीं पढ़ा जा सका, इसलिए यह जाँच नहीं हो सकी।"
+  },
+  {
+    "key": "reason.cardio_risk_high_in",
+    "member": "diabetic_adult",
+    "product": "namkeen",
+    "reason": {
+      "code": "cardio_risk_high_in",
+      "params": {
+        "high_in": [
+          "sat_fat",
+          "salt"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "इसमें संतृप्त वसा, नमक अधिक है। ब्लड शुगर पर ध्यान रखने वाले लोगों को अक्सर इन्हें सीमित करने की सलाह दी जाती है; अपने डॉक्टर से पूछें।"
+  },
+  {
+    "key": "reason.hidden_sugars",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "hidden_sugars",
+      "params": {
+        "ingredients": [
+          "maltodextrin",
+          "dextrose",
+          "glucose syrup"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "इसमें अन्य नामों से लिखी गई शर्कराएँ हैं: maltodextrin, dextrose, glucose syrup।"
+  },
+  {
+    "key": "reason.age_unknown",
+    "member": "no_age",
+    "product": "cola",
+    "reason": {
+      "code": "age_unknown",
+      "params": {},
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "इस सदस्य का जन्म वर्ष जोड़ें: यह भोजन शायद छोटे बच्चों या शिशुओं के लिए उपयुक्त न हो।"
+  },
+  {
+    "key": "reason.salt_high",
+    "member": "bp_parent",
+    "product": "namkeen",
+    "reason": {
+      "code": "salt_high",
+      "params": {
+        "salt_g": 2.5
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "नमक अधिक है: प्रति 100 ग्राम/मि.ली. 2.5 ग्राम।"
+  }
+]

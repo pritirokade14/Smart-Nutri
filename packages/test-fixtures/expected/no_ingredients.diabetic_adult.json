@@ -1,0 +1,17 @@
+{
+  "status": "unknown",
+  "reasons": [
+    {
+      "code": "diet_unknown",
+      "severity": "unknown"
+    },
+    {
+      "code": "carbs_per_serving_high",
+      "severity": "caution"
+    },
+    {
+      "code": "sugar_moderate",
+      "severity": "caution"
+    }
+  ]
+}

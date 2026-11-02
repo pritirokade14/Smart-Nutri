@@ -1,0 +1,259 @@
+{
+  "explanation": null,
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [
+      "Sugar Free"
+    ],
+    "image_url": null,
+    "ingredients": [
+      "wheat flour (maida)",
+      "maltodextrin",
+      "edible vegetable oil (palm)",
+      "milk solids",
+      "raising agent (ins 500(ii))",
+      "salt",
+      "emulsifier (ins 322)"
+    ],
+    "name": "Sugar Free Biscuit",
+    "per_100g": {
+      "carbs_g": 72.0,
+      "energy_kcal": 450.0,
+      "fat_g": 15.0,
+      "fiber_g": 2.0,
+      "protein_g": 8.0,
+      "salt_g": 0.9,
+      "sat_fat_g": 7.0,
+      "sodium_mg": null,
+      "sugars_g": 2.0
+    },
+    "product_id": "bd9cf825-bcc0-53e2-bb3f-f934f94ceb6d",
+    "serving_size_g": 25.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "gluten": "contains",
+      "milk": "contains",
+      "soy": "may_contain"
+    },
+    "claims": [
+      {
+        "claim": "sugar_free",
+        "params": {
+          "limit": 0.5,
+          "value": 2.0
+        },
+        "reason_code": "exceeds_limit",
+        "verdict": "contradicted"
+      }
+    ],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": [
+        "milk solids"
+      ]
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [
+      "maltodextrin"
+    ],
+    "high_in": [
+      "sat_fat"
+    ],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "D",
+      "partial": true,
+      "points": 15,
+      "reason": null
+    },
+    "sodium_additives": [
+      "ins500"
+    ],
+    "veg_mark_mismatch": false
+  },
+  "scan_id": "2ed7da37-950d-5f59-bbc4-3485f113aed6",
+  "tips": [],
+  "verdicts": [
+    {
+      "member_id": "1e329317-586f-5b80-aaee-d07fd72fc6d6",
+      "member_name": "BP Parent",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "salt_moderate",
+          "params": {
+            "salt_g": 0.9
+          },
+          "severity": "caution"
+        },
+        {
+          "code": "sodium_additives",
+          "params": {
+            "ingredients": [
+              "ins500"
+            ]
+          },
+          "severity": "caution"
+        }
+      ],
+      "status": "caution"
+    },
+    {
+      "member_id": "03205f4c-4228-5936-93f2-d182aeb2743b",
+      "member_name": "Diabetic Adult",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "misleading_sugar_claim",
+          "params": {
+            "claim": "sugar_free"
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "cardio_risk_high_in",
+          "params": {
+            "high_in": [
+              "sat_fat"
+            ]
+          },
+          "severity": "caution"
+        },
+        {
+          "code": "hidden_sugars",
+          "params": {
+            "ingredients": [
+              "maltodextrin"
+            ]
+          },
+          "severity": "caution"
+        }
+      ],
+      "status": "avoid"
+    },
+    {
+      "member_id": "1d7fee7b-8981-5115-941a-65bb357864d3",
+      "member_name": "Infant",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "infant_added_salt",
+          "params": {
+            "ingredients": [
+              "salt"
+            ]
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "infant_added_sugar",
+          "params": {
+            "ingredients": [
+              "maltodextrin"
+            ]
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "infant_salt_high",
+          "params": {
+            "salt_g": 0.9
+          },
+          "severity": "avoid"
+        }
+      ],
+      "status": "avoid"
+    },
+    {
+      "member_id": "4aac1a45-e2cc-57f2-af48-8896e0b62866",
+      "member_name": "Jain Adult",
+      "profile_set_up": true,
+      "reasons": [],
+      "status": "ok"
+    },
+    {
+      "member_id": "834da0b9-324c-51a2-b07a-719afc7d08f0",
+      "member_name": "Milk Allergic Child",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "allergen_contains",
+          "params": {
+            "allergen": "milk"
+          },
+          "severity": "avoid"
+        }
+      ],
+      "status": "avoid"
+    },
+    {
+      "member_id": "d4a4c7e7-01cc-521a-a16d-3b3002846e7c",
+      "member_name": "No Age",
+      "profile_set_up": false,
+      "reasons": [
+        {
+          "code": "age_unknown",
+          "params": {},
+          "severity": "unknown"
+        }
+      ],
+      "status": "unknown"
+    },
+    {
+      "member_id": "defbaa80-4fb3-5075-9f8a-befcf6f78518",
+      "member_name": "Peanut Allergic",
+      "profile_set_up": true,
+      "reasons": [],
+      "status": "ok"
+    },
+    {
+      "member_id": "4f12ed5d-c075-5b3f-8750-fd594b080946",
+      "member_name": "Vegan Adult",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "diet_violation",
+          "params": {
+            "diet": "vegan",
+            "ingredients": [
+              "milk solids"
+            ]
+          },
+          "severity": "avoid"
+        }
+      ],
+      "status": "avoid"
+    },
+    {
+      "member_id": "e5e07704-c60d-5ba7-9330-5e575fb9ff36",
+      "member_name": "Weight Loss Adult",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "energy_dense",
+          "params": {
+            "energy_kcal": 450.0
+          },
+          "severity": "caution"
+        },
+        {
+          "code": "nutriscore_low",
+          "params": {
+            "grade": "D"
+          },
+          "severity": "caution"
+        }
+      ],
+      "status": "caution"
+    }
+  ]
+}

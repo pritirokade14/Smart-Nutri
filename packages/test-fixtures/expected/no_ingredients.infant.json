@@ -1,0 +1,17 @@
+{
+  "status": "avoid",
+  "reasons": [
+    {
+      "code": "infant_salt_high",
+      "severity": "avoid"
+    },
+    {
+      "code": "infant_sugar_high",
+      "severity": "avoid"
+    },
+    {
+      "code": "ingredients_missing",
+      "severity": "unknown"
+    }
+  ]
+}

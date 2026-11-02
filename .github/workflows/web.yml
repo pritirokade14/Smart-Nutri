@@ -1,0 +1,63 @@
+name: web
+
+on:
+  push:
+    branches: [main, v1-rebuild]
+    paths: ["apps/web/**", "packages/**", "pnpm-lock.yaml", "package.json", ".github/workflows/web.yml"]
+  pull_request:  # no paths filter: these checks are required on PRs to main (R35)
+    branches: [main]
+  workflow_call:  # reused as the test gate of deploy-dev.yml
+
+permissions:
+  contents: read
+
+env:
+  # Dummy PUBLIC values: NEXT_PUBLIC_* are shipped to browsers, never put real secrets here.
+  NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: dummy-publishable-key
+  # Must match the e2e stub API (apps/web/e2e/stub-api.mjs): NEXT_PUBLIC_* values are inlined at build time.
+  STUB_API_PORT: "18000"
+  NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:18000
+  NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+jobs:
+  test:
+    name: web / test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Skip until the Next.js app exists (Plan 2)
+        id: guard
+        run: echo "ready=$([ -f apps/web/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413  # v6.1.0
+        if: steps.guard.outputs.ready == 'true'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        if: steps.guard.outputs.ready == 'true'
+        with:
+          node-version: 24
+          cache: pnpm
+      - if: steps.guard.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: i18n keys identical in en, hi, mr
+        if: steps.guard.outputs.ready == 'true' && hashFiles('packages/i18n/package.json') != ''
+        run: pnpm --filter @smartnutri/i18n check
+      - name: Lint
+        if: steps.guard.outputs.ready == 'true'
+        run: pnpm --filter @smartnutri/web lint
+      - name: Typecheck
+        if: steps.guard.outputs.ready == 'true'
+        run: pnpm --filter @smartnutri/web typecheck
+      - name: Unit tests
+        if: steps.guard.outputs.ready == 'true'
+        run: pnpm --filter @smartnutri/web test
+      - name: Build
+        if: steps.guard.outputs.ready == 'true'
+        run: pnpm --filter @smartnutri/web build
+      - name: Install Playwright browser
+        if: steps.guard.outputs.ready == 'true'
+        run: pnpm --filter @smartnutri/web exec playwright install --with-deps chromium
+      - name: E2E
+        if: steps.guard.outputs.ready == 'true'
+        env:
+          PORT: "3000"
+        run: pnpm --filter @smartnutri/web e2e

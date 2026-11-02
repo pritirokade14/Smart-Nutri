@@ -1,0 +1,39 @@
+name: smartnutri_ai
+description: "SmartNutri AI Android app."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^3.0.0
+  riverpod_annotation: ^3.0.0
+  go_router: ^16.0.0
+  dio: ^5.9.0
+  smartnutri_api:
+    path: ../../packages/api-contract/dart
+  supabase_flutter: ^2.18.3
+  google_sign_in: ^7.0.0
+  sentry_flutter: ^9.0.0
+  posthog_flutter: ^5.0.0
+  mobile_scanner: ^7.5.0
+  url_launcher: ^6.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  riverpod_generator: ^3.0.0
+  build_runner: ^2.4.0
+
+flutter:
+  uses-material-design: true
+  generate: true

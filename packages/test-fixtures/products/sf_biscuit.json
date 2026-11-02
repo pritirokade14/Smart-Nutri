@@ -1,0 +1,28 @@
+{
+  "name": "Sugar Free Biscuit",
+  "category": "general",
+  "per_100g": {
+    "energy_kcal": 450,
+    "protein_g": 8,
+    "carbs_g": 72,
+    "sugars_g": 2.0,
+    "fat_g": 15,
+    "sat_fat_g": 7,
+    "fiber_g": 2,
+    "salt_g": 0.9
+  },
+  "serving_size_g": 25,
+  "ingredients": [
+    "wheat flour (maida)",
+    "maltodextrin",
+    "edible vegetable oil (palm)",
+    "milk solids",
+    "raising agent (ins 500(ii))",
+    "salt",
+    "emulsifier (ins 322)"
+  ],
+  "claims": [
+    "Sugar Free"
+  ],
+  "source": "plan-1 fixture"
+}

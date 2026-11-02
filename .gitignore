@@ -1,27 +1,66 @@
-# Environment Variables & Secrets
+# Secrets — never commit
 .env
-*.env
-backend/.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
 
-# Python & Virtual Envs
+# Python (apps/api)
 .venv/
 __pycache__/
 *.pyc
-backend/__pycache__/
-backend/uploads/*
-!backend/uploads/.gitkeep
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+apps/api/uploads/
 
-# Flutter / Dart Build Caches
+# Flutter (apps/app)
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 build/
-frontend/.dart_tool/
-frontend/build/
+apps/app/env/*.json
+!apps/app/env/example.json
+apps/app/android/key.properties
+apps/app/android/app/upload-keystore.jks
+*.jks
 
-# Logs & System Junk
+# Node / Next.js (apps/web, packages)
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+playwright-report/
+test-results/
+.vercel/
+apps/web/.env*.local
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Evaluation label photos may contain personal data; keep only the manifest in git
+apps/api/tests/evals/labels/images/
+
+# Logs & OS / IDE junk
 *.log
 hs_err_pid*.log
 .DS_Store
 Thumbs.db
 .idea/
 *.iml
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code local-only settings
+.claude/settings.local.json
+
+# Claude Code agent worktrees
+.claude/worktrees/
+
+# google-github-actions/auth credential files
+gha-creds-*.json

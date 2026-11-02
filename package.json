@@ -1,0 +1,9 @@
+{
+  "name": "smartnutri",
+  "private": true,
+  "description": "SmartNutri AI monorepo — JS workspace root (apps/web + shared packages). Python (apps/api) uses uv; Flutter (apps/app) uses pub. Orchestrate everything with `just`.",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24"
+  }
+}

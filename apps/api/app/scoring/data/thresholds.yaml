@@ -1,0 +1,71 @@
+# PENDING CLINICIAN REVIEW — defaults from UK FSA (high-in), FSSAI Advertising & Claims Regs 2018 (claims), NHS (child sugar)
+min_extraction_confidence: 0.7
+allergen_may_contain_status: avoid
+high_in:
+  food:  {sugars_g: 22.5, fat_g: 17.5, sat_fat_g: 5.0, salt_g: 1.5}
+  drink: {sugars_g: 11.25, fat_g: 8.75, sat_fat_g: 2.5, salt_g: 0.75}
+claims:   # verify values against FSSAI (Advertising & Claims) Regulations 2018, Schedule I
+  sugar_free_max_g: 0.5
+  low_sugar_max_g: {food: 5.0, drink: 2.5}
+  low_fat_max_g: {food: 3.0, drink: 1.5}
+  low_sodium_max_mg: 120
+  source_of_protein_min_energy_pct: 10
+  high_protein_min_energy_pct: 20
+  # "No refined sugar" is contradicted by any of these ingredients (Ruling R28; pending clinician review)
+  refined_sugar_terms: [sugar, cane sugar, refined sugar, sucrose, brown sugar, icing sugar]
+  # Unrefined sugars are not "refined sugar": excluded before matching (Ruling R33; pending clinician review)
+  unrefined_sugar_excludes: [coconut sugar, palm sugar, date sugar, jaggery, gur, khandsari, गुड़]
+# Member-entered condition/goal names -> canonical applies_to names (Ruling R24; pending clinician review).
+# Keys are normalised (lowercase, non-word runs -> "_"). Anything unrecognised -> condition_unrecognised (UNKNOWN).
+condition_aliases:
+  type_2_diabetes: diabetes
+  type_1_diabetes: diabetes
+  t2dm: diabetes
+  t1dm: diabetes
+  diabetic: diabetes
+  sugar: diabetes
+  gestational_diabetes: diabetes
+  pre_diabetes: prediabetes
+  prediabetic: prediabetes
+  borderline_diabetes: prediabetes
+  pcod: pcos
+  high_bp: hypertension
+  high_blood_pressure: hypertension
+  bp: hypertension
+  blood_pressure: hypertension
+  lose_weight: weight_loss
+  obesity: weight_loss
+  overweight: weight_loss
+conditions:
+  blood_sugar:   # diabetes, prediabetes, pcos
+    applies_to: [diabetes, prediabetes, pcos]
+    # food = UK FSA high-in / FSSAI low-sugar bands (Ruling R26; pending clinician review)
+    # drink avoid basis: UK Soft Drinks Industry Levy 5 g/100 ml; pending clinician review (Ruling R31)
+    avoid_sugars_g: {food: 22.5, drink: 5.0}
+    caution_sugars_g: {food: 5.0, drink: 2.5}
+    caution_carbs_per_serving_g: 30
+    # high_in keys that add a CAUTION (cardio_risk_high_in) for this group (Ruling R12;
+    # PENDING CLINICIAN REVIEW). Rationale: guidance for people with diabetes also limits
+    # sodium and saturated fat (ADA Standards of Care, Section 5; ICMR-NIN Dietary Guidelines 2024).
+    # Uses the global high_in limits above; salt is dropped when hypertension already reported it.
+    cardio_high_in: [salt, sat_fat]
+  hypertension:
+    applies_to: [hypertension]
+    avoid_salt_g: 1.5
+    caution_salt_g: 0.3
+  weight_loss:
+    applies_to: [weight_loss]
+    caution_energy_kcal: 400
+    caution_nutriscore: [D, E]
+    good_protein_g_per_100kcal: 5
+  child:          # infant.max_age <= age < max_age
+    max_age: 13
+    free_sugar_daily_limit_g: {2: 19, 7: 24, 11: 30}   # key = min age of band (NHS; 2–3 uses 4–6 value)
+    caution_pct_of_limit: 25
+    avoid_pct_of_limit: 50
+  infant:         # age < 2
+    max_age: 2
+    # per 100 g / 100 ml; above -> AVOID (Ruling R27; pending clinician review —
+    # 5 g lets plain milk (~4.7 g lactose) pass; infant formula (~7 g) would be flagged)
+    avoid_sugars_g: 5.0
+    avoid_salt_g: 0.3

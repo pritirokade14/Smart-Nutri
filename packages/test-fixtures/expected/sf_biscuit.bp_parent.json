@@ -1,0 +1,13 @@
+{
+  "status": "caution",
+  "reasons": [
+    {
+      "code": "salt_moderate",
+      "severity": "caution"
+    },
+    {
+      "code": "sodium_additives",
+      "severity": "caution"
+    }
+  ]
+}

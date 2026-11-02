@@ -1,0 +1,14 @@
+# Fallback for builders that ignore per-Dockerfile ignore files (see apps/web/Dockerfile.dockerignore).
+**/node_modules
+**/.next
+**/.env
+**/.env.*
+!**/.env.example
+**/test-results
+**/playwright-report
+apps/api
+apps/app
+.git
+
+# google-github-actions/auth credential files
+gha-creds-*.json

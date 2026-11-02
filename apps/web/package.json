@@ -1,0 +1,46 @@
+{
+  "name": "@smartnutri/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "lint": "biome check .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sentry/nextjs": "~11.10.0",
+    "@smartnutri/api-client": "workspace:*",
+    "@smartnutri/design-tokens": "workspace:*",
+    "@smartnutri/i18n": "workspace:*",
+    "@supabase/ssr": "~0.12.7",
+    "@supabase/supabase-js": "~2.118.0",
+    "@tanstack/react-query": "~5.105.2",
+    "@zxing/browser": "0.2.1",
+    "@zxing/library": "^0.23.0",
+    "next": "16.4.4",
+    "next-intl": "4.14.9",
+    "posthog-js": "~1.444.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.4",
+    "@playwright/test": "1.64.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5",
+    "jsdom": "^27",
+    "tailwindcss": "4.3.3",
+    "typescript": "~5.9.3",
+    "vitest": "5.1.0"
+  }
+}

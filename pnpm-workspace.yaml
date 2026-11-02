@@ -1,0 +1,7 @@
+# JS/TS workspace. Python (apps/api, uv) and Flutter (apps/app, pub) are managed by their own tools.
+packages:
+  - apps/web
+  - packages/api-contract/ts
+  - packages/i18n
+  - packages/design-tokens
+  - packages/test-fixtures

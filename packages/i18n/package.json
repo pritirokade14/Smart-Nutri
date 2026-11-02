@@ -1,0 +1,15 @@
+{
+  "name": "@smartnutri/i18n",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SmartNutri UI strings (en/hi/mr): single source for web (next-intl) and Flutter (ARB).",
+  "exports": {
+    "./messages/*.json": "./messages/*.json"
+  },
+  "scripts": {
+    "build": "node scripts/build-arb.mjs && node scripts/check-keys.mjs",
+    "check": "node scripts/check-keys.mjs",
+    "test": "node --test \"scripts/*.test.mjs\""
+  }
+}

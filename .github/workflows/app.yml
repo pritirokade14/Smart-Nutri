@@ -1,0 +1,38 @@
+name: app (Android)
+
+on:
+  push:
+    branches: [main, v1-rebuild]
+    paths: ["apps/app/**", "packages/api-contract/dart/**", "packages/i18n/**", "packages/design-tokens/**", "packages/test-fixtures/**", ".github/workflows/app.yml"]
+  pull_request:  # no paths filter: these checks are required on PRs to main (R35)
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: app / test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2  # v2.23.0
+        with:
+          channel: stable
+          flutter-version: 3.44.2
+          cache: true
+      - run: flutter pub get
+      - name: Generate localisations
+        run: flutter gen-l10n
+      - name: Generated l10n is committed and fresh
+        working-directory: .
+        run: git add -N apps/app/lib/core/l10n && git diff --exit-code apps/app/lib/core/l10n
+      - name: Format
+        run: dart format --set-exit-if-changed lib test
+      - name: Analyze
+        run: flutter analyze
+      - name: Tests
+        run: flutter test

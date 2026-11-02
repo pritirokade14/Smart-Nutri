@@ -1,0 +1,230 @@
+[
+  {
+    "key": "reason.allergen_contains",
+    "member": "milk_allergic_child",
+    "product": "curd",
+    "reason": {
+      "code": "allergen_contains",
+      "params": {
+        "allergen": "milk"
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "Contains Milk, which is on your avoid list."
+  },
+  {
+    "key": "reason.allergen_unknown",
+    "member": "milk_allergic_child",
+    "product": "no_ingredients",
+    "reason": {
+      "code": "allergen_unknown",
+      "params": {
+        "allergen": "milk"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "We can't tell whether this contains Milk."
+  },
+  {
+    "key": "reason.diet_violation",
+    "member": "vegan_adult",
+    "product": "curd",
+    "reason": {
+      "code": "diet_violation",
+      "params": {
+        "diet": "vegan",
+        "ingredients": [
+          "milk"
+        ]
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "May not match the Vegan diet: milk."
+  },
+  {
+    "key": "reason_variant.diet_violation_mark_only",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "diet_violation",
+      "params": {
+        "diet": "veg",
+        "ingredients": [],
+        "mark": "non_veg"
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "The pack has the brown non-vegetarian mark, so this may not match the Vegetarian diet."
+  },
+  {
+    "key": "reason.sugar_high",
+    "member": "diabetic_adult",
+    "product": "cola",
+    "reason": {
+      "code": "sugar_high",
+      "params": {
+        "sugars_g": 10.6
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "High in sugar: 10.6 g per 100 g/ml."
+  },
+  {
+    "key": "reason.child_sugar_high",
+    "member": "milk_allergic_child",
+    "product": "cola",
+    "reason": {
+      "code": "child_sugar_high",
+      "params": {
+        "basis": "per_serving",
+        "limit_g": 24,
+        "pct": 132.5
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 1,
+    "text": "One serving gives 132.5% of a child's daily sugar limit (about 24 g a day). That is high for a child."
+  },
+  {
+    "key": "reason.child_sugar_moderate",
+    "member": "milk_allergic_child",
+    "product": "no_ingredients",
+    "reason": {
+      "code": "child_sugar_moderate",
+      "params": {
+        "basis": "per_100g",
+        "limit_g": 24,
+        "pct": 41.67
+      },
+      "severity": "caution"
+    },
+    "reason_index": 3,
+    "text": "100 g/ml gives 41.67% of a child's daily sugar limit (about 24 g a day). That is on the higher side for a child."
+  },
+  {
+    "key": "reason.carbs_per_serving_high",
+    "member": "diabetic_adult",
+    "product": "cola",
+    "reason": {
+      "code": "carbs_per_serving_high",
+      "params": {
+        "basis": "per_serving",
+        "carbs_g": 31.8
+      },
+      "severity": "caution"
+    },
+    "reason_index": 2,
+    "text": "31.8 g carbohydrate per serving. This may not suit your condition; check with your doctor."
+  },
+  {
+    "key": "reason.misleading_sugar_claim",
+    "member": "diabetic_adult",
+    "product": "sf_biscuit",
+    "reason": {
+      "code": "misleading_sugar_claim",
+      "params": {
+        "claim": "sugar_free"
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "The pack says \"Sugar free\", but the label data does not support this claim."
+  },
+  {
+    "key": "reason.nutrient_missing",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "nutrient_missing",
+      "params": {
+        "nutrient": "sat_fat",
+        "rule": "diabetes"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "The label does not show saturated fat, so this check could not be done."
+  },
+  {
+    "key": "reason_variant.nutrient_missing_low_confidence",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "nutrient_missing",
+      "params": {
+        "nutrient": "salt",
+        "reason": "low_confidence",
+        "rule": "bp"
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "We couldn't read salt clearly on the label, so this check could not be done."
+  },
+  {
+    "key": "reason.cardio_risk_high_in",
+    "member": "diabetic_adult",
+    "product": "namkeen",
+    "reason": {
+      "code": "cardio_risk_high_in",
+      "params": {
+        "high_in": [
+          "sat_fat",
+          "salt"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "High in saturated fat, salt. People managing blood sugar are often advised to limit these; check with your doctor."
+  },
+  {
+    "key": "reason.hidden_sugars",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "hidden_sugars",
+      "params": {
+        "ingredients": [
+          "maltodextrin",
+          "dextrose",
+          "glucose syrup"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "Contains sugars listed under other names: maltodextrin, dextrose, glucose syrup."
+  },
+  {
+    "key": "reason.age_unknown",
+    "member": "no_age",
+    "product": "cola",
+    "reason": {
+      "code": "age_unknown",
+      "params": {},
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "Add this member's birth year: this food may not suit young children or babies."
+  },
+  {
+    "key": "reason.salt_high",
+    "member": "bp_parent",
+    "product": "namkeen",
+    "reason": {
+      "code": "salt_high",
+      "params": {
+        "salt_g": 2.5
+      },
+      "severity": "avoid"
+    },
+    "reason_index": 0,
+    "text": "High in salt: 2.5 g per 100 g/ml."
+  }
+]
