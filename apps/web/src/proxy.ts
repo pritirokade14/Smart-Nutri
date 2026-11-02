@@ -6,18 +6,10 @@ import { updateSession } from "./lib/supabase/middleware";
 
 const intl = createIntlMiddleware(routing);
 
-// Route segment group "(app)": login required.
-export const PROTECTED_SEGMENT = "(app)";
-const PROTECTED = new Set([
-  "home",
-  "scan",
-  "result",
-  "members",
-  "history",
-  "meals",
-  "product",
-  "settings",
-]);
+// Default-deny: every path under a locale needs a session EXCEPT these first
+// segments ("" = the locale root / landing). A new public page must be added
+// here on purpose; tests/middleware.test.ts checks the (public) folder against it.
+export const PUBLIC = new Set(["", "sign-in", "p", "how-we-score"]);
 
 type Decision = { protected: boolean; locale: string; path: string };
 
@@ -33,7 +25,7 @@ function classify(pathname: string): Decision {
   const [, first, segment] = path.split("/");
   const known = (routing.locales as readonly string[]).includes(first ?? "");
   return {
-    protected: known && segment !== undefined && PROTECTED.has(segment),
+    protected: known && !PUBLIC.has(segment ?? ""),
     locale: known ? (first as string) : routing.defaultLocale,
     path,
   };

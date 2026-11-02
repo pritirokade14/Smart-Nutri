@@ -11,7 +11,9 @@ vi.mock("@supabase/ssr", () => ({
   }),
 }));
 
-import { proxy } from "@/proxy";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
+import { PUBLIC, proxy } from "@/proxy";
 
 const req = (path: string) => new NextRequest(`http://localhost:3000${path}`);
 
@@ -77,6 +79,34 @@ describe("proxy", () => {
       expect(res.headers.get("location")).toMatch(/\/en\/sign-in/);
     },
   );
+
+  it.each(["/en/members", "/en/anything-new", "/hi/result/123", "/mr/x/y"])(
+    "default-deny: %s redirects when signed out",
+    async (path) => {
+      const res = await proxy(req(path));
+      expect(res.status).toBe(302);
+      expect(res.headers.get("location")).toContain("/sign-in?next=");
+    },
+  );
+
+  it.each([
+    "/en",
+    "/en/",
+    "/en/sign-in",
+    "/en/p/8901063201089",
+    "/hi/how-we-score",
+  ])("public %s does not redirect when signed out", async (path) => {
+    expect((await proxy(req(path))).status).not.toBe(302);
+  });
+
+  it("every (public) route segment is in PUBLIC", () => {
+    const dir = join(process.cwd(), "src/app/[locale]/(public)");
+    const segs = readdirSync(dir, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+    expect(segs.length).toBeGreaterThan(0);
+    for (const s of segs) expect(PUBLIC.has(s), s).toBe(true);
+  });
 
   it("redirects also carry security headers", async () => {
     const res = await proxy(req("/en/home"));

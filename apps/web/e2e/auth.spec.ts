@@ -26,7 +26,7 @@ test("404 pages raise no CSP violations", async ({ page }) => {
   page.on("console", (m) => {
     if (m.text().includes("Content Security Policy")) violations.push(m.text());
   });
-  await page.goto("/en/nope");
+  await page.goto("/en/p/nope/missing");
   await expect(page.getByRole("heading", { name: "Not found." })).toBeVisible();
   await page.waitForLoadState("networkidle");
   expect(violations).toEqual([]);
