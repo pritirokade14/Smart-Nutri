@@ -32,6 +32,7 @@ class VerdictCard extends StatefulWidget {
 
   static const statusBadgeKey = Key('verdict-status-badge');
   static const reasonsToggleKey = Key('verdict-reasons-toggle');
+  static const reasonsToggleSemanticsKey = Key('verdict-reasons-toggle-sem');
   static const profileNoteKey = Key('verdict-profile-note');
 
   @override
@@ -51,7 +52,13 @@ class _VerdictCardState extends State<VerdictCard> {
     final name = verdict.memberName.isEmpty
         ? l10n.resultYou
         : verdict.memberName;
-    final groups = splitReasons(displayReasons(verdict.reasons));
+    final split = splitReasons(displayReasons(verdict.reasons));
+    // R23: a card with nothing always-visible still shows its first reason.
+    final promote = split.visible.isEmpty && split.collapsed.isNotEmpty;
+    final groups = (
+      visible: promote ? [split.collapsed.first] : split.visible,
+      collapsed: promote ? split.collapsed.sublist(1) : split.collapsed,
+    );
     final statusLabel = localizedStatus(l10n, status);
 
     return Card(
@@ -99,13 +106,18 @@ class _VerdictCardState extends State<VerdictCard> {
               const SizedBox(height: SnTokens.space2),
             for (final r in groups.visible) ReasonLine(reason: r),
             if (groups.collapsed.isNotEmpty) ...[
-              TextButton(
-                key: VerdictCard.reasonsToggleKey,
-                onPressed: () => setState(() => _expanded = !_expanded),
-                child: Text(
-                  _expanded
-                      ? l10n.verdictHideReasons
-                      : l10n.verdictShowAllReasons,
+              Semantics(
+                key: VerdictCard.reasonsToggleSemanticsKey,
+                expanded: _expanded,
+                button: true,
+                child: TextButton(
+                  key: VerdictCard.reasonsToggleKey,
+                  onPressed: () => setState(() => _expanded = !_expanded),
+                  child: Text(
+                    _expanded
+                        ? l10n.verdictHideReasons
+                        : l10n.verdictShowAllReasons,
+                  ),
                 ),
               ),
               if (_expanded)

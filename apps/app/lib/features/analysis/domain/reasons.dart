@@ -16,8 +16,10 @@ String reasonMessageKey(ReasonOut reason) {
     case 'nutrient_missing' when p['reason'] == 'low_confidence':
       return 'reason_variant.nutrient_missing_low_confidence';
     case 'diet_violation'
-        when p['ingredients'] == null ||
-            (p['ingredients'] is List && (p['ingredients']! as List).isEmpty):
+        when p['mark'] == 'non_veg' &&
+            (p['ingredients'] == null ||
+                (p['ingredients'] is List &&
+                    (p['ingredients']! as List).isEmpty)):
       return 'reason_variant.diet_violation_mark_only';
   }
   return 'reason.${reason.code}';

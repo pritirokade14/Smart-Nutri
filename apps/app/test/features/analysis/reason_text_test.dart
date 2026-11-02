@@ -39,14 +39,22 @@ void main() {
     test('diet_violation with empty ingredients is the mark-only variant', () {
       expect(
         reasonMessageKey(
-          _r('diet_violation', {'diet': 'veg', 'ingredients': <String>[]}),
+          _r('diet_violation', {
+            'diet': 'veg',
+            'ingredients': <String>[],
+            'mark': 'non_veg',
+          }),
         ),
         'reason_variant.diet_violation_mark_only',
       );
       expect(
         reasonText(
           en,
-          _r('diet_violation', {'diet': 'veg', 'ingredients': <String>[]}),
+          _r('diet_violation', {
+            'diet': 'veg',
+            'ingredients': <String>[],
+            'mark': 'non_veg',
+          }),
         ),
         en.reasonVariantDietViolationMarkOnly(en.dietVeg),
       );
@@ -227,7 +235,7 @@ void main() {
     test(
       'diet_violation with missing ingredients is the mark-only variant',
       () {
-        final r = _r('diet_violation', {'diet': 'veg'});
+        final r = _r('diet_violation', {'diet': 'veg', 'mark': 'non_veg'});
         expect(reasonMessageKey(r), 'reason_variant.diet_violation_mark_only');
         expect(
           reasonText(en, r),
@@ -263,6 +271,31 @@ void main() {
         expect(text, isNot(matches(RegExp(r'[\u0966-\u096F]'))));
       }
     });
+    test('mark-only needs mark == non_veg, else unavailable', () {
+      for (final p in [
+        {'diet': 'veg', 'ingredients': <String>[]},
+        {'diet': 'veg'},
+        {'diet': 'veg', 'ingredients': <String>[], 'mark': 'other'},
+      ]) {
+        final r = _r('diet_violation', p, 'avoid');
+        expect(reasonText(en, r), en.verdictReasonUnavailable);
+      }
+    });
+    test(
+      'splitReasons: unrecognised severity and caution allergen visible',
+      () {
+        final unk = ReasonOut.fromJson({
+          'code': 'brand_new',
+          'severity': 'something_new',
+          'params': {},
+        });
+        final al = _r('allergen_may_contain', {'allergen': 'milk'});
+        final c = _r('energy_dense', {'energy_kcal': 500});
+        final g = splitReasons([c, unk, al]);
+        expect(g.visible, [unk, al]);
+        expect(g.collapsed, [c]);
+      },
+    );
     test('fallback is verdictReasonUnavailable', () {
       expect(reasonFallbackText(en), en.verdictReasonUnavailable);
     });

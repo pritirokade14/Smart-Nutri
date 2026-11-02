@@ -72,7 +72,10 @@ void main() {
         }
         expect(
           find.byKey(VerdictCard.reasonsToggleKey),
-          groups.collapsed.isEmpty ? findsNothing : findsOneWidget,
+          // R23: with nothing always-visible, the first collapsed one shows.
+          groups.collapsed.length > (groups.visible.isEmpty ? 1 : 0)
+              ? findsOneWidget
+              : findsNothing,
         );
         expect(t.takeException(), isNull);
       });
@@ -137,7 +140,10 @@ void main() {
     final l10n = lookupAppLocalizations(const Locale('en'));
     final groups = splitReasons(displayReasons(v.reasons));
     await t.pumpWidget(wrap(VerdictCard(verdict: v)));
-    final hidden = [for (final r in groups.collapsed) reasonText(l10n, r)];
+    final hidden = [
+      for (final r in groups.collapsed.skip(groups.visible.isEmpty ? 1 : 0))
+        reasonText(l10n, r),
+    ];
     for (final text in hidden) {
       expect(find.text(text), findsNothing);
     }
@@ -249,6 +255,103 @@ void main() {
       await t.tap(find.text(l10n.verdictHideReasons));
       await t.pumpAndSettle();
       expect(find.text(energy), findsNothing);
+    });
+
+    testWidgets('(e) caution-only card shows first reason, rest toggled', (
+      t,
+    ) async {
+      final energy = l10n.reasonEnergyDense('500');
+      final score = l10n.reasonNutriscoreLow('D');
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('energy_dense', {'energy_kcal': 500}, 'caution'),
+              r('nutriscore_low', {'grade': 'D'}, 'caution'),
+            ]),
+          ),
+        ),
+      );
+      expect(find.text(energy), findsOneWidget);
+      expect(find.text(score), findsNothing);
+      await t.tap(find.text(l10n.verdictShowAllReasons));
+      await t.pumpAndSettle();
+      expect(find.text(score), findsOneWidget);
+    });
+
+    testWidgets('single caution reason: visible, no toggle', (t) async {
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('energy_dense', {'energy_kcal': 500}, 'caution'),
+            ]),
+          ),
+        ),
+      );
+      expect(find.text(l10n.reasonEnergyDense('500')), findsOneWidget);
+      expect(find.byKey(VerdictCard.reasonsToggleKey), findsNothing);
+    });
+
+    testWidgets('unrecognised severity reason is visible', (t) async {
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('sugar_high', {'sugars_g': 30}, 'avoid'),
+              ReasonOut.fromJson({
+                'code': 'allergen_contains',
+                'severity': 'something_new',
+                'params': {'allergen': 'milk'},
+              }),
+              ReasonOut.fromJson({
+                'code': 'energy_dense',
+                'severity': 'something_new',
+                'params': {'energy_kcal': 500},
+              }),
+            ]),
+          ),
+        ),
+      );
+      expect(find.text(l10n.reasonEnergyDense('500')), findsOneWidget);
+      expect(find.byKey(VerdictCard.reasonsToggleKey), findsNothing);
+    });
+
+    testWidgets('allergen reason with caution severity is visible', (t) async {
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('sugar_high', {'sugars_g': 30}, 'avoid'),
+              r('allergen_may_contain', {'allergen': 'milk'}, 'caution'),
+            ]),
+          ),
+        ),
+      );
+      expect(
+        find.text(l10n.reasonAllergenMayContain(l10n.allergenMilk)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('toggle exposes expanded state to semantics', (t) async {
+      final h = t.ensureSemantics();
+      await t.pumpWidget(
+        wrap(
+          VerdictCard(
+            verdict: v([
+              r('sugar_high', {'sugars_g': 30}, 'avoid'),
+              r('energy_dense', {'energy_kcal': 500}, 'caution'),
+            ]),
+          ),
+        ),
+      );
+      final finder = find.byKey(VerdictCard.reasonsToggleSemanticsKey);
+      expect(
+        t.getSemantics(finder),
+        isSemantics(isButton: true, hasExpandedState: true, isExpanded: false),
+      );
+      h.dispose();
     });
 
     testWidgets('profile not set up shows a neutral note', (t) async {

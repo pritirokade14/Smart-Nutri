@@ -101,9 +101,11 @@ class _ReasonFormatter {
         _str('condition'),
       ),
       'diet_unknown' => l10n.reasonDietUnknown(_diet(_str('diet'))),
+      // Mark-only (no ingredients) is handled above; any other empty or
+      // missing ingredient list cannot be rendered.
       'diet_violation' => l10n.reasonDietViolation(
         _diet(_str('diet')),
-        _list('ingredients'),
+        _nonEmptyList('ingredients'),
       ),
       'energy_dense' => l10n.reasonEnergyDense(_num('energy_kcal')),
       'good_protein_density' => l10n.reasonGoodProteinDensity,
@@ -141,6 +143,12 @@ class _ReasonFormatter {
     final v = p[name];
     if (v is num) return _latinNumbers.format(v);
     throw const _BadParam();
+  }
+
+  String _nonEmptyList(String name) {
+    final v = p[name];
+    if (v is List && v.isEmpty) throw const _BadParam();
+    return _list(name);
   }
 
   String _list(String name, [String Function(String)? label]) {
