@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
@@ -8,4 +9,9 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@smartnutri/api-client"],
 };
 
-export default withNextIntl(nextConfig);
+// Source-map upload runs only when SENTRY_AUTH_TOKEN is set (CI); no tunnel route, no telemetry.
+export default withSentryConfig(withNextIntl(nextConfig), {
+  silent: true,
+  telemetry: false,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+});

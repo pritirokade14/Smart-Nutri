@@ -4,10 +4,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/config/app_config.dart';
+import 'core/observability/analytics.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
   const config = AppConfig.fromEnvironment();
+  await runWithSentry(config, () => _start(config));
+}
+
+Future<void> _start(AppConfig config) async {
+  await initAnalytics(config);
   if (config.missingRequired().isEmpty) {
     await Supabase.initialize(
       url: config.supabaseUrl,

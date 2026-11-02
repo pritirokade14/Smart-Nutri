@@ -61,7 +61,7 @@ apps/web/
   - Reason codes map to `reason.<code>` keys.
 - **Styling:** Tailwind with the generated token variables only. No raw hex colours. Verdict colours come from the shared tokens, and `unknown` is never green.
 - **Verdict UI:** show the engine status exactly, the member's name, the reasons, and "Information, not medical advice". Label extraction always goes through an editable confirm step before saving.
-- **Secrets:** only `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_POSTHOG_KEY`, plus the non-secret `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_FEATURE_PHONE_OTP`. No CallMissed key, no service-role key, not even in server code.
+- **Secrets:** only `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_POSTHOG_KEY`, plus the non-secret `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_FEATURE_PHONE_OTP`. No CallMissed key, no service-role key, not even in server code.
 - **Security headers:** a strict CSP (nonce-based), `X-Frame-Options: DENY`, and HTTP-only cookies via `@supabase/ssr`.
 - **Credit Open Food Facts** wherever its data is shown, including public product pages.
 - **Parity:** each feature has an Android counterpart. Component tests use the shared cases in `packages/test-fixtures`.
@@ -74,6 +74,7 @@ apps/web/
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon (public) key |
 | `NEXT_PUBLIC_API_BASE_URL` | FastAPI base URL |
 | `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key (optional in dev) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN for the browser (optional in dev); not secret, a DSN can only send events |
 | `NEXT_PUBLIC_SITE_URL` | Public site origin (canonical URLs, OAuth redirect); not secret |
 | `NEXT_PUBLIC_FEATURE_PHONE_OTP` | Feature flag, `false` until WhatsApp OTP is enabled; not secret |
 | `SENTRY_DSN` / `SENTRY_AUTH_TOKEN` | Error reporting; the auth token is used only at build time in CI |
