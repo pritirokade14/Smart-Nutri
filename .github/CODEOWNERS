@@ -1,0 +1,16 @@
+# Default owner for everything
+*                                   @pritirokade14
+
+# Safety-critical paths — must be reviewed (and run past the nutrition-safety-reviewer agent).
+# Add a second human reviewer (ideally a dietitian/clinician advisor) here when available.
+/apps/api/app/scoring/              @pritirokade14
+/apps/api/app/prompts/              @pritirokade14
+/packages/test-fixtures/            @pritirokade14
+/apps/app/lib/features/result/      @pritirokade14
+/apps/web/src/features/result/      @pritirokade14
+
+# Contract and security-sensitive config
+/packages/api-contract/             @pritirokade14
+/apps/api/alembic/                  @pritirokade14
+/supabase/                          @pritirokade14
+/.github/                           @pritirokade14
