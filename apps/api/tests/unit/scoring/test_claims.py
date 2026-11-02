@@ -1,12 +1,16 @@
 from dataclasses import replace
 
 from app.scoring.claims import check_claims
-from app.scoring.models import ClaimVerdict
+from app.scoring.models import Category, ClaimVerdict
 
 
 def test_sugar_free_biscuit_contradicted(sf_biscuit, cfg):
     (c,) = check_claims(sf_biscuit, cfg)
-    assert (c.claim, c.verdict, c.reason_code) == ("sugar_free", ClaimVerdict.CONTRADICTED, "exceeds_limit")
+    assert (c.claim, c.verdict, c.reason_code) == (
+        "sugar_free",
+        ClaimVerdict.CONTRADICTED,
+        "exceeds_limit",
+    )
 
 
 def test_no_added_sugar_with_maltodextrin(sf_biscuit, cfg):
@@ -29,7 +33,9 @@ def test_unrecognised_claim_skipped(curd, cfg):
 
 
 def test_missing_nutrient_unverifiable(no_ingredients, cfg):
-    p = replace(no_ingredients, claims=("low fat",), per_100g=replace(no_ingredients.per_100g, fat_g=None))
+    p = replace(
+        no_ingredients, claims=("low fat",), per_100g=replace(no_ingredients.per_100g, fat_g=None)
+    )
     assert check_claims(p, cfg)[0].verdict == ClaimVerdict.UNVERIFIABLE
 
 
@@ -46,4 +52,66 @@ def test_protein_vs_high_protein_order(oats, cfg):
 
 def test_params_json_friendly(oats, cfg):
     (c,) = check_claims(oats, cfg)
-    assert c.reason_code == "below_minimum" and c.params == {"value": 13.37, "limit": 20}
+    assert c.reason_code == "below_minimum" and c.params == {"value": 13.368, "limit": 20}
+
+
+def _with(product, claims, **nutrients):
+    return replace(product, claims=claims, per_100g=replace(product.per_100g, **nutrients))
+
+
+def test_no_sugar_added_with_maltodextrin_is_no_added_sugar(sf_biscuit, cfg):
+    p = _with(sf_biscuit, ("No sugar added",), sugars_g=0.3)
+    (c,) = check_claims(p, cfg)
+    assert (c.claim, c.verdict) == ("no_added_sugar", ClaimVerdict.CONTRADICTED)
+    assert c.params["ingredients"] == ["maltodextrin"]
+
+
+def test_juice_no_sugar_added_supported(cfg, curd):
+    juice = replace(
+        _with(curd, ("No Sugar Added",), sugars_g=10.0),
+        category=Category.BEVERAGE,
+        ingredients=("apple juice",),
+    )
+    (c,) = check_claims(juice, cfg)
+    assert (c.claim, c.verdict, c.reason_code) == ("no_added_sugar", ClaimVerdict.SUPPORTED, "ok")
+
+
+def test_no_added_sugar_variants(curd, cfg):
+    for text in ("Zero Added Sugar", "Without Added Sugar", "No Added Sugars"):
+        (c,) = check_claims(replace(curd, claims=(text,)), cfg)
+        assert c.claim == "no_added_sugar", text
+
+
+def test_high_in_protein_variants(curd, cfg):
+    p = _with(curd, ("High in Protein",), energy_kcal=400, protein_g=15)  # 15%
+    (c,) = check_claims(p, cfg)
+    assert (c.claim, c.verdict) == ("high_protein", ClaimVerdict.CONTRADICTED)
+    (c,) = check_claims(replace(p, claims=("Rich in Protein",)), cfg)
+    assert c.claim == "high_protein"
+
+
+def test_drink_limit_low_sugar(cola, cfg):
+    (c,) = check_claims(_with(cola, ("Low Sugar",), sugars_g=3.0), cfg)
+    assert (c.verdict, c.reason_code) == (ClaimVerdict.CONTRADICTED, "exceeds_limit")
+    assert c.params == {"value": 3.0, "limit": 2.5}
+    (c,) = check_claims(_with(cola, ("Low Sugar",), sugars_g=2.5), cfg)
+    assert c.verdict == ClaimVerdict.SUPPORTED
+
+
+def test_salt_fallback_times_400(curd, cfg):
+    base = _with(curd, ("Low Salt",), salt_g=0.3, sodium_mg=None)
+    assert check_claims(base, cfg)[0].verdict == ClaimVerdict.SUPPORTED
+    over = _with(curd, ("Low Salt",), salt_g=0.31, sodium_mg=None)
+    assert check_claims(over, cfg)[0].verdict == ClaimVerdict.CONTRADICTED
+
+
+def test_boundaries_inclusive(curd, cfg):
+    (c,) = check_claims(_with(curd, ("Sugar Free",), sugars_g=0.5), cfg)
+    assert c.verdict == ClaimVerdict.SUPPORTED
+    (c,) = check_claims(_with(curd, ("High Protein",), energy_kcal=400, protein_g=20), cfg)
+    assert c.verdict == ClaimVerdict.SUPPORTED
+
+
+def test_breach_never_displays_equal_to_limit(curd, cfg):
+    (c,) = check_claims(_with(curd, ("Sugar Free",), sugars_g=0.504), cfg)
+    assert c.params == {"value": 0.504, "limit": 0.5}

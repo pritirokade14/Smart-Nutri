@@ -24,12 +24,18 @@ class ClaimCheck:
 
 # Ordered: first matching key wins.
 _PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("no_added_sugar", ("no added sugar",)),
+    (
+        "no_added_sugar",
+        ("no added sugar", "no sugar added", "zero added sugar", "without added sugar"),
+    ),
     ("sugar_free", ("sugar free", "zero sugar", "no sugar")),
     ("low_sugar", ("low sugar",)),
     ("low_fat", ("low fat",)),
     ("low_sodium", ("low sodium", "low salt")),
-    ("high_protein", ("high protein", "protein rich")),
+    (
+        "high_protein",
+        ("high protein", "high in protein", "protein rich", "rich in protein"),
+    ),
     ("source_of_protein", ("source of protein", "protein")),
 )
 _COMPILED = tuple(
@@ -47,7 +53,7 @@ def _match(claim: str) -> str | None:
 
 
 def _num(v: float) -> float:
-    return round(float(v), 2)
+    return round(float(v), 3)
 
 
 def _max_rule(key: str, value: float | None, limit: float) -> ClaimCheck:
@@ -56,7 +62,10 @@ def _max_rule(key: str, value: float | None, limit: float) -> ClaimCheck:
     if value <= limit:
         return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
     return ClaimCheck(
-        key, ClaimVerdict.CONTRADICTED, "exceeds_limit", {"value": _num(value), "limit": _num(limit)}
+        key,
+        ClaimVerdict.CONTRADICTED,
+        "exceeds_limit",
+        {"value": _num(value), "limit": _num(limit)},
     )
 
 
@@ -66,7 +75,10 @@ def _min_rule(key: str, value: float | None, limit: float) -> ClaimCheck:
     if value >= limit:
         return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
     return ClaimCheck(
-        key, ClaimVerdict.CONTRADICTED, "below_minimum", {"value": _num(value), "limit": _num(limit)}
+        key,
+        ClaimVerdict.CONTRADICTED,
+        "below_minimum",
+        {"value": _num(value), "limit": _num(limit)},
     )
 
 
@@ -108,7 +120,9 @@ def _evaluate(key: str, product: Product, cfg: ScoringConfig) -> ClaimCheck:
         "low_sugar": lambda: _max_rule(key, n.sugars_g, c["low_sugar_max_g"][d]),
         "low_fat": lambda: _max_rule(key, n.fat_g, c["low_fat_max_g"][d]),
         "low_sodium": lambda: _max_rule(key, _sodium_mg(product), c["low_sodium_max_mg"]),
-        "high_protein": lambda: _min_rule(key, _protein_pct(product), c["high_protein_min_energy_pct"]),
+        "high_protein": lambda: _min_rule(
+            key, _protein_pct(product), c["high_protein_min_energy_pct"]
+        ),
         "source_of_protein": lambda: _min_rule(
             key, _protein_pct(product), c["source_of_protein_min_energy_pct"]
         ),
