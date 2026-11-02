@@ -361,3 +361,24 @@ def test_contradicted_no_refined_sugar_is_misleading(curd, cfg):
     p = replace(curd, ingredients=(*curd.ingredients, "cane sugar"), claims=("No Refined Sugar",))
     rs = _reasons(p, _m(age=40, conditions=("diabetes",)), cfg)
     assert ("misleading_sugar_claim", Status.AVOID) in {(r.code, r.severity) for r in rs}
+
+
+# --- R37: infant free sugars from fruit juice ---
+
+
+def test_infant_apple_juice_is_avoid(cola, cfg):
+    p = replace(cola, ingredients=("apple juice",))
+    rs = [r for r in _reasons(p, _m(age=1), cfg) if r.code == "infant_added_sugar"]
+    assert len(rs) == 1 and rs[0].severity == Status.AVOID
+    assert "apple juice" in rs[0].params["ingredients"]
+
+
+def test_infant_mango_puree_not_flagged_by_juice_list(cola, cfg):
+    # "mango puree" is whole fruit, not juice: intentionally not in infant_free_sugars.
+    p = replace(cola, ingredients=("mango puree",))
+    assert "infant_added_sugar" not in _codes(p, _m(age=1), cfg)
+
+
+def test_adult_unaffected_by_infant_juice_rule(cola, cfg):
+    p = replace(cola, ingredients=("apple juice",))
+    assert "infant_added_sugar" not in _codes(p, _m(age=30), cfg)

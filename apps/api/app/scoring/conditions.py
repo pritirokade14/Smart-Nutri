@@ -209,9 +209,11 @@ def condition_reasons(
         if inf_caf:
             out.append(Reason("infant_caffeine", Status.AVOID, {"ingredients": list(inf_caf)}))
         sugar_terms = added_sugar_terms(product, cfg)
-        if sugar_terms:
+        free_sugars = ingredient_hits(product, cfg, "infant_free_sugars")
+        infant_sugar = tuple(sorted({*sugar_terms, *free_sugars}))
+        if infant_sugar:
             out.append(
-                Reason("infant_added_sugar", Status.AVOID, {"ingredients": list(sugar_terms)})
+                Reason("infant_added_sugar", Status.AVOID, {"ingredients": list(infant_sugar)})
             )
         salt_hits = ingredient_hits(product, cfg, "salt")
         if salt_hits:

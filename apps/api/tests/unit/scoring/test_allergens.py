@@ -367,3 +367,47 @@ def test_named_tree_nuts_are_not_peanut(oats, cfg, peanut_allergic, ings, statem
     p = replace(oats, ingredients=ings, may_contain_statement=statement)
     assert "peanut" not in detect_allergens(p, cfg)
     assert _reasons(p, peanut_allergic, cfg) == []
+
+
+# --- R38: singular "nut" ---
+
+
+@pytest.mark.parametrize(
+    "field,text",
+    [
+        ("may_contain_statement", "May contain nut traces"),
+        ("allergen_statement", "Contains: Milk, Nut"),
+    ],
+)
+def test_singular_nut_is_may_contain(oats, cfg, field, text):
+    p = replace(oats, ingredients=("starch",), **{field: text})
+    d = detect_allergens(p, cfg)
+    assert d["peanut"] == AllergenState.MAY_CONTAIN
+    assert d["tree_nut"] == AllergenState.MAY_CONTAIN
+
+
+def test_fruit_and_nut_mix(oats, cfg):
+    p = replace(oats, ingredients=("fruit & nut mix",))
+    d = detect_allergens(p, cfg)
+    assert d["peanut"] == AllergenState.MAY_CONTAIN
+    assert d["tree_nut"] == AllergenState.MAY_CONTAIN
+
+
+def test_cashew_nut_alone_is_tree_nut_only(oats, cfg):
+    p = replace(oats, ingredients=("cashew nut",))
+    d = detect_allergens(p, cfg)
+    assert d["tree_nut"] == AllergenState.CONTAINS
+    assert "peanut" not in d
+
+
+@pytest.mark.parametrize(
+    "ing", ["cashew nuts pieces", "pine nuts kernels", "tree nuts paste", "cashew nut pieces"]
+)
+def test_tree_nut_modifier_does_not_flag_peanut(oats, cfg, ing):
+    p = replace(oats, ingredients=(ing,))
+    assert "peanut" not in detect_allergens(p, cfg)
+
+
+def test_plural_contains_nuts_still_peanut_may_contain(oats, cfg):
+    p = replace(oats, ingredients=("starch",), allergen_statement="Contains: Nuts")
+    assert detect_allergens(p, cfg)["peanut"] == AllergenState.MAY_CONTAIN

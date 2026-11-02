@@ -116,7 +116,11 @@ def ingredients_known(product: Product, cfg: ScoringConfig) -> bool:
 
 
 def _partial_exclude(texts: list[str], exclude: list[str], triggers: list[str]) -> bool:
-    """An exclude phrase that hides a trigger term modifies a following noun (R19, R30)."""
+    """An exclude phrase that hides a trigger term modifies a following noun (R19, R30).
+
+    Callers pass only specific `contains` terms: generic `possible` words ("nut") inside
+    an exclude like "cashew nut" must not turn "cashew nut pieces" into a peanut hit (R38).
+    """
     return any(find_terms([hit], triggers) for hit in modifier_excludes(texts, exclude))
 
 
@@ -131,12 +135,12 @@ def _detect_one(product: Product, entry: Mapping[str, list[str]]) -> AllergenSta
         return AllergenState.CONTAINS
     if possible and main and find_terms(main, possible, exclude):
         return AllergenState.MAY_CONTAIN
-    if exclude and main and _partial_exclude(main, exclude, contains + possible):
+    if exclude and main and _partial_exclude(main, exclude, contains):
         return AllergenState.MAY_CONTAIN
     statement = product.may_contain_statement
     if statement and (
         find_terms([statement], contains + possible, exclude)
-        or (exclude and _partial_exclude([statement], exclude, contains + possible))
+        or (exclude and _partial_exclude([statement], exclude, contains))
     ):
         return AllergenState.MAY_CONTAIN
     return None
