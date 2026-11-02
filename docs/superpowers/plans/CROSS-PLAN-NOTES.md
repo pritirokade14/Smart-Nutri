@@ -29,3 +29,6 @@ The Plan 2 baseline (`0001_baseline`) already creates members, consents and meal
 
 ## 13. Client verdict UI: collapse duplicate `nutrient_missing` lines (Plan 3)
 The engine emits `nutrient_missing` once per (nutrient, rule). A member with diabetes and hypertension and no salt value gets two `nutrient_missing` reasons for salt. Both clients should show one line per missing nutrient. Also implement the `reason_variant.*` selection rules from `packages/i18n/README.md` and test them in each client.
+
+## 14. Android release readiness (Plan 8 / M6, before any Play upload)
+From the Plan 2 Task 11 review: the release build is still signed with the debug key (Flutter template). Add a signing config from `android/key.properties` (git-ignored, upload keystore), enable R8 minify/shrink with keep rules for Supabase/Sentry/retrofit, declare `<uses-feature android:name="android.hardware.camera" android:required="false"/>` (and microphone) so devices without them still see the app, and remove the template TODOs. Check Hindi/Marathi (Devanagari) rendering with the theme's text styles in Plan 3 UI work.
