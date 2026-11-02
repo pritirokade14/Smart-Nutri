@@ -66,8 +66,8 @@ lint:
 
 # Export OpenAPI from FastAPI and regenerate the Dart + TS clients (Plan 2)
 contract:
-    cd apps/api && uv run python scripts/export_openapi.py > ../../packages/api-contract/openapi.json
-    cd packages/api-contract/dart && dart run swagger_parser
+    cd apps/api && uv run python -m scripts.export_openapi > ../../packages/api-contract/openapi.json
+    cd packages/api-contract/dart && dart pub get && dart run swagger_parser && dart run build_runner build --delete-conflicting-outputs && dart format lib
     pnpm --filter @smartnutri/api-client generate
 
 # Build UI strings: packages/i18n → Flutter ARB (+ type-checked keys for web) (Plan 2)

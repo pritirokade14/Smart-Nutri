@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@smartnutri/api-client": "workspace:*",
     "@smartnutri/design-tokens": "workspace:*",
     "@smartnutri/i18n": "workspace:*",
     "next": "16.4.4",
