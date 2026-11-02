@@ -9,8 +9,10 @@ from __future__ import annotations
 import asyncio
 import base64
 import logging
+import math
 import random
 import time
+from collections.abc import Callable
 
 import httpx
 import openai
@@ -26,6 +28,9 @@ MAX_429_TRIES = 3
 MAX_UPSTREAM_RETRIES = 2
 MAX_VALIDATION_ATTEMPTS = 2
 _MAX_BACKOFF_S = 30.0
+DEADLINE_S = 70.0
+
+_sleep = asyncio.sleep  # module alias so tests patch this, not asyncio.sleep globally
 
 
 class CallMissedClient:
@@ -35,7 +40,9 @@ class CallMissedClient:
         api_key: SecretStr | str | None,
         base_url: str,
         http_client: httpx.AsyncClient | None = None,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
+        self._clock = clock
         key = api_key.get_secret_value() if isinstance(api_key, SecretStr) else api_key
         if not key:
             raise ProviderUnavailable("not_configured")
@@ -49,6 +56,9 @@ class CallMissedClient:
 
     def __repr__(self) -> str:
         return "CallMissedClient()"
+
+    async def aclose(self) -> None:
+        await self._client.close()
 
     async def extract_label(
         self,
@@ -80,7 +90,8 @@ class CallMissedClient:
             "json_schema": {"name": "nutrition_extraction", "strict": True, "schema": json_schema},
         }
 
-        start = time.monotonic()
+        start = self._clock()
+        deadline = start + DEADLINE_S
         status = "error"
         tokens: tuple[int | None, int | None] = (None, None)
         try:
@@ -88,32 +99,39 @@ class CallMissedClient:
             tries_429 = 0
             upstream_retries = 0
             while True:
+                remaining = deadline - self._clock()
+                if remaining <= 0:
+                    status = "deadline"
+                    raise ExtractionFailed("deadline exceeded")
                 try:
                     completion = await self._client.chat.completions.create(
                         model=model,
                         messages=messages,  # type: ignore[arg-type]
                         response_format=response_format,  # type: ignore[arg-type]
                         temperature=0,
-                        timeout=VISION_TIMEOUT_S,
+                        timeout=min(VISION_TIMEOUT_S, remaining),
                     )
                 except openai.APIStatusError as exc:
                     code = exc.status_code
                     if code == 402:
                         status = "insufficient_credits"
                         raise ProviderUnavailable("insufficient_credits") from None
+                    if code in (401, 403):
+                        status = "misconfigured"
+                        raise ProviderUnavailable("misconfigured") from None
                     if code == 429:
                         tries_429 += 1
                         if tries_429 >= MAX_429_TRIES:
                             status = "rate_limited"
                             raise ExtractionFailed("rate limited") from None
-                        await asyncio.sleep(_backoff(tries_429, exc.response))
+                        await self._pause(_backoff(tries_429, exc.response), deadline)
                         continue
                     if code >= 500:
                         upstream_retries += 1
                         if upstream_retries > MAX_UPSTREAM_RETRIES:
                             status = f"http_{code}"
                             raise ExtractionFailed("upstream error") from None
-                        await asyncio.sleep(_backoff(upstream_retries, None))
+                        await self._pause(_backoff(upstream_retries, None), deadline)
                         continue
                     status = f"http_{code}"
                     raise ExtractionFailed("upstream rejected request") from None
@@ -122,8 +140,11 @@ class CallMissedClient:
                     if upstream_retries > MAX_UPSTREAM_RETRIES:
                         status = "timeout"
                         raise ExtractionFailed("upstream timeout") from None
-                    await asyncio.sleep(_backoff(upstream_retries, None))
+                    await self._pause(_backoff(upstream_retries, None), deadline)
                     continue
+                except openai.OpenAIError:
+                    status = "sdk_error"
+                    raise ExtractionFailed("upstream error") from None
 
                 usage = completion.usage
                 if usage is not None:
@@ -145,11 +166,16 @@ class CallMissedClient:
                 "tokens_in=%s tokens_out=%s",
                 model,
                 prompt_version,
-                (time.monotonic() - start) * 1000,
+                (self._clock() - start) * 1000,
                 status,
                 tokens[0],
                 tokens[1],
             )
+
+    async def _pause(self, delay: float, deadline: float) -> None:
+        if self._clock() + delay > deadline:
+            raise ExtractionFailed("deadline exceeded")
+        await _sleep(delay)
 
 
 def _backoff(attempt: int, response: httpx.Response | None) -> float:
@@ -157,7 +183,9 @@ def _backoff(attempt: int, response: httpx.Response | None) -> float:
         retry_after = response.headers.get("retry-after")
         if retry_after:
             try:
-                return min(max(float(retry_after), 0.0), _MAX_BACKOFF_S)
+                value = float(retry_after)
+                if math.isfinite(value):
+                    return min(max(value, 0.0), _MAX_BACKOFF_S)
             except ValueError:
                 pass
     return min(2.0**attempt, _MAX_BACKOFF_S) * random.uniform(0.5, 1.0)

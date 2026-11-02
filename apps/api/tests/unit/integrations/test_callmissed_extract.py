@@ -3,6 +3,7 @@ import json
 import logging
 
 import httpx
+import openai
 import pytest
 
 from app.features.scans.schemas import NutritionExtraction
@@ -69,10 +70,22 @@ class Mock:
         return json.loads(self.requests[-1].content)
 
 
-def make(responses) -> tuple[CallMissedClient, Mock]:
+class Clock:
+    def __init__(self) -> None:
+        self.now = 1000.0
+
+    def __call__(self) -> float:
+        return self.now
+
+
+def make(responses, clock=None) -> tuple[CallMissedClient, Mock]:
     mock = Mock(responses)
     http = httpx.AsyncClient(transport=httpx.MockTransport(mock.handler))
-    return CallMissedClient(api_key=SECRET, base_url="https://cm.test/v1", http_client=http), mock
+    kw = {"clock": clock} if clock else {}
+    return (
+        CallMissedClient(api_key=SECRET, base_url="https://cm.test/v1", http_client=http, **kw),
+        mock,
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -82,7 +95,7 @@ def no_sleep(monkeypatch):
     async def fake_sleep(s):
         slept.append(s)
 
-    monkeypatch.setattr(callmissed.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(callmissed, "_sleep", fake_sleep)
     return slept
 
 
@@ -185,3 +198,126 @@ async def test_secret_not_in_repr_or_errors():
     with pytest.raises(ExtractionFailed) as ei:
         await _call(client)
     assert SECRET not in repr(ei.value)
+
+
+async def test_400_fails_without_retry():
+    client, mock = make([httpx.Response(400, json={})])
+    with pytest.raises(ExtractionFailed):
+        await _call(client)
+    assert mock.calls == 1
+
+
+@pytest.mark.parametrize("code", [401, 403])
+async def test_auth_errors_are_misconfigured_no_retry(code):
+    client, mock = make([httpx.Response(code, json={})])
+    with pytest.raises(ProviderUnavailable) as ei:
+        await _call(client)
+    assert ei.value.reason == "misconfigured"
+    assert mock.calls == 1
+
+
+async def test_connection_error_retried_then_failed():
+    client, mock = make([httpx.ConnectError("down")])
+    with pytest.raises(ExtractionFailed):
+        await _call(client)
+    assert mock.calls == 3
+
+
+def test_missing_key_is_not_configured():
+    for key in (None, ""):
+        with pytest.raises(ProviderUnavailable) as ei:
+            CallMissedClient(api_key=key, base_url="https://cm.test/v1")
+        assert ei.value.reason == "not_configured"
+
+
+async def test_retry_after_capped_at_30(no_sleep):
+    client, _ = make([httpx.Response(429, headers={"Retry-After": "999"}, json={}), _ok()])
+    await _call(client)
+    assert no_sleep == [30.0]
+
+
+async def test_retry_after_nan_uses_normal_backoff(no_sleep):
+    client, _ = make([httpx.Response(429, headers={"Retry-After": "nan"}, json={}), _ok()])
+    await _call(client)
+    assert len(no_sleep) == 1 and 1.0 <= no_sleep[0] <= 2.0
+
+
+async def test_malformed_200_body_maps_to_extraction_failed():
+    client, _ = make([httpx.Response(200, json={"unexpected": True})])
+    with pytest.raises(ExtractionFailed) as ei:
+        await _call(client)
+    assert str(ei.value) in ("upstream error", "invalid output")
+    assert "unexpected" not in str(ei.value)
+
+
+async def test_sdk_error_fallback_hides_sdk_text(monkeypatch):
+    client, _ = make([_ok()])
+
+    async def boom(**_):
+        raise openai.OpenAIError("sdk internals cm_leak")
+
+    monkeypatch.setattr(client._client.chat.completions, "create", boom)
+    with pytest.raises(ExtractionFailed) as ei:
+        await _call(client)
+    assert str(ei.value) == "upstream error"
+    assert "cm_leak" not in str(ei.value)
+    assert ei.value.__cause__ is None
+
+
+async def test_aclose_closes_http_client():
+    client, _ = make([_ok()])
+    await client.aclose()
+    assert client._client.is_closed()
+
+
+async def test_deadline_stops_mixed_failures(monkeypatch):
+    clock = Clock()
+
+    async def fake_sleep(s):
+        clock.now += s
+
+    monkeypatch.setattr(callmissed, "_sleep", fake_sleep)
+    # each attempt burns 25 s on the fake clock: 429, 503, then invalid output
+    seq = [httpx.Response(429, headers={"Retry-After": "20"}, json={}), httpx.Response(503, json={}),
+           _ok("{}"), _ok("{}")]  # fmt: skip
+    client, mock = make(seq, clock=clock)
+    orig = mock.handler
+
+    def handler(request):
+        clock.now += 25
+        return orig(request)
+
+    http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    client = CallMissedClient(
+        api_key=SECRET, base_url="https://cm.test/v1", http_client=http, clock=clock
+    )
+    start = clock.now
+    with pytest.raises(ExtractionFailed):
+        await _call(client)
+    assert clock.now - start <= callmissed.DEADLINE_S
+    assert mock.calls < 4
+
+
+async def test_per_attempt_timeout_is_min_of_30_and_remaining():
+    clock = Clock()
+    client, _ = make([httpx.Response(503, json={}), _ok()], clock=clock)
+    seen: list[float] = []
+    real = client._client.chat.completions.create
+
+    async def spy(**kw):
+        seen.append(kw["timeout"])
+        clock.now += 50  # first attempt eats 50 s
+        return await real(**kw)
+
+    client._client.chat.completions.create = spy  # type: ignore[method-assign]
+    await _call(client)
+    assert seen[0] == 30.0
+    assert seen[1] <= 20.0
+
+
+async def test_log_includes_token_counts(caplog):
+    caplog.set_level(logging.INFO)
+    client, _ = make([_ok()])
+    await _call(client)
+    text = "\n".join(r.getMessage() for r in caplog.records)
+    assert "tokens_in=11" in text and "tokens_out=7" in text
