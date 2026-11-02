@@ -29,7 +29,7 @@ jobs:
         run: flutter gen-l10n
       - name: Generated l10n is committed and fresh
         working-directory: .
-        run: git diff --exit-code apps/app/lib/core/l10n
+        run: git add -N apps/app/lib/core/l10n && git diff --exit-code apps/app/lib/core/l10n
       - name: Format
         run: dart format --set-exit-if-changed lib test
       - name: Analyze
