@@ -31,5 +31,7 @@ describe("landing", () => {
       await screen.findByRole("heading", { name: messages.app.name }),
     ).toBeTruthy();
     expect(screen.getByText(messages.common.disclaimer)).toBeTruthy();
+    const signIn = screen.getByRole("link", { name: messages.auth.title });
+    expect(signIn.getAttribute("href")).toBe("/en/sign-in");
   });
 });
