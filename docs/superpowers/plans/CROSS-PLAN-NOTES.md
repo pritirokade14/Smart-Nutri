@@ -35,3 +35,6 @@ From the Plan 2 Task 11 review: the release build is still signed with the debug
 
 ## 15. Production database role (Plan 8 / M6)
 The API connects to dev as `postgres` (owner, BYPASSRLS). Before prod, create a dedicated role with BYPASSRLS and DML-only grants on app tables (no DDL, not owner), used by the API; migrations keep using the owner role. ADR 0013 follow-up.
+
+## 16. `products.per_100g` JSONB keys = scoring `Nutrients` field names (Plan 3 Task 3)
+`record_to_product` reads `products.per_100g` with the engine's `Nutrients` field names as keys (energy_kcal, protein_g, carbs_g, sugars_g, fat_g, sat_fat_g, fiber_g, salt_g, sodium_mg, fvl_percent). Plan 4 (label scan → confirmed product) must write exactly these keys. An own product with NULL `extraction_confidence` is treated as 1.0 when verified, 0.5 otherwise (below the 0.7 floor, so allergic members never get `ok`).
