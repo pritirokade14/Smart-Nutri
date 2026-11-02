@@ -14,6 +14,7 @@ repos:
       - id: check-json
         exclude: ^apps/app/
       - id: end-of-file-fixer
+        exclude: ^apps/app/(ios|macos|linux|windows|web)/
       - id: trailing-whitespace
         exclude: \.md$
       - id: check-added-large-files
@@ -28,15 +29,16 @@ repos:
       - id: ruff-format
         files: ^apps/api/
 
-  - repo: https://github.com/biomejs/pre-commit
-    rev: v2.6.4
-    hooks:
-      - id: biome-check
-        files: ^(apps/web|packages)/.*\.(ts|tsx|js|jsx|json|css)$
-        exclude: ^packages/api-contract/
-
   - repo: local
     hooks:
+      # Local instead of biomejs/pre-commit: that hook installs through an npm git dependency,
+      # which current npm refuses (EALLOWGIT). This uses the workspace's pinned biome.
+      - id: biome-check
+        name: biome check (web)
+        entry: pnpm --filter @smartnutri/web lint
+        language: system
+        pass_filenames: false
+        files: ^apps/web/.*\.(ts|tsx|js|jsx|json|css)$
       - id: dart-format
         name: dart format
         entry: dart format

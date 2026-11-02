@@ -10,6 +10,13 @@ on:
 permissions:
   contents: read
 
+env:
+  # Dummy PUBLIC values: NEXT_PUBLIC_* are shipped to browsers, never put real secrets here.
+  NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: dummy-publishable-key
+  NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+  NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -42,3 +49,11 @@ jobs:
       - name: Build
         if: steps.guard.outputs.ready == 'true'
         run: pnpm --filter @smartnutri/web build
+      - name: Install Playwright browser
+        if: steps.guard.outputs.ready == 'true'
+        run: pnpm --filter @smartnutri/web exec playwright install --with-deps chromium
+      - name: E2E
+        if: steps.guard.outputs.ready == 'true'
+        env:
+          PORT: "3000"
+        run: pnpm --filter @smartnutri/web e2e

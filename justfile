@@ -62,11 +62,26 @@ lint:
     cd apps/app && dart format --set-exit-if-changed lib test && flutter analyze
     pnpm --filter @smartnutri/web lint
 
+# ---------- containers ----------
+
+# Build the API image
+docker-api:
+    docker build -t smartnutri-api apps/api
+
+# Build the web image (repo root is the build context; NEXT_PUBLIC_* are public build args)
+docker-web:
+    docker build -f apps/web/Dockerfile -t smartnutri-web \
+        --build-arg NEXT_PUBLIC_SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL:-}" \
+        --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-}" \
+        --build-arg NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-}" \
+        --build-arg NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-}" \
+        .
+
 # ---------- generated code (never hand-edit the outputs) ----------
 
 # Export OpenAPI from FastAPI and regenerate the Dart + TS clients (Plan 2)
 contract:
-    cd apps/api && uv run python -m scripts.export_openapi > ../../packages/api-contract/openapi.json
+    cd apps/api && uv run python -m scripts.export_openapi > ../../packages/api-contract/openapi.json.tmp && mv ../../packages/api-contract/openapi.json.tmp ../../packages/api-contract/openapi.json
     cd packages/api-contract/dart && dart pub get && dart run swagger_parser && dart run build_runner build --delete-conflicting-outputs && dart format lib
     pnpm --filter @smartnutri/api-client generate
 

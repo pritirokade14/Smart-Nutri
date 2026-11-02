@@ -1,7 +1,7 @@
 from functools import cache
 from typing import Annotated, Any, Literal
 
-from pydantic import SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     rate_limit_voice_per_day: int = 20
     rate_limit_analyze_per_hour: int = 120
     rate_limit_public_per_minute: int = 60
+    # Trusted reverse-proxy hops in front of the API (see .env.example). 0 = use socket peer.
+    trusted_proxy_hops: int = Field(default=0, ge=0)
     sentry_dsn: str | None = None
     posthog_api_key: str | None = None
 

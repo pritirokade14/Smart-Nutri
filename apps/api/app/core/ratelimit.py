@@ -32,6 +32,22 @@ _DEFAULT_CODE = "rate_limited"
 _INTERVALS = {"day": "1 day", "hour": "1 hour", "minute": "1 minute"}
 
 
+def client_ip(request: Request, settings: Settings) -> str:
+    """Client IP for the ``public`` bucket.
+
+    With ``trusted_proxy_hops`` = N > 0 the IP is the Nth entry from the right of
+    X-Forwarded-For: trusted proxies append to the right, so anything further left is
+    client-controlled and ignored. Falls back to the socket peer if the header is missing/short.
+    """
+    hops = settings.trusted_proxy_hops
+    if hops > 0:
+        header = request.headers.get("x-forwarded-for", "")
+        parts = [p.strip() for p in header.split(",") if p.strip()]
+        if len(parts) >= hops:
+            return parts[-hops]
+    return request.client.host if request.client else "unknown"
+
+
 def _statement(window: str) -> str:
     return f"""
         WITH w AS (SELECT date_trunc('{window}', now(), 'UTC') AS start)
@@ -72,7 +88,7 @@ def limit(bucket: str) -> Callable[..., Awaitable[None]]:
             session: Annotated[AsyncSession, Depends(get_session)],
             settings: Annotated[Settings, Depends(get_settings)],
         ) -> None:
-            ip = request.client.host if request.client else "unknown"
+            ip = client_ip(request, settings)
             await _hit(session, settings, f"ip:{ip}", bucket)
 
         return _by_ip
