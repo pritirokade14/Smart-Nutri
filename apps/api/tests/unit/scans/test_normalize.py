@@ -4,12 +4,24 @@ import math
 
 import pytest
 
-from app.features.scans.normalize import ProductDraft, to_draft
+from app.features.products.schemas import NutrientsOut
+from app.features.scans.normalize import (
+    UNREADABLE_ALLERGEN_CONFIDENCE_CAP,
+    ProductDraft,
+    engine_nutrients,
+    to_draft,
+)
 from app.features.scans.schemas import NutrientsIn, NutritionExtraction
+from app.scoring import Category, Member, Nutrients, Product, Status, analyze, load_config
 
 
 def n(**kw) -> NutrientsIn:
     return NutrientsIn(**(dict.fromkeys(NutrientsIn.model_fields) | kw))
+
+
+def n_raw(**kw) -> NutrientsIn:
+    """Bypasses validation: the schema rejects NaN/inf, the normaliser still must not trust it."""
+    return NutrientsIn.model_construct(**(dict.fromkeys(NutrientsIn.model_fields) | kw))
 
 
 def ex(**kw) -> NutritionExtraction:
@@ -19,7 +31,9 @@ def ex(**kw) -> NutritionExtraction:
         "basis_detected": "per_100g",
         "per_100g": n(),
         "per_serving": None,
+        "per_100_unit": None,
         "serving_size_g": None,
+        "serving_size_unit": None,
         "ingredients": [],
         "allergen_statement": None,
         "may_contain_statement": None,
@@ -28,8 +42,14 @@ def ex(**kw) -> NutritionExtraction:
         "category_guess": "general",
         "confidence": 0.9,
         "unreadable_fields": [],
+        "upper_bound_fields": [],
     }
     return NutritionExtraction(**(data | kw))
+
+
+def ex_raw(**kw) -> NutritionExtraction:
+    """`ex()` then unvalidated overrides (values the schema would reject)."""
+    return ex().model_copy(update=kw)
 
 
 # --- Plan tests ------------------------------------------------------------------------
@@ -218,7 +238,7 @@ def test_implausible_kj_flagged_as_energy_kcal():
 
 
 def test_non_finite_value_becomes_none_and_flagged():
-    d = to_draft(ex(per_100g=n(sugars_g=math.nan, fat_g=math.inf)))
+    d = to_draft(ex_raw(per_100g=n_raw(sugars_g=math.nan, fat_g=math.inf)))
     assert d.per_100g.sugars_g is None and d.per_100g.fat_g is None
     assert d.warnings == [
         "implausible_value:sugars_g",
@@ -246,7 +266,9 @@ def test_derivation_converts_kj_and_keeps_missing_missing():
         ex(
             basis_detected="per_serving",
             per_100g=n(),
-            per_serving=n(energy_kj=209.2, sodium_mg=50, added_sugars_g=2, sugars_g=2),
+            per_serving=n(
+                energy_kj=209.2, sodium_mg=50, sodium_unit="mg", added_sugars_g=2, sugars_g=2
+            ),
             serving_size_g=20,
         )
     )
@@ -277,7 +299,7 @@ def test_derived_value_is_plausibility_checked():
 
 @pytest.mark.parametrize("size", [0, -5, 10_000, math.nan, math.inf])
 def test_implausible_serving_size_blocks_derivation(size):
-    d = to_draft(ex(per_100g=None, per_serving=n(sugars_g=5), serving_size_g=size))
+    d = to_draft(ex_raw(per_100g=None, per_serving=n(sugars_g=5), serving_size_g=size))
     assert d.per_100g.sugars_g is None and not d.derived_from_serving
     assert d.warnings == ["implausible_value:serving_size_g", "per_100g_missing"]
 
@@ -288,7 +310,7 @@ def test_implausible_serving_size_kept_in_draft_when_finite():
 
 
 def test_non_finite_serving_size_becomes_none():
-    assert to_draft(ex(serving_size_g=math.nan)).serving_size_g is None
+    assert to_draft(ex_raw(serving_size_g=math.nan)).serving_size_g is None
 
 
 def test_no_nutrition_table_at_all():
@@ -310,12 +332,14 @@ def test_per_serving_only_without_size_never_assumes_100g():
     [(0.95, 0.95), (1.7, 1.0), (-0.2, 0.0), (math.nan, 0.0), (math.inf, 0.0), (0.7, 0.7)],
 )
 def test_confidence_clamped(raw, expected):
-    assert to_draft(ex(confidence=raw)).confidence == expected
+    # Defence in depth: the R8 schema rejects these, the normaliser still clamps.
+    assert to_draft(ex_raw(confidence=raw)).confidence == expected
 
 
 @pytest.mark.parametrize("raw", [-0.2, math.nan, math.inf, 0.69])
 def test_bad_confidence_is_low(raw):
-    assert to_draft(ex(per_100g=n(sugars_g=5), confidence=raw)).warnings == ["low_confidence"]
+    d = to_draft(ex_raw(per_100g=n(sugars_g=5), confidence=raw))
+    assert d.warnings == ["low_confidence"]
 
 
 def test_confidence_at_threshold_not_low():
@@ -324,14 +348,300 @@ def test_confidence_at_threshold_not_low():
 
 def test_unreadable_fields_become_warnings():
     d = to_draft(
-        ex(per_100g=n(sugars_g=5), unreadable_fields=[" sugars_g ", "", "ingredients", "sugars_g"])
+        ex(
+            per_100g=n(sugars_g=5),
+            unreadable_fields=["per_100g.sugars_g", "per_serving.sodium_mg", "per_100g.sugars_g"],
+        )
     )
-    assert d.warnings == ["unreadable_field:sugars_g", "unreadable_field:ingredients"]
+    assert d.confidence == 0.9
+    assert d.warnings == [
+        "unreadable_field:per_100g.sugars_g",
+        "unreadable_field:per_serving.sodium_mg",
+    ]
 
 
 def test_missing_category_defaults_to_general_with_warning():
     d = to_draft(ex(per_100g=n(sugars_g=5), category_guess=None))
     assert d.category == "general" and d.warnings == ["category_unknown"]
+
+
+# --- R10: printed units --------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("value", "unit", "expected", "warnings"),
+    [
+        (0.4, "g", 400.0, []),
+        (400, "mg", 400, []),
+        (400, None, 400, ["unit_unconfirmed:per_100g.sodium_mg"]),
+    ],
+)
+def test_sodium_unit(value, unit, expected, warnings):
+    d = to_draft(ex(per_100g=n(sodium_mg=value, sodium_unit=unit)))
+    assert d.per_100g.sodium_mg == expected and d.warnings == warnings
+
+
+def test_sodium_without_unit_on_serving_column_flagged_with_its_path():
+    d = to_draft(ex(per_100g=None, per_serving=n(sodium_mg=50), serving_size_g=20))
+    assert d.per_100g.sodium_mg == 250  # kept as mg, never silently trusted
+    assert d.warnings == ["unit_unconfirmed:per_serving.sodium_mg"]
+
+
+def test_unit_unconfirmed_only_for_the_column_used():
+    d = to_draft(
+        ex(
+            per_100g=n(sodium_mg=400, sodium_unit="mg"),
+            per_serving=n(sodium_mg=120),
+            serving_size_g=30,
+        )
+    )
+    assert d.warnings == []
+
+
+def test_no_unit_warning_without_printed_sodium():
+    assert to_draft(ex(per_100g=n(salt_g=1.0))).warnings == []
+
+
+@pytest.mark.parametrize(
+    ("value", "unit", "expected"), [(200, "mg", 0.2), (0.2, "g", 0.2), (0.2, None, 0.2)]
+)
+def test_trans_fat_unit(value, unit, expected):
+    d = to_draft(ex(per_100g=n(fat_g=5, trans_fat_g=value, trans_fat_unit=unit)))
+    assert d.per_100g.trans_fat_g == expected and d.warnings == []
+
+
+def test_sodium_in_grams_then_plausibility_checked():
+    d = to_draft(ex(per_100g=n(sodium_mg=50, sodium_unit="g")))
+    assert d.per_100g.sodium_mg == 50_000 and d.warnings == ["implausible_value:sodium_mg"]
+
+
+def test_trans_fat_mg_not_taken_as_grams():
+    # 200 mg read as 200 g would be implausible; converted it is 0.2 g.
+    d = to_draft(ex(per_100g=n(fat_g=1, trans_fat_g=200, trans_fat_unit="mg")))
+    assert d.per_100g.trans_fat_g == 0.2 and d.warnings == []
+
+
+def test_units_converted_before_serving_derivation():
+    d = to_draft(
+        ex(
+            basis_detected="per_serving",
+            per_100g=None,
+            per_serving=n(sodium_mg=0.1, sodium_unit="g", trans_fat_g=50, trans_fat_unit="mg"),
+            serving_size_g=20,
+        )
+    )
+    assert d.per_100g.sodium_mg == 500 and d.per_100g.trans_fat_g == 0.25
+    assert d.derived_from_serving and d.warnings == []
+
+
+def test_salt_sodium_check_uses_converted_sodium():
+    d = to_draft(ex(per_100g=n(salt_g=1.0, sodium_mg=0.4, sodium_unit="g")))
+    assert d.per_100g.sodium_mg == 400 and d.warnings == []
+
+
+# --- R10: ml means a drink -----------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("per_100_unit", "serving_unit", "guess", "category", "warnings"),
+    [
+        ("ml", None, "general", "beverage", ["category_check"]),
+        (None, "ml", "fat", "beverage", ["category_check"]),
+        ("ml", "ml", "cheese", "beverage", ["category_check"]),
+        ("ml", None, None, "beverage", ["category_check"]),
+        ("ml", None, "beverage", "beverage", []),
+        (None, "ml", "water", "water", []),
+        ("g", "g", "general", "general", []),
+        ("g", None, None, "general", ["category_unknown"]),
+        (None, None, "fat", "fat", []),
+    ],
+)
+def test_ml_means_drink(per_100_unit, serving_unit, guess, category, warnings):
+    d = to_draft(
+        ex(
+            per_100g=n(sugars_g=5),
+            per_100_unit=per_100_unit,
+            serving_size_unit=serving_unit,
+            category_guess=guess,
+        )
+    )
+    assert d.category == category and d.warnings == warnings
+
+
+# --- R10: "<X" upper bounds ----------------------------------------------------------
+
+
+def test_upper_bound_value_kept_and_flagged():
+    d = to_draft(
+        ex(
+            per_100g=n(sugars_g=0.5, fat_g=3, trans_fat_g=0.2),
+            upper_bound_fields=["per_100g.sugars_g", "per_100g.trans_fat_g", "per_100g.sugars_g"],
+        )
+    )
+    assert d.per_100g.sugars_g == 0.5 and d.per_100g.trans_fat_g == 0.2
+    assert d.warnings == ["upper_bound:per_100g.sugars_g", "upper_bound:per_100g.trans_fat_g"]
+    assert d.positive_suppressed == []
+
+
+def test_upper_bound_protein_and_fibre_are_positive_suppressed():
+    d = to_draft(
+        ex(
+            per_100g=n(protein_g=0.1, fiber_g=0.5, sugars_g=3),
+            upper_bound_fields=["per_100g.fiber_g", "per_100g.protein_g"],
+        )
+    )
+    # Shown to the user as printed ...
+    assert d.per_100g.protein_g == 0.1 and d.per_100g.fiber_g == 0.5
+    assert d.positive_suppressed == ["protein_g", "fiber_g"]
+    assert d.warnings == ["upper_bound:per_100g.fiber_g", "upper_bound:per_100g.protein_g"]
+    # ... but never reach the engine as evidence.
+    eng = engine_nutrients(d)
+    assert eng.protein_g is None and eng.fiber_g is None and eng.sugars_g == 3
+
+
+def test_exact_protein_is_not_suppressed():
+    d = to_draft(ex(per_100g=n(protein_g=12), upper_bound_fields=["per_100g.sugars_g"]))
+    assert d.positive_suppressed == [] and engine_nutrients(d).protein_g == 12
+
+
+def test_upper_bound_on_unused_column_does_not_suppress():
+    d = to_draft(
+        ex(
+            per_100g=n(protein_g=2),
+            per_serving=n(protein_g=0.1),
+            serving_size_g=30,
+            upper_bound_fields=["per_serving.protein_g"],
+        )
+    )
+    assert d.positive_suppressed == []
+
+
+def test_upper_bound_on_serving_column_suppresses_when_derived():
+    d = to_draft(
+        ex(
+            per_100g=None,
+            per_serving=n(protein_g=0.1),
+            serving_size_g=200,
+            serving_size_unit="ml",
+            category_guess="beverage",
+            upper_bound_fields=["per_serving.protein_g"],
+        )
+    )
+    assert d.per_100g.protein_g == 0.05 and d.positive_suppressed == ["protein_g"]
+    assert engine_nutrients(d).protein_g is None
+
+
+def test_engine_nutrients_drops_display_only_fields():
+    d = to_draft(ex(per_100g=n(sugars_g=10, added_sugars_g=6, fat_g=5, trans_fat_g=0.1)))
+    assert engine_nutrients(d) == Nutrients(sugars_g=10, fat_g=5)
+
+
+def test_diet_drink_upper_bound_protein_gives_no_good_protein_density():
+    # A diet cola: "<0.1 g protein, <1 kcal" per 100 ml.
+    slimmer = Member(id="m7", name="Weight Loss Adult", age=35, goal="weight_loss")
+    d = to_draft(
+        ex(
+            per_100g=n(
+                energy_kcal=1,
+                protein_g=0.1,
+                carbs_g=0,
+                sugars_g=0,
+                fat_g=0,
+                sat_fat_g=0,
+                salt_g=0.02,
+            ),
+            per_100_unit="ml",
+            category_guess="beverage",
+            upper_bound_fields=["per_100g.energy_kcal", "per_100g.protein_g"],
+            ingredients=["carbonated water", "colour (INS 150d)", "sweetener (INS 951)"],
+        )
+    )
+    assert d.positive_suppressed == ["protein_g"]
+
+    def codes(product: Product) -> set[str]:
+        return {r.code for r in analyze(product, [slimmer]).verdicts[0].reasons}
+
+    raw = Nutrients(**{f: getattr(d.per_100g, f) for f in NutrientsOut.model_fields})
+    assert "good_protein_density" in codes(_engine_product(d, raw))  # control: the bug
+    assert "good_protein_density" not in codes(_engine_product(d))
+
+
+# --- R10: unreadable allergen-relevant fields cap confidence --------------------------
+
+
+@pytest.mark.parametrize("path", ["ingredients", "allergen_statement", "may_contain_statement"])
+def test_unreadable_allergen_field_caps_confidence(path):
+    d = to_draft(ex(per_100g=n(sugars_g=5), confidence=0.95, unreadable_fields=[path]))
+    assert d.confidence == 0.69
+    assert d.warnings == ["low_confidence", f"unreadable_field:{path}"]
+
+
+def test_unreadable_cap_never_raises_confidence():
+    d = to_draft(ex(per_100g=n(sugars_g=5), confidence=0.4, unreadable_fields=["ingredients"]))
+    assert d.confidence == 0.4
+
+
+def test_unreadable_cap_is_below_engine_threshold():
+    assert (
+        UNREADABLE_ALLERGEN_CONFIDENCE_CAP < load_config().thresholds["min_extraction_confidence"]
+    )
+
+
+def _engine_product(d: ProductDraft, per_100g: Nutrients | None = None) -> Product:
+    return Product(
+        name="Draft",
+        category=Category(d.category),
+        per_100g=engine_nutrients(d) if per_100g is None else per_100g,
+        serving_size_g=d.serving_size_g,
+        ingredients=tuple(d.ingredients),
+        allergen_statement=d.allergen_statement,
+        may_contain_statement=d.may_contain_statement,
+        claims=tuple(d.claims),
+        veg_mark=d.veg_mark,
+        extraction_confidence=d.confidence,
+    )
+
+
+def _engine_status(d: ProductDraft, member: Member) -> Status:
+    return analyze(_engine_product(d), [member]).verdicts[0].status
+
+
+def test_cut_off_ingredients_make_allergic_member_unknown():
+    peanut = Member(id="m1", name="Peanut Allergic", age=30, allergens=("peanut",))
+    label = {
+        "per_100g": n(energy_kcal=380, protein_g=8, carbs_g=70, sugars_g=4, fat_g=8, salt_g=1.0),
+        "ingredients": ["गेहूं का आटा", "नमक"],
+        "confidence": 0.95,
+    }
+    readable = to_draft(ex(**label))
+    cut_off = to_draft(ex(**label, unreadable_fields=["ingredients"]))
+    assert _engine_status(readable, peanut) != Status.UNKNOWN  # control
+    assert _engine_status(cut_off, peanut) == Status.UNKNOWN
+
+
+# --- R10: kcal vs kJ -----------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("kcal", "kj", "mismatch"),
+    [(100, 418.4, False), (100, 500, False), (100, 2000, True), (500, 1700, True)],
+)
+def test_kcal_kj_mismatch(kcal, kj, mismatch):
+    # tolerance = max(0.15 x kcal, 20): 500 kJ = 119.5 kcal (19.5 off: ok); 1700 kJ = 406 (94 off)
+    d = to_draft(ex(per_100g=n(energy_kcal=kcal, energy_kj=kj)))
+    assert d.per_100g.energy_kcal == kcal  # printed kcal still wins
+    assert d.warnings == (["kcal_kj_mismatch"] if mismatch else [])
+
+
+def test_kcal_kj_mismatch_checked_on_the_serving_column_used():
+    d = to_draft(
+        ex(
+            per_100g=None,
+            per_serving=n(energy_kcal=120, energy_kj=1000),
+            serving_size_g=25,
+        )
+    )
+    assert d.per_100g.energy_kcal == 480 and d.warnings == ["kcal_kj_mismatch"]
 
 
 def test_veg_mark_passed_through():
@@ -347,19 +657,39 @@ def test_mixed_script_ingredients_keep_order_and_script():
 def test_warning_order_is_deterministic():
     d = to_draft(
         ex(
-            per_100g=n(energy_kcal=100, protein_g=10, carbs_g=60, fat_g=20, sugars_g=250),
+            per_100g=n(
+                energy_kcal=100,
+                energy_kj=2000,
+                protein_g=10,
+                carbs_g=60,
+                fat_g=20,
+                sugars_g=250,
+                salt_g=1.0,
+                sodium_mg=1000,
+            ),
             category_guess=None,
             confidence=0.3,
-            unreadable_fields=["fat_g"],
+            unreadable_fields=["per_100g.fiber_g", "allergen_statement"],
+            upper_bound_fields=["per_100g.salt_g"],
         )
     )
     assert d.warnings == [
         "implausible_value:sugars_g",
         "energy_mismatch",
+        "kcal_kj_mismatch",
+        "salt_sodium_mismatch",
+        "unit_unconfirmed:per_100g.sodium_mg",
         "low_confidence",
         "category_unknown",
-        "unreadable_field:fat_g",
+        "unreadable_field:per_100g.fiber_g",
+        "unreadable_field:allergen_statement",
+        "upper_bound:per_100g.salt_g",
     ]
+
+
+def test_warning_order_with_ml_override():
+    d = to_draft(ex(per_100g=None, per_100_unit="ml", category_guess="general", confidence=0.5))
+    assert d.warnings == ["per_100g_missing", "low_confidence", "category_check"]
 
 
 def test_input_extraction_not_mutated():
