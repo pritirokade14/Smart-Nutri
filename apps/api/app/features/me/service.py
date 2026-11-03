@@ -36,7 +36,8 @@ async def get_display_name(session: AsyncSession, account_id: UUID) -> str | Non
 
 # Tables with an `account_id` column, erased in this order (children before parents). A new
 # account-owned table must be added here; tests/api/test_delete_me.py fails until it is.
-# Plans 6 and 7 add their tables here when their migrations land.
+# Checked at the wave 2 merge: Plans 6 and 7 add no new tables (Plan 6's migration 0003 only
+# alters meal_logs; Plan 7 reports use product_reports; voice stores no rows).
 ACCOUNT_OWNED_TABLES: tuple[str, ...] = (
     "meal_logs",
     "members",
@@ -45,9 +46,19 @@ ACCOUNT_OWNED_TABLES: tuple[str, ...] = (
     "consents",
 )
 
-# Storage folders that hold an account's objects in the private bucket: label photos
-# (`<account_id>/<uuid>.<ext>`, Plan 4) and voice answers (`voice/<account_id>/...`, Plan 7).
-STORAGE_PREFIXES: tuple[str, ...] = ("{account_id}", "voice/{account_id}")
+# Storage folders that hold an account's objects. Label photos are in the label-photo bucket
+# (`<account_id>/<uuid>.<ext>`, Plan 4); voice answers are in their own private bucket
+# (`settings.supabase_voice_bucket`, `voice/<account_id>/<uuid>.mp3`, Plan 7).
+STORAGE_PREFIXES: tuple[str, ...] = ("{account_id}",)
+VOICE_STORAGE_PREFIXES: tuple[str, ...] = ("voice/{account_id}",)
+
+
+async def account_voice_paths(voice_storage: StorageClient, account_id: UUID) -> list[str]:
+    """Every voice answer of the account in the voice-answers bucket."""
+    paths: set[str] = set()
+    for prefix in VOICE_STORAGE_PREFIXES:
+        paths.update(await voice_storage.list_prefix(prefix.format(account_id=account_id)))
+    return sorted(paths)
 
 
 async def account_storage_paths(

@@ -71,8 +71,9 @@ export interface paths {
          * Me Delete
          * @description Permanently erase the caller's account (DPDP erasure, F11).
          *
-         *     Order: storage objects (label photos, voice answers), then every account-owned row in one
-         *     transaction (contributed products stay with no owner), then the Supabase auth user.
+         *     Order: storage objects (label photos, and voice answers in their own bucket), then every
+         *     account-owned row in one transaction (contributed products stay with no owner), then the
+         *     Supabase auth user.
          *     Idempotent: calling it again returns 204. On 503 `deletion_incomplete`, retry: completed
          *     steps are skipped. Depends on `current_account` (not `current_account_row`) so a repeat
          *     call never re-creates the account row.

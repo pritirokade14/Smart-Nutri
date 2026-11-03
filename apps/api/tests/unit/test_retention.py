@@ -101,6 +101,30 @@ async def test_voice_is_not_counted_as_a_label_photo(session):
     assert result.photos_deleted == 0 and result.voice_deleted == 1
 
 
+async def test_separate_voice_bucket_is_cleaned(session):
+    """Plan 7 keeps voice answers in their own bucket (settings.supabase_voice_bucket)."""
+    photo = label(timedelta(days=31))
+    photos = storage_with(photo)
+    old = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(hours=25))
+    new = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(hours=23))
+    voices = storage_with(old, new)
+    result = await run_retention(NOW, session, photos, voice_storage=voices)
+    assert result == RetentionResult(photos_deleted=1, voice_deleted=1, scans_nulled=0)
+    assert list(voices.objects) == [new[0]]
+    assert photos.objects == {} and voices.deleted == [old[0]]
+
+
+async def test_voice_bucket_outage_changes_nothing(session):
+    path, created = label(timedelta(days=31))
+    photos = storage_with((path, created))
+    voices = storage_with((f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(days=2)))
+    voices.unavailable = True
+    scan = await add_scan(session, path, timedelta(days=31))
+    with pytest.raises(Exception):  # noqa: B017 - StorageUnavailable surfaces; the job exits 1
+        await run_retention(NOW, session, photos, voice_storage=voices)
+    assert photos.deleted == [] and await image_path(session, scan) == path
+
+
 async def test_missing_storage_object_still_nulls_image_path(session):
     scan = await add_scan(session, f"{A}/{uuid4()}.jpg", timedelta(days=45))
     result = await run_retention(NOW, session, FakeStorage())

@@ -7,7 +7,9 @@ Run as a Cloud Run Job, daily at 02:30 IST (Plan 8 Task 10):
 What it does:
 - Deletes every object in the private bucket outside `voice/` (label photos and orphan uploads,
   `<account_id>/<uuid>.<ext>`) created more than `photo_days` ago.
-- Deletes every `voice/` object (spoken answers) created more than `voice_hours` ago.
+- Deletes every `voice/` object (spoken answers) created more than `voice_hours` ago, in the
+  voice-answers bucket (`settings.supabase_voice_bucket`, Plan 7) when `voice_storage` is given,
+  else in the label-photo bucket.
 - Sets `scans.image_path = NULL` on scans older than `photo_days`, and on any scan whose photo
   it just deleted. Scans whose object is already gone are nulled too.
 
@@ -60,8 +62,10 @@ async def run_retention(
     photo_days: int = PHOTO_DAYS,
     voice_hours: int = VOICE_HOURS,
     *,
+    voice_storage: StorageClient | None = None,
     dry_run: bool = False,
 ) -> RetentionResult:
+    voice_store = voice_storage if voice_storage is not None else storage
     photo_cutoff = now - timedelta(days=photo_days)
     voice_cutoff = now - timedelta(hours=voice_hours)
 
@@ -70,7 +74,7 @@ async def run_retention(
         for p in await storage.list_prefix("", older_than=photo_cutoff)
         if not p.startswith(VOICE_PREFIX + "/")
     ]
-    old_voice = await storage.list_prefix(VOICE_PREFIX, older_than=voice_cutoff)
+    old_voice = await voice_store.list_prefix(VOICE_PREFIX, older_than=voice_cutoff)
     params = {"cutoff": photo_cutoff, "paths": old_photos}
     # Scan rows past the cutoff whose object the listing did not show (already gone, or no
     # timestamp): delete their path too, so nothing older than the window survives.
@@ -85,7 +89,11 @@ async def run_retention(
     if dry_run:
         return RetentionResult(len(old_photos), len(old_voice), len(scan_paths))
 
-    await storage.delete_paths(sorted(set(old_photos) | set(scan_paths) | set(old_voice)))
+    if voice_store is storage:
+        await storage.delete_paths(sorted(set(old_photos) | set(scan_paths) | set(old_voice)))
+    else:
+        await voice_store.delete_paths(sorted(old_voice))
+        await storage.delete_paths(sorted(set(old_photos) | set(scan_paths)))
     result = await session.execute(
         text(f"update scans set image_path = null where {_NULL_FILTER}"),
         params,
@@ -112,12 +120,19 @@ async def _run_from_settings(
                 secret_key=settings.supabase_secret_key,
                 bucket=settings.supabase_storage_bucket,
             )
+            voice_storage = SupabaseStorage(
+                http,
+                url=settings.supabase_url,
+                secret_key=settings.supabase_secret_key,
+                bucket=settings.supabase_voice_bucket,
+            )
             return await run_retention(
                 datetime.now(UTC),
                 session,
                 storage,
                 photo_days,
                 voice_hours,
+                voice_storage=voice_storage,
                 dry_run=dry_run,
             )
     finally:

@@ -31,7 +31,7 @@
 | # | Item | Status | Notes |
 |---|---|---|---|
 | 13 | Supabase `smartnutri-prod` (Mumbai, Pro) created | USER | Task 8 Step 1 (payment) |
-| 14 | Prod migrations at head | TODO | Task 8 Step 2. The storage buckets (`label-photos`, and `voice-answers` if Plan 7 uses a separate bucket) are **not** created by migrations. Create them private in the dashboard, or add a guarded migration (see `api-report.md`). |
+| 14 | Prod migrations at head | TODO | Task 8 Step 2. The storage buckets (`label-photos` and `voice-answers`, both used by deletion and retention) are **not** created by migrations. Create them private in the dashboard, or add a guarded migration (see `api-report.md`). |
 | 15 | Prod secrets in Secret Manager | USER | `bash scripts/push-secrets.sh prod --dry-run`, then `! bash scripts/push-secrets.sh prod` |
 | 16 | API and web deployed (min 1, max 4) | TODO | Task 10. `ENVIRONMENT=prod` requires `ALLOWED_ORIGINS` set to https origins, or the API refuses to start. |
 | 17 | Retention job and scheduler (02:30 IST) | TODO | `python -m app.jobs.retention`. Run `--dry-run` once first. Expect `photos_deleted=0 voice_deleted=0 scans_nulled=0` on a new project. |
