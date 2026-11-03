@@ -2009,6 +2009,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceButtonHold => 'Hold to ask';
 
   @override
+  String get voiceClose => 'Close';
+
+  @override
   String get voiceMicDenied =>
       'Microphone access is off. Allow it in your settings to ask by voice.';
 
@@ -2025,6 +2028,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voiceRecording => 'Listening… release to send';
+
+  @override
+  String get voiceReplay => 'Play again';
 
   @override
   String get voiceThinking => 'Getting your answer…';

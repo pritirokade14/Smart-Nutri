@@ -14,6 +14,7 @@ class AppConfig {
     required this.featurePhoneOtp,
     this.featureEmailOtp = false,
     this.siteUrl = '',
+    this.featureVoice = false,
   });
 
   const AppConfig.fromEnvironment()
@@ -34,7 +35,8 @@ class AppConfig {
         'FEATURE_EMAIL_OTP',
         defaultValue: false,
       ),
-      siteUrl = const String.fromEnvironment('SITE_URL');
+      siteUrl = const String.fromEnvironment('SITE_URL'),
+      featureVoice = const bool.fromEnvironment('FEATURE_VOICE');
 
   final String environment;
   final String apiBaseUrl;
@@ -49,6 +51,10 @@ class AppConfig {
   /// The public web app origin (e.g. `https://smartnutri.in`), for the
   /// privacy policy and terms pages. Empty hides those links.
   final String siteUrl;
+
+  /// Push-to-talk voice questions (F10). Off by default; the API's
+  /// VOICE_ENABLED must be on too.
+  final bool featureVoice;
 
   /// The localized privacy policy or terms page on the web app
   /// (`<SITE_URL>/<locale>/privacy|terms`), or null without [siteUrl].

@@ -168,3 +168,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 7 Task 9 (Android: how we score)
 - [ ] **hi/mr `methodology.{values_title,section_sources}`**: machine drafts. `section_sources` introduces source document titles (kept in their original language); it must read as "based on", not as an endorsement.
+
+## Plan 7 Task 8 (Android: push-to-talk voice)
+- [ ] **hi/mr `voice.{close,replay}`**: machine drafts. Short button labels.

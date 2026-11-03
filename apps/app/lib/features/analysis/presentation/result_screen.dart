@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 // ignore: implementation_imports
 import 'package:smartnutri_api/src/export.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/sn_colors.dart';
@@ -25,6 +26,8 @@ import '../../product/presentation/discovery_routes.dart';
 import '../../reports/presentation/report_dialog.dart';
 import '../../scan/domain/barcode.dart';
 import '../../scan/domain/number_text.dart';
+import '../../voice/domain/voice_state.dart';
+import '../../voice/presentation/push_to_talk_button.dart';
 import '../data/analysis_repository.dart';
 import '../domain/report.dart';
 import 'analysis_providers.dart';
@@ -85,7 +88,11 @@ class ResultScreen extends ConsumerWidget {
           // the barcode through to the scan and the saved product.
           labelBarcode: error is AnalysisNotFound ? code : null,
         ),
-        data: (out) => _ResultView(out: out, barcode: code),
+        data: (out) => _ResultView(
+          out: out,
+          barcode: code,
+          voiceEnabled: ref.watch(appConfigProvider).featureVoice,
+        ),
       ),
     );
   }
@@ -171,10 +178,17 @@ class _ErrorViewState extends State<_ErrorView> {
 }
 
 class _ResultView extends StatelessWidget {
-  const _ResultView({required this.out, required this.barcode});
+  const _ResultView({
+    required this.out,
+    required this.barcode,
+    this.voiceEnabled = false,
+  });
 
   final AnalyzeOut out;
   final String? barcode;
+
+  /// FEATURE_VOICE: a push-to-talk button under each member's verdict.
+  final bool voiceEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +235,7 @@ class _ResultView extends StatelessWidget {
             icon: Icons.groups_rounded,
           ),
           // One card per member, in the order the API returned them.
-          for (final v in out.verdicts)
+          for (final v in out.verdicts) ...[
             VerdictCard(
               verdict: v,
               action: logProduct == null
@@ -232,6 +246,22 @@ class _ResultView extends StatelessWidget {
                       memberId: v.memberId,
                     ),
             ),
+            if (voiceEnabled)
+              if (VoiceTarget.forProduct(
+                    memberId: v.memberId,
+                    productId: product.productId,
+                    barcode: product.barcode ?? barcode,
+                    language: l10n.localeName,
+                  )
+                  case final target?)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: SnTokens.space2),
+                  child: PushToTalkButton(
+                    key: ValueKey('voice-${v.memberId}'),
+                    target: target,
+                  ),
+                ),
+          ],
           // The AI explanation sits under the verdicts and above the
           // disclaimer, which covers both. Hidden when unavailable.
           ExplanationCard(explanation: out.explanation, verdicts: out.verdicts),

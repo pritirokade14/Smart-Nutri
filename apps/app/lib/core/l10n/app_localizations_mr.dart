@@ -2014,6 +2014,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get voiceButtonHold => 'विचारण्यासाठी दाबून ठेवा';
 
   @override
+  String get voiceClose => 'बंद करा';
+
+  @override
   String get voiceMicDenied =>
       'मायक्रोफोनची परवानगी बंद आहे. आवाजाने विचारण्यासाठी सेटिंग्जमध्ये ती सुरू करा.';
 
@@ -2030,6 +2033,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get voiceRecording => 'ऐकत आहोत… पाठवण्यासाठी सोडा';
+
+  @override
+  String get voiceReplay => 'पुन्हा ऐका';
 
   @override
   String get voiceThinking => 'तुमचे उत्तर तयार होत आहे…';

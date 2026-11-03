@@ -3525,6 +3525,12 @@ abstract class AppLocalizations {
   /// **'Hold to ask'**
   String get voiceButtonHold;
 
+  /// No description provided for @voiceClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get voiceClose;
+
   /// No description provided for @voiceMicDenied.
   ///
   /// In en, this message translates to:
@@ -3554,6 +3560,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Listening… release to send'**
   String get voiceRecording;
+
+  /// No description provided for @voiceReplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play again'**
+  String get voiceReplay;
 
   /// No description provided for @voiceThinking.
   ///

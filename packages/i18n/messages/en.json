@@ -672,7 +672,9 @@
     "too_long": "Please keep your question under 30 seconds.",
     "not_understood": "We couldn't hear a question. Hold the button and speak clearly.",
     "rate_limited": "You've reached today's voice-question limit.",
-    "ai_unavailable": "Voice answers are unavailable right now. Please try again later."
+    "ai_unavailable": "Voice answers are unavailable right now. Please try again later.",
+    "close": "Close",
+    "replay": "Play again"
   },
   "methodology": {
     "title": "How we score",
