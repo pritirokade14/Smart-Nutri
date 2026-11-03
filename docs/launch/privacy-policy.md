@@ -50,7 +50,7 @@ Verdicts (`ok`, `caution`, `unknown`, `avoid`) are calculated by our own rules, 
 | Label photos | **30 days**, then deleted automatically. We keep them without location or other hidden details (EXIF): both apps remove these before upload, and our server removes them again when it reads the photo. The values you confirmed stay with the product. |
 | Voice recordings | Your recording is never stored. Our spoken answers are deleted after **24 hours**. Transcripts are never stored. |
 | Account, family profiles, health data, meal logs | Until you delete them or delete your account |
-| Consent records | For as long as we need to show what you agreed to and when |
+| Consent records | Until you delete your account. Deleting your account erases them together with everything else. [Lawyer: confirm that no proof of consent must be kept after erasure under DPDP s. 6(10) and the Rules; if it must, we would keep only a minimal record and say so here.] |
 | Record that an account was deleted | **7 days** after deletion: only the account's internal ID and the time, so that a sign-in from before the deletion cannot bring the account back |
 | Crash reports | Up to 90 days, in the provider's retention settings |
 
