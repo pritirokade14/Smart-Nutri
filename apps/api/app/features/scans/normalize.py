@@ -15,8 +15,14 @@ Health-critical rules:
   kcal, derivation), so a per-serving path is cleared BEFORE derivation. An unreadable
   `serving_size_g` is cleared too, so nothing is derived from it.
 - Printed units are converted in code (the model never converts): sodium printed in g
-  -> mg (x 1000); trans fat printed in mg -> g (/ 1000). A sodium value with no printed
-  unit is kept as mg for display but flagged `unit_unconfirmed:<path>` and withheld.
+  -> mg (x 1000, `sodium_to_mg`); trans fat printed in mg -> g (/ 1000). A sodium value
+  with no printed unit is kept as the printed number for display, flagged
+  `unit_unconfirmed:<path>` on each printed column, and withheld when it is on the column
+  used for `per_100g`.
+- `per_serving` is the printed per-serving column in draft units (after unreadable-
+  clearing, kJ -> kcal and the unit conversions above), so clients can show it and the user
+  can save it with basis per_serving (the SERVER converts it: `per_100g_from_serving`,
+  the same helper the derivation uses). None when no per-serving value is printed.
 - Implausible values are KEPT so the user can see and fix them, and flagged as
   `implausible_value:<field>`. Plausibility is the engine's own (`Product.sanitized()`),
   so a flagged draft field is exactly what the save endpoint rejects. Only non-finite
@@ -55,8 +61,9 @@ Warning codes, always in this order:
   energy_mismatch             kcal disagrees with 4p + 4c + 9f
   kcal_kj_mismatch            printed kcal disagrees with printed kJ / 4.184 (kcal is used)
   salt_sodium_mismatch        salt disagrees with sodium x 2.5 / 1000
-  unit_unconfirmed:<path>     sodium printed without a unit on the column used; shown as mg,
-                              withheld from the engine
+  unit_unconfirmed:<path>     sodium printed without a unit, per printed column
+                              (per_100g first, then per_serving); the printed number is shown;
+                              withheld from the engine when on the column used
   low_confidence              (capped) confidence below min_extraction_confidence
   category_unknown            no category and no ml signal; "general" was used
   category_check              ml printed and the guess was not beverage/water (beverage was
@@ -69,9 +76,10 @@ Warning codes, always in this order:
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from typing import Literal, get_args
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from app.features.products.schemas import NutrientsOut
 from app.features.scans.schemas import NUTRIENT_FIELDS, NutrientsIn, NutritionExtraction
@@ -84,6 +92,9 @@ __all__ = [
     "EngineField",
     "ProductDraft",
     "engine_nutrients",
+    "implausible_fields",
+    "per_100g_from_serving",
+    "sodium_to_mg",
     "to_draft",
 ]
 
@@ -121,10 +132,19 @@ class DraftNutrients(NutrientsOut):
 class ProductDraft(BaseModel):
     """A normalised extraction awaiting user confirmation. Never saved as-is."""
 
+    # `per_serving` has a default only so drafts stored before it existed still load; the
+    # API always sends it, so the contract marks it required.
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     name: str | None
     brand: str | None
     category: _CategoryName
     per_100g: DraftNutrients
+    # The printed per-serving column in draft units (after unreadable-clearing, kJ -> kcal,
+    # sodium g -> mg; a unit-less sodium is the printed number, see `unit_unconfirmed`).
+    # None when no per-serving value is printed. Save it with basis per_serving; the server
+    # converts it to per 100 g.
+    per_serving: DraftNutrients | None = None
     serving_size_g: float | None  # as printed, g or ml
     ingredients: list[str]
     allergen_statement: str | None
@@ -166,6 +186,18 @@ _Column = Literal["per_100g", "per_serving"]
 _DISPLAY_ONLY = (("added_sugars_g", "sugars_g"), ("trans_fat_g", "fat_g"))
 
 
+def sodium_to_mg(value: float | None, unit: Literal["mg", "g"] | None) -> float | None:
+    """Sodium in mg: x 1000 when the unit is g; a null unit means mg (the field's own unit)."""
+    if value is None:
+        return None
+    return value * 1000 if unit == "g" else value
+
+
+def per_100g_from_serving(value: float | None, serving_size_g: float) -> float | None:
+    """value x 100 / serving_size_g, exact (never rounded). The caller checks the serving."""
+    return None if value is None else value * 100 / serving_size_g
+
+
 def _finite(value: float | None) -> float | None:
     return value if value is not None and math.isfinite(value) else None
 
@@ -197,8 +229,7 @@ def _column(col: NutrientsIn | None) -> dict[str, float | None]:
     values = {f: getattr(col, f) for f in DraftNutrients.model_fields}
     if values["energy_kcal"] is None and col.energy_kj is not None:
         values["energy_kcal"] = col.energy_kj / _KJ_PER_KCAL
-    if col.sodium_unit == "g" and col.sodium_mg is not None:
-        values["sodium_mg"] = col.sodium_mg * 1000
+    values["sodium_mg"] = sodium_to_mg(col.sodium_mg, col.sodium_unit)
     if col.trans_fat_unit == "mg" and col.trans_fat_g is not None:
         values["trans_fat_g"] = col.trans_fat_g / 1000
     return values
@@ -237,7 +268,7 @@ def _per_100g(
         return per_100, False, "per_100g"
     if not _has_engine_values(per_serving):
         return per_100, False, "per_100g"
-    derived = {k: None if v is None else v * 100 / serving for k, v in per_serving.items()}
+    derived = {k: per_100g_from_serving(v, serving) for k, v in per_serving.items()}
     return derived, True, "per_serving"
 
 
@@ -263,17 +294,17 @@ def _per_serving_ignored(
 
 
 def _implausible_fields(
-    values: dict[str, float | None], *, non_finite: set[str], serving_bad: bool
+    values: Mapping[str, float | None], *, non_finite: set[str], serving_bad: bool
 ) -> list[str]:
     """Fields outside the engine's plausibility bounds, in a fixed order (values untouched)."""
     implausible = set(non_finite)
     # Engine plausibility (per field and cross-field), on the engine fields only.
     _, dropped = Product(
-        name="", per_100g=Nutrients(**{f: values[f] for f in ENGINE_FIELDS})
+        name="", per_100g=Nutrients(**{f: values.get(f) for f in ENGINE_FIELDS})
     ).sanitized()
     implausible |= set(dropped)
     for field, whole in _DISPLAY_ONLY:
-        v, w = values[field], values[whole]
+        v, w = values.get(field), values.get(whole)
         if v is not None and (
             not 0 <= v <= MAX_GRAMS_PER_100 or (w is not None and v > w + CROSS_FIELD_TOLERANCE_G)
         ):
@@ -284,13 +315,21 @@ def _implausible_fields(
     return [f for f in order if f in implausible]
 
 
+def implausible_fields(
+    values: Mapping[str, float | None], *, serving_size_g: float | None
+) -> list[str]:
+    """Per-100 g draft fields (missing keys = None) and the serving size that fail the
+    engine's plausibility rules, in the draft's warning order. The save endpoint uses this
+    so it rejects exactly what the draft flags as `implausible_value`."""
+    serving_bad = serving_size_g is not None and not _serving_plausible(serving_size_g)
+    return _implausible_fields(values, non_finite=set(), serving_bad=serving_bad)
+
+
 def _sodium_unit_unconfirmed(col: NutrientsIn | None) -> bool:
     return col is not None and col.sodium_mg is not None and col.sodium_unit is None
 
 
-def _consistency_warnings(
-    values: dict[str, float | None], col: NutrientsIn | None, path: _Column
-) -> list[str]:
+def _consistency_warnings(values: dict[str, float | None], col: NutrientsIn | None) -> list[str]:
     warnings: list[str] = []
     kcal, p, c, f = (values[k] for k in ("energy_kcal", "protein_g", "carbs_g", "fat_g"))
     if (
@@ -320,8 +359,6 @@ def _consistency_warnings(
         ):
             warnings.append("salt_sodium_mismatch")
 
-    if _sodium_unit_unconfirmed(col):
-        warnings.append(f"unit_unconfirmed:{path}.sodium_mg")
     return warnings
 
 
@@ -364,6 +401,12 @@ def _engine_withheld(
     if _sodium_unit_unconfirmed(source):
         withheld.add("sodium_mg")
     return [f for f in ENGINE_FIELDS if f in withheld]
+
+
+def _shown_column(values: dict[str, float | None]) -> DraftNutrients | None:
+    """A printed column for display (non-finite -> None), or None when nothing is printed."""
+    shown = {k: _finite(v) for k, v in values.items()}
+    return DraftNutrients(**shown) if any(v is not None for v in shown.values()) else None
 
 
 def _path_warnings(code: str, paths: list[str]) -> list[str]:
@@ -413,7 +456,11 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
         warnings.append("basis_mismatch")
     if _per_serving_ignored(values, per_serving, path):
         warnings.append("per_serving_ignored")
-    warnings += _consistency_warnings(values, source, path)
+    warnings += _consistency_warnings(values, source)
+    # Each printed column with a unit-less sodium (both can be saved, R17).
+    for column, col in (("per_100g", per_100_col), ("per_serving", per_serving_col)):
+        if _sodium_unit_unconfirmed(col):
+            warnings.append(f"unit_unconfirmed:{column}.sodium_mg")
 
     confidence = _confidence(e)
     if confidence < load_config().thresholds["min_extraction_confidence"]:
@@ -430,6 +477,7 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
         brand=_text(e.brand),
         category=category,
         per_100g=DraftNutrients(**values),
+        per_serving=_shown_column(per_serving),
         serving_size_g=_finite(serving),
         ingredients=_texts(e.ingredients),
         allergen_statement=_text(e.allergen_statement),

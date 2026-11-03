@@ -24,6 +24,8 @@ enum ProductCreateConfirmedFields {
   saltG('salt_g'),
   @JsonValue('sodium_mg')
   sodiumMg('sodium_mg'),
+  @JsonValue('serving_size_g')
+  servingSizeG('serving_size_g'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

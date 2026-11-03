@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+/// Required: the user's explicit choice (drinks are judged on drink limits).
 @JsonEnum()
 enum ProductCreateCategory {
   @JsonValue('general')

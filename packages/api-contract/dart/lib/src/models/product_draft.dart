@@ -27,6 +27,7 @@ class ProductDraft {
     required this.mayContainStatement,
     required this.name,
     required this.per100g,
+    required this.perServing,
     required this.positiveSuppressed,
     required this.servingSizeG,
     required this.vegMark,
@@ -52,6 +53,8 @@ class ProductDraft {
   final String? name;
   @JsonKey(name: 'per_100g')
   final DraftNutrients per100g;
+  @JsonKey(name: 'per_serving')
+  final DraftNutrients? perServing;
   @JsonKey(name: 'positive_suppressed')
   final List<ProductDraftPositiveSuppressed> positiveSuppressed;
   @JsonKey(name: 'serving_size_g')

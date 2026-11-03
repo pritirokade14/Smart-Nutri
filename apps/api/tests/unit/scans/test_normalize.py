@@ -422,7 +422,9 @@ def test_sodium_without_unit_on_serving_column_flagged_with_its_path():
     assert d.engine_withheld == ["sodium_mg"] and engine_nutrients(d).sodium_mg is None
 
 
-def test_unit_unconfirmed_only_for_the_column_used():
+def test_unit_unconfirmed_on_the_shown_serving_column_is_flagged_not_withheld():
+    # R17: the per-serving column is shown (and can be saved with basis per_serving), so a
+    # unit-less sodium there is flagged; only the column used for per_100g is withheld.
     d = to_draft(
         ex(
             per_100g=n(sodium_mg=400, sodium_unit="mg"),
@@ -430,7 +432,25 @@ def test_unit_unconfirmed_only_for_the_column_used():
             serving_size_g=30,
         )
     )
-    assert d.warnings == []
+    assert d.warnings == ["unit_unconfirmed:per_serving.sodium_mg"]
+    assert d.engine_withheld == [] and engine_nutrients(d).sodium_mg == 400
+    assert d.per_serving is not None and d.per_serving.sodium_mg == 120
+
+
+def test_unit_unconfirmed_warnings_for_both_columns_in_column_order():
+    d = to_draft(
+        ex(
+            basis_detected="both",
+            per_100g=n(sodium_mg=400),
+            per_serving=n(sodium_mg=120),
+            serving_size_g=30,
+        )
+    )
+    assert d.warnings == [
+        "unit_unconfirmed:per_100g.sodium_mg",
+        "unit_unconfirmed:per_serving.sodium_mg",
+    ]
+    assert d.engine_withheld == ["sodium_mg"]
 
 
 def test_no_unit_warning_without_printed_sodium():
@@ -1175,3 +1195,105 @@ def test_engine_withheld_rejects_non_engine_fields():
     base = to_draft(ex(per_100g=n(sugars_g=3)))
     with pytest.raises(ValueError):
         ProductDraft(**(base.model_dump() | {"engine_withheld": ["trans_fat_g"]}))
+
+
+# R17: the printed per-serving column is shown; the server's conversion helpers
+
+
+def test_per_serving_column_is_shown_after_clearing_and_kj():
+    d = to_draft(
+        ex(
+            per_100g=n(sugars_g=5, energy_kcal=100),
+            per_serving=n(
+                energy_kj=418.4,
+                sugars_g=1.5,
+                protein_g=9,
+                sodium_mg=0.2,
+                sodium_unit="g",
+                trans_fat_g=50,
+                trans_fat_unit="mg",
+            ),
+            serving_size_g=30,
+            unreadable_fields=["per_serving.protein_g"],
+        )
+    )
+    assert isinstance(d.per_serving, DraftNutrients)
+    ps = d.per_serving
+    assert ps.energy_kcal == pytest.approx(100) and ps.sugars_g == 1.5
+    assert ps.protein_g is None  # unreadable: cleared
+    assert ps.sodium_mg == 200 and ps.trans_fat_g == 0.05
+    assert d.per_100g.sugars_g == 5  # the per-100 g column is still the one used
+
+
+def test_per_serving_is_none_without_a_printed_serving_column():
+    assert to_draft(ex(per_100g=n(sugars_g=5))).per_serving is None
+    assert to_draft(ex(per_100g=n(sugars_g=5), per_serving=n())).per_serving is None
+
+
+def test_per_serving_kept_when_derived():
+    d = to_draft(
+        ex(
+            basis_detected="per_serving",
+            per_100g=None,
+            per_serving=n(sugars_g=9),
+            serving_size_g=300,
+        )
+    )
+    assert d.derived_from_serving and d.per_100g.sugars_g == 3
+    assert d.per_serving.sugars_g == 9
+
+
+def test_stored_draft_without_per_serving_still_loads():
+    base = to_draft(ex(per_100g=n(sugars_g=3))).model_dump()
+    del base["per_serving"]
+    assert ProductDraft.model_validate(base).per_serving is None
+
+
+@pytest.mark.parametrize(
+    ("value", "unit", "expected"),
+    [(0.4, "g", 400.0), (400, "mg", 400), (400, None, 400), (None, "g", None)],
+)
+def test_sodium_to_mg(value, unit, expected):
+    from app.features.scans.normalize import sodium_to_mg
+
+    assert sodium_to_mg(value, unit) == expected
+
+
+@pytest.mark.parametrize(
+    ("value", "serving", "expected"), [(9, 30, 30.0), (10, 25, 40.0), (None, 30, None)]
+)
+def test_per_100g_from_serving(value, serving, expected):
+    from app.features.scans.normalize import per_100g_from_serving
+
+    assert per_100g_from_serving(value, serving) == expected
+
+
+def test_derivation_uses_the_public_helper_exactly():
+    from app.features.scans.normalize import per_100g_from_serving
+
+    d = to_draft(
+        ex(
+            basis_detected="per_serving",
+            per_100g=None,
+            per_serving=n(carbs_g=20),
+            serving_size_g=30,
+        )
+    )
+    assert d.per_100g.carbs_g == per_100g_from_serving(20, 30)
+
+
+def test_implausible_fields_matches_the_draft_flags():
+    from app.features.scans.normalize import implausible_fields
+
+    values = dict.fromkeys(DraftNutrients.model_fields) | {
+        "sugars_g": 40,
+        "carbs_g": 20,
+        "added_sugars_g": 50,
+    }
+    assert implausible_fields(values, serving_size_g=0) == [
+        "carbs_g",
+        "sugars_g",
+        "added_sugars_g",
+        "serving_size_g",
+    ]
+    assert implausible_fields({"sugars_g": 5}, serving_size_g=30) == []

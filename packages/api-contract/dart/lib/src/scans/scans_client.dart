@@ -21,13 +21,16 @@ abstract class ScansClient {
   /// Extract an unconfirmed draft from an uploaded label photo.
   ///
   /// Rate-limited per account (`rate_limited_scans`), counting only paid extractions: the.
-  /// same image bytes again (from any account) reuse the stored draft for free.
+  /// same image bytes again (from any account) reuse the stored extraction for free (it is.
+  /// normalised afresh), and the same `path` posted again returns the same `scan_id`.
   @POST('/v1/scans/label')
   Future<ScanDraftOut> scansCreateLabel({@Body() required LabelScanIn body});
 
   /// Scans Create Upload Url.
   ///
-  /// A signed URL to PUT one label photo into the caller's private folder (no DB write).
+  /// A signed URL to PUT one label photo into the caller's private folder.
+  ///
+  /// Creates the caller's account row on first use (the photo is account-owned).
   @POST('/v1/scans/upload-url')
   Future<UploadUrlOut> scansCreateUploadUrl({
     @Body() required UploadUrlIn body,

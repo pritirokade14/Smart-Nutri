@@ -8,11 +8,12 @@ part of 'product_create.dart';
 
 ProductCreate _$ProductCreateFromJson(Map<String, dynamic> json) =>
     ProductCreate(
+      basis: ProductCreateBasis.fromJson(json['basis'] as String),
+      category: ProductCreateCategory.fromJson(json['category'] as String),
       name: json['name'] as String,
-      per100g: NutrientsOut.fromJson(json['per_100g'] as Map<String, dynamic>),
-      category: json['category'] == null
-          ? ProductCreateCategory.general
-          : ProductCreateCategory.fromJson(json['category'] as String),
+      nutrients: PrintedNutrients.fromJson(
+        json['nutrients'] as Map<String, dynamic>,
+      ),
       claims:
           (json['claims'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -34,6 +35,9 @@ ProductCreate _$ProductCreateFromJson(Map<String, dynamic> json) =>
       mayContainStatement: json['may_contain_statement'] as String?,
       scanId: json['scan_id'] as String?,
       servingSizeG: json['serving_size_g'] as num?,
+      sodiumUnit: json['sodium_unit'] == null
+          ? null
+          : ProductCreateSodiumUnit.fromJson(json['sodium_unit'] as String),
       vegMark: json['veg_mark'] == null
           ? null
           : ProductCreateVegMark.fromJson(json['veg_mark'] as String),
@@ -43,6 +47,7 @@ Map<String, dynamic> _$ProductCreateToJson(ProductCreate instance) =>
     <String, dynamic>{
       'allergen_statement': instance.allergenStatement,
       'barcode': instance.barcode,
+      'basis': _$ProductCreateBasisEnumMap[instance.basis]!,
       'brand': instance.brand,
       'category': _$ProductCreateCategoryEnumMap[instance.category]!,
       'claims': instance.claims,
@@ -52,11 +57,18 @@ Map<String, dynamic> _$ProductCreateToJson(ProductCreate instance) =>
       'ingredients': instance.ingredients,
       'may_contain_statement': instance.mayContainStatement,
       'name': instance.name,
-      'per_100g': instance.per100g,
+      'nutrients': instance.nutrients,
       'scan_id': instance.scanId,
       'serving_size_g': instance.servingSizeG,
+      'sodium_unit': _$ProductCreateSodiumUnitEnumMap[instance.sodiumUnit],
       'veg_mark': _$ProductCreateVegMarkEnumMap[instance.vegMark],
     };
+
+const _$ProductCreateBasisEnumMap = {
+  ProductCreateBasis.per100g: 'per_100g',
+  ProductCreateBasis.perServing: 'per_serving',
+  ProductCreateBasis.$unknown: r'$unknown',
+};
 
 const _$ProductCreateCategoryEnumMap = {
   ProductCreateCategory.general: 'general',
@@ -77,7 +89,14 @@ const _$ProductCreateConfirmedFieldsEnumMap = {
   ProductCreateConfirmedFields.fiberG: 'fiber_g',
   ProductCreateConfirmedFields.saltG: 'salt_g',
   ProductCreateConfirmedFields.sodiumMg: 'sodium_mg',
+  ProductCreateConfirmedFields.servingSizeG: 'serving_size_g',
   ProductCreateConfirmedFields.$unknown: r'$unknown',
+};
+
+const _$ProductCreateSodiumUnitEnumMap = {
+  ProductCreateSodiumUnit.mg: 'mg',
+  ProductCreateSodiumUnit.g: 'g',
+  ProductCreateSodiumUnit.$unknown: r'$unknown',
 };
 
 const _$ProductCreateVegMarkEnumMap = {

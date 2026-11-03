@@ -567,3 +567,229 @@ async def test_provider_not_configured_is_503(scan_app, auth_client, fake_storag
     r = await post_label(auth_client)
     assert r.status_code == 503
     assert r.json()["error"]["code"] == "extraction_unavailable"
+
+
+# --- Ruling R16 -------------------------------------------------------------------------------
+
+
+def _sha(data: bytes) -> str:
+    import hashlib
+
+    return hashlib.sha256(data).hexdigest()
+
+
+async def _seed_scan(db_session, account_id: UUID, sha: str, analysis: dict) -> Scan:
+    from app.features.me.service import ensure_account
+
+    await ensure_account(db_session, AccountContext(account_id, None))
+    scan = Scan(
+        account_id=account_id,
+        image_path=f"{account_id}/{uuid.uuid4()}.jpg",
+        image_sha256=sha,
+        analysis=analysis,
+    )
+    db_session.add(scan)
+    await db_session.flush()
+    return scan
+
+
+def _stale_draft() -> dict:
+    from app.features.scans.normalize import to_draft
+
+    stale = to_draft(extraction())
+    return stale.model_dump(mode="json") | {
+        "per_100g": stale.per_100g.model_dump() | {"sugars_g": 99.0}
+    }
+
+
+# (1) the cache stores the raw extraction and re-normalises it on every hit
+
+
+async def test_extraction_and_model_are_stored(
+    auth_client, fake_storage_jpeg, fake_llm_ok, db_session, scan_app
+):
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    [scan] = await scans_for(db_session, A)
+    assert scan.analysis["extraction"] == extraction().model_dump(mode="json")
+    assert scan.analysis["model"] == scan_app.state.settings.callmissed_extraction_model
+
+
+async def test_old_style_cache_row_without_extraction_is_a_miss(
+    scan_app, auth_client, fake_storage_jpeg, fake_llm_ok, db_session, jpeg_bytes
+):
+    await _seed_scan(
+        db_session,
+        B,
+        _sha(jpeg_bytes),
+        {
+            "draft": _stale_draft(),
+            "prompt_version": "extraction_v1",
+            "model": scan_app.state.settings.callmissed_extraction_model,
+        },
+    )
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    assert r.json()["cached"] is False and fake_llm_ok.calls == 1
+    assert r.json()["draft"]["per_100g"]["sugars_g"] == 12.0
+
+
+async def test_cache_hit_re_runs_the_normaliser(
+    scan_app, auth_client, fake_storage_jpeg, fake_llm_ok, db_session, jpeg_bytes, monkeypatch
+):
+    # A row from an older normaliser: raw extraction plus a stale draft.
+    await _seed_scan(
+        db_session,
+        B,
+        _sha(jpeg_bytes),
+        {
+            "draft": _stale_draft(),
+            "extraction": extraction().model_dump(mode="json"),
+            "prompt_version": "extraction_v1",
+            "model": scan_app.state.settings.callmissed_extraction_model,
+        },
+    )
+    seen: list = []
+    real = scan_service.to_draft
+
+    def spy(e):
+        seen.append(e)
+        return real(e)
+
+    monkeypatch.setattr(scan_service, "to_draft", spy)
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    assert r.json()["cached"] is True and fake_llm_ok.calls == 0
+    assert seen == [extraction()]
+    assert r.json()["draft"]["per_100g"]["sugars_g"] == 12.0  # fresh, not the stale 99
+    [own] = await scans_for(db_session, A)
+    assert own.analysis["draft"] == r.json()["draft"]
+    assert own.analysis["extraction"] == extraction().model_dump(mode="json")
+
+
+async def test_cache_key_includes_the_model(
+    scan_app, auth_client, other_client, fake_storage_jpeg, fake_llm_ok, db_session
+):
+    scan_app.state.settings.callmissed_extraction_model = "vision-a"
+    assert (await post_label(auth_client)).json()["cached"] is False
+    scan_app.state.settings.callmissed_extraction_model = "vision-b"
+    r = await post_label(other_client)
+    assert r.json()["cached"] is False and fake_llm_ok.calls == 2
+    # (7) the stored model is the one that produced the draft
+    [a] = await scans_for(db_session, A)
+    [b] = await scans_for(db_session, B)
+    assert a.analysis["model"] == "vision-a" and b.analysis["model"] == "vision-b"
+
+
+async def test_cache_hit_stores_the_model_of_the_cached_extraction(
+    scan_app, auth_client, other_client, fake_storage_jpeg, fake_llm_ok, db_session
+):
+    scan_app.state.settings.callmissed_extraction_model = "vision-a"
+    await post_label(auth_client)
+    r = await post_label(other_client)
+    assert r.json()["cached"] is True
+    [b] = await scans_for(db_session, B)
+    assert b.analysis["model"] == "vision-a"
+
+
+# (2) the same account posting the same path twice gets the same scan
+
+
+async def test_same_path_twice_returns_the_same_scan(
+    auth_client, fake_storage_jpeg, fake_llm_ok, db_session, scan_limit_used
+):
+    path = new_path(auth_client)
+    first = await post_label(auth_client, path)
+    second = await post_label(auth_client, path)
+    assert first.status_code == second.status_code == 200
+    assert second.json()["scan_id"] == first.json()["scan_id"]
+    assert second.json()["draft"] == first.json()["draft"]
+    assert len(await scans_for(db_session, A)) == 1
+    assert fake_llm_ok.calls == 1 and await scan_limit_used(auth_client) == 1
+
+
+async def test_same_path_with_new_bytes_is_a_new_scan(
+    auth_client, fake_storage_unique_jpegs, fake_llm_ok, db_session
+):
+    path = new_path(auth_client, "png")
+    first = await post_label(auth_client, path)
+    second = await post_label(auth_client, path)
+    assert second.json()["scan_id"] != first.json()["scan_id"]
+    assert len(await scans_for(db_session, A)) == 2
+
+
+# (3) the DB connection is released before the storage download
+
+
+async def test_no_open_transaction_during_download(scan_app, auth_client, fake_llm_ok, db_session):
+    seen: list[bool] = []
+    image = make_image()
+
+    def _download(_path: str) -> bytes:
+        seen.append(db_session.in_transaction())
+        return image
+
+    _use_storage(scan_app, FakeStorage(default=_download))
+    assert (await post_label(auth_client)).status_code == 200
+    assert seen == [False]
+
+
+# (6) a refused provider call is refunded; a failed paid call is not
+
+
+async def test_provider_unavailable_refunds_the_scan(
+    auth_client, fake_storage_jpeg, fake_llm_unavailable, scan_limit_used, monkeypatch
+):
+    monkeypatch.setattr(scan_service.sentry_sdk, "capture_message", lambda *a, **k: None)
+    r = await post_label(auth_client)
+    assert r.status_code == 503
+    assert await scan_limit_used(auth_client) == 0
+
+
+async def test_missing_provider_key_refunds_the_scan(
+    scan_app, auth_client, fake_storage_jpeg, scan_limit_used
+):
+    r = await post_label(auth_client)
+    assert r.status_code == 503 and r.json()["error"]["code"] == "extraction_unavailable"
+    assert await scan_limit_used(auth_client) == 0
+
+
+async def test_refund_is_floored_at_zero(db_session, scan_app, scan_limit_used):
+    from app.core.ratelimit import refund
+
+    settings = scan_app.state.settings
+    client = type("C", (), {"account_id": A})()
+    await refund(db_session, settings, account_id=A, bucket="label_scans")  # no counter yet
+    assert await scan_limit_used(client) == 0
+    await consume(db_session, settings, account_id=A, bucket="label_scans")
+    await refund(db_session, settings, account_id=A, bucket="label_scans")
+    await refund(db_session, settings, account_id=A, bucket="label_scans")
+    assert await scan_limit_used(client) == 0
+
+
+async def test_refund_refuses_to_commit_staged_writes(db_session, scan_app):
+    from app.core.ratelimit import refund
+
+    db_session.add(Scan(account_id=A, analysis={}))
+    with pytest.raises(RuntimeError):
+        await refund(db_session, scan_app.state.settings, account_id=A, bucket="label_scans")
+
+
+async def test_refund_rejects_unknown_buckets(db_session, scan_app):
+    from app.core.ratelimit import refund
+
+    for bucket in ("public", "nope"):
+        with pytest.raises(KeyError):
+            await refund(db_session, scan_app.state.settings, account_id=A, bucket=bucket)
+
+
+# (8) the upload URL route creates the account row
+
+
+async def test_upload_url_creates_the_account_row(auth_client, fake_storage_jpeg, db_session):
+    from app.features.me.models import Account
+
+    assert await db_session.get(Account, A) is None
+    r = await auth_client.post("/v1/scans/upload-url", json={"ext": "jpg"})
+    assert r.status_code == 200
+    assert await db_session.get(Account, A, populate_existing=True) is not None

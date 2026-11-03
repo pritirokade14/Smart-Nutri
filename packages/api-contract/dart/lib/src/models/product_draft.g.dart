@@ -22,6 +22,9 @@ ProductDraft _$ProductDraftFromJson(Map<String, dynamic> json) => ProductDraft(
   mayContainStatement: json['may_contain_statement'] as String?,
   name: json['name'] as String?,
   per100g: DraftNutrients.fromJson(json['per_100g'] as Map<String, dynamic>),
+  perServing: json['per_serving'] == null
+      ? null
+      : DraftNutrients.fromJson(json['per_serving'] as Map<String, dynamic>),
   positiveSuppressed: (json['positive_suppressed'] as List<dynamic>)
       .map((e) => ProductDraftPositiveSuppressed.fromJson(e as String))
       .toList(),
@@ -49,6 +52,7 @@ Map<String, dynamic> _$ProductDraftToJson(ProductDraft instance) =>
       'may_contain_statement': instance.mayContainStatement,
       'name': instance.name,
       'per_100g': instance.per100g,
+      'per_serving': instance.perServing,
       'positive_suppressed': instance.positiveSuppressed
           .map((e) => _$ProductDraftPositiveSuppressedEnumMap[e]!)
           .toList(),

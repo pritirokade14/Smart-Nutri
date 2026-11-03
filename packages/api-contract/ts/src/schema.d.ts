@@ -125,7 +125,8 @@ export interface paths {
          * @description Extract an unconfirmed draft from an uploaded label photo.
          *
          *     Rate-limited per account (`rate_limited_scans`), counting only paid extractions: the
-         *     same image bytes again (from any account) reuse the stored draft for free.
+         *     same image bytes again (from any account) reuse the stored extraction for free (it is
+         *     normalised afresh), and the same `path` posted again returns the same `scan_id`.
          */
         post: operations["scans_create_label"];
         delete?: never;
@@ -145,7 +146,9 @@ export interface paths {
         put?: never;
         /**
          * Scans Create Upload Url
-         * @description A signed URL to PUT one label photo into the caller's private folder (no DB write).
+         * @description A signed URL to PUT one label photo into the caller's private folder.
+         *
+         *     Creates the caller's account row on first use (the photo is account-owned).
          */
         post: operations["scans_create_upload_url"];
         delete?: never;
@@ -320,24 +323,118 @@ export interface components {
             sugars_g: number | null;
         };
         /**
+         * PrintedNutrients
+         * @description One nutrition-table column exactly as the pack prints it (see `ProductCreate.basis`).
+         *
+         *     Numbers only, no arithmetic: the server converts the basis and the sodium unit. A value
+         *     not printed (or blanked by the user) is null, never 0. The nine engine fields are
+         *     required (send null when not printed); `added_sugars_g` and `trans_fat_g` are optional
+         *     and shown only, never engine inputs.
+         */
+        PrintedNutrients: {
+            /**
+             * Added Sugars G
+             * @description Added sugars in g.
+             */
+            added_sugars_g?: number | null;
+            /**
+             * Carbs G
+             * @description Total carbohydrate in g.
+             */
+            carbs_g: number | null;
+            /**
+             * Energy Kcal
+             * @description Energy in kcal.
+             */
+            energy_kcal: number | null;
+            /**
+             * Fat G
+             * @description Total fat in g.
+             */
+            fat_g: number | null;
+            /**
+             * Fiber G
+             * @description Dietary fibre in g.
+             */
+            fiber_g: number | null;
+            /**
+             * Protein G
+             * @description Protein in g.
+             */
+            protein_g: number | null;
+            /**
+             * Salt G
+             * @description Salt in g.
+             */
+            salt_g: number | null;
+            /**
+             * Sat Fat G
+             * @description Saturated fat in g.
+             */
+            sat_fat_g: number | null;
+            /**
+             * Sodium Mg
+             * @description Sodium as the number printed, in the unit given by `ProductCreate.sodium_unit` (mg when that is null; the server converts g to mg).
+             */
+            sodium_mg: number | null;
+            /**
+             * Sugars G
+             * @description Total sugars in g.
+             */
+            sugars_g: number | null;
+            /**
+             * Trans Fat G
+             * @description Trans fat in g.
+             */
+            trans_fat_g?: number | null;
+        };
+        /**
          * ProductCreate
          * @description A product the user confirmed on the label-confirm screen, or typed by hand.
          *
-         *     With ``scan_id`` the values come from that label scan's draft (source ``label``, the
-         *     draft's extraction confidence); without it the entry is manual (source ``user``,
-         *     confidence 1.0). Blank values are null, never 0. Text keeps its script (Devanagari stays
-         *     Devanagari); only surrounding whitespace is trimmed and blank items are dropped.
+         *     **The server does all nutrient arithmetic; the client only transcribes what the pack
+         *     prints and records the user's explicit choices.** The stored per-100 g values are:
+         *
+         *     1. `nutrients` as sent, with `sodium_mg` multiplied by 1000 when `sodium_unit` is `g`;
+         *     2. then, when `basis` is `per_serving`, every value x 100 / `serving_size_g`;
+         *     3. then, for a scan save, values the draft holds back are set to null unless confirmed
+         *        (`confirmed_fields`, below);
+         *     4. then the engine's plausibility check runs on exactly the values that will be stored
+         *        (422 `implausible_value`). Values are never rounded.
+         *
+         *     With `scan_id` the values come from that label scan's draft (source `label`, the draft's
+         *     extraction confidence, which user edits never raise); without it the entry is manual
+         *     (source `user`, confidence 1.0, values taken as typed). Text keeps its script (Devanagari
+         *     stays Devanagari); only surrounding whitespace is trimmed and blank items are dropped.
+         *
+         *     Scan-save rules (422 `validation_error` with `details.fields` naming the field):
+         *     - `category` and `basis` are always required (the user must pick them; nothing defaults).
+         *     - `sodium_unit` must be `mg` or `g` (not null) when the draft has a
+         *       `unit_unconfirmed:<basis>.sodium_mg` warning for the chosen basis column and
+         *       `nutrients.sodium_mg` is not null. A non-null unit confirms sodium.
+         *     - With `basis` `per_serving`, or when the draft was `derived_from_serving` (unless it has
+         *       `basis_mismatch`), every nutrient is stored only if `confirmed_fields` contains
+         *       `serving_size_g` (the user checked the serving size); otherwise all are stored null.
+         *     - On a `basis_mismatch` draft the explicit `basis` confirms the values sent; an upper-bound
+         *       ("<X") protein or fibre on that column and an unconfirmed sodium unit still need their
+         *       own confirmation.
          */
         ProductCreate: {
             /** Allergen Statement */
             allergen_statement?: string | null;
             /** Barcode */
             barcode?: string | null;
+            /**
+             * Basis
+             * @description Required: which printed column `nutrients` was transcribed from. `per_100g` means per 100 g or 100 ml; `per_serving` means per `serving_size_g`, and the server converts to per 100 g.
+             * @enum {string}
+             */
+            basis: "per_100g" | "per_serving";
             /** Brand */
             brand?: string | null;
             /**
              * Category
-             * @default general
+             * @description Required: the user's explicit choice (drinks are judged on drink limits).
              * @enum {string}
              */
             category: "general" | "beverage" | "water" | "cheese" | "fat";
@@ -348,9 +445,10 @@ export interface components {
             claims: string[];
             /**
              * Confirmed Fields
+             * @description Scan saves only: what the user explicitly confirmed. A nutrient the draft lists in `engine_withheld` (e.g. a "<0.1 g" protein) is stored only when listed here, else null. `serving_size_g` confirms the serving size (see `basis`).
              * @default []
              */
-            confirmed_fields: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg")[];
+            confirmed_fields: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg" | "serving_size_g")[];
             /**
              * Ingredients
              * @default []
@@ -360,11 +458,23 @@ export interface components {
             may_contain_statement?: string | null;
             /** Name */
             name: string;
-            per_100g: components["schemas"]["NutrientsOut"];
-            /** Scan Id */
+            /** @description The chosen column as printed. The server converts it (see `basis`). */
+            nutrients: components["schemas"]["PrintedNutrients"];
+            /**
+             * Scan Id
+             * @description The label scan this came from; null for manual entry.
+             */
             scan_id?: string | null;
-            /** Serving Size G */
+            /**
+             * Serving Size G
+             * @description Serving size in g (or ml). Required when `basis` is `per_serving`. For a scan save it is trusted for conversion only when `confirmed_fields` lists it.
+             */
             serving_size_g?: number | null;
+            /**
+             * Sodium Unit
+             * @description The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this is a manual entry in mg). `g` is converted to mg by the server. Send the user's explicit pick (`mg` or `g`, never null) when the scan draft has `unit_unconfirmed:<basis>.sodium_mg` and sodium is not null; a non-null unit confirms sodium.
+             */
+            sodium_unit?: ("mg" | "g") | null;
             /** Veg Mark */
             veg_mark?: ("veg" | "non_veg") | null;
         };
@@ -397,6 +507,7 @@ export interface components {
             /** Name */
             name: string | null;
             per_100g: components["schemas"]["DraftNutrients"];
+            per_serving: components["schemas"]["DraftNutrients"] | null;
             /** Positive Suppressed */
             positive_suppressed: ("protein_g" | "fiber_g")[];
             /** Serving Size G */

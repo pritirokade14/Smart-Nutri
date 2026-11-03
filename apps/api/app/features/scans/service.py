@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.core.errors import ApiError
-from app.core.ratelimit import consume
+from app.core.ratelimit import consume, refund
 from app.features.scans.api_schemas import LabelScanIn, ScanDraftOut
 from app.features.scans.images import InvalidImage, prepare_for_extraction, sniff_image_mime
 from app.features.scans.models import Scan
@@ -53,15 +53,26 @@ async def add_scan(
 
 # --- Label scans: the stored draft (contract between POST /v1/scans/label and POST /v1/products)
 #
-# A label scan stores its normalised draft in ``scans.analysis`` as
-#   {"draft": ProductDraft.model_dump(mode="json"), "prompt_version": "...", "model": "..."}
-# Build it with ``label_scan_analysis``; read it back with ``get_label_scan``.
+# A label scan stores its normalised draft and the raw model output in ``scans.analysis`` as
+#   {"draft": ProductDraft.model_dump(mode="json"),
+#    "extraction": NutritionExtraction.model_dump(mode="json"),
+#    "prompt_version": "...", "model": "<the model that produced the extraction>"}
+# Build it with ``label_scan_analysis``; read it back with ``get_label_scan``. The raw
+# extraction is the cache entry (R16): every reuse re-runs ``to_draft`` on it, so normaliser
+# safety fixes apply to old extractions too.
 
 
-def label_scan_analysis(draft: ProductDraft, *, prompt_version: str, model: str) -> dict[str, Any]:
+def label_scan_analysis(
+    draft: ProductDraft,
+    *,
+    extraction: NutritionExtraction,
+    prompt_version: str,
+    model: str,
+) -> dict[str, Any]:
     """The ``scans.analysis`` value for a label scan (no member data: a label has none)."""
     return {
         "draft": draft.model_dump(mode="json"),
+        "extraction": extraction.model_dump(mode="json"),
         "prompt_version": prompt_version,
         "model": model,
     }
@@ -120,35 +131,73 @@ def owns_path(account_id: UUID, path: str) -> bool:
     return re.fullmatch(pattern, path) is not None
 
 
-async def _cached_draft(
-    session: AsyncSession, image_sha256: str, prompt_version: str
-) -> ProductDraft | None:
-    """The newest stored draft for these exact image bytes and prompt version, any account.
+def _cache_key(image_sha256: str, prompt_version: str, model: str) -> list[Any]:
+    """Rows whose raw extraction came from these exact bytes, prompt version and model.
 
-    Only the draft is reused: never another account's scan id, path or product.
+    Rows without a raw extraction (stored before R16) never match: they are a cache miss.
     """
-    analysis = await session.scalar(
-        select(Scan.analysis)
-        .where(
-            Scan.image_sha256 == image_sha256,
-            Scan.analysis.has_key("draft"),
-            Scan.analysis["prompt_version"].astext == prompt_version,
-        )
-        .order_by(Scan.created_at.desc())
-        .limit(1)
-    )
-    if analysis is None:
-        return None
+    return [
+        Scan.image_sha256 == image_sha256,
+        Scan.analysis.has_key("extraction"),
+        Scan.analysis["prompt_version"].astext == prompt_version,
+        Scan.analysis["model"].astext == model,
+    ]
+
+
+def _extraction_of(analysis: Any, prompt_version: str) -> NutritionExtraction | None:
     try:
-        return ProductDraft.model_validate(analysis["draft"])
-    except ValidationError:
+        return NutritionExtraction.model_validate(analysis["extraction"])
+    except (ValidationError, KeyError, TypeError):
         logger.warning("label_extraction cache_entry_invalid prompt_version=%s", prompt_version)
         return None
 
 
+async def _cached_extraction(
+    session: AsyncSession, image_sha256: str, prompt_version: str, model: str
+) -> NutritionExtraction | None:
+    """The newest raw extraction of these exact image bytes (any account), for this prompt
+    version and model. Only the extraction is reused: never another account's scan id, path
+    or product."""
+    analysis = await session.scalar(
+        select(Scan.analysis)
+        .where(*_cache_key(image_sha256, prompt_version, model))
+        .order_by(Scan.created_at.desc())
+        .limit(1)
+    )
+    return None if analysis is None else _extraction_of(analysis, prompt_version)
+
+
+async def _repeat_scan(
+    session: AsyncSession,
+    *,
+    account_id: UUID,
+    path: str,
+    image_sha256: str,
+    prompt_version: str,
+    model: str,
+) -> tuple[Scan, NutritionExtraction] | None:
+    """The caller's own scan of this same path and bytes (a client retry), if any."""
+    scan = await session.scalar(
+        select(Scan)
+        .where(
+            Scan.account_id == account_id,
+            Scan.image_path == path,
+            *_cache_key(image_sha256, prompt_version, model),
+        )
+        .order_by(Scan.created_at.desc())
+        .limit(1)
+        .with_for_update()
+    )
+    if scan is None:
+        return None
+    extraction = _extraction_of(scan.analysis, prompt_version)
+    return None if extraction is None else (scan, extraction)
+
+
 async def _extract(
     llm: LLMProvider, image: bytes, *, prompt: str, prompt_version: str, model: str
-) -> ProductDraft:
+) -> NutritionExtraction:
+    """One paid extraction. ProviderUnavailable (no paid call happened) propagates."""
     try:
         extraction = await llm.extract_label(
             image=image,
@@ -158,17 +207,11 @@ async def _extract(
             schema=NutritionExtraction,
             model=model,
         )
-    except ProviderUnavailable as exc:
-        logger.error("label_extraction unavailable reason=%s", exc.reason)
-        if exc.reason == "insufficient_credits":
-            # Ops alert. No image, label content or account data in the event.
-            sentry_sdk.capture_message("callmissed insufficient_credits", level="error")
-        raise ApiError("extraction_unavailable", 503) from None
     except ExtractionFailed:
         raise ApiError("extraction_failed", 502) from None
     if not isinstance(extraction, NutritionExtraction):
         raise ApiError("extraction_failed", 502)
-    return to_draft(extraction)
+    return extraction
 
 
 async def create_label_scan(
@@ -180,9 +223,11 @@ async def create_label_scan(
     account_id: UUID,
     body: LabelScanIn,
 ) -> ScanDraftOut:
-    """Download the caller's photo, extract (or reuse a cached draft), store a scan row.
+    """Download the caller's photo, extract (or reuse a cached extraction), store a scan row.
 
-    Only a paid extraction counts toward the `label_scans` limit; a cache hit is free.
+    Only a paid extraction counts toward the `label_scans` limit; a cache hit is free, and a
+    provider refusal (no paid call happened) is refunded. The same account posting the same
+    path and bytes again gets its existing scan back (no new row).
     """
     if not owns_path(account_id, body.path):
         raise ApiError("scan_image_not_found", 404)
@@ -193,6 +238,8 @@ async def create_label_scan(
         except InvalidBarcode:
             raise ApiError("invalid_barcode", 422) from None
 
+    # Release the DB connection (ensure_account's read) before the slow storage download.
+    await session.commit()
     try:
         data = await storage.download(body.path)
     except StorageNotFound:
@@ -206,9 +253,30 @@ async def create_label_scan(
 
     image_sha256 = hashlib.sha256(data).hexdigest()
     prompt, prompt_version = load_extraction_prompt()
-    draft = await _cached_draft(session, image_sha256, prompt_version)
-    cached = draft is not None
-    if draft is None:
+    model = settings.callmissed_extraction_model
+
+    repeat = await _repeat_scan(
+        session,
+        account_id=account_id,
+        path=body.path,
+        image_sha256=image_sha256,
+        prompt_version=prompt_version,
+        model=model,
+    )
+    if repeat is not None:
+        scan, extraction = repeat
+        draft = to_draft(extraction)
+        if scan.product_id is None:  # keep the stored draft (what a save reads) current
+            scan.analysis = {**scan.analysis, "draft": draft.model_dump(mode="json")}
+        await session.commit()
+        logger.info("label_extraction cached=true repeat=true prompt_version=%s", prompt_version)
+        return ScanDraftOut(
+            scan_id=scan.id, draft=draft, cached=True, prompt_version=prompt_version
+        )
+
+    extraction = await _cached_extraction(session, image_sha256, prompt_version, model)
+    cached = extraction is not None
+    if extraction is None:
         # Count before decode (R15): undecodable uploads cost a scan too. Nothing is staged
         # yet, so the limiter's commit only persists the counter.
         await consume(session, settings, account_id=account_id, bucket="label_scans")
@@ -216,16 +284,25 @@ async def create_label_scan(
             prepared = await anyio.to_thread.run_sync(prepare_for_extraction, data)
         except InvalidImage:
             raise ApiError("unsupported_image", 415) from None
-        model = settings.callmissed_extraction_model
         logger.info(
             "label_extraction cached=false prompt_version=%s model=%s", prompt_version, model
         )
-        draft = await _extract(
-            llm, prepared, prompt=prompt, prompt_version=prompt_version, model=model
-        )
+        try:
+            extraction = await _extract(
+                llm, prepared, prompt=prompt, prompt_version=prompt_version, model=model
+            )
+        except ProviderUnavailable as exc:
+            # Refused before any paid call: give the scan back (R16). Nothing is staged.
+            await refund(session, settings, account_id=account_id, bucket="label_scans")
+            logger.error("label_extraction unavailable reason=%s", exc.reason)
+            if exc.reason == "insufficient_credits":
+                # Ops alert. No image, label content or account data in the event.
+                sentry_sdk.capture_message("callmissed insufficient_credits", level="error")
+            raise ApiError("extraction_unavailable", 503) from None
     else:
         logger.info("label_extraction cached=true prompt_version=%s", prompt_version)
 
+    draft = to_draft(extraction)  # always the current normaliser, cached or not
     scan_id = uuid4()
     session.add(
         Scan(
@@ -235,10 +312,10 @@ async def create_label_scan(
             image_path=body.path,
             image_sha256=image_sha256,
             analysis={
+                # The cache key includes the model, so on a hit this is still the model
+                # that produced the extraction.
                 **label_scan_analysis(
-                    draft,
-                    prompt_version=prompt_version,
-                    model=settings.callmissed_extraction_model,
+                    draft, extraction=extraction, prompt_version=prompt_version, model=model
                 ),
                 "cached": cached,
                 "barcode": barcode,

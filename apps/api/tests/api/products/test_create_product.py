@@ -51,7 +51,9 @@ def nutrients(**kw) -> dict:
 def body(**kw) -> dict:
     base = {
         "name": "Peanut Chikki",
-        "per_100g": nutrients(energy_kcal=480, sugars_g=30, carbs_g=60, fat_g=20, protein_g=12),
+        "category": "general",
+        "basis": "per_100g",
+        "nutrients": nutrients(energy_kcal=480, sugars_g=30, carbs_g=60, fat_g=20, protein_g=12),
     }
     return base | kw
 
@@ -89,7 +91,8 @@ def draft_body(draft) -> dict:
         "name": draft.name,
         "brand": draft.brand,
         "category": draft.category,
-        "per_100g": {f: getattr(draft.per_100g, f) for f in NUTRIENT_FIELDS},
+        "basis": "per_100g",
+        "nutrients": {f: getattr(draft.per_100g, f) for f in NUTRIENT_FIELDS},
         "serving_size_g": draft.serving_size_g,
         "ingredients": draft.ingredients,
         "allergen_statement": draft.allergen_statement,
@@ -241,7 +244,10 @@ async def test_requires_auth(client, login):
     "bad",
     [
         {"name": "   "},
-        {"per_100g": None},
+        {"nutrients": None},
+        {"basis": "per_kg"},
+        {"sodium_unit": "kg"},
+        {"confirmed_fields": ["serving"]},
         {"category": "snack"},
         {"veg_mark": "green"},
     ],
@@ -297,7 +303,7 @@ async def test_low_confidence_product_gives_unknown_for_allergic(
 
 async def test_implausible_rejected(auth_client, db_session):
     before = await _count_products(db_session)
-    r = await create(auth_client, per_100g=nutrients(sugars_g=250, carbs_g=60))
+    r = await create(auth_client, nutrients=nutrients(sugars_g=250, carbs_g=60))
     assert r.status_code == 422
     err = r.json()["error"]
     assert err["code"] == "implausible_value" and err["message_key"] == "error.implausible_value"
@@ -308,15 +314,15 @@ async def test_implausible_rejected(auth_client, db_session):
 @pytest.mark.parametrize(
     ("kw", "fields"),
     [
-        ({"per_100g": nutrients(sugars_g=40, carbs_g=20)}, ["carbs_g", "sugars_g"]),
-        ({"per_100g": nutrients(sodium_mg=-5)}, ["sodium_mg"]),
-        ({"per_100g": nutrients(energy_kcal=5000)}, ["energy_kcal"]),
+        ({"nutrients": nutrients(sugars_g=40, carbs_g=20)}, ["carbs_g", "sugars_g"]),
+        ({"nutrients": nutrients(sodium_mg=-5)}, ["sodium_mg"]),
+        ({"nutrients": nutrients(energy_kcal=5000)}, ["energy_kcal"]),
         (
-            {"per_100g": nutrients(protein_g=50, carbs_g=40, fat_g=30)},
+            {"nutrients": nutrients(protein_g=50, carbs_g=40, fat_g=30)},
             ["protein_g", "carbs_g", "fat_g"],
         ),
         ({"serving_size_g": 0}, ["serving_size_g"]),
-        ({"per_100g": nutrients(fat_g=101), "serving_size_g": -1}, ["fat_g", "serving_size_g"]),
+        ({"nutrients": nutrients(fat_g=101), "serving_size_g": -1}, ["fat_g", "serving_size_g"]),
     ],
 )
 async def test_implausible_uses_engine_sanitized(auth_client, kw, fields):
@@ -328,7 +334,7 @@ async def test_implausible_uses_engine_sanitized(auth_client, kw, fields):
 async def test_blank_values_stay_none(auth_client, db_session):
     r = await create(
         auth_client,
-        per_100g=nutrients(sugars_g=12),
+        nutrients=nutrients(sugars_g=12),
         ingredients=["  ", ""],
         allergen_statement="   ",
         brand=" ",
@@ -337,7 +343,7 @@ async def test_blank_values_stay_none(auth_client, db_session):
     out = r.json()
     assert out["per_100g"] == nutrients(sugars_g=12)  # never 0
     rec = await _product(db_session, out["product_id"])
-    assert rec.per_100g == nutrients(sugars_g=12)
+    assert rec.per_100g == nutrients(sugars_g=12) | {"added_sugars_g": None, "trans_fat_g": None}
     assert rec.ingredients_text is None and rec.allergen_statement is None
     assert rec.brand is None and rec.serving_size_g is None
 
@@ -348,7 +354,7 @@ async def test_fields_are_stored(auth_client, db_session):
         name="  Masala Chaas ",
         brand="Amul",
         category="beverage",
-        per_100g=nutrients(energy_kcal=20, sugars_g=1, carbs_g=2, salt_g=0.4),
+        nutrients=nutrients(energy_kcal=20, sugars_g=1, carbs_g=2, salt_g=0.4),
         serving_size_g=200,
         ingredients=[" Milk solids ", "Salt", "जीरा"],
         allergen_statement="Contains: milk",
@@ -498,7 +504,7 @@ async def test_edited_but_unconfirmed_withheld_value_is_not_saved(auth_client, d
     draft = _diet_drink_draft()
     scan = await _scan(db_session, A, draft)
     payload = draft_body(draft) | {"scan_id": str(scan.id)}
-    payload["per_100g"] = payload["per_100g"] | {"protein_g": 0.3}
+    payload["nutrients"] = payload["nutrients"] | {"protein_g": 0.3}
     r = await auth_client.post(URL, json=payload)
     rec = await _product(db_session, r.json()["product_id"])
     assert rec.per_100g["protein_g"] is None
@@ -551,12 +557,15 @@ async def _sodium_unit_unconfirmed_scan(db_session, r13_draft):
     return await _scan(db_session, A, draft), draft
 
 
-async def test_withheld_sodium_not_confirmed_gives_hypertensive_unknown(
+async def test_withheld_sodium_left_blank_gives_hypertensive_unknown(
     auth_client, db_session, r13_draft
 ):
+    # The user could not confirm the unit and blanked sodium: nothing to convert, nothing stored.
     member = await _member(db_session, name="Dadi", conditions=["hypertension"])
     scan, draft = await _sodium_unit_unconfirmed_scan(db_session, r13_draft)
-    r = await auth_client.post(URL, json=draft_body(draft) | {"scan_id": str(scan.id)})
+    payload = draft_body(draft) | {"scan_id": str(scan.id)}
+    payload["nutrients"] = payload["nutrients"] | {"sodium_mg": None}
+    r = await auth_client.post(URL, json=payload)
     assert r.status_code == 201, r.text
     rec = await _product(db_session, r.json()["product_id"])
     assert rec.per_100g["sodium_mg"] is None and rec.per_100g["salt_g"] is None
@@ -568,12 +577,31 @@ async def test_withheld_sodium_not_confirmed_gives_hypertensive_unknown(
     )
 
 
-async def test_withheld_sodium_confirmed_is_stored(auth_client, db_session, r13_draft):
+async def test_withheld_sodium_with_explicit_unit_is_stored(auth_client, db_session, r13_draft):
+    # R17: picking the unit is the confirmation; the server does the arithmetic.
     scan, draft = await _sodium_unit_unconfirmed_scan(db_session, r13_draft)
-    payload = draft_body(draft) | {"scan_id": str(scan.id), "confirmed_fields": ["sodium_mg"]}
+    payload = draft_body(draft) | {"scan_id": str(scan.id), "sodium_unit": "mg"}
     r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
     rec = await _product(db_session, r.json()["product_id"])
     assert rec.per_100g["sodium_mg"] == 600
+
+
+async def test_withheld_sodium_confirmed_without_a_unit_is_rejected(
+    auth_client, db_session, r13_draft
+):
+    # R17: confirming the value is not enough; the unit must be chosen explicitly.
+    scan, draft = await _sodium_unit_unconfirmed_scan(db_session, r13_draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id), "confirmed_fields": ["sodium_mg"]}
+    before = await _count_products(db_session)
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 422, r.text
+    assert r.json()["error"] == {
+        "code": "validation_error",
+        "message_key": "error.validation_error",
+        "details": {"fields": ["body.sodium_unit"]},
+    }
+    assert await _count_products(db_session) == before
 
 
 async def test_confidence_comes_from_the_scan_never_the_body(
@@ -699,3 +727,479 @@ async def test_product_create_rate_limited_writes_no_row(app, auth_client, db_se
     r = await create(auth_client, name="Snack 3")
     assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
     assert await _count_products(db_session) == before
+
+
+# --- Rulings R16/R17: the server does all nutrient arithmetic --------------------------------
+
+
+def _verdict(analyze_response) -> str:
+    return analyze_response.json()["verdicts"][0]["status"]
+
+
+def _engine_values(rec) -> dict:
+    return {f: rec.per_100g[f] for f in NUTRIENT_FIELDS}
+
+
+@pytest.fixture
+async def diabetic_member(db_session):
+    return await _member(db_session, name="Papa", conditions=["diabetes"])
+
+
+@pytest.fixture
+async def hypertensive_member(db_session):
+    return await _member(db_session, name="Dadi", conditions=["hypertension"])
+
+
+# Probe 1 (B1): the category is never defaulted.
+
+
+def _cola_draft():
+    return to_draft(
+        extraction(
+            product_name="Cola",
+            per_100g=n_in(energy_kcal=44, protein_g=0, carbs_g=10.6, sugars_g=10.6, fat_g=0),
+            per_100_unit="ml",
+            category_guess="beverage",
+            ingredients=["carbonated water", "sugar"],
+        )
+    )
+
+
+async def test_scan_save_without_category_is_rejected(auth_client, db_session):
+    draft = _cola_draft()
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id)}
+    del payload["category"]
+    before = await _count_products(db_session)
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 422, r.text
+    err = r.json()["error"]
+    assert err["code"] == "validation_error" and err["details"]["fields"] == ["body.category"]
+    assert await _count_products(db_session) == before
+
+
+async def test_manual_entry_without_category_or_basis_is_rejected(auth_client):
+    for missing in ("category", "basis"):
+        payload = body()
+        del payload[missing]
+        r = await auth_client.post(URL, json=payload)
+        assert r.status_code == 422, r.text
+        assert r.json()["error"]["details"]["fields"] == [f"body.{missing}"]
+
+
+async def test_cola_saved_as_beverage_gives_diabetic_avoid(
+    auth_client, db_session, diabetic_member
+):
+    draft = _cola_draft()
+    scan = await _scan(db_session, A, draft)
+    r = await auth_client.post(URL, json=draft_body(draft) | {"scan_id": str(scan.id)})
+    assert r.status_code == 201, r.text
+    assert r.json()["category"] == "beverage"
+    assert _verdict(await analyze(auth_client, r.json()["product_id"], diabetic_member)) == "avoid"
+
+
+# Probe 2 (B2): sodium printed with no unit; the server converts g -> mg.
+
+
+def _unitless_sodium_draft():
+    draft = to_draft(
+        extraction(per_100g=n_in(energy_kcal=400, carbs_g=60, sugars_g=5, sodium_mg=0.4))
+    )
+    assert "unit_unconfirmed:per_100g.sodium_mg" in draft.warnings
+    assert draft.per_100g.sodium_mg == 0.4  # the number as printed
+    return draft
+
+
+async def test_unitless_sodium_in_grams_is_converted_by_the_server(
+    auth_client, db_session, hypertensive_member
+):
+    draft = _unitless_sodium_draft()
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id), "sodium_unit": "g"}
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sodium_mg"] == 400
+    assert r.json()["per_100g"]["sodium_mg"] == 400
+    v = await analyze(auth_client, r.json()["product_id"], hypertensive_member)
+    assert _verdict(v) != "ok"
+
+
+async def test_unitless_sodium_without_explicit_unit_is_rejected(auth_client, db_session):
+    draft = _unitless_sodium_draft()
+    scan = await _scan(db_session, A, draft)
+    before = await _count_products(db_session)
+    r = await auth_client.post(URL, json=draft_body(draft) | {"scan_id": str(scan.id)})
+    assert r.status_code == 422, r.text
+    err = r.json()["error"]
+    assert err["code"] == "validation_error" and err["details"] == {"fields": ["body.sodium_unit"]}
+    assert await _count_products(db_session) == before
+
+
+async def test_unitless_sodium_with_null_unit_is_rejected(auth_client, db_session):
+    # Generated clients serialise every field; a null unit is not a choice.
+    draft = _unitless_sodium_draft()
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id), "sodium_unit": None}
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 422, r.text
+    assert r.json()["error"]["details"] == {"fields": ["body.sodium_unit"]}
+
+
+async def test_sodium_unit_has_no_non_null_default_in_the_contract(app):
+    # A default of "mg" would be sent by generated clients and look like a user choice.
+    schema = app.openapi()["components"]["schemas"]["ProductCreate"]["properties"]
+    assert schema["sodium_unit"].get("default") is None
+
+
+async def test_manual_entry_sodium_unit(auth_client, db_session):
+    grams = await create(auth_client, nutrients=nutrients(sodium_mg=0.4), sodium_unit="g")
+    default = await create(auth_client, name="Other", nutrients=nutrients(sodium_mg=400))
+    assert grams.status_code == default.status_code == 201
+    assert (await _product(db_session, grams.json()["product_id"])).per_100g["sodium_mg"] == 400
+    assert (await _product(db_session, default.json()["product_id"])).per_100g["sodium_mg"] == 400
+
+
+async def test_sodium_in_grams_is_plausibility_checked_after_conversion(auth_client):
+    r = await create(auth_client, nutrients=nutrients(sodium_mg=400), sodium_unit="g")
+    assert r.status_code == 422
+    assert r.json()["error"]["code"] == "implausible_value"
+    assert r.json()["error"]["details"]["fields"] == ["sodium_mg"]
+
+
+# Probe 3: the x10 serving misread (serving read as 300 g, really 30 g).
+
+
+def _serving_only_draft():
+    draft = to_draft(
+        extraction(
+            basis_detected="per_serving",
+            per_100g=None,
+            per_serving=n_in(energy_kcal=120, protein_g=2, carbs_g=20, sugars_g=9, fat_g=4),
+            serving_size_g=300,
+            serving_size_unit="g",
+        )
+    )
+    assert draft.derived_from_serving and draft.per_100g.sugars_g == 3
+    assert draft.per_serving is not None and draft.per_serving.sugars_g == 9
+    return draft
+
+
+def _serving_body(draft, **kw) -> dict:
+    """What a client sends when the user transcribes the printed per-serving column."""
+    return (
+        draft_body(draft)
+        | {
+            "basis": "per_serving",
+            "nutrients": {f: getattr(draft.per_serving, f) for f in NUTRIENT_FIELDS},
+            "serving_size_g": draft.serving_size_g,
+        }
+        | kw
+    )
+
+
+async def test_per_serving_save_without_serving_confirmation_stores_nothing(
+    auth_client, db_session, diabetic_member
+):
+    draft = _serving_only_draft()
+    scan = await _scan(db_session, A, draft)
+    r = await auth_client.post(URL, json=_serving_body(draft, scan_id=str(scan.id)))
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert _engine_values(rec) == nutrients()
+    v = await analyze(auth_client, r.json()["product_id"], diabetic_member)
+    assert _verdict(v) == "unknown"
+
+
+async def test_derived_values_saved_as_per_100g_still_need_serving_confirmation(
+    auth_client, db_session, diabetic_member
+):
+    # A client that sends the server-derived per-100 g column cannot skip the serving check.
+    draft = _serving_only_draft()
+    scan = await _scan(db_session, A, draft)
+    r = await auth_client.post(URL, json=draft_body(draft) | {"scan_id": str(scan.id)})
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert _engine_values(rec) == nutrients()
+    v = await analyze(auth_client, r.json()["product_id"], diabetic_member)
+    assert _verdict(v) == "unknown"
+
+
+async def test_per_serving_save_with_corrected_serving_is_converted(
+    auth_client, db_session, diabetic_member
+):
+    draft = _serving_only_draft()
+    scan = await _scan(db_session, A, draft)
+    payload = _serving_body(
+        draft, scan_id=str(scan.id), serving_size_g=30, confirmed_fields=["serving_size_g"]
+    )
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sugars_g"] == 30 and rec.per_100g["carbs_g"] == 20 * 100 / 30
+    assert rec.per_100g["energy_kcal"] == 400 and rec.serving_size_g == 30
+    v = await analyze(auth_client, r.json()["product_id"], diabetic_member)
+    assert _verdict(v) == "avoid"
+
+
+async def test_manual_per_serving_entry_is_converted(auth_client, db_session):
+    r = await create(
+        auth_client,
+        basis="per_serving",
+        serving_size_g=50,
+        nutrients=nutrients(sugars_g=10, carbs_g=20, sodium_mg=0.1),
+        sodium_unit="g",
+    )
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sugars_g"] == 20 and rec.per_100g["carbs_g"] == 40
+    assert rec.per_100g["sodium_mg"] == 200  # g -> mg, then per serving -> per 100 g
+
+
+async def test_per_serving_basis_requires_a_serving_size(auth_client, db_session):
+    before = await _count_products(db_session)
+    r = await create(auth_client, basis="per_serving", serving_size_g=None)
+    assert r.status_code == 422, r.text
+    assert r.json()["error"] == {
+        "code": "validation_error",
+        "message_key": "error.validation_error",
+        "details": {"fields": ["body.serving_size_g"]},
+    }
+    assert await _count_products(db_session) == before
+
+
+@pytest.mark.parametrize("serving", [0, -5, 5001])
+async def test_per_serving_basis_with_implausible_serving_is_rejected(auth_client, serving):
+    r = await create(auth_client, basis="per_serving", serving_size_g=serving)
+    assert r.status_code == 422, r.text
+    assert r.json()["error"]["code"] == "implausible_value"
+    assert r.json()["error"]["details"]["fields"] == ["serving_size_g"]
+
+
+async def test_per_serving_values_are_plausibility_checked_after_conversion(auth_client):
+    # 40 g sugars in a 30 g serving is 133 g per 100 g.
+    r = await create(
+        auth_client,
+        basis="per_serving",
+        serving_size_g=30,
+        nutrients=nutrients(sugars_g=40, carbs_g=40),
+    )
+    assert r.status_code == 422
+    assert "sugars_g" in r.json()["error"]["details"]["fields"]
+
+
+async def test_display_only_values_are_converted_and_stored(auth_client, db_session):
+    r = await create(
+        auth_client,
+        basis="per_serving",
+        serving_size_g=25,
+        nutrients=nutrients(sugars_g=5, carbs_g=10, fat_g=2)
+        | {"added_sugars_g": 4, "trans_fat_g": 0.1},
+    )
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["added_sugars_g"] == 16 and rec.per_100g["trans_fat_g"] == 0.4
+
+
+async def test_display_only_values_are_plausibility_checked(auth_client):
+    r = await create(auth_client, nutrients=nutrients(sugars_g=5) | {"added_sugars_g": 30})
+    assert r.status_code == 422
+    assert r.json()["error"]["details"]["fields"] == ["added_sugars_g"]
+
+
+# Probe 4: basis mismatch.
+
+
+def _basis_mismatch_draft():
+    # The model said "per serving" but filled only the per-100 g column.
+    draft = to_draft(
+        extraction(
+            basis_detected="per_serving",
+            per_100g=n_in(energy_kcal=150, carbs_g=20, sugars_g=10),
+        )
+    )
+    assert "basis_mismatch" in draft.warnings
+    return draft
+
+
+async def test_basis_mismatch_without_basis_is_rejected(auth_client, db_session):
+    draft = _basis_mismatch_draft()
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id)}
+    del payload["basis"]
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 422, r.text
+    assert r.json()["error"]["details"]["fields"] == ["body.basis"]
+
+
+async def test_basis_mismatch_per_serving_with_confirmed_serving_is_converted(
+    auth_client, db_session
+):
+    draft = _basis_mismatch_draft()
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {
+        "scan_id": str(scan.id),
+        "basis": "per_serving",
+        "serving_size_g": 25,
+        "confirmed_fields": ["serving_size_g"],
+    }
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sugars_g"] == 40 and rec.per_100g["carbs_g"] == 80
+    assert rec.per_100g["energy_kcal"] == 600
+
+
+async def test_basis_mismatch_explicit_per_100g_confirms_the_values(auth_client, db_session):
+    draft = _basis_mismatch_draft()
+    scan = await _scan(db_session, A, draft)
+    r = await auth_client.post(URL, json=draft_body(draft) | {"scan_id": str(scan.id)})
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sugars_g"] == 10 and rec.per_100g["energy_kcal"] == 150
+
+
+async def test_basis_mismatch_explicit_basis_keeps_upper_bound_protein_withheld(
+    auth_client, db_session
+):
+    draft = to_draft(
+        extraction(
+            basis_detected="per_serving",
+            per_100g=n_in(energy_kcal=20, protein_g=0.5, carbs_g=4, sugars_g=4),
+            upper_bound_fields=["per_100g.protein_g"],
+        )
+    )
+    assert "basis_mismatch" in draft.warnings
+    scan = await _scan(db_session, A, draft)
+    r = await auth_client.post(URL, json=draft_body(draft) | {"scan_id": str(scan.id)})
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["protein_g"] is None and rec.per_100g["sugars_g"] == 4
+
+
+# Probe 7: only the barcode constraint is a product_exists conflict.
+
+
+async def test_concurrent_barcode_save_is_conflict_with_product_id(
+    auth_client, db_session, seeded_product, monkeypatch
+):
+    from app.features.products import service as products_service
+
+    original = products_service._barcode_for_new_product
+    calls = {"n": 0}
+
+    async def racing(session, account_id, barcode):
+        calls["n"] += 1
+        if calls["n"] == 1:  # the check ran before the other save committed
+            return barcode
+        return await original(session, account_id, barcode)
+
+    monkeypatch.setattr(products_service, "_barcode_for_new_product", racing)
+    before = await _count_products(db_session)
+    r = await create(auth_client, barcode=BARCODE)
+    assert r.status_code == 409, r.text
+    err = r.json()["error"]
+    assert err["code"] == "product_exists"
+    assert err["details"] == {"product_id": str(seeded_product.id)}
+    assert await _count_products(db_session) == before
+
+
+async def test_concurrent_save_by_an_invisible_holder_saves_without_barcode(
+    auth_client, db_session, monkeypatch
+):
+    from app.features.products import service as products_service
+
+    await _account(db_session, B)
+    other = await _add(
+        db_session,
+        Product(
+            barcode=BARCODE,
+            name="B's pending",
+            source="label",
+            verification_status="pending",
+            created_by=B,
+            category="general",
+            per_100g={},
+            claims=[],
+        ),
+    )
+    original = products_service._barcode_for_new_product
+    calls = {"n": 0}
+
+    async def racing(session, account_id, barcode):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return barcode
+        return await original(session, account_id, barcode)
+
+    monkeypatch.setattr(products_service, "_barcode_for_new_product", racing)
+    r = await create(auth_client, barcode=BARCODE)
+    assert r.status_code == 201, r.text
+    assert r.json()["barcode"] is None and str(other.id) not in r.text
+
+
+async def test_other_integrity_errors_are_not_product_exists(auth_client, db_session, monkeypatch):
+    from app.features.products import service as products_service
+
+    monkeypatch.setattr(products_service, "MANUAL_ENTRY_CONFIDENCE", 2.0)  # violates a CHECK
+    before = await _count_products(db_session)
+    r = await create(auth_client)
+    assert r.status_code == 500, r.text
+    assert r.json()["error"]["code"] != "product_exists"
+    assert await _count_products(db_session) == before
+
+
+# Probe 8: plausibility checks only the values that will be stored.
+
+
+async def test_unconfirmed_withheld_implausible_value_is_not_checked(auth_client, db_session):
+    draft = to_draft(
+        extraction(per_100g=n_in(energy_kcal=400, fat_g=5, sat_fat_g=2, carbs_g=60))
+    ).model_copy(update={"engine_withheld": ["sat_fat_g"]})
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id)}
+    payload["nutrients"] = payload["nutrients"] | {"sat_fat_g": 20}  # > fat_g
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sat_fat_g"] is None and rec.per_100g["fat_g"] == 5
+
+    # Confirmed, the same value is stored, so it is checked.
+    scan2 = await _scan(db_session, A, draft)
+    payload |= {"scan_id": str(scan2.id), "confirmed_fields": ["sat_fat_g"]}
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 422 and r.json()["error"]["code"] == "implausible_value"
+
+
+# Probe 10: length caps match what labels print; nothing is truncated.
+
+
+async def test_long_ingredient_lists_and_statements_are_accepted(auth_client, db_session):
+    items = [f"ingredient {i} " + "x" * 980 for i in range(400)]
+    assert max(len(i) for i in items) <= 1000
+    statement = "Contains: " + "y" * 3990
+    assert len(statement) == 4000
+    r = await create(
+        auth_client,
+        ingredients=items,
+        allergen_statement=statement,
+        may_contain_statement=statement,
+    )
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert list(split_ingredients(rec.ingredients_text)) == items
+    assert rec.allergen_statement == statement and rec.may_contain_statement == statement
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"ingredients": ["x"] * 401},
+        {"ingredients": ["x" * 1001]},
+        {"allergen_statement": "y" * 4001},
+        {"may_contain_statement": "y" * 4001},
+    ],
+)
+async def test_over_length_input_is_rejected_not_truncated(auth_client, bad):
+    r = await create(auth_client, **bad)
+    assert r.status_code == 422 and r.json()["error"]["code"] == "validation_error"

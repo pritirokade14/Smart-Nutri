@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import Settings, get_app_settings
 from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
 from app.core.ratelimit import limit
-from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
 from app.features.scans import service
@@ -42,11 +41,16 @@ _LABEL_RESPONSES = {
 )
 async def scans_create_upload_url(
     body: UploadUrlIn,
-    account: Annotated[AccountContext, Depends(current_account)],
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
     storage: Annotated[StorageClient, Depends(get_storage)],
 ) -> UploadUrlOut:
-    """A signed URL to PUT one label photo into the caller's private folder (no DB write)."""
-    path = service.new_upload_path(account.account_id, body.ext)
+    """A signed URL to PUT one label photo into the caller's private folder.
+
+    Creates the caller's account row on first use (the photo is account-owned).
+    """
+    await session.commit()  # release the DB connection before the storage call
+    path = service.new_upload_path(current.ctx.account_id, body.ext)
     try:
         url = await storage.create_signed_upload(path, UPLOAD_URL_EXPIRES_IN_S)
     except StorageUnavailable:
@@ -72,7 +76,8 @@ async def scans_create_label(
     """Extract an unconfirmed draft from an uploaded label photo.
 
     Rate-limited per account (`rate_limited_scans`), counting only paid extractions: the
-    same image bytes again (from any account) reuse the stored draft for free.
+    same image bytes again (from any account) reuse the stored extraction for free (it is
+    normalised afresh), and the same `path` posted again returns the same `scan_id`.
     """
     return await service.create_label_scan(
         session,

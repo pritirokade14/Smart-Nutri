@@ -31,7 +31,12 @@ from app.features.products.schemas import (
     PublicProductOut,
 )
 from app.features.scans import service as scans_service
-from app.features.scans.normalize import ProductDraft
+from app.features.scans.normalize import (
+    ProductDraft,
+    implausible_fields,
+    per_100g_from_serving,
+    sodium_to_mg,
+)
 from app.integrations.openfoodfacts import (
     InvalidBarcode,
     OffClient,
@@ -265,11 +270,41 @@ async def lookup_by_barcode(
 MANUAL_ENTRY_CONFIDENCE = 1.0  # a person typed every value
 
 
-def _withheld(draft: ProductDraft) -> list[str]:
-    """Engine fields the draft withholds from the engine until the user confirms them
-    (Rulings R13/R14): upper-bound protein/fibre, sodium with an unconfirmed unit, and every
-    engine field on a basis mismatch."""
-    return list(draft.engine_withheld)
+_UPPER_BOUND_WITHHELD = ("protein_g", "fiber_g")  # an upper bound is no evidence of protein
+BARCODE_CONSTRAINT = "uq_products_barcode"
+
+
+def _validation_error(field: str) -> ApiError:
+    return ApiError("validation_error", 422, details={"fields": [f"body.{field}"]})
+
+
+def _sodium_unit_unconfirmed(draft: ProductDraft, body: ProductCreate) -> bool:
+    """The chosen column's sodium was printed without a unit (the user must pick one)."""
+    return f"unit_unconfirmed:{body.basis}.sodium_mg" in draft.warnings
+
+
+def _withheld(draft: ProductDraft, body: ProductCreate) -> set[str]:
+    """Engine fields held back from storage until the user confirms them (R13/R14/R17).
+
+    The draft's own list, except that on a basis mismatch the explicit `basis` answers the
+    basis doubt; per-field doubts on the chosen column (an upper-bound protein/fibre, a
+    unit-less sodium) still apply.
+    """
+    withheld = set() if "basis_mismatch" in draft.warnings else set(draft.engine_withheld)
+    withheld |= {
+        f for f in _UPPER_BOUND_WITHHELD if f"upper_bound:{body.basis}.{f}" in draft.warnings
+    }
+    if _sodium_unit_unconfirmed(draft, body):
+        withheld.add("sodium_mg")
+    return withheld
+
+
+def _needs_serving_confirmation(draft: ProductDraft, body: ProductCreate) -> bool:
+    """Per-100 g values that depend on the serving size (sent per serving, or derived from it
+    by the normaliser) are trusted only when the user confirmed the serving size."""
+    if body.basis == "per_serving":
+        return True
+    return draft.derived_from_serving and "basis_mismatch" not in draft.warnings
 
 
 def _draft_confidence(draft: ProductDraft) -> float:
@@ -278,14 +313,10 @@ def _draft_confidence(draft: ProductDraft) -> float:
     return min(max(value, 0.0), 1.0) if math.isfinite(value) else 0.0
 
 
-def _check_plausible(body: ProductCreate) -> None:
-    """The engine's own plausibility rule (the one the normaliser flags in drafts)."""
-    candidate = scoring.Product(
-        name=body.name,
-        per_100g=scoring.Nutrients(**body.per_100g.model_dump()),
-        serving_size_g=body.serving_size_g,
-    )
-    _, dropped = candidate.sanitized()
+def _check_plausible(values: dict[str, float | None], serving_size_g: float | None) -> None:
+    """The engine's own plausibility rule (the one the normaliser flags in drafts), on the
+    per-100 g values that will be stored."""
+    dropped = implausible_fields(values, serving_size_g=serving_size_g)
     if dropped:
         raise ApiError(
             "implausible_value", 422, details={"field": dropped[0], "fields": list(dropped)}
@@ -308,14 +339,48 @@ def _ingredients_text(items: list[str]) -> str | None:
 
 
 def _per_100g(body: ProductCreate, label: scans_service.LabelScan | None) -> dict[str, Any]:
-    """Submitted values; a field the draft withholds is kept only if the user confirmed it."""
-    values = body.per_100g.model_dump()
+    """The per-100 g values to store: the server's conversion of what the pack prints.
+
+    Sodium unit, then basis (the normaliser's own helpers), then what the user did not
+    confirm is set to None. Raises 422 for a missing or implausible serving size on a
+    per-serving basis, or a sodium unit the user had to pick and did not.
+    """
+    values: dict[str, float | None] = body.nutrients.model_dump()
+    if (
+        label is not None
+        and values["sodium_mg"] is not None
+        and _sodium_unit_unconfirmed(label.draft, body)
+        and body.sodium_unit is None
+    ):
+        raise _validation_error("sodium_unit")
+    values["sodium_mg"] = sodium_to_mg(values["sodium_mg"], body.sodium_unit)
+
+    if body.basis == "per_serving":
+        serving = body.serving_size_g
+        if serving is None:
+            raise _validation_error("serving_size_g")
+        if implausible_fields({}, serving_size_g=serving):
+            raise ApiError(
+                "implausible_value",
+                422,
+                details={"field": "serving_size_g", "fields": ["serving_size_g"]},
+            )
+        values = {k: per_100g_from_serving(v, serving) for k, v in values.items()}
+
     if label is not None:
         confirmed = set(body.confirmed_fields)
-        for field in _withheld(label.draft):
-            if field in values and field not in confirmed:
-                values[field] = None
+        if body.sodium_unit is not None:
+            confirmed.add("sodium_mg")  # picking the unit is confirming sodium (R17)
+        if _needs_serving_confirmation(label.draft, body) and "serving_size_g" not in confirmed:
+            return dict.fromkeys(values)
+        for field in _withheld(label.draft, body) - confirmed:
+            values[field] = None
     return values
+
+
+def _violated_constraint(exc: IntegrityError) -> str | None:
+    diag = getattr(exc.orig, "diag", None)
+    return getattr(diag, "constraint_name", None)
 
 
 async def _barcode_for_new_product(
@@ -335,6 +400,23 @@ async def _barcode_for_new_product(
     if _is_visible(holder, account_id):
         raise ApiError("product_exists", 409, details={"product_id": str(holder.id)})
     return None
+
+
+async def _insert(session: AsyncSession, account_id: UUID, record: Product) -> None:
+    """Insert ``record``; a concurrent save that took its barcode is handled like the
+    pre-check (visible holder -> 409 with its id, invisible holder -> saved without the
+    barcode). Any other integrity error is a bug and propagates (500)."""
+    for _ in range(2):
+        try:
+            async with session.begin_nested():
+                session.add(record)
+                await session.flush()
+            return
+        except IntegrityError as exc:
+            if record.barcode is None or _violated_constraint(exc) != BARCODE_CONSTRAINT:
+                raise
+            record.barcode = await _barcode_for_new_product(session, account_id, record.barcode)
+    raise ApiError("product_exists", 409)  # the barcode changed hands twice in one request
 
 
 async def create_product(
@@ -358,7 +440,8 @@ async def create_product(
             if saved is not None:  # already saved from this scan (e.g. a client retry)
                 raise ApiError("product_exists", 409, details={"product_id": str(saved.product_id)})
 
-    _check_plausible(body)
+    per_100g = _per_100g(body, label)
+    _check_plausible(per_100g, body.serving_size_g)  # only what will be stored (R16)
     ingredients_text = _ingredients_text(body.ingredients)
     barcode = await _barcode_for_new_product(session, account_id, barcode)
 
@@ -367,7 +450,7 @@ async def create_product(
         name=body.name,
         brand=body.brand,
         category=body.category,
-        per_100g=_per_100g(body, label),
+        per_100g=per_100g,
         serving_size_g=body.serving_size_g,
         ingredients_text=ingredients_text,
         allergen_statement=body.allergen_statement,
@@ -381,12 +464,7 @@ async def create_product(
         verification_status="pending",
         created_by=account_id,
     )
-    try:
-        async with session.begin_nested():
-            session.add(record)
-            await session.flush()
-    except IntegrityError as exc:  # a concurrent save took the barcode
-        raise ApiError("product_exists", 409) from exc
+    await _insert(session, account_id, record)
 
     if label is not None:
         await scans_service.link_product(
