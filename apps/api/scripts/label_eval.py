@@ -25,7 +25,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from app.features.scans.schemas import NutritionExtraction
+from app.features.scans.cells import extraction_schema, to_extraction
 from app.integrations.providers import ExtractionFailed, LLMProvider, ProviderUnavailable
 from app.prompts import load_prompt
 from scripts.label_eval_core import aggregate, load_manifest, render_markdown, score_photo
@@ -76,8 +76,13 @@ async def run_model(
     raw_dir: Path | None = None,
     capture: _TokenCapture | None = None,
 ) -> list[dict[str, Any]]:
-    """Run every photo sequentially (same prompt and temperature for all models)."""
+    """Run every photo sequentially (same prompt and temperature for all models).
+
+    The model answers in the prompt version's schema (extraction_v2: raw cells). `pred` is
+    always the parsed `NutritionExtraction` the API normalises, so v1 and v2 are scored the
+    same way; `raw_dir` keeps the raw model output."""
     prompt, version = load_prompt(prompt_name)
+    schema = extraction_schema(version)
     rows: list[dict[str, Any]] = []
     for photo in photos:
         image = Path(photo["path"]).read_bytes()
@@ -86,23 +91,25 @@ async def run_model(
             capture.last = (None, None)
         start = time.monotonic()
         pred: dict[str, Any] | None = None
+        raw: dict[str, Any] | None = None
         error: str | None = None
         try:
             result = await provider.extract_label(
                 image=image, mime=mime, prompt=prompt, prompt_version=version,
-                schema=NutritionExtraction, model=model,
+                schema=schema, model=model,
             )  # fmt: skip
-            pred = result.model_dump()
+            raw = result.model_dump()
+            pred = to_extraction(result).model_dump()
         except (ExtractionFailed, ProviderUnavailable) as exc:
             error = getattr(exc, "reason", None) or type(exc).__name__
             if isinstance(exc, ProviderUnavailable):  # e.g. out of credits: stop spending
                 rows.append(_row(photo, None, error, start, capture))
                 break
         rows.append(_row(photo, pred, error, start, capture))
-        if raw_dir is not None and pred is not None:
+        if raw_dir is not None and raw is not None:
             raw_dir.mkdir(parents=True, exist_ok=True)
             (raw_dir / f"{_safe(photo['id'])}.json").write_text(
-                json.dumps(pred, ensure_ascii=False, indent=2), encoding="utf-8"
+                json.dumps(raw, ensure_ascii=False, indent=2), encoding="utf-8"
             )
     return rows
 

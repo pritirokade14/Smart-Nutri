@@ -87,6 +87,8 @@ def scan_app(app, db_session):
 
     app.dependency_overrides[get_session] = lambda: db_session
     app.dependency_overrides[current_account] = _account
+    # These tests drive the v1 schema (`extraction()`); the v2 tests at the end switch it.
+    app.state.settings.extraction_prompt_version = "extraction_v1"
     return app
 
 
@@ -950,3 +952,114 @@ async def test_upload_url_creates_the_account_row(auth_client, fake_storage_jpeg
     r = await auth_client.post("/v1/scans/upload-url", json={"ext": "jpg"})
     assert r.status_code == 200
     assert await db_session.get(Account, A, populate_existing=True) is not None
+
+
+# --- label accuracy v2: extraction_v2 (raw cells parsed in code) ------------------------
+
+
+def extraction_v2(**over):
+    from app.features.scans.schemas import CellIn, NutrientCellsIn, NutritionExtractionV2
+
+    cells = dict.fromkeys(NutrientCellsIn.model_fields) | {
+        "sugars_g": CellIn(printed="१२", unit_label="ग्रा"),
+        "protein_g": CellIn(printed="<0.5 g", unit_label=None),
+    }
+    data = {
+        "product_name": "Test Biscuit",
+        "brand": "Acme",
+        "basis_detected": "per_100g",
+        "per_100g": NutrientCellsIn(**cells),
+        "per_serving": None,
+        "per_100_unit": "g",
+        "serving_size": None,
+        "ingredients": ["Wheat flour", "Sugar"],
+        "allergen_statement": "Contains wheat",
+        "may_contain_statement": None,
+        "claims": [],
+        "veg_mark": "veg",
+        "category_guess": "general",
+        "confidence": 0.9,
+        "unreadable_fields": [],
+    }
+    return NutritionExtractionV2(**(data | over))
+
+
+@pytest.fixture
+def v2(scan_app):
+    scan_app.state.settings.extraction_prompt_version = "extraction_v2"
+    return scan_app
+
+
+def test_v2_is_the_default_prompt():
+    from app.core.config import Settings
+
+    assert Settings(_env_file=None).extraction_prompt_version == "extraction_v2"
+
+
+async def test_v2_extraction_is_parsed_in_code(v2, auth_client, fake_storage_jpeg, db_session):
+    from app.features.scans.schemas import NutritionExtractionV2
+
+    llm = _use_llm(v2, FakeLLM(extraction_v2()))
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["prompt_version"] == "extraction_v2"
+    assert body["draft"]["per_100g"]["sugars_g"] == 12.0  # Devanagari digits
+    assert body["draft"]["per_100g"]["protein_g"] == 0.5
+    assert "upper_bound:per_100g.protein_g" in body["draft"]["warnings"]
+    assert body["draft"]["engine_withheld"] == ["protein_g"]
+
+    kwargs = llm.last_kwargs
+    assert kwargs["schema"] is NutritionExtractionV2
+    assert kwargs["prompt_version"] == "extraction_v2"
+    assert kwargs["prompt"] == load_extraction_prompt("extraction_v2")[0]
+
+    [scan] = await scans_for(db_session, A)
+    assert scan.analysis["prompt_version"] == "extraction_v2"
+    # The raw cells are stored (the cache entry); every reuse parses them again.
+    assert scan.analysis["extraction"] == extraction_v2().model_dump(mode="json")
+    stored = await scan_service.get_label_scan(db_session, A, scan.id)
+    assert stored is not None and stored.draft.model_dump(mode="json") == body["draft"]
+
+
+async def test_v2_cache_hit_is_free_and_re_parsed(v2, auth_client, other_client, fake_storage_jpeg):
+    llm = _use_llm(v2, FakeLLM(extraction_v2()))
+    first = await post_label(auth_client)
+    second = await post_label(other_client)
+    assert second.status_code == 200, second.text
+    assert second.json()["cached"] is True and llm.calls == 1
+    assert second.json()["draft"] == first.json()["draft"]
+
+
+async def test_v2_same_path_again_returns_the_stored_scan(v2, auth_client, fake_storage_jpeg):
+    llm = _use_llm(v2, FakeLLM(extraction_v2()))
+    path = new_path(auth_client)
+    first = await post_label(auth_client, path)
+    again = await post_label(auth_client, path)
+    assert again.status_code == 200, again.text
+    assert again.json()["scan_id"] == first.json()["scan_id"] and llm.calls == 1
+    assert again.json()["draft"] == first.json()["draft"]
+    assert again.json()["prompt_version"] == "extraction_v2"
+
+
+async def test_switching_prompt_version_is_a_cache_miss(
+    v2, auth_client, other_client, fake_storage_jpeg
+):
+    _use_llm(v2, FakeLLM(extraction_v2()))
+    assert (await post_label(auth_client)).status_code == 200
+    v2.state.settings.extraction_prompt_version = "extraction_v1"
+    llm_v1 = _use_llm(v2, FakeLLM(extraction()))
+    r = await post_label(other_client)
+    assert r.status_code == 200, r.text
+    assert r.json()["cached"] is False and llm_v1.calls == 1
+    assert r.json()["prompt_version"] == "extraction_v1"
+    assert llm_v1.last_kwargs["schema"] is NutritionExtraction
+
+
+async def test_v2_wrong_schema_from_the_provider_is_extraction_failed(
+    v2, auth_client, fake_storage_jpeg
+):
+    _use_llm(v2, FakeLLM(extraction()))  # a v1 object for a v2 request
+    r = await post_label(auth_client)
+    assert r.status_code == 502
+    assert r.json()["error"]["code"] == "extraction_failed"

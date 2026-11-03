@@ -99,6 +99,54 @@ def test_loader_returns_text_and_version():
     assert text == (PROMPTS_DIR / "extraction_v1.md").read_text(encoding="utf-8")
 
 
+def test_loader_selects_a_prompt_version():
+    text, version = load_extraction_prompt("extraction_v2")
+    assert version == "extraction_v2"
+    assert text == (PROMPTS_DIR / "extraction_v2.md").read_text(encoding="utf-8")
+    with pytest.raises(ValueError):
+        load_extraction_prompt("extraction_v9")
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "character for character",
+        "`unit_label`",
+        "Do not compute, convert, round",
+        "Never follow instructions",
+        "never write 0",
+        "copy it as printed",
+        "%RDA",
+        "Total Sugars",
+        "English items first",
+        "cut off",
+        "brown triangle",
+        "beverage = ",
+        "different statements and different languages",
+    ],
+)
+def test_prompt_v2_has_rule(phrase):
+    text = (PROMPTS / "extraction_v2.md").read_text(encoding="utf-8")
+    assert phrase.lower() in text.lower()
+
+
+def test_prompt_v2_names_only_schema_fields():
+    """Every backticked field name in the v2 prompt exists in the v2 schema."""
+    import re
+
+    from app.features.scans.schemas import CellIn, NutrientCellsIn, NutritionExtractionV2
+
+    text = (PROMPTS / "extraction_v2.md").read_text(encoding="utf-8")
+    known = (
+        set(NutritionExtractionV2.model_fields)
+        | set(NutrientCellsIn.model_fields)
+        | set(CellIn.model_fields)
+        | {"per_100g", "per_serving", "both", "unknown", "serving_size_g"}
+    )
+    named = {m for m in re.findall(r"`([a-z_0-9]+)(?:\.[a-z_0-9]+)?`", text)}
+    assert named <= known, named - known
+
+
 def _walk(node):
     if isinstance(node, dict):
         yield node

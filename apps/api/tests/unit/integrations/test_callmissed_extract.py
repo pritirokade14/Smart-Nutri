@@ -127,6 +127,31 @@ async def test_request_shape():
     assert mock.requests[0].headers["authorization"] == f"Bearer {SECRET}"
 
 
+async def test_v2_request_uses_the_strict_v2_schema():
+    from app.features.scans.schemas import NutritionExtractionV2, extraction_json_schema
+
+    v2 = {
+        "product_name": None, "brand": None, "basis_detected": "unknown", "per_100g": None,
+        "per_serving": None, "per_100_unit": None, "serving_size": None, "ingredients": [],
+        "allergen_statement": None, "may_contain_statement": None, "claims": [],
+        "veg_mark": None, "category_guess": None, "confidence": 0.9, "unreadable_fields": [],
+    }  # fmt: skip
+    client, mock = make([_ok(json.dumps(v2))])
+    result = await client.extract_label(
+        image=IMAGE,
+        mime="image/jpeg",
+        prompt="P",
+        prompt_version="extraction_v2",
+        schema=NutritionExtractionV2,
+        model="m",
+    )
+    assert isinstance(result, NutritionExtractionV2)
+    sent = mock.last_json()["response_format"]["json_schema"]
+    assert sent["strict"] is True
+    assert sent["schema"] == extraction_json_schema(NutritionExtractionV2)
+    assert sent["schema"]["$defs"]["CellIn"]["additionalProperties"] is False
+
+
 async def test_retry_once_then_fail_on_invalid_json():
     client, mock = make([_ok("not json")])
     with pytest.raises(ExtractionFailed):

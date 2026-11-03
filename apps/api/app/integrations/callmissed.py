@@ -24,6 +24,7 @@ from pydantic import BaseModel, SecretStr, ValidationError
 from app.core.config import Settings, get_app_settings
 from app.features.scans.schemas import (
     NutritionExtraction,
+    NutritionExtractionV2,
     _strictify,
     extraction_json_schema,
 )
@@ -108,8 +109,8 @@ class CallMissedClient:
         model: str,
     ) -> BaseModel:
         json_schema = (
-            extraction_json_schema()
-            if schema is NutritionExtraction
+            extraction_json_schema(schema)
+            if schema in (NutritionExtraction, NutritionExtractionV2)
             else schema.model_json_schema()
         )
         data_url = f"data:{mime};base64,{base64.b64encode(image).decode('ascii')}"

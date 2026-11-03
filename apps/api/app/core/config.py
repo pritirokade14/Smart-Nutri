@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     callmissed_base_url: str = "https://api.callmissed.com/v1"
     callmissed_resource_url: str = "https://api.callmissed.com/api/v1"
     callmissed_extraction_model: str = "kimi-k2.5"
+    # Label-extraction prompt (env EXTRACTION_PROMPT_VERSION). v2 returns raw cell text parsed
+    # in code (app/features/scans/cells.py); v1 stays selectable so the eval can compare them.
+    # Part of the extraction cache key, so switching never reuses the other version's output.
+    extraction_prompt_version: Literal["extraction_v1", "extraction_v2"] = "extraction_v2"
     callmissed_explanation_model: str = "sarvam-105b"
     callmissed_stt_model: str = "saaras:v4"
     callmissed_tts_model: str = "bulbul:v3"
