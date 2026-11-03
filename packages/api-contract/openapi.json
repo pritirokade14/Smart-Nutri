@@ -89,7 +89,7 @@
                 "type": "null"
               }
             ],
-            "description": "The rules engine's verdict for member_id (only when member_id is given)"
+            "description": "The rules engine's verdict for member_id (only when member_id is given; with sort=protein, for member_id or else the primary member)"
           },
           "name": {
             "title": "Name",
@@ -106,6 +106,30 @@
               }
             ],
             "title": "Product Id"
+          },
+          "protein_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Protein per 100 g/ml (report.protein.per_100g); null if not on the label",
+            "title": "Protein G"
+          },
+          "protein_per_100kcal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "report.protein.per_100kcal; null without protein or energy",
+            "title": "Protein Per 100Kcal"
           },
           "sugars_g": {
             "anyOf": [
@@ -128,6 +152,8 @@
           "image_url",
           "grade",
           "sugars_g",
+          "protein_g",
+          "protein_per_100kcal",
           "high_in",
           "member_status",
           "attribution"
@@ -138,7 +164,7 @@
       "AlternativesOut": {
         "properties": {
           "items": {
-            "description": "At most 5: best grade first, then less sugar, then name. With member_id, never a product the engine rates avoid for that member, and ok before caution before unknown",
+            "description": "At most 5. sort=grade: best grade first, then less sugar, then name. sort=protein: strictly more protein per 100 kcal than the source and a grade no worse; ok before caution before unknown, then most protein per 100 kcal, then grade, then name. Never a product the engine rates avoid for the member (sort=grade: member_id only; sort=protein: member_id or the primary member)",
             "items": {
               "$ref": "#/components/schemas/AlternativeOut"
             },
@@ -146,12 +172,13 @@
             "type": "array"
           },
           "reason": {
-            "description": "no_better_found also when every better product is avoid for member_id",
+            "description": "no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal",
             "enum": [
               "ok",
               "no_category",
               "no_better_found",
-              "source_ungraded"
+              "source_ungraded",
+              "source_protein_unknown"
             ],
             "title": "Reason",
             "type": "string"
@@ -163,6 +190,15 @@
         ],
         "title": "AlternativesOut",
         "type": "object"
+      },
+      "AlternativesSort": {
+        "description": "Alternatives order: ``grade`` (better Nutri-Score) or ``protein`` (more protein per\n100 kcal, never avoid for the member, never a worse grade).",
+        "enum": [
+          "grade",
+          "protein"
+        ],
+        "title": "AlternativesSort",
+        "type": "string"
       },
       "AnalyzeOut": {
         "properties": {
@@ -371,7 +407,7 @@
         "type": "object"
       },
       "CompareBetter": {
-        "description": "Which side is better: lower energy, sugars, salt and saturated fat; higher protein and\nfibre; grade A best. ``unknown`` when either side has no value (never a win).",
+        "description": "Which side is better: lower energy, sugars, salt and saturated fat; higher protein and\nfibre; grade A best; higher protein per serving and per 100 kcal; lower sugars per serving.\n``unknown`` when either side has no value (never a win).",
         "properties": {
           "energy_kcal": {
             "$ref": "#/components/schemas/BetterSide"
@@ -385,6 +421,12 @@
           "protein_g": {
             "$ref": "#/components/schemas/BetterSide"
           },
+          "protein_per_100kcal": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
+          "protein_per_serving_g": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
           "salt_g": {
             "$ref": "#/components/schemas/BetterSide"
           },
@@ -392,6 +434,9 @@
             "$ref": "#/components/schemas/BetterSide"
           },
           "sugars_g": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
+          "sugars_per_serving_g": {
             "$ref": "#/components/schemas/BetterSide"
           }
         },
@@ -402,7 +447,10 @@
           "sat_fat_g",
           "protein_g",
           "fiber_g",
-          "grade"
+          "grade",
+          "protein_per_serving_g",
+          "protein_per_100kcal",
+          "sugars_per_serving_g"
         ],
         "title": "CompareBetter",
         "type": "object"
@@ -509,6 +557,54 @@
             ],
             "description": "Our own product; null for Open Food Facts",
             "title": "Product Id"
+          },
+          "protein_per_100kcal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "report.protein.per_100kcal; null without protein or energy",
+            "title": "Protein Per 100Kcal"
+          },
+          "protein_per_serving_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "report.protein.per_serving; null without a serving size or protein",
+            "title": "Protein Per Serving G"
+          },
+          "serving_size_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null when the label has no serving size",
+            "title": "Serving Size G"
+          },
+          "sugars_per_serving_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Sugars in one serving, 1 dp; null without a serving size or sugars",
+            "title": "Sugars Per Serving G"
           }
         },
         "required": [
@@ -518,6 +614,10 @@
           "brand",
           "grade",
           "per_100g",
+          "serving_size_g",
+          "protein_per_serving_g",
+          "sugars_per_serving_g",
+          "protein_per_100kcal",
           "high_in",
           "member_status",
           "attribution"
@@ -3313,6 +3413,17 @@
             ],
             "description": "Nutri-Score calculated by SmartNutri; null if unknown"
           },
+          "member_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemberStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The rules engine's verdict. sort=relevance: only when member_id is given. sort=protein: for member_id or else the primary member (avoid is never returned)"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -3335,6 +3446,30 @@
             ],
             "title": "Product Id"
           },
+          "protein_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Protein per 100 g/ml (report.protein.per_100g); null if not on the label",
+            "title": "Protein G"
+          },
+          "protein_per_100kcal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "report.protein.per_100kcal; null without protein or energy",
+            "title": "Protein Per 100Kcal"
+          },
           "source": {
             "enum": [
               "ours",
@@ -3351,10 +3486,22 @@
           "brand",
           "grade",
           "source",
-          "attribution"
+          "attribution",
+          "protein_g",
+          "protein_per_100kcal",
+          "member_status"
         ],
         "title": "SearchHit",
         "type": "object"
+      },
+      "SearchSort": {
+        "description": "Search order: ``relevance`` (ours first, then Open Food Facts) or ``protein`` (most\nprotein per 100 kcal first, unknown last, never avoid for the member).",
+        "enum": [
+          "relevance",
+          "protein"
+        ],
+        "title": "SearchSort",
+        "type": "string"
       },
       "Summary": {
         "properties": {
@@ -3393,6 +3540,18 @@
           "period": {
             "$ref": "#/components/schemas/SummaryPeriod"
           },
+          "protein_left_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "period=day only: max(0, limits.protein_target_g - totals.protein_g), 1 dp (the whole target when nothing is logged). Null when there is no target, when protein is incomplete for the day, or for period=week. A guide, not a need.",
+            "title": "Protein Left G"
+          },
           "start": {
             "format": "date",
             "title": "Start",
@@ -3411,7 +3570,8 @@
           "incomplete",
           "limits",
           "bands",
-          "days"
+          "days",
+          "protein_left_g"
         ],
         "title": "Summary",
         "type": "object"
@@ -5882,7 +6042,7 @@
     },
     "/v1/products/barcode/{code}/alternatives": {
       "get": {
-        "description": "Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. With ``member_id``, a product the engine rates ``avoid`` for that member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).",
+        "description": "Up to 5 products from the same Open Food Facts category. ``sort=grade`` (default): a strictly better Nutri-Score (calculated by SmartNutri). ``sort=protein``: strictly more protein per 100 kcal and a Nutri-Score no worse, ranked for ``member_id`` or else the primary member. ``member_status`` comes from the rules engine; a product the engine rates ``avoid`` for the member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).",
         "operationId": "products_alternatives_by_barcode",
         "parameters": [
           {
@@ -5909,6 +6069,17 @@
                 }
               ],
               "title": "Member Id"
+            }
+          },
+          {
+            "description": "grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the member (member_id or the primary member), never a worse grade",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/AlternativesSort",
+              "default": "grade",
+              "description": "grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the member (member_id or the primary member), never a worse grade"
             }
           }
         ],
@@ -6199,7 +6370,7 @@
     },
     "/v1/products/search": {
       "get": {
-        "description": "Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.\n\nOpen Food Facts search calls are capped for the whole server; over the cap a cached\nresult is served, else our own hits come back with ``off_degraded`` true, and\nonly with no local hits either 503 ``off_unavailable`` with Retry-After.",
+        "description": "Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.\n\nOpen Food Facts search calls are capped for the whole server; over the cap a cached\nresult is served, else our own hits come back with ``off_degraded`` true, and\nonly with no local hits either 503 ``off_unavailable`` with Retry-After.\n\n``member_status`` comes from the rules engine: with ``member_id`` (404 if not this\naccount's), or for the primary member with ``sort=protein``, which never returns a hit\nthe engine rates ``avoid`` for that member.",
         "operationId": "products_search",
         "parameters": [
           {
@@ -6212,6 +6383,34 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "relevance: ours first, then Open Food Facts. protein: most protein per 100 kcal first (unknown last), never avoid for the member (member_id or the primary member)",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SearchSort",
+              "default": "relevance",
+              "description": "relevance: ours first, then Open Food Facts. protein: most protein per 100 kcal first (unknown last), never avoid for the member (member_id or the primary member)"
+            }
+          },
+          {
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Member Id"
             }
           },
           {
@@ -6251,6 +6450,16 @@
               }
             },
             "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
           },
           "404": {
             "content": {
@@ -6423,7 +6632,7 @@
     },
     "/v1/products/{product_id}/alternatives": {
       "get": {
-        "description": "Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. With ``member_id``, a product the engine rates ``avoid`` for that member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty.",
+        "description": "Up to 5 products from the same Open Food Facts category. ``sort=grade`` (default): a strictly better Nutri-Score (calculated by SmartNutri). ``sort=protein``: strictly more protein per 100 kcal and a Nutri-Score no worse, ranked for ``member_id`` or else the primary member. ``member_status`` comes from the rules engine; a product the engine rates ``avoid`` for the member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty.",
         "operationId": "products_alternatives",
         "parameters": [
           {
@@ -6451,6 +6660,17 @@
                 }
               ],
               "title": "Member Id"
+            }
+          },
+          {
+            "description": "grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the member (member_id or the primary member), never a worse grade",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/AlternativesSort",
+              "default": "grade",
+              "description": "grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the member (member_id or the primary member), never a worse grade"
             }
           }
         ],

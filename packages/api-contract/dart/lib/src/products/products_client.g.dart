@@ -78,10 +78,14 @@ class _ProductsClient implements ProductsClient {
   @override
   Future<AlternativesOut> productsAlternativesByBarcode({
     required String code,
+    AlternativesSort? sort = AlternativesSort.grade,
     String? memberId,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'member_id': memberId};
+    final queryParameters = <String, dynamic>{
+      r'sort': sort,
+      r'member_id': memberId,
+    };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
@@ -149,10 +153,17 @@ class _ProductsClient implements ProductsClient {
   @override
   Future<List<SearchHit>> productsSearch({
     required String q,
+    String? memberId,
     int? limit = 20,
+    SearchSort? sort = SearchSort.relevance,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'q': q, r'limit': limit};
+    final queryParameters = <String, dynamic>{
+      r'q': q,
+      r'member_id': memberId,
+      r'limit': limit,
+      r'sort': sort,
+    };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
@@ -213,10 +224,14 @@ class _ProductsClient implements ProductsClient {
   @override
   Future<AlternativesOut> productsAlternatives({
     required String productId,
+    AlternativesSort? sort = AlternativesSort.grade,
     String? memberId,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'member_id': memberId};
+    final queryParameters = <String, dynamic>{
+      r'sort': sort,
+      r'member_id': memberId,
+    };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;

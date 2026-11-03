@@ -20,6 +20,10 @@ CompareSide _$CompareSideFromJson(Map<String, dynamic> json) => CompareSide(
   name: json['name'] as String,
   per100g: NutrientsOut.fromJson(json['per_100g'] as Map<String, dynamic>),
   productId: json['product_id'] as String?,
+  proteinPer100kcal: json['protein_per_100kcal'] as num?,
+  proteinPerServingG: json['protein_per_serving_g'] as num?,
+  servingSizeG: json['serving_size_g'] as num?,
+  sugarsPerServingG: json['sugars_per_serving_g'] as num?,
 );
 
 Map<String, dynamic> _$CompareSideToJson(CompareSide instance) =>
@@ -33,6 +37,10 @@ Map<String, dynamic> _$CompareSideToJson(CompareSide instance) =>
       'name': instance.name,
       'per_100g': instance.per100g,
       'product_id': instance.productId,
+      'protein_per_100kcal': instance.proteinPer100kcal,
+      'protein_per_serving_g': instance.proteinPerServingG,
+      'serving_size_g': instance.servingSizeG,
+      'sugars_per_serving_g': instance.sugarsPerServingG,
     };
 
 const _$NutriScoreGradeEnumMap = {

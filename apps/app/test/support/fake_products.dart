@@ -20,6 +20,8 @@ AlternativeOut alternative({
   memberStatus: memberStatus,
   name: name,
   productId: productId,
+  proteinG: null,
+  proteinPer100kcal: null,
   sugarsG: sugarsG,
 );
 
@@ -59,6 +61,10 @@ CompareSide compareSide({
   name: name,
   per100g: per100g ?? nutrients(),
   productId: productId,
+  proteinPer100kcal: null,
+  proteinPerServingG: null,
+  servingSizeG: null,
+  sugarsPerServingG: null,
 );
 
 /// Records alternatives, search and compare calls. Every other route
@@ -81,6 +87,7 @@ class FakeProductsClient implements ProductsClient {
   @override
   Future<AlternativesOut> productsAlternatives({
     required String productId,
+    AlternativesSort? sort = AlternativesSort.grade,
     String? memberId,
   }) async {
     alternativesCalls.add((productId, null, memberId));
@@ -91,6 +98,7 @@ class FakeProductsClient implements ProductsClient {
   @override
   Future<AlternativesOut> productsAlternativesByBarcode({
     required String code,
+    AlternativesSort? sort = AlternativesSort.grade,
     String? memberId,
   }) async {
     alternativesCalls.add((null, code, memberId));
@@ -101,7 +109,9 @@ class FakeProductsClient implements ProductsClient {
   @override
   Future<List<SearchHit>> productsSearch({
     required String q,
+    String? memberId,
     int? limit = 20,
+    SearchSort? sort = SearchSort.relevance,
   }) async {
     searches.add(q);
     if (searchError case final e?) throw e;

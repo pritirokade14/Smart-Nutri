@@ -75,7 +75,7 @@ class AnalysisResult:
         )
 
 
-def _round1(value: float | None) -> float | None:
+def round1(value: float | None) -> float | None:
     """1 dp, half up (6.25 -> 6.3), so every client shows the same number."""
     if value is None:
         return None
@@ -88,10 +88,10 @@ def protein_facts(product: Product) -> ProteinFacts:
     protein, kcal = n.protein_g, n.energy_kcal
     per_100kcal = None if protein is None or not kcal else protein * 100 / kcal
     return ProteinFacts(
-        per_100g=_round1(protein),
-        per_serving=_round1(product.per_serving(protein)),
-        per_100kcal=_round1(per_100kcal),
-        serving_size_g=_round1(product.serving_size_g),
+        per_100g=round1(protein),
+        per_serving=round1(product.per_serving(protein)),
+        per_100kcal=round1(per_100kcal),
+        serving_size_g=round1(product.serving_size_g),
     )
 
 

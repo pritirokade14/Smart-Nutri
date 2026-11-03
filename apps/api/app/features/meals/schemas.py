@@ -159,6 +159,13 @@ class Summary(BaseModel):
     limits: DailyLimitsOut
     bands: NutrientBands
     days: list[DaySummary] = Field(description="1 for day, 7 for week (oldest first)")
+    protein_left_g: float | None = Field(
+        description=(
+            "period=day only: max(0, limits.protein_target_g - totals.protein_g), 1 dp (the "
+            "whole target when nothing is logged). Null when there is no target, when protein "
+            "is incomplete for the day, or for period=week. A guide, not a need."
+        )
+    )
     pending_clinician_review: bool = True
 
 

@@ -9,7 +9,8 @@ import 'better_side.dart';
 part 'compare_better.g.dart';
 
 /// Which side is better: lower energy, sugars, salt and saturated fat; higher protein and.
-/// fibre; grade A best. ``unknown`` when either side has no value (never a win).
+/// fibre; grade A best; higher protein per serving and per 100 kcal; lower sugars per serving.
+/// ``unknown`` when either side has no value (never a win).
 @JsonSerializable()
 class CompareBetter {
   const CompareBetter({
@@ -17,9 +18,12 @@ class CompareBetter {
     required this.fiberG,
     required this.grade,
     required this.proteinG,
+    required this.proteinPer100kcal,
+    required this.proteinPerServingG,
     required this.saltG,
     required this.satFatG,
     required this.sugarsG,
+    required this.sugarsPerServingG,
   });
 
   factory CompareBetter.fromJson(Map<String, Object?> json) =>
@@ -32,12 +36,18 @@ class CompareBetter {
   final BetterSide grade;
   @JsonKey(name: 'protein_g')
   final BetterSide proteinG;
+  @JsonKey(name: 'protein_per_100kcal')
+  final BetterSide proteinPer100kcal;
+  @JsonKey(name: 'protein_per_serving_g')
+  final BetterSide proteinPerServingG;
   @JsonKey(name: 'salt_g')
   final BetterSide saltG;
   @JsonKey(name: 'sat_fat_g')
   final BetterSide satFatG;
   @JsonKey(name: 'sugars_g')
   final BetterSide sugarsG;
+  @JsonKey(name: 'sugars_per_serving_g')
+  final BetterSide sugarsPerServingG;
 
   Map<String, Object?> toJson() => _$CompareBetterToJson(this);
 }

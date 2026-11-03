@@ -85,6 +85,9 @@ async def test_compare_shape(client, sf_biscuit_product_id, oats_product_id):
         "protein_g",
         "fiber_g",
         "grade",
+        "protein_per_serving_g",
+        "protein_per_100kcal",
+        "sugars_per_serving_g",
     }
 
 
@@ -154,6 +157,9 @@ async def test_search_merges_dedups_and_marks_sources(
         "grade": None,  # not enough data for a grade
         "source": "ours",
         "attribution": None,
+        "protein_g": None,  # not on the label
+        "protein_per_100kcal": None,
+        "member_status": None,  # no member_id
         "off_degraded": False,
     }
     barcodes = [h["barcode"] for h in hits]

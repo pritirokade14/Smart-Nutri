@@ -238,6 +238,9 @@ void main() {
             name: 'Masala Oats',
             productId: 'p1',
             source: SearchHitSource.ours,
+            memberStatus: null,
+            proteinG: null,
+            proteinPer100kcal: null,
           ),
           SearchHit(
             attribution: 'attribution.off',
@@ -247,6 +250,9 @@ void main() {
             name: 'Cola',
             productId: null,
             source: SearchHitSource.off,
+            memberStatus: null,
+            proteinG: null,
+            proteinPer100kcal: null,
           ),
         ];
       await _pump(t, api, const SearchScreen());
@@ -278,6 +284,9 @@ void main() {
             name: 'Masala Oats',
             productId: 'p1',
             source: SearchHitSource.ours,
+            memberStatus: null,
+            proteinG: null,
+            proteinPer100kcal: null,
             offDegraded: true,
           ),
         ];
@@ -300,6 +309,9 @@ void main() {
             name: 'Masala Oats',
             productId: 'p1',
             source: SearchHitSource.ours,
+            memberStatus: null,
+            proteinG: null,
+            proteinPer100kcal: null,
           ),
         ];
       await _pump(t, api, const SearchScreen());
@@ -342,6 +354,9 @@ void main() {
             name: 'Masala Oats',
             productId: 'p1',
             source: SearchHitSource.ours,
+            memberStatus: null,
+            proteinG: null,
+            proteinPer100kcal: null,
           ),
         ];
       await _pump(
@@ -388,6 +403,9 @@ void main() {
         saltG: BetterSide.same,
         satFatG: BetterSide.$unknown,
         sugarsG: BetterSide.b,
+        proteinPer100kcal: BetterSide.$unknown,
+        proteinPerServingG: BetterSide.$unknown,
+        sugarsPerServingG: BetterSide.$unknown,
       ),
     );
 

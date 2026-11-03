@@ -30,6 +30,9 @@ const HITS: SearchHit[] = [
     grade: "B",
     source: "ours",
     attribution: null,
+    protein_g: null,
+    protein_per_100kcal: null,
+    member_status: null,
     off_degraded: false,
   },
   {
@@ -40,6 +43,9 @@ const HITS: SearchHit[] = [
     grade: null,
     source: "off",
     attribution: "attribution.off",
+    protein_g: null,
+    protein_per_100kcal: null,
+    member_status: null,
     off_degraded: false,
   },
 ];

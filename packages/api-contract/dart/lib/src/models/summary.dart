@@ -23,6 +23,7 @@ class Summary {
     required this.limits,
     required this.memberId,
     required this.period,
+    required this.proteinLeftG,
     required this.start,
     required this.totals,
     this.pendingClinicianReview = true,
@@ -43,6 +44,10 @@ class Summary {
   @JsonKey(name: 'pending_clinician_review')
   final bool pendingClinicianReview;
   final SummaryPeriod period;
+
+  /// period=day only: max(0, limits.protein_target_g - totals.protein_g), 1 dp (the whole target when nothing is logged). Null when there is no target, when protein is incomplete for the day, or for period=week. A guide, not a need.
+  @JsonKey(name: 'protein_left_g')
+  final num? proteinLeftG;
   final DateTime start;
   final Totals totals;
 

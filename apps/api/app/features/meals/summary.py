@@ -10,6 +10,9 @@ Ruling M1 (nutrition-safety review):
   items (empty days are not "under the limit"), and is ``over`` whenever any day is ``over``.
 - Protein is a target, not a limit: ``ok`` once the (lower-bound) total meets it, otherwise
   ``unknown`` (no band; clients show "x g of a y g target").
+- ``protein_left_g`` (Plan 9 Task 6): for a day only, the target minus the protein eaten, never
+  below 0. Null without a target or when the day's protein is incomplete (the total is only a
+  lower bound, so "left" would be over-stated); nothing logged leaves the whole target.
 
 Bands come from the engine's ``nutrient_band`` and daily limits from ``app.scoring``
 (thresholds.yaml, pending clinician review); clients only render them.
@@ -140,6 +143,13 @@ class _Acc:
         return {k: None if v is None else _round1(v) for k, v in self.raw_totals().items()}
 
 
+def _protein_left(acc: "_Acc", target: float | None) -> float | None:
+    if target is None or acc.incomplete["protein_g"]:
+        return None
+    eaten = acc.raw_totals()["protein_g"] or 0.0  # None here only when nothing was logged
+    return _round1(max(0.0, target - eaten))
+
+
 def summarise(
     meals: Sequence[MealLog],
     limits: DailyLimits,
@@ -199,4 +209,5 @@ def summarise(
         ),
         bands=NutrientBands(**_period_bands(whole, days, limits, cfg)),
         days=days,
+        protein_left_g=_protein_left(whole, protein) if period == "day" else None,
     )

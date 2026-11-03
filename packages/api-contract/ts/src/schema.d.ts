@@ -336,7 +336,7 @@ export interface paths {
         };
         /**
          * Products Alternatives By Barcode
-         * @description Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. With ``member_id``, a product the engine rates ``avoid`` for that member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).
+         * @description Up to 5 products from the same Open Food Facts category. ``sort=grade`` (default): a strictly better Nutri-Score (calculated by SmartNutri). ``sort=protein``: strictly more protein per 100 kcal and a Nutri-Score no worse, ranked for ``member_id`` or else the primary member. ``member_status`` comes from the rules engine; a product the engine rates ``avoid`` for the member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).
          */
         get: operations["products_alternatives_by_barcode"];
         put?: never;
@@ -382,6 +382,10 @@ export interface paths {
          *     Open Food Facts search calls are capped for the whole server; over the cap a cached
          *     result is served, else our own hits come back with ``off_degraded`` true, and
          *     only with no local hits either 503 ``off_unavailable`` with Retry-After.
+         *
+         *     ``member_status`` comes from the rules engine: with ``member_id`` (404 if not this
+         *     account's), or for the primary member with ``sort=protein``, which never returns a hit
+         *     the engine rates ``avoid`` for that member.
          */
         get: operations["products_search"];
         put?: never;
@@ -418,7 +422,7 @@ export interface paths {
         };
         /**
          * Products Alternatives
-         * @description Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. With ``member_id``, a product the engine rates ``avoid`` for that member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty.
+         * @description Up to 5 products from the same Open Food Facts category. ``sort=grade`` (default): a strictly better Nutri-Score (calculated by SmartNutri). ``sort=protein``: strictly more protein per 100 kcal and a Nutri-Score no worse, ranked for ``member_id`` or else the primary member. ``member_status`` comes from the rules engine; a product the engine rates ``avoid`` for the member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty.
          */
         get: operations["products_alternatives"];
         put?: never;
@@ -557,12 +561,22 @@ export interface components {
             high_in: string[];
             /** Image Url */
             image_url: string | null;
-            /** @description The rules engine's verdict for member_id (only when member_id is given) */
+            /** @description The rules engine's verdict for member_id (only when member_id is given; with sort=protein, for member_id or else the primary member) */
             member_status: components["schemas"]["MemberStatus"] | null;
             /** Name */
             name: string;
             /** Product Id */
             product_id: string | null;
+            /**
+             * Protein G
+             * @description Protein per 100 g/ml (report.protein.per_100g); null if not on the label
+             */
+            protein_g: number | null;
+            /**
+             * Protein Per 100Kcal
+             * @description report.protein.per_100kcal; null without protein or energy
+             */
+            protein_per_100kcal: number | null;
             /**
              * Sugars G
              * @description Per 100 g/ml; null if not on the label
@@ -573,16 +587,23 @@ export interface components {
         AlternativesOut: {
             /**
              * Items
-             * @description At most 5: best grade first, then less sugar, then name. With member_id, never a product the engine rates avoid for that member, and ok before caution before unknown
+             * @description At most 5. sort=grade: best grade first, then less sugar, then name. sort=protein: strictly more protein per 100 kcal than the source and a grade no worse; ok before caution before unknown, then most protein per 100 kcal, then grade, then name. Never a product the engine rates avoid for the member (sort=grade: member_id only; sort=protein: member_id or the primary member)
              */
             items: components["schemas"]["AlternativeOut"][];
             /**
              * Reason
-             * @description no_better_found also when every better product is avoid for member_id
+             * @description no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal
              * @enum {string}
              */
-            reason: "ok" | "no_category" | "no_better_found" | "source_ungraded";
+            reason: "ok" | "no_category" | "no_better_found" | "source_ungraded" | "source_protein_unknown";
         };
+        /**
+         * AlternativesSort
+         * @description Alternatives order: ``grade`` (better Nutri-Score) or ``protein`` (more protein per
+         *     100 kcal, never avoid for the member, never a worse grade).
+         * @enum {string}
+         */
+        AlternativesSort: "grade" | "protein";
         /** AnalyzeOut */
         AnalyzeOut: {
             explanation: components["schemas"]["ExplanationOut"];
@@ -676,16 +697,20 @@ export interface components {
         /**
          * CompareBetter
          * @description Which side is better: lower energy, sugars, salt and saturated fat; higher protein and
-         *     fibre; grade A best. ``unknown`` when either side has no value (never a win).
+         *     fibre; grade A best; higher protein per serving and per 100 kcal; lower sugars per serving.
+         *     ``unknown`` when either side has no value (never a win).
          */
         CompareBetter: {
             energy_kcal: components["schemas"]["BetterSide"];
             fiber_g: components["schemas"]["BetterSide"];
             grade: components["schemas"]["BetterSide"];
             protein_g: components["schemas"]["BetterSide"];
+            protein_per_100kcal: components["schemas"]["BetterSide"];
+            protein_per_serving_g: components["schemas"]["BetterSide"];
             salt_g: components["schemas"]["BetterSide"];
             sat_fat_g: components["schemas"]["BetterSide"];
             sugars_g: components["schemas"]["BetterSide"];
+            sugars_per_serving_g: components["schemas"]["BetterSide"];
         };
         /** CompareOut */
         CompareOut: {
@@ -714,6 +739,26 @@ export interface components {
              * @description Our own product; null for Open Food Facts
              */
             product_id: string | null;
+            /**
+             * Protein Per 100Kcal
+             * @description report.protein.per_100kcal; null without protein or energy
+             */
+            protein_per_100kcal: number | null;
+            /**
+             * Protein Per Serving G
+             * @description report.protein.per_serving; null without a serving size or protein
+             */
+            protein_per_serving_g: number | null;
+            /**
+             * Serving Size G
+             * @description null when the label has no serving size
+             */
+            serving_size_g: number | null;
+            /**
+             * Sugars Per Serving G
+             * @description Sugars in one serving, 1 dp; null without a serving size or sugars
+             */
+            sugars_per_serving_g: number | null;
         };
         /**
          * ConfirmColumns
@@ -1696,6 +1741,8 @@ export interface components {
             brand: string | null;
             /** @description Nutri-Score calculated by SmartNutri; null if unknown */
             grade: components["schemas"]["NutriScoreGrade"] | null;
+            /** @description The rules engine's verdict. sort=relevance: only when member_id is given. sort=protein: for member_id or else the primary member (avoid is never returned) */
+            member_status: components["schemas"]["MemberStatus"] | null;
             /** Name */
             name: string;
             /**
@@ -1707,11 +1754,28 @@ export interface components {
             /** Product Id */
             product_id: string | null;
             /**
+             * Protein G
+             * @description Protein per 100 g/ml (report.protein.per_100g); null if not on the label
+             */
+            protein_g: number | null;
+            /**
+             * Protein Per 100Kcal
+             * @description report.protein.per_100kcal; null without protein or energy
+             */
+            protein_per_100kcal: number | null;
+            /**
              * Source
              * @enum {string}
              */
             source: "ours" | "off";
         };
+        /**
+         * SearchSort
+         * @description Search order: ``relevance`` (ours first, then Open Food Facts) or ``protein`` (most
+         *     protein per 100 kcal first, unknown last, never avoid for the member).
+         * @enum {string}
+         */
+        SearchSort: "relevance" | "protein";
         /** Summary */
         Summary: {
             bands: components["schemas"]["NutrientBands"];
@@ -1738,6 +1802,11 @@ export interface components {
              */
             pending_clinician_review: boolean;
             period: components["schemas"]["SummaryPeriod"];
+            /**
+             * Protein Left G
+             * @description period=day only: max(0, limits.protein_target_g - totals.protein_g), 1 dp (the whole target when nothing is logged). Null when there is no target, when protein is incomplete for the day, or for period=week. A guide, not a need.
+             */
+            protein_left_g: number | null;
             /**
              * Start
              * Format: date
@@ -3567,6 +3636,8 @@ export interface operations {
         parameters: {
             query?: {
                 member_id?: string | null;
+                /** @description grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the member (member_id or the primary member), never a worse grade */
+                sort?: components["schemas"]["AlternativesSort"];
             };
             header?: never;
             path: {
@@ -3747,6 +3818,9 @@ export interface operations {
         parameters: {
             query: {
                 limit?: number;
+                /** @description relevance: ours first, then Open Food Facts. protein: most protein per 100 kcal first (unknown last), never avoid for the member (member_id or the primary member) */
+                sort?: components["schemas"]["SearchSort"];
+                member_id?: string | null;
                 /** @description 3 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short */
                 q: string;
             };
@@ -3767,6 +3841,15 @@ export interface operations {
             };
             /** @description Missing or invalid access token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3903,6 +3986,8 @@ export interface operations {
         parameters: {
             query?: {
                 member_id?: string | null;
+                /** @description grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the member (member_id or the primary member), never a worse grade */
+                sort?: components["schemas"]["AlternativesSort"];
             };
             header?: never;
             path: {

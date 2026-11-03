@@ -7,6 +7,11 @@ the rules engine. OFF being down is not an error: our hits are returned alone. O
 process-wide OFF search budget (I4, `off_search_per_minute`), a cached result (even a stale
 one) is served; with none, our own hits are returned with `off_degraded=true`, and only
 with no hits of ours either is it 503 `off_unavailable` with Retry-After.
+
+Plan 9 Task 6: every hit carries ``report.protein`` (per 100 g and per 100 kcal). With a
+member, hits carry that member's status from the engine. ``sort="protein"`` (always with a
+member: member_id or the primary) drops ``avoid`` hits and orders by protein per 100 kcal,
+highest first, unknown last (stable otherwise). ``sort="relevance"`` keeps every hit.
 """
 
 import unicodedata
@@ -21,7 +26,7 @@ from app.core.errors import ApiError
 from app.features.products import service
 from app.features.products.models import Product
 from app.features.products.off_mapping import off_to_info, off_to_product
-from app.features.products.schemas import SearchHit
+from app.features.products.schemas import SearchHit, SearchSort
 from app.integrations.openfoodfacts import (
     InvalidBarcode,
     OffClient,
@@ -47,8 +52,27 @@ def _like(q: str) -> str:
     return f"%{escaped}%"
 
 
-def _grade(product: scoring.Product) -> str | None:
-    return scoring.analyze(product, []).report.nutriscore.grade
+def _engine_fields(product: scoring.Product, member: scoring.Member | None) -> dict[str, object]:
+    """Grade, protein and (with a member) the member's status, all from the rules engine."""
+    result = scoring.analyze(product, [member] if member is not None else [])
+    return {
+        "grade": result.report.nutriscore.grade,
+        "protein_g": result.report.protein.per_100g,
+        "protein_per_100kcal": result.report.protein.per_100kcal,
+        "member_status": result.verdicts[0].status.value if member is not None else None,
+    }
+
+
+def sort_by_protein(hits: list[SearchHit]) -> list[SearchHit]:
+    """Drop ``avoid`` hits; most protein per 100 kcal first, unknown last (stable). Pure."""
+    kept = [h for h in hits if h.member_status != "avoid"]
+    return sorted(
+        kept,
+        key=lambda h: (
+            h.protein_per_100kcal is None,
+            -(h.protein_per_100kcal or 0.0),
+        ),
+    )
 
 
 async def search_products(
@@ -59,8 +83,31 @@ async def search_products(
     *,
     account_id: UUID,
     settings: Settings,
+    member: scoring.Member | None = None,
+    sort: SearchSort = SearchSort.RELEVANCE,
 ) -> list[SearchHit]:
-    """Up to ``limit`` hits: ours first (by name), then OFF. Does not commit."""
+    """Up to ``limit`` hits: ours first (by name), then OFF. Does not commit.
+
+    ``sort="protein"`` needs ``member`` (the caller passes member_id's or the primary).
+    """
+    if sort == SearchSort.PROTEIN and member is None:
+        raise ValueError("sort=protein needs a member (member_id or the primary member)")
+    hits = await _search(
+        session, off, q, limit, account_id=account_id, settings=settings, member=member
+    )
+    return sort_by_protein(hits) if sort == SearchSort.PROTEIN else hits
+
+
+async def _search(
+    session: AsyncSession,
+    off: OffClient,
+    q: str,
+    limit: int,
+    *,
+    account_id: UUID,
+    settings: Settings,
+    member: scoring.Member | None,
+) -> list[SearchHit]:
     query = normalise_query(q)
     pattern = _like(query)
     rows = await session.scalars(
@@ -83,9 +130,9 @@ async def search_products(
                 barcode=row.barcode,
                 name=row.name,
                 brand=row.brand,
-                grade=_grade(service.record_to_product(row)),
                 source="ours",
                 attribution=None,
+                **_engine_fields(service.record_to_product(row), member),
             )
         )
         if row.barcode:
@@ -126,9 +173,9 @@ async def search_products(
                 barcode=barcode,
                 name=info.name,
                 brand=info.brand,
-                grade=_grade(product),
                 source="off",
                 attribution=service.OFF_ATTRIBUTION,
+                **_engine_fields(product, member),
             )
         )
     return hits

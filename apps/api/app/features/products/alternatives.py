@@ -8,12 +8,17 @@ most 5. Price-aware ranking is v2.
 For a member (Ruling M1 B2), every better-graded candidate is analysed for that member BEFORE
 the top-5 cut: an ``avoid`` is never suggested, and the rest rank ok > caution > unknown, then
 as above. If nothing is left the reason is ``no_better_found``.
+
+``sort=protein`` (Plan 9 Task 6, P9-R11): candidates with STRICTLY more protein per 100 kcal
+than the source (``report.protein.per_100kcal``, known on both) and a grade no worse than the
+source's. Always for a member (``member_id``, else the primary member): ``avoid`` is dropped,
+then ok > caution > unknown, most protein per 100 kcal, grade, name; at most 5.
 """
 
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date
-from typing import Any
+from typing import Any, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,7 +29,7 @@ from app.features.members.models import Member
 from app.features.members.service import to_scoring_member
 from app.features.products import service
 from app.features.products.off_mapping import off_to_info, off_to_product
-from app.features.products.schemas import AlternativeOut, AlternativesOut
+from app.features.products.schemas import AlternativeOut, AlternativesOut, AlternativesSort
 from app.features.products.service import ProductLookup
 from app.integrations.openfoodfacts import (
     InvalidBarcode,
@@ -32,6 +37,8 @@ from app.integrations.openfoodfacts import (
     OffUnavailable,
     normalize_barcode,
 )
+
+ProteinRankReason = Literal["ok", "no_better_found", "source_ungraded", "source_protein_unknown"]
 
 MAX_ALTERNATIVES = 5
 CATEGORY_PAGE_SIZE = 24
@@ -87,6 +94,53 @@ def rank_alternatives(
     return [c for _, c in safe[:MAX_ALTERNATIVES]]
 
 
+def _per_100kcal(product: scoring.Product) -> float | None:
+    """The engine's ``report.protein.per_100kcal`` (no second calculation)."""
+    return scoring.analyze(product, []).report.protein.per_100kcal
+
+
+def rank_alternatives_by_protein(
+    source: scoring.Product,
+    candidates: Sequence[Candidate],
+    member: scoring.Member,
+) -> tuple[list[Candidate], ProteinRankReason]:
+    """Higher-protein candidates for ``member``, best first, at most 5, and the reason. Pure.
+
+    The source needs a protein per 100 kcal (else ``source_protein_unknown``) and a grade
+    (else ``source_ungraded``). Candidates need a known protein per 100 kcal strictly above
+    the source's and a known grade no worse than the source's; ``avoid`` for ``member`` is
+    dropped. Order: ok > caution > unknown, protein per 100 kcal (high first), grade, name.
+    """
+    report = scoring.analyze(source, []).report
+    bar_protein = report.protein.per_100kcal
+    if bar_protein is None:
+        return [], "source_protein_unknown"
+    source_grade = report.nutriscore.grade
+    if source_grade not in _GRADES:
+        return [], "source_ungraded"
+    bar_grade = _GRADES.index(source_grade)
+    ranked: list[tuple[tuple[int, float, int, str], Candidate]] = []
+    for c in candidates:
+        if c.grade not in _GRADES or _GRADES.index(c.grade) > bar_grade:
+            continue
+        per_100kcal = _per_100kcal(c.product)
+        if per_100kcal is None or per_100kcal <= bar_protein:
+            continue
+        status = _member_status(c, member)
+        if status not in _STATUS_RANK:  # avoid
+            continue
+        key = (
+            _STATUS_RANK[status],
+            -per_100kcal,
+            _GRADES.index(c.grade),
+            c.product.name.casefold(),
+        )
+        ranked.append((key, c))
+    ranked.sort(key=lambda kc: kc[0])
+    items = [c for _, c in ranked[:MAX_ALTERNATIVES]]
+    return items, ("ok" if items else "no_better_found")
+
+
 def source_category(payload: dict[str, Any] | None) -> str | None:
     """The most specific OFF category: the LAST ``categories_tags`` entry (None if absent)."""
     if not isinstance(payload, dict):
@@ -130,6 +184,7 @@ def _candidates(
 def _to_out(c: Candidate, member: scoring.Member | None) -> AlternativeOut:
     info = off_to_info(c.payload)
     result = scoring.analyze(c.product, [member] if member is not None else [])
+    protein = result.report.protein
     return AlternativeOut(
         barcode=_barcode(c.payload),
         product_id=None,
@@ -138,6 +193,8 @@ def _to_out(c: Candidate, member: scoring.Member | None) -> AlternativeOut:
         image_url=info.image_url,
         grade=c.grade,  # type: ignore[arg-type]  (ranked candidates are always graded)
         sugars_g=c.product.per_100g.sugars_g,
+        protein_g=protein.per_100g,
+        protein_per_100kcal=protein.per_100kcal,
         high_in=list(result.report.high_in),
         member_status=result.verdicts[0].status.value if member is not None else None,
         attribution=service.OFF_ATTRIBUTION,
@@ -152,17 +209,22 @@ async def find_alternatives(
     member: Member | None,
     settings: Settings,
     today: date,
+    sort: AlternativesSort = AlternativesSort.GRADE,
 ) -> AlternativesOut:
     """Alternatives for ``found`` (does not commit; the caller commits the cache write).
 
     The category comes from the cached OFF payload for the product's barcode, so a label-only
-    product (no barcode, or one OFF does not know) returns ``no_category``.
+    product (no barcode, or one OFF does not know) returns ``no_category``. With
+    ``sort="protein"`` the caller passes the member to rank for (member_id or the primary).
     """
     payload = await service.off_payload(session, found.info.barcode or None)
     category = source_category(payload)
     if category is None:
         return AlternativesOut(items=[], reason="no_category")
-    source_grade = scoring.analyze(found.product, []).report.nutriscore.grade
+    report = scoring.analyze(found.product, []).report
+    if sort == AlternativesSort.PROTEIN and report.protein.per_100kcal is None:
+        return AlternativesOut(items=[], reason="source_protein_unknown")
+    source_grade = report.nutriscore.grade
     if source_grade is None:
         return AlternativesOut(items=[], reason="source_ungraded")
 
@@ -176,11 +238,13 @@ async def find_alternatives(
         raise ApiError("off_unavailable", 503) from exc
 
     scoring_member = to_scoring_member(member, today=today) if member is not None else None
-    ranked = rank_alternatives(
-        source_grade,
-        _candidates(payloads, found.info.barcode or None, settings),
-        scoring_member,
-    )
+    candidates = _candidates(payloads, found.info.barcode or None, settings)
+    if sort == AlternativesSort.PROTEIN:
+        if scoring_member is None:
+            raise ValueError("sort=protein needs a member (member_id or the primary member)")
+        ranked, reason = rank_alternatives_by_protein(found.product, candidates, scoring_member)
+        return AlternativesOut(items=[_to_out(c, scoring_member) for c in ranked], reason=reason)
+    ranked = rank_alternatives(source_grade, candidates, scoring_member)
     if not ranked:
         return AlternativesOut(items=[], reason="no_better_found")
     return AlternativesOut(items=[_to_out(c, scoring_member) for c in ranked], reason="ok")

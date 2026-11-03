@@ -253,6 +253,22 @@ class MemberStatus(StrEnum):
     AVOID = "avoid"
 
 
+class AlternativesSort(StrEnum):
+    """Alternatives order: ``grade`` (better Nutri-Score) or ``protein`` (more protein per
+    100 kcal, never avoid for the member, never a worse grade)."""
+
+    GRADE = "grade"
+    PROTEIN = "protein"
+
+
+class SearchSort(StrEnum):
+    """Search order: ``relevance`` (ours first, then Open Food Facts) or ``protein`` (most
+    protein per 100 kcal first, unknown last, never avoid for the member)."""
+
+    RELEVANCE = "relevance"
+    PROTEIN = "protein"
+
+
 class AlternativeOut(BaseModel):
     """A product in the same Open Food Facts category with a strictly better Nutri-Score
     (calculated by SmartNutri). Open it with ``products_get_by_barcode``."""
@@ -264,9 +280,18 @@ class AlternativeOut(BaseModel):
     image_url: str | None
     grade: NutriScoreGrade
     sugars_g: float | None = Field(description="Per 100 g/ml; null if not on the label")
+    protein_g: float | None = Field(
+        description="Protein per 100 g/ml (report.protein.per_100g); null if not on the label"
+    )
+    protein_per_100kcal: float | None = Field(
+        description="report.protein.per_100kcal; null without protein or energy"
+    )
     high_in: list[str]
     member_status: MemberStatus | None = Field(
-        description="The rules engine's verdict for member_id (only when member_id is given)"
+        description=(
+            "The rules engine's verdict for member_id (only when member_id is given; with "
+            "sort=protein, for member_id or else the primary member)"
+        )
     )
     attribution: str | None = Field(description='"attribution.off": credit Open Food Facts')
 
@@ -274,13 +299,20 @@ class AlternativeOut(BaseModel):
 class AlternativesOut(BaseModel):
     items: list[AlternativeOut] = Field(
         description=(
-            "At most 5: best grade first, then less sugar, then name. With member_id, never a "
-            "product the engine rates avoid for that member, and ok before caution before "
-            "unknown"
+            "At most 5. sort=grade: best grade first, then less sugar, then name. "
+            "sort=protein: strictly more protein per 100 kcal than the source and a grade no "
+            "worse; ok before caution before unknown, then most protein per 100 kcal, then "
+            "grade, then name. Never a product the engine rates avoid for the member "
+            "(sort=grade: member_id only; sort=protein: member_id or the primary member)"
         )
     )
-    reason: Literal["ok", "no_category", "no_better_found", "source_ungraded"] = Field(
-        description="no_better_found also when every better product is avoid for member_id"
+    reason: Literal[
+        "ok", "no_category", "no_better_found", "source_ungraded", "source_protein_unknown"
+    ] = Field(
+        description=(
+            "no_better_found also when every better product is avoid for the member; "
+            "source_protein_unknown: sort=protein and the source has no protein per 100 kcal"
+        )
     )
 
 
@@ -297,6 +329,18 @@ class SearchHit(BaseModel):
     )
     source: Literal["ours", "off"]
     attribution: str | None = Field(description='"attribution.off" for Open Food Facts hits')
+    protein_g: float | None = Field(
+        description="Protein per 100 g/ml (report.protein.per_100g); null if not on the label"
+    )
+    protein_per_100kcal: float | None = Field(
+        description="report.protein.per_100kcal; null without protein or energy"
+    )
+    member_status: MemberStatus | None = Field(
+        description=(
+            "The rules engine's verdict. sort=relevance: only when member_id is given. "
+            "sort=protein: for member_id or else the primary member (avoid is never returned)"
+        )
+    )
     off_degraded: bool = Field(
         default=False,
         description=(
@@ -320,6 +364,16 @@ class CompareSide(BaseModel):
     brand: str | None
     grade: NutriScoreGrade | None
     per_100g: NutrientsOut
+    serving_size_g: float | None = Field(description="null when the label has no serving size")
+    protein_per_serving_g: float | None = Field(
+        description="report.protein.per_serving; null without a serving size or protein"
+    )
+    sugars_per_serving_g: float | None = Field(
+        description="Sugars in one serving, 1 dp; null without a serving size or sugars"
+    )
+    protein_per_100kcal: float | None = Field(
+        description="report.protein.per_100kcal; null without protein or energy"
+    )
     high_in: list[str]
     member_status: MemberStatus | None = Field(
         description="The rules engine's verdict for member_id (only when member_id is given)"
@@ -329,7 +383,8 @@ class CompareSide(BaseModel):
 
 class CompareBetter(BaseModel):
     """Which side is better: lower energy, sugars, salt and saturated fat; higher protein and
-    fibre; grade A best. ``unknown`` when either side has no value (never a win)."""
+    fibre; grade A best; higher protein per serving and per 100 kcal; lower sugars per serving.
+    ``unknown`` when either side has no value (never a win)."""
 
     energy_kcal: BetterSide
     sugars_g: BetterSide
@@ -338,6 +393,9 @@ class CompareBetter(BaseModel):
     protein_g: BetterSide
     fiber_g: BetterSide
     grade: BetterSide
+    protein_per_serving_g: BetterSide
+    protein_per_100kcal: BetterSide
+    sugars_per_serving_g: BetterSide
 
 
 class CompareOut(BaseModel):

@@ -276,6 +276,8 @@ PRODUCT_GATES = {
     ("/v1/products/{product_id}/alternatives", "GET"): "product_verdicts",
     ("/v1/products/barcode/{code}/alternatives", "GET"): "product_verdicts",
     ("/v1/products/compare", "GET"): "product_verdicts",
+    # Plan 9 Task 6: search takes member_id and returns member statuses (sort=protein).
+    ("/v1/products/search", "GET"): "product_verdicts",
 }
 
 

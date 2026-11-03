@@ -18,6 +18,7 @@ Summary _$SummaryFromJson(Map<String, dynamic> json) => Summary(
   limits: DailyLimitsOut.fromJson(json['limits'] as Map<String, dynamic>),
   memberId: json['member_id'] as String,
   period: SummaryPeriod.fromJson(json['period'] as String),
+  proteinLeftG: json['protein_left_g'] as num?,
   start: DateTime.parse(json['start'] as String),
   totals: Totals.fromJson(json['totals'] as Map<String, dynamic>),
   pendingClinicianReview: json['pending_clinician_review'] as bool? ?? true,
@@ -32,6 +33,7 @@ Map<String, dynamic> _$SummaryToJson(Summary instance) => <String, dynamic>{
   'member_id': instance.memberId,
   'pending_clinician_review': instance.pendingClinicianReview,
   'period': _$SummaryPeriodEnumMap[instance.period]!,
+  'protein_left_g': instance.proteinLeftG,
   'start': instance.start.toIso8601String(),
   'totals': instance.totals,
 };

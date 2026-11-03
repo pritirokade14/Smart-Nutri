@@ -35,6 +35,10 @@ def test_compare_all_keys_and_direction(namkeen, oats):
         "protein_g": "b",  # 15 > 13
         "fiber_g": "a",  # 10.6 > 5
         "grade": "a",
+        # Plan 9 Task 6 (40 g vs 30 g servings).
+        "protein_per_serving_g": "a",  # 5.2 > 4.5
+        "protein_per_100kcal": "a",  # 3.3 > 2.7
+        "sugars_per_serving_g": "a",  # 0.4 < 0.9
     }
 
 

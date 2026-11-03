@@ -177,6 +177,7 @@
   "member_id": "893abc63-23d3-581a-8afe-6488a50f33df",
   "pending_clinician_review": true,
   "period": "week",
+  "protein_left_g": null,
   "start": "2026-10-28",
   "totals": {
     "energy_kcal": 867.2,

@@ -21,6 +21,8 @@ AlternativeOut _$AlternativeOutFromJson(Map<String, dynamic> json) =>
           : MemberStatus.fromJson(json['member_status'] as String),
       name: json['name'] as String,
       productId: json['product_id'] as String?,
+      proteinG: json['protein_g'] as num?,
+      proteinPer100kcal: json['protein_per_100kcal'] as num?,
       sugarsG: json['sugars_g'] as num?,
     );
 
@@ -35,6 +37,8 @@ Map<String, dynamic> _$AlternativeOutToJson(AlternativeOut instance) =>
       'member_status': _$MemberStatusEnumMap[instance.memberStatus],
       'name': instance.name,
       'product_id': instance.productId,
+      'protein_g': instance.proteinG,
+      'protein_per_100kcal': instance.proteinPer100kcal,
       'sugars_g': instance.sugarsG,
     };
 
