@@ -1,0 +1,438 @@
+"""F7 part A: explanation input builder, guard and orchestrator (Plan 5 T7a).
+
+The LLM only explains. These tests pin that it never sees names, ids, emails, free text
+or the product name, that any disagreement with the engine drops the explanation, and that
+every failure degrades to None. Nothing calls the real CallMissed API.
+"""
+
+import asyncio
+import copy
+import json
+import uuid
+from datetime import date
+
+import httpx
+import pytest
+from pydantic import ValidationError
+
+from app import scoring
+from app.core.config import Settings
+from app.features.analyze import explain as explain_mod
+from app.features.analyze.explain import (
+    EXPLANATION_BUDGET_S,
+    Explanation,
+    ExplanationLLM,
+    MemberStatusEcho,
+    build_explanation_input,
+    explain,
+    guard,
+)
+from app.features.members.models import Member
+from app.features.members.service import to_scoring_member
+from app.integrations import callmissed
+from app.integrations.callmissed import CallMissedClient
+from app.integrations.providers import CompletionFailed, ProviderUnavailable
+from app.prompts import load_prompt
+from tests.fakes.llm import FakeLLM
+
+TODAY = date(2026, 11, 3)
+ACCOUNT_ID = uuid.UUID("0b8f7a52-0000-4000-8000-00000000a001")
+DAD_ID = uuid.UUID("0b8f7a52-0000-4000-8000-0000000000d1")
+RIYA_ID = uuid.UUID("0b8f7a52-0000-4000-8000-0000000000c2")
+EMAIL = "Parent.Sharma@Example.com"
+PRODUCT_NAME = "Zorblax Sugar-Free Marie"
+SECRET = "cm_test_secret_key"
+
+
+def _row(**kw) -> Member:
+    base = {
+        "account_id": ACCOUNT_ID, "sex": None, "height_cm": None, "weight_kg": None,
+        "custom_alerts": [], "goal": None, "is_primary": False, "allergens": [],
+        "conditions": [], "diet": "non_veg",
+    }  # fmt: skip
+    return Member(**{**base, **kw})
+
+
+@pytest.fixture
+def family_rows() -> list[Member]:
+    return [
+        _row(
+            id=DAD_ID, name="Dad", relation="parent", birth_year=1960, diet="veg",
+            conditions=["diabetes", "Sharma knee thing"],
+        ),
+        _row(
+            id=RIYA_ID, name="रिया", relation="child", birth_year=2018,
+            allergens=["milk", "Riyas school paste"],
+        ),
+    ]  # fmt: skip
+
+
+@pytest.fixture
+def product() -> scoring.Product:
+    return scoring.Product(
+        name=PRODUCT_NAME,
+        per_100g=scoring.Nutrients(
+            energy_kcal=480,
+            sugars_g=28.0,
+            carbs_g=70,
+            fat_g=18,
+            sat_fat_g=9,
+            salt_g=0.9,
+            protein_g=7,
+            fiber_g=2,
+        ),
+        ingredients=("refined wheat flour (maida)", "sugar", "milk solids", "invert syrup"),
+        claims=("sugar free",),
+    )
+
+
+@pytest.fixture
+def family_result(product, family_rows) -> scoring.AnalysisResult:
+    return scoring.analyze(product, [to_scoring_member(m, today=TODAY) for m in family_rows])
+
+
+@pytest.fixture
+def settings() -> Settings:
+    return Settings(_env_file=None, environment="test", callmissed_explanation_model="expl-model")
+
+
+def _echo(result: scoring.AnalysisResult, **override: str) -> list[MemberStatusEcho]:
+    out = []
+    for i, v in enumerate(result.verdicts, start=1):
+        ref = f"member_{i}"
+        out.append(MemberStatusEcho(ref=ref, status=override.get(ref, v.status.value)))
+    return out
+
+
+def _llm_out(result, text="member_1 should go easy on this.", tips=None, **override):
+    return ExplanationLLM(
+        members=_echo(result, **override),
+        text=text,
+        tips=["Check the sugar line first."] if tips is None else tips,
+    )
+
+
+def _names(rows):
+    return [r.name for r in rows]
+
+
+# --- engine sanity for the fixtures ------------------------------------------------------
+
+
+def test_fixture_engine_statuses(family_result):
+    # Dad (diabetes, veg) and Riya (milk allergy) both get avoid for this biscuit.
+    assert [v.status.value for v in family_result.verdicts] == ["avoid", "avoid"]
+
+
+# --- build_explanation_input ---------------------------------------------------------------
+
+
+def test_input_members_are_tokens_in_verdict_order(family_result, family_rows):
+    data = build_explanation_input(family_result, family_rows, "hi", today=TODAY)
+    assert data.language == "hi"
+    refs = [m.ref for m in data.members]
+    assert refs == ["member_1", "member_2"]
+    m1, m2 = data.members
+    assert (m1.relation, m1.age_band, m1.diet, m1.status) == ("parent", "60_plus", "veg", "avoid")
+    assert (m2.relation, m2.age_band, m2.diet, m2.status) == ("child", "2_12", "non_veg", "avoid")
+    assert [r.code for r in m1.reasons] == [r.code for r in family_result.verdicts[0].reasons]
+
+
+def test_free_text_params_become_other(family_result, family_rows):
+    data = build_explanation_input(family_result, family_rows, "en", today=TODAY)
+    params = [r.params for m in data.members for r in m.reasons]
+    conditions = [p["condition"] for p in params if "condition" in p]
+    allergens = [p["allergen"] for p in params if "allergen" in p]
+    assert conditions == ["other"]
+    assert "milk" in allergens and "other" in allergens
+    assert set(allergens) <= {"milk", "other"}
+    assert {a.allergen for a in data.product.allergens} <= {"milk", "gluten", "wheat", "other"}
+
+
+def test_age_band_unknown_without_birth_year(product):
+    rows = [_row(id=uuid.uuid4(), name="X", relation="self", birth_year=None)]
+    result = scoring.analyze(product, [to_scoring_member(m, today=TODAY) for m in rows])
+    data = build_explanation_input(result, rows, "en", today=TODAY)
+    assert data.members[0].age_band == "unknown"
+
+
+@pytest.mark.parametrize(
+    ("birth_year", "band"),
+    [(2026, "under_2"), (2024, "under_2"), (2023, "2_12"), (2013, "2_12"), (2012, "13_17"),
+     (2008, "13_17"), (2007, "18_59"), (1966, "18_59"), (1965, "60_plus"), (2027, "unknown")],
+)  # fmt: skip
+def test_age_bands_use_youngest_age(product, birth_year, band):
+    rows = [_row(id=uuid.uuid4(), name="X", relation="other", birth_year=birth_year)]
+    result = scoring.analyze(product, [to_scoring_member(m, today=TODAY) for m in rows])
+    assert build_explanation_input(result, rows, "en", today=TODAY).members[0].age_band == band
+
+
+def test_member_order_mismatch_is_an_error(family_result, family_rows):
+    with pytest.raises(ValueError):
+        build_explanation_input(family_result, list(reversed(family_rows)), "en", today=TODAY)
+
+
+# --- explain(): what reaches the provider --------------------------------------------------
+
+
+async def test_prompt_has_no_member_names(family_result, family_rows, settings):
+    fake = FakeLLM(chat_result=_llm_out(family_result))
+    await explain(fake, settings, family_result, family_rows, "hi", emails=[EMAIL], today=TODAY)
+    sent = json.dumps(fake.chat_calls[0], default=str, ensure_ascii=False)
+    for forbidden in (
+        "Dad", "रिया", str(DAD_ID), str(RIYA_ID), str(ACCOUNT_ID), EMAIL, EMAIL.lower(),
+        PRODUCT_NAME, "Zorblax", "Sharma", "Riyas", "school paste", "knee",
+    ):  # fmt: skip
+        assert forbidden not in sent, forbidden
+    call = fake.chat_calls[0]
+    assert call["model"] == "expl-model"
+    assert call["prompt_version"] == "explanation_v1"
+    assert call["schema"] is ExplanationLLM
+    assert call["system"] == load_prompt("explanation_v1")[0]
+    assert call["timeout_s"] == EXPLANATION_BUDGET_S == 8.0
+    assert json.loads(call["user"])["language"] == "hi"
+
+
+def _wire_client(responses: list[httpx.Response]):
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return responses[min(len(seen) - 1, len(responses) - 1)]
+
+    http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    client = CallMissedClient(api_key=SECRET, base_url="https://cm.test/v1", http_client=http)
+    return client, seen
+
+
+def _completion(content: str) -> httpx.Response:
+    return httpx.Response(
+        200,
+        json={
+            "id": "x", "object": "chat.completion", "created": 0, "model": "expl-model",
+            "choices": [{"index": 0, "finish_reason": "stop",
+                         "message": {"role": "assistant", "content": content}}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+        },
+    )  # fmt: skip
+
+
+@pytest.fixture
+def no_sleep(monkeypatch):
+    async def fake_sleep(_s):
+        return None
+
+    monkeypatch.setattr(callmissed, "_sleep", fake_sleep)
+
+
+async def test_wire_request_has_residency_strict_schema_and_no_pii(
+    family_result, family_rows, settings
+):
+    client, seen = _wire_client([_completion(_llm_out(family_result).model_dump_json())])
+    out = await explain(
+        client, settings, family_result, family_rows, "mr", emails=[EMAIL], today=TODAY
+    )
+    assert isinstance(out, Explanation)
+    raw = seen[0].content.decode()
+    body = json.loads(raw)
+    assert body["provider"] == {"data_residency": "in"}
+    assert body["model"] == "expl-model" and body["temperature"] == 0
+    rf = body["response_format"]
+    assert rf["type"] == "json_schema" and rf["json_schema"]["strict"] is True
+    assert sorted(rf["json_schema"]["schema"]["required"]) == ["members", "text", "tips"]
+    decoded = json.dumps(body, ensure_ascii=False)
+    for forbidden in ("Dad", "रिया", str(DAD_ID), str(RIYA_ID), str(ACCOUNT_ID), EMAIL,
+                      PRODUCT_NAME, "Sharma"):  # fmt: skip
+        assert forbidden not in decoded, forbidden
+
+
+async def test_402_is_none(family_result, family_rows, settings):
+    client, seen = _wire_client([httpx.Response(402, json={"error": {"code": "x"}})])
+    assert await explain(client, settings, family_result, family_rows, "en", today=TODAY) is None
+    assert len(seen) == 1
+
+
+async def test_5xx_is_none(family_result, family_rows, settings, no_sleep):
+    client, _ = _wire_client([httpx.Response(503, json={})])
+    assert await explain(client, settings, family_result, family_rows, "en", today=TODAY) is None
+
+
+@pytest.mark.parametrize(
+    "error",
+    [ProviderUnavailable("insufficient_credits"), ProviderUnavailable("not_configured"),
+     CompletionFailed("x"), RuntimeError("boom"), ValueError("bad"), TimeoutError()],
+)  # fmt: skip
+async def test_provider_error_is_none(family_result, family_rows, settings, error):
+    fake = FakeLLM(chat_result=error)
+    assert await explain(fake, settings, family_result, family_rows, "en", today=TODAY) is None
+
+
+async def test_timeout_is_none(family_result, family_rows, settings, monkeypatch):
+    monkeypatch.setattr(explain_mod, "EXPLANATION_BUDGET_S", 0.05)
+
+    class SlowLLM:
+        async def chat_json(self, **_kw):
+            await asyncio.sleep(5)
+            raise AssertionError("budget not enforced")
+
+    loop = asyncio.get_running_loop()
+    start = loop.time()
+    out = await explain(SlowLLM(), settings, family_result, family_rows, "en", today=TODAY)
+    assert out is None
+    assert loop.time() - start < 1.0
+
+
+async def test_unsupported_language_makes_no_call(family_result, family_rows, settings):
+    fake = FakeLLM(chat_result=_llm_out(family_result))
+    assert await explain(fake, settings, family_result, family_rows, "fr", today=TODAY) is None
+    assert fake.chat_calls == []
+
+
+async def test_member_mismatch_makes_no_call(family_result, family_rows, settings):
+    fake = FakeLLM(chat_result=_llm_out(family_result))
+    out = await explain(fake, settings, family_result, family_rows[:1], "en", today=TODAY)
+    assert out is None and fake.chat_calls == []
+
+
+async def test_valid_explanation_passes_through(family_result, family_rows, settings):
+    fake = FakeLLM(chat_result=_llm_out(family_result, text="member_2 को दूध से बचना है।"))
+    out = await explain(
+        fake, settings, family_result, family_rows, "hi", emails=[EMAIL], today=TODAY
+    )
+    assert out == Explanation(
+        text="member_2 को दूध से बचना है।",
+        tips=["Check the sugar line first."],
+        language="hi",
+        prompt_version="explanation_v1",
+        member_refs={"member_1": str(DAD_ID), "member_2": str(RIYA_ID)},
+    )
+
+
+# --- the verdict is never changed ------------------------------------------------------------
+
+
+async def test_explanation_never_changes_verdict(family_result, family_rows, settings):
+    before = copy.deepcopy(family_result.to_dict())
+    verdicts_before = family_result.verdicts
+    fake = FakeLLM(chat_result=_llm_out(family_result, member_1="ok"))  # engine says avoid
+    out = await explain(fake, settings, family_result, family_rows, "en", today=TODAY)
+    assert out is None
+    assert len(fake.chat_calls) == 1
+    assert family_result.verdicts is verdicts_before
+    assert family_result.to_dict() == before
+    assert family_result.verdicts[0].status == scoring.Status.AVOID
+
+
+@pytest.mark.parametrize("wrong", ["ok", "caution", "unknown"])
+def test_guard_drops_any_status_mismatch(family_result, family_rows, wrong):
+    out = _llm_out(family_result, member_2=wrong)
+    assert guard(out, family_result, _names(family_rows), [], language="en",
+                 prompt_version="explanation_v1") is None  # fmt: skip
+
+
+def _guard(out, result, rows, emails=()):
+    return guard(out, result, _names(rows), list(emails), language="en",
+                 prompt_version="explanation_v1")  # fmt: skip
+
+
+def test_guard_drops_missing_member(family_result, family_rows):
+    out = _llm_out(family_result)
+    out = out.model_copy(update={"members": out.members[:1]})
+    assert _guard(out, family_result, family_rows) is None
+
+
+def test_guard_drops_extra_or_duplicate_member(family_result, family_rows):
+    out = _llm_out(family_result)
+    extra = out.model_copy(
+        update={"members": [*out.members, MemberStatusEcho(ref="member_3", status="ok")]}
+    )
+    dup = out.model_copy(update={"members": [*out.members, out.members[0]]})
+    assert _guard(extra, family_result, family_rows) is None
+    assert _guard(dup, family_result, family_rows) is None
+
+
+def test_guard_drops_unknown_member_token(family_result, family_rows):
+    out = _llm_out(family_result, text="member_3 can have it.")
+    assert _guard(out, family_result, family_rows) is None
+    tips = _llm_out(family_result, tips=["Give member_7 less."])
+    assert _guard(tips, family_result, family_rows) is None
+
+
+@pytest.mark.parametrize("text", ["dad should skip it.", "DAD: avoid", "For Dad's tea time"])
+def test_guard_drops_latin_name_case_insensitive(family_result, family_rows, text):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["रिया को यह नहीं देना चाहिए।", "रियाला हे देऊ नका.", "र‍िया avoid"],
+)
+def test_guard_drops_devanagari_name(family_result, family_rows, text):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+
+
+def test_guard_devanagari_nukta_normalised(product):
+    rows = [_row(id=uuid.uuid4(), name="ज़ोया", relation="self", birth_year=1990)]
+    result = scoring.analyze(product, [to_scoring_member(m, today=TODAY) for m in rows])
+    decomposed = "ज़ोया"  # same name, nukta as a combining mark
+    out = _llm_out(result, text=f"{decomposed} को चीनी कम लेनी है।")
+    assert _guard(out, result, rows) is None
+
+
+def test_guard_drops_name_in_tips(family_result, family_rows):
+    out = _llm_out(family_result, tips=["Ask Dad to read the label."])
+    assert _guard(out, family_result, family_rows) is None
+
+
+def test_guard_drops_email_case_insensitive(family_result, family_rows):
+    out = _llm_out(family_result, text="Write to parent.sharma@example.com for help.")
+    assert _guard(out, family_result, family_rows, [EMAIL]) is None
+
+
+def test_guard_name_needs_a_word_start(family_result, product):
+    rows = [_row(id=uuid.uuid4(), name="Al", relation="self", birth_year=1990)]
+    result = scoring.analyze(product, [to_scoring_member(m, today=TODAY) for m in rows])
+    out = _llm_out(result, text="member_1 should also check the salt.")
+    assert _guard(out, result, rows) is not None
+
+
+def test_guard_drops_blank_text(family_result, family_rows):
+    assert _guard(_llm_out(family_result, text="   "), family_result, family_rows) is None
+
+
+def test_guard_keeps_tokens_for_clients(family_result, family_rows):
+    out = _guard(_llm_out(family_result), family_result, family_rows)
+    assert out is not None and "member_1" in out.text
+    assert out.member_refs == {"member_1": str(DAD_ID), "member_2": str(RIYA_ID)}
+
+
+# --- the strict LLM schema -------------------------------------------------------------------
+
+
+def test_llm_schema_rejects_extra_fields_and_limits(family_result):
+    echo = [m.model_dump() for m in _echo(family_result)]
+    with pytest.raises(ValidationError):
+        ExplanationLLM.model_validate({"members": echo, "text": "x", "tips": [], "verdict": "ok"})
+    with pytest.raises(ValidationError):
+        ExplanationLLM.model_validate({"members": echo, "text": "x" * 901, "tips": []})
+    with pytest.raises(ValidationError):
+        ExplanationLLM.model_validate({"members": echo, "text": "x", "tips": ["a"] * 4})
+    with pytest.raises(ValidationError):
+        ExplanationLLM.model_validate({"members": echo, "text": "x", "tips": ["a" * 141]})
+    with pytest.raises(ValidationError):
+        ExplanationLLM.model_validate(
+            {"members": [{"ref": "member_1", "status": "safe"}], "text": "x", "tips": []}
+        )
+
+
+# --- the prompt ----------------------------------------------------------------------------
+
+
+def test_prompt_file_rules():
+    text, version = load_prompt("explanation_v1")
+    assert version == "explanation_v1"
+    assert "Information, not medical advice" in text
+    for needle in ("member_N", "en", "hi", "mr", "never change", "members"):
+        assert needle in text, needle
+    assert "Make no medical claims" in text
+    assert "Unknown is NOT safe" in text

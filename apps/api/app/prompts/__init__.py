@@ -6,6 +6,7 @@ from pathlib import Path
 
 PROMPTS_DIR = Path(__file__).parent
 EXTRACTION_PROMPT_VERSION = "extraction_v1"
+EXPLANATION_PROMPT_VERSION = "explanation_v1"
 
 
 def load_prompt(name: str) -> tuple[str, str]:
@@ -16,3 +17,7 @@ def load_prompt(name: str) -> tuple[str, str]:
 
 def load_extraction_prompt() -> tuple[str, str]:
     return load_prompt(EXTRACTION_PROMPT_VERSION)
+
+
+def load_explanation_prompt() -> tuple[str, str]:
+    return load_prompt(EXPLANATION_PROMPT_VERSION)
