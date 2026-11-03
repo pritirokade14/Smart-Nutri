@@ -281,7 +281,14 @@
     "leave_blank_hint": "Leave blank if it isn't printed",
     "allergen_statement": "Allergen statement",
     "may_contain_statement": "May-contain statement",
-    "not_medical_advice": "Information, not medical advice."
+    "not_medical_advice": "Information, not medical advice.",
+    "name": "Product name",
+    "brand": "Brand",
+    "sodium": "Sodium",
+    "veg_mark_title": "Veg or non-veg mark",
+    "remove_ingredient": "Remove this ingredient",
+    "clear_statement_confirm": "I checked the pack: this statement isn't printed",
+    "open_existing": "Open the saved product"
   },
   "warning": {
     "implausible_value": "This value looks unusual. Please check it against the pack.",

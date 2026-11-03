@@ -281,7 +281,14 @@
     "leave_blank_hint": "छापलेले नसेल तर रिकामे ठेवा",
     "allergen_statement": "ॲलर्जीविषयक विधान",
     "may_contain_statement": "\"असू शकते\" हे विधान",
-    "not_medical_advice": "ही माहिती आहे, वैद्यकीय सल्ला नाही."
+    "not_medical_advice": "ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+    "name": "उत्पादनाचे नाव",
+    "brand": "ब्रँड",
+    "sodium": "सोडियम",
+    "veg_mark_title": "शाकाहारी किंवा मांसाहारी खूण",
+    "remove_ingredient": "हा घटक काढा",
+    "clear_statement_confirm": "मी पॅक तपासला आहे: हे विधान त्यावर छापलेले नाही",
+    "open_existing": "जतन केलेले उत्पादन उघडा"
   },
   "warning": {
     "implausible_value": "हे मूल्य असामान्य वाटते. कृपया पॅकशी जुळवून पाहा.",

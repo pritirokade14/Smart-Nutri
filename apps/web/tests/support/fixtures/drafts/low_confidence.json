@@ -1,0 +1,35 @@
+{
+  "scan_id": "0b6c1f8e-3c1a-4f0e-9a51-1d2e3f4a5b6c",
+  "cached": false,
+  "prompt_version": "label-extract-v3",
+  "draft": {
+    "name": "Masala Oats",
+    "brand": "Saffola",
+    "category": "general",
+    "per_100g": {
+      "energy_kcal": 384,
+      "protein_g": 11.6,
+      "carbs_g": 66.2,
+      "sugars_g": 4.2,
+      "fat_g": 8.1,
+      "sat_fat_g": 1.6,
+      "fiber_g": 9.4,
+      "salt_g": 1.85,
+      "sodium_mg": 740,
+      "added_sugars_g": null,
+      "trans_fat_g": 0.1
+    },
+    "per_serving": null,
+    "serving_size_g": 40,
+    "ingredients": ["Oats (73%)", "Spices and condiments"],
+    "allergen_statement": "Contains oats (gluten).",
+    "may_contain_statement": "May contain milk and soy.",
+    "claims": ["High fibre"],
+    "veg_mark": "veg",
+    "confidence": 0.55,
+    "derived_from_serving": false,
+    "engine_withheld": [],
+    "positive_suppressed": [],
+    "warnings": ["low_confidence"]
+  }
+}

@@ -29,6 +29,30 @@ export async function analyzeBarcode(
   return result.data;
 }
 
+/** POST /v1/analyze for a saved product (e.g. a confirmed label scan). */
+export async function analyzeProduct(
+  productId: string,
+  language: AnalyzeLanguage,
+): Promise<AnalyzeOut> {
+  const api = getApi();
+  const result = await api
+    .POST("/v1/analyze", { body: { product_id: productId, language } })
+    .catch(() => {
+      throw networkError();
+    });
+  if (result.error !== undefined || !result.data) {
+    throw toApiError(result.error, result.response.status);
+  }
+  return result.data;
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** A product id is a UUID; anything else never reaches the API. */
+export function normalizeProductId(id: string): string | null {
+  return UUID.test(id) ? id.toLowerCase() : null;
+}
+
 /** Never retry a 4xx (or anything else); retry a 503 (OFF busy) once. */
 export function shouldRetryAnalyze(
   failureCount: number,
@@ -61,19 +85,31 @@ export function clearAnalyzeCache(client: QueryClient): void {
   client.removeQueries({ queryKey: ["analyze"] });
 }
 
+/** What to analyse: a barcode, or a saved product's id. */
+export type AnalyzeRef = { barcode: string } | { productId: string };
+
 /**
- * Analyse a barcode. Each call records a scan on the server, so the result is
- * never refetched in the background (focus, reconnect, remount).
+ * Analyse a product. Each call records a scan on the server, so the result is
+ * never refetched in the background (focus, reconnect, remount). An invalid
+ * barcode or id never reaches the API.
  */
-export function useAnalyzeBarcode(
-  barcode: string,
+export function useAnalyze(
+  ref: AnalyzeRef,
   language: AnalyzeLanguage,
 ): UseQueryResult<AnalyzeOut, ApiError> {
-  const code = normalizeBarcode(barcode);
+  const byId = "productId" in ref;
+  const key = byId
+    ? normalizeProductId(ref.productId)
+    : normalizeBarcode(ref.barcode);
   return useQuery<AnalyzeOut, ApiError>({
-    queryKey: ["analyze", code, language],
-    queryFn: () => analyzeBarcode(code as string, language),
-    enabled: code !== null,
+    queryKey: byId
+      ? ["analyze", "product", key, language]
+      : ["analyze", key, language],
+    queryFn: () =>
+      byId
+        ? analyzeProduct(key as string, language)
+        : analyzeBarcode(key as string, language),
+    enabled: key !== null,
     retry: shouldRetryAnalyze,
     gcTime: 0, // health data: not kept once nobody is looking at it
     staleTime: Number.POSITIVE_INFINITY,
@@ -81,4 +117,12 @@ export function useAnalyzeBarcode(
     refetchOnReconnect: false,
     refetchOnMount: false,
   });
+}
+
+/** Analyse a barcode (see useAnalyze). */
+export function useAnalyzeBarcode(
+  barcode: string,
+  language: AnalyzeLanguage,
+): UseQueryResult<AnalyzeOut, ApiError> {
+  return useAnalyze({ barcode }, language);
 }

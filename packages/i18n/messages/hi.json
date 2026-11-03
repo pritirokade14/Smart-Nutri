@@ -281,7 +281,14 @@
     "leave_blank_hint": "अगर छपा न हो तो खाली छोड़ें",
     "allergen_statement": "एलर्जी संबंधी कथन",
     "may_contain_statement": "\"हो सकता है\" वाला कथन",
-    "not_medical_advice": "यह जानकारी है, चिकित्सकीय सलाह नहीं।"
+    "not_medical_advice": "यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+    "name": "उत्पाद का नाम",
+    "brand": "ब्रांड",
+    "sodium": "सोडियम",
+    "veg_mark_title": "शाकाहारी या मांसाहारी निशान",
+    "remove_ingredient": "यह सामग्री हटाएँ",
+    "clear_statement_confirm": "मैंने पैक देख लिया है: यह कथन उस पर छपा नहीं है",
+    "open_existing": "सहेजा गया उत्पाद खोलें"
   },
   "warning": {
     "implausible_value": "यह मान असामान्य लग रहा है। कृपया इसे पैक से मिलाकर देखें।",
