@@ -18,8 +18,8 @@ from app.scoring import Category, Nutrients, Product
 
 _KJ_PER_KCAL = 4.184
 
-# categories_tags -> engine category. Order: dry/powder exclusion (GENERAL), WATER, BEVERAGE,
-# CHEESE, FAT. OFF lists every ancestor, so powders and tea bags also carry `en:beverages`;
+# categories_tags -> engine category. Order: SUPPLEMENT (Plan 9 Task 7, before everything),
+# dry/powder exclusion (GENERAL), WATER, BEVERAGE, CHEESE, FAT. OFF lists every ancestor, so powders and tea bags also carry `en:beverages`;
 # they are per-100 g of dry product and must NOT get per-100 ml drink thresholds.
 DRY_DRINK_TAGS = frozenset(
     {
@@ -38,6 +38,16 @@ DRY_DRINK_TAGS = frozenset(
         "en:dehydrated-beverages",
         "en:cocoa-and-chocolate-powders",
     }
+)
+# Supplements (P9-R10): never graded, never suggested. Checked before every other category, so
+# a protein powder also tagged en:beverage-preparations is still a supplement. TODO before
+# launch: verify each tag against the OFF taxonomy (https://world.openfoodfacts.org/categories).
+SUPPLEMENT_TAGS: tuple[str, ...] = (
+    "en:dietary-supplements",
+    "en:protein-powders",
+    "en:bodybuilding-supplements",
+    "en:whey-proteins",
+    "en:sports-nutrition-supplements",
 )
 # Dry leaves unless the product is also tagged as a ready-to-drink child category.
 DRY_UNLESS_READY_TAGS = frozenset({"en:green-teas", "en:black-teas"})
@@ -266,6 +276,8 @@ def _nutriments(product: dict) -> Nutrients:
 
 def _category(tags: list[str]) -> Category:
     found = set(tags)
+    if found.intersection(SUPPLEMENT_TAGS):
+        return Category.SUPPLEMENT
     if found & DRY_DRINK_TAGS:
         return Category.GENERAL
     ready = found & (BEVERAGE_TAGS - GENERIC_DRINK_TAGS)

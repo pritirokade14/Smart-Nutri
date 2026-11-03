@@ -59,6 +59,8 @@ export const CATEGORIES: readonly Category[] = [
   "water",
   "cheese",
   "fat",
+  // Plan 9 (P9-R10): the user's own pick only; the API never proposes or preselects it.
+  "supplement",
 ];
 export const BASES: readonly Basis[] = ["per_100g", "per_serving"];
 export const SODIUM_UNITS: readonly SodiumUnit[] = ["mg", "g"];

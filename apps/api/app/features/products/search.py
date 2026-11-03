@@ -10,8 +10,9 @@ with no hits of ours either is it 503 `off_unavailable` with Retry-After.
 
 Plan 9 Task 6: every hit carries ``report.protein`` (per 100 g and per 100 kcal). With a
 member, hits carry that member's status from the engine. ``sort="protein"`` (always with a
-member: member_id or the primary) drops ``avoid`` hits and orders by protein per 100 kcal,
-highest first, unknown last (stable otherwise). ``sort="relevance"`` keeps every hit.
+member: member_id or the primary) drops ``avoid`` hits and supplements (Plan 9 Task 7) and
+orders by protein per 100 kcal, highest first, unknown last (stable otherwise).
+``sort="relevance"`` keeps every hit, supplements included (ungraded).
 """
 
 import unicodedata
@@ -93,7 +94,14 @@ async def search_products(
     if sort == SearchSort.PROTEIN and member is None:
         raise ValueError("sort=protein needs a member (member_id or the primary member)")
     hits = await _search(
-        session, off, q, limit, account_id=account_id, settings=settings, member=member
+        session,
+        off,
+        q,
+        limit,
+        account_id=account_id,
+        settings=settings,
+        member=member,
+        skip_supplements=sort == SearchSort.PROTEIN,
     )
     return sort_by_protein(hits) if sort == SearchSort.PROTEIN else hits
 
@@ -107,6 +115,7 @@ async def _search(
     account_id: UUID,
     settings: Settings,
     member: scoring.Member | None,
+    skip_supplements: bool = False,
 ) -> list[SearchHit]:
     query = normalise_query(q)
     pattern = _like(query)
@@ -124,6 +133,11 @@ async def _search(
     hits: list[SearchHit] = []
     seen: set[str] = set()
     for row in rows:
+        if row.barcode:
+            seen.add(row.barcode)  # ours wins even when skipped: no OFF duplicate
+        product = service.record_to_product(row)
+        if skip_supplements and product.category == scoring.Category.SUPPLEMENT:
+            continue
         hits.append(
             SearchHit(
                 product_id=row.id,
@@ -132,11 +146,9 @@ async def _search(
                 brand=row.brand,
                 source="ours",
                 attribution=None,
-                **_engine_fields(service.record_to_product(row), member),
+                **_engine_fields(product, member),
             )
         )
-        if row.barcode:
-            seen.add(row.barcode)
     if len(hits) >= limit:
         return hits
 
@@ -167,6 +179,8 @@ async def _search(
             continue
         seen.add(barcode)
         product = off_to_product(payload, confidence=settings.off_data_confidence)
+        if skip_supplements and product.category == scoring.Category.SUPPLEMENT:
+            continue
         hits.append(
             SearchHit(
                 product_id=None,

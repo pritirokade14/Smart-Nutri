@@ -13,6 +13,9 @@ as above. If nothing is left the reason is ``no_better_found``.
 than the source (``report.protein.per_100kcal``, known on both) and a grade no worse than the
 source's. Always for a member (``member_id``, else the primary member): ``avoid`` is dropped,
 then ok > caution > unknown, most protein per 100 kcal, grade, name; at most 5.
+
+Supplements (Plan 9 Task 7, P9-R10) are never suggested: a supplement source returns
+``source_supplement`` (no search), and supplement candidates are dropped by both sorts.
 """
 
 from collections.abc import Sequence
@@ -67,6 +70,10 @@ def _sort_key(c: Candidate) -> tuple[int, int, float, str]:
 _STATUS_RANK = {"ok": 0, "caution": 1, "unknown": 2}
 
 
+def _is_supplement(c: Candidate) -> bool:
+    return c.product.category == scoring.Category.SUPPLEMENT
+
+
 def _member_status(c: Candidate, member: scoring.Member) -> str:
     return scoring.analyze(c.product, [member]).verdicts[0].status.value
 
@@ -85,7 +92,11 @@ def rank_alternatives(
     if source_grade not in _GRADES:
         return []
     bar = _GRADES.index(source_grade)
-    better = [c for c in candidates if c.grade in _GRADES and _GRADES.index(c.grade) < bar]
+    better = [
+        c
+        for c in candidates
+        if not _is_supplement(c) and c.grade in _GRADES and _GRADES.index(c.grade) < bar
+    ]
     if member is None:
         return sorted(better, key=_sort_key)[:MAX_ALTERNATIVES]
     rated = [(_member_status(c, member), c) for c in better]
@@ -121,6 +132,8 @@ def rank_alternatives_by_protein(
     bar_grade = _GRADES.index(source_grade)
     ranked: list[tuple[tuple[int, float, int, str], Candidate]] = []
     for c in candidates:
+        if _is_supplement(c):
+            continue
         if c.grade not in _GRADES or _GRADES.index(c.grade) > bar_grade:
             continue
         per_100kcal = _per_100kcal(c.product)
@@ -217,6 +230,8 @@ async def find_alternatives(
     product (no barcode, or one OFF does not know) returns ``no_category``. With
     ``sort="protein"`` the caller passes the member to rank for (member_id or the primary).
     """
+    if found.product.category == scoring.Category.SUPPLEMENT:
+        return AlternativesOut(items=[], reason="source_supplement")
     payload = await service.off_payload(session, found.info.barcode or None)
     category = source_category(payload)
     if category is None:

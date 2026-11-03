@@ -9,7 +9,7 @@ from typing import Any
 from app.scoring.allergens import ingredients_known
 from app.scoring.claims import ClaimCheck
 from app.scoring.config import ScoringConfig
-from app.scoring.models import ClaimVerdict, Member, Product, Reason, Status
+from app.scoring.models import Category, ClaimVerdict, Member, Product, Reason, Status
 from app.scoring.nutriscore import NutriScoreResult
 from app.scoring.warnings import (
     added_sugar_terms,
@@ -194,11 +194,24 @@ def _age_unknown_flags(
     The hypothetical reasons (including their nutrient_missing) are discarded; only the
     answer is used.
     """
+    if product.category == Category.SUPPLEMENT:
+        return True  # the supplement rule flags every child and infant (Plan 9 Task 7)
     hypothetical: list[Reason] = []
     need = _make_need(hypothetical, low_confidence)
     hypothetical += _child_reasons(product, _protective_child_age(cond), cond["child"], cfg, need)
     hypothetical += _infant_reasons(product, cond["infant"], cfg, need)
     return any(r.severity.rank > Status.OK.rank for r in hypothetical)
+
+
+def _supplement_reasons(age: int, cond: Mapping[str, Any], cfg: ScoringConfig) -> list[Reason]:
+    """P9-R10: under conditions.infant.max_age -> supplement_infant; under
+    supplements.child_max_age -> supplement_child (statuses from the yaml); adults nothing."""
+    s = cfg.thresholds["supplements"]
+    if age < cond["infant"]["max_age"]:
+        return [Reason("supplement_infant", Status(s["infant_status"]), {})]
+    if age < s["child_max_age"]:
+        return [Reason("supplement_child", Status(s["child_status"]), {})]
+    return []
 
 
 def condition_reasons(
@@ -324,6 +337,9 @@ def condition_reasons(
 
     if "infant" in groups:
         out += _infant_reasons(product, cond["infant"], cfg, need)
+
+    if product.category == Category.SUPPLEMENT and member.age is not None:
+        out += _supplement_reasons(member.age, cond, cfg)
 
     # Ruling R13: unknown age is not safe. Evaluate the child and infant rules at the most
     # protective age; if either would flag, add one UNKNOWN (never the hypothetical reasons).

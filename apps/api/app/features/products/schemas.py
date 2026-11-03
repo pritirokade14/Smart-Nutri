@@ -165,7 +165,7 @@ class ProductCreate(BaseModel):
     barcode: str | None = Field(default=None, max_length=64)
     name: _Name
     brand: _ShortText | None = None
-    category: Literal["general", "beverage", "water", "cheese", "fat"] = Field(
+    category: Literal["general", "beverage", "water", "cheese", "fat", "supplement"] = Field(
         description="Required: the user's explicit choice (drinks are judged on drink limits)."
     )
     basis: Literal["per_100g", "per_serving"] = Field(
@@ -307,11 +307,17 @@ class AlternativesOut(BaseModel):
         )
     )
     reason: Literal[
-        "ok", "no_category", "no_better_found", "source_ungraded", "source_protein_unknown"
+        "ok",
+        "no_category",
+        "no_better_found",
+        "source_ungraded",
+        "source_protein_unknown",
+        "source_supplement",
     ] = Field(
         description=(
             "no_better_found also when every better product is avoid for the member; "
-            "source_protein_unknown: sort=protein and the source has no protein per 100 kcal"
+            "source_protein_unknown: sort=protein and the source has no protein per 100 kcal; "
+            "source_supplement: the source is a supplement (never suggested, no swaps)"
         )
     )
 

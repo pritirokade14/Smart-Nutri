@@ -23,6 +23,9 @@ class Category(StrEnum):
     WATER = "water"
     CHEESE = "cheese"
     FAT = "fat"
+    # Protein powders, whey and health supplements (Plan 9, P9-R10): never graded, never
+    # suggested. Set only from the user's pick or Open Food Facts tags, never the LLM.
+    SUPPLEMENT = "supplement"
 
 
 class Status(StrEnum):

@@ -220,6 +220,18 @@ abstract class AppLocalizations {
   /// **'We cannot suggest options for this product yet.'**
   String get alternativesReasonNoCategory;
 
+  /// No description provided for @alternativesReasonSourceProteinUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'This product\'s label does not show enough protein and energy data to compare protein.'**
+  String get alternativesReasonSourceProteinUnknown;
+
+  /// No description provided for @alternativesReasonSourceSupplement.
+  ///
+  /// In en, this message translates to:
+  /// **'We do not suggest other products for supplements.'**
+  String get alternativesReasonSourceSupplement;
+
   /// No description provided for @alternativesReasonSourceUngraded.
   ///
   /// In en, this message translates to:
@@ -753,6 +765,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Food'**
   String get confirmCategoryOptionGeneral;
+
+  /// No description provided for @confirmCategoryOptionSupplement.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplement (protein powder, whey, health supplement)'**
+  String get confirmCategoryOptionSupplement;
 
   /// No description provided for @confirmCategoryOptionWater.
   ///
@@ -2584,6 +2602,18 @@ abstract class AppLocalizations {
   /// **'Nutri-Score (calculated by SmartNutri)'**
   String get methodologySectionNutriscore2023Title;
 
+  /// No description provided for @methodologySectionSupplementsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein powders, whey and other supplements get no Nutri-Score grade and are never suggested as alternatives. We still check allergens, diet, claims and each member\'s rules, and add a caution for children and teenagers (an avoid under 2).'**
+  String get methodologySectionSupplementsDescription;
+
+  /// No description provided for @methodologySectionSupplementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplements'**
+  String get methodologySectionSupplementsTitle;
+
   /// No description provided for @methodologySectionWeightLossDescription.
   ///
   /// In en, this message translates to:
@@ -2739,6 +2769,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not enough label data to calculate a Nutri-Score.'**
   String get nutriscoreInsufficientData;
+
+  /// No description provided for @nutriscoreNotScoredSupplement.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutri-Score is not calculated for supplements.'**
+  String get nutriscoreNotScoredSupplement;
 
   /// No description provided for @policyOpenFailed.
   ///
@@ -3027,6 +3063,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Moderate sugar: {sugars_g} g per 100 g/ml.'**
   String reasonSugarModerate(String sugars_g);
+
+  /// No description provided for @reasonSupplementChild.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a supplement, which is not recommended for children and teenagers. Check with your doctor first.'**
+  String get reasonSupplementChild;
+
+  /// No description provided for @reasonSupplementInfant.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a supplement, which is not recommended for children under 2.'**
+  String get reasonSupplementInfant;
 
   /// No description provided for @reasonVariantCustomAlertFlagOnly.
   ///

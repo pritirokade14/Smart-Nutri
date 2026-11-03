@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
 
-CATEGORIES = ("general", "beverage", "water", "cheese", "fat")
+CATEGORIES = ("general", "beverage", "water", "cheese", "fat", "supplement")
 SOURCES = ("label", "user")
 VERIFICATION_STATUSES = ("pending", "verified", "rejected")
 VEG_MARKS = ("veg", "non_veg")
@@ -20,7 +20,8 @@ class Product(Base):
     __tablename__ = "products"
     __table_args__ = (
         CheckConstraint(
-            "category in ('general', 'beverage', 'water', 'cheese', 'fat')", name="category"
+            "category in ('general', 'beverage', 'water', 'cheese', 'fat', 'supplement')",
+            name="category",
         ),
         CheckConstraint("source in ('label', 'user')", name="source"),
         CheckConstraint(

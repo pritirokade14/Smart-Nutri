@@ -27,6 +27,8 @@
   },
   "alternativesReasonNoBetterFound": "We did not find a product with a better Nutri-Score of this kind.",
   "alternativesReasonNoCategory": "We cannot suggest options for this product yet.",
+  "alternativesReasonSourceProteinUnknown": "This product's label does not show enough protein and energy data to compare protein.",
+  "alternativesReasonSourceSupplement": "We do not suggest other products for supplements.",
   "alternativesReasonSourceUngraded": "This product does not have enough label data to compare.",
   "alternativesSubtitle": "Same kind of product with a better Nutri-Score (calculated by SmartNutri)",
   "alternativesSugars": "Sugars: {value} g per 100 g/ml",
@@ -184,6 +186,7 @@
   "confirmCategoryOptionCheese": "Cheese",
   "confirmCategoryOptionFat": "Oil or fat",
   "confirmCategoryOptionGeneral": "Food",
+  "confirmCategoryOptionSupplement": "Supplement (protein powder, whey, health supplement)",
   "confirmCategoryOptionWater": "Packaged water",
   "confirmChooseRequired": "Choose one to continue",
   "confirmClaims": "Claims on the pack",
@@ -600,6 +603,8 @@
   "methodologySectionInfantTitle": "Babies and toddlers",
   "methodologySectionNutriscore2023Description": "We calculate a Nutri-Score grade from the label, using the 2023 update of the method. It is calculated by SmartNutri; it is not an FSSAI rating.",
   "methodologySectionNutriscore2023Title": "Nutri-Score (calculated by SmartNutri)",
+  "methodologySectionSupplementsDescription": "Protein powders, whey and other supplements get no Nutri-Score grade and are never suggested as alternatives. We still check allergens, diet, claims and each member's rules, and add a caution for children and teenagers (an avoid under 2).",
+  "methodologySectionSupplementsTitle": "Supplements",
   "methodologySectionWeightLossDescription": "For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.",
   "methodologySectionWeightLossTitle": "Weight loss",
   "methodologySourcesTitle": "Sources",
@@ -633,6 +638,7 @@
   "nutrientSugarsG": "sugars",
   "nutriscoreCalculatedBy": "Nutri-Score calculated by SmartNutri",
   "nutriscoreInsufficientData": "Not enough label data to calculate a Nutri-Score.",
+  "nutriscoreNotScoredSupplement": "Nutri-Score is not calculated for supplements.",
   "policyOpenFailed": "Couldn't open the page. Please try again.",
   "productClaimsHeading": "Claims on the label, checked by SmartNutri",
   "productLabelSays": "Label says: {claim}",
@@ -905,6 +911,8 @@
       }
     }
   },
+  "reasonSupplementChild": "This is a supplement, which is not recommended for children and teenagers. Check with your doctor first.",
+  "reasonSupplementInfant": "This is a supplement, which is not recommended for children under 2.",
   "reasonVariantCustomAlertFlagOnly": "The product data says it contains sweeteners.",
   "reasonVariantDietViolationMarkOnly": "The pack has the brown non-vegetarian mark, so this may not match the {diet} diet.",
   "@reasonVariantDietViolationMarkOnly": {

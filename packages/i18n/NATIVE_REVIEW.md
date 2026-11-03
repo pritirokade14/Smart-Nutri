@@ -220,3 +220,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 9 Task 4 (protein and whey claims)
 - [ ] **hi/mr `claim.protein_amount`, `claim.whey_only`, `claim.whey_protein`, `claim_reason.below_claimed`, `claim_reason.other_protein_source`, `claim_reason.whey_not_listed`, `nutrient.serving_size_g`**: machine drafts. "व्हे" is a transliteration of whey; check it is understood (or whether "व्हे (दूध से बना प्रोटीन)" is clearer). `below_claimed` starts with a `{basis, select}` phrase in hi/mr: check both branches. The tone must be factual (the table shows less than the claim), never "fake" or "cheating".
+
+## Plan 9 Tasks 6 and 7 (protein sort, supplements)
+- [ ] **hi/mr `reason.supplement_child`, `reason.supplement_infant`, `nutriscore.not_scored_supplement`, `confirm.category_option.supplement`, `alternatives.reason.source_supplement`, `alternatives.reason.source_protein_unknown`, `methodology.section.supplements.*`**: machine drafts. "सप्लीमेंट" / "सप्लिमेंट" are transliterations; check they are understood. The supplement reasons must stay "not recommended … check with your doctor", never a diagnosis or a dose. The confirm option must read as the user describing the pack (protein powder, whey, health supplement), not as a recommendation.

@@ -51,7 +51,7 @@ class NutriScoreResult:
     points: int | None
     partial: bool  # fibre/protein/fvl missing -> counted as 0
     approximated: bool  # CHEESE/FAT scored with general table
-    reason: str | None  # "insufficient_data" when grade is None
+    reason: str | None  # "insufficient_data" / "not_scored_supplement" when grade is None
 
 
 def _points(value: float, thresholds: Sequence[float]) -> int:
@@ -76,6 +76,9 @@ def _effective_category(product: Product) -> Category:
 
 
 def compute_nutriscore(product: Product) -> NutriScoreResult:
+    # Nutri-Score is not designed for supplements: no grade (Plan 9 Task 7, P9-R10).
+    if product.category == Category.SUPPLEMENT:
+        return NutriScoreResult(None, None, False, False, "not_scored_supplement")
     category = _effective_category(product)
     if category == Category.WATER:
         return NutriScoreResult("A", None, False, False, None)

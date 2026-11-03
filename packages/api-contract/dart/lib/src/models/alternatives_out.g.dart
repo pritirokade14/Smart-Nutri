@@ -26,5 +26,6 @@ const _$AlternativesOutReasonEnumMap = {
   AlternativesOutReason.noBetterFound: 'no_better_found',
   AlternativesOutReason.sourceUngraded: 'source_ungraded',
   AlternativesOutReason.sourceProteinUnknown: 'source_protein_unknown',
+  AlternativesOutReason.sourceSupplement: 'source_supplement',
   AlternativesOutReason.$unknown: r'$unknown',
 };

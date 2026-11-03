@@ -17,6 +17,8 @@ enum ProductCreateCategory {
   cheese('cheese'),
   @JsonValue('fat')
   fat('fat'),
+  @JsonValue('supplement')
+  supplement('supplement'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

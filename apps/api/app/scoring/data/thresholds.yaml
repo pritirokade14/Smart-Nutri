@@ -83,6 +83,17 @@ conditions:
     # 5 g lets plain milk (~4.7 g lactose) pass; infant formula (~7 g) would be flagged)
     avoid_sugars_g: 5.0
     avoid_salt_g: 0.3
+# Supplements (Plan 9 Task 7, P9-R10). PENDING CLINICIAN REVIEW. A supplement (the category the
+# user picks on the confirm screen, or Open Food Facts supplement tags; never the LLM) gets no
+# Nutri-Score grade; every other rule still runs. ICMR-NIN Dietary Guidelines 2024 discourage
+# protein supplements; the child caution and the infant avoid are SmartNutri working values.
+# conditions.infant.max_age <= age < child_max_age -> child_status (reason supplement_child);
+# age < conditions.infant.max_age -> infant_status (supplement_infant). An unknown age gets the
+# existing age_unknown (unknown): the supplement rule always flags at the most protective age.
+supplements:
+  child_max_age: 18
+  child_status: caution
+  infant_status: avoid
 # Daily limits for the meal-log summaries (Plan 6 T1). PENDING CLINICIAN REVIEW.
 # Read only by daily_limits.py, never by the verdict rules. Per DAY; a week is limit x 7.
 # Summaries compare TOTAL sugars from labels with these free/added-sugar limits: labels do not
@@ -161,6 +172,8 @@ section_sources:
   child:           {thresholds: [nhs_child_sugar, smartnutri_working_values]}
   # 5 g sugar and 0.3 g salt per 100 g are SmartNutri values (Ruling R27), NOT WHO numbers.
   infant:          {thresholds: [smartnutri_working_values], rationale: [who_infant]}
+  # Supplement ages and statuses are SmartNutri values; ICMR-NIN 2024 is why (Plan 9).
+  supplements:     {thresholds: [smartnutri_working_values], rationale: [icmr_nin_2024]}
   custom_alerts:   null
   # Adult sugar and salt: WHO; protein target: WHO/FAO/UNU (build_muscle: ISSN 2017); child
   # bands: NHS; the 80 % "near" share: SmartNutri. Infant 0 g rests on WHO's "no added sugar

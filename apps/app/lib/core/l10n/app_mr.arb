@@ -27,6 +27,8 @@
   },
   "alternativesReasonNoBetterFound": "या प्रकारात अधिक चांगल्या न्यूट्री-स्कोअरचे उत्पादन सापडले नाही.",
   "alternativesReasonNoCategory": "या उत्पादनासाठी आम्ही अजून पर्याय सुचवू शकत नाही.",
+  "alternativesReasonSourceProteinUnknown": "प्रथिनांची तुलना करण्यासाठी या उत्पादनाच्या लेबलवर प्रथिने आणि ऊर्जेची पुरेशी माहिती नाही.",
+  "alternativesReasonSourceSupplement": "सप्लिमेंटसाठी आम्ही इतर उत्पादने सुचवत नाही.",
   "alternativesReasonSourceUngraded": "तुलनेसाठी या उत्पादनाच्या लेबलवर पुरेशी माहिती नाही.",
   "alternativesSubtitle": "त्याच प्रकारचे उत्पादन, अधिक चांगल्या न्यूट्री-स्कोअरसह (गणना SmartNutri ने केली आहे)",
   "alternativesSugars": "साखर: {value} ग्रॅम प्रति 100 ग्रॅम/मि.ली.",
@@ -184,6 +186,7 @@
   "confirmCategoryOptionCheese": "चीज",
   "confirmCategoryOptionFat": "तेल किंवा चरबी",
   "confirmCategoryOptionGeneral": "खाद्यपदार्थ",
+  "confirmCategoryOptionSupplement": "सप्लिमेंट (प्रोटीन पावडर, व्हे, हेल्थ सप्लिमेंट)",
   "confirmCategoryOptionWater": "पॅक्ड पाणी",
   "confirmChooseRequired": "पुढे जाण्यासाठी एक निवडा",
   "confirmClaims": "पॅकवरील दावे",
@@ -600,6 +603,8 @@
   "methodologySectionInfantTitle": "बाळे आणि लहान मुले",
   "methodologySectionNutriscore2023Description": "आम्ही लेबलवरून न्यूट्री-स्कोर ग्रेड काढतो, या पद्धतीच्या 2023 च्या अद्यतनानुसार. तो SmartNutri मोजते; ते FSSAI रेटिंग नाही.",
   "methodologySectionNutriscore2023Title": "न्यूट्री-स्कोर (SmartNutri ने मोजलेला)",
+  "methodologySectionSupplementsDescription": "प्रोटीन पावडर, व्हे आणि इतर सप्लिमेंटना न्यूट्री-स्कोअर ग्रेड दिला जात नाही आणि ते कधीही पर्याय म्हणून सुचवले जात नाहीत. तरीही आम्ही ॲलर्जी, आहार, दावे आणि प्रत्येक सदस्याचे नियम तपासतो, आणि मुलांसाठी व किशोरवयीनांसाठी सावधगिरी जोडतो (2 वर्षांखालील मुलांसाठी टाळा).",
+  "methodologySectionSupplementsTitle": "सप्लिमेंट",
   "methodologySectionWeightLossDescription": "वजन कमी करणाऱ्या सदस्यांसाठी आम्ही जास्त कॅलरी असलेली उत्पादने आणि कमी न्यूट्री-स्कोर ग्रेड दाखवतो, आणि कॅलरीच्या मानाने चांगले प्रथिन असलेली उत्पादनेही सांगतो.",
   "methodologySectionWeightLossTitle": "वजन कमी करणे",
   "methodologySourcesTitle": "स्रोत",
@@ -633,6 +638,7 @@
   "nutrientSugarsG": "शर्करा (साखर)",
   "nutriscoreCalculatedBy": "Nutri-Score ची गणना SmartNutri ने केली आहे",
   "nutriscoreInsufficientData": "Nutri-Score काढण्यासाठी लेबलवर पुरेशी माहिती नाही.",
+  "nutriscoreNotScoredSupplement": "सप्लिमेंटसाठी न्यूट्री-स्कोअर काढला जात नाही.",
   "policyOpenFailed": "पान उघडता आले नाही. कृपया पुन्हा प्रयत्न करा.",
   "productClaimsHeading": "लेबलवरील दावे, SmartNutri ने तपासलेले",
   "productLabelSays": "लेबलवर लिहिले आहे: {claim}",
@@ -905,6 +911,8 @@
       }
     }
   },
+  "reasonSupplementChild": "हे एक सप्लिमेंट आहे, जे मुलांसाठी आणि किशोरवयीनांसाठी शिफारस केलेले नाही. आधी तुमच्या डॉक्टरांना विचारा.",
+  "reasonSupplementInfant": "हे एक सप्लिमेंट आहे, जे 2 वर्षांखालील मुलांसाठी शिफारस केलेले नाही.",
   "reasonVariantCustomAlertFlagOnly": "उत्पादनाच्या माहितीनुसार यात स्वीटनर (गोडवा) आहेत.",
   "reasonVariantDietViolationMarkOnly": "पॅकवर तपकिरी रंगाची मांसाहारी खूण आहे, त्यामुळे हे कदाचित {diet} आहाराशी जुळणार नाही.",
   "@reasonVariantDietViolationMarkOnly": {

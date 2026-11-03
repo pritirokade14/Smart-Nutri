@@ -19,7 +19,7 @@ class AlternativesOut {
   /// At most 5. sort=grade: best grade first, then less sugar, then name. sort=protein: strictly more protein per 100 kcal than the source and a grade no worse; ok before caution before unknown, then most protein per 100 kcal, then grade, then name. Never a product the engine rates avoid for the member (sort=grade: member_id only; sort=protein: member_id or the primary member)
   final List<AlternativeOut> items;
 
-  /// no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal
+  /// no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal; source_supplement: the source is a supplement (never suggested, no swaps)
   final AlternativesOutReason reason;
 
   Map<String, Object?> toJson() => _$AlternativesOutToJson(this);

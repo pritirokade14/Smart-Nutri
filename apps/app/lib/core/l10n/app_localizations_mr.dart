@@ -73,6 +73,14 @@ class AppLocalizationsMr extends AppLocalizations {
       'या उत्पादनासाठी आम्ही अजून पर्याय सुचवू शकत नाही.';
 
   @override
+  String get alternativesReasonSourceProteinUnknown =>
+      'प्रथिनांची तुलना करण्यासाठी या उत्पादनाच्या लेबलवर प्रथिने आणि ऊर्जेची पुरेशी माहिती नाही.';
+
+  @override
+  String get alternativesReasonSourceSupplement =>
+      'सप्लिमेंटसाठी आम्ही इतर उत्पादने सुचवत नाही.';
+
+  @override
   String get alternativesReasonSourceUngraded =>
       'तुलनेसाठी या उत्पादनाच्या लेबलवर पुरेशी माहिती नाही.';
 
@@ -367,6 +375,10 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get confirmCategoryOptionGeneral => 'खाद्यपदार्थ';
+
+  @override
+  String get confirmCategoryOptionSupplement =>
+      'सप्लिमेंट (प्रोटीन पावडर, व्हे, हेल्थ सप्लिमेंट)';
 
   @override
   String get confirmCategoryOptionWater => 'पॅक्ड पाणी';
@@ -1411,6 +1423,13 @@ class AppLocalizationsMr extends AppLocalizations {
       'न्यूट्री-स्कोर (SmartNutri ने मोजलेला)';
 
   @override
+  String get methodologySectionSupplementsDescription =>
+      'प्रोटीन पावडर, व्हे आणि इतर सप्लिमेंटना न्यूट्री-स्कोअर ग्रेड दिला जात नाही आणि ते कधीही पर्याय म्हणून सुचवले जात नाहीत. तरीही आम्ही ॲलर्जी, आहार, दावे आणि प्रत्येक सदस्याचे नियम तपासतो, आणि मुलांसाठी व किशोरवयीनांसाठी सावधगिरी जोडतो (2 वर्षांखालील मुलांसाठी टाळा).';
+
+  @override
+  String get methodologySectionSupplementsTitle => 'सप्लिमेंट';
+
+  @override
   String get methodologySectionWeightLossDescription =>
       'वजन कमी करणाऱ्या सदस्यांसाठी आम्ही जास्त कॅलरी असलेली उत्पादने आणि कमी न्यूट्री-स्कोर ग्रेड दाखवतो, आणि कॅलरीच्या मानाने चांगले प्रथिन असलेली उत्पादनेही सांगतो.';
 
@@ -1494,6 +1513,10 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get nutriscoreInsufficientData =>
       'Nutri-Score काढण्यासाठी लेबलवर पुरेशी माहिती नाही.';
+
+  @override
+  String get nutriscoreNotScoredSupplement =>
+      'सप्लिमेंटसाठी न्यूट्री-स्कोअर काढला जात नाही.';
 
   @override
   String get policyOpenFailed =>
@@ -1720,6 +1743,14 @@ class AppLocalizationsMr extends AppLocalizations {
   String reasonSugarModerate(String sugars_g) {
     return 'साखर मध्यम आहे: प्रति 100 ग्रॅम/मि.ली. $sugars_g ग्रॅम.';
   }
+
+  @override
+  String get reasonSupplementChild =>
+      'हे एक सप्लिमेंट आहे, जे मुलांसाठी आणि किशोरवयीनांसाठी शिफारस केलेले नाही. आधी तुमच्या डॉक्टरांना विचारा.';
+
+  @override
+  String get reasonSupplementInfant =>
+      'हे एक सप्लिमेंट आहे, जे 2 वर्षांखालील मुलांसाठी शिफारस केलेले नाही.';
 
   @override
   String get reasonVariantCustomAlertFlagOnly =>

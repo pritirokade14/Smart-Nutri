@@ -16,8 +16,13 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert MigrationContext.configure(conn).get_current_revision() == "0006_plan9_user_types"
+        assert (
+            MigrationContext.configure(conn).get_current_revision()
+            == "0007_plan9_supplement_category"
+        )
     engine.dispose()
+
+
 
 
 def test_user_types_downgrades_cleanly(migrated):
@@ -91,6 +96,48 @@ def test_user_types_check_constraints(migrated):
             )
             conn.rollback()
     finally:
+
+
+def _insert_product(conn, category: str) -> None:
+    conn.execute(
+        text(
+            "insert into products (id, name, source, verification_status, category, per_100g, "
+            "claims) values (gen_random_uuid(), 'Whey', 'label', 'verified', :c, '{}', '{}')"
+        ),
+        {"c": category},
+    )
+
+
+def test_supplement_category_downgrades_cleanly(migrated):
+    """Plan 9 Task 7: `supplement` comes and goes with 0007; the downgrade maps supplement
+    rows to `general` first, so the old check constraint holds."""
+    from sqlalchemy.exc import IntegrityError
+
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("delete from products where name = 'Whey'"))
+            _insert_product(conn, "supplement")
+        command.downgrade(migrated, "0005_plan8_tombstone_auth")
+        with engine.begin() as conn:
+            cats = conn.execute(text("select category from products where name = 'Whey'"))
+            assert [r[0] for r in cats] == ["general"]
+        try:
+            with engine.begin() as conn:
+                _insert_product(conn, "supplement")
+            raise AssertionError("the old constraint accepted 'supplement'")
+        except IntegrityError:
+            pass
+        command.upgrade(migrated, "head")
+        with engine.begin() as conn:
+            _insert_product(conn, "supplement")
+            n = conn.execute(
+                text("select count(*) from products where category = 'supplement'")
+            ).scalar()
+            assert n == 1
+            conn.execute(text("delete from products where name = 'Whey'"))
+    finally:
+        command.upgrade(migrated, "head")
         engine.dispose()
 
 

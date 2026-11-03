@@ -28,6 +28,7 @@ SECTION_IDS: tuple[str, ...] = (
     "build_muscle",
     "child",
     "infant",
+    "supplements",
     "custom_alerts",
     "daily_limits",
 )
@@ -75,6 +76,11 @@ def _thresholds(section_id: str, cfg: ScoringConfig) -> Any:
         return cfg.allergens
     if section_id == "diet":
         return cfg.diet
+    if section_id == "supplements":
+        return {
+            **cfg.thresholds["supplements"],
+            "infant_max_age": cfg.thresholds["conditions"]["infant"]["max_age"],
+        }
     if section_id == "custom_alerts":
         return _custom_alerts(cfg)
     if section_id == "daily_limits":

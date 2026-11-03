@@ -237,6 +237,16 @@ PRODUCTS = [
         ingredients=("whey protein concentrate",),
         claims=("24g protein per scoop", "90 g protein"),
     ),
+    # Plan 9 Task 7: a supplement (supplement_child, supplement_infant, age_unknown).
+    Product(
+        name="supplement",
+        category=Category.SUPPLEMENT,
+        per_100g=Nutrients(
+            energy_kcal=400, protein_g=80, carbs_g=8, sugars_g=4, fat_g=6, sat_fat_g=3, salt_g=0.5
+        ),
+        serving_size_g=30,
+        ingredients=("whey protein concentrate", "cocoa"),
+    ),
     # Open Food Facts sweetener flag with no sweetener term in the ingredients.
     Product(
         name="flagged-sweetener",

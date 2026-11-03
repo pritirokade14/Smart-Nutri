@@ -44,6 +44,7 @@ def sheet():
         (("conditions", "child", "caution_pct_of_limit"), "% of daily limit"),
         (("claims", "high_protein_min_energy_pct"), "% of energy"),
         (("claims", "protein_amount_shortfall_pct"), "% below the claimed protein amount"),
+        (("supplements", "child_max_age"), "years (maximum age, exclusive)"),
         (("conditions", "infant", "avoid_salt_g"), "g per 100 g"),
     ],
 )

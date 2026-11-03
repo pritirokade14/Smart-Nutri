@@ -4,7 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-/// no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal
+/// no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal; source_supplement: the source is a supplement (never suggested, no swaps)
 @JsonEnum()
 enum AlternativesOutReason {
   @JsonValue('ok')
@@ -17,6 +17,8 @@ enum AlternativesOutReason {
   sourceUngraded('source_ungraded'),
   @JsonValue('source_protein_unknown')
   sourceProteinUnknown('source_protein_unknown'),
+  @JsonValue('source_supplement')
+  sourceSupplement('source_supplement'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

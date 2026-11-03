@@ -953,6 +953,7 @@ class DraftFormState extends State<DraftForm> {
     ProductCreateCategory.water => l10n.confirmCategoryOptionWater,
     ProductCreateCategory.cheese => l10n.confirmCategoryOptionCheese,
     ProductCreateCategory.fat => l10n.confirmCategoryOptionFat,
+    ProductCreateCategory.supplement => l10n.confirmCategoryOptionSupplement,
     ProductCreateCategory.$unknown => c.toString(),
   };
 }

@@ -592,10 +592,10 @@ export interface components {
             items: components["schemas"]["AlternativeOut"][];
             /**
              * Reason
-             * @description no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal
+             * @description no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal; source_supplement: the source is a supplement (never suggested, no swaps)
              * @enum {string}
              */
-            reason: "ok" | "no_category" | "no_better_found" | "source_ungraded" | "source_protein_unknown";
+            reason: "ok" | "no_category" | "no_better_found" | "source_ungraded" | "source_protein_unknown" | "source_supplement";
         };
         /**
          * AlternativesSort
@@ -1538,7 +1538,7 @@ export interface components {
              * @description Required: the user's explicit choice (drinks are judged on drink limits).
              * @enum {string}
              */
-            category: "general" | "beverage" | "water" | "cheese" | "fat";
+            category: "general" | "beverage" | "water" | "cheese" | "fat" | "supplement";
             /**
              * Claims
              * @default []

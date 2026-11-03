@@ -1,7 +1,7 @@
 # Clinician review: SmartNutri scoring thresholds
 
 > **Generated** by `scripts/clinician_review_sheet.py` from `apps/api/app/scoring/data/thresholds.yaml`. Do not edit by hand.
-> Scoring version: `b8e9561cef53`. Pending clinician review: **True**.
+> Scoring version: `4960a7e119e0`. Pending clinician review: **True**.
 
 **For the reviewer.** SmartNutri shows packaged-food verdicts per family member: `ok`, `caution`, `unknown` or `avoid`. It is information, not medical advice. Values are per 100 g (food) or per 100 ml (drink) unless the unit says otherwise. For each row, tick Approved, or write the value you recommend in Change to, then initial the Signed column. Sign and date the bottom of the sheet.
 
@@ -48,18 +48,19 @@
 | 35 | `conditions.infant.max_age` | 2 | years (exclusive upper bound) | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
 | 36 | `conditions.infant.avoid_sugars_g` | 5.0 | g per 100 g | SmartNutri working values, pending clinician review (why: WHO guidance: no added sugar or salt under 2) | Is this appropriate for Indian infants under 2? |  |  |  |
 | 37 | `conditions.infant.avoid_salt_g` | 0.3 | g per 100 g | SmartNutri working values, pending clinician review (why: WHO guidance: no added sugar or salt under 2) | Is this appropriate for Indian infants under 2? |  |  |  |
-| 38 | `daily_limits.adult.sugar_g` | 25 | g per day | WHO guideline: sugars intake for adults and children | Is this appropriate for Indian adults? |  |  |  |
-| 39 | `daily_limits.adult.salt_g` | 5 | g per day | WHO guideline: sodium intake for adults and children | Is this appropriate for Indian adults? |  |  |  |
-| 40 | `daily_limits.adult.protein_g_per_kg` | 0.83 | g per kg body weight per day | WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007) | Is this appropriate for Indian adults? |  |  |  |
-| 41 | `daily_limits.protein_min_age` | 18 | years (minimum age) | SmartNutri working values, pending clinician review (why: WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)) | Is this appropriate for Indian adults? |  |  |  |
-| 42 | `daily_limits.protein_g_per_kg_by_goal.build_muscle` | 1.6 | g per kg body weight per day | ISSN position stand: protein and exercise (2017) | Is 1.6 g/kg right as a daily protein guide for adults who want to build muscle? Should members with diabetes or hypertension keep it? There is no kidney field. The copy says "If you have kidney disease, ask your doctor before eating more protein." Is that enough? Should weight loss get 1.2 g/kg (it now keeps 0.83 g/kg)? |  |  |  |
-| 43 | `daily_limits.child_salt_g_by_min_age.2` | 2 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
-| 44 | `daily_limits.child_salt_g_by_min_age.4` | 3 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
-| 45 | `daily_limits.child_salt_g_by_min_age.7` | 5 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
-| 46 | `daily_limits.child_salt_g_by_min_age.11` | 6 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
-| 47 | `daily_limits.infant.sugar_g` | 0 | g per day | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
-| 48 | `daily_limits.infant.salt_g` | 0 | g per day | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
-| 49 | `daily_limits.near_pct` | 80 | % of daily limit | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 38 | `supplements.child_max_age` | 18 | years (maximum age, exclusive) | SmartNutri working values, pending clinician review (why: ICMR-NIN Dietary Guidelines for Indians 2024) | Supplements (protein powders, whey, health supplements) get no Nutri-Score grade and are never suggested. Is caution right for ages 2 to 17? Is avoid right under 2? Should adults with conditions (diabetes, high blood pressure) get a caution? |  |  |  |
+| 39 | `daily_limits.adult.sugar_g` | 25 | g per day | WHO guideline: sugars intake for adults and children | Is this appropriate for Indian adults? |  |  |  |
+| 40 | `daily_limits.adult.salt_g` | 5 | g per day | WHO guideline: sodium intake for adults and children | Is this appropriate for Indian adults? |  |  |  |
+| 41 | `daily_limits.adult.protein_g_per_kg` | 0.83 | g per kg body weight per day | WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007) | Is this appropriate for Indian adults? |  |  |  |
+| 42 | `daily_limits.protein_min_age` | 18 | years (minimum age) | SmartNutri working values, pending clinician review (why: WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)) | Is this appropriate for Indian adults? |  |  |  |
+| 43 | `daily_limits.protein_g_per_kg_by_goal.build_muscle` | 1.6 | g per kg body weight per day | ISSN position stand: protein and exercise (2017) | Is 1.6 g/kg right as a daily protein guide for adults who want to build muscle? Should members with diabetes or hypertension keep it? There is no kidney field. The copy says "If you have kidney disease, ask your doctor before eating more protein." Is that enough? Should weight loss get 1.2 g/kg (it now keeps 0.83 g/kg)? |  |  |  |
+| 44 | `daily_limits.child_salt_g_by_min_age.2` | 2 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 45 | `daily_limits.child_salt_g_by_min_age.4` | 3 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 46 | `daily_limits.child_salt_g_by_min_age.7` | 5 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 47 | `daily_limits.child_salt_g_by_min_age.11` | 6 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 48 | `daily_limits.infant.sugar_g` | 0 | g per day | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
+| 49 | `daily_limits.infant.salt_g` | 0 | g per day | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
+| 50 | `daily_limits.near_pct` | 80 | % of daily limit | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
 
 ## Other rule settings
 
@@ -68,6 +69,8 @@
 | `allergen_may_contain_status` | avoid | Is this rule appropriate? |  |  |  |
 | `conditions.blood_sugar.cardio_high_in` | salt, sat_fat | Is this rule appropriate? |  |  |  |
 | `conditions.weight_loss.caution_nutriscore` | D, E | Is this rule appropriate? |  |  |  |
+| `supplements.child_status` | caution | Is this rule appropriate? |  |  |  |
+| `supplements.infant_status` | avoid | Is this rule appropriate? |  |  |  |
 
 ## Sources
 

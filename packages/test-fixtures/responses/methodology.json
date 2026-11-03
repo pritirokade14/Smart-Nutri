@@ -666,6 +666,21 @@
       }
     },
     {
+      "id": "supplements",
+      "rationale_sources": [
+        "icmr_nin_2024"
+      ],
+      "threshold_sources": [
+        "smartnutri_working_values"
+      ],
+      "thresholds": {
+        "child_max_age": 18,
+        "child_status": "caution",
+        "infant_max_age": 2,
+        "infant_status": "avoid"
+      }
+    },
+    {
       "id": "custom_alerts",
       "rationale_sources": null,
       "threshold_sources": null,
@@ -941,5 +956,5 @@
       "url_verified": false
     }
   ],
-  "version": "b8e9561cef53"
+  "version": "4960a7e119e0"
 }

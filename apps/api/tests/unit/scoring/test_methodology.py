@@ -16,6 +16,7 @@ SECTION_IDS = [
     "build_muscle",
     "child",
     "infant",
+    "supplements",
     "custom_alerts",
     "daily_limits",
 ]

@@ -73,6 +73,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'We cannot suggest options for this product yet.';
 
   @override
+  String get alternativesReasonSourceProteinUnknown =>
+      'This product\'s label does not show enough protein and energy data to compare protein.';
+
+  @override
+  String get alternativesReasonSourceSupplement =>
+      'We do not suggest other products for supplements.';
+
+  @override
   String get alternativesReasonSourceUngraded =>
       'This product does not have enough label data to compare.';
 
@@ -365,6 +373,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmCategoryOptionGeneral => 'Food';
+
+  @override
+  String get confirmCategoryOptionSupplement =>
+      'Supplement (protein powder, whey, health supplement)';
 
   @override
   String get confirmCategoryOptionWater => 'Packaged water';
@@ -1408,6 +1420,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nutri-Score (calculated by SmartNutri)';
 
   @override
+  String get methodologySectionSupplementsDescription =>
+      'Protein powders, whey and other supplements get no Nutri-Score grade and are never suggested as alternatives. We still check allergens, diet, claims and each member\'s rules, and add a caution for children and teenagers (an avoid under 2).';
+
+  @override
+  String get methodologySectionSupplementsTitle => 'Supplements';
+
+  @override
   String get methodologySectionWeightLossDescription =>
       'For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.';
 
@@ -1490,6 +1509,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get nutriscoreInsufficientData =>
       'Not enough label data to calculate a Nutri-Score.';
+
+  @override
+  String get nutriscoreNotScoredSupplement =>
+      'Nutri-Score is not calculated for supplements.';
 
   @override
   String get policyOpenFailed => 'Couldn\'t open the page. Please try again.';
@@ -1717,6 +1740,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String reasonSugarModerate(String sugars_g) {
     return 'Moderate sugar: $sugars_g g per 100 g/ml.';
   }
+
+  @override
+  String get reasonSupplementChild =>
+      'This is a supplement, which is not recommended for children and teenagers. Check with your doctor first.';
+
+  @override
+  String get reasonSupplementInfant =>
+      'This is a supplement, which is not recommended for children under 2.';
 
   @override
   String get reasonVariantCustomAlertFlagOnly =>

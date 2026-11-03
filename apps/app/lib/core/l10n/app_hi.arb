@@ -27,6 +27,8 @@
   },
   "alternativesReasonNoBetterFound": "इस तरह का बेहतर न्यूट्री-स्कोर वाला कोई उत्पाद नहीं मिला।",
   "alternativesReasonNoCategory": "इस उत्पाद के लिए अभी हम विकल्प नहीं सुझा सकते।",
+  "alternativesReasonSourceProteinUnknown": "प्रोटीन की तुलना के लिए इस उत्पाद के लेबल पर प्रोटीन और ऊर्जा की पर्याप्त जानकारी नहीं है।",
+  "alternativesReasonSourceSupplement": "सप्लीमेंट के लिए हम दूसरे उत्पाद नहीं सुझाते।",
   "alternativesReasonSourceUngraded": "तुलना के लिए इस उत्पाद के लेबल पर पर्याप्त जानकारी नहीं है।",
   "alternativesSubtitle": "उसी तरह का उत्पाद, बेहतर न्यूट्री-स्कोर के साथ (गणना SmartNutri ने की है)",
   "alternativesSugars": "शर्करा: {value} ग्राम प्रति 100 ग्राम/मि.ली.",
@@ -184,6 +186,7 @@
   "confirmCategoryOptionCheese": "चीज़",
   "confirmCategoryOptionFat": "तेल या वसा",
   "confirmCategoryOptionGeneral": "खाद्य पदार्थ",
+  "confirmCategoryOptionSupplement": "सप्लीमेंट (प्रोटीन पाउडर, व्हे, हेल्थ सप्लीमेंट)",
   "confirmCategoryOptionWater": "पैक्ड पानी",
   "confirmChooseRequired": "आगे बढ़ने के लिए एक चुनें",
   "confirmClaims": "पैक पर किए गए दावे",
@@ -600,6 +603,8 @@
   "methodologySectionInfantTitle": "शिशु और छोटे बच्चे",
   "methodologySectionNutriscore2023Description": "हम लेबल से न्यूट्री-स्कोर ग्रेड निकालते हैं, इस तरीके के 2023 के अपडेट के अनुसार। इसकी गणना SmartNutri करता है; यह FSSAI रेटिंग नहीं है।",
   "methodologySectionNutriscore2023Title": "न्यूट्री-स्कोर (SmartNutri द्वारा गणना)",
+  "methodologySectionSupplementsDescription": "प्रोटीन पाउडर, व्हे और दूसरे सप्लीमेंट को कोई न्यूट्री-स्कोर ग्रेड नहीं मिलता और इन्हें कभी विकल्प के रूप में नहीं सुझाया जाता। फिर भी हम एलर्जी, आहार, दावे और हर सदस्य के नियम जाँचते हैं, और बच्चों व किशोरों के लिए सावधानी जोड़ते हैं (2 साल से छोटे बच्चों के लिए बचें)।",
+  "methodologySectionSupplementsTitle": "सप्लीमेंट",
   "methodologySectionWeightLossDescription": "वज़न घटा रहे सदस्यों के लिए हम ज़्यादा कैलोरी वाले उत्पाद और कम न्यूट्री-स्कोर ग्रेड बताते हैं, और कैलोरी के हिसाब से अच्छे प्रोटीन वाले उत्पाद भी बताते हैं।",
   "methodologySectionWeightLossTitle": "वज़न घटाना",
   "methodologySourcesTitle": "स्रोत",
@@ -633,6 +638,7 @@
   "nutrientSugarsG": "शर्करा (चीनी)",
   "nutriscoreCalculatedBy": "Nutri-Score की गणना SmartNutri ने की है",
   "nutriscoreInsufficientData": "Nutri-Score की गणना के लिए लेबल पर पर्याप्त जानकारी नहीं है।",
+  "nutriscoreNotScoredSupplement": "सप्लीमेंट के लिए न्यूट्री-स्कोर की गणना नहीं की जाती।",
   "policyOpenFailed": "पेज नहीं खुल सका। कृपया फिर से कोशिश करें।",
   "productClaimsHeading": "लेबल पर किए गए दावे, SmartNutri द्वारा जाँचे गए",
   "productLabelSays": "लेबल पर लिखा है: {claim}",
@@ -905,6 +911,8 @@
       }
     }
   },
+  "reasonSupplementChild": "यह एक सप्लीमेंट है, जो बच्चों और किशोरों के लिए अनुशंसित नहीं है। पहले अपने डॉक्टर से पूछें।",
+  "reasonSupplementInfant": "यह एक सप्लीमेंट है, जो 2 साल से छोटे बच्चों के लिए अनुशंसित नहीं है।",
   "reasonVariantCustomAlertFlagOnly": "उत्पाद की जानकारी के अनुसार इसमें स्वीटनर हैं।",
   "reasonVariantDietViolationMarkOnly": "पैक पर भूरे रंग का मांसाहारी निशान है, इसलिए यह शायद {diet} आहार के अनुरूप न हो।",
   "@reasonVariantDietViolationMarkOnly": {

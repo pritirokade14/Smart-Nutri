@@ -172,13 +172,14 @@
             "type": "array"
           },
           "reason": {
-            "description": "no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal",
+            "description": "no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal; source_supplement: the source is a supplement (never suggested, no swaps)",
             "enum": [
               "ok",
               "no_category",
               "no_better_found",
               "source_ungraded",
-              "source_protein_unknown"
+              "source_protein_unknown",
+              "source_supplement"
             ],
             "title": "Reason",
             "type": "string"
@@ -2774,7 +2775,8 @@
               "beverage",
               "water",
               "cheese",
-              "fat"
+              "fat",
+              "supplement"
             ],
             "title": "Category",
             "type": "string"

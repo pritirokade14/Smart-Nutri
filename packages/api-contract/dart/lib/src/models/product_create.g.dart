@@ -76,6 +76,7 @@ const _$ProductCreateCategoryEnumMap = {
   ProductCreateCategory.water: 'water',
   ProductCreateCategory.cheese: 'cheese',
   ProductCreateCategory.fat: 'fat',
+  ProductCreateCategory.supplement: 'supplement',
   ProductCreateCategory.$unknown: r'$unknown',
 };
 

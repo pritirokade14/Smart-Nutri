@@ -73,6 +73,14 @@ class AppLocalizationsHi extends AppLocalizations {
       'इस उत्पाद के लिए अभी हम विकल्प नहीं सुझा सकते।';
 
   @override
+  String get alternativesReasonSourceProteinUnknown =>
+      'प्रोटीन की तुलना के लिए इस उत्पाद के लेबल पर प्रोटीन और ऊर्जा की पर्याप्त जानकारी नहीं है।';
+
+  @override
+  String get alternativesReasonSourceSupplement =>
+      'सप्लीमेंट के लिए हम दूसरे उत्पाद नहीं सुझाते।';
+
+  @override
   String get alternativesReasonSourceUngraded =>
       'तुलना के लिए इस उत्पाद के लेबल पर पर्याप्त जानकारी नहीं है।';
 
@@ -368,6 +376,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get confirmCategoryOptionGeneral => 'खाद्य पदार्थ';
+
+  @override
+  String get confirmCategoryOptionSupplement =>
+      'सप्लीमेंट (प्रोटीन पाउडर, व्हे, हेल्थ सप्लीमेंट)';
 
   @override
   String get confirmCategoryOptionWater => 'पैक्ड पानी';
@@ -1412,6 +1424,13 @@ class AppLocalizationsHi extends AppLocalizations {
       'न्यूट्री-स्कोर (SmartNutri द्वारा गणना)';
 
   @override
+  String get methodologySectionSupplementsDescription =>
+      'प्रोटीन पाउडर, व्हे और दूसरे सप्लीमेंट को कोई न्यूट्री-स्कोर ग्रेड नहीं मिलता और इन्हें कभी विकल्प के रूप में नहीं सुझाया जाता। फिर भी हम एलर्जी, आहार, दावे और हर सदस्य के नियम जाँचते हैं, और बच्चों व किशोरों के लिए सावधानी जोड़ते हैं (2 साल से छोटे बच्चों के लिए बचें)।';
+
+  @override
+  String get methodologySectionSupplementsTitle => 'सप्लीमेंट';
+
+  @override
   String get methodologySectionWeightLossDescription =>
       'वज़न घटा रहे सदस्यों के लिए हम ज़्यादा कैलोरी वाले उत्पाद और कम न्यूट्री-स्कोर ग्रेड बताते हैं, और कैलोरी के हिसाब से अच्छे प्रोटीन वाले उत्पाद भी बताते हैं।';
 
@@ -1495,6 +1514,10 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get nutriscoreInsufficientData =>
       'Nutri-Score की गणना के लिए लेबल पर पर्याप्त जानकारी नहीं है।';
+
+  @override
+  String get nutriscoreNotScoredSupplement =>
+      'सप्लीमेंट के लिए न्यूट्री-स्कोर की गणना नहीं की जाती।';
 
   @override
   String get policyOpenFailed => 'पेज नहीं खुल सका। कृपया फिर से कोशिश करें।';
@@ -1722,6 +1745,14 @@ class AppLocalizationsHi extends AppLocalizations {
   String reasonSugarModerate(String sugars_g) {
     return 'चीनी मध्यम है: प्रति 100 ग्राम/मि.ली. $sugars_g ग्राम।';
   }
+
+  @override
+  String get reasonSupplementChild =>
+      'यह एक सप्लीमेंट है, जो बच्चों और किशोरों के लिए अनुशंसित नहीं है। पहले अपने डॉक्टर से पूछें।';
+
+  @override
+  String get reasonSupplementInfant =>
+      'यह एक सप्लीमेंट है, जो 2 साल से छोटे बच्चों के लिए अनुशंसित नहीं है।';
 
   @override
   String get reasonVariantCustomAlertFlagOnly =>
