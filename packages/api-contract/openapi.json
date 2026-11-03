@@ -53,7 +53,7 @@
         "type": "object"
       },
       "AnalyzeRequest": {
-        "description": "Exactly one product reference: our own ``product_id``, or a ``barcode`` (OFF products\nhave no product_id). With no ``member_ids`` the account's primary member is used.",
+        "description": "Exactly one product reference: our own ``product_id``, or a ``barcode`` (OFF products\nhave no product_id). With no ``member_ids`` every member of the account is analysed, the\nprimary (the account holder) first. Any unknown or foreign id is a 404.",
         "properties": {
           "barcode": {
             "anyOf": [
@@ -578,7 +578,7 @@
             "items": {
               "type": "string"
             },
-            "maxItems": 10,
+            "maxItems": 20,
             "title": "Allergens",
             "type": "array"
           },
@@ -875,7 +875,7 @@
                 "items": {
                   "type": "string"
                 },
-                "maxItems": 10,
+                "maxItems": 20,
                 "type": "array"
               },
               {
@@ -1925,6 +1925,11 @@
       },
       "VerdictOut": {
         "properties": {
+          "is_primary": {
+            "description": "The account holder: clients say 'for you'. Display only; never affects status.",
+            "title": "Is Primary",
+            "type": "boolean"
+          },
           "member_id": {
             "format": "uuid",
             "title": "Member Id",
@@ -1946,6 +1951,18 @@
             "title": "Reasons",
             "type": "array"
           },
+          "relation": {
+            "description": "Display only (headline wording); never affects status.",
+            "enum": [
+              "self",
+              "child",
+              "parent",
+              "spouse",
+              "other"
+            ],
+            "title": "Relation",
+            "type": "string"
+          },
           "status": {
             "enum": [
               "ok",
@@ -1960,6 +1977,8 @@
         "required": [
           "member_id",
           "member_name",
+          "relation",
+          "is_primary",
           "status",
           "reasons",
           "profile_set_up"

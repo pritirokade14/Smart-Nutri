@@ -6,6 +6,7 @@ active `health_data` consent at the current version. Only the fields being writt
 """
 
 import typing
+import unicodedata
 from datetime import date
 from uuid import uuid4
 
@@ -281,11 +282,32 @@ async def test_allergens_deduplicated_keeping_order(client, consented):
 
 @pytest.mark.parametrize(
     "allergens",
-    [["x"], ["  "], ["y" * 41], [f"food{i}" for i in range(11)]],
+    [["x"], ["  "], ["y" * 41], [f"food{i}" for i in range(21)]],
 )
 async def test_invalid_allergens_422(client, consented, allergens):
     r = await client.post(URL, json={**KID, "allergens": allergens})
     assert r.status_code == 422 and _err(r)["code"] == "validation_error"
+
+
+async def test_twenty_allergens_accepted(client, consented):
+    allergens = [f"food{i}" for i in range(20)]
+    r = await client.post(URL, json={**KID, "allergens": allergens})
+    assert r.status_code == 201 and r.json()["allergens"] == allergens
+
+
+async def test_allergens_nfc_normalised_before_dedupe(client, consented):
+    """Composed and decomposed forms of the same text are one allergen (Ruling P8.3)."""
+    composed, decomposed = "caf\u00e9", "cafe\u0301"
+    nukta_pre = "\u095b\u093e\u092b\u093c\u0930\u093e\u0928"  # precomposed ज़ (U+095B)
+    nukta_dec = "\u091c\u093c\u093e\u092b\u093c\u0930\u093e\u0928"
+    r = await client.post(
+        URL, json={**KID, "allergens": [composed, decomposed, nukta_pre, nukta_dec]}
+    )
+    assert r.status_code == 201
+    stored = r.json()["allergens"]
+    assert len(stored) == 2
+    assert all(unicodedata.is_normalized("NFC", a) for a in stored)
+    assert stored[0] == unicodedata.normalize("NFC", composed)
 
 
 async def test_invalid_custom_alert_422(client, consented):
@@ -355,14 +377,35 @@ async def test_patch_resending_stored_health_fields_needs_no_consent(client, log
     assert r.status_code == 200 and r.json()["name"] == "Papa"
 
 
-async def test_patch_changing_stored_allergens_without_consent_is_403(
+async def test_patch_removing_stored_allergens_needs_no_consent(
+    client, login, add_member, db_session
+):
+    """A strict subset of the stored list writes no new health data (Ruling P8.1)."""
+    member = await add_member(ACC_B, allergens=["peanut", "kiwi"], conditions=["diabetes", "pcos"])
+    login(ACC_B)
+    r = await client.patch(
+        f"{URL}/{member.id}", json={"allergens": ["peanut"], "conditions": ["pcos"]}
+    )
+    assert r.status_code == 200
+    row = await _row(db_session, member.id)
+    assert row.allergens == ["peanut"] and row.conditions == ["pcos"]
+
+
+async def test_patch_replacing_stored_allergens_without_consent_is_403(
     client, login, add_member, db_session
 ):
     member = await add_member(ACC_B, allergens=["peanut", "kiwi"])
     login(ACC_B)
-    r = await client.patch(f"{URL}/{member.id}", json={"allergens": ["peanut"]})
-    assert r.status_code == 403
+    r = await client.patch(f"{URL}/{member.id}", json={"allergens": ["peanut", "sesame"]})
+    assert r.status_code == 403 and _err(r)["code"] == "consent_required"
     assert (await _row(db_session, member.id)).allergens == ["peanut", "kiwi"]
+
+
+async def test_patch_removal_plus_addition_of_conditions_is_403(client, login, add_member):
+    member = await add_member(ACC_B, conditions=["diabetes", "pcos"])
+    login(ACC_B)
+    r = await client.patch(f"{URL}/{member.id}", json={"conditions": ["hypertension"]})
+    assert r.status_code == 403
 
 
 async def test_patch_cannot_make_a_member_self(client, consented):

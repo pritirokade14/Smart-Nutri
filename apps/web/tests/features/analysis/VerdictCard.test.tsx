@@ -70,6 +70,8 @@ const rs = (
 const synth = (status: string, reasons: Rs[]): VerdictOut => ({
   member_id: "x",
   member_name: "A",
+  relation: "other",
+  is_primary: false,
   profile_set_up: true,
   status: status as VerdictOut["status"],
   reasons,
@@ -134,6 +136,8 @@ describe("VerdictCard details", () => {
     const v: VerdictOut = {
       member_id: "x",
       member_name: "A",
+      relation: "other",
+      is_primary: false,
       profile_set_up: true,
       status: "unknown",
       reasons: [
@@ -157,6 +161,8 @@ describe("VerdictCard details", () => {
     const v: VerdictOut = {
       member_id: "x",
       member_name: "A",
+      relation: "other",
+      is_primary: false,
       profile_set_up: true,
       status: "caution",
       reasons: [{ code: "future_rule", severity: "caution", params: {} }],
@@ -253,6 +259,8 @@ describe("VerdictCard details", () => {
     renderCard({
       member_id: "x",
       member_name: "A",
+      relation: "other",
+      is_primary: false,
       profile_set_up: true,
       status: "safe" as VerdictOut["status"],
       reasons: [],
@@ -267,6 +275,8 @@ describe("VerdictCard details", () => {
     const { container } = renderCard({
       member_id: "x",
       member_name: "A",
+      relation: "other",
+      is_primary: false,
       profile_set_up: true,
       status: "ok",
       reasons: [],

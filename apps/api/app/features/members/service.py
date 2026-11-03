@@ -95,8 +95,6 @@ def to_scoring_member(record: Member, *, today: date) -> scoring.Member:
     bands (infant, child) are stricter, so assuming the older age could turn an `avoid` into
     `ok` (e.g. born two years ago may still be 1, an infant). Age is None (unknown, so the
     engine stays protective) when there is no birth year or it lies in the future.
-    ``custom_alerts`` is not mapped yet: the engine has no custom-alert rules until M3
-    (Plan 5 Task 1).
     """
     return scoring.Member(
         id=str(record.id),
@@ -106,10 +104,15 @@ def to_scoring_member(record: Member, *, today: date) -> scoring.Member:
         allergens=tuple(record.allergens or ()),
         conditions=tuple(record.conditions or ()),
         goal=record.goal,
+        custom_alerts=tuple(record.custom_alerts or ()),
     )
 
 
 # --- CRUD (Plan 5 Task 5) ---------------------------------------------------------------------
+
+
+# List fields where dropping entries (a strict subset of what is stored) is a pure removal.
+_REMOVABLE_LISTS = frozenset({"allergens", "conditions"})
 
 
 def _writes_health_data(values: dict[str, object], current: Member | None) -> bool:
@@ -117,7 +120,9 @@ def _writes_health_data(values: dict[str, object], current: Member | None) -> bo
 
     Only the fields in this request count (P5). Re-sending a stored value unchanged saves no
     new health data, so a client that sends the whole form can still rename a member after
-    `health_data` is withdrawn. Clearing a field (null or []) is never gated.
+    `health_data` is withdrawn. Clearing a field (null or []) is never gated, and neither is
+    removing entries from stored allergens or conditions (a subset of the stored list, Ruling
+    P8.1): that writes nothing new, and gating it would push users to wipe a whole list.
     """
     for field in HEALTH_FIELDS:
         if field not in values:
@@ -125,8 +130,12 @@ def _writes_health_data(values: dict[str, object], current: Member | None) -> bo
         value = values[field]
         if value is None or value == []:
             continue
-        if current is not None and _same(getattr(current, field), value):
-            continue
+        if current is not None:
+            stored = getattr(current, field)
+            if _same(stored, value):
+                continue
+            if field in _REMOVABLE_LISTS and _is_subset(value, stored):
+                continue
         return True
     return False
 
@@ -135,6 +144,13 @@ def _same(stored: object, value: object) -> bool:
     if isinstance(stored, list | tuple) and isinstance(value, list | tuple):
         return list(stored) == list(value)
     return stored == value
+
+
+def _is_subset(value: object, stored: object) -> bool:
+    """Every entry of `value` is already stored, exactly as stored."""
+    if not isinstance(value, list | tuple) or not isinstance(stored, list | tuple):
+        return False
+    return set(value) <= set(stored)
 
 
 async def _require_health_consent(

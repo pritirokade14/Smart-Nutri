@@ -99,6 +99,8 @@ void main() {
             memberId: v.memberId,
             memberName: '',
             profileSetUp: true,
+            relation: VerdictOutRelation.other,
+            isPrimary: false,
             reasons: v.reasons,
             status: v.status,
           ),
@@ -119,6 +121,8 @@ void main() {
             'member_id': 'm',
             'member_name': 'Asha',
             'profile_set_up': true,
+            'relation': 'other',
+            'is_primary': false,
             'status': 'something_new',
             'reasons': [
               {'code': 'brand_new', 'severity': 'something_new', 'params': {}},
@@ -167,6 +171,8 @@ void main() {
       memberId: 'm',
       memberName: 'Asha',
       profileSetUp: setUp,
+      relation: VerdictOutRelation.other,
+      isPrimary: false,
       reasons: rs,
       status: VerdictOutStatus.avoid,
     );
@@ -385,6 +391,8 @@ void main() {
             memberId: 'm',
             memberName: 'Asha',
             profileSetUp: true,
+            relation: VerdictOutRelation.other,
+            isPrimary: false,
             reasons: [
               const ReasonOut(
                 code: 'sugar_high',

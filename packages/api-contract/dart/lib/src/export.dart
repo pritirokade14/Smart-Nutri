@@ -74,6 +74,7 @@ export 'models/product_draft_veg_mark.dart';
 export 'models/product_out_source.dart';
 export 'models/reason_out_severity.dart';
 export 'models/upload_url_in_ext.dart';
+export 'models/verdict_out_relation.dart';
 export 'models/verdict_out_status.dart';
 // Root client
 export 'smart_nutri_api_client.dart';

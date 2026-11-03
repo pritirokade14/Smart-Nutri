@@ -4,10 +4,12 @@
   has no `age`: the engine's youngest-age rule (R19) is the only age, computed at analysis.
 - New members can't be `self`: the primary (the account holder) is auto-created (P5-R6).
 - Allergens: a canonical key (any case) is stored as the key; anything else is free text,
-  stored verbatim apart from surrounding whitespace (the engine normalises it when matching).
+  stored NFC-normalised and stripped (the engine normalises it further when matching).
+  At most 20 (Ruling P8.3).
 - `custom_alerts` are the engine's CUSTOM_ALERT_KEYS; anything else is a 422.
 """
 
+import unicodedata
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -44,7 +46,7 @@ CANONICAL_ALLERGENS: tuple[str, ...] = (
     "sulphite",
 )
 
-MAX_ALLERGENS = 10
+MAX_ALLERGENS = 20  # Ruling P8.3
 ALLERGEN_MIN_LEN = 2
 ALLERGEN_MAX_LEN = 40
 BIRTH_YEAR_MIN = 1900
@@ -64,14 +66,17 @@ def _dedupe[T](items: list[T]) -> list[T]:
 
 
 def normalise_allergens(values: list[str]) -> list[str]:
-    """Strip each entry, map canonical keys case-insensitively, dedupe (keep first), cap at 10.
+    """NFC-normalise and strip each entry, map canonical keys case-insensitively, dedupe
+    (keep first), cap at MAX_ALLERGENS.
 
-    Free text is otherwise kept exactly as typed ("kiwi", "मूंगफली").
+    NFC first (Ruling P8.3), so a composed and a decomposed spelling of the same text
+    ("café", or a Devanagari nukta letter) are one allergen. Free text is otherwise kept as
+    typed ("kiwi", "मूंगफली").
     """
     out: list[str] = []
     seen: set[str] = set()
     for raw in values:
-        value = raw.strip()
+        value = unicodedata.normalize("NFC", raw).strip()
         if not ALLERGEN_MIN_LEN <= len(value) <= ALLERGEN_MAX_LEN:
             raise ValueError(
                 f"each allergen must be {ALLERGEN_MIN_LEN}-{ALLERGEN_MAX_LEN} characters"

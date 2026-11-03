@@ -1,4 +1,3 @@
-from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -7,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import Settings, get_app_settings
 from app.core.errors import ERROR_RESPONSES, ErrorEnvelope
 from app.core.ratelimit import limit
+from app.core.time import today_ist
 from app.db.session import get_session
 from app.features.analyze import service
 from app.features.analyze.schemas import AnalyzeOut, AnalyzeRequest
@@ -41,5 +41,5 @@ async def analyze_create(
         current.ctx.account_id,
         body,
         settings=settings,
-        today=datetime.now(UTC).date(),
+        today=today_ist(),
     )

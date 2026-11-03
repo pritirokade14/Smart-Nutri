@@ -244,7 +244,8 @@ export interface components {
         /**
          * AnalyzeRequest
          * @description Exactly one product reference: our own ``product_id``, or a ``barcode`` (OFF products
-         *     have no product_id). With no ``member_ids`` the account's primary member is used.
+         *     have no product_id). With no ``member_ids`` every member of the account is analysed, the
+         *     primary (the account holder) first. Any unknown or foreign id is a 404.
          */
         AnalyzeRequest: {
             /** Barcode */
@@ -875,6 +876,11 @@ export interface components {
         /** VerdictOut */
         VerdictOut: {
             /**
+             * Is Primary
+             * @description The account holder: clients say 'for you'. Display only; never affects status.
+             */
+            is_primary: boolean;
+            /**
              * Member Id
              * Format: uuid
              */
@@ -888,6 +894,12 @@ export interface components {
             profile_set_up: boolean;
             /** Reasons */
             reasons: components["schemas"]["ReasonOut"][];
+            /**
+             * Relation
+             * @description Display only (headline wording); never affects status.
+             * @enum {string}
+             */
+            relation: "self" | "child" | "parent" | "spouse" | "other";
             /**
              * Status
              * @enum {string}

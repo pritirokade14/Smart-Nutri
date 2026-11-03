@@ -53,6 +53,8 @@ def to_analyze_out(
             VerdictOut(
                 member_id=member.id,
                 member_name=member.name,
+                relation=member.relation,
+                is_primary=bool(member.is_primary),
                 status=verdict["status"],
                 reasons=[ReasonOut(**r) for r in verdict["reasons"]],
                 profile_set_up=member.birth_year is not None,
@@ -106,8 +108,10 @@ async def analyze_for_account(
     """Resolve members and product, run the engine, record the scan, commit once.
 
     Explicit members are checked before the product lookup, so a request with a foreign or
-    unknown member never reaches Open Food Facts. The OFF cache write (barcode path), the
-    primary member (first use) and the scan row are committed together at the end.
+    unknown member never reaches Open Food Facts. With no ``member_ids`` every member of the
+    account is analysed, the primary first (created on first use), so the list is never
+    empty. The OFF cache write (barcode path), the primary member (first use) and the scan
+    row are committed together at the end.
     """
     members: list[Member] | None = None
     if request.member_ids:
@@ -116,7 +120,8 @@ async def analyze_for_account(
             raise ApiError("member_not_found", 404)
     found = await _resolve_product(session, off, request, settings, account_id)
     if members is None:
-        members = [await members_service.get_or_create_primary(session, account_id)]
+        await members_service.get_or_create_primary(session, account_id)
+        members = await members_service.list_members(session, account_id)  # primary first
 
     result = evaluate(found, members, today=today)
     scan_id = uuid4()

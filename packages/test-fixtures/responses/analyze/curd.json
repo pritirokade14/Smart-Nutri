@@ -59,34 +59,43 @@
   "tips": [],
   "verdicts": [
     {
+      "is_primary": false,
       "member_id": "1e329317-586f-5b80-aaee-d07fd72fc6d6",
       "member_name": "BP Parent",
       "profile_set_up": true,
       "reasons": [],
+      "relation": "other",
       "status": "ok"
     },
     {
+      "is_primary": false,
       "member_id": "03205f4c-4228-5936-93f2-d182aeb2743b",
       "member_name": "Diabetic Adult",
       "profile_set_up": true,
       "reasons": [],
+      "relation": "other",
       "status": "ok"
     },
     {
+      "is_primary": false,
       "member_id": "1d7fee7b-8981-5115-941a-65bb357864d3",
       "member_name": "Infant",
       "profile_set_up": true,
       "reasons": [],
+      "relation": "other",
       "status": "ok"
     },
     {
+      "is_primary": false,
       "member_id": "4aac1a45-e2cc-57f2-af48-8896e0b62866",
       "member_name": "Jain Adult",
       "profile_set_up": true,
       "reasons": [],
+      "relation": "other",
       "status": "ok"
     },
     {
+      "is_primary": false,
       "member_id": "834da0b9-324c-51a2-b07a-719afc7d08f0",
       "member_name": "Milk Allergic Child",
       "profile_set_up": true,
@@ -99,23 +108,29 @@
           "severity": "avoid"
         }
       ],
+      "relation": "other",
       "status": "avoid"
     },
     {
+      "is_primary": false,
       "member_id": "d4a4c7e7-01cc-521a-a16d-3b3002846e7c",
       "member_name": "No Age",
       "profile_set_up": false,
       "reasons": [],
+      "relation": "other",
       "status": "ok"
     },
     {
+      "is_primary": false,
       "member_id": "defbaa80-4fb3-5075-9f8a-befcf6f78518",
       "member_name": "Peanut Allergic",
       "profile_set_up": true,
       "reasons": [],
+      "relation": "other",
       "status": "ok"
     },
     {
+      "is_primary": false,
       "member_id": "4f12ed5d-c075-5b3f-8750-fd594b080946",
       "member_name": "Vegan Adult",
       "profile_set_up": true,
@@ -131,9 +146,11 @@
           "severity": "avoid"
         }
       ],
+      "relation": "other",
       "status": "avoid"
     },
     {
+      "is_primary": false,
       "member_id": "e5e07704-c60d-5ba7-9330-5e575fb9ff36",
       "member_name": "Weight Loss Adult",
       "profile_set_up": true,
@@ -146,6 +163,7 @@
           "severity": "ok"
         }
       ],
+      "relation": "other",
       "status": "ok"
     }
   ]

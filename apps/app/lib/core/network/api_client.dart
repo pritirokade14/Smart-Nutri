@@ -74,6 +74,10 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'invalid_barcode' => l10n.errorInvalidBarcode,
     'off_unavailable' => l10n.errorOffUnavailable,
     'member_not_found' => l10n.errorMemberNotFound,
+    'member_limit' => l10n.errorMemberLimit,
+    'primary_member' => l10n.errorPrimaryMember,
+    'consent_required' => l10n.errorConsentRequired,
+    'consent_version_mismatch' => l10n.errorConsentVersionMismatch,
     'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };
