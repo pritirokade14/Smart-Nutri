@@ -15,6 +15,7 @@ _Last updated: 2026-11-04_
 - **Not medical advice.** Health thresholds are *pending clinician review*.
 
 **v1 users:** blood-sugar (diabetes, prediabetes, PCOS) · family health managers (kids and elderly parents) · weight loss (including GLP-1).
+**Plan 9 (planned):** after Terms, users pick up to 3 of 6 user types (health condition, family, weight loss, gym and fitness, allergy or special diet, just eating better). Each gets a focused mode: its own Home cards and tab bar, with everything else in More. Gym users get a protein guide. The type never changes a verdict (ADR 0019).
 **Goal:** a startup product. Build in about 15 days (started 2026-11-02). Android public release is gated by the Play closed test (12+ testers × 14 days).
 
 → [docs/PRODUCT.md](docs/PRODUCT.md) · [v1 spec](docs/superpowers/specs/2026-11-02-smartnutri-v1-design.md) · [FEATURE_PARITY](docs/FEATURE_PARITY.md)
@@ -32,7 +33,7 @@ _Last updated: 2026-11-04_
 | Hosting | **Cloud Run, asia-south1 (Mumbai)** for API + web; Google Play for Android |
 | Shared | `packages/api-contract` (generated Dart + TS clients), `i18n`, `design-tokens`, `test-fixtures` |
 
-→ [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · decisions in [docs/adr/](docs/adr/) (0001–0016)
+→ [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · decisions in [docs/adr/](docs/adr/) (0001–0019)
 
 ## 3. Repository map
 
@@ -80,7 +81,7 @@ See [AGENTS.md](AGENTS.md). In short:
 
 ## 7. Plans and build order
 
-All eight plans are **code complete on `v1-rebuild`** (head `0c69efd` plus the final fix batch). Nothing past Plan 4 has been merged to `main` or deployed. Plan 4 was merged (PR #2, `7d9fd3d`) and dev migration 0002 applied.
+Plans 1–8 are **code complete on `v1-rebuild`** (head `0c69efd` plus the final fix batch). Plan 9 is written and not started. Nothing past Plan 4 has been merged to `main` or deployed. Plan 4 was merged (PR #2, `7d9fd3d`) and dev migration 0002 applied.
 
 | Plan | File | Status |
 |---|---|---|
@@ -92,6 +93,7 @@ All eight plans are **code complete on `v1-rebuild`** (head `0c69efd` plus the f
 | 6. M4: scan-to-log, weekly summary, alternatives, compare, share | `…-plan-6-m4-log-share.md` | Code complete on `v1-rebuild`, not merged |
 | 7. M5: voice Q&A, How we score, Report a problem | `…-plan-7-m5-voice-methodology-reports.md` | Code complete; voice is **OFF** by flag until the USER steps in section 8 |
 | 8. M6: consent/DPDP, deletion, retention, release checklist | `…-plan-8-m6-launch.md` | Code complete; prod deploy, Play Store and legal are USER |
+| 9. User types, focused modes, gym protein guide | [plan-9](docs/superpowers/plans/2026-11-04-plan-9-personas.md) | **Planned** (2026-11-04), to build before the Play closed test. 15 tasks: API 1–8, then Android 9–11 ∥ web 12–14, then the gate. Migrations 0005 (user types) and 0006 (supplement category). ADR 0019 |
 
 **How plans are executed:** `superpowers:subagent-driven-development`, with a ledger in `.superpowers/sdd/<plan>/progress.md` (git-ignored). Independent tasks run in parallel git worktrees. For each slice: the API first → `just contract` → Android ∥ web → `nutrition-safety-reviewer`.
 
@@ -119,6 +121,7 @@ All eight plans are **code complete on `v1-rebuild`** (head `0c69efd` plus the f
 - Voice is OFF (see below).
 
 **Next (all USER unless noted):**
+0. **Agents:** build Plan 9 (user types, focused modes, gym protein guide) with parallel agents: API Tasks 1–8 first (1 ∥ 3; scoring 3 → 4 → 6 → 7; Task 7 supplements can slip), then Android ∥ web, then the safety review. The user decided to do this before the Play closed test.
 1. Create the `voice-answers` bucket on dev (before any deploy that could enable voice).
 2. Apply migrations 0003 and 0004 to dev (`just db-migrate`), then PR `v1-rebuild` to `main` when local checks are green. The deploy also updates the retention job once its shell exists.
 3. Run `bash scripts/setup-retention-schedule.sh setup`, then after the deploy `dry-run`, then `schedule` (02:30 IST).
@@ -129,7 +132,7 @@ All eight plans are **code complete on `v1-rebuild`** (head `0c69efd` plus the f
 
 - [ ] **USER:** `scripts/push-secrets.sh prod` before the prod deploy (dev secrets are already in Secret Manager).
 - [ ] **USER: create the `voice-answers` bucket** on dev (private, 5 MiB, `audio/mpeg`; `docs/SETUP_ACCOUNTS.md` section 2.8) before any deploy that could enable voice. Same on prod at launch.
-- [ ] **USER: apply dev migrations 0003 and 0004** (`just db-migrate`) before merging Plans 5–8 to `main`.
+- [ ] **USER: apply dev migrations 0003 and 0004** (`just db-migrate`) before merging Plans 5–8 to `main`. After Plan 9: also 0005 (user types) and 0006 (supplement category).
 - [ ] **USER: retention job schedule** (`scripts/setup-retention-schedule.sh`: `setup`, `dry-run`, `schedule`).
 - [ ] **USER: approve the paid STT/TTS probe** (`scripts.probe_stt_formats --yes-spend`). It must also confirm CallMissed accepts the India data-residency setting on STT and TTS. Voice stays off until then and until retention is live.
 - [ ] **USER: lawyer review** of the privacy policy and terms drafts (`docs/launch/`), including DPDP withdrawal versus erasure (ADR 0018) and children's profiles.
@@ -141,6 +144,7 @@ All eight plans are **code complete on `v1-rebuild`** (head `0c69efd` plus the f
   - Child rules compare total sugars with a daily free-sugar limit, and ignore saturated fat.
   - Ages come from birth year only. Should infant rules (under 2) also warn about very high natural sugar (dates, raisins), and should a 13-year-old still get child caffeine warnings?
   - Serving sizes: the engine accepts any serving above 0 g and up to 5000 g. Should there be a realistic lower bound (e.g. 1 g)? A confirmed serving of 0.0001 g would inflate per-100 g values by about a million times. Post-conversion plausibility catches this, except when every value is 0.
+  - Plan 9 (once built): the `build_muscle` protein target of 1.6 g/kg (adults with a weight; should members with diabetes or BP keep it? there is no kidney field), whether weight loss should get 1.2 g/kg, the 10 % protein-claim shortfall, and supplements (caution for ages 2–17, avoid under 2).
   - Open Food Facts data is crowd-sourced; the engine treats it at confidence 0.9 (allergen rules run, so an incomplete OFF ingredient list could show `ok` for an allergic member). Is that acceptable, or should OFF products be `unknown` for allergic members unless the label is confirmed?
 - [ ] **USER: M2 label scan:**
   - (a) Photograph 40–60 label packs for the eval (checklist in `apps/api/tests/evals/labels/README.md`) and approve the CallMissed spend.

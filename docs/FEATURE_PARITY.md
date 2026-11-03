@@ -1,6 +1,6 @@
 # Feature Parity: API × Android × Web
 
-**Rule (ADR 0008, ADR 0011):** every v1 feature F1–F17 ships on **both** the Android app (Flutter) and the web app (Next.js). Nothing is removed from either platform.
+**Rule (ADR 0008, ADR 0011):** every v1 feature F1–F20 (F18–F20 added by Plan 9) ships on **both** the Android app (Flutter) and the web app (Next.js). Nothing is removed from either platform.
 
 ## Definition of done (per feature)
 
@@ -34,6 +34,9 @@ Status values: ⬜ not started · 🟡 code complete, waiting on a USER gate (ma
 | F15 | Product not found leads to a label-photo result | M2 | 🟡 | 🟡 | 🟡 | The web flow switches to the upload step automatically | **Status (M2):** code done; 🟡 pending the label eval (plan 4, Task 6 Step 6) and the manual real-pack check. Same reload difference as F4. |
 | F16 | Custom ingredient alerts | M3 | 🟡 | 🟡 | 🟡 | Toggles in the member form **Status:** code complete (Plan 5). |
 | F17 | Share result or weekly summary | M4 | 🟡 | 🟡 | 🟡 | Web Share API on mobile browsers; desktop fallback "Copy link" and a WhatsApp link (`wa.me/?text=`). Default share is product name plus Nutri-Score; member statuses are opt-in per share. The link appears only when the site URL is configured. **Status:** code complete (Plan 6). **No OG share-card image yet: TODO** (not promised for v1). |
+| F18 | User types: picker after Terms (up to 3 of 6, one follow-up each, skippable), confirm-only pre-fill of the account holder's profile, edit in Profile | Plan 9 | ⬜ | ⬜ | ⬜ | `/[locale]/welcome` after the terms step (`UserTypesGate`); same consent dialog for health types. **Status:** planned (Plan 9 Tasks 1, 2, 9, 12). Never sent to analytics; never changes a verdict (ADR 0019). Migration 0005. |
+| F19 | Focused modes: per-type Home cards and 5-tab bar, More menu, mode switcher; scan and verdicts identical in every mode | Plan 9 | ⬜ | ⬜ | ⬜ | Mobile bottom bar shows the mode's 5 tabs; the desktop rail shows the 5 tabs plus a More group. Both clients mirror `packages/test-fixtures/modes/layouts.json`. **Status:** planned (Plan 9 Tasks 8, 10, 13). |
+| F20 | Gym protein guide: `build_muscle` goal and daily protein guide, protein per serving / 100 g / 100 kcal, protein and whey claim checks, higher-protein sort, compare protein columns and a typed-in price per scoop (client-only), supplements not graded | Plan 9 | ⬜ | ⬜ | ⬜ | `/[locale]/protein`; the public product page also shows protein facts (no personal data). Price per scoop lives only in component state. **Status:** planned (Plan 9 Tasks 3–7, 11, 14). Thresholds PENDING CLINICIAN REVIEW; supplements (Task 7, migration 0006) can slip. |
 
 ## Web-only additions (do not break parity)
 
