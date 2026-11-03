@@ -1982,7 +1982,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get summaryNoProteinTarget =>
-      'प्रथिनांचे लक्ष्य पाहण्यासाठी प्रोफाइलमध्ये वजन जोडा.';
+      'या सदस्यासाठी प्रथिनांचे कोणतेही लक्ष्य नाही';
 
   @override
   String get summaryNothingLogged => 'या दिवशी काहीही नोंदवलेले नाही.';

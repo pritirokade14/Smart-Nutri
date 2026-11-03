@@ -1984,7 +1984,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get summaryNoProteinTarget =>
-      'प्रोटीन का लक्ष्य देखने के लिए प्रोफ़ाइल में वज़न जोड़ें।';
+      'इस सदस्य के लिए प्रोटीन का कोई लक्ष्य नहीं है';
 
   @override
   String get summaryNothingLogged => 'इस दिन कुछ दर्ज नहीं किया गया।';

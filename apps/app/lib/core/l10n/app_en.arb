@@ -1071,7 +1071,7 @@
     }
   },
   "summaryLimitsNote": "Limits pending clinician review.",
-  "summaryNoProteinTarget": "Add weight to the profile to see a protein target.",
+  "summaryNoProteinTarget": "No protein target for this member",
   "summaryNothingLogged": "Nothing logged on this day.",
   "summaryNutrientEnergyKcal": "Calories",
   "summaryNutrientProteinG": "Protein",

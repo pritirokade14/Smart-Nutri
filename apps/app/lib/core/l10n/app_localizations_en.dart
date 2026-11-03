@@ -1976,8 +1976,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summaryLimitsNote => 'Limits pending clinician review.';
 
   @override
-  String get summaryNoProteinTarget =>
-      'Add weight to the profile to see a protein target.';
+  String get summaryNoProteinTarget => 'No protein target for this member';
 
   @override
   String get summaryNothingLogged => 'Nothing logged on this day.';

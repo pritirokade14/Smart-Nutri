@@ -3493,7 +3493,7 @@ abstract class AppLocalizations {
   /// No description provided for @summaryNoProteinTarget.
   ///
   /// In en, this message translates to:
-  /// **'Add weight to the profile to see a protein target.'**
+  /// **'No protein target for this member'**
   String get summaryNoProteinTarget;
 
   /// No description provided for @summaryNothingLogged.

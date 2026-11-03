@@ -600,7 +600,7 @@
     "protein_of_target": "{total} g of a {target} g target",
     "kcal_total": "{total} kcal",
     "kcal_info": "Calories are shown for information. There is no personal calorie target yet.",
-    "no_protein_target": "Add weight to the profile to see a protein target.",
+    "no_protein_target": "No protein target for this member",
     "nothing_logged": "Nothing logged on this day.",
     "incomplete": "Some logged items do not show this value on the label, so the real total may be higher.",
     "limits_note": "Limits pending clinician review.",
