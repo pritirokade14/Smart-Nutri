@@ -40,7 +40,8 @@ class LabelFailure implements Exception {
 
 /// Re-encodes a photo as JPEG with its longest side at most [maxUploadSide]
 /// and at most [maxUploadBytes]. EXIF orientation is applied first, so the
-/// label is upright. Throws `LabelFailure('unsupported_image')` for bytes that
+/// label is upright, and all EXIF (GPS included) is dropped. Throws
+/// `LabelFailure('unsupported_image')` for bytes that
 /// are not a decodable image.
 Future<Uint8List> compressForUpload(Uint8List bytes) async {
   final out = await compute(_compress, bytes);
@@ -59,6 +60,11 @@ Uint8List? _compress(Uint8List bytes) {
         ? img.copyResize(image, width: maxUploadSide)
         : img.copyResize(image, height: maxUploadSide);
   }
+  // The JPEG encoder writes back whatever EXIF the photo had, including the
+  // GPS position and the camera model. Stored label photos must carry none
+  // (Play data safety: no location), so drop it all; orientation is already
+  // applied to the pixels above.
+  image.exif = img.ExifData();
   var out = img.encodeJpg(image, quality: 85);
   for (final quality in const [70, 55, 40]) {
     if (out.length <= maxUploadBytes) break;
