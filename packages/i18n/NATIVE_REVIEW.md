@@ -223,3 +223,7 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 9 Tasks 6 and 7 (protein sort, supplements)
 - [ ] **hi/mr `reason.supplement_child`, `reason.supplement_infant`, `nutriscore.not_scored_supplement`, `confirm.category_option.supplement`, `alternatives.reason.source_supplement`, `alternatives.reason.source_protein_unknown`, `methodology.section.supplements.*`**: machine drafts. "सप्लीमेंट" / "सप्लिमेंट" are transliterations; check they are understood. The supplement reasons must stay "not recommended … check with your doctor", never a diagnosis or a dose. The confirm option must read as the user describing the pack (protein powder, whey, health supplement), not as a recommendation.
+
+## Label accuracy v2
+- [ ] **hi/mr `warning.fat_parts_mismatch`**: machine drafts. Shown when saturated plus trans fat is more than total fat; the user must tick the fat values. "संतृप्त"/"संपृक्त" should match `nutrient.sat_fat`.
+- [ ] **hi/mr `warning.decimal_shift`**: machine drafts. "The decimal point may have been misread" (for example 50 instead of 5.0). Check that "दशमलव बिंदु" (hi) and "दशांश चिन्ह" (mr) are understood.

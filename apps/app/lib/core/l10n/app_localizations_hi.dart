@@ -2259,12 +2259,20 @@ class AppLocalizationsHi extends AppLocalizations {
       'हम समझ नहीं पाए कि यह किस तरह का उत्पाद है। एक चुनें।';
 
   @override
+  String get warningDecimalShift =>
+      'इस मान में दशमलव बिंदु शायद गलत पढ़ा गया है। इसे पैक पर जाँचें।';
+
+  @override
   String get warningDerivedFromServing =>
       'यह मान प्रति सर्विंग की मात्रा से निकाला गया है। इसे पैक से मिलाकर देखें।';
 
   @override
   String get warningEnergyMismatch =>
       'ऊर्जा का मान बाकी मानों से मेल नहीं खा रहा। इसे पैक पर जाँचें।';
+
+  @override
+  String get warningFatPartsMismatch =>
+      'संतृप्त और ट्रांस वसा मिलाकर कुल वसा से ज़्यादा हो रहे हैं। ये मान पैक पर जाँचें।';
 
   @override
   String get warningImplausibleValue =>

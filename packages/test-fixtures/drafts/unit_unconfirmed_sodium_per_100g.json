@@ -47,7 +47,6 @@
   "serving_size_g": null,
   "veg_mark": "veg",
   "warnings": [
-    "salt_sodium_mismatch",
     "unit_unconfirmed:per_100g.sodium_mg"
   ]
 }

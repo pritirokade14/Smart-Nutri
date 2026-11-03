@@ -748,7 +748,16 @@ def test_warning_order_is_deterministic():
         "unreadable_field:allergen_statement",
         "upper_bound:per_100g.salt_g",
     ]
-    assert d.engine_withheld == ["sodium_mg"]
+    # Label accuracy v2: failed checks withhold the printed fields they involve (fibre is
+    # unreadable, so not printed); sodium is also withheld for its missing unit.
+    assert d.engine_withheld == [
+        "energy_kcal",
+        "protein_g",
+        "carbs_g",
+        "fat_g",
+        "salt_g",
+        "sodium_mg",
+    ]
 
 
 def test_warning_order_with_ml_override():

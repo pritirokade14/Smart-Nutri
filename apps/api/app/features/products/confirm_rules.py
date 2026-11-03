@@ -14,7 +14,9 @@ Rules (R14-R20):
 - `withheld_fields`: engine fields stored only when listed in `confirmed_fields` (or, for
   sodium, when a unit is picked). The draft's `engine_withheld`, except that on a
   `basis_mismatch` the explicit `basis` answers the basis doubt; plus an upper-bound ("<X")
-  protein or fibre on ANY printed column (R19.3); plus sodium when its unit is unconfirmed.
+  protein or fibre on ANY printed column (R19.3); plus sodium when its unit is unconfirmed;
+  plus every printed field a failed arithmetic check names (`checked_fields`, label accuracy
+  v2), basis mismatch or not: picking a basis does not answer an arithmetic doubt.
 - `needs_serving_confirmation`: a per-serving save, or any save of a `derived_from_serving`
   draft (R19.2), stores nutrients only when `serving_size_g` is confirmed.
 - R18: a scanned serving size is stored only when `serving_size_g` is confirmed.
@@ -41,6 +43,16 @@ Basis = Literal["per_100g", "per_serving"]
 BASES: tuple[Basis, ...] = ("per_100g", "per_serving")
 UPPER_BOUND_FIELDS = ("protein_g", "fiber_g")  # an upper bound is no evidence of protein
 CATEGORY_WARNINGS = ("category_unknown", "category_check")
+# Label accuracy v2: a failed arithmetic check withholds the fields it involves (the printed
+# ones). The normaliser's `engine_withheld` and these hints read the same map.
+CHECK_FIELDS: dict[str, tuple[str, ...]] = {
+    "energy_mismatch": ("energy_kcal", "protein_g", "carbs_g", "fat_g", "fiber_g"),
+    "kcal_kj_mismatch": ("energy_kcal",),
+    "salt_sodium_mismatch": ("salt_g", "sodium_mg"),
+    "fat_parts_mismatch": ("fat_g", "sat_fat_g"),
+}
+# "<code>:<path or field>" warnings that withhold the field they name (last path segment).
+FIELD_CHECK_CODES = ("decimal_shift", "column_mismatch")
 
 
 class DraftFacts(Protocol):
@@ -128,11 +140,31 @@ def sodium_unit_unconfirmed(draft: DraftFacts) -> bool:
     return any(f"unit_unconfirmed:{col}.sodium_mg" in draft.warnings for col in BASES)
 
 
+def checked_fields(warnings: Sequence[str]) -> set[str]:
+    """Engine fields named by failed arithmetic checks (`CHECK_FIELDS`, `FIELD_CHECK_CODES`),
+    printed or not: callers keep only the printed ones."""
+    fields: set[str] = set()
+    for warning in warnings:
+        code, _, path = warning.partition(":")
+        if code in CHECK_FIELDS:
+            fields.update(CHECK_FIELDS[code])
+        elif code in FIELD_CHECK_CODES and path:
+            fields.add(path.rsplit(".", 1)[-1])
+    return fields & set(NUTRIENT_FIELDS)
+
+
 def withheld_fields(draft: DraftFacts) -> set[str]:
-    """Engine fields held back from storage until the user confirms them (R13/R14/R17/R19)."""
+    """Engine fields held back from storage until the user confirms them (R13/R14/R17/R19,
+    and the label accuracy v2 arithmetic checks)."""
     withheld = set() if "basis_mismatch" in draft.warnings else set(draft.engine_withheld)
     withheld |= {
         f for f in UPPER_BOUND_FIELDS for col in BASES if f"upper_bound:{col}.{f}" in draft.warnings
+    }
+    columns = (draft.per_100g, draft.per_serving)
+    withheld |= {
+        f
+        for f in checked_fields(draft.warnings)
+        if any(getattr(c, f, None) is not None for c in columns)
     }
     if sodium_unit_unconfirmed(draft):
         withheld.add("sodium_mg")

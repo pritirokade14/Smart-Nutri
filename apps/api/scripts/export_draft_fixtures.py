@@ -262,6 +262,21 @@ CASES: dict[str, Case] = {
         _ex(per_100g=_n(_V, sugars_g=40.0)),
         [{}, {"edit": {"sugars_g": 10.0}}],
     ),
+    "energy_decimal_shift": Case(
+        "Fat read as 50 instead of 5.0: energy disagrees with the macros, fat is named as a "
+        "likely decimal slip, and every field in the energy check needs a tick (label v2).",
+        _ex(per_100g=_n(_V, fat_g=50.0)),
+        [
+            {"tick": ["energy_kcal", "protein_g", "carbs_g", "fat_g", "fiber_g"]},
+            {"edit": {"fat_g": 5.0}, "tick": ["energy_kcal", "protein_g", "carbs_g", "fiber_g"]},
+            {},
+        ],
+    ),
+    "salt_sodium_mismatch": Case(
+        "Salt read as 5.0 next to sodium 200 mg: both are withheld until ticked (label v2).",
+        _ex(per_100g=_n(_V, salt_g=5.0)),
+        [{"tick": ["salt_g", "sodium_mg"]}, {"edit": {"salt_g": 0.5}, "tick": ["sodium_mg"]}, {}],
+    ),
     "devanagari": Case(
         "Hindi ingredient and allergen text: kept in its script, nothing extra to ask.",
         _ex(

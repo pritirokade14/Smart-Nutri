@@ -386,7 +386,9 @@
     "category_check": "Check that the product type is right, because it changes how the values are read.",
     "unreadable_field": "We couldn't read this value. Enter it from the pack, or leave it blank.",
     "upper_bound": "The pack says 'less than' this amount. Confirm it if that's right.",
-    "derived_from_serving": "This value was worked out from the per-serving amount. Check it against the pack."
+    "derived_from_serving": "This value was worked out from the per-serving amount. Check it against the pack.",
+    "fat_parts_mismatch": "Saturated and trans fat add up to more than the total fat. Check these values on the pack.",
+    "decimal_shift": "The decimal point in this value may have been misread. Check it on the pack."
   },
   "notfound": {
     "go_to_label": "We don't know this product yet — photograph its label"

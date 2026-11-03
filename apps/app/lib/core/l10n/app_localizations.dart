@@ -3928,6 +3928,12 @@ abstract class AppLocalizations {
   /// **'We couldn\'t tell what type of product this is. Choose one.'**
   String get warningCategoryUnknown;
 
+  /// No description provided for @warningDecimalShift.
+  ///
+  /// In en, this message translates to:
+  /// **'The decimal point in this value may have been misread. Check it on the pack.'**
+  String get warningDecimalShift;
+
   /// No description provided for @warningDerivedFromServing.
   ///
   /// In en, this message translates to:
@@ -3939,6 +3945,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The energy doesn\'t match the other values. Check it on the pack.'**
   String get warningEnergyMismatch;
+
+  /// No description provided for @warningFatPartsMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturated and trans fat add up to more than the total fat. Check these values on the pack.'**
+  String get warningFatPartsMismatch;
 
   /// No description provided for @warningImplausibleValue.
   ///

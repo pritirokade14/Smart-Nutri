@@ -49,7 +49,6 @@
   "serving_size_g": null,
   "veg_mark": "veg",
   "warnings": [
-    "energy_mismatch",
     "upper_bound:per_100g.protein_g"
   ]
 }

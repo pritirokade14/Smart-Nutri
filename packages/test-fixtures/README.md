@@ -68,7 +68,7 @@ drafts/<case>.json     # ProductDraft exactly as POST /v1/scans/label returns it
 drafts/expected.json   # {"format_version": 1, "cases": {"<case>": {...}}}
 ```
 
-Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `per_serving_only_no_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_and_basis`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`.
+Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `per_serving_only_no_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_and_basis`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`, and the label accuracy v2 checks: `energy_decimal_shift`, `salt_sodium_mismatch`. A failed arithmetic check (`energy_mismatch`, `kcal_kj_mismatch`, `salt_sodium_mismatch`, `fat_parts_mismatch`, `decimal_shift:<path>`, `column_mismatch:<field>`) puts the fields it involves in `engine_withheld` and in every offered column's `confirm_fields`, so an unticked one is stored as null.
 
 **`draft.confirm`** (the hints):
 

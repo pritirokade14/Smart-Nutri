@@ -2258,12 +2258,20 @@ class AppLocalizationsMr extends AppLocalizations {
       'हे कोणत्या प्रकारचे उत्पादन आहे हे आम्हाला समजले नाही. एक निवडा.';
 
   @override
+  String get warningDecimalShift =>
+      'या मूल्यातील दशांश चिन्ह कदाचित चुकीचे वाचले गेले आहे. ते पॅकवर तपासा.';
+
+  @override
   String get warningDerivedFromServing =>
       'हे मूल्य प्रति सर्व्हिंगच्या प्रमाणावरून काढले आहे. ते पॅकशी जुळवून पाहा.';
 
   @override
   String get warningEnergyMismatch =>
       'ऊर्जेचे मूल्य इतर मूल्यांशी जुळत नाही. ते पॅकवर तपासा.';
+
+  @override
+  String get warningFatPartsMismatch =>
+      'संपृक्त आणि ट्रान्स फॅट मिळून एकूण फॅटपेक्षा जास्त होत आहेत. ही मूल्ये पॅकवर तपासा.';
 
   @override
   String get warningImplausibleValue =>

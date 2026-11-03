@@ -44,7 +44,26 @@ Listed in `ENGINE_FIELDS` order, without duplicates:
 - every engine field, when `basis_mismatch` (the printed basis is in doubt);
 - `protein_g` / `fiber_g` printed as "<X" on the column used (an upper bound is never
   evidence for a positive reason such as good_protein_density);
-- `sodium_mg`, when `unit_unconfirmed` (sodium printed without a unit on the column used).
+- `sodium_mg`, when `unit_unconfirmed` (sodium printed without a unit on the column used);
+- every printed field a failed arithmetic check involves (label accuracy v2), using the map
+  `confirm_rules.CHECK_FIELDS` shared with the confirm hints: `energy_mismatch` -> energy,
+  protein, carbs, fat, fibre; `kcal_kj_mismatch` -> energy; `salt_sodium_mismatch` -> salt,
+  sodium; `fat_parts_mismatch` -> fat, sat fat; `decimal_shift:<path>` -> that field.
+
+Arithmetic checks (on the column used; tolerances are data-quality constants, not health
+thresholds, and are tested in tests/unit/scans/test_consistency_checks.py):
+- Atwater: |kcal - E| <= max(ENERGY_MISMATCH_RATIO x kcal, ENERGY_MISMATCH_MIN_KCAL), where E
+  may be anywhere in 4p + 4c + 9f +/- FIBRE_KCAL_PER_G x fibre (carbs with or without fibre;
+  fibre at 2 kcal/g), so honest high-fibre labels are not flagged.
+- kcal vs kJ: |kJ / 4.184 - kcal| within the same energy tolerance.
+- salt vs sodium: |salt - sodium x 2.5 / 1000| <= SALT_MISMATCH_RATIO x salt. A unit-less
+  sodium passes when either reading (mg or g) does (its unit is asked anyway).
+- fat parts: sat + trans <= fat + CROSS_FIELD_TOLERANCE_G (sugars <= carbs and sat <= fat are
+  the engine's own `implausible_value` checks; added <= total sugars and trans <= fat are the
+  display-only ones).
+- decimal-shift probe: when x10 or /10 (DECIMAL_SHIFT_FACTORS) on ONE field makes a failed
+  Atwater check pass, that field is named; salt and sodium are named together (x10 on one is
+  /10 on the other).
 
 `confirm` (ruling R21): what the confirm screen must ask (basis, category, ticks, sodium unit)
 per offered basis. Computed from the draft's own fields by
@@ -62,9 +81,12 @@ Warning codes, always in this order:
   per_serving_ignored         per-serving values were printed but not used (the per-100 g
                               column was used and lacks those fields, or nothing could be
                               derived); the columns are never mixed
-  energy_mismatch             kcal disagrees with 4p + 4c + 9f
+  energy_mismatch             kcal disagrees with 4p + 4c + 9f (+/- 2 kcal/g fibre)
   kcal_kj_mismatch            printed kcal disagrees with printed kJ / 4.184 (kcal is used)
   salt_sodium_mismatch        salt disagrees with sodium x 2.5 / 1000
+  fat_parts_mismatch          sat fat + trans fat is more than total fat
+  decimal_shift:<path>        a x10 or /10 slip on this printed cell would explain a failed
+                              check (draft field order)
   unit_unconfirmed:<path>     sodium printed without a unit, per printed column
                               (per_100g first, then per_serving); the printed number is shown;
                               withheld from the engine when on the column used
@@ -80,7 +102,7 @@ Warning codes, always in this order:
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -88,6 +110,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from app.features.products.confirm_rules import (
     UPPER_BOUND_FIELDS,
     DraftConfirm,
+    checked_fields,
     confirm_hints,
     placeholder_confirm,
 )
@@ -124,6 +147,25 @@ EngineField = Literal[
     "sodium_mg",
 ]
 ENGINE_FIELDS: tuple[EngineField, ...] = get_args(EngineField)
+# Every warning code `to_draft` can emit (the part before ":"), in warning order. Each needs
+# `warning.<code>` in packages/i18n (tests/unit/scans/test_warning_codes_i18n.py).
+WARNING_CODES: tuple[str, ...] = (
+    "implausible_value",
+    "per_100g_missing",
+    "basis_mismatch",
+    "per_serving_ignored",
+    "energy_mismatch",
+    "kcal_kj_mismatch",
+    "salt_sodium_mismatch",
+    "fat_parts_mismatch",
+    "decimal_shift",
+    "unit_unconfirmed",
+    "low_confidence",
+    "category_unknown",
+    "category_check",
+    "unreadable_field",
+    "upper_bound",
+)
 
 
 class DraftNutrients(NutrientsOut):
@@ -184,6 +226,10 @@ _KJ_PER_KCAL = 4.184  # unit conversion, as in products/off_mapping.py
 ENERGY_MISMATCH_RATIO = 0.15
 ENERGY_MISMATCH_MIN_KCAL = 20.0
 SALT_MISMATCH_RATIO = 0.2
+# Label accuracy v2 (data-quality constants, not health thresholds). Fibre counts 2 kcal/g
+# (EU Regulation 1169/2011 Annex XIV). A decimal slip is one field off by x10 or /10.
+FIBRE_KCAL_PER_G = 2.0
+DECIMAL_SHIFT_FACTORS = (10.0, 0.1)
 # Ruling R10: an unreadable ingredient list or allergen line caps confidence here, below
 # the engine's min_extraction_confidence (a test keeps it below), so allergens are unknown.
 UNREADABLE_ALLERGEN_CONFIDENCE_CAP = 0.69
@@ -337,17 +383,64 @@ def _sodium_unit_unconfirmed(col: NutrientsIn | None) -> bool:
     return col is not None and col.sodium_mg is not None and col.sodium_unit is None
 
 
-def _consistency_warnings(values: dict[str, float | None], col: NutrientsIn | None) -> list[str]:
+_ATWATER_FIELDS = ("energy_kcal", "protein_g", "carbs_g", "fat_g", "fiber_g")
+
+
+def _atwater_ok(v: Mapping[str, float | None]) -> bool:
+    """kcal agrees with 4p + 4c + 9f within `_energy_tolerance`, the expected value widened by
+    `FIBRE_KCAL_PER_G` x fibre either way: carbs that include fibre give 4p + 4(c - fib) + 9f
+    + 2 fib (= base - 2 fib); carbs that exclude it give base + 2 fib. Callers check that kcal,
+    p, c and f are printed; a missing fibre gives no widening."""
+    kcal, p, c, f = (v[k] or 0.0 for k in _ATWATER_FIELDS[:4])
+    base = 4 * p + 4 * c + 9 * f
+    widen = FIBRE_KCAL_PER_G * (v["fiber_g"] or 0.0)
+    gap = max(base - widen - kcal, kcal - base - widen, 0.0)
+    return gap <= _energy_tolerance(kcal)
+
+
+def _salt_ok(salt: float, sodium_mg: float) -> bool:
+    salt_from_sodium = Nutrients(sodium_mg=sodium_mg).salt()  # the engine's conversion
+    return salt_from_sodium is None or abs(salt - salt_from_sodium) <= SALT_MISMATCH_RATIO * salt
+
+
+def _salt_sodium_ok(salt: float, sodium: float, *, unit_unconfirmed: bool) -> bool:
+    """Salt agrees with sodium. A unit-less sodium agrees when either reading (mg or g) does:
+    its unit is asked anyway, and salt cannot be blamed for the missing unit."""
+    readings = (sodium, sodium * 1000) if unit_unconfirmed else (sodium,)
+    return any(_salt_ok(salt, mg) for mg in readings)
+
+
+def _decimal_shift_suspects(
+    values: Mapping[str, float | None],
+    fields: tuple[str, ...],
+    passes: Callable[[Mapping[str, float | None]], bool],
+) -> list[str]:
+    """Printed fields where x10 or /10 on that field alone makes a failed check pass."""
+    return [
+        f
+        for f in fields
+        if values[f] is not None
+        and any(passes({**values, f: values[f] * k}) for k in DECIMAL_SHIFT_FACTORS)
+    ]
+
+
+def _consistency_warnings(
+    values: dict[str, float | None],
+    col: NutrientsIn | None,
+    path: _Column,
+    *,
+    sodium_unit_unconfirmed: bool,
+) -> list[str]:
+    """Arithmetic checks on the column used (label accuracy v2 item 1). Each failed check
+    withholds the fields it involves (`confirm_rules.CHECK_FIELDS`); `decimal_shift:<path>`
+    names a field that a x10 or /10 slip would explain."""
     warnings: list[str] = []
-    kcal, p, c, f = (values[k] for k in ("energy_kcal", "protein_g", "carbs_g", "fat_g"))
-    if (
-        kcal is not None
-        and p is not None
-        and c is not None
-        and f is not None
-        and abs(kcal - (4 * p + 4 * c + 9 * f)) > _energy_tolerance(kcal)
-    ):
+    suspects: list[str] = []
+    if all(values[k] is not None for k in _ATWATER_FIELDS[:4]) and not _atwater_ok(values):
         warnings.append("energy_mismatch")
+        found = _decimal_shift_suspects(values, _ATWATER_FIELDS, _atwater_ok)
+        if len(found) == 1:  # name a field only when exactly one explains the gap
+            suspects += found
 
     # Both energies printed on the column used and they disagree (printed kcal wins).
     printed_kcal = _finite(col.energy_kcal) if col is not None else None
@@ -361,12 +454,26 @@ def _consistency_warnings(values: dict[str, float | None], col: NutrientsIn | No
 
     salt, sodium = values["salt_g"], values["sodium_mg"]
     if salt is not None and sodium is not None:
-        salt_from_sodium = Nutrients(sodium_mg=sodium).salt()  # the engine's conversion
-        if salt_from_sodium is not None and abs(salt - salt_from_sodium) > (
-            SALT_MISMATCH_RATIO * salt
-        ):
-            warnings.append("salt_sodium_mismatch")
 
+        def salt_passes(v: Mapping[str, float | None]) -> bool:
+            s, na = v["salt_g"] or 0.0, v["sodium_mg"] or 0.0  # both printed here
+            return _salt_sodium_ok(s, na, unit_unconfirmed=sodium_unit_unconfirmed)
+
+        if not salt_passes(values):
+            warnings.append("salt_sodium_mismatch")
+            # x10 on salt and /10 on sodium are the same fix, so both (or neither) are named.
+            suspects += _decimal_shift_suspects(values, ("salt_g", "sodium_mg"), salt_passes)
+
+    fat, sat, trans = values["fat_g"], values["sat_fat_g"], values["trans_fat_g"]
+    if (
+        fat is not None
+        and sat is not None
+        and trans is not None
+        and sat + trans > fat + CROSS_FIELD_TOLERANCE_G
+    ):
+        warnings.append("fat_parts_mismatch")
+
+    warnings += [f"decimal_shift:{path}.{f}" for f in DraftNutrients.model_fields if f in suspects]
     return warnings
 
 
@@ -396,6 +503,7 @@ def _engine_withheld(
     values: dict[str, float | None],
     source: NutrientsIn | None,
     path: _Column,
+    warnings: list[str],
     *,
     basis_mismatch: bool,
 ) -> list[EngineField]:
@@ -408,6 +516,8 @@ def _engine_withheld(
     withheld |= {f for f in UPPER_BOUND_FIELDS if f"{path}.{f}" in bounds and values[f] is not None}
     if _sodium_unit_unconfirmed(source):
         withheld.add("sodium_mg")
+    # Fields a failed arithmetic check involves (the same map the confirm hints use).
+    withheld |= {f for f in checked_fields(warnings) if values.get(f) is not None}
     return [f for f in ENGINE_FIELDS if f in withheld]
 
 
@@ -463,7 +573,9 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
         warnings.append("basis_mismatch")
     if _per_serving_ignored(values, per_serving, path):
         warnings.append("per_serving_ignored")
-    warnings += _consistency_warnings(values, source)
+    warnings += _consistency_warnings(
+        values, source, path, sodium_unit_unconfirmed=_sodium_unit_unconfirmed(source)
+    )
     # Each printed column with a unit-less sodium (both can be saved, R17).
     for column, col in (("per_100g", per_100_col), ("per_serving", per_serving_col)):
         if _sodium_unit_unconfirmed(col):
@@ -478,7 +590,7 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
     warnings += _path_warnings("unreadable_field", e.unreadable_fields)
     warnings += _path_warnings("upper_bound", e.upper_bound_fields)
 
-    withheld = _engine_withheld(e, values, source, path, basis_mismatch=basis_mismatch)
+    withheld = _engine_withheld(e, values, source, path, warnings, basis_mismatch=basis_mismatch)
     return ProductDraft(
         name=_text(e.product_name),
         brand=_text(e.brand),

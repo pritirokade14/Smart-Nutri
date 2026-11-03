@@ -2253,12 +2253,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t tell what type of product this is. Choose one.';
 
   @override
+  String get warningDecimalShift =>
+      'The decimal point in this value may have been misread. Check it on the pack.';
+
+  @override
   String get warningDerivedFromServing =>
       'This value was worked out from the per-serving amount. Check it against the pack.';
 
   @override
   String get warningEnergyMismatch =>
       'The energy doesn\'t match the other values. Check it on the pack.';
+
+  @override
+  String get warningFatPartsMismatch =>
+      'Saturated and trans fat add up to more than the total fat. Check these values on the pack.';
 
   @override
   String get warningImplausibleValue =>
