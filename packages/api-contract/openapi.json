@@ -1778,6 +1778,144 @@
         "title": "MemberStatus",
         "type": "string"
       },
+      "Methodology": {
+        "properties": {
+          "language": {
+            "$ref": "#/components/schemas/MethodologyLanguage"
+          },
+          "pending_clinician_review": {
+            "title": "Pending Clinician Review",
+            "type": "boolean"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/MethodologySection"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/MethodologySource"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "version": {
+            "description": "Changes whenever any shown value changes.",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "language",
+          "pending_clinician_review",
+          "sections",
+          "sources"
+        ],
+        "title": "Methodology",
+        "type": "object"
+      },
+      "MethodologyLanguage": {
+        "enum": [
+          "en",
+          "hi",
+          "mr"
+        ],
+        "title": "MethodologyLanguage",
+        "type": "string"
+      },
+      "MethodologySection": {
+        "description": "One part of \"How we score\". Clients render `methodology.section.<id>.*` strings; the\nAPI sends no prose.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "rationale_sources": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source ids for why the rule exists. Null as for threshold_sources.",
+            "title": "Rationale Sources"
+          },
+          "threshold_sources": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source ids for the numbers. Null: a member preference with nothing to cite.",
+            "title": "Threshold Sources"
+          },
+          "thresholds": {
+            "additionalProperties": true,
+            "description": "The live rule values from the rules engine config (shape differs per section). Never written by hand.",
+            "title": "Thresholds",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "threshold_sources",
+          "rationale_sources",
+          "thresholds"
+        ],
+        "title": "MethodologySection",
+        "type": "object"
+      },
+      "MethodologySource": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "description": "Document title as published (a citation, not UI prose).",
+            "title": "Title",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "url_verified": {
+            "description": "False until a person has checked the link. Clients must not present an unverified link as authoritative.",
+            "title": "Url Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "url",
+          "url_verified"
+        ],
+        "title": "MethodologySource",
+        "type": "object"
+      },
       "NutriScoreGrade": {
         "description": "Nutri-Score grade, calculated by SmartNutri (never an FSSAI rating).",
         "enum": [
@@ -4544,6 +4682,89 @@
         "summary": "Members Update",
         "tags": [
           "members"
+        ]
+      }
+    },
+    "/v1/methodology": {
+      "get": {
+        "description": "How SmartNutri scores products: every rule's live thresholds and their sources.\n\nPublic (no token). The values come from the rules engine config, never written by hand;\n`pending_clinician_review` stays true until a clinician signs the thresholds off.\nSection titles and descriptions are client strings (`methodology.section.<id>.*`).",
+        "operationId": "methodology_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "language",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/MethodologyLanguage",
+              "default": "en"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Methodology"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "summary": "Methodology Get",
+        "tags": [
+          "methodology"
         ]
       }
     },

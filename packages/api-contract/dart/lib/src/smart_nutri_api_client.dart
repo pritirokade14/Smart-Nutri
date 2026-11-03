@@ -10,6 +10,7 @@ import 'health/health_client.dart';
 import 'me/me_client.dart';
 import 'meals/meals_client.dart';
 import 'members/members_client.dart';
+import 'methodology/methodology_client.dart';
 import 'products/products_client.dart';
 import 'scans/scans_client.dart';
 import 'voice/voice_client.dart';
@@ -31,6 +32,7 @@ class SmartNutriApiClient {
   MeClient? _me;
   MealsClient? _meals;
   MembersClient? _members;
+  MethodologyClient? _methodology;
   ProductsClient? _products;
   ScansClient? _scans;
   VoiceClient? _voice;
@@ -49,6 +51,9 @@ class SmartNutriApiClient {
 
   MembersClient get members =>
       _members ??= MembersClient(_dio, baseUrl: _baseUrl);
+
+  MethodologyClient get methodology =>
+      _methodology ??= MethodologyClient(_dio, baseUrl: _baseUrl);
 
   ProductsClient get products =>
       _products ??= ProductsClient(_dio, baseUrl: _baseUrl);

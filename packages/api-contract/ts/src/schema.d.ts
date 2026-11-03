@@ -197,6 +197,30 @@ export interface paths {
         patch: operations["members_update"];
         trace?: never;
     };
+    "/v1/methodology": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Methodology Get
+         * @description How SmartNutri scores products: every rule's live thresholds and their sources.
+         *
+         *     Public (no token). The values come from the rules engine config, never written by hand;
+         *     `pending_clinician_review` stays true until a clinician signs the thresholds off.
+         *     Section titles and descriptions are client strings (`methodology.section.<id>.*`).
+         */
+        get: operations["methodology_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products": {
         parameters: {
             query?: never;
@@ -1010,6 +1034,69 @@ export interface components {
          * @enum {string}
          */
         MemberStatus: "ok" | "caution" | "unknown" | "avoid";
+        /** Methodology */
+        Methodology: {
+            language: components["schemas"]["MethodologyLanguage"];
+            /** Pending Clinician Review */
+            pending_clinician_review: boolean;
+            /** Sections */
+            sections: components["schemas"]["MethodologySection"][];
+            /** Sources */
+            sources: components["schemas"]["MethodologySource"][];
+            /**
+             * Version
+             * @description Changes whenever any shown value changes.
+             */
+            version: string;
+        };
+        /**
+         * MethodologyLanguage
+         * @enum {string}
+         */
+        MethodologyLanguage: "en" | "hi" | "mr";
+        /**
+         * MethodologySection
+         * @description One part of "How we score". Clients render `methodology.section.<id>.*` strings; the
+         *     API sends no prose.
+         */
+        MethodologySection: {
+            /** Id */
+            id: string;
+            /**
+             * Rationale Sources
+             * @description Source ids for why the rule exists. Null as for threshold_sources.
+             */
+            rationale_sources: string[] | null;
+            /**
+             * Threshold Sources
+             * @description Source ids for the numbers. Null: a member preference with nothing to cite.
+             */
+            threshold_sources: string[] | null;
+            /**
+             * Thresholds
+             * @description The live rule values from the rules engine config (shape differs per section). Never written by hand.
+             */
+            thresholds: {
+                [key: string]: unknown;
+            };
+        };
+        /** MethodologySource */
+        MethodologySource: {
+            /** Id */
+            id: string;
+            /**
+             * Title
+             * @description Document title as published (a citation, not UI prose).
+             */
+            title: string;
+            /** Url */
+            url: string | null;
+            /**
+             * Url Verified
+             * @description False until a person has checked the link. Clients must not present an unverified link as authoritative.
+             */
+            url_verified: boolean;
+        };
         /**
          * NutriScoreGrade
          * @description Nutri-Score grade, calculated by SmartNutri (never an FSSAI rating).
@@ -2590,6 +2677,73 @@ export interface operations {
             };
             /** @description Consent required: saving health fields needs the health_data consent */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    methodology_get: {
+        parameters: {
+            query?: {
+                language?: components["schemas"]["MethodologyLanguage"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Methodology"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
