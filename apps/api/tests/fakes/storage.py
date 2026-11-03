@@ -5,7 +5,24 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 
-from app.integrations.storage import StorageNotFound, StorageUnavailable
+import httpx
+from pydantic import SecretStr
+
+from app.integrations.storage import StorageNotFound, StorageUnavailable, SupabaseStorage
+
+
+def missing_bucket_storage(bucket: str) -> SupabaseStorage:
+    """The real SupabaseStorage over a MockTransport where `bucket` does not exist (C1).
+    Answers like older Supabase Storage releases: 400 with statusCode "404"."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = {"statusCode": "404", "error": "Bucket not found", "message": "Bucket not found"}
+        return httpx.Response(400, json=body)
+
+    http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    return SupabaseStorage(
+        http, url="https://proj.supabase.co", secret_key=SecretStr("sb_secret_x"), bucket=bucket
+    )
 
 
 class FakeStorage:

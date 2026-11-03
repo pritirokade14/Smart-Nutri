@@ -13,7 +13,7 @@ from app.features.me.service import ACCOUNT_OWNED_TABLES, ensure_account, erase_
 from app.integrations import posthog
 from app.integrations.storage import get_storage, get_voice_storage
 from app.integrations.supabase_admin import AdminUnavailable, get_supabase_admin
-from tests.fakes.storage import FakeStorage
+from tests.fakes.storage import FakeStorage, missing_bucket_storage
 
 A = UUID("11111111-1111-1111-1111-111111111111")
 B = UUID("22222222-2222-2222-2222-222222222222")
@@ -439,3 +439,20 @@ async def test_consents_record_is_rate_limited_per_day(app, client, login, db_se
     assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
     # Reading consent state is not limited.
     assert (await client.get("/v1/consents")).status_code == 200
+
+
+# --- C1: a bucket that does not exist holds nothing to delete ---------------------------------
+
+
+async def test_delete_me_succeeds_when_both_buckets_are_missing(
+    app, client, login, db_session, storage, admin
+):
+    await seed(db_session, A, storage)  # its scan row still points at a label photo path
+    login(A)
+    app.dependency_overrides[get_storage] = lambda: missing_bucket_storage("label-photos")
+    app.dependency_overrides[get_voice_storage] = lambda: missing_bucket_storage("voice-answers")
+    r = await client.delete("/v1/me")
+    assert r.status_code == 204
+    assert set((await counts(db_session, A)).values()) == {0}
+    assert await tombstoned(db_session, A)
+    assert admin.deleted == [A]

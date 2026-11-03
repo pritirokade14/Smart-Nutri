@@ -136,6 +136,50 @@ async def test_network_error_raises_unavailable():
         await storage.delete_paths([f"{A}/x.jpg"])
 
 
+# --- C1: a missing bucket holds nothing (account deletion and retention must not 503) ----------
+
+# Current Supabase Storage answers a missing bucket with 404 NoSuchBucket; older releases with
+# 400 and statusCode "404".
+BUCKET_MISSING = [
+    httpx.Response(
+        404,
+        json={
+            "statusCode": "404",
+            "code": "NoSuchBucket",
+            "error": "Bucket not found",
+            "message": "Bucket not found",
+        },
+    ),
+    httpx.Response(
+        400, json={"statusCode": "404", "error": "Bucket not found", "message": "Bucket not found"}
+    ),
+    httpx.Response(400, json={"statusCode": "400", "message": "Bucket not found"}),
+    httpx.Response(404),
+]
+
+
+@pytest.mark.parametrize("missing", BUCKET_MISSING)
+async def test_list_of_a_missing_bucket_is_empty(missing):
+    storage, _ = make(lambda r: missing)
+    assert await storage.list_prefix(A) == []
+    assert await storage.list_prefix("") == []
+
+
+@pytest.mark.parametrize("missing", BUCKET_MISSING)
+async def test_delete_in_a_missing_bucket_is_a_no_op(missing):
+    storage, seen = make(lambda r: missing)
+    await storage.delete_paths([f"{A}/x.jpg"])
+    assert len(seen) == 1
+
+
+async def test_other_400_on_list_or_delete_is_still_unavailable():
+    storage, _ = make(lambda r: httpx.Response(400, json={"error": "invalid_jwt"}))
+    with pytest.raises(StorageUnavailable):
+        await storage.list_prefix(A)
+    with pytest.raises(StorageUnavailable):
+        await storage.delete_paths([f"{A}/x.jpg"])
+
+
 async def test_unconfigured_storage_refuses():
     with pytest.raises(StorageUnavailable):
         await _UnconfiguredStorage().list_prefix(A)

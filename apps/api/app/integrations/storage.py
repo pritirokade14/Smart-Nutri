@@ -65,12 +65,14 @@ class StorageClient(Protocol):
         """Every object path under the folder `prefix` ("" = whole bucket), recursively.
 
         With `older_than`, only objects created before it; objects without a timestamp are
-        then left out (never treated as old). Raises StorageUnavailable.
+        then left out (never treated as old). A missing bucket lists as empty. Raises
+        StorageUnavailable.
         """
         ...
 
     async def delete_paths(self, paths: Sequence[str]) -> None:
-        """Delete these objects. Missing ones are ignored. Raises StorageUnavailable."""
+        """Delete these objects. Missing ones (or a missing bucket) are ignored. Raises
+        StorageUnavailable."""
         ...
 
 
@@ -88,6 +90,24 @@ def _is_not_found(response: httpx.Response) -> bool:
         return False
     error = str(body.get("error", "")).lower()
     return str(body.get("statusCode")) == "404" or error in {"not_found", "object not found"}
+
+
+def _is_bucket_missing(response: httpx.Response) -> bool:
+    """The bucket does not exist (C1). A list or bulk delete in an existing bucket never
+    answers 404, so for those calls any not-found means the bucket is missing, which means
+    there is nothing in it to list or delete."""
+    if _is_not_found(response):
+        return True
+    if response.status_code != 400:
+        return False
+    try:
+        body = response.json()
+    except ValueError:
+        return False
+    if not isinstance(body, dict):
+        return False
+    texts = {str(body.get(k, "")).lower() for k in ("error", "message", "code")}
+    return bool(texts & {"bucket not found", "nosuchbucket"})
 
 
 class SupabaseStorage:
@@ -228,6 +248,9 @@ class SupabaseStorage:
             except httpx.HTTPError:
                 logger.warning("storage_list status=network_error")
                 raise StorageUnavailable("network error") from None
+            if response.status_code != 200 and _is_bucket_missing(response):
+                logger.info("storage_list status=bucket_missing")
+                return []  # C1: no bucket, nothing in it
             if response.status_code != 200:
                 logger.warning("storage_list status=%d", response.status_code)
                 raise StorageUnavailable("list failed")
@@ -254,6 +277,9 @@ class SupabaseStorage:
             except httpx.HTTPError:
                 logger.warning("storage_delete status=network_error")
                 raise StorageUnavailable("network error") from None
+            if response.status_code != 200 and _is_bucket_missing(response):
+                logger.info("storage_delete status=bucket_missing")
+                return  # C1: no bucket, so these objects are already gone
             if response.status_code != 200:
                 logger.warning("storage_delete status=%d", response.status_code)
                 raise StorageUnavailable("delete failed")

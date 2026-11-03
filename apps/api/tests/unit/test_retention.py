@@ -16,7 +16,7 @@ from app.features.me.service import ensure_account
 from app.jobs import retention
 from app.jobs.retention import RetentionResult, run_retention
 from tests.db.conftest import alembic_cfg, db, migrated, pg_url  # noqa: F401
-from tests.fakes.storage import FakeStorage
+from tests.fakes.storage import FakeStorage, missing_bucket_storage
 
 A = UUID("11111111-1111-1111-1111-111111111111")
 NOW = datetime(2026, 11, 3, 21, 0, tzinfo=UTC)
@@ -252,6 +252,24 @@ async def test_storage_outage_purges_no_tombstone(session):
     with pytest.raises(Exception):  # noqa: B017 - StorageUnavailable surfaces; the job exits 1
         await run_retention(NOW, session, storage)
     assert await tombstone_ids(session) == {old}
+
+
+async def test_missing_buckets_mean_nothing_to_delete(session):
+    """C1: both buckets missing (not created yet on an environment): the job still nulls old
+    scan paths and purges tombstones instead of failing."""
+    path, _ = label(timedelta(days=31))
+    scan = await add_scan(session, path, timedelta(days=31))
+    old = uuid4()
+    await add_tombstone(session, old, timedelta(days=10))
+    result = await run_retention(
+        NOW,
+        session,
+        missing_bucket_storage("label-photos"),
+        voice_storage=missing_bucket_storage("voice-answers"),
+    )
+    assert result == RetentionResult(0, 0, scans_nulled=1, tombstones_purged=1)
+    assert await image_path(session, scan) is None
+    assert await tombstone_ids(session) == set()
 
 
 def test_tombstone_window_is_7_days():
