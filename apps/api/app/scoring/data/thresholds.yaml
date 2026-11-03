@@ -69,3 +69,15 @@ conditions:
     # 5 g lets plain milk (~4.7 g lactose) pass; infant formula (~7 g) would be flagged)
     avoid_sugars_g: 5.0
     avoid_salt_g: 0.3
+# Sources shown on "How we score" (methodology(); Plan 5 T2). Read only by methodology(),
+# never by the rules. url_verified: false until a human has opened and checked each URL
+# (Ruling P5-R10); the public M5 page must not ship unverified links.
+sources:
+  nutriscore_2023: {title: "Nutri-Score 2023 update (Santé publique France)", url: "https://www.santepubliquefrance.fr/nutri-score-2023-update", url_verified: false}
+  uk_fsa_front_of_pack: {title: "UK FSA front-of-pack guidance (high thresholds)", url: "https://www.food.gov.uk/safety-hygiene/check-the-label", url_verified: false}
+  fssai_claims_2018: {title: "FSSAI (Advertising & Claims) Regulations 2018", url: "https://www.fssai.gov.in/upload/uploadfiles/files/Compendium_Advertising_Claims_Regulations_14_12_2022.pdf", url_verified: false}
+  fssai_labelling_2020: {title: "FSSAI Labelling & Display Regulations 2020", url: "https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php", url_verified: false}
+  icmr_nin_2024: {title: "ICMR-NIN Dietary Guidelines for Indians 2024", url: "https://www.nin.res.in/dietaryguidelines/", url_verified: false}
+  nhs_child_sugar: {title: "NHS: sugar limits for children", url: "https://www.nhs.uk/live-well/eat-well/food-types/how-does-sugar-in-our-diet-affect-our-health/", url_verified: false}
+  who_infant: {title: "WHO guidance: no added sugar or salt under 2", url: "https://www.who.int/news-room/fact-sheets/detail/healthy-diet", url_verified: false}
+section_sources: {nutriscore_2023: nutriscore_2023, high_in: uk_fsa_front_of_pack, allergens: fssai_labelling_2020, diet: fssai_labelling_2020, claims: fssai_claims_2018, blood_sugar: icmr_nin_2024, hypertension: icmr_nin_2024, weight_loss: icmr_nin_2024, child: nhs_child_sugar, infant: who_infant, custom_alerts: fssai_labelling_2020}

@@ -1,6 +1,7 @@
 from app.scoring.claims import ClaimCheck
 from app.scoring.config import load_config
 from app.scoring.custom_alerts import custom_alert_reasons
+from app.scoring.methodology import methodology
 from app.scoring.models import (
     CUSTOM_ALERT_KEYS,
     AllergenState,
@@ -35,4 +36,5 @@ __all__ = [
     "analyze",
     "custom_alert_reasons",
     "load_config",
+    "methodology",
 ]
