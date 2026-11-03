@@ -50,7 +50,7 @@ class _ConsentsSectionState extends ConsumerState<ConsentsSection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionHeader(
-          title: l10n.profileConsentsTitle,
+          title: l10n.profilePrivacyTitle,
           icon: Icons.shield_outlined,
         ),
         states.when(

@@ -108,7 +108,7 @@ class _MemberTile extends StatelessWidget {
     final m = member;
     final details = [
       relationLabel(l10n, m.relation.json),
-      if (m.birthYear case final year?) l10n.membersBornIn('$year'),
+      if (m.birthYear case final year?) l10n.membersBorn('$year'),
       dietLabel(l10n, m.diet.json ?? ''),
     ].where((s) => s.isNotEmpty).join(' · ');
     final health = [

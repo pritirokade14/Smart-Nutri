@@ -120,6 +120,12 @@ export function MemberForm({ member }: { member?: MemberOut }) {
   const allergenLabel = (a: string) =>
     isCanonicalAllergen(a) ? t(`allergen.${a}`) : a;
   const familyUrl = `/${locale}/family`;
+  // Same fallback as Android: the typed name, else "You" or the relation.
+  const displayName = () =>
+    values.name.trim() ||
+    (isPrimary
+      ? t("members.you_badge")
+      : t(`members.relation.${values.relation || "other"}`));
 
   function addAllergen(a: string) {
     if (values.allergens.includes(a)) return;
@@ -522,6 +528,7 @@ export function MemberForm({ member }: { member?: MemberOut }) {
         <ConfirmDialog
           message={t("members.form.remove_allergy_confirm", {
             allergen: allergenLabel(confirmAllergen),
+            name: displayName(),
           })}
           confirmLabel={t("members.remove")}
           cancelLabel={t("members.form.cancel")}

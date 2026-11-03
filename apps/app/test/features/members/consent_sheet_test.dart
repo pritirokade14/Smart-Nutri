@@ -54,7 +54,7 @@ void main() {
       final consents = await openSheet(t, locale: locale);
       expect(find.text(l.consentHealthDataBody), findsOneWidget);
       expect(find.text(l.consentAiProcessingBody), findsOneWidget);
-      expect(find.text(l.consentOptionalAiNote), findsOneWidget);
+      expect(find.text(l.consentAiOptional), findsOneWidget);
 
       await t.tap(find.byKey(ConsentSheet.aiCheckboxKey));
       await t.pump();

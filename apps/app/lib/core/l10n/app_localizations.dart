@@ -814,6 +814,12 @@ abstract class AppLocalizations {
   /// **'I agree'**
   String get consentAgree;
 
+  /// No description provided for @consentAiOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Without it you still get every result, just no AI explanation.'**
+  String get consentAiOptional;
+
   /// No description provided for @consentAiProcessingBody.
   ///
   /// In en, this message translates to:
@@ -856,11 +862,11 @@ abstract class AppLocalizations {
   /// **'Not agreed'**
   String get consentNotGranted;
 
-  /// No description provided for @consentOptionalAiNote.
+  /// No description provided for @consentRequiredNote.
   ///
   /// In en, this message translates to:
-  /// **'Optional. This only turns on the AI explanation; results are the same without it.'**
-  String get consentOptionalAiNote;
+  /// **'Needed to save allergies, health conditions, a goal, height or weight.'**
+  String get consentRequiredNote;
 
   /// No description provided for @consentTermsBody.
   ///
@@ -1426,11 +1432,11 @@ abstract class AppLocalizations {
   /// **'Add a family member'**
   String get membersAdd;
 
-  /// No description provided for @membersBornIn.
+  /// No description provided for @membersBorn.
   ///
   /// In en, this message translates to:
   /// **'Born {year}'**
-  String membersBornIn(String year);
+  String membersBorn(String year);
 
   /// No description provided for @membersConsentWithdrawnNotice.
   ///
@@ -1449,6 +1455,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get membersFormAllergenAdd;
+
+  /// No description provided for @membersFormAllergenInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'An allergy must be 2 to 40 characters.'**
+  String get membersFormAllergenInvalid;
 
   /// No description provided for @membersFormAllergenLength.
   ///
@@ -1552,17 +1564,35 @@ abstract class AppLocalizations {
   /// **'Height (cm, optional)'**
   String get membersFormHeightCm;
 
+  /// No description provided for @membersFormHeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a height between 30 and 250 cm, or leave it blank.'**
+  String get membersFormHeightInvalid;
+
   /// No description provided for @membersFormName.
   ///
   /// In en, this message translates to:
   /// **'Name'**
   String get membersFormName;
 
+  /// No description provided for @membersFormNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name of up to 40 characters.'**
+  String get membersFormNameInvalid;
+
   /// No description provided for @membersFormNameRequired.
   ///
   /// In en, this message translates to:
   /// **'Enter a name.'**
   String get membersFormNameRequired;
+
+  /// No description provided for @membersFormNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get membersFormNotSet;
 
   /// No description provided for @membersFormNumberRange.
   ///
@@ -1576,11 +1606,23 @@ abstract class AppLocalizations {
   /// **'Relation'**
   String get membersFormRelation;
 
+  /// No description provided for @membersFormRelationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a relation.'**
+  String get membersFormRelationRequired;
+
+  /// No description provided for @membersFormRemoveAllergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {allergen}'**
+  String membersFormRemoveAllergy(String allergen);
+
   /// No description provided for @membersFormRemoveAllergyConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Remove {allergy} from the allergies for {name}? Products with it will no longer be flagged for them.'**
-  String membersFormRemoveAllergyConfirm(String allergy, String name);
+  /// **'Remove {allergen} from the allergies for {name}? Products with it will no longer be flagged for them.'**
+  String membersFormRemoveAllergyConfirm(String allergen, String name);
 
   /// No description provided for @membersFormSave.
   ///
@@ -1593,6 +1635,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sex (optional)'**
   String get membersFormSex;
+
+  /// No description provided for @membersFormWeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a weight between 2 and 300 kg, or leave it blank.'**
+  String get membersFormWeightInvalid;
 
   /// No description provided for @membersFormWeightKg.
   ///
@@ -1617,6 +1665,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lose weight'**
   String get membersGoalWeightLoss;
+
+  /// No description provided for @membersLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 10 family members, the most you can add.'**
+  String get membersLimitReached;
 
   /// No description provided for @membersRelationChild.
   ///
@@ -1852,11 +1906,17 @@ abstract class AppLocalizations {
   /// **'Settings are coming soon'**
   String get profileComingSoonTitle;
 
-  /// No description provided for @profileConsentsTitle.
+  /// No description provided for @profileGiveConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree'**
+  String get profileGiveConsent;
+
+  /// No description provided for @profilePrivacyTitle.
   ///
   /// In en, this message translates to:
   /// **'Privacy and consent'**
-  String get profileConsentsTitle;
+  String get profilePrivacyTitle;
 
   /// No description provided for @profileTitle.
   ///

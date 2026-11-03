@@ -124,7 +124,7 @@ void main() {
     await t.tap(_nav(en.navProfile));
     await t.pumpAndSettle();
     expect(find.byType(ProfileScreen), findsOneWidget);
-    expect(find.text(en.profileConsentsTitle), findsOneWidget);
+    expect(find.text(en.profilePrivacyTitle), findsOneWidget);
     expect(find.text(en.consentHealthDataTitle), findsOneWidget);
     expect(_selected(t), 4);
 

@@ -385,6 +385,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentAgree => 'I agree';
 
   @override
+  String get consentAiOptional =>
+      'Optional. Without it you still get every result, just no AI explanation.';
+
+  @override
   String get consentAiProcessingBody =>
       'Allow SmartNutri to send a summary of each result, without names, to an AI service processed in India, to write a short explanation. The AI never decides a result.';
 
@@ -408,8 +412,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentNotGranted => 'Not agreed';
 
   @override
-  String get consentOptionalAiNote =>
-      'Optional. This only turns on the AI explanation; results are the same without it.';
+  String get consentRequiredNote =>
+      'Needed to save allergies, health conditions, a goal, height or weight.';
 
   @override
   String get consentTermsBody =>
@@ -728,7 +732,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersAdd => 'Add a family member';
 
   @override
-  String membersBornIn(String year) {
+  String membersBorn(String year) {
     return 'Born $year';
   }
 
@@ -741,6 +745,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get membersFormAllergenAdd => 'Add';
+
+  @override
+  String get membersFormAllergenInvalid =>
+      'An allergy must be 2 to 40 characters.';
 
   @override
   String get membersFormAllergenLength => 'Type 2 to 40 characters.';
@@ -802,10 +810,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersFormHeightCm => 'Height (cm, optional)';
 
   @override
+  String get membersFormHeightInvalid =>
+      'Enter a height between 30 and 250 cm, or leave it blank.';
+
+  @override
   String get membersFormName => 'Name';
 
   @override
+  String get membersFormNameInvalid => 'Enter a name of up to 40 characters.';
+
+  @override
   String get membersFormNameRequired => 'Enter a name.';
+
+  @override
+  String get membersFormNotSet => 'Not set';
 
   @override
   String membersFormNumberRange(String max, String min) {
@@ -816,8 +834,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersFormRelation => 'Relation';
 
   @override
-  String membersFormRemoveAllergyConfirm(String allergy, String name) {
-    return 'Remove $allergy from the allergies for $name? Products with it will no longer be flagged for them.';
+  String get membersFormRelationRequired => 'Choose a relation.';
+
+  @override
+  String membersFormRemoveAllergy(String allergen) {
+    return 'Remove $allergen';
+  }
+
+  @override
+  String membersFormRemoveAllergyConfirm(String allergen, String name) {
+    return 'Remove $allergen from the allergies for $name? Products with it will no longer be flagged for them.';
   }
 
   @override
@@ -825,6 +851,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get membersFormSex => 'Sex (optional)';
+
+  @override
+  String get membersFormWeightInvalid =>
+      'Enter a weight between 2 and 300 kg, or leave it blank.';
 
   @override
   String get membersFormWeightKg => 'Weight (kg, optional)';
@@ -837,6 +867,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get membersGoalWeightLoss => 'Lose weight';
+
+  @override
+  String get membersLimitReached =>
+      'You have 10 family members, the most you can add.';
 
   @override
   String get membersRelationChild => 'Child';
@@ -969,7 +1003,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileComingSoonTitle => 'Settings are coming soon';
 
   @override
-  String get profileConsentsTitle => 'Privacy and consent';
+  String get profileGiveConsent => 'Agree';
+
+  @override
+  String get profilePrivacyTitle => 'Privacy and consent';
 
   @override
   String get profileTitle => 'Profile';

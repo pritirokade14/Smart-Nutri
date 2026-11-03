@@ -167,6 +167,7 @@
   "confirmVegMarkVeg": "शाकाहारी (हिरवी खूण)",
   "confirmWithheldHint": "पॅकवर हे मूल्य तपासा, मग खात्रीसाठी टिक करा.",
   "consentAgree": "मी सहमत आहे",
+  "consentAiOptional": "ऐच्छिक. याशिवायही तुम्हाला प्रत्येक निकाल मिळेल, फक्त AI स्पष्टीकरण मिळणार नाही.",
   "consentAiProcessingBody": "प्रत्येक निकालाचा सारांश, नावांशिवाय, भारतात प्रक्रिया होणाऱ्या AI सेवेला पाठवण्याची SmartNutri ला परवानगी द्या, म्हणजे छोटे स्पष्टीकरण लिहिता येईल. निकाल कधीही AI ठरवत नाही.",
   "consentAiProcessingTitle": "AI स्पष्टीकरण",
   "consentDecline": "आत्ता नाही",
@@ -174,7 +175,7 @@
   "consentHealthDataBody": "तुम्ही नोंदवलेल्या ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची आणि वजन वापरून SmartNutri कुटुंबातील प्रत्येक सदस्यासाठी उत्पादने तपासते. ही माहिती आहे, वैद्यकीय सल्ला नाही. तुम्ही ही संमती कधीही मागे घेऊ शकता.",
   "consentHealthDataTitle": "आरोग्य डेटा",
   "consentNotGranted": "संमती दिलेली नाही",
-  "consentOptionalAiNote": "ऐच्छिक. यामुळे फक्त AI स्पष्टीकरण सुरू होते; त्याशिवायही निकाल तेच राहतात.",
+  "consentRequiredNote": "ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची किंवा वजन जतन करण्यासाठी आवश्यक.",
   "consentTermsBody": "मी SmartNutri च्या वापराच्या अटी आणि गोपनीयता धोरणाशी सहमत आहे.",
   "consentTermsTitle": "वापराच्या अटी",
   "consentWithdraw": "संमती मागे घ्या",
@@ -283,8 +284,8 @@
   "languageLabel": "भाषा",
   "languageMr": "मराठी",
   "membersAdd": "कुटुंबातील सदस्य जोडा",
-  "membersBornIn": "जन्म {year}",
-  "@membersBornIn": {
+  "membersBorn": "जन्म वर्ष {year}",
+  "@membersBorn": {
     "placeholders": {
       "year": {
         "type": "String"
@@ -294,6 +295,7 @@
   "membersConsentWithdrawnNotice": "आरोग्य डेटाची संमती बंद आहे. जतन केलेल्या ॲलर्जी आणि आरोग्य स्थिती अजूनही उत्पादनांच्या तपासणीसाठी वापरल्या जातात, पण पुन्हा संमती देईपर्यंत नवीन जतन करता येणार नाहीत.",
   "membersEdit": "बदला",
   "membersFormAllergenAdd": "जोडा",
+  "membersFormAllergenInvalid": "ॲलर्जीचे नाव 2 ते 40 अक्षरांचे असावे.",
   "membersFormAllergenLength": "2 ते 40 अक्षरे लिहा.",
   "membersFormAllergenLimit": "तुम्ही जास्तीत जास्त 20 ॲलर्जी जोडू शकता.",
   "membersFormAllergenOther": "इतर ॲलर्जी",
@@ -325,8 +327,11 @@
   "membersFormGoal": "उद्दिष्ट (ऐच्छिक)",
   "membersFormHealthFieldsNote": "ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची आणि वजन फक्त आरोग्य डेटाच्या वापराला तुमची संमती असल्यासच जतन केले जातात.",
   "membersFormHeightCm": "उंची (सेमी, ऐच्छिक)",
+  "membersFormHeightInvalid": "30 ते 250 सेमी दरम्यान उंची लिहा, किंवा रिकामे ठेवा.",
   "membersFormName": "नाव",
+  "membersFormNameInvalid": "40 अक्षरांपर्यंतचे नाव लिहा.",
   "membersFormNameRequired": "नाव लिहा.",
+  "membersFormNotSet": "ठरवलेले नाही",
   "membersFormNumberRange": "{min} ते {max} मधील संख्या लिहा.",
   "@membersFormNumberRange": {
     "placeholders": {
@@ -339,10 +344,19 @@
     }
   },
   "membersFormRelation": "नाते",
-  "membersFormRemoveAllergyConfirm": "{name} यांच्या ॲलर्जीमधून {allergy} काढायचे? त्यानंतर ते असलेली उत्पादने त्यांच्यासाठी दाखवली जाणार नाहीत.",
+  "membersFormRelationRequired": "नाते निवडा.",
+  "membersFormRemoveAllergy": "{allergen} काढा",
+  "@membersFormRemoveAllergy": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormRemoveAllergyConfirm": "{name} यांच्या ॲलर्जी यादीतून हे काढायचे: {allergen}? त्यानंतर ते असलेल्या उत्पादनांवर त्यांच्यासाठी इशारा दिसणार नाही.",
   "@membersFormRemoveAllergyConfirm": {
     "placeholders": {
-      "allergy": {
+      "allergen": {
         "type": "String"
       },
       "name": {
@@ -352,10 +366,12 @@
   },
   "membersFormSave": "जतन करा",
   "membersFormSex": "लिंग (ऐच्छिक)",
+  "membersFormWeightInvalid": "2 ते 300 किलो दरम्यान वजन लिहा, किंवा रिकामे ठेवा.",
   "membersFormWeightKg": "वजन (किलो, ऐच्छिक)",
   "membersGoalHealthyEating": "चांगला आहार",
   "membersGoalWeightGain": "वजन वाढवणे",
   "membersGoalWeightLoss": "वजन कमी करणे",
+  "membersLimitReached": "तुमच्या कुटुंबात 10 सदस्य आहेत, यापेक्षा जास्त जोडता येणार नाहीत.",
   "membersRelationChild": "मूल",
   "membersRelationOther": "इतर",
   "membersRelationParent": "आई-वडील",
@@ -416,7 +432,8 @@
   "profileBody": "तुमचे खाते, भाषा आणि गोपनीयता सेटिंग्ज इथे असतील.",
   "profileComingSoonBody": "भाषा, गोपनीयता आणि खात्याची सेटिंग्ज इथे दिसतील.",
   "profileComingSoonTitle": "सेटिंग्ज लवकरच येत आहेत",
-  "profileConsentsTitle": "गोपनीयता आणि संमती",
+  "profileGiveConsent": "संमती द्या",
+  "profilePrivacyTitle": "गोपनीयता आणि संमती",
   "profileTitle": "प्रोफाइल",
   "reasonAddedSugars": "यात वरून घातलेली साखर आहे: {ingredients}.",
   "@reasonAddedSugars": {

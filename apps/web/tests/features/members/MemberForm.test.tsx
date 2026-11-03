@@ -278,10 +278,9 @@ describe("MemberForm", () => {
     const confirm = screen.getByTestId("confirm-dialog");
     expect(
       within(confirm).getByText(
-        en.members.form.remove_allergy_confirm.replace(
-          "{allergen}",
-          en.allergen.milk,
-        ),
+        en.members.form.remove_allergy_confirm
+          .replace("{allergen}", en.allergen.milk)
+          .replace("{name}", "Dad"),
       ),
     ).toBeTruthy();
     // Cancel keeps it.

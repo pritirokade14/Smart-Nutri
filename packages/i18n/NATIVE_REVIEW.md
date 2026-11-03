@@ -111,7 +111,7 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `confirm.{section_product,section_nutrition,section_allergens,section_pack}`**: machine drafts for the confirm-screen group titles. Check "एलर्जी कारक" (hi) and "ॲलर्जी घटक" (mr) for "Allergens", and "तालिका" / "तक्ता" for the nutrition table. Check "कृत्रिम स्वीटनर" (hi) and "कृत्रिम स्वीटनर (गोडवा)" (mr), "एमएसजी" for MSG, and keep `added_sugar` consistent with the open "अतिरिक्त चीनी" / "शर्करा" item above.
 
 ## Android family members and consent (Plan 5 Task 9)
-- [ ] **hi/mr `members.form.remove_allergy_confirm`**: machine draft. It warns that a removed allergy is no longer flagged on products, so it must read as a clear, calm warning. Check the hi "इसवाले उत्पाद" phrasing and the mr "यांच्या" honorific with `{name}`.
+- [ ] **hi/mr `members.form.remove_allergy_confirm`**: machine draft. It warns that a removed allergy is no longer flagged on products, so it must read as a clear, calm warning. Integration (wave 2): both clients now share one string; see the integration section below.
 - [ ] **hi/mr `members.born_in`, `members.form.{name_required,birth_year_invalid,number_range,allergen_length,allergen_limit}`**: machine drafts for form labels and validation. Numbers stay in Latin digits.
 - [ ] **hi/mr `consent.optional_ai_note`**: machine draft. It must say the AI consent is optional and that results are the same without it (the AI never decides).
 - [ ] **hi/mr `profile.consents_title`**: machine draft ("गोपनीयता और सहमति" / "गोपनीयता आणि संमती").
@@ -120,3 +120,7 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `members.form.{not_set,name_invalid,relation_required,birth_year_invalid,height_invalid,weight_invalid,allergen_invalid,allergen_limit,remove_allergy}`, `members.{born,limit_reached}`**: machine drafts for form errors and list lines. Check that the error lines read as a calm instruction, not blame.
 - [ ] **hi/mr `members.form.remove_allergy_confirm`**: machine draft, allergy safety copy. It must say plainly that products with this allergen will no longer be flagged for this person. `{allergen}` comes after a colon so the sentence does not agree with the interpolated noun's gender.
 - [ ] **hi/mr `consent.{ai_optional,required_note}`, `profile.{privacy_title,give_consent}`**: machine drafts. `ai_optional` must make clear that every result still appears without AI; only the explanation is missing.
+
+## Integration wave 2 (Plan 5 Android and web merge)
+- [ ] **hi/mr `members.form.remove_allergy_confirm`**: one string for both clients, with `{name}` and `{allergen}`. Integration machine draft. `{allergen}` follows a colon so the sentence does not agree with the noun's gender. It must say plainly that products with this allergen will no longer be flagged for this person.
+- [ ] **Deduped keys**: `members.born_in` became `members.born`, `consent.optional_ai_note` became `consent.ai_optional`, `profile.consents_title` became `profile.privacy_title`. The web texts were kept; the Android drafts above for the removed keys no longer apply.

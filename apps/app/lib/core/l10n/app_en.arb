@@ -167,6 +167,7 @@
   "confirmVegMarkVeg": "Vegetarian (green mark)",
   "confirmWithheldHint": "Check this value on the pack, then tick to confirm it.",
   "consentAgree": "I agree",
+  "consentAiOptional": "Optional. Without it you still get every result, just no AI explanation.",
   "consentAiProcessingBody": "Allow SmartNutri to send a summary of each result, without names, to an AI service processed in India, to write a short explanation. The AI never decides a result.",
   "consentAiProcessingTitle": "AI explanations",
   "consentDecline": "Not now",
@@ -174,7 +175,7 @@
   "consentHealthDataBody": "SmartNutri uses the allergies, health conditions, goal, height and weight you enter to check products for each family member. This is information, not medical advice. You can withdraw this consent at any time.",
   "consentHealthDataTitle": "Health data",
   "consentNotGranted": "Not agreed",
-  "consentOptionalAiNote": "Optional. This only turns on the AI explanation; results are the same without it.",
+  "consentRequiredNote": "Needed to save allergies, health conditions, a goal, height or weight.",
   "consentTermsBody": "I agree to the SmartNutri terms of use and privacy policy.",
   "consentTermsTitle": "Terms of use",
   "consentWithdraw": "Withdraw consent",
@@ -283,8 +284,8 @@
   "languageLabel": "Language",
   "languageMr": "मराठी",
   "membersAdd": "Add a family member",
-  "membersBornIn": "Born {year}",
-  "@membersBornIn": {
+  "membersBorn": "Born {year}",
+  "@membersBorn": {
     "placeholders": {
       "year": {
         "type": "String"
@@ -294,6 +295,7 @@
   "membersConsentWithdrawnNotice": "Health data consent is off. Saved allergies and conditions are still used to check products, but new ones can't be saved until you agree again.",
   "membersEdit": "Edit",
   "membersFormAllergenAdd": "Add",
+  "membersFormAllergenInvalid": "An allergy must be 2 to 40 characters.",
   "membersFormAllergenLength": "Type 2 to 40 characters.",
   "membersFormAllergenLimit": "You can add up to 20 allergies.",
   "membersFormAllergenOther": "Other allergy",
@@ -325,8 +327,11 @@
   "membersFormGoal": "Goal (optional)",
   "membersFormHealthFieldsNote": "Allergies, health conditions, goal, height and weight are saved only with your consent to health data processing.",
   "membersFormHeightCm": "Height (cm, optional)",
+  "membersFormHeightInvalid": "Enter a height between 30 and 250 cm, or leave it blank.",
   "membersFormName": "Name",
+  "membersFormNameInvalid": "Enter a name of up to 40 characters.",
   "membersFormNameRequired": "Enter a name.",
+  "membersFormNotSet": "Not set",
   "membersFormNumberRange": "Enter a number from {min} to {max}.",
   "@membersFormNumberRange": {
     "placeholders": {
@@ -339,10 +344,19 @@
     }
   },
   "membersFormRelation": "Relation",
-  "membersFormRemoveAllergyConfirm": "Remove {allergy} from the allergies for {name}? Products with it will no longer be flagged for them.",
+  "membersFormRelationRequired": "Choose a relation.",
+  "membersFormRemoveAllergy": "Remove {allergen}",
+  "@membersFormRemoveAllergy": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormRemoveAllergyConfirm": "Remove {allergen} from the allergies for {name}? Products with it will no longer be flagged for them.",
   "@membersFormRemoveAllergyConfirm": {
     "placeholders": {
-      "allergy": {
+      "allergen": {
         "type": "String"
       },
       "name": {
@@ -352,10 +366,12 @@
   },
   "membersFormSave": "Save",
   "membersFormSex": "Sex (optional)",
+  "membersFormWeightInvalid": "Enter a weight between 2 and 300 kg, or leave it blank.",
   "membersFormWeightKg": "Weight (kg, optional)",
   "membersGoalHealthyEating": "Eat better",
   "membersGoalWeightGain": "Gain weight",
   "membersGoalWeightLoss": "Lose weight",
+  "membersLimitReached": "You have 10 family members, the most you can add.",
   "membersRelationChild": "Child",
   "membersRelationOther": "Other",
   "membersRelationParent": "Parent",
@@ -416,7 +432,8 @@
   "profileBody": "Your account, language and privacy settings will be here.",
   "profileComingSoonBody": "Language, privacy and account settings will appear here.",
   "profileComingSoonTitle": "Settings are coming soon",
-  "profileConsentsTitle": "Privacy and consent",
+  "profileGiveConsent": "Agree",
+  "profilePrivacyTitle": "Privacy and consent",
   "profileTitle": "Profile",
   "reasonAddedSugars": "Contains added sugars: {ingredients}.",
   "@reasonAddedSugars": {

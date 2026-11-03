@@ -388,6 +388,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get consentAgree => 'मैं सहमत हूँ';
 
   @override
+  String get consentAiOptional =>
+      'वैकल्पिक। इसके बिना भी आपको हर नतीजा मिलेगा, बस AI की व्याख्या नहीं मिलेगी।';
+
+  @override
   String get consentAiProcessingBody =>
       'SmartNutri को हर नतीजे का सारांश, बिना नामों के, भारत में प्रोसेस होने वाली AI सेवा को भेजने दें, ताकि एक छोटी व्याख्या लिखी जा सके। नतीजा कभी AI तय नहीं करता।';
 
@@ -411,8 +415,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get consentNotGranted => 'सहमति नहीं दी गई';
 
   @override
-  String get consentOptionalAiNote =>
-      'वैकल्पिक। इससे केवल AI व्याख्या चालू होती है; इसके बिना भी नतीजे वही रहते हैं।';
+  String get consentRequiredNote =>
+      'एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए ज़रूरी है।';
 
   @override
   String get consentTermsBody =>
@@ -733,8 +737,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get membersAdd => 'परिवार का सदस्य जोड़ें';
 
   @override
-  String membersBornIn(String year) {
-    return 'जन्म $year';
+  String membersBorn(String year) {
+    return 'जन्म वर्ष $year';
   }
 
   @override
@@ -746,6 +750,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get membersFormAllergenAdd => 'जोड़ें';
+
+  @override
+  String get membersFormAllergenInvalid =>
+      'एलर्जी का नाम 2 से 40 अक्षरों का होना चाहिए।';
 
   @override
   String get membersFormAllergenLength => '2 से 40 अक्षर लिखें।';
@@ -807,10 +815,20 @@ class AppLocalizationsHi extends AppLocalizations {
   String get membersFormHeightCm => 'ऊँचाई (सेमी, वैकल्पिक)';
 
   @override
+  String get membersFormHeightInvalid =>
+      '30 से 250 सेमी के बीच ऊँचाई लिखें, या खाली छोड़ें।';
+
+  @override
   String get membersFormName => 'नाम';
 
   @override
+  String get membersFormNameInvalid => '40 अक्षरों तक का नाम लिखें।';
+
+  @override
   String get membersFormNameRequired => 'नाम लिखें।';
+
+  @override
+  String get membersFormNotSet => 'तय नहीं';
 
   @override
   String membersFormNumberRange(String max, String min) {
@@ -821,8 +839,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get membersFormRelation => 'रिश्ता';
 
   @override
-  String membersFormRemoveAllergyConfirm(String allergy, String name) {
-    return '$name की एलर्जी से $allergy हटाएँ? इसके बाद इसवाले उत्पाद उनके लिए चिह्नित नहीं होंगे।';
+  String get membersFormRelationRequired => 'रिश्ता चुनें।';
+
+  @override
+  String membersFormRemoveAllergy(String allergen) {
+    return '$allergen हटाएँ';
+  }
+
+  @override
+  String membersFormRemoveAllergyConfirm(String allergen, String name) {
+    return '$name की एलर्जी की सूची से यह हटाएँ: $allergen? इसके बाद इसे रखने वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।';
   }
 
   @override
@@ -830,6 +856,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get membersFormSex => 'लिंग (वैकल्पिक)';
+
+  @override
+  String get membersFormWeightInvalid =>
+      '2 से 300 किग्रा के बीच वज़न लिखें, या खाली छोड़ें।';
 
   @override
   String get membersFormWeightKg => 'वज़न (किग्रा, वैकल्पिक)';
@@ -842,6 +872,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get membersGoalWeightLoss => 'वज़न घटाना';
+
+  @override
+  String get membersLimitReached =>
+      'आपके परिवार में 10 सदस्य हैं, इससे ज़्यादा नहीं जोड़ सकते।';
 
   @override
   String get membersRelationChild => 'बच्चा';
@@ -975,7 +1009,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get profileComingSoonTitle => 'सेटिंग्स जल्द आ रही हैं';
 
   @override
-  String get profileConsentsTitle => 'गोपनीयता और सहमति';
+  String get profileGiveConsent => 'सहमति दें';
+
+  @override
+  String get profilePrivacyTitle => 'गोपनीयता और सहमति';
 
   @override
   String get profileTitle => 'प्रोफ़ाइल';

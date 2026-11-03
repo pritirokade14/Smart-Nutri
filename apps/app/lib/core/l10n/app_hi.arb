@@ -167,6 +167,7 @@
   "confirmVegMarkVeg": "शाकाहारी (हरा निशान)",
   "confirmWithheldHint": "पैक पर यह मान जाँचें, फिर पुष्टि के लिए टिक करें।",
   "consentAgree": "मैं सहमत हूँ",
+  "consentAiOptional": "वैकल्पिक। इसके बिना भी आपको हर नतीजा मिलेगा, बस AI की व्याख्या नहीं मिलेगी।",
   "consentAiProcessingBody": "SmartNutri को हर नतीजे का सारांश, बिना नामों के, भारत में प्रोसेस होने वाली AI सेवा को भेजने दें, ताकि एक छोटी व्याख्या लिखी जा सके। नतीजा कभी AI तय नहीं करता।",
   "consentAiProcessingTitle": "AI से व्याख्या",
   "consentDecline": "अभी नहीं",
@@ -174,7 +175,7 @@
   "consentHealthDataBody": "आप जो एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न दर्ज करते हैं, SmartNutri उनसे परिवार के हर सदस्य के लिए उत्पादों की जाँच करता है। यह जानकारी है, चिकित्सा सलाह नहीं। आप यह सहमति कभी भी वापस ले सकते हैं।",
   "consentHealthDataTitle": "स्वास्थ्य डेटा",
   "consentNotGranted": "सहमति नहीं दी गई",
-  "consentOptionalAiNote": "वैकल्पिक। इससे केवल AI व्याख्या चालू होती है; इसके बिना भी नतीजे वही रहते हैं।",
+  "consentRequiredNote": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए ज़रूरी है।",
   "consentTermsBody": "मैं SmartNutri की उपयोग की शर्तों और गोपनीयता नीति से सहमत हूँ।",
   "consentTermsTitle": "उपयोग की शर्तें",
   "consentWithdraw": "सहमति वापस लें",
@@ -283,8 +284,8 @@
   "languageLabel": "भाषा",
   "languageMr": "मराठी",
   "membersAdd": "परिवार का सदस्य जोड़ें",
-  "membersBornIn": "जन्म {year}",
-  "@membersBornIn": {
+  "membersBorn": "जन्म वर्ष {year}",
+  "@membersBorn": {
     "placeholders": {
       "year": {
         "type": "String"
@@ -294,6 +295,7 @@
   "membersConsentWithdrawnNotice": "स्वास्थ्य डेटा की सहमति बंद है। सहेजी गई एलर्जी और स्वास्थ्य स्थितियाँ अब भी उत्पादों की जाँच में इस्तेमाल होती हैं, लेकिन दोबारा सहमति देने तक नई नहीं सहेजी जा सकतीं।",
   "membersEdit": "बदलें",
   "membersFormAllergenAdd": "जोड़ें",
+  "membersFormAllergenInvalid": "एलर्जी का नाम 2 से 40 अक्षरों का होना चाहिए।",
   "membersFormAllergenLength": "2 से 40 अक्षर लिखें।",
   "membersFormAllergenLimit": "आप ज़्यादा से ज़्यादा 20 एलर्जी जोड़ सकते हैं।",
   "membersFormAllergenOther": "दूसरी एलर्जी",
@@ -325,8 +327,11 @@
   "membersFormGoal": "लक्ष्य (वैकल्पिक)",
   "membersFormHealthFieldsNote": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न केवल स्वास्थ्य डेटा के उपयोग की आपकी सहमति से सहेजे जाते हैं।",
   "membersFormHeightCm": "ऊँचाई (सेमी, वैकल्पिक)",
+  "membersFormHeightInvalid": "30 से 250 सेमी के बीच ऊँचाई लिखें, या खाली छोड़ें।",
   "membersFormName": "नाम",
+  "membersFormNameInvalid": "40 अक्षरों तक का नाम लिखें।",
   "membersFormNameRequired": "नाम लिखें।",
+  "membersFormNotSet": "तय नहीं",
   "membersFormNumberRange": "{min} से {max} के बीच की संख्या लिखें।",
   "@membersFormNumberRange": {
     "placeholders": {
@@ -339,10 +344,19 @@
     }
   },
   "membersFormRelation": "रिश्ता",
-  "membersFormRemoveAllergyConfirm": "{name} की एलर्जी से {allergy} हटाएँ? इसके बाद इसवाले उत्पाद उनके लिए चिह्नित नहीं होंगे।",
+  "membersFormRelationRequired": "रिश्ता चुनें।",
+  "membersFormRemoveAllergy": "{allergen} हटाएँ",
+  "@membersFormRemoveAllergy": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormRemoveAllergyConfirm": "{name} की एलर्जी की सूची से यह हटाएँ: {allergen}? इसके बाद इसे रखने वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।",
   "@membersFormRemoveAllergyConfirm": {
     "placeholders": {
-      "allergy": {
+      "allergen": {
         "type": "String"
       },
       "name": {
@@ -352,10 +366,12 @@
   },
   "membersFormSave": "सहेजें",
   "membersFormSex": "लिंग (वैकल्पिक)",
+  "membersFormWeightInvalid": "2 से 300 किग्रा के बीच वज़न लिखें, या खाली छोड़ें।",
   "membersFormWeightKg": "वज़न (किग्रा, वैकल्पिक)",
   "membersGoalHealthyEating": "बेहतर खाना",
   "membersGoalWeightGain": "वज़न बढ़ाना",
   "membersGoalWeightLoss": "वज़न घटाना",
+  "membersLimitReached": "आपके परिवार में 10 सदस्य हैं, इससे ज़्यादा नहीं जोड़ सकते।",
   "membersRelationChild": "बच्चा",
   "membersRelationOther": "अन्य",
   "membersRelationParent": "माता-पिता",
@@ -416,7 +432,8 @@
   "profileBody": "आपके खाते, भाषा और गोपनीयता की सेटिंग्स यहाँ होंगी।",
   "profileComingSoonBody": "भाषा, गोपनीयता और खाते की सेटिंग्स यहाँ दिखेंगी।",
   "profileComingSoonTitle": "सेटिंग्स जल्द आ रही हैं",
-  "profileConsentsTitle": "गोपनीयता और सहमति",
+  "profileGiveConsent": "सहमति दें",
+  "profilePrivacyTitle": "गोपनीयता और सहमति",
   "profileTitle": "प्रोफ़ाइल",
   "reasonAddedSugars": "इसमें अतिरिक्त शर्करा मिलाई गई है: {ingredients}।",
   "@reasonAddedSugars": {

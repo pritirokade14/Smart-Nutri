@@ -127,7 +127,7 @@ class _ConsentSheetState extends ConsumerState<ConsentSheet> {
                         Text(l10n.consentAiProcessingBody),
                         const SizedBox(height: SnTokens.space1),
                         Text(
-                          l10n.consentOptionalAiNote,
+                          l10n.consentAiOptional,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: c.textSecondary,
                           ),
