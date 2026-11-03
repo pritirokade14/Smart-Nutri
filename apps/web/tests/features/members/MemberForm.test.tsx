@@ -14,8 +14,10 @@ import { MemberForm } from "@/features/members/components/MemberForm";
 import {
   type MemberBody,
   memberFormSchema,
+  memberToForm,
   needsHealthConsent,
   normaliseAllergen,
+  toPatch,
 } from "@/features/members/lib/memberForm";
 import { membersMessages } from "@/i18n/client-messages";
 import { MESSAGES, type TestLocale } from "../../support/analyze-fixtures";
@@ -107,7 +109,7 @@ describe("MemberForm", () => {
     await user.click(
       screen.getByRole("button", { name: en.members.form.allergen_add }),
     );
-    expect(within(screen.getByTestId("other-allergens")).getByText("kiwi"));
+    expect(within(screen.getByTestId("other-allergens")).getByText("Kiwi"));
     await waitFor(() =>
       expect(api.callsTo("GET", "/v1/consents")).toHaveLength(1),
     );
@@ -122,7 +124,7 @@ describe("MemberForm", () => {
       height_cm: null,
       weight_kg: null,
       diet: "non_veg",
-      allergens: ["kiwi"],
+      allergens: ["Kiwi"],
       conditions: [],
       custom_alerts: [],
       goal: null,
@@ -388,13 +390,76 @@ describe("MemberForm", () => {
 
 describe("memberFormSchema and helpers", () => {
   it("normalises typed allergens", () => {
-    expect(normaliseAllergen("  Kiwi ")).toBe("kiwi");
+    // Free text is kept as typed (trim and NFC only), as the API stores it;
+    // a canonical key typed in any case is that key.
+    expect(normaliseAllergen("  Kiwi ")).toBe("Kiwi");
     expect(normaliseAllergen("MILK")).toBe("milk");
-    expect(normaliseAllergen("Pine   Nut")).toBe("pine nut");
+    expect(normaliseAllergen("Pine   Nut")).toBe("Pine   Nut");
     expect(normaliseAllergen("x")).toBeNull();
     expect(normaliseAllergen("a".repeat(41))).toBeNull();
     // NFC: a decomposed é is the same allergen as the composed one.
     expect(normaliseAllergen("café")).toBe("café");
+  });
+
+  it("dedupes typed allergens case-insensitively, keeping the first", () => {
+    const parsed = memberFormSchema.safeParse(
+      {
+        name: "A",
+        relation: "child",
+        birth_year: "2015",
+        sex: "",
+        height_cm: "",
+        weight_kg: "",
+        diet: "veg",
+        allergens: ["Kiwi", "kiwi", "KIWI"],
+        conditions: [],
+        custom_alerts: [],
+        goal: "",
+      },
+      2026,
+    );
+    expect(parsed.success && parsed.data.allergens).toEqual(["Kiwi"]);
+    // A stored "kiwi" re-sent as "Kiwi" is not new health data.
+    const body: MemberBody = {
+      name: "A",
+      relation: "child",
+      birth_year: 2015,
+      diet: "veg",
+      allergens: ["Kiwi"],
+      conditions: [],
+      custom_alerts: [],
+    };
+    expect(needsHealthConsent(body, saved({ allergens: ["kiwi"] }))).toBe(
+      false,
+    );
+  });
+
+  it("leaves unknown stored diet, conditions and alerts unchanged", () => {
+    // Values a newer API knows but this build doesn't: never drop or coerce.
+    const stored = saved({
+      diet: "pescatarian" as MemberOut["diet"],
+      conditions: ["diabetes", "thyroid"] as MemberOut["conditions"],
+      custom_alerts: ["palm_oil", "caffeine"] as MemberOut["custom_alerts"],
+    });
+    const parsed = memberFormSchema.safeParse(memberToForm(stored), 2026);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    const patch = toPatch(parsed.data, false, stored);
+    expect(patch.diet).toBeNull();
+    expect(patch.conditions).toBeNull();
+    expect(patch.custom_alerts).toBeNull();
+
+    const known = saved({
+      diet: "vegan",
+      conditions: ["diabetes"],
+      custom_alerts: ["palm_oil"],
+    });
+    const ok = memberFormSchema.safeParse(memberToForm(known), 2026);
+    if (!ok.success) throw new Error("known member should parse");
+    const full = toPatch(ok.data, false, known);
+    expect(full.diet).toBe("vegan");
+    expect(full.conditions).toEqual(["diabetes"]);
+    expect(full.custom_alerts).toEqual(["palm_oil"]);
   });
 
   it("caps allergens at 20", () => {

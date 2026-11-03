@@ -23,6 +23,7 @@ import {
   DIETS,
   emptyMemberForm,
   GOALS,
+  hasAllergen,
   isCanonicalAllergen,
   MAX_ALLERGENS,
   type MemberBody,
@@ -128,7 +129,7 @@ export function MemberForm({ member }: { member?: MemberOut }) {
       : t(`members.relation.${values.relation || "other"}`));
 
   function addAllergen(a: string) {
-    if (values.allergens.includes(a)) return;
+    if (hasAllergen(values.allergens, a)) return;
     if (values.allergens.length >= MAX_ALLERGENS) {
       setOtherError("members.form.allergen_limit");
       return;
@@ -153,7 +154,7 @@ export function MemberForm({ member }: { member?: MemberOut }) {
       if (member)
         await save.mutateAsync({
           id: member.id,
-          body: toPatch(body, isPrimary),
+          body: toPatch(body, isPrimary, member),
         });
       else await save.mutateAsync({ body });
       router.push(familyUrl);

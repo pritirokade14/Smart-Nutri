@@ -127,14 +127,24 @@ export function memberToForm(m: MemberOut): MemberFormValues {
 const chars = (s: string) => [...s].length;
 
 /**
- * One typed allergen as the API stores it: NFC, trimmed, inner spaces
- * collapsed and lower-cased ("Kiwi" → "kiwi"); a canonical key typed in any
- * case is that key. Returns null when it is not 2–40 characters.
+ * One typed allergen as the API stores it: NFC and trimmed, otherwise kept as
+ * typed ("Kiwi" stays "Kiwi"); a canonical key typed in any case is that key
+ * ("MILK" → "milk"). Returns null when it is not 2–40 characters.
  */
 export function normaliseAllergen(raw: string): string | null {
-  const value = raw.normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
+  const value = raw.normalize("NFC").trim();
   if (chars(value) < ALLERGEN_MIN || chars(value) > ALLERGEN_MAX) return null;
-  return value;
+  const folded = value.toLowerCase();
+  return isCanonicalAllergen(folded) ? folded : value;
+}
+
+/** Allergens compare case-insensitively, as the API dedupes them. */
+const allergenKey = (a: string) => a.normalize("NFC").trim().toLowerCase();
+
+/** True when [list] already holds [a], ignoring case. */
+export function hasAllergen(list: readonly string[], a: string): boolean {
+  const key = allergenKey(a);
+  return list.some((x) => allergenKey(x) === key);
 }
 
 export function isCanonicalAllergen(a: string): boolean {
@@ -188,7 +198,7 @@ export const memberFormSchema = {
         errors.allergens = "members.form.allergen_invalid";
         continue;
       }
-      if (!allergens.includes(n)) allergens.push(n);
+      if (!hasAllergen(allergens, n)) allergens.push(n);
     }
     if (allergens.length > MAX_ALLERGENS)
       errors.allergens = "members.form.allergen_limit";
@@ -215,17 +225,36 @@ export const memberFormSchema = {
   },
 };
 
+const unknownIn = (list: readonly string[], known: readonly string[]) =>
+  list.some((x) => !known.includes(x));
+
 /**
  * The PATCH body: the whole form (so cleared optional fields are cleared),
  * without `relation` for the primary, whose relation can't change.
+ *
+ * A stored diet, condition or alert this build doesn't know (a newer API) is
+ * never dropped or coerced: that field is sent as null, which the API reads
+ * as "unchanged".
  */
-export function toPatch(body: MemberBody, isPrimary: boolean): MemberPatch {
+export function toPatch(
+  body: MemberBody,
+  isPrimary: boolean,
+  stored?: MemberOut,
+): MemberPatch {
   const { relation, ...rest } = body;
-  return isPrimary ? rest : { ...rest, relation };
+  const patch: MemberPatch = isPrimary ? rest : { ...rest, relation };
+  if (!(DIETS as readonly string[]).includes(body.diet)) patch.diet = null;
+  if (stored && unknownIn(stored.conditions, CONDITIONS))
+    patch.conditions = null;
+  if (stored && unknownIn(stored.custom_alerts, CUSTOM_ALERTS))
+    patch.custom_alerts = null;
+  return patch;
 }
 
 const adds = (next: readonly string[], prev: readonly string[] = []) =>
   next.some((x) => !prev.includes(x));
+const addsAllergen = (next: readonly string[], prev: readonly string[] = []) =>
+  next.some((x) => !hasAllergen(prev, x));
 
 /**
  * True when saving writes new health data, which needs an active health_data
@@ -240,7 +269,7 @@ export function needsHealthConsent(
   const changed = <T>(next: T | null | undefined, prev: T | null | undefined) =>
     next !== null && next !== undefined && next !== prev;
   return (
-    adds(body.allergens ?? [], before?.allergens) ||
+    addsAllergen(body.allergens ?? [], before?.allergens) ||
     adds(body.conditions ?? [], before?.conditions) ||
     changed(body.goal, before?.goal) ||
     changed(body.height_cm, before?.height_cm) ||
