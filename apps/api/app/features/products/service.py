@@ -441,7 +441,13 @@ async def create_product(
                 raise ApiError("product_exists", 409, details={"product_id": str(saved.product_id)})
 
     per_100g = _per_100g(body, label)
-    _check_plausible(per_100g, body.serving_size_g)  # only what will be stored (R16)
+    # R18: a scanned serving size is stored only when the user confirmed it (the engine's
+    # per-serving reasons would otherwise rest on a possibly misread value). A manual entry
+    # was typed by a person, so it is stored as given.
+    serving_size_g = body.serving_size_g
+    if label is not None and "serving_size_g" not in body.confirmed_fields:
+        serving_size_g = None
+    _check_plausible(per_100g, serving_size_g)  # only what will be stored (R16)
     ingredients_text = _ingredients_text(body.ingredients)
     barcode = await _barcode_for_new_product(session, account_id, barcode)
 
@@ -451,7 +457,7 @@ async def create_product(
         brand=body.brand,
         category=body.category,
         per_100g=per_100g,
-        serving_size_g=body.serving_size_g,
+        serving_size_g=serving_size_g,
         ingredients_text=ingredients_text,
         allergen_statement=body.allergen_statement,
         may_contain_statement=body.may_contain_statement,

@@ -1203,3 +1203,62 @@ async def test_long_ingredient_lists_and_statements_are_accepted(auth_client, db
 async def test_over_length_input_is_rejected_not_truncated(auth_client, bad):
     r = await create(auth_client, **bad)
     assert r.status_code == 422 and r.json()["error"]["code"] == "validation_error"
+
+
+# --- Ruling R18: a scanned serving size is stored only when the user confirmed it ---------
+
+
+def _misread_serving_draft():
+    # The label says 3 g sugars per 100 g, but the serving was misread as 300 g.
+    return to_draft(
+        extraction(
+            product_name="Misread Serving Snack",
+            per_100g=n_in(energy_kcal=100, sugars_g=3, carbs_g=20, fat_g=1, protein_g=2),
+            serving_size_g=300,
+        )
+    )
+
+
+def _child_sugar_params(analyze_response) -> list[dict]:
+    reasons = analyze_response.json()["verdicts"][0]["reasons"]
+    return [r["params"] for r in reasons if r["code"].startswith("child_sugar")]
+
+
+async def test_scan_save_with_unconfirmed_serving_stores_none(auth_client, db_session):
+    child = await _member(db_session, name="Kid", birth_year=today().year - 6)
+    draft = _misread_serving_draft()
+    assert draft.serving_size_g == 300
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id)}
+    assert payload["serving_size_g"] == 300 and "confirmed_fields" not in payload
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    assert r.json()["serving_size_g"] is None
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.serving_size_g is None
+    v = await analyze(auth_client, r.json()["product_id"], child)
+    assert all(p["basis"] == "per_100g" for p in _child_sugar_params(v))
+
+
+async def test_scan_save_with_confirmed_serving_stores_it(auth_client, db_session):
+    child = await _member(db_session, name="Kid", birth_year=today().year - 6)
+    draft = _misread_serving_draft()
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {
+        "scan_id": str(scan.id),
+        "confirmed_fields": ["serving_size_g"],
+    }
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.serving_size_g == 300
+    # Control: the confirmed serving does reach the engine (so the tests above test R18).
+    v = await analyze(auth_client, r.json()["product_id"], child)
+    assert [p["basis"] for p in _child_sugar_params(v)] == ["per_serving"]
+
+
+async def test_manual_entry_serving_is_stored_without_confirmation(auth_client, db_session):
+    r = await create(auth_client, serving_size_g=30)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.serving_size_g == 30

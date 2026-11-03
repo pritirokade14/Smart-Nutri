@@ -415,6 +415,9 @@ export interface components {
          *     - With `basis` `per_serving`, or when the draft was `derived_from_serving` (unless it has
          *       `basis_mismatch`), every nutrient is stored only if `confirmed_fields` contains
          *       `serving_size_g` (the user checked the serving size); otherwise all are stored null.
+         *     - (R18) The stored `serving_size_g` is the sent value only if `confirmed_fields` contains
+         *       `serving_size_g`; otherwise it is stored null (unknown) and the engine falls back to
+         *       per-100 g. A manual entry (no `scan_id`) stores the serving size as typed.
          *     - On a `basis_mismatch` draft the explicit `basis` confirms the values sent; an upper-bound
          *       ("<X") protein or fibre on that column and an unconfirmed sodium unit still need their
          *       own confirmation.
@@ -445,7 +448,7 @@ export interface components {
             claims: string[];
             /**
              * Confirmed Fields
-             * @description Scan saves only: what the user explicitly confirmed. A nutrient the draft lists in `engine_withheld` (e.g. a "<0.1 g" protein) is stored only when listed here, else null. `serving_size_g` confirms the serving size (see `basis`).
+             * @description Scan saves only: what the user explicitly confirmed. A nutrient the draft lists in `engine_withheld` (e.g. a "<0.1 g" protein) is stored only when listed here, else null. `serving_size_g` confirms the serving size (see `basis`); an unconfirmed scanned serving size is stored as null (R18).
              * @default []
              */
             confirmed_fields: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg" | "serving_size_g")[];
@@ -467,7 +470,7 @@ export interface components {
             scan_id?: string | null;
             /**
              * Serving Size G
-             * @description Serving size in g (or ml). Required when `basis` is `per_serving`. For a scan save it is trusted for conversion only when `confirmed_fields` lists it.
+             * @description Serving size in g (or ml). Required when `basis` is `per_serving`. For a scan save it is used for conversion and stored only when `confirmed_fields` lists it (R18); otherwise it is stored as null. A manual entry stores it as typed.
              */
             serving_size_g?: number | null;
             /**
