@@ -10,7 +10,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "lint": "biome check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sync:legal": "node scripts/sync-legal.ts"
   },
   "dependencies": {
     "@sentry/nextjs": "~11.10.0",

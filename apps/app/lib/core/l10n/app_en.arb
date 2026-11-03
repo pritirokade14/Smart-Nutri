@@ -294,6 +294,7 @@
   "familyComingSoonBody": "Add each person's age, allergies and diet to get a result for each of them.",
   "familyComingSoonTitle": "Family profiles are coming soon",
   "familyTitle": "Family",
+  "footerLinksLabel": "About SmartNutri",
   "footerTagline": "Packaged-food information for Indian families.",
   "highInFat": "High in fat",
   "highInPercentOfLimit": "{pct}% of the limit",
@@ -372,6 +373,20 @@
   "languageHi": "हिन्दी",
   "languageLabel": "Language",
   "languageMr": "मराठी",
+  "legalDraftNotice": "Draft: this document is being reviewed by a lawyer before launch.",
+  "legalEnglishOnly": "This document is available in English only for now.",
+  "legalPrivacyDescription": "How SmartNutri AI collects, uses and protects your family's data under India's DPDP Act, 2023.",
+  "legalPrivacyTitle": "Privacy notice",
+  "legalTermsDescription": "The terms for using SmartNutri AI. Information, not medical advice.",
+  "legalTermsTitle": "Terms of use",
+  "legalVersion": "Version {version}",
+  "@legalVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "mealsLogAmountGrams": "Amount in grams",
   "mealsLogAmountInvalid": "Enter an amount more than 0 and up to {max}.",
   "@mealsLogAmountInvalid": {

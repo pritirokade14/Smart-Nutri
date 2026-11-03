@@ -781,6 +781,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get familyTitle => 'परिवार';
 
   @override
+  String get footerLinksLabel => 'SmartNutri के बारे में';
+
+  @override
   String get footerTagline =>
       'भारतीय परिवारों के लिए पैकेटबंद खाने की जानकारी।';
 
@@ -969,6 +972,33 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get languageMr => 'मराठी';
+
+  @override
+  String get legalDraftNotice =>
+      'मसौदा: लॉन्च से पहले एक वकील इस दस्तावेज़ की समीक्षा कर रहे हैं।';
+
+  @override
+  String get legalEnglishOnly =>
+      'यह दस्तावेज़ अभी केवल अंग्रेज़ी में उपलब्ध है।';
+
+  @override
+  String get legalPrivacyDescription =>
+      'SmartNutri AI भारत के DPDP अधिनियम, 2023 के तहत आपके परिवार का डेटा कैसे इकट्ठा, इस्तेमाल और सुरक्षित करता है।';
+
+  @override
+  String get legalPrivacyTitle => 'गोपनीयता सूचना';
+
+  @override
+  String get legalTermsDescription =>
+      'SmartNutri AI के उपयोग की शर्तें। यह जानकारी है, चिकित्सकीय सलाह नहीं।';
+
+  @override
+  String get legalTermsTitle => 'उपयोग की शर्तें';
+
+  @override
+  String legalVersion(String version) {
+    return 'संस्करण $version';
+  }
 
   @override
   String get mealsLogAmountGrams => 'मात्रा ग्राम में';

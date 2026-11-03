@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { LegalLinks } from "./LegalLinks";
 import { Logo } from "./Logo";
 
 /** Public footer: brand, tagline and links. Each page shows its own disclaimer. */
@@ -31,6 +32,9 @@ export function SiteFooter({ locale }: { locale: string }) {
                 </a>
               </li>
             </ul>
+          </nav>
+          <nav aria-label={t("footer.links_label")}>
+            <LegalLinks locale={locale} />
           </nav>
         </div>
       </div>

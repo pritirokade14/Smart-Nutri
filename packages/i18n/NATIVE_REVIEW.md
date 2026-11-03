@@ -175,3 +175,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 8 Task 1 (web: terms acceptance and consent routing)
 - [ ] **hi/mr `consent.terms_step.*`, `consent.needs_update`, `consent.review_agree`, `consent.prompt.*`, `consent.terms.withdraw_confirm`**: machine drafts. The terms step must read as a clear, voluntary agreement (no pressure). `withdraw_confirm` must say plainly that checking and scanning stop until the user agrees again, and that saved data stays until the account is deleted (it is not erased by withdrawal). Keep "गोपनीयता सूचना" consistent with the privacy page title.
+
+## Plan 8 Task 1 (web: privacy and terms pages, footer)
+- [ ] **hi/mr `legal.*`, `footer.links_label`**: machine drafts. `english_only` must say plainly that the policy text is in English only for now (no promise of a date). `draft_notice` must say a lawyer is reviewing the text before launch. "गोपनीयता सूचना" / "उपयोग की शर्तें" (hi) and "गोपनीयता सूचना" / "वापराच्या अटी" (mr) must match `consent.terms_step.read_*`.

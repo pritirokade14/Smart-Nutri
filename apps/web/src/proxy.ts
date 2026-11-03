@@ -9,7 +9,14 @@ const intl = createIntlMiddleware(routing);
 // Default-deny: every path under a locale needs a session EXCEPT these first
 // segments ("" = the locale root / landing). A new public page must be added
 // here on purpose; tests/middleware.test.ts checks the (public) folder against it.
-export const PUBLIC = new Set(["", "sign-in", "p", "how-we-score"]);
+export const PUBLIC = new Set([
+  "",
+  "sign-in",
+  "p",
+  "how-we-score",
+  "privacy",
+  "terms",
+]);
 
 type Decision = { protected: boolean; locale: string; path: string };
 

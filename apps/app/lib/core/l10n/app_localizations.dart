@@ -1492,6 +1492,12 @@ abstract class AppLocalizations {
   /// **'Family'**
   String get familyTitle;
 
+  /// No description provided for @footerLinksLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'About SmartNutri'**
+  String get footerLinksLabel;
+
   /// No description provided for @footerTagline.
   ///
   /// In en, this message translates to:
@@ -1833,6 +1839,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'मराठी'**
   String get languageMr;
+
+  /// No description provided for @legalDraftNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft: this document is being reviewed by a lawyer before launch.'**
+  String get legalDraftNotice;
+
+  /// No description provided for @legalEnglishOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This document is available in English only for now.'**
+  String get legalEnglishOnly;
+
+  /// No description provided for @legalPrivacyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'How SmartNutri AI collects, uses and protects your family\'s data under India\'s DPDP Act, 2023.'**
+  String get legalPrivacyDescription;
+
+  /// No description provided for @legalPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy notice'**
+  String get legalPrivacyTitle;
+
+  /// No description provided for @legalTermsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The terms for using SmartNutri AI. Information, not medical advice.'**
+  String get legalTermsDescription;
+
+  /// No description provided for @legalTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get legalTermsTitle;
+
+  /// No description provided for @legalVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String legalVersion(String version);
 
   /// No description provided for @mealsLogAmountGrams.
   ///

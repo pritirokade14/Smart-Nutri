@@ -522,7 +522,8 @@
     "meta_description": "Scan a packaged food and see whether it suits each member of your family, with the reasons. Information, not medical advice."
   },
   "footer": {
-    "tagline": "Packaged-food information for Indian families."
+    "tagline": "Packaged-food information for Indian families.",
+    "links_label": "About SmartNutri"
   },
   "history": {
     "title": "History",
@@ -763,6 +764,15 @@
     "note_label": "Tell us more (optional)",
     "submit": "Send report",
     "thanks": "Thanks. We'll review this product's data."
+  },
+  "legal": {
+    "privacy_title": "Privacy notice",
+    "terms_title": "Terms of use",
+    "privacy_description": "How SmartNutri AI collects, uses and protects your family's data under India's DPDP Act, 2023.",
+    "terms_description": "The terms for using SmartNutri AI. Information, not medical advice.",
+    "english_only": "This document is available in English only for now.",
+    "draft_notice": "Draft: this document is being reviewed by a lawyer before launch.",
+    "version": "Version {version}"
   },
   "policy": {
     "privacy": "Privacy policy",

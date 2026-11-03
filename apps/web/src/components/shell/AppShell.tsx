@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppNav } from "./AppNav";
+import { LegalLinks } from "./LegalLinks";
 import { SiteHeader, SkipLink } from "./SiteHeader";
 
 /**
@@ -15,6 +16,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const t = useTranslations("common");
+  const tf = useTranslations("footer");
   return (
     <div className="min-h-dvh">
       <SkipLink label={t("skip_to_content")} />
@@ -29,6 +31,11 @@ export function AppShell({
           className="min-w-0 flex-1 pt-5 pb-32 outline-none md:pt-8 md:pb-16"
         >
           {children}
+          <footer className="mx-auto mt-12 w-full max-w-2xl border-t border-border-default pt-4">
+            <nav aria-label={tf("links_label")}>
+              <LegalLinks locale={locale} />
+            </nav>
+          </footer>
         </div>
       </div>
       <AppNav locale={locale} variant="bar" />

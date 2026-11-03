@@ -294,6 +294,7 @@
   "familyComingSoonBody": "हर सदस्य की उम्र, एलर्जी और आहार जोड़ें, ताकि हर किसी के लिए अलग नतीजा मिले।",
   "familyComingSoonTitle": "परिवार प्रोफ़ाइल जल्द आ रही हैं",
   "familyTitle": "परिवार",
+  "footerLinksLabel": "SmartNutri के बारे में",
   "footerTagline": "भारतीय परिवारों के लिए पैकेटबंद खाने की जानकारी।",
   "highInFat": "वसा अधिक",
   "highInPercentOfLimit": "सीमा का {pct}%",
@@ -372,6 +373,20 @@
   "languageHi": "हिन्दी",
   "languageLabel": "भाषा",
   "languageMr": "मराठी",
+  "legalDraftNotice": "मसौदा: लॉन्च से पहले एक वकील इस दस्तावेज़ की समीक्षा कर रहे हैं।",
+  "legalEnglishOnly": "यह दस्तावेज़ अभी केवल अंग्रेज़ी में उपलब्ध है।",
+  "legalPrivacyDescription": "SmartNutri AI भारत के DPDP अधिनियम, 2023 के तहत आपके परिवार का डेटा कैसे इकट्ठा, इस्तेमाल और सुरक्षित करता है।",
+  "legalPrivacyTitle": "गोपनीयता सूचना",
+  "legalTermsDescription": "SmartNutri AI के उपयोग की शर्तें। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "legalTermsTitle": "उपयोग की शर्तें",
+  "legalVersion": "संस्करण {version}",
+  "@legalVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "mealsLogAmountGrams": "मात्रा ग्राम में",
   "mealsLogAmountInvalid": "0 से ज़्यादा और {max} तक की मात्रा डालें।",
   "@mealsLogAmountInvalid": {
