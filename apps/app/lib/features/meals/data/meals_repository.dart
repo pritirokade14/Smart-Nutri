@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/meal_queue.dart';
 import '../domain/meal_draft.dart';
+import '../domain/meal_summary.dart';
 import 'meal_sync.dart';
 
 /// A failed meals call. [code] is the API `error.code` (`portion_required`,
@@ -86,6 +87,21 @@ class MealsRepository {
   /// days).
   Future<List<MealOut>> list(String memberId) =>
       MealsFailure.guard(() => _client.mealsList(memberId: memberId));
+
+  /// Totals against the member's limits for today (`day`) or the last 7 IST
+  /// days (`week`), with the API's bands.
+  Future<MealSummary> summary(String memberId, SummaryPeriod period) =>
+      MealsFailure.guard(() async {
+        final s = await _client.mealsSummary(
+          memberId: memberId,
+          period: period,
+        );
+        return MealSummary.fromApi(s);
+      });
+
+  /// Whole-family counts for the weekly share text.
+  Future<WeekCounts> weekCounts() =>
+      MealsFailure.guard(() => _client.mealsWeekCounts());
 
   /// Undo or remove a stored log.
   Future<void> delete(String mealId) =>

@@ -126,3 +126,42 @@ class NutriScoreChip extends StatelessWidget {
     );
   }
 }
+
+/// A compact Nutri-Score tile for lists (search hits, alternatives, compare
+/// columns). Same colours as [NutriScoreChip]; with no grade it shows a
+/// neutral dash. The surrounding screen says "calculated by SmartNutri".
+class NutriScoreBadge extends StatelessWidget {
+  const NutriScoreBadge({super.key, required this.grade});
+
+  /// A–E from the API, or null.
+  final String? grade;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = SnColors.of(context);
+    final grade = this.grade;
+    final known = grade != null && NutriScoreChip._grades.contains(grade);
+    final color = known ? NutriScoreChip.gradeColor(grade) : c.muted;
+    return Semantics(
+      label: known ? l10n.resultGrade(grade) : l10n.nutriscoreInsufficientData,
+      excludeSemantics: true,
+      child: Container(
+        width: SnTokens.space6 + SnTokens.space1,
+        height: SnTokens.space6 + SnTokens.space1,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(SnTokens.radiusSm),
+        ),
+        child: Text(
+          known ? grade : '–',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: known ? NutriScoreChip.onGrade(color) : c.textSecondary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}

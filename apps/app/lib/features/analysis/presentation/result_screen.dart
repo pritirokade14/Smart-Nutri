@@ -16,8 +16,12 @@ import '../../../shared/widgets/nutrient_row.dart';
 import '../../../shared/widgets/off_attribution.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/states.dart';
+import '../../../shared/share/share_sheet.dart';
 import '../../meals/presentation/i_ate_this_button.dart';
 import '../../meals/presentation/log_meal_sheet.dart';
+import '../../product/data/product_discovery_repository.dart';
+import '../../product/presentation/alternatives_section.dart';
+import '../../product/presentation/discovery_routes.dart';
 import '../../scan/domain/barcode.dart';
 import '../../scan/domain/number_text.dart';
 import '../data/analysis_repository.dart';
@@ -178,6 +182,11 @@ class _ResultView extends StatelessWidget {
     final claims = claimChecks(out.report);
     final productId = product.productId;
     final productBarcode = product.barcode ?? barcode;
+    final ProductRef? ref = productId != null
+        ? (productId: productId, barcode: null)
+        : productBarcode != null
+        ? (productId: null, barcode: productBarcode)
+        : null;
     final logProduct = productId == null && productBarcode == null
         ? null
         : LogMealProduct(
@@ -238,6 +247,22 @@ class _ResultView extends StatelessWidget {
               const SizedBox(height: SnTokens.space2),
               OffAttribution(barcode: code),
             ],
+          if (ref case final ref?) ...[
+            const SizedBox(height: SnTokens.space5),
+            AlternativesSection(product: ref, verdicts: out.verdicts),
+            const SizedBox(height: SnTokens.space3),
+            SecondaryButton(
+              label: l10n.compareTitle,
+              icon: Icons.compare_arrows_rounded,
+              onPressed: () => context.push(compareLocation(ref, null)),
+            ),
+          ],
+          const SizedBox(height: SnTokens.space2),
+          _ShareResultButton(
+            out: out,
+            productName: product.name ?? productBarcode ?? '',
+            barcode: product.barcode,
+          ),
           const SizedBox(height: SnTokens.space4),
           SecondaryButton(
             label: l10n.resultScanAnother,
@@ -414,6 +439,34 @@ class _NutritionTable extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Opens the privacy-safe share sheet for this result.
+class _ShareResultButton extends ConsumerWidget {
+  const _ShareResultButton({
+    required this.out,
+    required this.productName,
+    required this.barcode,
+  });
+
+  final AnalyzeOut out;
+  final String productName;
+  final String? barcode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    return SecondaryButton(
+      label: l10n.shareButton,
+      icon: Icons.ios_share_rounded,
+      onPressed: () => showResultShareSheet(
+        context,
+        out: out,
+        productName: productName,
+        url: shareUrlFor(ref, l10n.localeName, barcode: barcode),
       ),
     );
   }

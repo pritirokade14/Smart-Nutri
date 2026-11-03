@@ -65,7 +65,7 @@ Future<FakeAuthRepository> _pump(WidgetTester t, {bool dark = false}) async {
   await t.pumpWidget(
     ProviderScope(
       overrides: [
-        ...mealTestOverrides(),
+        ...mealTestOverrides(client: FakeMealsClient()),
         appConfigProvider.overrideWithValue(_cfg),
         authRepositoryProvider.overrideWithValue(repo),
         apiClientProvider.overrideWithValue(_FakeApi()),
@@ -110,13 +110,20 @@ void main() {
     expect(_selected(t), 0);
   });
 
-  testWidgets('History is a "coming soon" tab; Family lists members; '
+  testWidgets('History shows the log; Family lists members; '
       'Profile shows consents', (t) async {
     await _pump(t);
     await t.tap(_nav(en.navHistory));
     await t.pumpAndSettle();
     expect(find.byType(HistoryScreen), findsOneWidget);
-    expect(find.text(en.historyComingSoonTitle), findsOneWidget);
+    expect(find.text(en.historyComingSoonTitle), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text(en.historyTitle),
+      ),
+      findsOneWidget,
+    );
     expect(_selected(t), 2);
 
     await t.tap(_nav(en.navFamily));

@@ -24,7 +24,7 @@ This is the **Android app** for SmartNutri AI, built with Flutter. The web app i
 lib/
   main.dart  app.dart  bootstrap.dart
   core/
-    config/      # reads --dart-define values (API_BASE_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, ENVIRONMENT, GOOGLE_WEB_CLIENT_ID, SENTRY_DSN, POSTHOG_KEY, FEATURE_PHONE_OTP, FEATURE_EMAIL_OTP)
+    config/      # reads --dart-define values (API_BASE_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, ENVIRONMENT, GOOGLE_WEB_CLIENT_ID, SENTRY_DSN, POSTHOG_KEY, FEATURE_PHONE_OTP, FEATURE_EMAIL_OTP, SITE_URL)
     network/     # configures the generated smartnutri_api client: base URL, Supabase JWT, retry
     router/      # go_router, auth guard
     theme/       # wraps the GENERATED tokens; no raw colour literals elsewhere

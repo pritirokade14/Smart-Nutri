@@ -12,6 +12,8 @@ import 'package:smartnutri_ai/features/auth/presentation/email_otp_screen.dart';
 import 'package:smartnutri_ai/features/auth/presentation/phone_otp_screen.dart';
 import 'package:smartnutri_ai/features/auth/presentation/sign_in_screen.dart';
 import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
+import 'package:smartnutri_ai/features/product/presentation/compare_screen.dart';
+import 'package:smartnutri_ai/features/product/presentation/search_screen.dart';
 import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
 import 'package:smartnutri_ai/features/settings/presentation/profile_screen.dart';
 import 'package:smartnutri_api/src/export.dart';
@@ -215,5 +217,29 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.byType(SignInScreen), findsNothing);
+  });
+
+  testWidgets('/compare and /search are routes above the shell', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(FakeAuthRepository(signedIn: true), _FakeMe(() async => _me())),
+    );
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(HomeScreen)),
+    );
+    final router = container.read(routerProvider);
+    router.push('/compare?a=pa');
+    await tester.pumpAndSettle();
+    expect(find.byType(CompareScreen), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(CompareScreen)),
+    );
+    await tester.tap(find.text(l10n.comparePickSecond));
+    await tester.pumpAndSettle();
+    final search = tester.widget<SearchScreen>(find.byType(SearchScreen));
+    expect(search.compareWith, (productId: 'pa', barcode: null));
   });
 }

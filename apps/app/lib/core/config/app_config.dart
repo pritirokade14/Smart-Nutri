@@ -13,7 +13,11 @@ class AppConfig {
     required this.posthogKey,
     required this.featurePhoneOtp,
     this.featureEmailOtp = false,
+    this.siteUrl = defaultSiteUrl,
   });
+
+  /// The public web app, used in share links.
+  static const defaultSiteUrl = 'https://smartnutri.app';
 
   const AppConfig.fromEnvironment()
     : environment = const String.fromEnvironment(
@@ -32,6 +36,10 @@ class AppConfig {
       featureEmailOtp = const bool.fromEnvironment(
         'FEATURE_EMAIL_OTP',
         defaultValue: false,
+      ),
+      siteUrl = const String.fromEnvironment(
+        'SITE_URL',
+        defaultValue: defaultSiteUrl,
       );
 
   final String environment;
@@ -43,6 +51,9 @@ class AppConfig {
   final String posthogKey;
   final bool featurePhoneOtp;
   final bool featureEmailOtp;
+
+  /// Public web origin for share links (`SITE_URL`, optional).
+  final String siteUrl;
 
   /// Names of required keys that are empty.
   List<String> missingRequired() => [

@@ -14,6 +14,9 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/meals/presentation/meals_providers.dart';
 import '../../features/members/presentation/member_form_screen.dart';
 import '../../features/members/presentation/members_list_screen.dart';
+import '../../features/product/presentation/compare_screen.dart';
+import '../../features/product/presentation/discovery_routes.dart';
+import '../../features/product/presentation/search_screen.dart';
 import '../../features/scan/presentation/confirm_screen.dart';
 import '../../features/scan/presentation/label_capture_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
@@ -121,6 +124,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => ConfirmScreen(
           args: state.extra is ConfirmArgs ? state.extra! as ConfirmArgs : null,
         ),
+      ),
+      GoRoute(
+        path: '/search',
+        builder: (_, state) {
+          final q = discoveryQuery(state.uri.queryParameters);
+          return SearchScreen(compareWith: q.a, memberId: q.memberId);
+        },
+      ),
+      GoRoute(
+        path: '/compare',
+        builder: (_, state) {
+          final q = discoveryQuery(state.uri.queryParameters);
+          return CompareScreen(a: q.a, b: q.b, memberId: q.memberId);
+        },
       ),
       GoRoute(
         path: '/result',

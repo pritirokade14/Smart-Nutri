@@ -9,6 +9,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/observability/analytics.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
+import '../../../shared/share/share_text.dart';
 import '../../../shared/widgets/buttons.dart';
 import '../../../shared/widgets/states.dart';
 import '../../scan/domain/number_text.dart';
@@ -41,18 +42,8 @@ String memberLabel(AppLocalizations l10n, VerdictOut v) {
   if (v.isPrimary) return l10n.resultYou;
   final name = v.memberName.trim();
   if (name.isNotEmpty) return name;
-  return relationLabel(l10n, v.relation.json);
+  return shareRelation(l10n, v.relation.json);
 }
-
-/// `share.relation.<relation>`; anything unknown is "Family member".
-String relationLabel(AppLocalizations l10n, String? relation) =>
-    switch (relation) {
-      'self' => l10n.shareRelationSelf,
-      'child' => l10n.shareRelationChild,
-      'parent' => l10n.shareRelationParent,
-      'spouse' => l10n.shareRelationSpouse,
-      _ => l10n.shareRelationOther,
-    };
 
 /// Opens the "I ate this" sheet for [product], preselecting [memberId].
 /// Returns what happened, or null when dismissed.

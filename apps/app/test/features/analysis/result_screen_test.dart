@@ -8,11 +8,14 @@ import 'package:smartnutri_ai/core/l10n/app_localizations.dart';
 import 'package:smartnutri_ai/features/analysis/data/analysis_repository.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/result_screen.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/verdict_card.dart';
+import 'package:smartnutri_ai/features/product/data/product_discovery_repository.dart';
+import 'package:smartnutri_ai/shared/share/share_sheet.dart';
 import 'package:smartnutri_ai/shared/widgets/off_attribution.dart';
 import 'package:smartnutri_ai/shared/widgets/states.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_meals.dart';
+import '../../support/fake_products.dart';
 import '../../support/fixtures.dart';
 
 class FakeAnalysisRepository implements AnalysisRepository {
@@ -49,9 +52,15 @@ Widget _app(
   String barcode = '8901063201089',
   List<Uri>? opened,
   FakeMealsClient? meals,
+  FakeProductsClient? products,
+  List<String>? shared,
 }) => ProviderScope(
   overrides: [
+    shareLauncherProvider.overrideWithValue((text) async => shared?.add(text)),
     ...mealTestOverrides(client: meals ?? FakeMealsClient()),
+    productDiscoveryRepositoryProvider.overrideWithValue(
+      ProductDiscoveryRepository(products ?? FakeProductsClient()),
+    ),
     analysisRepositoryProvider.overrideWithValue(repo),
     openExternalUrlProvider.overrideWithValue((uri) async {
       opened?.add(uri);
@@ -381,5 +390,41 @@ void main() {
     await t.pumpAndSettle();
     expect(meals.logged.single.barcode, '8901063201089');
     expect(meals.logged.single.productId, isNull);
+  });
+
+  testWidgets('share: privacy note, the members the user keeps, no health '
+      'data', (t) async {
+    final body = analyzeFixture('sf_biscuit');
+    final shared = <String>[];
+    await t.pumpWidget(
+      _app(FakeAnalysisRepository([() => body]), shared: shared),
+    );
+    await t.pumpAndSettle();
+    final button = find.widgetWithText(OutlinedButton, en.shareButton);
+    await t.ensureVisible(button);
+    await t.pumpAndSettle();
+    await t.tap(button);
+    await t.pumpAndSettle();
+    expect(find.text(en.sharePrivacyNote), findsOneWidget);
+    expect(find.byType(CheckboxListTile), findsNWidgets(body.verdicts.length));
+
+    // Keep only the first member.
+    for (final tile
+        in find.byType(CheckboxListTile).evaluate().skip(1).toList()) {
+      await t.ensureVisible(find.byWidget(tile.widget));
+      await t.tap(find.byWidget(tile.widget));
+    }
+    await t.pumpAndSettle();
+    final send = find.byKey(ShareSheet.shareKey);
+    await t.ensureVisible(send);
+    await t.tap(send);
+    await t.pumpAndSettle();
+    final first = body.verdicts.first;
+    expect(shared, [
+      'Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). '
+          '${first.memberName.split(' ').first}: ${en.verdictStatusCaution}. '
+          'Checked with SmartNutri: https://smartnutri.app/en',
+    ]);
+    expect(first.status, VerdictOutStatus.caution);
   });
 }
