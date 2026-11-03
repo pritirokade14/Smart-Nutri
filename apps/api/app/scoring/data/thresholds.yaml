@@ -97,7 +97,9 @@ supplements:
   child_status: caution
   infant_status: avoid
 # Daily limits for the meal-log summaries (Plan 6 T1). PENDING CLINICIAN REVIEW.
-# Read only by daily_limits.py, never by the verdict rules. Per DAY; a week is limit x 7.
+# Read only by daily_limits.py, never by the verdict rules, with one exception: protein_min_age
+# also gates the OK-level good_protein_density reason (conditions.py, P9 safety S4), which never
+# changes a status. Per DAY; a week is limit x 7.
 # Summaries compare TOTAL sugars from labels with these free/added-sugar limits: labels do not
 # separate free from natural sugar, so the comparison over-warns (never under-warns).
 daily_limits:

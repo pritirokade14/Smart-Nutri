@@ -95,6 +95,34 @@ def test_good_protein_density_is_ok_reason(cfg, high_protein_product):
     assert verdict.reasons[0].params == {"protein_g_per_100kcal": 6.58}
 
 
+@pytest.mark.parametrize("goal", ["build_muscle", "weight_loss"])
+@pytest.mark.parametrize("age", [1, 10, 17, None])
+def test_no_good_protein_density_for_minors_or_unknown_age(cfg, high_protein_product, goal, age):
+    """P9 safety S4: protein praise is for adults only (daily_limits.protein_min_age)."""
+    m = Member(id="g", name="G", age=age, goal=goal)
+    verdict = analyze(high_protein_product, [m], cfg).verdicts[0]
+    assert "good_protein_density" not in {r.code for r in verdict.reasons}
+
+
+@pytest.mark.parametrize("goal", ["build_muscle", "weight_loss"])
+def test_good_protein_density_from_protein_min_age(cfg, high_protein_product, goal):
+    age = cfg.thresholds["daily_limits"]["protein_min_age"]
+    assert age == 18
+    m = Member(id="g", name="G", age=age, goal=goal)
+    verdict = analyze(high_protein_product, [m], cfg).verdicts[0]
+    assert "good_protein_density" in {r.code for r in verdict.reasons}
+
+
+def test_weight_loss_minor_keeps_its_cautions(cfg, high_protein_product):
+    """Only the OK-level praise is age-gated; weight_loss cautions still apply to a minor."""
+    dense = replace(
+        high_protein_product, per_100g=replace(high_protein_product.per_100g, energy_kcal=450)
+    )
+    m = Member(id="g", name="G", age=15, goal="weight_loss")
+    codes = {r.code for r in analyze(dense, [m], cfg).verdicts[0].reasons}
+    assert "energy_dense" in codes and "good_protein_density" not in codes
+
+
 def test_low_protein_density_adds_nothing(cfg, high_protein_product):
     low = replace(
         high_protein_product, per_100g=replace(high_protein_product.per_100g, protein_g=4)

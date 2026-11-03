@@ -1397,6 +1397,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get membersGoalBuildMuscle => 'मांसपेशियाँ बनाना';
 
   @override
+  String get membersGoalBuildMuscleAdultsOnly =>
+      'मांसपेशियाँ बनाना वयस्कों (18 वर्ष और उससे अधिक) का लक्ष्य है। इस सदस्य के लिए कोई दूसरा लक्ष्य चुनें।';
+
+  @override
   String get membersGoalHealthyEating => 'बेहतर खाना';
 
   @override

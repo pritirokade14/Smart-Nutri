@@ -2554,6 +2554,12 @@ abstract class AppLocalizations {
   /// **'Build muscle'**
   String get membersGoalBuildMuscle;
 
+  /// No description provided for @membersGoalBuildMuscleAdultsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle is a goal for adults (18 and over). Pick another goal for this member.'**
+  String get membersGoalBuildMuscleAdultsOnly;
+
   /// No description provided for @membersGoalHealthyEating.
   ///
   /// In en, this message translates to:

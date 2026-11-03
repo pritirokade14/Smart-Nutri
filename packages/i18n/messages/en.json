@@ -508,7 +508,8 @@
       "healthy_eating": "Eat better",
       "weight_loss": "Lose weight",
       "weight_gain": "Gain weight",
-      "build_muscle": "Build muscle"
+      "build_muscle": "Build muscle",
+      "build_muscle_adults_only": "Build muscle is a goal for adults (18 and over). Pick another goal for this member."
     },
     "born": "Born {year}",
     "limit_reached": "You have 10 family members, the most you can add."

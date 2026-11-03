@@ -537,6 +537,23 @@ async def test_prefill_empty_after_confirm(client, login, grant, db_session):
     assert again["member_id"] == prefill["member_id"]
 
 
+async def test_prefill_never_suggests_build_muscle_for_a_minor(client, login, db_session):
+    """P9 safety S4: the primary's youngest age decides; an adult gets the suggestion."""
+    from app.core.time import today_ist
+
+    me = await _primary(db_session, A)
+    me.birth_year = today_ist().year - 16  # youngest age 15
+    await db_session.flush()
+    login(A)
+    body = {"types": ["gym"], "follow_ups": {"gym_goal": "build_muscle"}}
+    prefill = (await client.put(URL, json=body)).json()["prefill"]
+    assert prefill["changes"] == [] and prefill["goal_choice"] is None
+    me.birth_year = 1990
+    await db_session.flush()
+    prefill = (await client.get(URL)).json()["prefill"]
+    assert [(c["field"], c["value"]) for c in prefill["changes"]] == [("goal", "build_muscle")]
+
+
 async def test_prefill_for_skip_and_family_is_empty(client, login):
     login(A)
     for body in ({"types": []}, {"types": ["family"], "follow_ups": {"family_with": ["parents"]}}):

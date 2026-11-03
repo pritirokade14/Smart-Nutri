@@ -1395,6 +1395,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get membersGoalBuildMuscle => 'स्नायू बळकट करणे';
 
   @override
+  String get membersGoalBuildMuscleAdultsOnly =>
+      'स्नायू बळकट करणे हे प्रौढांसाठी (18 वर्षे आणि त्याहून अधिक) असलेले ध्येय आहे. या सदस्यासाठी दुसरे ध्येय निवडा.';
+
+  @override
   String get membersGoalHealthyEating => 'चांगला आहार';
 
   @override

@@ -236,6 +236,12 @@ def condition_reasons(
     need = _make_need(out, low_confidence)
     cardio_hits: list[str] = []
     salt_reported = False
+    # P9 safety S4: protein praise (good_protein_density, for weight_loss and build_muscle) is
+    # for adults only: from daily_limits.protein_min_age, the age the adult protein guidance
+    # starts. A minor or an unknown age never gets it; it is OK-level, so no status changes.
+    adult = (
+        member.age is not None and member.age >= cfg.thresholds["daily_limits"]["protein_min_age"]
+    )
 
     if "blood_sugar" in groups:
         c = cond["blood_sugar"]
@@ -308,7 +314,7 @@ def condition_reasons(
         if nutriscore.grade in c["caution_nutriscore"]:
             out.append(Reason("nutriscore_low", Status.CAUTION, {"grade": nutriscore.grade}))
         protein = need("protein_g", n.protein_g, "weight_loss")
-        if kcal and protein is not None:
+        if kcal and protein is not None and adult:
             density = protein / kcal * 100
             if density >= c["good_protein_g_per_100kcal"]:
                 out.append(
@@ -320,7 +326,7 @@ def condition_reasons(
     # A goal is a preference (Ruling R34): build_muscle may add the OK-level
     # good_protein_density only. No caution, no avoid and no nutrient_missing: a missing or
     # untrusted (low-confidence) value simply adds nothing, so the status never changes.
-    if "build_muscle" in groups and not low_confidence:
+    if "build_muscle" in groups and not low_confidence and adult:
         c = cond["build_muscle"]
         kcal, protein = n.energy_kcal, n.protein_g
         if kcal and protein is not None:

@@ -84,6 +84,30 @@ def test_gym_goal_maps_to_member_goal(gym_goal, goal):
     )
 
 
+@pytest.mark.parametrize("age", [5, 12, 17])
+def test_build_muscle_never_suggested_for_a_minor(age):
+    """P9 safety S4: build_muscle is for adults only (the members API rejects it)."""
+    primary = MemberSnapshot(goal=None, age=age)
+    assert suggest_prefill(["gym"], FollowUps(gym_goal="build_muscle"), primary) == ([], None)
+    changes, choice = suggest_prefill(
+        ["weight_loss", "gym"], FollowUps(gym_goal="build_muscle"), primary
+    )
+    assert choice is None and all(c.value != "build_muscle" for c in changes)
+
+
+@pytest.mark.parametrize("age", [18, 40, None])
+def test_build_muscle_suggested_for_an_adult_or_unknown_age(age):
+    primary = MemberSnapshot(goal=None, age=age)
+    c = _one(suggest_prefill(["gym"], FollowUps(gym_goal="build_muscle"), primary)[0])
+    assert (c.field, c.value) == ("goal", "build_muscle")
+
+
+def test_minor_still_gets_other_gym_goals():
+    primary = MemberSnapshot(goal=None, age=15)
+    c = _one(suggest_prefill(["gym"], FollowUps(gym_goal="stay_fit"), primary)[0])
+    assert (c.field, c.value) == ("goal", "healthy_eating")
+
+
 def test_gym_goal_same_as_current_suggests_nothing():
     primary = MemberSnapshot(goal="healthy_eating")
     assert suggest_prefill(["gym"], FollowUps(gym_goal="stay_fit"), primary) == ([], None)

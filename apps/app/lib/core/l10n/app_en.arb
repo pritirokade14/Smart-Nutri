@@ -605,6 +605,7 @@
   "membersFormWeightInvalid": "Enter a weight between 2 and 300 kg, or leave it blank.",
   "membersFormWeightKg": "Weight (kg, optional)",
   "membersGoalBuildMuscle": "Build muscle",
+  "membersGoalBuildMuscleAdultsOnly": "Build muscle is a goal for adults (18 and over). Pick another goal for this member.",
   "membersGoalHealthyEating": "Eat better",
   "membersGoalWeightGain": "Gain weight",
   "membersGoalWeightLoss": "Lose weight",

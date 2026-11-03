@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.security import AccountContext, auth_invalid_error
+from app.core.time import today_ist
 from app.features.consents import service as consents_service
 from app.features.me import prefill
 from app.features.me.models import Account, AccountUserTypes, DeletedAccount
@@ -234,6 +235,7 @@ async def build_prefill(
         diet=primary.diet,
         goal=primary.goal,
         custom_alerts=tuple(primary.custom_alerts or ()),
+        age=members_service.youngest_age(primary.birth_year, today_ist()),
     )
     follow_ups = FollowUps.model_validate(row.follow_ups or {})
     changes, goal_choice = prefill.suggest_prefill(row.types, follow_ups, snapshot)  # type: ignore[arg-type]

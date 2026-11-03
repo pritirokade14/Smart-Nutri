@@ -134,6 +134,66 @@ async def test_unknown_condition_and_goal_rejected(client, consented):
     assert (await client.post(URL, json={**KID, "goal": "bulk"})).status_code == 422
 
 
+# --- P9 safety S4: build_muscle is for adults only (daily_limits.protein_min_age = 18) -------
+
+
+def _born_aged(youngest: int) -> int:
+    """The birth year whose youngest possible age today is `youngest`."""
+    return today_ist().year - youngest - 1
+
+
+@pytest.mark.parametrize("age", [0, 10, 17])
+async def test_create_rejects_build_muscle_for_a_minor(client, consented, count_members, age):
+    before = await count_members(ACC_A)
+    r = await client.post(URL, json={**KID, "birth_year": _born_aged(age), "goal": "build_muscle"})
+    assert r.status_code == 422
+    assert _err(r)["code"] == "validation_error"
+    assert _err(r)["details"]["fields"] == ["body.goal"]
+    assert await count_members(ACC_A) == before
+
+
+async def test_create_accepts_build_muscle_from_18(client, consented):
+    r = await client.post(
+        URL,
+        json={**KID, "relation": "spouse", "birth_year": _born_aged(18), "goal": "build_muscle"},
+    )
+    assert r.status_code == 201 and r.json()["goal"] == "build_muscle"
+
+
+async def test_patch_rejects_build_muscle_for_a_minor(client, consented, db_session):
+    kid = (await client.post(URL, json={**KID, "birth_year": _born_aged(12)})).json()
+    r = await client.patch(f"{URL}/{kid['id']}", json={"goal": "build_muscle"})
+    assert r.status_code == 422 and _err(r)["details"]["fields"] == ["body.goal"]
+    assert (await _row(db_session, kid["id"])).goal is None
+
+
+async def test_patch_birth_year_to_a_minor_with_build_muscle_rejected(
+    client, consented, db_session
+):
+    adult = (
+        await client.post(
+            URL, json={**KID, "relation": "spouse", "birth_year": 1990, "goal": "build_muscle"}
+        )
+    ).json()
+    r = await client.patch(f"{URL}/{adult['id']}", json={"birth_year": _born_aged(15)})
+    assert r.status_code == 422 and _err(r)["details"]["fields"] == ["body.goal"]
+    assert (await _row(db_session, adult["id"])).birth_year == 1990
+    # Changing both together to a non-adult goal is fine.
+    r = await client.patch(
+        f"{URL}/{adult['id']}", json={"birth_year": _born_aged(15), "goal": "healthy_eating"}
+    )
+    assert r.status_code == 200
+
+
+async def test_primary_without_birth_year_may_pick_build_muscle(client, consented):
+    """An unknown age is allowed: the engine gives no protein praise or target without an
+    age anyway."""
+    me = (await client.get(URL)).json()[0]
+    assert me["birth_year"] is None
+    r = await client.patch(f"{URL}/{me['id']}", json={"goal": "build_muscle"})
+    assert r.status_code == 200 and r.json()["goal"] == "build_muscle"
+
+
 async def test_member_limit(client, consented, count_members):
     for i in range(9):  # the primary plus 9 = 10
         r = await client.post(URL, json={**KID, "name": f"M{i}"})

@@ -13,10 +13,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import scoring
 from app.core.errors import ApiError
+from app.core.time import today_ist
 from app.features.consents import service as consents_service
 from app.features.me import service as me_service
 from app.features.members.models import Member
-from app.features.members.schemas import HEALTH_FIELDS, MemberIn, MemberPatch
+from app.features.members.schemas import (
+    HEALTH_FIELDS,
+    MemberIn,
+    MemberPatch,
+    goal_allowed_at_age,
+)
 
 MAX_MEMBERS = 10
 
@@ -173,6 +179,13 @@ def _relation_error() -> ApiError:
     return ApiError("validation_error", 422, details={"fields": ["body.relation"]})
 
 
+def _check_goal_age(goal: str | None, birth_year: int | None) -> None:
+    """422 `body.goal` for an adult-only goal (build_muscle) at a minor's youngest age (P9
+    safety S4). The age is the engine's youngest-age rule; an unknown age is allowed."""
+    if not goal_allowed_at_age(goal, youngest_age(birth_year, today_ist())):
+        raise ApiError("validation_error", 422, details={"fields": ["body.goal"]})
+
+
 async def list_members(session: AsyncSession, account_id: UUID) -> list[Member]:
     """The account's members: the primary first, then in creation order. Read-only."""
     rows = await session.scalars(
@@ -200,6 +213,7 @@ async def create_member(session: AsyncSession, account_id: UUID, body: MemberIn)
     same advisory lock as `get_or_create_primary`, so concurrent creates can't exceed it.
     """
     values = body.model_dump()
+    _check_goal_age(body.goal, body.birth_year)
     await _require_health_consent(session, account_id, values)
     await get_or_create_primary(session, account_id)  # takes the per-account lock
     count = await session.scalar(
@@ -232,6 +246,12 @@ async def update_member(
     # Only the primary is `self`, and the primary's relation can't change.
     if "relation" in changes and (changes["relation"] == "self") != member.is_primary:
         raise _relation_error()
+    # Checked when the goal or the birth year is written; a stored legacy pair is left alone.
+    if "goal" in changes or "birth_year" in changes:
+        _check_goal_age(
+            changes.get("goal", member.goal),  # type: ignore[arg-type]
+            changes.get("birth_year", member.birth_year),  # type: ignore[arg-type]
+        )
     await _require_health_consent(session, account_id, changes, member)
     for field, value in changes.items():
         setattr(member, field, value)

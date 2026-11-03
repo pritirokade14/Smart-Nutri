@@ -21,7 +21,7 @@ from pydantic import (
 )
 
 from app.core.time import today_ist
-from app.scoring import CUSTOM_ALERT_KEYS
+from app.scoring import CUSTOM_ALERT_KEYS, load_config
 
 Relation = Literal["self", "child", "parent", "spouse", "other"]
 NewRelation = Literal["child", "parent", "spouse", "other"]
@@ -59,6 +59,20 @@ BirthYear = Annotated[int, Field(ge=BIRTH_YEAR_MIN)]
 HeightCm = Annotated[float, Field(ge=30, le=250)]
 WeightKg = Annotated[float, Field(ge=2, le=300)]
 Allergens = Annotated[list[str], Field(max_length=MAX_ALLERGENS)]
+
+
+# Goals for adults only (P9 safety S4): from daily_limits.protein_min_age, the age the adult
+# protein guidance starts. The members API rejects them for a minor and pre-fill never
+# suggests them.
+ADULT_ONLY_GOALS: frozenset[str] = frozenset({"build_muscle"})
+
+
+def goal_allowed_at_age(goal: str | None, age: int | None) -> bool:
+    """False only for an adult-only goal at a known age below `protein_min_age`. An unknown
+    age is allowed: without an age the engine gives no protein praise or target anyway."""
+    if goal not in ADULT_ONLY_GOALS or age is None:
+        return True
+    return age >= load_config().thresholds["daily_limits"]["protein_min_age"]
 
 
 def _dedupe[T](items: list[T]) -> list[T]:

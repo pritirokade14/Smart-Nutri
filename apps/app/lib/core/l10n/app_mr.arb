@@ -605,6 +605,7 @@
   "membersFormWeightInvalid": "2 ते 300 किलो दरम्यान वजन लिहा, किंवा रिकामे ठेवा.",
   "membersFormWeightKg": "वजन (किलो, ऐच्छिक)",
   "membersGoalBuildMuscle": "स्नायू बळकट करणे",
+  "membersGoalBuildMuscleAdultsOnly": "स्नायू बळकट करणे हे प्रौढांसाठी (18 वर्षे आणि त्याहून अधिक) असलेले ध्येय आहे. या सदस्यासाठी दुसरे ध्येय निवडा.",
   "membersGoalHealthyEating": "चांगला आहार",
   "membersGoalWeightGain": "वजन वाढवणे",
   "membersGoalWeightLoss": "वजन कमी करणे",

@@ -1392,6 +1392,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersGoalBuildMuscle => 'Build muscle';
 
   @override
+  String get membersGoalBuildMuscleAdultsOnly =>
+      'Build muscle is a goal for adults (18 and over). Pick another goal for this member.';
+
+  @override
   String get membersGoalHealthyEating => 'Eat better';
 
   @override

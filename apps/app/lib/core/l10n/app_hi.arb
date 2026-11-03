@@ -605,6 +605,7 @@
   "membersFormWeightInvalid": "2 से 300 किग्रा के बीच वज़न लिखें, या खाली छोड़ें।",
   "membersFormWeightKg": "वज़न (किग्रा, वैकल्पिक)",
   "membersGoalBuildMuscle": "मांसपेशियाँ बनाना",
+  "membersGoalBuildMuscleAdultsOnly": "मांसपेशियाँ बनाना वयस्कों (18 वर्ष और उससे अधिक) का लक्ष्य है। इस सदस्य के लिए कोई दूसरा लक्ष्य चुनें।",
   "membersGoalHealthyEating": "बेहतर खाना",
   "membersGoalWeightGain": "वज़न बढ़ाना",
   "membersGoalWeightLoss": "वज़न घटाना",

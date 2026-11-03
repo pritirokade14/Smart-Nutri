@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from typing import get_args
 
 from app.features.me.schemas import FollowUps, PrefillChange, PrefillField, UserType
-from app.features.members.schemas import GoalIn
+from app.features.members.schemas import GoalIn, goal_allowed_at_age
 
 DEFAULT_DIET = "non_veg"
 # The goal each gym follow-up suggests.
@@ -49,6 +49,8 @@ class MemberSnapshot:
     diet: str = DEFAULT_DIET
     goal: str | None = None
     custom_alerts: tuple[str, ...] = ()
+    # The youngest age the birth year allows (`members.service.youngest_age`); None = unknown.
+    age: int | None = None
 
 
 def _union(
@@ -82,9 +84,10 @@ def _union(
 
 
 def _goal(
-    types: Sequence[UserType], follow_ups: FollowUps, current: str | None
+    types: Sequence[UserType], follow_ups: FollowUps, current: str | None, age: int | None
 ) -> tuple[PrefillChange | None, list[str] | None]:
-    saveable = _saveable_goals()
+    # P9 safety S4: an adult-only goal (build_muscle) is never offered to a minor.
+    saveable = frozenset(g for g in _saveable_goals() if goal_allowed_at_age(g, age))
     gym_goal = (
         GYM_GOAL_TO_GOAL[follow_ups.gym_goal]
         if "gym" in types and follow_ups.gym_goal is not None
@@ -140,7 +143,7 @@ def suggest_prefill(
                     field="diet", current=primary.diet, value=diet, added=[], reason="allergy_diet"
                 )
             )
-    goal_change, goal_choice = _goal(types, follow_ups, primary.goal)
+    goal_change, goal_choice = _goal(types, follow_ups, primary.goal, primary.age)
     changes.append(goal_change)
     if "eat_better" in types and follow_ups.alerts:
         changes.append(
