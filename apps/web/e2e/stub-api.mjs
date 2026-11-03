@@ -37,6 +37,7 @@ const body = {
 
 export const E2E_USER_ID = "5f0c3a52-6f1e-4c9b-9d1a-2b7e8c4d1a01";
 const CONSENT_VERSION = "2026-11-01";
+const OLD_CONSENT_VERSION = "2026-01-01";
 const PURPOSES = ["terms", "health_data", "ai_processing"];
 const HEALTH = ["allergens", "conditions", "goal", "height_cm", "weight_kg"];
 const index = read("responses/index.json");
@@ -48,12 +49,26 @@ const goldenVerdict = (product, member) => {
 };
 
 let state;
-function reset() {
+// POST /__reset?terms=current|old&delete_fails=N seeds the signed-in state:
+// terms agreed now or at an older text version (needs_update), and how many
+// DELETE /v1/me calls answer 503 deletion_incomplete before one succeeds.
+function reset(params = new URLSearchParams()) {
+  const terms = params.get("terms");
   state = {
     seq: 0,
     scans: 0,
     meals: [],
-    consents: Object.fromEntries(PURPOSES.map((p) => [p, null])),
+    deleteFails: Number(params.get("delete_fails") ?? 0),
+    deleted: false,
+    consents: {
+      ...Object.fromEntries(PURPOSES.map((p) => [p, null])),
+      terms:
+        terms === "current"
+          ? CONSENT_VERSION
+          : terms === "old"
+            ? OLD_CONSENT_VERSION
+            : null,
+    },
     members: [
       {
         id: "a0000000-0000-4000-8000-000000000001",
@@ -81,7 +96,14 @@ const consentStates = () =>
     granted: state.consents[purpose] !== null,
     version: state.consents[purpose],
     current_version: CONSENT_VERSION,
+    needs_update:
+      state.consents[purpose] !== null &&
+      state.consents[purpose] !== CONSENT_VERSION,
   }));
+
+// The route gate (ruling G1): analyze, scans, meals and product create need
+// `terms` at the current version.
+const termsMissing = () => state.consents.terms !== CONSENT_VERSION;
 
 const envelope = (code, details = {}) => ({
   error: { code, message_key: `error.${code}`, details },
@@ -238,6 +260,25 @@ function summary(q) {
 }
 
 function route(method, path, b, q = new URLSearchParams()) {
+  if (method === "GET" && path === "/v1/me")
+    return [
+      200,
+      {
+        id: E2E_USER_ID,
+        email: "e2e@example.test",
+        display_name: null,
+        language: "en",
+        created_at: "2026-01-01T00:00:00Z",
+      },
+    ];
+  if (method === "DELETE" && path === "/v1/me") {
+    if (state.deleteFails > 0) {
+      state.deleteFails -= 1;
+      return [503, envelope("deletion_incomplete")];
+    }
+    state.deleted = true;
+    return [204, undefined];
+  }
   if (method === "GET" && path === "/v1/consents")
     return [200, consentStates()];
   if (method === "POST" && path === "/v1/consents") {
@@ -282,9 +323,14 @@ function route(method, path, b, q = new URLSearchParams()) {
     }
   }
   if (method === "POST" && path === "/v1/analyze") {
+    if (termsMissing())
+      return [403, envelope("consent_required", { purposes: ["terms"] })];
     state.scans += 1;
     return [200, analyze()];
   }
+  // The meals routes share the terms gate (ruling G1).
+  if (path.startsWith("/v1/meals") && termsMissing())
+    return [403, envelope("consent_required", { purposes: ["terms"] })];
   if (method === "POST" && path === "/v1/meals") return logMeal(b);
   if (method === "GET" && path === "/v1/meals") {
     const from = new Date(q.get("from")).getTime();
@@ -337,8 +383,8 @@ createServer((req, res) => {
     res.writeHead(204, CORS).end();
     return;
   }
-  if (req.method === "POST" && req.url === "/__reset") {
-    reset();
+  if (req.method === "POST" && req.url?.startsWith("/__reset")) {
+    reset(new URL(req.url, "http://x").searchParams);
     res.writeHead(204).end();
     return;
   }
@@ -346,6 +392,11 @@ createServer((req, res) => {
     // Canned: the stub never ranks products.
     res.writeHead(200, { ...CORS, "content-type": "application/json" });
     res.end(JSON.stringify({ items: [], reason: "no_category" }));
+    return;
+  }
+  if (req.method === "GET" && req.url === "/__state") {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(state));
     return;
   }
   if (req.url?.startsWith("/v1/products/")) {
@@ -376,6 +427,10 @@ createServer((req, res) => {
 // Supabase Auth stand-in: the e2e session uses an HS256 token, so
 // getClaims() verifies it by calling GET /auth/v1/user.
 createServer((req, res) => {
+  if (req.method === "POST" && req.url?.startsWith("/auth/v1/logout")) {
+    res.writeHead(204).end();
+    return;
+  }
   if (req.url === "/auth/v1/user" && req.headers.authorization) {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(

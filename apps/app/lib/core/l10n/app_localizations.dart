@@ -1012,6 +1012,18 @@ abstract class AppLocalizations {
   /// **'Not agreed'**
   String get consentNotGranted;
 
+  /// No description provided for @consentPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To continue, please agree to the following. You can withdraw at any time from your profile.'**
+  String get consentPromptBody;
+
+  /// No description provided for @consentPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your agreement is needed'**
+  String get consentPromptTitle;
+
   /// No description provided for @consentRequiredNote.
   ///
   /// In en, this message translates to:
@@ -1029,6 +1041,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Review'**
   String get consentReview;
+
+  /// No description provided for @consentReviewAgree.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and agree'**
+  String get consentReviewAgree;
 
   /// No description provided for @consentScreenIntro.
   ///
@@ -1048,11 +1066,59 @@ abstract class AppLocalizations {
   /// **'I agree to the SmartNutri terms of use and privacy policy.'**
   String get consentTermsBody;
 
+  /// No description provided for @consentTermsStepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Please read our terms of use and privacy notice. You need to agree to them to check and scan products.'**
+  String get consentTermsStepBody;
+
+  /// No description provided for @consentTermsStepLeaveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t want to agree? You can sign out, or delete your account from your profile.'**
+  String get consentTermsStepLeaveNote;
+
+  /// No description provided for @consentTermsStepReadPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy notice'**
+  String get consentTermsStepReadPrivacy;
+
+  /// No description provided for @consentTermsStepReadTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get consentTermsStepReadTerms;
+
+  /// No description provided for @consentTermsStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you start'**
+  String get consentTermsStepTitle;
+
+  /// No description provided for @consentTermsStepUpdatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Our terms of use or privacy notice have changed. Please read them and agree again to keep checking and scanning products.'**
+  String get consentTermsStepUpdatedBody;
+
+  /// No description provided for @consentTermsStepUpdatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve updated our terms'**
+  String get consentTermsStepUpdatedTitle;
+
   /// No description provided for @consentTermsTitle.
   ///
   /// In en, this message translates to:
   /// **'Terms of use'**
   String get consentTermsTitle;
+
+  /// No description provided for @consentTermsWithdrawConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'If you withdraw, you can\'t check or scan products until you agree again. Your saved data stays until you delete your account.'**
+  String get consentTermsWithdrawConfirm;
 
   /// No description provided for @consentUpdateNote.
   ///

@@ -448,7 +448,8 @@
     },
     "terms": {
       "title": "Terms of use",
-      "body": "I agree to the SmartNutri terms of use and privacy policy."
+      "body": "I agree to the SmartNutri terms of use and privacy policy.",
+      "withdraw_confirm": "If you withdraw, you can't check or scan products until you agree again. Your saved data stays until you delete your account."
     },
     "agree": "I agree",
     "decline": "Not now",
@@ -457,10 +458,24 @@
     "not_granted": "Not agreed",
     "ai_optional": "Optional. Without it you still get every result, just no AI explanation.",
     "required_note": "Needed to save allergies, health conditions, a goal, height or weight.",
+    "terms_step": {
+      "title": "Before you start",
+      "updated_title": "We've updated our terms",
+      "body": "Please read our terms of use and privacy notice. You need to agree to them to check and scan products.",
+      "updated_body": "Our terms of use or privacy notice have changed. Please read them and agree again to keep checking and scanning products.",
+      "read_terms": "Terms of use",
+      "read_privacy": "Privacy notice",
+      "leave_note": "Don't want to agree? You can sign out, or delete your account from your profile."
+    },
     "screen_title": "Before you continue",
     "screen_intro": "Please read and agree to continue using SmartNutri.",
     "update_note": "We've updated this text. Please read it and agree again.",
     "needs_update": "Updated, please review",
+    "review_agree": "Review and agree",
+    "prompt": {
+      "title": "Your agreement is needed",
+      "body": "To continue, please agree to the following. You can withdraw at any time from your profile."
+    },
     "required_to_continue": "Please review and agree to continue.",
     "updates_banner": "We've updated some consent texts. Please review them.",
     "review": "Review",

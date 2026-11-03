@@ -1,9 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ConfirmDialog } from "@/components/ui/Dialog";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { InfoIcon } from "@/components/ui/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -13,18 +14,28 @@ import { type ConsentPurpose, isGranted } from "../api/members";
 import { useConsents, useRecordConsent } from "../hooks/useMembers";
 import { errorKey } from "./ConsentDialog";
 
-const PURPOSES: readonly ConsentPurpose[] = ["health_data", "ai_processing"];
+const PURPOSES: readonly ConsentPurpose[] = [
+  "terms",
+  "health_data",
+  "ai_processing",
+];
+
+const linkClass =
+  "font-semibold text-brand-primary underline underline-offset-4 hover:text-brand-strong";
 
 /**
- * Profile: each consent's state, with withdraw (or agree). Withdrawing
- * health_data keeps saved allergies and conditions in use (Ruling P5-R20);
- * the notice says so.
+ * Profile: every consent's state, with withdraw, agree, or "review and agree"
+ * when its text changed (`needs_update`). Withdrawing terms stops checking
+ * and scanning (ruling G1), so it asks first. Withdrawing health_data keeps
+ * saved allergies and conditions in use (Ruling P5-R20); the notice says so.
  */
 export function ConsentSettings() {
   const t = useTranslations();
+  const locale = useLocale();
   const consents = useConsents();
   const record = useRecordConsent();
   const [error, setError] = useState<ApiError | null>(null);
+  const [confirmTerms, setConfirmTerms] = useState(false);
 
   async function set(purpose: ConsentPurpose, granted: boolean) {
     const state = consents.data?.find((c) => c.purpose === purpose);
@@ -58,6 +69,9 @@ export function ConsentSettings() {
       <ul className="space-y-3">
         {PURPOSES.map((p) => {
           const granted = isGranted(consents.data, p);
+          const outdated = Boolean(
+            consents.data?.find((c) => c.purpose === p)?.needs_update,
+          );
           return (
             <Card
               as="li"
@@ -73,13 +87,27 @@ export function ConsentSettings() {
                   data-testid="consent-state"
                   className="rounded-full bg-surface-muted px-3 py-1 text-sm font-medium text-text-secondary"
                 >
-                  {granted ? t("consent.granted") : t("consent.not_granted")}
+                  {granted
+                    ? t("consent.granted")
+                    : outdated
+                      ? t("consent.needs_update")
+                      : t("consent.not_granted")}
                 </span>
               </div>
               <p className="text-sm text-text-secondary">
                 {t(`consent.${p}.body`)}
               </p>
-              {p === "health_data" && !granted ? (
+              {p === "terms" ? (
+                <p className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                  <a href={`/${locale}/terms`} className={linkClass}>
+                    {t("consent.terms_step.read_terms")}
+                  </a>
+                  <a href={`/${locale}/privacy`} className={linkClass}>
+                    {t("consent.terms_step.read_privacy")}
+                  </a>
+                </p>
+              ) : null}
+              {p === "health_data" && !granted && !outdated ? (
                 <p className="flex gap-2 text-sm text-text-primary">
                   <InfoIcon className="mt-0.5 size-4 shrink-0" />
                   {t("members.consent_withdrawn_notice")}
@@ -89,9 +117,17 @@ export function ConsentSettings() {
                 variant={granted ? "outline" : "secondary"}
                 size="sm"
                 disabled={record.isPending}
-                onClick={() => set(p, !granted)}
+                onClick={() =>
+                  granted && p === "terms"
+                    ? setConfirmTerms(true)
+                    : set(p, !granted)
+                }
               >
-                {granted ? t("consent.withdraw") : t("profile.give_consent")}
+                {granted
+                  ? t("consent.withdraw")
+                  : outdated
+                    ? t("consent.review_agree")
+                    : t("profile.give_consent")}
               </Button>
             </Card>
           );
@@ -107,6 +143,19 @@ export function ConsentSettings() {
         <p role="alert" className="text-md text-text-primary">
           {t(errorKey(t, error))}
         </p>
+      ) : null}
+      {confirmTerms ? (
+        <ConfirmDialog
+          message={t("consent.terms.withdraw_confirm")}
+          confirmLabel={t("consent.withdraw")}
+          cancelLabel={t("consent.decline")}
+          busy={record.isPending}
+          onCancel={() => setConfirmTerms(false)}
+          onConfirm={() => {
+            setConfirmTerms(false);
+            void set("terms", false);
+          }}
+        />
       ) : null}
     </section>
   );

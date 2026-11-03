@@ -61,13 +61,24 @@ export function apiStub(fetchMock: ReturnType<typeof vi.fn>) {
   };
 }
 
-export const consentStates = (granted: {
-  health_data?: boolean;
-  ai_processing?: boolean;
-}) =>
-  (["terms", "health_data", "ai_processing"] as const).map((purpose) => ({
-    purpose,
-    granted: Boolean(granted[purpose as keyof typeof granted]),
-    version: granted[purpose as keyof typeof granted] ? "2026-11-01" : null,
-    current_version: "2026-11-01",
-  }));
+type Purpose = "terms" | "health_data" | "ai_processing";
+
+/**
+ * GET /v1/consents as the API sends it. `stale` purposes were granted at an
+ * older text version (`needs_update`: the client asks again).
+ */
+export const consentStates = (
+  granted: Partial<Record<Purpose, boolean>>,
+  stale: readonly Purpose[] = [],
+) =>
+  (["terms", "health_data", "ai_processing"] as const).map((purpose) => {
+    const old = stale.includes(purpose);
+    const on = Boolean(granted[purpose]) || old;
+    return {
+      purpose,
+      granted: on,
+      version: old ? "2026-01-01" : on ? "2026-11-01" : null,
+      current_version: "2026-11-01",
+      needs_update: old,
+    };
+  });

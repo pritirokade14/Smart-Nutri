@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
-import { addMember, signedIn } from "./session";
+import { addMember, signedIn } from "./support/session";
 
 // Scan-to-log and history against the stub API (e2e/stub-api.mjs): log the
 // sugar-free biscuit for Dad from his result card, then find it in History

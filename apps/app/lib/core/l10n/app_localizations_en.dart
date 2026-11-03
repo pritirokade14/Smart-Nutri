@@ -495,6 +495,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentNotGranted => 'Not agreed';
 
   @override
+  String get consentPromptBody =>
+      'To continue, please agree to the following. You can withdraw at any time from your profile.';
+
+  @override
+  String get consentPromptTitle => 'Your agreement is needed';
+
+  @override
   String get consentRequiredNote =>
       'Needed to save allergies, health conditions, a goal, height or weight.';
 
@@ -504,6 +511,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get consentReview => 'Review';
+
+  @override
+  String get consentReviewAgree => 'Review and agree';
 
   @override
   String get consentScreenIntro =>
@@ -517,7 +527,35 @@ class AppLocalizationsEn extends AppLocalizations {
       'I agree to the SmartNutri terms of use and privacy policy.';
 
   @override
+  String get consentTermsStepBody =>
+      'Please read our terms of use and privacy notice. You need to agree to them to check and scan products.';
+
+  @override
+  String get consentTermsStepLeaveNote =>
+      'Don\'t want to agree? You can sign out, or delete your account from your profile.';
+
+  @override
+  String get consentTermsStepReadPrivacy => 'Privacy notice';
+
+  @override
+  String get consentTermsStepReadTerms => 'Terms of use';
+
+  @override
+  String get consentTermsStepTitle => 'Before you start';
+
+  @override
+  String get consentTermsStepUpdatedBody =>
+      'Our terms of use or privacy notice have changed. Please read them and agree again to keep checking and scanning products.';
+
+  @override
+  String get consentTermsStepUpdatedTitle => 'We\'ve updated our terms';
+
+  @override
   String get consentTermsTitle => 'Terms of use';
+
+  @override
+  String get consentTermsWithdrawConfirm =>
+      'If you withdraw, you can\'t check or scan products until you agree again. Your saved data stays until you delete your account.';
 
   @override
   String get consentUpdateNote =>

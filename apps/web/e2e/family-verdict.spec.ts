@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
+import { STUB, signIn } from "./support/session";
 
 // Signed-in family flow against the stub API (Ruling P5-R23): add "Dad"
 // (diabetes, after health-data consent), then open the sugar-free biscuit:
@@ -9,9 +10,7 @@ import { expect, test } from "@playwright/test";
 // with an HS256 token is accepted by getClaims() through GET /auth/v1/user.
 // The verdict itself is the golden sf_biscuit/diabetic_adult response.
 
-const STUB = `http://127.0.0.1:${process.env.STUB_API_PORT ?? 18000}`;
 const FIXTURES = join(process.cwd(), "../../packages/test-fixtures");
-const USER_ID = "5f0c3a52-6f1e-4c9b-9d1a-2b7e8c4d1a01";
 const SF_BISCUIT = (
   JSON.parse(readFileSync(join(FIXTURES, "responses/index.json"), "utf8")) as {
     products: Record<string, string>;
@@ -31,48 +30,10 @@ const misleadingClaim = (
     e.reason.code === "misleading_sugar_claim",
 )?.text as string;
 
-const b64url = (v: unknown) =>
-  Buffer.from(typeof v === "string" ? v : JSON.stringify(v)).toString(
-    "base64url",
-  );
-
-function sessionCookie(): string {
-  const exp = Math.floor(Date.now() / 1000) + 3600;
-  const user = {
-    id: USER_ID,
-    aud: "authenticated",
-    role: "authenticated",
-    email: "e2e@example.test",
-    app_metadata: { provider: "email" },
-    user_metadata: {},
-    created_at: "2026-01-01T00:00:00Z",
-  };
-  const token = [
-    b64url({ alg: "HS256", typ: "JWT" }),
-    b64url({ sub: USER_ID, aud: "authenticated", role: "authenticated", exp }),
-    b64url("e2e-signature"),
-  ].join(".");
-  return `base64-${b64url({
-    access_token: token,
-    token_type: "bearer",
-    expires_in: 3600,
-    expires_at: exp,
-    refresh_token: "e2e-refresh",
-    user,
-  })}`;
-}
-
 test.beforeEach(async ({ context, request }) => {
-  await request.post(`${STUB}/__reset`);
-  await context.addCookies([
-    {
-      name: "sb-127-auth-token",
-      value: sessionCookie(),
-      domain: "localhost",
-      path: "/",
-      sameSite: "Lax",
-    },
-  ]);
+  // Terms already agreed: the terms step has its own spec (consent.spec.ts).
+  await request.post(`${STUB}/__reset?terms=current`);
+  await signIn(context);
 });
 
 test("add Dad (diabetes, after consent), then his card on the sugar-free biscuit", async ({

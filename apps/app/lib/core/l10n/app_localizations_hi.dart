@@ -493,10 +493,17 @@ class AppLocalizationsHi extends AppLocalizations {
   String get consentHealthDataTitle => 'स्वास्थ्य डेटा';
 
   @override
-  String get consentNeedsUpdate => 'अपडेट हुआ, कृपया देखें';
+  String get consentNeedsUpdate => 'अपडेट हुआ है, कृपया देखें';
 
   @override
   String get consentNotGranted => 'सहमति नहीं दी गई';
+
+  @override
+  String get consentPromptBody =>
+      'जारी रखने के लिए कृपया इनसे सहमति दें। आप अपनी प्रोफ़ाइल से कभी भी सहमति वापस ले सकते हैं।';
+
+  @override
+  String get consentPromptTitle => 'आपकी सहमति चाहिए';
 
   @override
   String get consentRequiredNote =>
@@ -510,6 +517,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get consentReview => 'देखें';
 
   @override
+  String get consentReviewAgree => 'पढ़ें और सहमति दें';
+
+  @override
   String get consentScreenIntro =>
       'SmartNutri का उपयोग जारी रखने के लिए कृपया पढ़ें और सहमति दें।';
 
@@ -521,7 +531,35 @@ class AppLocalizationsHi extends AppLocalizations {
       'मैं SmartNutri की उपयोग की शर्तों और गोपनीयता नीति से सहमत हूँ।';
 
   @override
+  String get consentTermsStepBody =>
+      'कृपया हमारी उपयोग की शर्तें और गोपनीयता सूचना पढ़ें। उत्पादों की जाँच और स्कैन करने के लिए आपको इनसे सहमत होना होगा।';
+
+  @override
+  String get consentTermsStepLeaveNote =>
+      'सहमत नहीं होना चाहते? आप साइन आउट कर सकते हैं, या अपनी प्रोफ़ाइल से अपना खाता हटा सकते हैं।';
+
+  @override
+  String get consentTermsStepReadPrivacy => 'गोपनीयता सूचना';
+
+  @override
+  String get consentTermsStepReadTerms => 'उपयोग की शर्तें';
+
+  @override
+  String get consentTermsStepTitle => 'शुरू करने से पहले';
+
+  @override
+  String get consentTermsStepUpdatedBody =>
+      'हमारी उपयोग की शर्तें या गोपनीयता सूचना बदल गई है। उत्पादों की जाँच और स्कैन जारी रखने के लिए कृपया इन्हें पढ़ें और फिर से सहमति दें।';
+
+  @override
+  String get consentTermsStepUpdatedTitle => 'हमने अपनी शर्तें अपडेट की हैं';
+
+  @override
   String get consentTermsTitle => 'उपयोग की शर्तें';
+
+  @override
+  String get consentTermsWithdrawConfirm =>
+      'सहमति वापस लेने पर, जब तक आप फिर से सहमति नहीं देते, आप उत्पादों की जाँच या स्कैन नहीं कर पाएँगे। आपका सहेजा गया डेटा तब तक रहेगा जब तक आप अपना खाता नहीं हटाते।';
 
   @override
   String get consentUpdateNote =>

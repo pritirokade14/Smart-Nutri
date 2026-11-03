@@ -492,10 +492,17 @@ class AppLocalizationsMr extends AppLocalizations {
   String get consentHealthDataTitle => 'आरोग्य डेटा';
 
   @override
-  String get consentNeedsUpdate => 'अद्ययावत, कृपया पाहा';
+  String get consentNeedsUpdate => 'अपडेट झाले आहे, कृपया पाहा';
 
   @override
   String get consentNotGranted => 'संमती दिलेली नाही';
+
+  @override
+  String get consentPromptBody =>
+      'पुढे जाण्यासाठी कृपया यांना संमती द्या. तुम्ही तुमच्या प्रोफाइलमधून कधीही संमती मागे घेऊ शकता.';
+
+  @override
+  String get consentPromptTitle => 'तुमची संमती हवी आहे';
 
   @override
   String get consentRequiredNote =>
@@ -509,6 +516,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get consentReview => 'पाहा';
 
   @override
+  String get consentReviewAgree => 'वाचा आणि संमती द्या';
+
+  @override
   String get consentScreenIntro =>
       'SmartNutri वापरणे सुरू ठेवण्यासाठी कृपया वाचा आणि संमती द्या.';
 
@@ -520,7 +530,36 @@ class AppLocalizationsMr extends AppLocalizations {
       'मी SmartNutri च्या वापराच्या अटी आणि गोपनीयता धोरणाशी सहमत आहे.';
 
   @override
+  String get consentTermsStepBody =>
+      'कृपया आमच्या वापराच्या अटी आणि गोपनीयता सूचना वाचा. उत्पादने तपासण्यासाठी आणि स्कॅन करण्यासाठी तुम्हाला त्यांना संमती द्यावी लागेल.';
+
+  @override
+  String get consentTermsStepLeaveNote =>
+      'संमती द्यायची नाही? तुम्ही साइन आउट करू शकता, किंवा तुमच्या प्रोफाइलमधून तुमचे खाते हटवू शकता.';
+
+  @override
+  String get consentTermsStepReadPrivacy => 'गोपनीयता सूचना';
+
+  @override
+  String get consentTermsStepReadTerms => 'वापराच्या अटी';
+
+  @override
+  String get consentTermsStepTitle => 'सुरू करण्यापूर्वी';
+
+  @override
+  String get consentTermsStepUpdatedBody =>
+      'आमच्या वापराच्या अटी किंवा गोपनीयता सूचना बदलल्या आहेत. उत्पादने तपासणे आणि स्कॅन करणे सुरू ठेवण्यासाठी कृपया त्या वाचा आणि पुन्हा संमती द्या.';
+
+  @override
+  String get consentTermsStepUpdatedTitle =>
+      'आम्ही आमच्या अटी अपडेट केल्या आहेत';
+
+  @override
   String get consentTermsTitle => 'वापराच्या अटी';
+
+  @override
+  String get consentTermsWithdrawConfirm =>
+      'संमती मागे घेतल्यास, पुन्हा संमती देईपर्यंत तुम्ही उत्पादने तपासू किंवा स्कॅन करू शकणार नाही. तुमचे खाते हटवेपर्यंत तुमचा जतन केलेला डेटा राहील.';
 
   @override
   String get consentUpdateNote =>

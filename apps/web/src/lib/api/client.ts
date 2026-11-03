@@ -1,5 +1,6 @@
 import { createApiClient } from "@smartnutri/api-client";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { type ConsentPurpose, consentPurposes } from "./consent-required";
 
 type ApiClient = ReturnType<typeof createApiClient>;
 let api: ApiClient | undefined;
@@ -15,6 +16,22 @@ export function setUnauthorizedHandler(
   onUnauthorized = handler;
   return () => {
     if (onUnauthorized === handler) onUnauthorized = undefined;
+  };
+}
+
+let onConsentRequired: ((purposes: ConsentPurpose[]) => void) | undefined;
+
+/**
+ * Registers what to do when a gated route answers 403 `consent_required`
+ * (ADR 0018): the app shows the consent for the missing purposes. Returns an
+ * unregister function.
+ */
+export function setConsentRequiredHandler(
+  handler: ((purposes: ConsentPurpose[]) => void) | undefined,
+): () => void {
+  onConsentRequired = handler;
+  return () => {
+    if (onConsentRequired === handler) onConsentRequired = undefined;
   };
 }
 
@@ -38,6 +55,10 @@ export function getApi(): ApiClient {
           request.headers.get("Authorization")?.startsWith("Bearer ")
         ) {
           await onUnauthorized?.();
+        }
+        if (response.status === 403 && onConsentRequired) {
+          const purposes = await consentPurposes(response);
+          if (purposes) onConsentRequired(purposes);
         }
         return undefined;
       },
