@@ -637,11 +637,8 @@ def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, produc
     assert key != explain_mod.cache_key(data, "explanation_v2", "expl-model", "PROMPT edited")
 
 
-# Plan 9 Task 7 reason codes that the released explanation_v1 cannot list (released prompts
-# are never edited in place, P9-R15). v1's "a code you do not recognise: explain it only from
-# its params, or leave it out" covers them meanwhile (their params are empty, so they are left
-# out). At merge: list them in explanation_v2.md / voice_v2.md (Task 5) and empty this set.
-NOT_IN_RELEASED_PROMPT = {"supplement_child", "supplement_infant"}
+# Every engine reason code must be listed in explanation_v2.md. Exemptions: none.
+NOT_IN_RELEASED_PROMPT: set[str] = set()
 
 
 def test_prompt_lists_every_engine_reason_code():
@@ -653,6 +650,12 @@ def test_prompt_lists_every_engine_reason_code():
     )
     missing = [c for c in en["reason"] if f"`{c}`" not in text and c not in NOT_IN_RELEASED_PROMPT]
     assert missing == []
+
+
+def test_voice_prompt_lists_supplement_reason_codes():
+    text, _ = load_prompt("voice_v2")
+    for code in ("supplement_child", "supplement_infant"):
+        assert f"`{code}`" in text, code
 
 
 # --- medical-claim and "suitable" deny words ----------------------------------------------
