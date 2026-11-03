@@ -150,6 +150,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get authVerify => 'पडताळा';
 
   @override
+  String get categorySupplement => 'सप्लिमेंट';
+
+  @override
   String get claimDiabeticFriendly => 'डायबेटिसला अनुकूल';
 
   @override
@@ -841,6 +844,18 @@ class AppLocalizationsMr extends AppLocalizations {
   String get footerTagline => 'भारतीय कुटुंबांसाठी पॅकबंद अन्नाची माहिती.';
 
   @override
+  String get goalBuildMuscle => 'स्नायू वाढवणे';
+
+  @override
+  String get goalHealthyEating => 'चांगले खाणे';
+
+  @override
+  String get goalWeightGain => 'वजन वाढवणे';
+
+  @override
+  String get goalWeightLoss => 'वजन कमी करणे';
+
+  @override
   String get goodbyeAction => 'साइन इनकडे परत जा';
 
   @override
@@ -917,6 +932,91 @@ class AppLocalizationsMr extends AppLocalizations {
   String get historyToday => 'आज';
 
   @override
+  String get homeCardsAllergyCheckAddCta => 'अॅलर्जी जोडा';
+
+  @override
+  String homeCardsAllergyCheckMemberLine(String allergens, String name) {
+    return '$name: $allergens';
+  }
+
+  @override
+  String get homeCardsAllergyCheckNone => 'अजून कोणतीही अॅलर्जी जोडलेली नाही.';
+
+  @override
+  String get homeCardsAllergyCheckTitle => 'अॅलर्जी तपासणी';
+
+  @override
+  String get homeCardsAllergyCheckUnknownNote =>
+      'अज्ञात म्हणजे आम्ही तपासू शकलो नाही, म्हणून ते कधीही सुरक्षित म्हणून दाखवले जात नाही.';
+
+  @override
+  String get homeCardsClaimsTipBody =>
+      'शुगर-फ्री? आम्ही दावे लेबलशी जुळवून तपासतो.';
+
+  @override
+  String get homeCardsClaimsTipTitle => 'पॅकवरील दावे';
+
+  @override
+  String get homeCardsCustomAlertsSetupBody =>
+      'लेबलवर आम्ही दाखवावेत असे घटक निवडा.';
+
+  @override
+  String get homeCardsCustomAlertsSetupCta => 'अलर्ट सेट करा';
+
+  @override
+  String get homeCardsCustomAlertsSetupTitle => 'घटक अलर्ट';
+
+  @override
+  String get homeCardsFamilyStripAdd => 'सदस्य जोडा';
+
+  @override
+  String get homeCardsFamilyStripTitle => 'तुमचे कुटुंब';
+
+  @override
+  String get homeCardsNotCoveredBody =>
+      'अजून समाविष्ट नाही: थायरॉईड, कोलेस्टेरॉल, मूत्रपिंडाचा आजार, गर्भधारणा.';
+
+  @override
+  String get homeCardsNotCoveredTitle => 'अजून समाविष्ट नाही';
+
+  @override
+  String get homeCardsProteinClaimsTipBody =>
+      'आम्ही प्रथिनांचे दावे पोषण तक्त्याशी जुळवून तपासतो.';
+
+  @override
+  String get homeCardsProteinClaimsTipTitle => 'प्रथिनांचे दावे';
+
+  @override
+  String get homeCardsProteinSwapsCta => 'जास्त प्रथिनांचे पर्याय शोधा';
+
+  @override
+  String get homeCardsProteinSwapsTitle => 'जास्त प्रथिनांचे पर्याय';
+
+  @override
+  String get homeCardsRecentScansTitle => 'अलीकडील स्कॅन';
+
+  @override
+  String get homeCardsTodayProteinTitle => 'आज: प्रथिने';
+
+  @override
+  String get homeCardsTodaySugarSaltTitle => 'आज: साखर आणि मीठ';
+
+  @override
+  String get homeCardsUnknownExplainerBody =>
+      'लेबलवर घटक नसतील किंवा वाचणे कठीण असेल, तेव्हा आम्ही तपासू शकत नाही. आम्ही ते कधीही सुरक्षित दाखवत नाही.';
+
+  @override
+  String get homeCardsUnknownExplainerTitle => '\"अज्ञात\" सुरक्षित का नाही';
+
+  @override
+  String homeCardsWeeklyFamilyBody(String count) {
+    return 'गेल्या 7 दिवसांत तुमच्या कुटुंबासाठी $count गोष्टी नोंदवल्या';
+  }
+
+  @override
+  String get homeCardsWeeklyFamilyTitle => 'या आठवड्यात';
+
+  @override
   String get homeLabelBody =>
       'बारकोड नाही, किंवा उत्पादन आम्हाला अजून माहीत नाही? लेबलचा फोटो घ्या.';
 
@@ -960,6 +1060,13 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get imageQualityGlare =>
       'प्रकाशामुळे फोटो फिका पडला आहे. फ्लॅश बंद करा किंवा पॅक प्रकाशापासून थोडा वळवा.';
+
+  @override
+  String get imageQualityHintGeneric =>
+      'चांगल्या प्रकाशात संपूर्ण लेबल फ्रेममध्ये घेऊन फोटो काढा.';
+
+  @override
+  String get imageQualityTitle => 'कृपया फोटो पुन्हा काढा';
 
   @override
   String get imageQualityTooSmall =>
@@ -1474,6 +1581,50 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String modesCurrent(String mode) {
+    return 'सध्याचा मोड: $mode';
+  }
+
+  @override
+  String get modesMore => 'अधिक';
+
+  @override
+  String get modesMoreTitle => 'अधिक';
+
+  @override
+  String get modesNameAllergyDiet => 'अॅलर्जी किंवा आहार';
+
+  @override
+  String get modesNameEatBetter => 'चांगले खाणे';
+
+  @override
+  String get modesNameFamily => 'कुटुंब';
+
+  @override
+  String get modesNameGym => 'जिम आणि फिटनेस';
+
+  @override
+  String get modesNameHealthCondition => 'आरोग्य स्थिती';
+
+  @override
+  String get modesNameWeightLoss => 'वजन कमी करणे';
+
+  @override
+  String get modesSameChecks =>
+      'प्रत्येक मोडमध्ये स्कॅन, निकाल आणि अॅलर्जी तपासणी सारखीच असते.';
+
+  @override
+  String modesSwitchTo(String mode) {
+    return '$mode वर जा';
+  }
+
+  @override
+  String get modesSwitcherLabel => 'मोड';
+
+  @override
+  String get navCompare => 'तुलना';
+
+  @override
   String get navFamily => 'कुटुंब';
 
   @override
@@ -1483,13 +1634,25 @@ class AppLocalizationsMr extends AppLocalizations {
   String get navHome => 'होम';
 
   @override
+  String get navHowWeScore => 'आम्ही स्कोर कसा देतो';
+
+  @override
   String get navLabel => 'मुख्य मेनू';
+
+  @override
+  String get navMore => 'अधिक';
 
   @override
   String get navProfile => 'प्रोफाइल';
 
   @override
+  String get navProtein => 'प्रथिने';
+
+  @override
   String get navScan => 'स्कॅन';
+
+  @override
+  String get navSearch => 'शोधा';
 
   @override
   String get notfoundGoToLabel =>
@@ -1580,6 +1743,79 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get profileTitle => 'प्रोफाइल';
+
+  @override
+  String get proteinComparePriceScoop => 'प्रति स्कूप किंमत';
+
+  @override
+  String get proteinCompareProtein100kcal => 'प्रति 100 kcal प्रथिने';
+
+  @override
+  String get proteinCompareProteinServing => 'प्रति सर्व्हिंग प्रथिने';
+
+  @override
+  String get proteinCompareSugar => 'साखर';
+
+  @override
+  String proteinGuide(String per_kg, String target) {
+    return 'दैनिक प्रथिने मार्गदर्शक: $target ग्रॅम, प्रति किलो $per_kg ग्रॅमवर आधारित. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+  }
+
+  @override
+  String get proteinKidneyNote =>
+      'तुम्हाला मूत्रपिंडाचा आजार असेल, तर जास्त प्रथिने खाण्यापूर्वी डॉक्टरांना विचारा.';
+
+  @override
+  String proteinLeftToday(String left) {
+    return 'आज $left ग्रॅम बाकी';
+  }
+
+  @override
+  String get proteinNoTarget =>
+      'अजून दैनिक प्रथिने मार्गदर्शक नाही. पाहण्यासाठी प्रौढ व्यक्तीचे वजन आणि जन्मवर्ष जोडा.';
+
+  @override
+  String get proteinNotOnLabel => 'लेबलवर नाही';
+
+  @override
+  String get proteinPackSizeLabel => 'पॅकचा आकार (ग्रॅम)';
+
+  @override
+  String get proteinPer100g => 'प्रति 100 ग्रॅम प्रथिने';
+
+  @override
+  String get proteinPer100kcal => 'प्रति 100 kcal प्रथिने';
+
+  @override
+  String get proteinPerServing => 'प्रति सर्व्हिंग प्रथिने';
+
+  @override
+  String get proteinPriceLabel => 'पॅकची किंमत';
+
+  @override
+  String get proteinPriceNote =>
+      'तुम्ही टाकलेली किंमत फक्त या स्क्रीनवर वापरली जाते आणि कधीही जतन केली जात नाही.';
+
+  @override
+  String get proteinPricePerScoop => 'प्रति स्कूप किंमत';
+
+  @override
+  String proteinProgress(String target, String total) {
+    return '$target ग्रॅमपैकी $total ग्रॅम';
+  }
+
+  @override
+  String get proteinSortHigher => 'जास्त प्रथिने';
+
+  @override
+  String get proteinSwapsEmpty =>
+      'या प्रकारचा जास्त प्रथिनांचा पर्याय सापडला नाही.';
+
+  @override
+  String get proteinSwapsTitle => 'जास्त प्रथिनांचे पर्याय';
+
+  @override
+  String get proteinTitle => 'प्रथिने';
 
   @override
   String reasonAddedSugars(String ingredients) {
@@ -1786,6 +2022,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get reportButton => 'समस्या कळवा';
 
   @override
+  String get reportCaffeine => 'यात कॅफीन आहे';
+
+  @override
   String get reportNoteHint =>
       'कृपया वैयक्तिक किंवा आरोग्याविषयी माहिती लिहू नका.';
 
@@ -1809,6 +2048,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get reportSubmit => 'रिपोर्ट पाठवा';
+
+  @override
+  String get reportSweeteners => 'यात गोडवा देणारे पदार्थ आहेत';
 
   @override
   String get reportThanks =>
@@ -2131,6 +2373,183 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get summaryWeekNote =>
       'ज्या दिवशी काही नोंदवले आहे, त्या प्रत्येक दिवसाच्या दैनिक मर्यादेशी आठवड्याची तुलना केली जाते.';
+
+  @override
+  String get userTypesChangeLater => 'तुम्ही हे प्रोफाइलमध्ये बदलू शकता';
+
+  @override
+  String get userTypesConsentNeeded =>
+      'आरोग्य माहिती जतन करण्यासाठी आरोग्य डेटावर तुमची संमती आवश्यक आहे.';
+
+  @override
+  String get userTypesConsentNote =>
+      'यातील काही निवडल्यास तुमच्या प्रोफाइलमध्ये माहिती जोडण्याची सूचना येऊ शकते. तुम्ही पुष्टी केली तरच आणि आरोग्य डेटासाठी तुमची संमती असेल तरच ती जतन होईल.';
+
+  @override
+  String get userTypesContinue => 'पुढे जा';
+
+  @override
+  String get userTypesEdit => 'तुमची निवड बदला';
+
+  @override
+  String get userTypesFollowUpAllergyDietAllergensQuestion =>
+      'आम्ही कोणत्या अॅलर्जींसाठी तपासावे?';
+
+  @override
+  String get userTypesFollowUpAllergyDietDietQuestion =>
+      'तुम्ही कोणता आहार पाळता?';
+
+  @override
+  String get userTypesFollowUpEatBetterHint =>
+      'उदाहरणार्थ पाम तेल किंवा कृत्रिम गोडवा. तुम्ही हे आत्ता किंवा नंतर जोडू शकता.';
+
+  @override
+  String get userTypesFollowUpEatBetterQuestion => 'आम्ही दाखवावेत असे घटक';
+
+  @override
+  String get userTypesFollowUpFamilyChildren => 'मुले';
+
+  @override
+  String get userTypesFollowUpFamilyOthers => 'इतर';
+
+  @override
+  String get userTypesFollowUpFamilyParents => 'आई-वडील';
+
+  @override
+  String get userTypesFollowUpFamilyPartner => 'जोडीदार';
+
+  @override
+  String get userTypesFollowUpFamilyQuestion =>
+      'तुम्ही कोणासाठी अन्न तपासत आहात?';
+
+  @override
+  String get userTypesFollowUpGymBuildMuscle => 'स्नायू वाढवणे';
+
+  @override
+  String get userTypesFollowUpGymLoseFat => 'चरबी कमी करणे';
+
+  @override
+  String get userTypesFollowUpGymQuestion => 'तुमचे मुख्य ध्येय काय आहे?';
+
+  @override
+  String get userTypesFollowUpGymStayFit => 'तंदुरुस्त राहणे';
+
+  @override
+  String get userTypesFollowUpHealthConditionQuestion =>
+      'यातील कोणते लागू होते?';
+
+  @override
+  String get userTypesMaxReached => 'तुम्ही जास्तीत जास्त 3 निवडू शकता.';
+
+  @override
+  String get userTypesNotCoveredBody =>
+      'थायरॉईड, कोलेस्टेरॉल, मूत्रपिंडाचा आजार आणि गर्भधारणा अजून समाविष्ट नाहीत, म्हणून निकालात त्यांचा विचार केला जात नाही.';
+
+  @override
+  String get userTypesNotCoveredTitle => 'अजून समाविष्ट नाही';
+
+  @override
+  String get userTypesPickUpTo => 'जास्तीत जास्त 3 निवडा';
+
+  @override
+  String get userTypesPrefillApply => 'प्रोफाइलमध्ये जोडा';
+
+  @override
+  String get userTypesPrefillBody =>
+      'तुमच्या पुष्टीशिवाय काहीही जोडले जात नाही. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get userTypesPrefillGoalConflict =>
+      'तुम्ही वजन कमी करणे आणि जिम दोन्ही निवडले आहे. प्रोफाइलसाठी एक ध्येय निवडा.';
+
+  @override
+  String userTypesPrefillLineAllergens(String values) {
+    return 'अॅलर्जी: $values';
+  }
+
+  @override
+  String userTypesPrefillLineConditions(String values) {
+    return 'आरोग्य स्थिती: $values';
+  }
+
+  @override
+  String userTypesPrefillLineCustomAlerts(String values) {
+    return 'घटक अलर्ट: $values';
+  }
+
+  @override
+  String userTypesPrefillLineDiet(String value) {
+    return 'आहार: $value';
+  }
+
+  @override
+  String userTypesPrefillLineGoal(String value) {
+    return 'ध्येय: $value';
+  }
+
+  @override
+  String get userTypesPrefillNotNow => 'आत्ता नको';
+
+  @override
+  String get userTypesPrefillNothing => 'जोडण्यासारखे काही नाही.';
+
+  @override
+  String get userTypesPrefillTitle => 'हे तुमच्या प्रोफाइलमध्ये जोडायचे का?';
+
+  @override
+  String get userTypesSaved => 'जतन केले';
+
+  @override
+  String get userTypesSkip => 'आत्ता वगळा';
+
+  @override
+  String get userTypesSubtitle =>
+      'आम्ही अॅप तुमच्या गरजेनुसार मांडतो. स्कॅन आणि निकाल तसेच राहतात.';
+
+  @override
+  String get userTypesTileAllergyDietSubtitle =>
+      'अॅलर्जन, शाकाहारी, वीगन किंवा जैनसाठी लेबल तपासा';
+
+  @override
+  String get userTypesTileAllergyDietTitle => 'अन्नाची अॅलर्जी किंवा खास आहार';
+
+  @override
+  String get userTypesTileEatBetterSubtitle =>
+      'उत्पादनांची तुलना करा आणि लेबल समजून घ्या';
+
+  @override
+  String get userTypesTileEatBetterTitle => 'फक्त चांगले खाणे';
+
+  @override
+  String get userTypesTileFamilySubtitle =>
+      'मुले, आई-वडील किंवा घरातील सर्वांसाठी अन्न तपासा';
+
+  @override
+  String get userTypesTileFamilyTitle => 'माझे कुटुंब';
+
+  @override
+  String get userTypesTileGymSubtitle =>
+      'प्रथिने नोंदवा आणि प्रथिन उत्पादनांची तुलना करा';
+
+  @override
+  String get userTypesTileGymTitle => 'जिम आणि फिटनेस';
+
+  @override
+  String get userTypesTileHealthConditionSubtitle =>
+      'मधुमेह, प्री-डायबिटीस, PCOS किंवा उच्च रक्तदाब';
+
+  @override
+  String get userTypesTileHealthConditionTitle => 'एखादी आरोग्य स्थिती';
+
+  @override
+  String get userTypesTileWeightLossSubtitle =>
+      'तुम्ही जे खाता त्यातील साखर, मीठ, कॅलरी आणि प्रथिने पहा';
+
+  @override
+  String get userTypesTileWeightLossTitle => 'वजन कमी करणे';
+
+  @override
+  String get userTypesTitle => 'तुम्ही SmartNutri वर कशासाठी आला आहात?';
 
   @override
   String verdictConfidenceNote(String reason) {

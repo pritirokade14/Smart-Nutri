@@ -138,6 +138,33 @@ uv run python scripts/export_meal_fixtures.py --write  # write only the files th
 - **Summary:** built with the endpoint's own functions (nutrient snapshot at log time, engine daily limits, `summarise`) on rows with fixed UUIDs (`uuid5(NAMESPACE_URL, ".../member/week_family/<key>")`). `tests/api/meals/test_week_family_fixture.py` inserts the same rows and checks the endpoint returns this file exactly. It covers an over-limit sugar day (2026-10-31), an incomplete day (2026-11-01: an Open Food Facts product with no sugars), the IST boundary (a meal at 18:00 UTC = 23:30 IST counts on 3 Nov) and empty days (bands `unknown`, totals `null`). Ruling M1: a total with no known value is `null`, never `0`; the week band is `over` because one day is (week limits are the daily limit x the days with logged items); protein has a band only once its target is met (`ok`), otherwise `unknown`, and only adults (18+) with a weight have a target. Clients render bands and the incomplete and limits notes from it; they never compute a band.
 - **Share texts:** each file has `input`, `rules` (the algorithm both clients implement), `expected` (the exact string per case, then per locale) and, for the result, `forbidden_substrings` per locale (condition and allergen labels and their English words). A share text never includes conditions, allergens, reason codes or nutrient totals. `who` is the first word of the member's name, or `share.relation.<relation>` when the name is blank. Counts are passed as plain Latin-digit strings. **Ruling SH1:** the result file's `cases` are `default` (no member ticked: product and grade only, the default on both clients), `one_member`, `all_members` and `no_link`; the weekly file has `with_link` and `no_link`. The link (`share.link`) is appended only when `SITE_URL` / `NEXT_PUBLIC_SITE_URL` is set; `https://site.example` stands in for it, never a hard-coded domain. Statuses in the result input are the engine's (`expected/sf_biscuit.<member>.json`, checked by `tests/fixtures/test_shared_fixtures.py`).
 
+## Focused modes and protein (Plan 9: `modes/`, `protein/`)
+
+`modes/layouts.json` is **hand-written, reviewed, and the single source of truth** for each user type's tab bar, Home cards and "More". Both clients mirror it as constants and their tests compare the constants with the file; `apps/api/tests/fixtures/test_mode_layouts.py` checks that `priority` equals `USER_TYPE_PRIORITY` and `default_type` equals `DEFAULT_TYPE`, and the invariants below.
+
+- **Tabs:** five per mode; `home` first, `scan` second, `profile` last (ruling P9-R5 for the tab sets the decisions left open).
+- **More** = `destinations` minus the mode's `tabs`, in `destinations` order (for gym: history, family, search, how_we_score). Nothing is deleted from any mode, so scan, results (opened from scan, history, search and the Home recent list) and allergy entry (family members) are reachable in all six.
+- **Allergy card (P9-R7):** when any member has an allergen, every mode's Home shows `allergy_check` first (`always_first_card_when_any_member_has_allergens`). It is injected by this rule, so it is listed in `home_cards` only for `allergy_diet`.
+- The scan CTAs (barcode, label photo, manual) sit above the cards and are not cards. `recent_scans` is always last.
+- Clients never compute verdicts, bands or limits for a card: they render existing API data.
+
+| Card | Data | Notes |
+|---|---|---|
+| `allergy_check` | `members_list` | who has which allergy; "Unknown means we couldn't check, so it is never marked safe"; a CTA to add allergies when none are set (allergy mode only) |
+| `today_sugar_salt` | `meals_summary` (primary member, day) | bands from tokens; `unknown` is grey |
+| `today_protein` | `meals_summary` (primary member, day) | total vs `limits.protein_target_g`, `protein_left_g`; "no target" note; kcal shown without a target |
+| `protein_swaps` | link | "Find higher-protein options" opens the Protein screen |
+| `protein_claims_tip` | static copy | protein claims are checked against the nutrition table |
+| `claims_tip` | static copy | "Sugar-free? We check claims" |
+| `not_covered` | static copy | thyroid, cholesterol, kidney disease, pregnancy are not covered yet |
+| `family_strip` | `members_list` | members and "Add member" |
+| `weekly_family` | `meals_week_counts` | counts only |
+| `unknown_explainer` | static copy | why `unknown` is not safe |
+| `custom_alerts_setup` | `members_list` | CTA to switch on alerts |
+| `recent_scans` | existing recent list | always last |
+
+`protein/price_per_scoop.json` holds hand-written cases for the client-only arithmetic `price_per_scoop = price * serving_size_g / pack_size_g`, rounded to 2 dp (half up). It is `null` when any input is missing or <= 0. The price is typed by the user and never saved. `members/build_muscle_adult.json` (age 25, goal `build_muscle`) and `products/whey_powder.json` (synthetic, category `supplement`) feed the protein target, claim checks and the supplement rules; their `expected/` files are generated like the others.
+
 ## How each project uses them
 
 | Project | Test |

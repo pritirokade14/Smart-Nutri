@@ -1,0 +1,9 @@
+{
+  "id": "build_muscle_adult",
+  "name": "Build Muscle Adult",
+  "age": 25,
+  "diet": "non_veg",
+  "allergens": [],
+  "conditions": [],
+  "goal": "build_muscle"
+}

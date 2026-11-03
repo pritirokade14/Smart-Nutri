@@ -358,6 +358,12 @@ abstract class AppLocalizations {
   /// **'Verify'**
   String get authVerify;
 
+  /// No description provided for @categorySupplement.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplement'**
+  String get categorySupplement;
+
   /// No description provided for @claimDiabeticFriendly.
   ///
   /// In en, this message translates to:
@@ -1582,6 +1588,30 @@ abstract class AppLocalizations {
   /// **'Packaged-food information for Indian families.'**
   String get footerTagline;
 
+  /// No description provided for @goalBuildMuscle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle'**
+  String get goalBuildMuscle;
+
+  /// No description provided for @goalHealthyEating.
+  ///
+  /// In en, this message translates to:
+  /// **'Eat healthier'**
+  String get goalHealthyEating;
+
+  /// No description provided for @goalWeightGain.
+  ///
+  /// In en, this message translates to:
+  /// **'Gain weight'**
+  String get goalWeightGain;
+
+  /// No description provided for @goalWeightLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose weight'**
+  String get goalWeightLoss;
+
   /// No description provided for @goodbyeAction.
   ///
   /// In en, this message translates to:
@@ -1720,6 +1750,156 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get historyToday;
 
+  /// No description provided for @homeCardsAllergyCheckAddCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add allergies'**
+  String get homeCardsAllergyCheckAddCta;
+
+  /// No description provided for @homeCardsAllergyCheckMemberLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {allergens}'**
+  String homeCardsAllergyCheckMemberLine(String allergens, String name);
+
+  /// No description provided for @homeCardsAllergyCheckNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No allergies added yet.'**
+  String get homeCardsAllergyCheckNone;
+
+  /// No description provided for @homeCardsAllergyCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergy check'**
+  String get homeCardsAllergyCheckTitle;
+
+  /// No description provided for @homeCardsAllergyCheckUnknownNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown means we couldn\'t check, so it is never marked safe.'**
+  String get homeCardsAllergyCheckUnknownNote;
+
+  /// No description provided for @homeCardsClaimsTipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar-free? We check claims against the label.'**
+  String get homeCardsClaimsTipBody;
+
+  /// No description provided for @homeCardsClaimsTipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Claims on the pack'**
+  String get homeCardsClaimsTipTitle;
+
+  /// No description provided for @homeCardsCustomAlertsSetupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose ingredients you want us to point out on labels.'**
+  String get homeCardsCustomAlertsSetupBody;
+
+  /// No description provided for @homeCardsCustomAlertsSetupCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up alerts'**
+  String get homeCardsCustomAlertsSetupCta;
+
+  /// No description provided for @homeCardsCustomAlertsSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredient alerts'**
+  String get homeCardsCustomAlertsSetupTitle;
+
+  /// No description provided for @homeCardsFamilyStripAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add member'**
+  String get homeCardsFamilyStripAdd;
+
+  /// No description provided for @homeCardsFamilyStripTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your family'**
+  String get homeCardsFamilyStripTitle;
+
+  /// No description provided for @homeCardsNotCoveredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Not covered yet: thyroid, cholesterol, kidney disease, pregnancy.'**
+  String get homeCardsNotCoveredBody;
+
+  /// No description provided for @homeCardsNotCoveredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not covered yet'**
+  String get homeCardsNotCoveredTitle;
+
+  /// No description provided for @homeCardsProteinClaimsTipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We check protein claims against the nutrition table.'**
+  String get homeCardsProteinClaimsTipBody;
+
+  /// No description provided for @homeCardsProteinClaimsTipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein claims'**
+  String get homeCardsProteinClaimsTipTitle;
+
+  /// No description provided for @homeCardsProteinSwapsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Find higher-protein options'**
+  String get homeCardsProteinSwapsCta;
+
+  /// No description provided for @homeCardsProteinSwapsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher-protein options'**
+  String get homeCardsProteinSwapsTitle;
+
+  /// No description provided for @homeCardsRecentScansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent scans'**
+  String get homeCardsRecentScansTitle;
+
+  /// No description provided for @homeCardsTodayProteinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: protein'**
+  String get homeCardsTodayProteinTitle;
+
+  /// No description provided for @homeCardsTodaySugarSaltTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: sugar and salt'**
+  String get homeCardsTodaySugarSaltTitle;
+
+  /// No description provided for @homeCardsUnknownExplainerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When a label is missing ingredients or is hard to read, we can\'t check it. We never show that as safe.'**
+  String get homeCardsUnknownExplainerBody;
+
+  /// No description provided for @homeCardsUnknownExplainerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why \"unknown\" is not safe'**
+  String get homeCardsUnknownExplainerTitle;
+
+  /// No description provided for @homeCardsWeeklyFamilyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items logged for your family in the last 7 days'**
+  String homeCardsWeeklyFamilyBody(String count);
+
+  /// No description provided for @homeCardsWeeklyFamilyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get homeCardsWeeklyFamilyTitle;
+
   /// No description provided for @homeLabelBody.
   ///
   /// In en, this message translates to:
@@ -1797,6 +1977,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The photo is washed out by light. Turn off the flash or tilt the pack away from the light.'**
   String get imageQualityGlare;
+
+  /// No description provided for @imageQualityHintGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the photo in good light with the whole label in the frame.'**
+  String get imageQualityHintGeneric;
+
+  /// No description provided for @imageQualityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please retake the photo'**
+  String get imageQualityTitle;
 
   /// No description provided for @imageQualityTooSmall.
   ///
@@ -2686,6 +2878,84 @@ abstract class AppLocalizations {
   /// **'Rules version {version}'**
   String methodologyVersion(String version);
 
+  /// No description provided for @modesCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current mode: {mode}'**
+  String modesCurrent(String mode);
+
+  /// No description provided for @modesMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get modesMore;
+
+  /// No description provided for @modesMoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get modesMoreTitle;
+
+  /// No description provided for @modesNameAllergyDiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergy or diet'**
+  String get modesNameAllergyDiet;
+
+  /// No description provided for @modesNameEatBetter.
+  ///
+  /// In en, this message translates to:
+  /// **'Eating better'**
+  String get modesNameEatBetter;
+
+  /// No description provided for @modesNameFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get modesNameFamily;
+
+  /// No description provided for @modesNameGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym and fitness'**
+  String get modesNameGym;
+
+  /// No description provided for @modesNameHealthCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Health condition'**
+  String get modesNameHealthCondition;
+
+  /// No description provided for @modesNameWeightLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight loss'**
+  String get modesNameWeightLoss;
+
+  /// No description provided for @modesSameChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning, results and allergy checks are the same in every mode.'**
+  String get modesSameChecks;
+
+  /// No description provided for @modesSwitchTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {mode}'**
+  String modesSwitchTo(String mode);
+
+  /// No description provided for @modesSwitcherLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get modesSwitcherLabel;
+
+  /// No description provided for @navCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get navCompare;
+
   /// No description provided for @navFamily.
   ///
   /// In en, this message translates to:
@@ -2704,11 +2974,23 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get navHome;
 
+  /// No description provided for @navHowWeScore.
+  ///
+  /// In en, this message translates to:
+  /// **'How we score'**
+  String get navHowWeScore;
+
   /// No description provided for @navLabel.
   ///
   /// In en, this message translates to:
   /// **'Main navigation'**
   String get navLabel;
+
+  /// No description provided for @navMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get navMore;
 
   /// No description provided for @navProfile.
   ///
@@ -2716,11 +2998,23 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get navProfile;
 
+  /// No description provided for @navProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get navProtein;
+
   /// No description provided for @navScan.
   ///
   /// In en, this message translates to:
   /// **'Scan'**
   String get navScan;
+
+  /// No description provided for @navSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get navSearch;
 
   /// No description provided for @notfoundGoToLabel.
   ///
@@ -2877,6 +3171,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get profileTitle;
+
+  /// No description provided for @proteinComparePriceScoop.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per scoop'**
+  String get proteinComparePriceScoop;
+
+  /// No description provided for @proteinCompareProtein100kcal.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein per 100 kcal'**
+  String get proteinCompareProtein100kcal;
+
+  /// No description provided for @proteinCompareProteinServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein per serving'**
+  String get proteinCompareProteinServing;
+
+  /// No description provided for @proteinCompareSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugars'**
+  String get proteinCompareSugar;
+
+  /// No description provided for @proteinGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily protein guide: {target} g, based on {per_kg} g per kg. Information, not medical advice.'**
+  String proteinGuide(String per_kg, String target);
+
+  /// No description provided for @proteinKidneyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'If you have kidney disease, ask your doctor before eating more protein.'**
+  String get proteinKidneyNote;
+
+  /// No description provided for @proteinLeftToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} g left today'**
+  String proteinLeftToday(String left);
+
+  /// No description provided for @proteinNoTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'No daily protein guide yet. Add weight and year of birth for an adult to see one.'**
+  String get proteinNoTarget;
+
+  /// No description provided for @proteinNotOnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the label'**
+  String get proteinNotOnLabel;
+
+  /// No description provided for @proteinPackSizeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack size (g)'**
+  String get proteinPackSizeLabel;
+
+  /// No description provided for @proteinPer100g.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein per 100 g'**
+  String get proteinPer100g;
+
+  /// No description provided for @proteinPer100kcal.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein per 100 kcal'**
+  String get proteinPer100kcal;
+
+  /// No description provided for @proteinPerServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein per serving'**
+  String get proteinPerServing;
+
+  /// No description provided for @proteinPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price of the pack'**
+  String get proteinPriceLabel;
+
+  /// No description provided for @proteinPriceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The price you type is used on this screen only and is never saved.'**
+  String get proteinPriceNote;
+
+  /// No description provided for @proteinPricePerScoop.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per scoop'**
+  String get proteinPricePerScoop;
+
+  /// No description provided for @proteinProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} g of {target} g'**
+  String proteinProgress(String target, String total);
+
+  /// No description provided for @proteinSortHigher.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher protein'**
+  String get proteinSortHigher;
+
+  /// No description provided for @proteinSwapsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'We did not find a higher-protein option of this kind.'**
+  String get proteinSwapsEmpty;
+
+  /// No description provided for @proteinSwapsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher-protein options'**
+  String get proteinSwapsTitle;
+
+  /// No description provided for @proteinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get proteinTitle;
 
   /// No description provided for @reasonAddedSugars.
   ///
@@ -3124,6 +3544,12 @@ abstract class AppLocalizations {
   /// **'Report a problem'**
   String get reportButton;
 
+  /// No description provided for @reportCaffeine.
+  ///
+  /// In en, this message translates to:
+  /// **'Contains caffeine'**
+  String get reportCaffeine;
+
   /// No description provided for @reportNoteHint.
   ///
   /// In en, this message translates to:
@@ -3171,6 +3597,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send report'**
   String get reportSubmit;
+
+  /// No description provided for @reportSweeteners.
+  ///
+  /// In en, this message translates to:
+  /// **'Contains sweeteners'**
+  String get reportSweeteners;
 
   /// No description provided for @reportThanks.
   ///
@@ -3729,6 +4161,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The week is compared with the daily limit for each day something was logged.'**
   String get summaryWeekNote;
+
+  /// No description provided for @userTypesChangeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change this in Profile'**
+  String get userTypesChangeLater;
+
+  /// No description provided for @userTypesConsentNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving health details needs your consent to health data processing.'**
+  String get userTypesConsentNeeded;
+
+  /// No description provided for @userTypesConsentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Choosing some of these may offer to add details to your profile. This is saved only if you confirm, and only with your consent to health data processing.'**
+  String get userTypesConsentNote;
+
+  /// No description provided for @userTypesContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get userTypesContinue;
+
+  /// No description provided for @userTypesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your focus'**
+  String get userTypesEdit;
+
+  /// No description provided for @userTypesFollowUpAllergyDietAllergensQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Which allergies should we check for?'**
+  String get userTypesFollowUpAllergyDietAllergensQuestion;
+
+  /// No description provided for @userTypesFollowUpAllergyDietDietQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Which diet do you follow?'**
+  String get userTypesFollowUpAllergyDietDietQuestion;
+
+  /// No description provided for @userTypesFollowUpEatBetterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example palm oil or artificial sweeteners. You can add these now or later.'**
+  String get userTypesFollowUpEatBetterHint;
+
+  /// No description provided for @userTypesFollowUpEatBetterQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients you would like us to point out'**
+  String get userTypesFollowUpEatBetterQuestion;
+
+  /// No description provided for @userTypesFollowUpFamilyChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Children'**
+  String get userTypesFollowUpFamilyChildren;
+
+  /// No description provided for @userTypesFollowUpFamilyOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get userTypesFollowUpFamilyOthers;
+
+  /// No description provided for @userTypesFollowUpFamilyParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents'**
+  String get userTypesFollowUpFamilyParents;
+
+  /// No description provided for @userTypesFollowUpFamilyPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get userTypesFollowUpFamilyPartner;
+
+  /// No description provided for @userTypesFollowUpFamilyQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Who are you checking food for?'**
+  String get userTypesFollowUpFamilyQuestion;
+
+  /// No description provided for @userTypesFollowUpGymBuildMuscle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle'**
+  String get userTypesFollowUpGymBuildMuscle;
+
+  /// No description provided for @userTypesFollowUpGymLoseFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose fat'**
+  String get userTypesFollowUpGymLoseFat;
+
+  /// No description provided for @userTypesFollowUpGymQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'What is your main goal?'**
+  String get userTypesFollowUpGymQuestion;
+
+  /// No description provided for @userTypesFollowUpGymStayFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay fit'**
+  String get userTypesFollowUpGymStayFit;
+
+  /// No description provided for @userTypesFollowUpHealthConditionQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Which of these apply?'**
+  String get userTypesFollowUpHealthConditionQuestion;
+
+  /// No description provided for @userTypesMaxReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pick up to 3.'**
+  String get userTypesMaxReached;
+
+  /// No description provided for @userTypesNotCoveredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Thyroid, cholesterol, kidney disease and pregnancy are not covered yet, so results do not take them into account.'**
+  String get userTypesNotCoveredBody;
+
+  /// No description provided for @userTypesNotCoveredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not covered yet'**
+  String get userTypesNotCoveredTitle;
+
+  /// No description provided for @userTypesPickUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up to 3'**
+  String get userTypesPickUpTo;
+
+  /// No description provided for @userTypesPrefillApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to profile'**
+  String get userTypesPrefillApply;
+
+  /// No description provided for @userTypesPrefillBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is added unless you confirm. Information, not medical advice.'**
+  String get userTypesPrefillBody;
+
+  /// No description provided for @userTypesPrefillGoalConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'You picked weight loss and gym. Choose one goal for your profile.'**
+  String get userTypesPrefillGoalConflict;
+
+  /// No description provided for @userTypesPrefillLineAllergens.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergies: {values}'**
+  String userTypesPrefillLineAllergens(String values);
+
+  /// No description provided for @userTypesPrefillLineConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Health conditions: {values}'**
+  String userTypesPrefillLineConditions(String values);
+
+  /// No description provided for @userTypesPrefillLineCustomAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredient alerts: {values}'**
+  String userTypesPrefillLineCustomAlerts(String values);
+
+  /// No description provided for @userTypesPrefillLineDiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet: {value}'**
+  String userTypesPrefillLineDiet(String value);
+
+  /// No description provided for @userTypesPrefillLineGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal: {value}'**
+  String userTypesPrefillLineGoal(String value);
+
+  /// No description provided for @userTypesPrefillNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get userTypesPrefillNotNow;
+
+  /// No description provided for @userTypesPrefillNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to add.'**
+  String get userTypesPrefillNothing;
+
+  /// No description provided for @userTypesPrefillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add these to your profile?'**
+  String get userTypesPrefillTitle;
+
+  /// No description provided for @userTypesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get userTypesSaved;
+
+  /// No description provided for @userTypesSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get userTypesSkip;
+
+  /// No description provided for @userTypesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We arrange the app around what matters to you. Scanning and results stay the same.'**
+  String get userTypesSubtitle;
+
+  /// No description provided for @userTypesTileAllergyDietSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check labels for allergens, vegetarian, vegan or Jain'**
+  String get userTypesTileAllergyDietSubtitle;
+
+  /// No description provided for @userTypesTileAllergyDietTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A food allergy or special diet'**
+  String get userTypesTileAllergyDietTitle;
+
+  /// No description provided for @userTypesTileEatBetterSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare products and understand labels'**
+  String get userTypesTileEatBetterSubtitle;
+
+  /// No description provided for @userTypesTileEatBetterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Just eating better'**
+  String get userTypesTileEatBetterTitle;
+
+  /// No description provided for @userTypesTileFamilySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check food for children, parents or everyone at home'**
+  String get userTypesTileFamilySubtitle;
+
+  /// No description provided for @userTypesTileFamilyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My family'**
+  String get userTypesTileFamilyTitle;
+
+  /// No description provided for @userTypesTileGymSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track protein and compare protein products'**
+  String get userTypesTileGymSubtitle;
+
+  /// No description provided for @userTypesTileGymTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym and fitness'**
+  String get userTypesTileGymTitle;
+
+  /// No description provided for @userTypesTileHealthConditionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diabetes, prediabetes, PCOS or high blood pressure'**
+  String get userTypesTileHealthConditionSubtitle;
+
+  /// No description provided for @userTypesTileHealthConditionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A health condition'**
+  String get userTypesTileHealthConditionTitle;
+
+  /// No description provided for @userTypesTileWeightLossSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See sugar, salt, calories and protein for what you eat'**
+  String get userTypesTileWeightLossSubtitle;
+
+  /// No description provided for @userTypesTileWeightLossTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Losing weight'**
+  String get userTypesTileWeightLossTitle;
+
+  /// No description provided for @userTypesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What brings you to SmartNutri?'**
+  String get userTypesTitle;
 
   /// No description provided for @verdictConfidenceNote.
   ///

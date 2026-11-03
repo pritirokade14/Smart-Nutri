@@ -159,6 +159,15 @@
     },
     {
       "is_primary": false,
+      "member_id": "7f61a9ae-c697-56ed-8f4f-f73ef1c18dcb",
+      "member_name": "Build Muscle Adult",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
       "member_id": "03205f4c-4228-5936-93f2-d182aeb2743b",
       "member_name": "Diabetic Adult",
       "profile_set_up": true,

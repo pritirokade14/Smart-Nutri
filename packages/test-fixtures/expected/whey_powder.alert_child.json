@@ -1,0 +1,13 @@
+{
+  "status": "caution",
+  "reasons": [
+    {
+      "code": "custom_alert",
+      "severity": "caution"
+    },
+    {
+      "code": "supplement_child",
+      "severity": "caution"
+    }
+  ]
+}

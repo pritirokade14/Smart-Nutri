@@ -56,7 +56,7 @@ const cases = sharedFixtureCases()
 
 describe("sf_biscuit per-member verdict cards", () => {
   it("covers every sf_biscuit member", () => {
-    expect(new Set(cases.map((c) => c.member)).size).toBe(14);
+    expect(new Set(cases.map((c) => c.member)).size).toBe(15);
   });
 
   it.each(cases)("$label", (c) => {

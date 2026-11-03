@@ -149,6 +149,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authVerify => 'Verify';
 
   @override
+  String get categorySupplement => 'Supplement';
+
+  @override
   String get claimDiabeticFriendly => 'Diabetic friendly';
 
   @override
@@ -836,6 +839,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get footerTagline => 'Packaged-food information for Indian families.';
 
   @override
+  String get goalBuildMuscle => 'Build muscle';
+
+  @override
+  String get goalHealthyEating => 'Eat healthier';
+
+  @override
+  String get goalWeightGain => 'Gain weight';
+
+  @override
+  String get goalWeightLoss => 'Lose weight';
+
+  @override
   String get goodbyeAction => 'Back to sign in';
 
   @override
@@ -912,6 +927,91 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyToday => 'Today';
 
   @override
+  String get homeCardsAllergyCheckAddCta => 'Add allergies';
+
+  @override
+  String homeCardsAllergyCheckMemberLine(String allergens, String name) {
+    return '$name: $allergens';
+  }
+
+  @override
+  String get homeCardsAllergyCheckNone => 'No allergies added yet.';
+
+  @override
+  String get homeCardsAllergyCheckTitle => 'Allergy check';
+
+  @override
+  String get homeCardsAllergyCheckUnknownNote =>
+      'Unknown means we couldn\'t check, so it is never marked safe.';
+
+  @override
+  String get homeCardsClaimsTipBody =>
+      'Sugar-free? We check claims against the label.';
+
+  @override
+  String get homeCardsClaimsTipTitle => 'Claims on the pack';
+
+  @override
+  String get homeCardsCustomAlertsSetupBody =>
+      'Choose ingredients you want us to point out on labels.';
+
+  @override
+  String get homeCardsCustomAlertsSetupCta => 'Set up alerts';
+
+  @override
+  String get homeCardsCustomAlertsSetupTitle => 'Ingredient alerts';
+
+  @override
+  String get homeCardsFamilyStripAdd => 'Add member';
+
+  @override
+  String get homeCardsFamilyStripTitle => 'Your family';
+
+  @override
+  String get homeCardsNotCoveredBody =>
+      'Not covered yet: thyroid, cholesterol, kidney disease, pregnancy.';
+
+  @override
+  String get homeCardsNotCoveredTitle => 'Not covered yet';
+
+  @override
+  String get homeCardsProteinClaimsTipBody =>
+      'We check protein claims against the nutrition table.';
+
+  @override
+  String get homeCardsProteinClaimsTipTitle => 'Protein claims';
+
+  @override
+  String get homeCardsProteinSwapsCta => 'Find higher-protein options';
+
+  @override
+  String get homeCardsProteinSwapsTitle => 'Higher-protein options';
+
+  @override
+  String get homeCardsRecentScansTitle => 'Recent scans';
+
+  @override
+  String get homeCardsTodayProteinTitle => 'Today: protein';
+
+  @override
+  String get homeCardsTodaySugarSaltTitle => 'Today: sugar and salt';
+
+  @override
+  String get homeCardsUnknownExplainerBody =>
+      'When a label is missing ingredients or is hard to read, we can\'t check it. We never show that as safe.';
+
+  @override
+  String get homeCardsUnknownExplainerTitle => 'Why \"unknown\" is not safe';
+
+  @override
+  String homeCardsWeeklyFamilyBody(String count) {
+    return '$count items logged for your family in the last 7 days';
+  }
+
+  @override
+  String get homeCardsWeeklyFamilyTitle => 'This week';
+
+  @override
   String get homeLabelBody =>
       'No barcode, or a product we don\'t know yet? Photograph the label.';
 
@@ -956,6 +1056,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get imageQualityGlare =>
       'The photo is washed out by light. Turn off the flash or tilt the pack away from the light.';
+
+  @override
+  String get imageQualityHintGeneric =>
+      'Take the photo in good light with the whole label in the frame.';
+
+  @override
+  String get imageQualityTitle => 'Please retake the photo';
 
   @override
   String get imageQualityTooSmall =>
@@ -1471,6 +1578,50 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String modesCurrent(String mode) {
+    return 'Current mode: $mode';
+  }
+
+  @override
+  String get modesMore => 'More';
+
+  @override
+  String get modesMoreTitle => 'More';
+
+  @override
+  String get modesNameAllergyDiet => 'Allergy or diet';
+
+  @override
+  String get modesNameEatBetter => 'Eating better';
+
+  @override
+  String get modesNameFamily => 'Family';
+
+  @override
+  String get modesNameGym => 'Gym and fitness';
+
+  @override
+  String get modesNameHealthCondition => 'Health condition';
+
+  @override
+  String get modesNameWeightLoss => 'Weight loss';
+
+  @override
+  String get modesSameChecks =>
+      'Scanning, results and allergy checks are the same in every mode.';
+
+  @override
+  String modesSwitchTo(String mode) {
+    return 'Switch to $mode';
+  }
+
+  @override
+  String get modesSwitcherLabel => 'Mode';
+
+  @override
+  String get navCompare => 'Compare';
+
+  @override
   String get navFamily => 'Family';
 
   @override
@@ -1480,13 +1631,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navHome => 'Home';
 
   @override
+  String get navHowWeScore => 'How we score';
+
+  @override
   String get navLabel => 'Main navigation';
+
+  @override
+  String get navMore => 'More';
 
   @override
   String get navProfile => 'Profile';
 
   @override
+  String get navProtein => 'Protein';
+
+  @override
   String get navScan => 'Scan';
+
+  @override
+  String get navSearch => 'Search';
 
   @override
   String get notfoundGoToLabel =>
@@ -1577,6 +1740,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileTitle => 'Profile';
+
+  @override
+  String get proteinComparePriceScoop => 'Price per scoop';
+
+  @override
+  String get proteinCompareProtein100kcal => 'Protein per 100 kcal';
+
+  @override
+  String get proteinCompareProteinServing => 'Protein per serving';
+
+  @override
+  String get proteinCompareSugar => 'Sugars';
+
+  @override
+  String proteinGuide(String per_kg, String target) {
+    return 'Daily protein guide: $target g, based on $per_kg g per kg. Information, not medical advice.';
+  }
+
+  @override
+  String get proteinKidneyNote =>
+      'If you have kidney disease, ask your doctor before eating more protein.';
+
+  @override
+  String proteinLeftToday(String left) {
+    return '$left g left today';
+  }
+
+  @override
+  String get proteinNoTarget =>
+      'No daily protein guide yet. Add weight and year of birth for an adult to see one.';
+
+  @override
+  String get proteinNotOnLabel => 'Not on the label';
+
+  @override
+  String get proteinPackSizeLabel => 'Pack size (g)';
+
+  @override
+  String get proteinPer100g => 'Protein per 100 g';
+
+  @override
+  String get proteinPer100kcal => 'Protein per 100 kcal';
+
+  @override
+  String get proteinPerServing => 'Protein per serving';
+
+  @override
+  String get proteinPriceLabel => 'Price of the pack';
+
+  @override
+  String get proteinPriceNote =>
+      'The price you type is used on this screen only and is never saved.';
+
+  @override
+  String get proteinPricePerScoop => 'Price per scoop';
+
+  @override
+  String proteinProgress(String target, String total) {
+    return '$total g of $target g';
+  }
+
+  @override
+  String get proteinSortHigher => 'Higher protein';
+
+  @override
+  String get proteinSwapsEmpty =>
+      'We did not find a higher-protein option of this kind.';
+
+  @override
+  String get proteinSwapsTitle => 'Higher-protein options';
+
+  @override
+  String get proteinTitle => 'Protein';
 
   @override
   String reasonAddedSugars(String ingredients) {
@@ -1783,6 +2019,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportButton => 'Report a problem';
 
   @override
+  String get reportCaffeine => 'Contains caffeine';
+
+  @override
   String get reportNoteHint =>
       'Please don\'t include personal or health details.';
 
@@ -1806,6 +2045,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportSubmit => 'Send report';
+
+  @override
+  String get reportSweeteners => 'Contains sweeteners';
 
   @override
   String get reportThanks => 'Thanks. We\'ll review this product\'s data.';
@@ -2126,6 +2368,184 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get summaryWeekNote =>
       'The week is compared with the daily limit for each day something was logged.';
+
+  @override
+  String get userTypesChangeLater => 'You can change this in Profile';
+
+  @override
+  String get userTypesConsentNeeded =>
+      'Saving health details needs your consent to health data processing.';
+
+  @override
+  String get userTypesConsentNote =>
+      'Choosing some of these may offer to add details to your profile. This is saved only if you confirm, and only with your consent to health data processing.';
+
+  @override
+  String get userTypesContinue => 'Continue';
+
+  @override
+  String get userTypesEdit => 'Change your focus';
+
+  @override
+  String get userTypesFollowUpAllergyDietAllergensQuestion =>
+      'Which allergies should we check for?';
+
+  @override
+  String get userTypesFollowUpAllergyDietDietQuestion =>
+      'Which diet do you follow?';
+
+  @override
+  String get userTypesFollowUpEatBetterHint =>
+      'For example palm oil or artificial sweeteners. You can add these now or later.';
+
+  @override
+  String get userTypesFollowUpEatBetterQuestion =>
+      'Ingredients you would like us to point out';
+
+  @override
+  String get userTypesFollowUpFamilyChildren => 'Children';
+
+  @override
+  String get userTypesFollowUpFamilyOthers => 'Others';
+
+  @override
+  String get userTypesFollowUpFamilyParents => 'Parents';
+
+  @override
+  String get userTypesFollowUpFamilyPartner => 'Partner';
+
+  @override
+  String get userTypesFollowUpFamilyQuestion =>
+      'Who are you checking food for?';
+
+  @override
+  String get userTypesFollowUpGymBuildMuscle => 'Build muscle';
+
+  @override
+  String get userTypesFollowUpGymLoseFat => 'Lose fat';
+
+  @override
+  String get userTypesFollowUpGymQuestion => 'What is your main goal?';
+
+  @override
+  String get userTypesFollowUpGymStayFit => 'Stay fit';
+
+  @override
+  String get userTypesFollowUpHealthConditionQuestion =>
+      'Which of these apply?';
+
+  @override
+  String get userTypesMaxReached => 'You can pick up to 3.';
+
+  @override
+  String get userTypesNotCoveredBody =>
+      'Thyroid, cholesterol, kidney disease and pregnancy are not covered yet, so results do not take them into account.';
+
+  @override
+  String get userTypesNotCoveredTitle => 'Not covered yet';
+
+  @override
+  String get userTypesPickUpTo => 'Pick up to 3';
+
+  @override
+  String get userTypesPrefillApply => 'Add to profile';
+
+  @override
+  String get userTypesPrefillBody =>
+      'Nothing is added unless you confirm. Information, not medical advice.';
+
+  @override
+  String get userTypesPrefillGoalConflict =>
+      'You picked weight loss and gym. Choose one goal for your profile.';
+
+  @override
+  String userTypesPrefillLineAllergens(String values) {
+    return 'Allergies: $values';
+  }
+
+  @override
+  String userTypesPrefillLineConditions(String values) {
+    return 'Health conditions: $values';
+  }
+
+  @override
+  String userTypesPrefillLineCustomAlerts(String values) {
+    return 'Ingredient alerts: $values';
+  }
+
+  @override
+  String userTypesPrefillLineDiet(String value) {
+    return 'Diet: $value';
+  }
+
+  @override
+  String userTypesPrefillLineGoal(String value) {
+    return 'Goal: $value';
+  }
+
+  @override
+  String get userTypesPrefillNotNow => 'Not now';
+
+  @override
+  String get userTypesPrefillNothing => 'Nothing to add.';
+
+  @override
+  String get userTypesPrefillTitle => 'Add these to your profile?';
+
+  @override
+  String get userTypesSaved => 'Saved';
+
+  @override
+  String get userTypesSkip => 'Skip for now';
+
+  @override
+  String get userTypesSubtitle =>
+      'We arrange the app around what matters to you. Scanning and results stay the same.';
+
+  @override
+  String get userTypesTileAllergyDietSubtitle =>
+      'Check labels for allergens, vegetarian, vegan or Jain';
+
+  @override
+  String get userTypesTileAllergyDietTitle => 'A food allergy or special diet';
+
+  @override
+  String get userTypesTileEatBetterSubtitle =>
+      'Compare products and understand labels';
+
+  @override
+  String get userTypesTileEatBetterTitle => 'Just eating better';
+
+  @override
+  String get userTypesTileFamilySubtitle =>
+      'Check food for children, parents or everyone at home';
+
+  @override
+  String get userTypesTileFamilyTitle => 'My family';
+
+  @override
+  String get userTypesTileGymSubtitle =>
+      'Track protein and compare protein products';
+
+  @override
+  String get userTypesTileGymTitle => 'Gym and fitness';
+
+  @override
+  String get userTypesTileHealthConditionSubtitle =>
+      'Diabetes, prediabetes, PCOS or high blood pressure';
+
+  @override
+  String get userTypesTileHealthConditionTitle => 'A health condition';
+
+  @override
+  String get userTypesTileWeightLossSubtitle =>
+      'See sugar, salt, calories and protein for what you eat';
+
+  @override
+  String get userTypesTileWeightLossTitle => 'Losing weight';
+
+  @override
+  String get userTypesTitle => 'What brings you to SmartNutri?';
 
   @override
   String verdictConfidenceNote(String reason) {

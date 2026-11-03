@@ -57,6 +57,7 @@
   "authTagline": "Know if a packaged food suits each person in your family.",
   "authTitle": "Sign in",
   "authVerify": "Verify",
+  "categorySupplement": "Supplement",
   "claimDiabeticFriendly": "Diabetic friendly",
   "claimHighProtein": "High protein",
   "claimLowFat": "Low fat",
@@ -329,6 +330,10 @@
   "familyTitle": "Family",
   "footerLinksLabel": "About SmartNutri",
   "footerTagline": "Packaged-food information for Indian families.",
+  "goalBuildMuscle": "Build muscle",
+  "goalHealthyEating": "Eat healthier",
+  "goalWeightGain": "Gain weight",
+  "goalWeightLoss": "Lose weight",
   "goodbyeAction": "Back to sign in",
   "goodbyeBody": "Your account and its data have been deleted, and you have been signed out. Thank you for trying SmartNutri.",
   "goodbyeMetaTitle": "Account deleted",
@@ -366,6 +371,48 @@
   "historyThisWeek": "This week",
   "historyTitle": "History",
   "historyToday": "Today",
+  "homeCardsAllergyCheckAddCta": "Add allergies",
+  "homeCardsAllergyCheckMemberLine": "{name}: {allergens}",
+  "@homeCardsAllergyCheckMemberLine": {
+    "placeholders": {
+      "allergens": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCardsAllergyCheckNone": "No allergies added yet.",
+  "homeCardsAllergyCheckTitle": "Allergy check",
+  "homeCardsAllergyCheckUnknownNote": "Unknown means we couldn't check, so it is never marked safe.",
+  "homeCardsClaimsTipBody": "Sugar-free? We check claims against the label.",
+  "homeCardsClaimsTipTitle": "Claims on the pack",
+  "homeCardsCustomAlertsSetupBody": "Choose ingredients you want us to point out on labels.",
+  "homeCardsCustomAlertsSetupCta": "Set up alerts",
+  "homeCardsCustomAlertsSetupTitle": "Ingredient alerts",
+  "homeCardsFamilyStripAdd": "Add member",
+  "homeCardsFamilyStripTitle": "Your family",
+  "homeCardsNotCoveredBody": "Not covered yet: thyroid, cholesterol, kidney disease, pregnancy.",
+  "homeCardsNotCoveredTitle": "Not covered yet",
+  "homeCardsProteinClaimsTipBody": "We check protein claims against the nutrition table.",
+  "homeCardsProteinClaimsTipTitle": "Protein claims",
+  "homeCardsProteinSwapsCta": "Find higher-protein options",
+  "homeCardsProteinSwapsTitle": "Higher-protein options",
+  "homeCardsRecentScansTitle": "Recent scans",
+  "homeCardsTodayProteinTitle": "Today: protein",
+  "homeCardsTodaySugarSaltTitle": "Today: sugar and salt",
+  "homeCardsUnknownExplainerBody": "When a label is missing ingredients or is hard to read, we can't check it. We never show that as safe.",
+  "homeCardsUnknownExplainerTitle": "Why \"unknown\" is not safe",
+  "homeCardsWeeklyFamilyBody": "{count} items logged for your family in the last 7 days",
+  "@homeCardsWeeklyFamilyBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCardsWeeklyFamilyTitle": "This week",
   "homeLabelBody": "No barcode, or a product we don't know yet? Photograph the label.",
   "homeLabelTitle": "Photograph a label",
   "homeManualBody": "Type the nutrition facts from the pack yourself.",
@@ -386,6 +433,8 @@
   "homeWelcomeNoName": "Hello",
   "imageQualityBlur": "The photo is blurred. Hold the phone steady and tap the label to focus.",
   "imageQualityGlare": "The photo is washed out by light. Turn off the flash or tilt the pack away from the light.",
+  "imageQualityHintGeneric": "Take the photo in good light with the whole label in the frame.",
+  "imageQualityTitle": "Please retake the photo",
   "imageQualityTooSmall": "The photo is too small. Take it closer, with the label filling the frame.",
   "labelCameraPermissionDenied": "Camera access is off. Allow it in Settings to photograph the label, or choose a photo or enter the details manually.",
   "labelChooseFile": "Choose a file",
@@ -624,12 +673,43 @@
       }
     }
   },
+  "modesCurrent": "Current mode: {mode}",
+  "@modesCurrent": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "modesMore": "More",
+  "modesMoreTitle": "More",
+  "modesNameAllergyDiet": "Allergy or diet",
+  "modesNameEatBetter": "Eating better",
+  "modesNameFamily": "Family",
+  "modesNameGym": "Gym and fitness",
+  "modesNameHealthCondition": "Health condition",
+  "modesNameWeightLoss": "Weight loss",
+  "modesSameChecks": "Scanning, results and allergy checks are the same in every mode.",
+  "modesSwitchTo": "Switch to {mode}",
+  "@modesSwitchTo": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "modesSwitcherLabel": "Mode",
+  "navCompare": "Compare",
   "navFamily": "Family",
   "navHistory": "History",
   "navHome": "Home",
+  "navHowWeScore": "How we score",
   "navLabel": "Main navigation",
+  "navMore": "More",
   "navProfile": "Profile",
+  "navProtein": "Protein",
   "navScan": "Scan",
+  "navSearch": "Search",
   "notfoundGoToLabel": "We don't know this product yet — photograph its label",
   "nutrientCarbsG": "carbohydrate",
   "nutrientEnergyKcal": "energy (calories)",
@@ -670,6 +750,54 @@
   "profileGiveConsent": "Agree",
   "profilePrivacyTitle": "Privacy and consent",
   "profileTitle": "Profile",
+  "proteinComparePriceScoop": "Price per scoop",
+  "proteinCompareProtein100kcal": "Protein per 100 kcal",
+  "proteinCompareProteinServing": "Protein per serving",
+  "proteinCompareSugar": "Sugars",
+  "proteinGuide": "Daily protein guide: {target} g, based on {per_kg} g per kg. Information, not medical advice.",
+  "@proteinGuide": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinKidneyNote": "If you have kidney disease, ask your doctor before eating more protein.",
+  "proteinLeftToday": "{left} g left today",
+  "@proteinLeftToday": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinNoTarget": "No daily protein guide yet. Add weight and year of birth for an adult to see one.",
+  "proteinNotOnLabel": "Not on the label",
+  "proteinPackSizeLabel": "Pack size (g)",
+  "proteinPer100g": "Protein per 100 g",
+  "proteinPer100kcal": "Protein per 100 kcal",
+  "proteinPerServing": "Protein per serving",
+  "proteinPriceLabel": "Price of the pack",
+  "proteinPriceNote": "The price you type is used on this screen only and is never saved.",
+  "proteinPricePerScoop": "Price per scoop",
+  "proteinProgress": "{total} g of {target} g",
+  "@proteinProgress": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinSortHigher": "Higher protein",
+  "proteinSwapsEmpty": "We did not find a higher-protein option of this kind.",
+  "proteinSwapsTitle": "Higher-protein options",
+  "proteinTitle": "Protein",
   "reasonAddedSugars": "Contains added sugars: {ingredients}.",
   "@reasonAddedSugars": {
     "placeholders": {
@@ -935,6 +1063,7 @@
     }
   },
   "reportButton": "Report a problem",
+  "reportCaffeine": "Contains caffeine",
   "reportNoteHint": "Please don't include personal or health details.",
   "reportNoteLabel": "Tell us more (optional)",
   "reportReasonLabel": "What's wrong?",
@@ -943,6 +1072,7 @@
   "reportReasonWrongProduct": "This is a different product",
   "reportReasonWrongValues": "The nutrition values are wrong",
   "reportSubmit": "Send report",
+  "reportSweeteners": "Contains sweeteners",
   "reportThanks": "Thanks. We'll review this product's data.",
   "reportTitle": "What's wrong with this product's data?",
   "resultFamilyTitle": "For your family",
@@ -1158,6 +1288,91 @@
     }
   },
   "summaryWeekNote": "The week is compared with the daily limit for each day something was logged.",
+  "userTypesChangeLater": "You can change this in Profile",
+  "userTypesConsentNeeded": "Saving health details needs your consent to health data processing.",
+  "userTypesConsentNote": "Choosing some of these may offer to add details to your profile. This is saved only if you confirm, and only with your consent to health data processing.",
+  "userTypesContinue": "Continue",
+  "userTypesEdit": "Change your focus",
+  "userTypesFollowUpAllergyDietAllergensQuestion": "Which allergies should we check for?",
+  "userTypesFollowUpAllergyDietDietQuestion": "Which diet do you follow?",
+  "userTypesFollowUpEatBetterHint": "For example palm oil or artificial sweeteners. You can add these now or later.",
+  "userTypesFollowUpEatBetterQuestion": "Ingredients you would like us to point out",
+  "userTypesFollowUpFamilyChildren": "Children",
+  "userTypesFollowUpFamilyOthers": "Others",
+  "userTypesFollowUpFamilyParents": "Parents",
+  "userTypesFollowUpFamilyPartner": "Partner",
+  "userTypesFollowUpFamilyQuestion": "Who are you checking food for?",
+  "userTypesFollowUpGymBuildMuscle": "Build muscle",
+  "userTypesFollowUpGymLoseFat": "Lose fat",
+  "userTypesFollowUpGymQuestion": "What is your main goal?",
+  "userTypesFollowUpGymStayFit": "Stay fit",
+  "userTypesFollowUpHealthConditionQuestion": "Which of these apply?",
+  "userTypesMaxReached": "You can pick up to 3.",
+  "userTypesNotCoveredBody": "Thyroid, cholesterol, kidney disease and pregnancy are not covered yet, so results do not take them into account.",
+  "userTypesNotCoveredTitle": "Not covered yet",
+  "userTypesPickUpTo": "Pick up to 3",
+  "userTypesPrefillApply": "Add to profile",
+  "userTypesPrefillBody": "Nothing is added unless you confirm. Information, not medical advice.",
+  "userTypesPrefillGoalConflict": "You picked weight loss and gym. Choose one goal for your profile.",
+  "userTypesPrefillLineAllergens": "Allergies: {values}",
+  "@userTypesPrefillLineAllergens": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineConditions": "Health conditions: {values}",
+  "@userTypesPrefillLineConditions": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineCustomAlerts": "Ingredient alerts: {values}",
+  "@userTypesPrefillLineCustomAlerts": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineDiet": "Diet: {value}",
+  "@userTypesPrefillLineDiet": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineGoal": "Goal: {value}",
+  "@userTypesPrefillLineGoal": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillNotNow": "Not now",
+  "userTypesPrefillNothing": "Nothing to add.",
+  "userTypesPrefillTitle": "Add these to your profile?",
+  "userTypesSaved": "Saved",
+  "userTypesSkip": "Skip for now",
+  "userTypesSubtitle": "We arrange the app around what matters to you. Scanning and results stay the same.",
+  "userTypesTileAllergyDietSubtitle": "Check labels for allergens, vegetarian, vegan or Jain",
+  "userTypesTileAllergyDietTitle": "A food allergy or special diet",
+  "userTypesTileEatBetterSubtitle": "Compare products and understand labels",
+  "userTypesTileEatBetterTitle": "Just eating better",
+  "userTypesTileFamilySubtitle": "Check food for children, parents or everyone at home",
+  "userTypesTileFamilyTitle": "My family",
+  "userTypesTileGymSubtitle": "Track protein and compare protein products",
+  "userTypesTileGymTitle": "Gym and fitness",
+  "userTypesTileHealthConditionSubtitle": "Diabetes, prediabetes, PCOS or high blood pressure",
+  "userTypesTileHealthConditionTitle": "A health condition",
+  "userTypesTileWeightLossSubtitle": "See sugar, salt, calories and protein for what you eat",
+  "userTypesTileWeightLossTitle": "Losing weight",
+  "userTypesTitle": "What brings you to SmartNutri?",
   "verdictConfidenceNote": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}",
   "@verdictConfidenceNote": {
     "placeholders": {

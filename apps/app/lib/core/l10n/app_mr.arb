@@ -57,6 +57,7 @@
   "authTagline": "पॅकबंद अन्न तुमच्या कुटुंबातील प्रत्येकासाठी योग्य आहे का ते जाणून घ्या.",
   "authTitle": "साइन इन करा",
   "authVerify": "पडताळा",
+  "categorySupplement": "सप्लिमेंट",
   "claimDiabeticFriendly": "डायबेटिसला अनुकूल",
   "claimHighProtein": "जास्त प्रथिने",
   "claimLowFat": "कमी फॅट",
@@ -329,6 +330,10 @@
   "familyTitle": "कुटुंब",
   "footerLinksLabel": "SmartNutri विषयी",
   "footerTagline": "भारतीय कुटुंबांसाठी पॅकबंद अन्नाची माहिती.",
+  "goalBuildMuscle": "स्नायू वाढवणे",
+  "goalHealthyEating": "चांगले खाणे",
+  "goalWeightGain": "वजन वाढवणे",
+  "goalWeightLoss": "वजन कमी करणे",
   "goodbyeAction": "साइन इनकडे परत जा",
   "goodbyeBody": "तुमचे खाते आणि त्याचा डेटा हटवला गेला आहे, आणि तुम्ही साइन आउट झाला आहात. SmartNutri वापरून पाहिल्याबद्दल धन्यवाद.",
   "goodbyeMetaTitle": "खाते हटवले",
@@ -366,6 +371,48 @@
   "historyThisWeek": "या आठवड्यात",
   "historyTitle": "इतिहास",
   "historyToday": "आज",
+  "homeCardsAllergyCheckAddCta": "अॅलर्जी जोडा",
+  "homeCardsAllergyCheckMemberLine": "{name}: {allergens}",
+  "@homeCardsAllergyCheckMemberLine": {
+    "placeholders": {
+      "allergens": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCardsAllergyCheckNone": "अजून कोणतीही अॅलर्जी जोडलेली नाही.",
+  "homeCardsAllergyCheckTitle": "अॅलर्जी तपासणी",
+  "homeCardsAllergyCheckUnknownNote": "अज्ञात म्हणजे आम्ही तपासू शकलो नाही, म्हणून ते कधीही सुरक्षित म्हणून दाखवले जात नाही.",
+  "homeCardsClaimsTipBody": "शुगर-फ्री? आम्ही दावे लेबलशी जुळवून तपासतो.",
+  "homeCardsClaimsTipTitle": "पॅकवरील दावे",
+  "homeCardsCustomAlertsSetupBody": "लेबलवर आम्ही दाखवावेत असे घटक निवडा.",
+  "homeCardsCustomAlertsSetupCta": "अलर्ट सेट करा",
+  "homeCardsCustomAlertsSetupTitle": "घटक अलर्ट",
+  "homeCardsFamilyStripAdd": "सदस्य जोडा",
+  "homeCardsFamilyStripTitle": "तुमचे कुटुंब",
+  "homeCardsNotCoveredBody": "अजून समाविष्ट नाही: थायरॉईड, कोलेस्टेरॉल, मूत्रपिंडाचा आजार, गर्भधारणा.",
+  "homeCardsNotCoveredTitle": "अजून समाविष्ट नाही",
+  "homeCardsProteinClaimsTipBody": "आम्ही प्रथिनांचे दावे पोषण तक्त्याशी जुळवून तपासतो.",
+  "homeCardsProteinClaimsTipTitle": "प्रथिनांचे दावे",
+  "homeCardsProteinSwapsCta": "जास्त प्रथिनांचे पर्याय शोधा",
+  "homeCardsProteinSwapsTitle": "जास्त प्रथिनांचे पर्याय",
+  "homeCardsRecentScansTitle": "अलीकडील स्कॅन",
+  "homeCardsTodayProteinTitle": "आज: प्रथिने",
+  "homeCardsTodaySugarSaltTitle": "आज: साखर आणि मीठ",
+  "homeCardsUnknownExplainerBody": "लेबलवर घटक नसतील किंवा वाचणे कठीण असेल, तेव्हा आम्ही तपासू शकत नाही. आम्ही ते कधीही सुरक्षित दाखवत नाही.",
+  "homeCardsUnknownExplainerTitle": "\"अज्ञात\" सुरक्षित का नाही",
+  "homeCardsWeeklyFamilyBody": "गेल्या 7 दिवसांत तुमच्या कुटुंबासाठी {count} गोष्टी नोंदवल्या",
+  "@homeCardsWeeklyFamilyBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCardsWeeklyFamilyTitle": "या आठवड्यात",
   "homeLabelBody": "बारकोड नाही, किंवा उत्पादन आम्हाला अजून माहीत नाही? लेबलचा फोटो घ्या.",
   "homeLabelTitle": "लेबलचा फोटो घ्या",
   "homeManualBody": "पाकिटावरील पोषण माहिती स्वतः टाइप करा.",
@@ -386,6 +433,8 @@
   "homeWelcomeNoName": "नमस्कार",
   "imageQualityBlur": "फोटो धूसर आहे. फोन स्थिर धरा आणि फोकससाठी लेबलवर टॅप करा.",
   "imageQualityGlare": "प्रकाशामुळे फोटो फिका पडला आहे. फ्लॅश बंद करा किंवा पॅक प्रकाशापासून थोडा वळवा.",
+  "imageQualityHintGeneric": "चांगल्या प्रकाशात संपूर्ण लेबल फ्रेममध्ये घेऊन फोटो काढा.",
+  "imageQualityTitle": "कृपया फोटो पुन्हा काढा",
   "imageQualityTooSmall": "फोटो खूप लहान आहे. जवळून फोटो काढा, म्हणजे लेबल पूर्ण फ्रेममध्ये येईल.",
   "labelCameraPermissionDenied": "कॅमेऱ्याची परवानगी बंद आहे. लेबलचा फोटो घेण्यासाठी सेटिंग्जमध्ये ती सुरू करा, किंवा फोटो निवडा किंवा माहिती स्वतः भरा.",
   "labelChooseFile": "फाइल निवडा",
@@ -624,12 +673,43 @@
       }
     }
   },
+  "modesCurrent": "सध्याचा मोड: {mode}",
+  "@modesCurrent": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "modesMore": "अधिक",
+  "modesMoreTitle": "अधिक",
+  "modesNameAllergyDiet": "अॅलर्जी किंवा आहार",
+  "modesNameEatBetter": "चांगले खाणे",
+  "modesNameFamily": "कुटुंब",
+  "modesNameGym": "जिम आणि फिटनेस",
+  "modesNameHealthCondition": "आरोग्य स्थिती",
+  "modesNameWeightLoss": "वजन कमी करणे",
+  "modesSameChecks": "प्रत्येक मोडमध्ये स्कॅन, निकाल आणि अॅलर्जी तपासणी सारखीच असते.",
+  "modesSwitchTo": "{mode} वर जा",
+  "@modesSwitchTo": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "modesSwitcherLabel": "मोड",
+  "navCompare": "तुलना",
   "navFamily": "कुटुंब",
   "navHistory": "इतिहास",
   "navHome": "होम",
+  "navHowWeScore": "आम्ही स्कोर कसा देतो",
   "navLabel": "मुख्य मेनू",
+  "navMore": "अधिक",
   "navProfile": "प्रोफाइल",
+  "navProtein": "प्रथिने",
   "navScan": "स्कॅन",
+  "navSearch": "शोधा",
   "notfoundGoToLabel": "हे उत्पादन आम्हाला अजून माहीत नाही — त्याच्या लेबलचा फोटो घ्या",
   "nutrientCarbsG": "कार्बोहायड्रेट",
   "nutrientEnergyKcal": "ऊर्जा (कॅलरी)",
@@ -670,6 +750,54 @@
   "profileGiveConsent": "संमती द्या",
   "profilePrivacyTitle": "गोपनीयता आणि संमती",
   "profileTitle": "प्रोफाइल",
+  "proteinComparePriceScoop": "प्रति स्कूप किंमत",
+  "proteinCompareProtein100kcal": "प्रति 100 kcal प्रथिने",
+  "proteinCompareProteinServing": "प्रति सर्व्हिंग प्रथिने",
+  "proteinCompareSugar": "साखर",
+  "proteinGuide": "दैनिक प्रथिने मार्गदर्शक: {target} ग्रॅम, प्रति किलो {per_kg} ग्रॅमवर आधारित. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+  "@proteinGuide": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinKidneyNote": "तुम्हाला मूत्रपिंडाचा आजार असेल, तर जास्त प्रथिने खाण्यापूर्वी डॉक्टरांना विचारा.",
+  "proteinLeftToday": "आज {left} ग्रॅम बाकी",
+  "@proteinLeftToday": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinNoTarget": "अजून दैनिक प्रथिने मार्गदर्शक नाही. पाहण्यासाठी प्रौढ व्यक्तीचे वजन आणि जन्मवर्ष जोडा.",
+  "proteinNotOnLabel": "लेबलवर नाही",
+  "proteinPackSizeLabel": "पॅकचा आकार (ग्रॅम)",
+  "proteinPer100g": "प्रति 100 ग्रॅम प्रथिने",
+  "proteinPer100kcal": "प्रति 100 kcal प्रथिने",
+  "proteinPerServing": "प्रति सर्व्हिंग प्रथिने",
+  "proteinPriceLabel": "पॅकची किंमत",
+  "proteinPriceNote": "तुम्ही टाकलेली किंमत फक्त या स्क्रीनवर वापरली जाते आणि कधीही जतन केली जात नाही.",
+  "proteinPricePerScoop": "प्रति स्कूप किंमत",
+  "proteinProgress": "{target} ग्रॅमपैकी {total} ग्रॅम",
+  "@proteinProgress": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinSortHigher": "जास्त प्रथिने",
+  "proteinSwapsEmpty": "या प्रकारचा जास्त प्रथिनांचा पर्याय सापडला नाही.",
+  "proteinSwapsTitle": "जास्त प्रथिनांचे पर्याय",
+  "proteinTitle": "प्रथिने",
   "reasonAddedSugars": "यात वरून घातलेली साखर आहे: {ingredients}.",
   "@reasonAddedSugars": {
     "placeholders": {
@@ -935,6 +1063,7 @@
     }
   },
   "reportButton": "समस्या कळवा",
+  "reportCaffeine": "यात कॅफीन आहे",
   "reportNoteHint": "कृपया वैयक्तिक किंवा आरोग्याविषयी माहिती लिहू नका.",
   "reportNoteLabel": "अधिक सांगा (ऐच्छिक)",
   "reportReasonLabel": "काय चुकीचे आहे?",
@@ -943,6 +1072,7 @@
   "reportReasonWrongProduct": "हे दुसरेच उत्पादन आहे",
   "reportReasonWrongValues": "पोषण मूल्ये चुकीची आहेत",
   "reportSubmit": "रिपोर्ट पाठवा",
+  "reportSweeteners": "यात गोडवा देणारे पदार्थ आहेत",
   "reportThanks": "धन्यवाद. आम्ही या उत्पादनाच्या माहितीचे पुनरावलोकन करू.",
   "reportTitle": "या उत्पादनाच्या माहितीत काय चूक आहे?",
   "resultFamilyTitle": "तुमच्या कुटुंबासाठी",
@@ -1158,6 +1288,91 @@
     }
   },
   "summaryWeekNote": "ज्या दिवशी काही नोंदवले आहे, त्या प्रत्येक दिवसाच्या दैनिक मर्यादेशी आठवड्याची तुलना केली जाते.",
+  "userTypesChangeLater": "तुम्ही हे प्रोफाइलमध्ये बदलू शकता",
+  "userTypesConsentNeeded": "आरोग्य माहिती जतन करण्यासाठी आरोग्य डेटावर तुमची संमती आवश्यक आहे.",
+  "userTypesConsentNote": "यातील काही निवडल्यास तुमच्या प्रोफाइलमध्ये माहिती जोडण्याची सूचना येऊ शकते. तुम्ही पुष्टी केली तरच आणि आरोग्य डेटासाठी तुमची संमती असेल तरच ती जतन होईल.",
+  "userTypesContinue": "पुढे जा",
+  "userTypesEdit": "तुमची निवड बदला",
+  "userTypesFollowUpAllergyDietAllergensQuestion": "आम्ही कोणत्या अॅलर्जींसाठी तपासावे?",
+  "userTypesFollowUpAllergyDietDietQuestion": "तुम्ही कोणता आहार पाळता?",
+  "userTypesFollowUpEatBetterHint": "उदाहरणार्थ पाम तेल किंवा कृत्रिम गोडवा. तुम्ही हे आत्ता किंवा नंतर जोडू शकता.",
+  "userTypesFollowUpEatBetterQuestion": "आम्ही दाखवावेत असे घटक",
+  "userTypesFollowUpFamilyChildren": "मुले",
+  "userTypesFollowUpFamilyOthers": "इतर",
+  "userTypesFollowUpFamilyParents": "आई-वडील",
+  "userTypesFollowUpFamilyPartner": "जोडीदार",
+  "userTypesFollowUpFamilyQuestion": "तुम्ही कोणासाठी अन्न तपासत आहात?",
+  "userTypesFollowUpGymBuildMuscle": "स्नायू वाढवणे",
+  "userTypesFollowUpGymLoseFat": "चरबी कमी करणे",
+  "userTypesFollowUpGymQuestion": "तुमचे मुख्य ध्येय काय आहे?",
+  "userTypesFollowUpGymStayFit": "तंदुरुस्त राहणे",
+  "userTypesFollowUpHealthConditionQuestion": "यातील कोणते लागू होते?",
+  "userTypesMaxReached": "तुम्ही जास्तीत जास्त 3 निवडू शकता.",
+  "userTypesNotCoveredBody": "थायरॉईड, कोलेस्टेरॉल, मूत्रपिंडाचा आजार आणि गर्भधारणा अजून समाविष्ट नाहीत, म्हणून निकालात त्यांचा विचार केला जात नाही.",
+  "userTypesNotCoveredTitle": "अजून समाविष्ट नाही",
+  "userTypesPickUpTo": "जास्तीत जास्त 3 निवडा",
+  "userTypesPrefillApply": "प्रोफाइलमध्ये जोडा",
+  "userTypesPrefillBody": "तुमच्या पुष्टीशिवाय काहीही जोडले जात नाही. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+  "userTypesPrefillGoalConflict": "तुम्ही वजन कमी करणे आणि जिम दोन्ही निवडले आहे. प्रोफाइलसाठी एक ध्येय निवडा.",
+  "userTypesPrefillLineAllergens": "अॅलर्जी: {values}",
+  "@userTypesPrefillLineAllergens": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineConditions": "आरोग्य स्थिती: {values}",
+  "@userTypesPrefillLineConditions": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineCustomAlerts": "घटक अलर्ट: {values}",
+  "@userTypesPrefillLineCustomAlerts": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineDiet": "आहार: {value}",
+  "@userTypesPrefillLineDiet": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineGoal": "ध्येय: {value}",
+  "@userTypesPrefillLineGoal": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillNotNow": "आत्ता नको",
+  "userTypesPrefillNothing": "जोडण्यासारखे काही नाही.",
+  "userTypesPrefillTitle": "हे तुमच्या प्रोफाइलमध्ये जोडायचे का?",
+  "userTypesSaved": "जतन केले",
+  "userTypesSkip": "आत्ता वगळा",
+  "userTypesSubtitle": "आम्ही अॅप तुमच्या गरजेनुसार मांडतो. स्कॅन आणि निकाल तसेच राहतात.",
+  "userTypesTileAllergyDietSubtitle": "अॅलर्जन, शाकाहारी, वीगन किंवा जैनसाठी लेबल तपासा",
+  "userTypesTileAllergyDietTitle": "अन्नाची अॅलर्जी किंवा खास आहार",
+  "userTypesTileEatBetterSubtitle": "उत्पादनांची तुलना करा आणि लेबल समजून घ्या",
+  "userTypesTileEatBetterTitle": "फक्त चांगले खाणे",
+  "userTypesTileFamilySubtitle": "मुले, आई-वडील किंवा घरातील सर्वांसाठी अन्न तपासा",
+  "userTypesTileFamilyTitle": "माझे कुटुंब",
+  "userTypesTileGymSubtitle": "प्रथिने नोंदवा आणि प्रथिन उत्पादनांची तुलना करा",
+  "userTypesTileGymTitle": "जिम आणि फिटनेस",
+  "userTypesTileHealthConditionSubtitle": "मधुमेह, प्री-डायबिटीस, PCOS किंवा उच्च रक्तदाब",
+  "userTypesTileHealthConditionTitle": "एखादी आरोग्य स्थिती",
+  "userTypesTileWeightLossSubtitle": "तुम्ही जे खाता त्यातील साखर, मीठ, कॅलरी आणि प्रथिने पहा",
+  "userTypesTileWeightLossTitle": "वजन कमी करणे",
+  "userTypesTitle": "तुम्ही SmartNutri वर कशासाठी आला आहात?",
   "verdictConfidenceNote": "{reason, select, low_confidence {लेबल वाचणे कठीण होते, त्यामुळे हा निकाल कमी निश्चित आहे.} other {काही माहिती अनिश्चित आहे.}}",
   "@verdictConfidenceNote": {
     "placeholders": {

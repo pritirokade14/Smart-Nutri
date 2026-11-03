@@ -127,6 +127,8 @@ class _ReasonFormatter {
       'sodium_additives' => l10n.reasonSodiumAdditives(_list('ingredients')),
       'sugar_high' => l10n.reasonSugarHigh(_num('sugars_g')),
       'sugar_moderate' => l10n.reasonSugarModerate(_num('sugars_g')),
+      'supplement_child' => l10n.reasonSupplementChild,
+      'supplement_infant' => l10n.reasonSupplementInfant,
       _ => reasonFallbackText(l10n),
     };
   }
