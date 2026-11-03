@@ -16,6 +16,7 @@ from app.features.me.service import ensure_account
 from app.jobs import retention
 from app.jobs.retention import RetentionResult, run_retention
 from tests.db.conftest import alembic_cfg, db, migrated, pg_url  # noqa: F401
+from tests.fakes.admin import FakeAdmin
 from tests.fakes.storage import FakeStorage, missing_bucket_storage
 
 A = UUID("11111111-1111-1111-1111-111111111111")
@@ -203,10 +204,16 @@ def test_main_failure_exits_1_without_details(monkeypatch, capsys):
 # --- D1/B1: deletion tombstones are kept 7 days, then purged ---------------------------------
 
 
-async def add_tombstone(session: AsyncSession, account_id: UUID, age: timedelta) -> None:
+async def add_tombstone(
+    session: AsyncSession, account_id: UUID, age: timedelta, *, auth_deleted: bool = True
+) -> None:
+    """A tombstone; `auth_deleted` says whether DELETE /v1/me removed the auth user (m2)."""
     await session.execute(
-        text("insert into deleted_accounts (id, deleted_at) values (:a, :d)"),
-        {"a": account_id, "d": NOW - age},
+        text(
+            "insert into deleted_accounts (id, deleted_at, auth_deleted_at) values (:a, :d, "
+            "case when :done then cast(:d as timestamptz) end)"
+        ),
+        {"a": account_id, "d": NOW - age, "done": auth_deleted},
     )
     # The account_deletes counter is kept with the tombstone (D1/S5) and goes with it.
     await session.execute(
@@ -252,6 +259,91 @@ async def test_storage_outage_purges_no_tombstone(session):
     with pytest.raises(Exception):  # noqa: B017 - StorageUnavailable surfaces; the job exits 1
         await run_retention(NOW, session, storage)
     assert await tombstone_ids(session) == {old}
+
+
+# --- m2: a tombstone goes only once its Supabase auth user is gone ---------------------------
+
+
+async def auth_deleted_ids(session: AsyncSession) -> set[UUID]:
+    return set(
+        await session.scalars(
+            text("select id from deleted_accounts where auth_deleted_at is not null")
+        )
+    )
+
+
+async def test_unconfirmed_auth_deletion_is_retried_then_purged(session):
+    pending = uuid4()
+    await add_tombstone(session, pending, timedelta(days=8), auth_deleted=False)
+    admin = FakeAdmin()
+    result = await run_retention(NOW, session, FakeStorage(), admin=admin)
+    assert admin.deleted == [pending]
+    assert result == RetentionResult(0, 0, 0, tombstones_purged=1, auth_deletes_retried=1)
+    assert await tombstone_ids(session) == set()
+    assert await counter_keys(session) == set()
+
+
+async def test_failed_auth_retry_keeps_the_tombstone_and_its_counter(session):
+    pending, done = uuid4(), uuid4()
+    await add_tombstone(session, pending, timedelta(days=8), auth_deleted=False)
+    await add_tombstone(session, done, timedelta(days=8))
+    admin = FakeAdmin(failing={pending})
+    result = await run_retention(NOW, session, FakeStorage(), admin=admin)
+    # The account's sign-in may still mint tokens: keep refusing them.
+    assert await tombstone_ids(session) == {pending}
+    assert await counter_keys(session) == {f"acct:{pending}"}
+    assert result.tombstones_purged == 1 and result.auth_deletes_failed == 1
+    assert admin.calls == [pending]  # a confirmed one is never retried
+
+
+async def test_young_pending_tombstone_is_retried_and_marked_but_kept(session):
+    young = uuid4()
+    await add_tombstone(session, young, timedelta(days=1), auth_deleted=False)
+    admin = FakeAdmin()
+    result = await run_retention(NOW, session, FakeStorage(), admin=admin)
+    assert admin.deleted == [young]
+    assert result.auth_deletes_retried == 1 and result.tombstones_purged == 0
+    assert await tombstone_ids(session) == {young}
+    assert await auth_deleted_ids(session) == {young}
+
+
+async def test_without_admin_a_pending_tombstone_is_never_purged(session):
+    pending = uuid4()
+    await add_tombstone(session, pending, timedelta(days=30), auth_deleted=False)
+    result = await run_retention(NOW, session, FakeStorage())
+    assert result.tombstones_purged == 0
+    assert await tombstone_ids(session) == {pending}
+
+
+async def test_dry_run_makes_no_auth_calls(session):
+    pending = uuid4()
+    await add_tombstone(session, pending, timedelta(days=8), auth_deleted=False)
+    admin = FakeAdmin()
+    result = await run_retention(NOW, session, FakeStorage(), admin=admin, dry_run=True)
+    assert admin.calls == []
+    assert result.tombstones_purged == 0  # it could not be purged without the retry
+    assert await tombstone_ids(session) == {pending}
+
+
+async def test_storage_outage_makes_no_auth_calls(session):
+    pending = uuid4()
+    await add_tombstone(session, pending, timedelta(days=8), auth_deleted=False)
+    storage = FakeStorage()
+    storage.unavailable = True
+    admin = FakeAdmin()
+    with pytest.raises(Exception):  # noqa: B017 - StorageUnavailable surfaces; the job exits 1
+        await run_retention(NOW, session, storage, admin=admin)
+    assert admin.calls == []
+
+
+def test_main_exits_1_when_an_auth_retry_failed(monkeypatch, capsys):
+    async def fake_run(**_):
+        return RetentionResult(0, 0, 0, tombstones_purged=0, auth_deletes_failed=2)
+
+    monkeypatch.setattr(retention, "_run_from_settings", fake_run)
+    assert retention.main([]) == 1
+    out = capsys.readouterr().out
+    assert "auth_deletes_retried=0 auth_deletes_failed=2" in out
 
 
 async def test_missing_buckets_mean_nothing_to_delete(session):

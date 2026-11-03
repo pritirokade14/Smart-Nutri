@@ -12,25 +12,12 @@ from app.db.session import get_session
 from app.features.me.service import ACCOUNT_OWNED_TABLES, ensure_account, erase_account_rows
 from app.integrations import posthog
 from app.integrations.storage import get_storage, get_voice_storage
-from app.integrations.supabase_admin import AdminUnavailable, get_supabase_admin
+from app.integrations.supabase_admin import get_supabase_admin
+from tests.fakes.admin import FakeAdmin
 from tests.fakes.storage import FakeStorage, missing_bucket_storage
 
 A = UUID("11111111-1111-1111-1111-111111111111")
 B = UUID("22222222-2222-2222-2222-222222222222")
-
-
-class FakeAdmin:
-    def __init__(self, failures: int = 0) -> None:
-        self.failures = failures
-        self.deleted: list[UUID] = []
-        self.gone: set[UUID] = set()
-
-    async def delete_user(self, user_id: UUID) -> None:
-        if self.failures:
-            self.failures -= 1
-            raise AdminUnavailable("fake outage")
-        self.deleted.append(user_id)
-        self.gone.add(user_id)
 
 
 @pytest.fixture
@@ -439,6 +426,36 @@ async def test_consents_record_is_rate_limited_per_day(app, client, login, db_se
     assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
     # Reading consent state is not limited.
     assert (await client.get("/v1/consents")).status_code == 200
+
+
+# --- m2: the tombstone records whether the auth user was removed ----------------------------
+
+
+async def auth_deleted_at(session, account_id: UUID):
+    return (
+        await _exec(
+            session, "select auth_deleted_at from deleted_accounts where id = :a", a=account_id
+        )
+    ).scalar_one()
+
+
+async def test_successful_deletion_marks_the_auth_user_removed(client, login, db_session, storage):
+    await seed(db_session, A, storage)
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    assert await auth_deleted_at(db_session, A) is not None
+
+
+async def test_auth_failure_leaves_the_tombstone_unmarked_until_a_retry(
+    client, login, db_session, storage, admin
+):
+    await seed(db_session, A, storage)
+    admin.failures = 1
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 503
+    assert await auth_deleted_at(db_session, A) is None  # retention must not purge it yet
+    assert (await client.delete("/v1/me")).status_code == 204
+    assert await auth_deleted_at(db_session, A) is not None
 
 
 # --- C1: a bucket that does not exist holds nothing to delete ---------------------------------

@@ -15,9 +15,28 @@ def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
         assert (
-            MigrationContext.configure(conn).get_current_revision() == "0004_plan8_deleted_accounts"
+            MigrationContext.configure(conn).get_current_revision() == "0005_plan8_tombstone_auth"
         )
     engine.dispose()
+
+
+def test_tombstone_auth_deleted_column_downgrades_cleanly(migrated):
+    """m2: tombstones record when the Supabase auth user was removed (nullable: unknown for
+    rows written before 0005, so the retention job retries those)."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0004_plan8_deleted_accounts")
+        with engine.connect() as conn:
+            cols = {c["name"] for c in inspect(conn).get_columns("deleted_accounts")}
+            assert "auth_deleted_at" not in cols
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            cols = {c["name"]: c for c in inspect(conn).get_columns("deleted_accounts")}
+            assert cols["auth_deleted_at"]["nullable"] is True
+            assert "TIMESTAMP" in str(cols["auth_deleted_at"]["type"]).upper()
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
 
 
 def test_deleted_accounts_downgrades_cleanly(migrated):

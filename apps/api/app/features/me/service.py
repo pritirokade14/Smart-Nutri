@@ -1,6 +1,7 @@
+from collections.abc import Sequence
 from uuid import UUID
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select, text, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -133,4 +134,16 @@ async def erase_account_rows(session: AsyncSession, account_id: UUID) -> None:
         insert(DeletedAccount)
         .values(id=account_id)
         .on_conflict_do_update(index_elements=[DeletedAccount.id], set_={"deleted_at": func.now()})
+    )
+
+
+async def mark_auth_deleted(session: AsyncSession, account_ids: Sequence[UUID]) -> None:
+    """Record on the tombstones that these accounts' Supabase auth users are gone (m2). Only
+    then may the retention job purge them. The caller commits."""
+    if not account_ids:
+        return
+    await session.execute(
+        update(DeletedAccount)
+        .where(DeletedAccount.id.in_(list(account_ids)))
+        .values(auth_deleted_at=func.now())
     )

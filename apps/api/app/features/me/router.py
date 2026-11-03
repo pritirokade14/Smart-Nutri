@@ -89,6 +89,10 @@ async def me_delete(
     except AdminUnavailable:
         logger.warning("account_delete step=auth status=unavailable")
         raise ApiError("deletion_incomplete", 503) from None
+    # m2: only now may the retention job purge the tombstone (it retries the removal if this
+    # request never gets here).
+    await service.mark_auth_deleted(session, [account_id])
+    await session.commit()
     logger.info("account_delete status=done objects=%d", len(paths) + len(voice_paths))
     track(account_id, "account_deleted")  # hashed id, no properties
     return Response(status_code=204)
