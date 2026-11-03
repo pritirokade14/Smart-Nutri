@@ -8,10 +8,13 @@ import 'nutrient_band.dart';
 
 part 'nutrient_bands.g.dart';
 
-/// day: total vs the daily limit; week: vs limit x 7. ``protein_g`` is a target and never.
-/// ``over`` (met -> ``ok``). ``unknown`` when the limit is unknown (``kcal`` always), when.
-/// nothing was logged, or when the total is incomplete and not already over (protein: not.
-/// already met).
+/// day: total vs the daily limit. week: total vs the daily limit x the days with logged.
+/// items, and ``over`` whenever any day is ``over``. ``unknown`` when the limit is unknown.
+/// (``kcal`` always), when nothing was logged, when the total is null, or when the total is.
+/// incomplete and not already over.
+///
+/// ``protein_g`` is a target: ``ok`` once met, otherwise ``unknown`` (no band; never ``near``.
+/// or ``over``). Below the target, show the total against ``limits.protein_target_g``.
 @JsonSerializable()
 class NutrientBands {
   const NutrientBands({

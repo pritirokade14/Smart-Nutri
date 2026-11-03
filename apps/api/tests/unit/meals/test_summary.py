@@ -67,7 +67,9 @@ def test_week_has_seven_zero_filled_days(cfg):
     s = summarise(
         [meal(day=TODAY, sugars=30)], ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER
     )
-    assert len(s.days) == 7 and s.days[-1].totals.sugars_g == 30 and s.days[0].totals.sugars_g == 0
+    assert len(s.days) == 7 and s.days[-1].totals.sugars_g == 30
+    # An empty day has no known value: null, never 0.0 (Ruling M1 S1).
+    assert s.days[0].totals.sugars_g is None and s.days[0].items == 0
 
 
 def test_day_band_over_limit(cfg):
@@ -114,7 +116,7 @@ def test_nothing_logged_is_unknown(cfg):
     assert s.days[0].items == 0
 
 
-def test_week_bands_use_seven_times_the_limit(cfg):
+def test_week_bands_with_every_day_logged_use_seven_times_the_limit(cfg):
     meals = [meal(day=TODAY - timedelta(days=i), sugars=20) for i in range(7)]  # 140 g
     s = summarise(meals, ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER)
     assert s.totals.sugars_g == 140 and s.bands.sugar_g == "near"  # 140 >= 0.8 x 175
@@ -125,7 +127,8 @@ def test_week_bands_use_seven_times_the_limit(cfg):
 def test_protein_is_a_target_never_over(cfg):
     s = _day([meal(protein=80)], cfg=cfg)
     assert s.bands.protein_g == "ok"
-    assert _day([meal(protein=50)], cfg=cfg).bands.protein_g == "near"
+    # Below the target there is no band (Ruling M1 S2): never "near", never "ok" at 5 %.
+    assert _day([meal(protein=50)], cfg=cfg).bands.protein_g == "unknown"
     # Incomplete and not yet met: unknown. Incomplete but already met: ok.
     assert _day([meal(protein=None), meal(protein=10)], cfg=cfg).bands.protein_g == "unknown"
     assert _day([meal(protein=None), meal(protein=60)], cfg=cfg).bands.protein_g == "ok"
@@ -141,6 +144,86 @@ def test_unknown_limits(cfg):
         "protein_target_g": None,
         "kcal": None,
     }
+
+
+def week(meals, limits=ADULT_LIMITS, cfg=None):
+    return summarise(meals, limits, "week", TODAY, IST, cfg, member_id=MEMBER)
+
+
+# --- Ruling M1 (nutrition-safety review of Plan 6) ----------------------------------------
+
+
+def test_b1_one_over_day_and_six_empty_days_is_over(cfg):
+    # The reviewer's probe: 60 g sugar and 9 g salt on one day, nothing else logged.
+    s = week([meal(sugars=60, salt=9, protein=10, kcal=500)], cfg=cfg)
+    assert s.days[-1].bands.sugar_g == "over" and s.days[-1].bands.salt_g == "over"
+    assert (s.bands.sugar_g, s.bands.salt_g) == ("over", "over")
+
+
+def test_b1_week_limit_is_daily_limit_times_logged_days(cfg):
+    # Two logged days of 22 g: 44 g against 2 x 25 g = 50 g is near, not ok against 175 g.
+    meals = [meal(day=TODAY, sugars=22), meal(day=TODAY - timedelta(days=3), sugars=22)]
+    s = week(meals, cfg=cfg)
+    assert s.bands.sugar_g == "near"
+    # Two logged days of 10 g: 20 g against 50 g is ok.
+    meals = [meal(day=TODAY, sugars=10), meal(day=TODAY - timedelta(days=3), sugars=10)]
+    assert week(meals, cfg=cfg).bands.sugar_g == "ok"
+
+
+def test_b1_any_over_day_forces_the_week_over(cfg):
+    # 30 g on one day (over 25 g), 1 g on six days: 36 g is under 7 x 25 g, but a day is over.
+    meals = [meal(day=TODAY, sugars=30)]
+    meals += [meal(day=TODAY - timedelta(days=i), sugars=1) for i in range(1, 7)]
+    s = week(meals, cfg=cfg)
+    assert s.days[-1].bands.sugar_g == "over" and s.bands.sugar_g == "over"
+
+
+def test_b1_over_day_wins_over_an_incomplete_week(cfg):
+    meals = [meal(day=TODAY, sugars=30), meal(day=TODAY - timedelta(days=1), sugars=None)]
+    s = week(meals, cfg=cfg)
+    assert s.incomplete.sugars_g is True and s.bands.sugar_g == "over"
+
+
+def test_b1_empty_week_is_unknown(cfg):
+    s = week([], cfg=cfg)
+    assert set(s.bands.model_dump().values()) == {"unknown"}
+
+
+def test_s1_totals_are_null_when_no_meal_has_a_value(cfg):
+    # The reviewer's probe: every meal lacks sugars -> null, not 0.0.
+    s = _day([meal(sugars=None, salt=1, protein=10, kcal=500)], cfg=cfg)
+    assert s.totals.sugars_g is None and s.incomplete.sugars_g is True
+    assert s.bands.sugar_g == "unknown"
+    assert (s.totals.salt_g, s.totals.energy_kcal) == (1.0, 500.0)
+    # One known value: the total is that value (a lower bound, marked incomplete).
+    s = _day([meal(sugars=None), meal(sugars=0)], cfg=cfg)
+    assert s.totals.sugars_g == 0.0 and s.incomplete.sugars_g is True
+
+
+def test_s1_nothing_logged_has_null_totals(cfg):
+    s = _day([], cfg=cfg)
+    assert s.totals.model_dump() == dict.fromkeys(NUTRIENTS)
+    assert s.days[0].totals.model_dump() == dict.fromkeys(NUTRIENTS)
+    w = week([meal(sugars=5)], cfg=cfg)
+    assert w.totals.sugars_g == 5 and w.totals.salt_g == 0.0
+    assert all(d.totals.sugars_g is None for d in w.days[:-1])
+
+
+def test_s2_protein_below_target_has_no_band(cfg):
+    # The reviewer's probe: 5 g of a 58.1 g target is not "within limit".
+    assert _day([meal(protein=5)], cfg=cfg).bands.protein_g == "unknown"
+    assert _day([meal(protein=58)], cfg=cfg).bands.protein_g == "unknown"
+    assert _day([meal(protein=58.1)], cfg=cfg).bands.protein_g == "ok"  # met
+    assert _day([meal(protein=None)], cfg=cfg).bands.protein_g == "unknown"
+
+
+def test_s2_week_protein_target_is_per_logged_day(cfg):
+    # Two logged days of 60 g: 120 g meets 2 x 58.1 g; each day meets its own target.
+    meals = [meal(day=TODAY, protein=60), meal(day=TODAY - timedelta(days=2), protein=60)]
+    s = week(meals, cfg=cfg)
+    assert s.bands.protein_g == "ok" and s.days[-1].bands.protein_g == "ok"
+    meals = [meal(day=TODAY, protein=60), meal(day=TODAY - timedelta(days=2), protein=50)]
+    assert week(meals, cfg=cfg).bands.protein_g == "unknown"  # 110 g < 116.2 g
 
 
 def test_totals_are_rounded_sums(cfg):

@@ -117,7 +117,7 @@
       "AlternativesOut": {
         "properties": {
           "items": {
-            "description": "At most 5: best grade first, then less sugar, then name",
+            "description": "At most 5: best grade first, then less sugar, then name. With member_id, never a product the engine rates avoid for that member, and ok before caution before unknown",
             "items": {
               "$ref": "#/components/schemas/AlternativeOut"
             },
@@ -125,6 +125,7 @@
             "type": "array"
           },
           "reason": {
+            "description": "no_better_found also when every better product is avoid for member_id",
             "enum": [
               "ok",
               "no_category",
@@ -627,7 +628,7 @@
                 "type": "null"
               }
             ],
-            "description": "A target, not a limit; null without weight",
+            "description": "A target, not a limit. Adults (18+) with a weight only; null for children, adolescents, an unknown age or no weight",
             "title": "Protein Target G"
           },
           "salt_g": {
@@ -1946,7 +1947,7 @@
         "type": "string"
       },
       "NutrientBands": {
-        "description": "day: total vs the daily limit; week: vs limit x 7. ``protein_g`` is a target and never\n``over`` (met -> ``ok``). ``unknown`` when the limit is unknown (``kcal`` always), when\nnothing was logged, or when the total is incomplete and not already over (protein: not\nalready met).",
+        "description": "day: total vs the daily limit. week: total vs the daily limit x the days with logged\nitems, and ``over`` whenever any day is ``over``. ``unknown`` when the limit is unknown\n(``kcal`` always), when nothing was logged, when the total is null, or when the total is\nincomplete and not already over.\n\n``protein_g`` is a target: ``ok`` once met, otherwise ``unknown`` (no band; never ``near``\nor ``over``). Below the target, show the total against ``limits.protein_target_g``.",
         "properties": {
           "kcal": {
             "$ref": "#/components/schemas/NutrientBand"
@@ -3129,23 +3130,51 @@
         "type": "string"
       },
       "Totals": {
-        "description": "Sums of the KNOWN values only; see ``Summary.incomplete``.",
+        "description": "Sums of the KNOWN values only; see ``Summary.incomplete``. null when no meal in the\nperiod has a value for that nutrient (also when nothing was logged): never shown as 0.",
         "properties": {
           "energy_kcal": {
-            "title": "Energy Kcal",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Kcal"
           },
           "protein_g": {
-            "title": "Protein G",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protein G"
           },
           "salt_g": {
-            "title": "Salt G",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salt G"
           },
           "sugars_g": {
-            "title": "Sugars G",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sugars G"
           }
         },
         "required": [
@@ -5196,7 +5225,7 @@
     },
     "/v1/products/barcode/{code}/alternatives": {
       "get": {
-        "description": "Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).",
+        "description": "Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. With ``member_id``, a product the engine rates ``avoid`` for that member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).",
         "operationId": "products_alternatives_by_barcode",
         "parameters": [
           {
@@ -5706,7 +5735,7 @@
     },
     "/v1/products/{product_id}/alternatives": {
       "get": {
-        "description": "Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. Never an error for a product with no category: ``reason`` says why the list is empty.",
+        "description": "Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. With ``member_id``, a product the engine rates ``avoid`` for that member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty.",
         "operationId": "products_alternatives",
         "parameters": [
           {

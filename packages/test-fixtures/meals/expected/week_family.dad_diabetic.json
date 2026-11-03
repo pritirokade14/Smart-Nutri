@@ -1,15 +1,15 @@
 {
   "bands": {
     "kcal": "unknown",
-    "protein_g": "ok",
+    "protein_g": "unknown",
     "salt_g": "ok",
-    "sugar_g": "unknown"
+    "sugar_g": "over"
   },
   "days": [
     {
       "bands": {
         "kcal": "unknown",
-        "protein_g": "ok",
+        "protein_g": "unknown",
         "salt_g": "ok",
         "sugar_g": "ok"
       },
@@ -31,7 +31,7 @@
     {
       "bands": {
         "kcal": "unknown",
-        "protein_g": "ok",
+        "protein_g": "unknown",
         "salt_g": "ok",
         "sugar_g": "ok"
       },
@@ -66,16 +66,16 @@
       },
       "items": 0,
       "totals": {
-        "energy_kcal": 0.0,
-        "protein_g": 0.0,
-        "salt_g": 0.0,
-        "sugars_g": 0.0
+        "energy_kcal": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
       }
     },
     {
       "bands": {
         "kcal": "unknown",
-        "protein_g": "ok",
+        "protein_g": "unknown",
         "salt_g": "ok",
         "sugar_g": "over"
       },
@@ -97,7 +97,7 @@
     {
       "bands": {
         "kcal": "unknown",
-        "protein_g": "ok",
+        "protein_g": "unknown",
         "salt_g": "ok",
         "sugar_g": "unknown"
       },
@@ -113,7 +113,7 @@
         "energy_kcal": 123.0,
         "protein_g": 3.3,
         "salt_g": 0.4,
-        "sugars_g": 0.0
+        "sugars_g": null
       }
     },
     {
@@ -132,16 +132,16 @@
       },
       "items": 0,
       "totals": {
-        "energy_kcal": 0.0,
-        "protein_g": 0.0,
-        "salt_g": 0.0,
-        "sugars_g": 0.0
+        "energy_kcal": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
       }
     },
     {
       "bands": {
         "kcal": "unknown",
-        "protein_g": "ok",
+        "protein_g": "unknown",
         "salt_g": "ok",
         "sugar_g": "ok"
       },

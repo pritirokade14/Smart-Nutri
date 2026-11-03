@@ -29,8 +29,10 @@ async def test_summary_endpoint_for_diabetic_parent(client, family, sf_biscuit_p
     assert r.status_code == 200
     s = r.json()
     assert s["totals"]["sugars_g"] == 1.0 and s["limits"]["sugar_g"] == 25
-    # 70 kg x 0.83 g/kg, from the members row
+    # 70 kg x 0.83 g/kg, from the members row (an adult: Ruling M1 S3)
     assert s["limits"]["protein_target_g"] == 58.1
+    # Far below the protein target: no band (Ruling M1 S2).
+    assert s["bands"]["protein_g"] == "unknown"
     assert (s["period"], s["start"], s["end"]) == ("day", str(today_ist()), str(today_ist()))
     assert s["bands"]["sugar_g"] == "ok" and s["incomplete"]["sugars_g"] is False
     assert s["pending_clinician_review"] is True
@@ -57,6 +59,13 @@ async def test_week_summary_for_child(client, family, sf_biscuit_product_id):
     assert s["limits"] == {"sugar_g": 24, "salt_g": 5, "protein_target_g": None, "kcal": None}
     assert s["days"][-1]["items"] == 1 and s["days"][0]["items"] == 0
     assert s["days"][0]["bands"]["sugar_g"] == "unknown"
+    # Ruling M1 S1: an empty day has null totals, never 0.0.
+    assert s["days"][0]["totals"] == {
+        "energy_kcal": None,
+        "sugars_g": None,
+        "salt_g": None,
+        "protein_g": None,
+    }
 
 
 async def test_summary_for_a_past_date(client, family, sf_biscuit_product_id):
@@ -68,6 +77,7 @@ async def test_summary_for_a_past_date(client, family, sf_biscuit_product_id):
         )
     ).json()
     assert s["end"] == str(yesterday) and s["days"][0]["items"] == 0
+    assert set(s["totals"].values()) == {None}
 
 
 async def test_summary_foreign_member_404(client, family, other_account_member_id):

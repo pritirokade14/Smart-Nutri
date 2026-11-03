@@ -45,7 +45,9 @@ async def test_week_family_summary_matches_expected(client, db_session, login):
     days = {d["date"]: d for d in expected["days"]}
     assert days["2026-10-31"]["bands"]["sugar_g"] == "over"
     assert days["2026-11-01"]["incomplete"]["sugars_g"] is True
-    assert expected["incomplete"]["sugars_g"] is True and expected["bands"]["sugar_g"] == "unknown"
+    # Ruling M1 B1: an over day makes the week over, even though the week is incomplete.
+    assert expected["incomplete"]["sugars_g"] is True and expected["bands"]["sugar_g"] == "over"
+    assert days["2026-10-30"]["items"] == 0 and days["2026-10-30"]["totals"]["sugars_g"] is None
     assert days["2026-11-03"]["items"] == 2  # 23:30 IST counts on 3 Nov
 
 

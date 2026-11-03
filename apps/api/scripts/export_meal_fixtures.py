@@ -206,8 +206,10 @@ def share_weekly_text(messages: dict[str, Any], *, scans: int, logged: int, url:
 
 
 def _forbidden(messages: dict[str, Any], locale: str) -> list[str]:
-    """Words that must never appear in a share text: condition and allergen labels."""
-    words = {v.casefold() for group in ("condition", "allergen") for v in messages[group].values()}
+    """Words that must never appear in a share text: condition, allergen and custom alert
+    labels (alert.*, Ruling M1 S6)."""
+    groups = ("condition", "allergen", "alert")
+    words = {v.casefold() for group in groups for v in messages[group].values()}
     if locale == "en":
         words |= {"diabetes", "diabetic", "allergy", "allergic", "allergen", "milk"}
     return sorted(words)

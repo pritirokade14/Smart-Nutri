@@ -4,6 +4,10 @@ Every grade, ``high_in`` list and member status comes from ``app.scoring.analyze
 LLM). Only products with a Nutri-Score grade STRICTLY better than the source are suggested,
 never an ungraded one, ranked by grade, then sugars per 100 g (unknown last), then name; at
 most 5. Price-aware ranking is v2.
+
+For a member (Ruling M1 B2), every better-graded candidate is analysed for that member BEFORE
+the top-5 cut: an ``avoid`` is never suggested, and the rest rank ok > caution > unknown, then
+as above. If nothing is left the reason is ``no_better_found``.
 """
 
 from collections.abc import Sequence
@@ -53,16 +57,34 @@ def _sort_key(c: Candidate) -> tuple[int, int, float, str]:
     )
 
 
-def rank_alternatives(source_grade: str | None, candidates: Sequence[Candidate]) -> list[Candidate]:
+_STATUS_RANK = {"ok": 0, "caution": 1, "unknown": 2}
+
+
+def _member_status(c: Candidate, member: scoring.Member) -> str:
+    return scoring.analyze(c.product, [member]).verdicts[0].status.value
+
+
+def rank_alternatives(
+    source_grade: str | None,
+    candidates: Sequence[Candidate],
+    member: scoring.Member | None = None,
+) -> list[Candidate]:
     """Strictly better graded candidates, best first, at most 5. Pure.
 
-    A source with no grade has nothing to compare against: no candidates.
+    A source with no grade has nothing to compare against: no candidates. With ``member``,
+    candidates the engine rates ``avoid`` for that member are dropped before the cut, and the
+    rest are ordered ok > caution > unknown first.
     """
     if source_grade not in _GRADES:
         return []
     bar = _GRADES.index(source_grade)
     better = [c for c in candidates if c.grade in _GRADES and _GRADES.index(c.grade) < bar]
-    return sorted(better, key=_sort_key)[:MAX_ALTERNATIVES]
+    if member is None:
+        return sorted(better, key=_sort_key)[:MAX_ALTERNATIVES]
+    rated = [(_member_status(c, member), c) for c in better]
+    safe = [(status, c) for status, c in rated if status in _STATUS_RANK]  # drops avoid
+    safe.sort(key=lambda sc: (_STATUS_RANK[sc[0]], *_sort_key(sc[1])))
+    return [c for _, c in safe[:MAX_ALTERNATIVES]]
 
 
 def source_category(payload: dict[str, Any] | None) -> str | None:
@@ -153,10 +175,12 @@ async def find_alternatives(
     except OffUnavailable as exc:
         raise ApiError("off_unavailable", 503) from exc
 
+    scoring_member = to_scoring_member(member, today=today) if member is not None else None
     ranked = rank_alternatives(
-        source_grade, _candidates(payloads, found.info.barcode or None, settings)
+        source_grade,
+        _candidates(payloads, found.info.barcode or None, settings),
+        scoring_member,
     )
     if not ranked:
         return AlternativesOut(items=[], reason="no_better_found")
-    scoring_member = to_scoring_member(member, today=today) if member is not None else None
     return AlternativesOut(items=[_to_out(c, scoring_member) for c in ranked], reason="ok")

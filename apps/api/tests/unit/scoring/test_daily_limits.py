@@ -68,9 +68,21 @@ def test_age_bands(cfg, age, sugar, salt):
     assert (lim.sugar_g, lim.salt_g) == (sugar, salt)
 
 
-def test_protein_target_needs_weight_and_rounds(cfg):
+def test_protein_target_needs_weight(cfg):
     assert _limits(40, None, cfg).protein_target_g is None
-    assert _limits(8, 25.0, cfg).protein_target_g == pytest.approx(20.75)
+    assert _limits(40, 0, cfg).protein_target_g is None
+
+
+@pytest.mark.parametrize("age", [None, 0, 1, 2, 8, 12, 13, 17])
+def test_s3_no_protein_target_below_adult_age(cfg, age):
+    # Ruling M1 S3: 0.83 g/kg is the WHO/FAO/UNU ADULT safe level. Children, infants,
+    # adolescents and an unknown age get no target (the reviewer's probe: age 1, 10 kg).
+    assert _limits(age, 25.0, cfg).protein_target_g is None
+
+
+def test_s3_adult_protein_target_from_18(cfg):
+    assert _limits(18, 60.0, cfg).protein_target_g == pytest.approx(49.8)
+    assert _limits(50, 70.0, cfg).protein_target_g == pytest.approx(58.1)
 
 
 def test_band_edges(cfg):
@@ -88,3 +100,4 @@ def test_limits_are_read_from_yaml(cfg):
     assert dl["adult"] == {"sugar_g": 25, "salt_g": 5, "protein_g_per_kg": 0.83}
     assert dl["infant"] == {"sugar_g": 0, "salt_g": 0}
     assert dl["near_pct"] == 80
+    assert dl["protein_min_age"] == 18

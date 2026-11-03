@@ -280,7 +280,7 @@ export interface paths {
         };
         /**
          * Products Alternatives By Barcode
-         * @description Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).
+         * @description Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. With ``member_id``, a product the engine rates ``avoid`` for that member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).
          */
         get: operations["products_alternatives_by_barcode"];
         put?: never;
@@ -358,7 +358,7 @@ export interface paths {
         };
         /**
          * Products Alternatives
-         * @description Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. Never an error for a product with no category: ``reason`` says why the list is empty.
+         * @description Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. With ``member_id``, a product the engine rates ``avoid`` for that member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty.
          */
         get: operations["products_alternatives"];
         put?: never;
@@ -502,11 +502,12 @@ export interface components {
         AlternativesOut: {
             /**
              * Items
-             * @description At most 5: best grade first, then less sugar, then name
+             * @description At most 5: best grade first, then less sugar, then name. With member_id, never a product the engine rates avoid for that member, and ok before caution before unknown
              */
             items: components["schemas"]["AlternativeOut"][];
             /**
              * Reason
+             * @description no_better_found also when every better product is avoid for member_id
              * @enum {string}
              */
             reason: "ok" | "no_category" | "no_better_found" | "source_ungraded";
@@ -691,7 +692,7 @@ export interface components {
             kcal: number | null;
             /**
              * Protein Target G
-             * @description A target, not a limit; null without weight
+             * @description A target, not a limit. Adults (18+) with a weight only; null for children, adolescents, an unknown age or no weight
              */
             protein_target_g: number | null;
             /** Salt G */
@@ -1150,10 +1151,13 @@ export interface components {
         NutrientBand: "ok" | "near" | "over" | "unknown";
         /**
          * NutrientBands
-         * @description day: total vs the daily limit; week: vs limit x 7. ``protein_g`` is a target and never
-         *     ``over`` (met -> ``ok``). ``unknown`` when the limit is unknown (``kcal`` always), when
-         *     nothing was logged, or when the total is incomplete and not already over (protein: not
-         *     already met).
+         * @description day: total vs the daily limit. week: total vs the daily limit x the days with logged
+         *     items, and ``over`` whenever any day is ``over``. ``unknown`` when the limit is unknown
+         *     (``kcal`` always), when nothing was logged, when the total is null, or when the total is
+         *     incomplete and not already over.
+         *
+         *     ``protein_g`` is a target: ``ok`` once met, otherwise ``unknown`` (no band; never ``near``
+         *     or ``over``). Below the target, show the total against ``limits.protein_target_g``.
          */
         NutrientBands: {
             kcal: components["schemas"]["NutrientBand"];
@@ -1589,17 +1593,18 @@ export interface components {
         SummaryPeriod: "day" | "week";
         /**
          * Totals
-         * @description Sums of the KNOWN values only; see ``Summary.incomplete``.
+         * @description Sums of the KNOWN values only; see ``Summary.incomplete``. null when no meal in the
+         *     period has a value for that nutrient (also when nothing was logged): never shown as 0.
          */
         Totals: {
             /** Energy Kcal */
-            energy_kcal: number;
+            energy_kcal: number | null;
             /** Protein G */
-            protein_g: number;
+            protein_g: number | null;
             /** Salt G */
-            salt_g: number;
+            salt_g: number | null;
             /** Sugars G */
-            sugars_g: number;
+            sugars_g: number | null;
         };
         /** UploadUrlIn */
         UploadUrlIn: {

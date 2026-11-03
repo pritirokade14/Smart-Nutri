@@ -111,6 +111,8 @@ async def _alternatives(
 _ALTERNATIVES_DOC = (
     "Up to 5 products from the same Open Food Facts category with a strictly better "
     "Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. "
+    "With ``member_id``, a product the engine rates ``avoid`` for that member is never "
+    "suggested, and safer statuses rank first. "
     "Never an error for a product with no category: ``reason`` says why the list is empty."
 )
 

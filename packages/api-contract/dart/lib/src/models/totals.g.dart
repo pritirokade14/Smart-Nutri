@@ -7,10 +7,10 @@ part of 'totals.dart';
 // **************************************************************************
 
 Totals _$TotalsFromJson(Map<String, dynamic> json) => Totals(
-  energyKcal: json['energy_kcal'] as num,
-  proteinG: json['protein_g'] as num,
-  saltG: json['salt_g'] as num,
-  sugarsG: json['sugars_g'] as num,
+  energyKcal: json['energy_kcal'] as num?,
+  proteinG: json['protein_g'] as num?,
+  saltG: json['salt_g'] as num?,
+  sugarsG: json['sugars_g'] as num?,
 );
 
 Map<String, dynamic> _$TotalsToJson(Totals instance) => <String, dynamic>{

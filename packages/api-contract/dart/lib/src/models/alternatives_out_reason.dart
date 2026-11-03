@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+/// no_better_found also when every better product is avoid for member_id
 @JsonEnum()
 enum AlternativesOutReason {
   @JsonValue('ok')

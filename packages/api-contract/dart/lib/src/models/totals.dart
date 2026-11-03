@@ -6,7 +6,8 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'totals.g.dart';
 
-/// Sums of the KNOWN values only; see ``Summary.incomplete``.
+/// Sums of the KNOWN values only; see ``Summary.incomplete``. null when no meal in the.
+/// period has a value for that nutrient (also when nothing was logged): never shown as 0.
 @JsonSerializable()
 class Totals {
   const Totals({
@@ -19,13 +20,13 @@ class Totals {
   factory Totals.fromJson(Map<String, Object?> json) => _$TotalsFromJson(json);
 
   @JsonKey(name: 'energy_kcal')
-  final num energyKcal;
+  final num? energyKcal;
   @JsonKey(name: 'protein_g')
-  final num proteinG;
+  final num? proteinG;
   @JsonKey(name: 'salt_g')
-  final num saltG;
+  final num? saltG;
   @JsonKey(name: 'sugars_g')
-  final num sugarsG;
+  final num? sugarsG;
 
   Map<String, Object?> toJson() => _$TotalsToJson(this);
 }

@@ -273,9 +273,15 @@ class AlternativeOut(BaseModel):
 
 class AlternativesOut(BaseModel):
     items: list[AlternativeOut] = Field(
-        description="At most 5: best grade first, then less sugar, then name"
+        description=(
+            "At most 5: best grade first, then less sugar, then name. With member_id, never a "
+            "product the engine rates avoid for that member, and ok before caution before "
+            "unknown"
+        )
     )
-    reason: Literal["ok", "no_category", "no_better_found", "source_ungraded"]
+    reason: Literal["ok", "no_category", "no_better_found", "source_ungraded"] = Field(
+        description="no_better_found also when every better product is avoid for member_id"
+    )
 
 
 class SearchHit(BaseModel):

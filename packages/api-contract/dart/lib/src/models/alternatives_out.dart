@@ -16,8 +16,10 @@ class AlternativesOut {
   factory AlternativesOut.fromJson(Map<String, Object?> json) =>
       _$AlternativesOutFromJson(json);
 
-  /// At most 5: best grade first, then less sugar, then name
+  /// At most 5: best grade first, then less sugar, then name. With member_id, never a product the engine rates avoid for that member, and ok before caution before unknown
   final List<AlternativeOut> items;
+
+  /// no_better_found also when every better product is avoid for member_id
   final AlternativesOutReason reason;
 
   Map<String, Object?> toJson() => _$AlternativesOutToJson(this);

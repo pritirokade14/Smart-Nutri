@@ -22,7 +22,7 @@ class DailyLimitsOut {
   /// Always null in v1 (no personal energy target)
   final num? kcal;
 
-  /// A target, not a limit; null without weight
+  /// A target, not a limit. Adults (18+) with a weight only; null for children, adolescents, an unknown age or no weight
   @JsonKey(name: 'protein_target_g')
   final num? proteinTargetG;
   @JsonKey(name: 'salt_g')

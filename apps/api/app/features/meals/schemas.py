@@ -78,12 +78,13 @@ class MealOut(BaseModel):
 
 
 class Totals(BaseModel):
-    """Sums of the KNOWN values only; see ``Summary.incomplete``."""
+    """Sums of the KNOWN values only; see ``Summary.incomplete``. null when no meal in the
+    period has a value for that nutrient (also when nothing was logged): never shown as 0."""
 
-    energy_kcal: float
-    sugars_g: float
-    salt_g: float
-    protein_g: float
+    energy_kcal: float | None
+    sugars_g: float | None
+    salt_g: float | None
+    protein_g: float | None
 
 
 class SummaryPeriod(StrEnum):
@@ -116,15 +117,23 @@ class DailyLimitsOut(BaseModel):
 
     sugar_g: float | None
     salt_g: float | None
-    protein_target_g: float | None = Field(description="A target, not a limit; null without weight")
+    protein_target_g: float | None = Field(
+        description=(
+            "A target, not a limit. Adults (18+) with a weight only; null for children, "
+            "adolescents, an unknown age or no weight"
+        )
+    )
     kcal: float | None = Field(description="Always null in v1 (no personal energy target)")
 
 
 class NutrientBands(BaseModel):
-    """day: total vs the daily limit; week: vs limit x 7. ``protein_g`` is a target and never
-    ``over`` (met -> ``ok``). ``unknown`` when the limit is unknown (``kcal`` always), when
-    nothing was logged, or when the total is incomplete and not already over (protein: not
-    already met)."""
+    """day: total vs the daily limit. week: total vs the daily limit x the days with logged
+    items, and ``over`` whenever any day is ``over``. ``unknown`` when the limit is unknown
+    (``kcal`` always), when nothing was logged, when the total is null, or when the total is
+    incomplete and not already over.
+
+    ``protein_g`` is a target: ``ok`` once met, otherwise ``unknown`` (no band; never ``near``
+    or ``over``). Below the target, show the total against ``limits.protein_target_g``."""
 
     sugar_g: NutrientBand
     salt_g: NutrientBand

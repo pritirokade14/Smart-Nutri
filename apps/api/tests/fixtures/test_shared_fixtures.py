@@ -29,8 +29,12 @@ def test_share_texts_never_leak_health_data():
     import json
 
     data = json.loads((FIXTURES / "share" / "share_result.sf_biscuit.json").read_text("utf-8"))
+    messages = FIXTURES.parent / "i18n" / "messages"
     for locale, text in data["expected"].items():
         assert data["forbidden_substrings"][locale]
+        # Ruling M1 S6: custom alert labels (alert.*) are health data too.
+        alerts = json.loads((messages / f"{locale}.json").read_text("utf-8"))["alert"]
+        assert {a.casefold() for a in alerts.values()} <= set(data["forbidden_substrings"][locale])
         assert not [w for w in data["forbidden_substrings"][locale] if w in text.casefold()]
     # The verdict statuses in the share input are the engine's, as in expected/.
     for v in data["input"]["verdicts"]:

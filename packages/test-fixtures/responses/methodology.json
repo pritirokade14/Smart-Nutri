@@ -796,7 +796,8 @@
           "sugar_g": 0
         },
         "infant_max_age": 2,
-        "near_pct": 80
+        "near_pct": 80,
+        "protein_min_age": 18
       }
     }
   ],
@@ -886,5 +887,5 @@
       "url_verified": false
     }
   ],
-  "version": "fea34dec335d"
+  "version": "45e46eafd3f9"
 }

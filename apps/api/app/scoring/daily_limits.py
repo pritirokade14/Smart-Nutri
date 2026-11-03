@@ -21,7 +21,8 @@ Band = Literal["ok", "near", "over", "unknown"]
 class DailyLimits:
     sugar_g: float | None  # free/added-sugar limit (adult WHO 25 g; child and infant bands)
     salt_g: float | None
-    protein_target_g: float | None  # weight_kg x protein_g_per_kg; None without a weight
+    # weight_kg x protein_g_per_kg for adults only; None without a weight or below the adult age
+    protein_target_g: float | None
     kcal: None = None  # informational only in v1: no personal energy target
 
 
@@ -37,8 +38,10 @@ def daily_limits_for(
 ) -> DailyLimits:
     """Daily sugar and salt limits by age band, and a protein target from body weight.
 
-    ``age=None`` gets adult limits: the summary is information, and the verdicts already treat
-    an unknown age protectively (``age_unknown``).
+    ``age=None`` gets adult sugar and salt limits: the summary is information, and the verdicts
+    already treat an unknown age protectively (``age_unknown``). The protein target is the
+    ADULT safe level, so it needs a weight AND a known age of at least
+    ``daily_limits.protein_min_age``; anyone younger, or of unknown age, gets None.
     """
     if cfg is None:
         cfg = load_config()
@@ -56,7 +59,8 @@ def daily_limits_for(
         salt = _by_min_age(age, dl["child_salt_g_by_min_age"])
 
     protein = None
-    if weight_kg is not None and weight_kg > 0:
+    is_adult = age is not None and age >= dl["protein_min_age"]
+    if is_adult and weight_kg is not None and weight_kg > 0:
         protein = weight_kg * adult["protein_g_per_kg"]
     return DailyLimits(sugar_g=sugar, salt_g=salt, protein_target_g=protein, kcal=None)
 

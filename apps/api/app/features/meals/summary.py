@@ -1,11 +1,18 @@
 """Daily and weekly nutrient summaries (pure; no I/O).
 
 Missing stays missing: a meal whose snapshot has no value for a nutrient adds nothing to the
-total and marks that nutrient ``incomplete``. The total is then a lower bound, so its band is
-``unknown`` unless the lower bound alone is already over the limit (or, for the protein
-target, already meets it). Nothing logged is ``unknown``, never "fine". Bands come from the
-engine's ``nutrient_band`` and daily limits from ``app.scoring`` (thresholds.yaml, pending
-clinician review); clients only render them.
+total and marks that nutrient ``incomplete``; when NO meal has a value the total is null, never
+0.0. The total is then a lower bound, so its band is ``unknown`` unless the lower bound alone is
+already over the limit. Nothing logged is ``unknown``, never "fine".
+
+Ruling M1 (nutrition-safety review):
+- The period band compares the total with the daily limit x the number of days with logged
+  items (empty days are not "under the limit"), and is ``over`` whenever any day is ``over``.
+- Protein is a target, not a limit: ``ok`` once the (lower-bound) total meets it, otherwise
+  ``unknown`` (no band; clients show "x g of a y g target").
+
+Bands come from the engine's ``nutrient_band`` and daily limits from ``app.scoring``
+(thresholds.yaml, pending clinician review); clients only render them.
 """
 
 from collections.abc import Sequence
@@ -20,6 +27,7 @@ from app.features.meals.schemas import (
     DailyLimitsOut,
     DaySummary,
     IncompleteNutrients,
+    NutrientBand,
     NutrientBands,
     Summary,
     SummaryPeriod,
@@ -37,9 +45,13 @@ def _round1(value: float) -> float:
 
 
 def _limit_band(
-    total: float, limit: float | None, incomplete: bool, items: int, cfg: ScoringConfig | None
+    total: float | None,
+    limit: float | None,
+    incomplete: bool,
+    items: int,
+    cfg: ScoringConfig | None,
 ) -> Band:
-    if items == 0:
+    if items == 0 or total is None:
         return "unknown"
     band = nutrient_band(total, limit, cfg)
     if incomplete and band != "over":
@@ -47,28 +59,25 @@ def _limit_band(
     return band
 
 
-def _target_band(
-    total: float, target: float | None, incomplete: bool, items: int, cfg: ScoringConfig | None
-) -> Band:
-    """A target, not a limit: reaching it is ``ok`` (never ``over``)."""
-    if items == 0 or target is None:
+def _target_band(total: float | None, target: float | None, items: int) -> Band:
+    """A target, not a limit: met (even by a lower bound) is ``ok``; anything else has no band
+    (``unknown``), never ``near`` or ``ok`` far below it (Ruling M1 S2)."""
+    if items == 0 or total is None or target is None:
         return "unknown"
-    band = nutrient_band(total, target, cfg)
-    if band == "over":
-        return "ok"
-    if incomplete:
-        return "unknown"  # the target may already be met by the meals with no value
-    return band
+    return "ok" if total >= target else "unknown"
 
 
 def _bands(
-    totals: dict[str, float],
+    totals: dict[str, float | None],
     incomplete: dict[str, bool],
     items: int,
     limits: DailyLimits,
     factor: int,
     cfg: ScoringConfig | None,
 ) -> dict[str, Band]:
+    """Bands against the daily limits x ``factor`` (1 for a day; days with logged items for a
+    period)."""
+
     def times(v: float | None) -> float | None:
         return None if v is None else v * factor
 
@@ -79,20 +88,27 @@ def _bands(
         "salt_g": _limit_band(
             totals["salt_g"], times(limits.salt_g), incomplete["salt_g"], items, cfg
         ),
-        "protein_g": _target_band(
-            totals["protein_g"],
-            times(limits.protein_target_g),
-            incomplete["protein_g"],
-            items,
-            cfg,
-        ),
+        "protein_g": _target_band(totals["protein_g"], times(limits.protein_target_g), items),
         "kcal": "unknown",  # no personal energy target in v1
     }
+
+
+def _period_bands(
+    whole: "_Acc", days: Sequence[DaySummary], limits: DailyLimits, cfg: ScoringConfig | None
+) -> dict[str, Band]:
+    """Ruling M1 B1: limit x days with logged items, and ``over`` if any day is ``over``."""
+    logged_days = sum(1 for d in days if d.items > 0)
+    bands = _bands(whole.totals(), whole.incomplete, whole.items, limits, logged_days, cfg)
+    for key in ("sugar_g", "salt_g"):
+        if any(getattr(d.bands, key) == NutrientBand.OVER for d in days):
+            bands[key] = "over"
+    return bands
 
 
 class _Acc:
     def __init__(self) -> None:
         self.sums = dict.fromkeys(NUTRIENTS, 0.0)
+        self.known = dict.fromkeys(NUTRIENTS, 0)  # meals with a value, per nutrient
         self.incomplete = dict.fromkeys(NUTRIENTS, False)
         self.items = 0
 
@@ -104,15 +120,18 @@ class _Acc:
                 self.incomplete[k] = True
             else:
                 self.sums[k] += float(value)
+                self.known[k] += 1
 
     def merge(self, other: "_Acc") -> None:
         self.items += other.items
         for k in NUTRIENTS:
             self.sums[k] += other.sums[k]
+            self.known[k] += other.known[k]
             self.incomplete[k] = self.incomplete[k] or other.incomplete[k]
 
-    def totals(self) -> dict[str, float]:
-        return {k: _round1(v) for k, v in self.sums.items()}
+    def totals(self) -> dict[str, float | None]:
+        """Rounded sums; None when no meal had a value (Ruling M1 S1: never 0.0)."""
+        return {k: _round1(v) if self.known[k] else None for k, v in self.sums.items()}
 
 
 def summarise(
@@ -128,8 +147,9 @@ def summarise(
     """Totals, incompleteness and bands for the ``period`` ending on ``end_date``.
 
     Days are calendar days in ``tz`` (IST); a week is the 7 days ending on ``end_date``,
-    oldest first, zero-filled. Meals outside the period are ignored. Day bands compare with
-    the daily limit, the period band with limit x days.
+    oldest first, one entry per day (an empty day has null totals). Meals outside the period
+    are ignored. Day bands compare with the daily limit; the period band with the daily limit
+    x the days with logged items, and is ``over`` if any day is (Ruling M1 B1).
     """
     if period not in PERIOD_DAYS:
         raise ValueError(f"unknown period: {period}")
@@ -171,6 +191,6 @@ def summarise(
             protein_target_g=None if protein is None else _round1(protein),
             kcal=None,
         ),
-        bands=NutrientBands(**_bands(totals, whole.incomplete, whole.items, limits, n_days, cfg)),
+        bands=NutrientBands(**_period_bands(whole, days, limits, cfg)),
         days=days,
     )
