@@ -70,11 +70,12 @@ describe("WeeklyDashboard (week_family, Dad)", () => {
     expect(screen.getByText(en.summary.week_note)).toBeTruthy();
   });
 
-  it("the week's sugar band is unknown (incomplete): grey, 'Not enough data'", () => {
+  it("the week's sugar band is the API's over (a day was over, ruling M1 B1)", () => {
     view(golden());
+    expect(golden().bands.sugar_g).toBe("over");
     const badge = within(section("sugars_g")).getByTestId("band-badge");
-    expect(badge.getAttribute("data-band")).toBe("unknown");
-    expect(badge.textContent).toContain(en.summary.band.unknown);
+    expect(badge.getAttribute("data-band")).toBe("over");
+    expect(badge.textContent).toContain(en.summary.band.over);
     const salt = within(section("salt_g")).getByTestId("band-badge");
     expect(salt.getAttribute("data-band")).toBe("ok");
     expect(salt.textContent).toContain(en.summary.band.ok);
