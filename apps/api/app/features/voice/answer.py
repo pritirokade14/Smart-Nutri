@@ -15,6 +15,14 @@ diet, reason codes; no name, id or email). The transcribed question goes in only
 truncated, and with angle brackets removed so it can't close the tag. Every
 call goes through `LLMProvider.chat_json`, which always sends data residency "in".
 
+Known limitation (accepted, cleanup c5; see ADR 0004 amendment): name redaction is
+spelling-based. It matches each stored name and its parts as the user typed them (case, Unicode
+form and Hindi/Marathi case endings are folded), but not a transliteration ("Asha" stored,
+"आशा" spoken), a nickname ("Ravi" stored, "Ravu" spoken) or a misheard STT spelling. Such a name
+can reach the India-hosted model inside `<user_question>`. The output guard still drops any
+answer that contains a stored member name, so a name is never spoken back from the stored
+spelling, and the question is never stored or logged.
+
 Logs carry the prompt version, status and why an answer was dropped, never the question or
 any answer text.
 """
