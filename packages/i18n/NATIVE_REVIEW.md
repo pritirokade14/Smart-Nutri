@@ -145,3 +145,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `report.*`**: machine drafts. Calm, no blame; `thanks` must not promise a fix or a date.
 - [ ] **hi/mr `explanation.fallback_tip.{1,2,3}`**: machine drafts. General tips shown or spoken when the AI explanation is unavailable. Tip 3 must stay a suggestion to ask a doctor or dietitian, never an instruction that implies a diagnosis.
 - [ ] **hi/mr `methodology.section.daily_limits.{title,description}`**: integration machine draft (Plan 6 added the `daily_limits` methodology section; Plan 7 requires client strings for every section). Health wording: it must say the comparison can over-warn because labels give total sugar, and must not read as advice to eat more protein.
+
+## Plan 8 Task 2 (account deletion)
+- [ ] **hi/mr `error.deletion_incomplete`**: machine drafts. It must read as a calm "deletion did not finish, please try again" and make clear that what was already deleted stays deleted (no hint that data was restored). Check "खाता" (hi) / "खाते" (mr) for account.

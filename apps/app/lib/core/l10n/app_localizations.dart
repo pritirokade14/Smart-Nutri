@@ -1096,6 +1096,12 @@ abstract class AppLocalizations {
   /// **'This consent text has been updated. Please reload and review it again.'**
   String get errorConsentVersionMismatch;
 
+  /// No description provided for @errorDeletionIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not finish deleting your account. Please try again; nothing you deleted will come back.'**
+  String get errorDeletionIncomplete;
+
   /// No description provided for @errorEatenAtOutOfRange.
   ///
   /// In en, this message translates to:

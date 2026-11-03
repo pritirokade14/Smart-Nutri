@@ -228,6 +228,7 @@
   "errorAuthRequired": "Please sign in.",
   "errorConsentRequired": "To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.",
   "errorConsentVersionMismatch": "This consent text has been updated. Please reload and review it again.",
+  "errorDeletionIncomplete": "We could not finish deleting your account. Please try again; nothing you deleted will come back.",
   "errorEatenAtOutOfRange": "Choose a time within the last 30 days.",
   "errorExtractionFailed": "We couldn't read this label. Try another photo or enter the details manually.",
   "errorExtractionUnavailable": "Label reading is unavailable right now. Try again later or enter the details manually.",

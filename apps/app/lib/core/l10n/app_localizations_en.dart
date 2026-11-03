@@ -545,6 +545,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'This consent text has been updated. Please reload and review it again.';
 
   @override
+  String get errorDeletionIncomplete =>
+      'We could not finish deleting your account. Please try again; nothing you deleted will come back.';
+
+  @override
   String get errorEatenAtOutOfRange => 'Choose a time within the last 30 days.';
 
   @override

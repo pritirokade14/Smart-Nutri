@@ -12,7 +12,8 @@ Note: Supabase fixes the lifetime of a signed *upload* token on the server
 from __future__ import annotations
 
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Sequence
+from datetime import datetime
 from typing import Annotated, Protocol
 from urllib.parse import quote
 
@@ -27,6 +28,9 @@ logger = logging.getLogger(__name__)
 STORAGE_TIMEOUT_S = 20.0
 # Read at most this much of an object; anything longer is already over the 8 MB limit.
 DEFAULT_MAX_DOWNLOAD_BYTES = 8 * 1024 * 1024 + 1
+# Supabase Storage list page size and the most paths one bulk delete accepts.
+LIST_PAGE_SIZE = 1000
+DELETE_BATCH_SIZE = 1000
 
 
 class StorageNotFound(Exception):
@@ -52,6 +56,18 @@ class StorageClient(Protocol):
 
     async def create_signed_url(self, path: str, expires_in: int) -> str:
         """An absolute URL that GETs the object for `expires_in` seconds."""
+        ...
+
+    async def list_prefix(self, prefix: str, *, older_than: datetime | None = None) -> list[str]:
+        """Every object path under the folder `prefix` ("" = whole bucket), recursively.
+
+        With `older_than`, only objects created before it; objects without a timestamp are
+        then left out (never treated as old). Raises StorageUnavailable.
+        """
+        ...
+
+    async def delete_paths(self, paths: Sequence[str]) -> None:
+        """Delete these objects. Missing ones are ignored. Raises StorageUnavailable."""
         ...
 
 
@@ -171,6 +187,81 @@ class SupabaseStorage:
             raise StorageUnavailable("malformed response")
         return f"{self._base}{signed}"
 
+    # --- listing and deletion (Plan 8: account deletion and retention) ---------------------
+
+    async def list_prefix(self, prefix: str, *, older_than: datetime | None = None) -> list[str]:
+        found: list[str] = []
+        folders = [prefix.strip("/")]
+        while folders:
+            folder = folders.pop()
+            for item in await self._list_folder(folder):
+                name = item.get("name")
+                if not isinstance(name, str) or not name:
+                    continue
+                path = f"{folder}/{name}" if folder else name
+                if item.get("id") is None:  # a folder (Supabase lists one level at a time)
+                    folders.append(path)
+                elif older_than is None or _created_before(item, older_than):
+                    found.append(path)
+        return sorted(found)
+
+    async def _list_folder(self, folder: str) -> list[dict]:
+        url = f"{self._base}/object/list/{quote(self._bucket, safe='')}"
+        items: list[dict] = []
+        offset = 0
+        while True:
+            body = {
+                "prefix": folder,
+                "limit": LIST_PAGE_SIZE,
+                "offset": offset,
+                "sortBy": {"column": "name", "order": "asc"},
+            }
+            try:
+                response = await self._http.post(url, headers=self._headers(), json=body)
+            except httpx.HTTPError:
+                logger.warning("storage_list status=network_error")
+                raise StorageUnavailable("network error") from None
+            if response.status_code != 200:
+                logger.warning("storage_list status=%d", response.status_code)
+                raise StorageUnavailable("list failed")
+            try:
+                page = response.json()
+            except ValueError:
+                page = None
+            if not isinstance(page, list):
+                logger.warning("storage_list status=malformed")
+                raise StorageUnavailable("malformed response")
+            items.extend(i for i in page if isinstance(i, dict))
+            if len(page) < LIST_PAGE_SIZE:
+                return items
+            offset += LIST_PAGE_SIZE
+
+    async def delete_paths(self, paths: Sequence[str]) -> None:
+        url = f"{self._base}/object/{quote(self._bucket, safe='')}"
+        for start in range(0, len(paths), DELETE_BATCH_SIZE):
+            batch = list(paths[start : start + DELETE_BATCH_SIZE])
+            try:
+                response = await self._http.request(
+                    "DELETE", url, headers=self._headers(), json={"prefixes": batch}
+                )
+            except httpx.HTTPError:
+                logger.warning("storage_delete status=network_error")
+                raise StorageUnavailable("network error") from None
+            if response.status_code != 200:
+                logger.warning("storage_delete status=%d", response.status_code)
+                raise StorageUnavailable("delete failed")
+
+
+def _created_before(item: dict, cutoff: datetime) -> bool:
+    raw = item.get("created_at")
+    if not isinstance(raw, str):
+        return False
+    try:
+        created = datetime.fromisoformat(raw)
+    except ValueError:
+        return False
+    return created.tzinfo is not None and created < cutoff
+
 
 class _UnconfiguredStorage:
     async def create_signed_upload(self, path: str, expires_in: int) -> str:
@@ -180,6 +271,12 @@ class _UnconfiguredStorage:
         raise StorageUnavailable("not configured")
 
     async def upload(self, path: str, data: bytes, content_type: str) -> None:
+        raise StorageUnavailable("not configured")
+
+    async def list_prefix(self, prefix: str, *, older_than: datetime | None = None) -> list[str]:
+        raise StorageUnavailable("not configured")
+
+    async def delete_paths(self, paths: Sequence[str]) -> None:
         raise StorageUnavailable("not configured")
 
     async def create_signed_url(self, path: str, expires_in: int) -> str:

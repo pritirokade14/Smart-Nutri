@@ -550,6 +550,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'सहमति का पाठ अपडेट हो गया है। कृपया पेज फिर से लोड करके उसे दोबारा देखें।';
 
   @override
+  String get errorDeletionIncomplete =>
+      'हम आपका खाता पूरी तरह हटा नहीं सके। कृपया फिर से कोशिश करें; जो हट चुका है वह वापस नहीं आएगा।';
+
+  @override
   String get errorEatenAtOutOfRange => 'पिछले 30 दिनों के भीतर का समय चुनें।';
 
   @override

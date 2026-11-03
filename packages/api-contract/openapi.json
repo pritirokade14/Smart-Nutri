@@ -3728,6 +3728,84 @@
       }
     },
     "/v1/me": {
+      "delete": {
+        "description": "Permanently erase the caller's account (DPDP erasure, F11).\n\nOrder: storage objects (label photos, voice answers), then every account-owned row in one\ntransaction (contributed products stay with no owner), then the Supabase auth user.\nIdempotent: calling it again returns 204. On 503 `deletion_incomplete`, retry: completed\nsteps are skipped. Depends on `current_account` (not `current_account_row`) so a repeat\ncall never re-creates the account row.",
+        "operationId": "me_delete",
+        "responses": {
+          "204": {
+            "description": "Account erased (also when it was already gone)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "deletion_incomplete: storage or sign-in removal failed; retry"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Me Delete",
+        "tags": [
+          "me"
+        ]
+      },
       "get": {
         "operationId": "me_get",
         "responses": {
@@ -3878,6 +3956,16 @@
             },
             "description": "Missing or invalid access token"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -3972,6 +4060,16 @@
               }
             },
             "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
           },
           "404": {
             "content": {
@@ -4100,6 +4198,16 @@
             },
             "description": "Missing or invalid access token"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -4198,6 +4306,16 @@
             },
             "description": "Missing or invalid access token"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -4278,6 +4396,16 @@
               }
             },
             "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
           },
           "404": {
             "content": {

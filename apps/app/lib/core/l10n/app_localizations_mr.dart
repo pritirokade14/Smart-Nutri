@@ -549,6 +549,10 @@ class AppLocalizationsMr extends AppLocalizations {
       'संमतीचा मजकूर अद्ययावत झाला आहे. कृपया पुन्हा लोड करून तो पुन्हा पाहा.';
 
   @override
+  String get errorDeletionIncomplete =>
+      'आम्ही तुमचे खाते पूर्णपणे हटवू शकलो नाही. कृपया पुन्हा प्रयत्न करा; जे हटले आहे ते परत येणार नाही.';
+
+  @override
   String get errorEatenAtOutOfRange => 'गेल्या 30 दिवसांतील वेळ निवडा.';
 
   @override
