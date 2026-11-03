@@ -350,6 +350,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthRequired => 'Please sign in.';
 
   @override
+  String get errorConsentVersionMismatch =>
+      'This consent text has been updated. Please reload and review it again.';
+
+  @override
   String get errorExtractionFailed =>
       'We couldn\'t read this label. Try another photo or enter the details manually.';
 

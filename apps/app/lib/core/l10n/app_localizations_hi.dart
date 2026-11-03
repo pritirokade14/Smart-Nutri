@@ -353,6 +353,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करें।';
 
   @override
+  String get errorConsentVersionMismatch =>
+      'सहमति का पाठ अपडेट हो गया है। कृपया पेज फिर से लोड करके उसे दोबारा देखें।';
+
+  @override
   String get errorExtractionFailed =>
       'हम यह लेबल नहीं पढ़ पाए। दूसरी फ़ोटो आज़माएँ या जानकारी खुद भरें।';
 

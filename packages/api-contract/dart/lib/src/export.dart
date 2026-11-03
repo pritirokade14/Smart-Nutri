@@ -4,6 +4,7 @@
 
 // Clients
 export 'analyze/analyze_client.dart';
+export 'consents/consents_client.dart';
 export 'health/health_client.dart';
 export 'me/me_client.dart';
 export 'products/products_client.dart';
@@ -13,6 +14,8 @@ export 'models/analyze_out.dart';
 export 'models/analyze_request.dart';
 export 'models/column_confirm.dart';
 export 'models/confirm_columns.dart';
+export 'models/consent_in.dart';
+export 'models/consent_state.dart';
 export 'models/draft_confirm.dart';
 export 'models/draft_nutrients.dart';
 export 'models/error_body.dart';
@@ -34,6 +37,7 @@ export 'models/verdict_out.dart';
 export 'models/language.dart';
 export 'models/analyze_request_language.dart';
 export 'models/column_confirm_confirm_fields.dart';
+export 'models/consent_in_purpose.dart';
 export 'models/health_out_database.dart';
 export 'models/health_out_status.dart';
 export 'models/me_out_language.dart';

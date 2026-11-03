@@ -70,3 +70,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 4 round B (Android label capture)
 - [ ] **hi/mr `label.camera_permission_denied`**: machine drafts. Check that "सेटिंग्स" / "सेटिंग्ज" is the word users see on their phone, that the sentence reads as a calm "turn on camera access" instruction (no blame), and that the two fallbacks (choose a photo, enter manually) match the `label.choose_file` and `label.enter_manually` wording.
+
+## Plan 5 Task 4 (consents API)
+- [ ] **hi/mr `error.consent_version_mismatch`**: machine drafts. Check that it reads as "the consent text changed, please review it again" (calm, no blame) and that the word for "consent" (सहमति in hi, संमती in mr) is the one users know.

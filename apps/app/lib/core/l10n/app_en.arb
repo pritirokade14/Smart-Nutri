@@ -156,6 +156,7 @@
   "dietVegan": "Vegan",
   "errorAuthInvalid": "Your session expired. Please sign in again.",
   "errorAuthRequired": "Please sign in.",
+  "errorConsentVersionMismatch": "This consent text has been updated. Please reload and review it again.",
   "errorExtractionFailed": "We couldn't read this label. Try another photo or enter the details manually.",
   "errorExtractionUnavailable": "Label reading is unavailable right now. Try again later or enter the details manually.",
   "errorForbidden": "You don't have access to this.",

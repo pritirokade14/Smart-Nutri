@@ -352,6 +352,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करा.';
 
   @override
+  String get errorConsentVersionMismatch =>
+      'संमतीचा मजकूर अद्ययावत झाला आहे. कृपया पुन्हा लोड करून तो पुन्हा पाहा.';
+
+  @override
   String get errorExtractionFailed =>
       'आम्हाला हे लेबल वाचता आले नाही. दुसरा फोटो वापरून पाहा किंवा माहिती स्वतः भरा.';
 

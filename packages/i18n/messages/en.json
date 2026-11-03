@@ -180,6 +180,7 @@
     "scan_not_found": "We couldn't find that label scan. Please scan the label again.",
     "implausible_value": "Some values don't look right. Please check the highlighted fields, or leave them blank.",
     "product_exists": "This product is already saved.",
+    "consent_version_mismatch": "This consent text has been updated. Please reload and review it again.",
     "scan_image_not_found": "We couldn't find that photo. Please take or upload it again.",
     "image_too_large": "This photo is too large. Please use a photo under 8 MB.",
     "unsupported_image": "Please use a JPEG, PNG or WebP photo.",

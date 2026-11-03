@@ -748,6 +748,12 @@ abstract class AppLocalizations {
   /// **'Please sign in.'**
   String get errorAuthRequired;
 
+  /// No description provided for @errorConsentVersionMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This consent text has been updated. Please reload and review it again.'**
+  String get errorConsentVersionMismatch;
+
   /// No description provided for @errorExtractionFailed.
   ///
   /// In en, this message translates to:
