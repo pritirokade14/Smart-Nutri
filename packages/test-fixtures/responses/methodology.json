@@ -590,6 +590,21 @@
       }
     },
     {
+      "id": "build_muscle",
+      "rationale_sources": [
+        "issn_protein_2017"
+      ],
+      "threshold_sources": [
+        "smartnutri_working_values"
+      ],
+      "thresholds": {
+        "applies_to": [
+          "build_muscle"
+        ],
+        "good_protein_g_per_100kcal": 5
+      }
+    },
+    {
       "id": "child",
       "rationale_sources": [],
       "threshold_sources": [
@@ -769,6 +784,7 @@
         "who_free_sugars",
         "who_sodium",
         "who_protein_2007",
+        "issn_protein_2017",
         "nhs_child_sugar",
         "nhs_child_salt",
         "smartnutri_working_values"
@@ -797,6 +813,9 @@
         },
         "infant_max_age": 2,
         "near_pct": 80,
+        "protein_g_per_kg_by_goal": {
+          "build_muscle": 1.6
+        },
         "protein_min_age": 18
       }
     }
@@ -875,6 +894,12 @@
       "url_verified": false
     },
     {
+      "id": "issn_protein_2017",
+      "title": "ISSN position stand: protein and exercise (2017)",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28642676/",
+      "url_verified": false
+    },
+    {
       "id": "nhs_child_salt",
       "title": "NHS: salt limits for children",
       "url": "https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/",
@@ -887,5 +912,5 @@
       "url_verified": false
     }
   ],
-  "version": "45e46eafd3f9"
+  "version": "a4152c9a7222"
 }

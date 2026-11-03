@@ -58,6 +58,12 @@ conditions:
     caution_energy_kcal: 400
     caution_nutriscore: [D, E]
     good_protein_g_per_100kcal: 5
+  # PENDING CLINICIAN REVIEW (Plan 9 Task 3). A goal is a preference (Ruling R34): it may add
+  # an OK-level reason (good_protein_density) only, never a caution or avoid, and a missing
+  # value adds nothing. 5 g per 100 kcal is the same SmartNutri working value as weight_loss.
+  build_muscle:
+    applies_to: [build_muscle]
+    good_protein_g_per_100kcal: 5
   child:          # infant.max_age <= age < max_age
     max_age: 13
     free_sugar_daily_limit_g: {2: 19, 7: 24, 11: 30}   # key = min age of band (NHS; 2–3 uses 4–6 value)
@@ -85,6 +91,13 @@ daily_limits:
   # (WHO/FAO/UNU TRS 935, 2007, above); children and adolescents have age-specific values
   # there. Younger members, and an unknown age, get no protein target (Ruling M1 S3).
   protein_min_age: 18
+  # Protein TARGET by goal (g per kg body weight per day), adults (protein_min_age) with a
+  # weight only. build_muscle 1.6: ISSN position stand 2017 (Jager et al., PMID 28642676),
+  # range 1.4-2.0 g/kg for exercising people. PENDING CLINICIAN REVIEW. Other goals use
+  # adult.protein_g_per_kg (weight_loss keeps 0.83, Ruling P9-R13). A guide, never a need;
+  # it never changes a verdict (read only by daily_limits.py).
+  #   https://pubmed.ncbi.nlm.nih.gov/28642676/
+  protein_g_per_kg_by_goal: {build_muscle: 1.6}
   # key = min age of band, for infant.max_age <= age < child.max_age. Child SUGAR reuses
   # conditions.child.free_sugar_daily_limit_g. NHS: 1-3 y 2 g, 4-6 y 3 g, 7-10 y 5 g, 11+ 6 g
   # (Ruling P6-R1: 2-3 year olds keep NHS's own 2 g, the stricter value).
@@ -111,6 +124,7 @@ sources:
   who_free_sugars: {title: "WHO guideline: sugars intake for adults and children", url: "https://www.who.int/publications/i/item/9789241549028", url_verified: false}
   who_sodium: {title: "WHO guideline: sodium intake for adults and children", url: "https://www.who.int/publications/i/item/9789241504836", url_verified: false}
   who_protein_2007: {title: "WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)", url: "https://www.who.int/publications/i/item/9789241209359", url_verified: false}
+  issn_protein_2017: {title: "ISSN position stand: protein and exercise (2017)", url: "https://pubmed.ncbi.nlm.nih.gov/28642676/", url_verified: false}
   nhs_child_salt: {title: "NHS: salt limits for children", url: "https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/", url_verified: false}
   # Numbers SmartNutri chose itself (no external source states them). No link.
   smartnutri_working_values: {title: "SmartNutri working values, pending clinician review", url: null, url_verified: false}
@@ -132,11 +146,14 @@ section_sources:
   hypertension:    {thresholds: [uk_fsa_front_of_pack], rationale: [icmr_nin_2024]}
   # 400 kcal and the protein density are SmartNutri values; D/E are Nutri-Score grades.
   weight_loss:     {thresholds: [smartnutri_working_values, nutriscore_2023], rationale: [icmr_nin_2024]}
+  # The protein density is a SmartNutri value; ISSN 2017 is why protein matters for this goal.
+  build_muscle:    {thresholds: [smartnutri_working_values], rationale: [issn_protein_2017]}
   # Daily free-sugar limits by age are NHS; the 25 % / 50 % shares are SmartNutri values.
   child:           {thresholds: [nhs_child_sugar, smartnutri_working_values]}
   # 5 g sugar and 0.3 g salt per 100 g are SmartNutri values (Ruling R27), NOT WHO numbers.
   infant:          {thresholds: [smartnutri_working_values], rationale: [who_infant]}
   custom_alerts:   null
-  # Adult sugar and salt: WHO; protein target: WHO/FAO/UNU; child bands: NHS; the 80 % "near"
-  # share: SmartNutri. Infant 0 g rests on WHO's "no added sugar or salt under 2" (rationale).
-  daily_limits:    {thresholds: [who_free_sugars, who_sodium, who_protein_2007, nhs_child_sugar, nhs_child_salt, smartnutri_working_values], rationale: [who_infant]}
+  # Adult sugar and salt: WHO; protein target: WHO/FAO/UNU (build_muscle: ISSN 2017); child
+  # bands: NHS; the 80 % "near" share: SmartNutri. Infant 0 g rests on WHO's "no added sugar
+  # or salt under 2" (rationale).
+  daily_limits:    {thresholds: [who_free_sugars, who_sodium, who_protein_2007, issn_protein_2017, nhs_child_sugar, nhs_child_salt, smartnutri_working_values], rationale: [who_infant]}

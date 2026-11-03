@@ -13,6 +13,7 @@ SECTION_IDS = [
     "blood_sugar",
     "hypertension",
     "weight_loss",
+    "build_muscle",
     "child",
     "infant",
     "custom_alerts",
@@ -196,3 +197,17 @@ def test_daily_limits_section_mirrors_config(cfg):
     )
     assert sec["threshold_sources"][0] == "who_free_sugars"
     assert sec["rationale_sources"] == ["who_infant"]
+
+
+def test_build_muscle_section_plan9(cfg):
+    # Plan 9 Task 3: the 5 g per 100 kcal density is ours; ISSN 2017 is the reason for the
+    # 1.6 g/kg target. The section shows the live values from the yaml.
+    m = methodology(cfg)
+    muscle = _section(m, "build_muscle")
+    assert muscle["threshold_sources"] == ["smartnutri_working_values"]
+    assert muscle["rationale_sources"] == ["issn_protein_2017"]
+    assert muscle["thresholds"] == cfg.thresholds["conditions"]["build_muscle"]
+    daily = _section(m, "daily_limits")
+    assert "issn_protein_2017" in daily["threshold_sources"]
+    assert daily["thresholds"]["protein_g_per_kg_by_goal"] == {"build_muscle": 1.6}
+    assert m["sources"]["issn_protein_2017"]["url_verified"] is False

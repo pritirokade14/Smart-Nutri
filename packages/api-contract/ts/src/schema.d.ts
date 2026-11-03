@@ -1074,7 +1074,7 @@ export interface components {
              */
             diet: "veg" | "eggetarian" | "vegan" | "jain" | "non_veg";
             /** Goal */
-            goal?: ("healthy_eating" | "weight_loss" | "weight_gain") | null;
+            goal?: ("healthy_eating" | "weight_loss" | "weight_gain" | "build_muscle") | null;
             /** Height Cm */
             height_cm?: number | null;
             /** Name */
@@ -1105,7 +1105,7 @@ export interface components {
              */
             diet: "veg" | "eggetarian" | "vegan" | "jain" | "non_veg";
             /** Goal */
-            goal: ("healthy_eating" | "weight_loss" | "weight_gain") | null;
+            goal: ("healthy_eating" | "weight_loss" | "weight_gain" | "build_muscle") | null;
             /** Height Cm */
             height_cm: number | null;
             /**
@@ -1147,7 +1147,7 @@ export interface components {
             /** Diet */
             diet?: ("veg" | "eggetarian" | "vegan" | "jain" | "non_veg") | null;
             /** Goal */
-            goal?: ("healthy_eating" | "weight_loss" | "weight_gain") | null;
+            goal?: ("healthy_eating" | "weight_loss" | "weight_gain" | "build_muscle") | null;
             /** Height Cm */
             height_cm?: number | null;
             /** Name */

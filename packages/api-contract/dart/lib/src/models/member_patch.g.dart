@@ -83,6 +83,7 @@ const _$MemberPatchGoalEnumMap = {
   MemberPatchGoal.healthyEating: 'healthy_eating',
   MemberPatchGoal.weightLoss: 'weight_loss',
   MemberPatchGoal.weightGain: 'weight_gain',
+  MemberPatchGoal.buildMuscle: 'build_muscle',
   MemberPatchGoal.$unknown: r'$unknown',
 };
 

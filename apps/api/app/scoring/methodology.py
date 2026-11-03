@@ -25,12 +25,20 @@ SECTION_IDS: tuple[str, ...] = (
     "blood_sugar",
     "hypertension",
     "weight_loss",
+    "build_muscle",
     "child",
     "infant",
     "custom_alerts",
     "daily_limits",
 )
-_CONDITION_GROUPS = ("blood_sugar", "hypertension", "weight_loss", "child", "infant")
+_CONDITION_GROUPS = (
+    "blood_sugar",
+    "hypertension",
+    "weight_loss",
+    "build_muscle",
+    "child",
+    "infant",
+)
 
 # Health thresholds stay PENDING CLINICIAN REVIEW (thresholds.yaml header) until a clinician
 # signs off in an ADR; flip this in the same change.

@@ -150,7 +150,8 @@
     "prediabetes": "Prediabetes",
     "pcos": "PCOS",
     "hypertension": "High blood pressure",
-    "weight_loss": "Weight loss"
+    "weight_loss": "Weight loss",
+    "build_muscle": "Build muscle"
   },
   "alert": {
     "palm_oil": "palm oil",
@@ -438,7 +439,8 @@
     "goal": {
       "healthy_eating": "Eat better",
       "weight_loss": "Lose weight",
-      "weight_gain": "Gain weight"
+      "weight_gain": "Gain weight",
+      "build_muscle": "Build muscle"
     },
     "born": "Born {year}",
     "limit_reached": "You have 10 family members, the most you can add."
@@ -756,6 +758,10 @@
       "daily_limits": {
         "title": "Daily limits",
         "description": "In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed."
+      },
+      "build_muscle": {
+        "title": "Build muscle",
+        "description": "For members who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein."
       }
     },
     "meta_description": "How SmartNutri checks packaged food for each family member: the fixed rules, their thresholds and sources. Information, not medical advice.",

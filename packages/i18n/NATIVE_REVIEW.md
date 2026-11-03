@@ -214,3 +214,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 9 Tasks 1-2 (API errors: user types)
 - [ ] **hi/mr `error.user_type_not_selected`, `error.follow_up_without_type`, `error.user_types_not_found`**: machine drafts. Neutral, no blame; they must not name a health type or condition.
+
+## Plan 9 Task 3 (build muscle goal)
+- [ ] **hi/mr `condition.build_muscle`, `members.goal.build_muscle`, `methodology.section.build_muscle.*`**: machine drafts ("मांसपेशियाँ बनाना" / "स्नायू बळकट करणे"). The description must stay informational: the daily protein figure is a guide, never "you need", and the kidney sentence must read as "ask your doctor", not as advice.

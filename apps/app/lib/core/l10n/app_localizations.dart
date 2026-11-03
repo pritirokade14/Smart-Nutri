@@ -616,6 +616,12 @@ abstract class AppLocalizations {
   /// **'Compare'**
   String get compareTitle;
 
+  /// No description provided for @conditionBuildMuscle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle'**
+  String get conditionBuildMuscle;
+
   /// No description provided for @conditionDiabetes.
   ///
   /// In en, this message translates to:
@@ -2266,6 +2272,12 @@ abstract class AppLocalizations {
   /// **'Weight (kg, optional)'**
   String get membersFormWeightKg;
 
+  /// No description provided for @membersGoalBuildMuscle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle'**
+  String get membersGoalBuildMuscle;
+
   /// No description provided for @membersGoalHealthyEating.
   ///
   /// In en, this message translates to:
@@ -2415,6 +2427,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Blood sugar'**
   String get methodologySectionBloodSugarTitle;
+
+  /// No description provided for @methodologySectionBuildMuscleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'For members who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein.'**
+  String get methodologySectionBuildMuscleDescription;
+
+  /// No description provided for @methodologySectionBuildMuscleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle'**
+  String get methodologySectionBuildMuscleTitle;
 
   /// No description provided for @methodologySectionChildDescription.
   ///

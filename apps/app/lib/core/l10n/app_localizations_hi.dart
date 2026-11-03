@@ -293,6 +293,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get compareTitle => 'तुलना करें';
 
   @override
+  String get conditionBuildMuscle => 'मांसपेशियाँ बनाना';
+
+  @override
   String get conditionDiabetes => 'मधुमेह (डायबिटीज़)';
 
   @override
@@ -1225,6 +1228,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get membersFormWeightKg => 'वज़न (किग्रा, वैकल्पिक)';
 
   @override
+  String get membersGoalBuildMuscle => 'मांसपेशियाँ बनाना';
+
+  @override
   String get membersGoalHealthyEating => 'बेहतर खाना';
 
   @override
@@ -1306,6 +1312,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get methodologySectionBloodSugarTitle => 'ब्लड शुगर';
+
+  @override
+  String get methodologySectionBuildMuscleDescription =>
+      'मांसपेशियाँ बनाना चाहने वाले सदस्यों के लिए हम कैलोरी के हिसाब से अच्छे प्रोटीन वाले उत्पाद बताते हैं। यह लक्ष्य कभी सावधानी या बचें नहीं जोड़ता। फ़ूड लॉग में, जिन वयस्कों का वज़न दर्ज है, उन्हें शरीर के वज़न के आधार पर रोज़ के प्रोटीन की एक गाइड दिखती है। अगर आपको किडनी की बीमारी है, तो ज़्यादा प्रोटीन खाने से पहले अपने डॉक्टर से पूछें।';
+
+  @override
+  String get methodologySectionBuildMuscleTitle => 'मांसपेशियाँ बनाना';
 
   @override
   String get methodologySectionChildDescription =>

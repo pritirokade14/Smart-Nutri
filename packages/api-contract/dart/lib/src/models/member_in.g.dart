@@ -82,6 +82,7 @@ const _$MemberInGoalEnumMap = {
   MemberInGoal.healthyEating: 'healthy_eating',
   MemberInGoal.weightLoss: 'weight_loss',
   MemberInGoal.weightGain: 'weight_gain',
+  MemberInGoal.buildMuscle: 'build_muscle',
   MemberInGoal.$unknown: r'$unknown',
 };
 

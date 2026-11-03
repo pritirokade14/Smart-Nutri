@@ -28,7 +28,7 @@ NewRelation = Literal["child", "parent", "spouse", "other"]
 DietIn = Literal["veg", "eggetarian", "vegan", "jain", "non_veg"]
 Sex = Literal["female", "male", "other"]
 ConditionIn = Literal["diabetes", "prediabetes", "pcos", "hypertension"]
-GoalIn = Literal["healthy_eating", "weight_loss", "weight_gain"]
+GoalIn = Literal["healthy_eating", "weight_loss", "weight_gain", "build_muscle"]
 CustomAlert = Literal[CUSTOM_ALERT_KEYS]  # type: ignore[valid-type]
 
 # Must equal the keys of app/scoring/data/allergens.yaml (tested).

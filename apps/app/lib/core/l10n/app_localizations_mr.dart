@@ -292,6 +292,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get compareTitle => 'तुलना करा';
 
   @override
+  String get conditionBuildMuscle => 'स्नायू बळकट करणे';
+
+  @override
   String get conditionDiabetes => 'मधुमेह (डायबेटिस)';
 
   @override
@@ -1224,6 +1227,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get membersFormWeightKg => 'वजन (किलो, ऐच्छिक)';
 
   @override
+  String get membersGoalBuildMuscle => 'स्नायू बळकट करणे';
+
+  @override
   String get membersGoalHealthyEating => 'चांगला आहार';
 
   @override
@@ -1305,6 +1311,13 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get methodologySectionBloodSugarTitle => 'रक्तातील साखर';
+
+  @override
+  String get methodologySectionBuildMuscleDescription =>
+      'स्नायू बळकट करू इच्छिणाऱ्या सदस्यांसाठी आम्ही कॅलरीच्या मानाने चांगले प्रथिन असलेली उत्पादने सांगतो. हे ध्येय कधीही सावधगिरी किंवा टाळा जोडत नाही. फूड लॉगमध्ये, ज्या प्रौढांचे वजन नोंदवले आहे त्यांना शरीराच्या वजनावर आधारित रोजच्या प्रथिनांचे मार्गदर्शन दिसते. तुम्हाला मूत्रपिंडाचा आजार असल्यास, जास्त प्रथिने खाण्यापूर्वी तुमच्या डॉक्टरांना विचारा.';
+
+  @override
+  String get methodologySectionBuildMuscleTitle => 'स्नायू बळकट करणे';
 
   @override
   String get methodologySectionChildDescription =>

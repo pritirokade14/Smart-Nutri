@@ -27,6 +27,11 @@ def sheet():
         (("daily_limits", "adult", "protein_g_per_kg"), "g per kg body weight per day"),
         (("daily_limits", "protein_min_age"), "years (minimum age)"),
         (
+            ("daily_limits", "protein_g_per_kg_by_goal", "build_muscle"),
+            "g per kg body weight per day",
+        ),
+        (("conditions", "build_muscle", "good_protein_g_per_100kcal"), "g per 100 kcal"),
+        (
             ("daily_limits", "child_salt_g_by_min_age", "4"),
             "g salt per day (key = minimum age in years)",
         ),
@@ -59,6 +64,22 @@ def test_daily_limit_questions(sheet):
     )
     assert sheet.question_of(("daily_limits", "infant", "salt_g")) == sheet.QUESTION_INFANT
     assert sheet.question_of(("daily_limits", "adult", "sugar_g")) == sheet.QUESTION_ADULT
+
+
+def test_build_muscle_protein_target_questions(sheet):
+    q = sheet.question_of(("daily_limits", "protein_g_per_kg_by_goal", "build_muscle"))
+    assert "Is 1.6 g/kg right" in q
+    assert "diabetes or hypertension" in q
+    assert "kidney" in q
+    assert "If you have kidney disease, ask your doctor before eating more protein." in q
+    assert "1.2 g/kg" in q
+    row = next(
+        line
+        for line in sheet.render().splitlines()
+        if "`daily_limits.protein_g_per_kg_by_goal.build_muscle`" in line
+    )
+    assert "| 1.6 | g per kg body weight per day |" in row
+    assert "ISSN position stand" in row and "kidney" in row
 
 
 # --- S4: each row cites the sources of ITS number, not every source of its section ---------
@@ -95,6 +116,11 @@ def test_infant_per_100g_values_are_ours_with_who_as_the_reason(sheet, meta, lea
         (("daily_limits", "adult", "sugar_g"), ["who_free_sugars"]),
         (("daily_limits", "adult", "salt_g"), ["who_sodium"]),
         (("daily_limits", "adult", "protein_g_per_kg"), ["who_protein_2007"]),
+        (("daily_limits", "protein_g_per_kg_by_goal", "build_muscle"), ["issn_protein_2017"]),
+        (
+            ("conditions", "build_muscle", "good_protein_g_per_100kcal"),
+            ["smartnutri_working_values"],
+        ),
         (("daily_limits", "child_salt_g_by_min_age", "4"), ["nhs_child_salt"]),
         (("daily_limits", "near_pct"), ["smartnutri_working_values"]),
         (("conditions", "blood_sugar", "avoid_sugars_g", "food"), ["uk_fsa_front_of_pack"]),

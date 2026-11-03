@@ -87,6 +87,8 @@ def section_of(path: tuple[str, ...]) -> str | None:
 def daily_unit_of(path: tuple[str, ...]) -> str:
     """Units for `daily_limits.*`: amounts per DAY (food-log totals), never per 100 g."""
     leaf = path[-1]
+    if path[1] == "protein_g_per_kg_by_goal":
+        return "g per kg body weight per day"
     if path[1] == "child_salt_g_by_min_age":
         return "g salt per day (key = minimum age in years)"
     if leaf == "protein_g_per_kg":
@@ -127,7 +129,20 @@ def unit_of(path: tuple[str, ...]) -> str:
     return ""
 
 
+# Row-specific questions (Plan 9), checked before the age-group defaults.
+QUESTIONS_BY_PATH: dict[tuple[str, ...], str] = {
+    ("daily_limits", "protein_g_per_kg_by_goal", "build_muscle"): (
+        "Is 1.6 g/kg right as a daily protein guide for adults who want to build muscle? "
+        "Should members with diabetes or hypertension keep it? There is no kidney field. The "
+        'copy says "If you have kidney disease, ask your doctor before eating more '
+        'protein." Is that enough? Should weight loss get 1.2 g/kg (it now keeps 0.83 g/kg)?'
+    ),
+}
+
+
 def question_of(path: tuple[str, ...]) -> str:
+    if path in QUESTIONS_BY_PATH:
+        return QUESTIONS_BY_PATH[path]
     if "infant" in path:
         return QUESTION_INFANT
     if "child" in path or any(p.startswith("child_") for p in path):
@@ -166,6 +181,9 @@ KEY_SOURCES: dict[tuple[str, ...], tuple[list[str], list[str]]] = {
     ("daily_limits", "adult", "salt_g"): (["who_sodium"], []),
     ("daily_limits", "adult", "protein_g_per_kg"): (["who_protein_2007"], []),
     ("daily_limits", "protein_min_age"): ([_SMARTNUTRI], ["who_protein_2007"]),
+    # Build muscle (Plan 9): 1.6 g/kg is ISSN's; the 5 g per 100 kcal density is ours.
+    ("daily_limits", "protein_g_per_kg_by_goal"): (["issn_protein_2017"], []),
+    ("conditions", "build_muscle"): ([_SMARTNUTRI], ["issn_protein_2017"]),
     ("daily_limits", "child_salt_g_by_min_age"): (["nhs_child_salt"], []),
     ("daily_limits", "infant"): (["who_infant"], []),  # 0 g: no added sugar or salt under 2
     ("daily_limits", "near_pct"): ([_SMARTNUTRI], []),

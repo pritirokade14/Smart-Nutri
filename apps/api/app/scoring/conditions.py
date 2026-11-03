@@ -304,6 +304,21 @@ def condition_reasons(
                     )
                 )
 
+    # A goal is a preference (Ruling R34): build_muscle may add the OK-level
+    # good_protein_density only. No caution, no avoid and no nutrient_missing: a missing or
+    # untrusted (low-confidence) value simply adds nothing, so the status never changes.
+    if "build_muscle" in groups and not low_confidence:
+        c = cond["build_muscle"]
+        kcal, protein = n.energy_kcal, n.protein_g
+        if kcal and protein is not None:
+            density = protein / kcal * 100
+            if density >= c["good_protein_g_per_100kcal"]:
+                out.append(
+                    Reason(
+                        "good_protein_density", Status.OK, {"protein_g_per_100kcal": _r(density)}
+                    )
+                )
+
     if "child" in groups and member.age is not None:
         out += _child_reasons(product, member.age, cond["child"], cfg, need)
 

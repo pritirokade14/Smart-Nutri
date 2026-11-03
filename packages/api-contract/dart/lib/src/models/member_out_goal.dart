@@ -12,6 +12,8 @@ enum MemberOutGoal {
   weightLoss('weight_loss'),
   @JsonValue('weight_gain')
   weightGain('weight_gain'),
+  @JsonValue('build_muscle')
+  buildMuscle('build_muscle'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

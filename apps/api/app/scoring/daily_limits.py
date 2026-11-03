@@ -21,7 +21,8 @@ Band = Literal["ok", "near", "over", "unknown"]
 class DailyLimits:
     sugar_g: float | None  # free/added-sugar limit (adult WHO 25 g; child and infant bands)
     salt_g: float | None
-    # weight_kg x protein_g_per_kg for adults only; None without a weight or below the adult age
+    # weight_kg x the goal's g/kg (protein_g_per_kg_by_goal, else adult.protein_g_per_kg) for
+    # adults only; None without a weight or below the adult age. A guide, never a verdict input.
     protein_target_g: float | None
     kcal: None = None  # informational only in v1: no personal energy target
 
@@ -41,7 +42,9 @@ def daily_limits_for(
     ``age=None`` gets adult sugar and salt limits: the summary is information, and the verdicts
     already treat an unknown age protectively (``age_unknown``). The protein target is the
     ADULT safe level, so it needs a weight AND a known age of at least
-    ``daily_limits.protein_min_age``; anyone younger, or of unknown age, gets None.
+    ``daily_limits.protein_min_age``; anyone younger, or of unknown age, gets None. The g/kg
+    comes from ``daily_limits.protein_g_per_kg_by_goal`` for the member's goal (e.g.
+    ``build_muscle``), else ``adult.protein_g_per_kg``.
     """
     if cfg is None:
         cfg = load_config()
@@ -61,7 +64,9 @@ def daily_limits_for(
     protein = None
     is_adult = age is not None and age >= dl["protein_min_age"]
     if is_adult and weight_kg is not None and weight_kg > 0:
-        protein = weight_kg * adult["protein_g_per_kg"]
+        by_goal = dl.get("protein_g_per_kg_by_goal") or {}
+        per_kg = by_goal.get(member.goal, adult["protein_g_per_kg"])
+        protein = weight_kg * per_kg
     return DailyLimits(sugar_g=sugar, salt_g=salt, protein_target_g=protein, kcal=None)
 
 

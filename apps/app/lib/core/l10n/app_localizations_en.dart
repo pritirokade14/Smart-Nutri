@@ -289,6 +289,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compareTitle => 'Compare';
 
   @override
+  String get conditionBuildMuscle => 'Build muscle';
+
+  @override
   String get conditionDiabetes => 'Diabetes';
 
   @override
@@ -1220,6 +1223,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersFormWeightKg => 'Weight (kg, optional)';
 
   @override
+  String get membersGoalBuildMuscle => 'Build muscle';
+
+  @override
   String get membersGoalHealthyEating => 'Eat better';
 
   @override
@@ -1301,6 +1307,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodologySectionBloodSugarTitle => 'Blood sugar';
+
+  @override
+  String get methodologySectionBuildMuscleDescription =>
+      'For members who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein.';
+
+  @override
+  String get methodologySectionBuildMuscleTitle => 'Build muscle';
 
   @override
   String get methodologySectionChildDescription =>
