@@ -9,7 +9,9 @@ normaliser (`to_draft`):
   drafts/<case>.json    the `ProductDraft` exactly as `POST /v1/scans/label` returns it in
                         `draft` (including the server-computed `confirm` hints)
   drafts/expected.json  per case, scripted user actions -> the exact `ProductCreate` body a
-                        client must send -> the server's result (stored values or the 422)
+                        client must send -> the server's result (stored values or the 422).
+                        An edit counts as a confirmation (R23). `"client_blocks": true` marks a
+                        save the client must refuse to send (serving_required, serving unconfirmed)
 
 Results come from `products.service.stored_values`, the function `POST /v1/products` runs;
 tests/api/products/test_draft_fixture_saves.py posts every body end to end and checks the
@@ -149,6 +151,8 @@ CASES: dict[str, Case] = {
                 **_TICK_SERVING,
             },
             {"pick_basis": "per_serving", "edit": {"serving_size_g": 30.0}},
+            {"pick_basis": "per_serving"},
+            {},
         ],
     ),
     "derived_basis_mismatch": Case(
@@ -180,7 +184,7 @@ CASES: dict[str, Case] = {
     "upper_bound_protein_per_100g": Case(
         'Protein printed as "<0.5 g": stored only when ticked.',
         _ex(per_100g=_n(_V, protein_g=0.5), upper_bound_fields=["per_100g.protein_g"]),
-        [{"tick": ["protein_g"]}, {}],
+        [{"tick": ["protein_g"]}, {"edit": {"protein_g": 0.4}}, {}],
     ),
     "upper_bound_protein_per_serving": Case(
         'Protein "<0.5 g" on the per-serving column: asked whichever column is saved (R19).',
@@ -261,6 +265,22 @@ def source_column(draft: ProductDraft, basis: str | None) -> dict[str, float | N
     return {k: (getattr(column, k) if column is not None else None) for k in NUTRIENT_KEYS}
 
 
+def _column(draft: ProductDraft, basis: str | None) -> Any:
+    """The `ColumnConfirm` of the chosen basis (None when no basis is picked yet)."""
+    return getattr(draft.confirm.columns, basis) if basis is not None else None
+
+
+def client_blocks(draft: ProductDraft, body: dict[str, Any]) -> bool:
+    """R23(b): the client keeps save disabled while the chosen column's `serving_required`
+    is true and the serving size is not confirmed (ticked or edited)."""
+    column = _column(draft, body.get("basis"))
+    return bool(
+        column is not None
+        and column.serving_required
+        and "serving_size_g" not in body["confirmed_fields"]
+    )
+
+
 def build_body(draft: ProductDraft, actions: dict[str, Any]) -> dict[str, Any]:
     """The `ProductCreate` body (without `scan_id`) after the user's scripted actions."""
     unknown = set(actions) - ACTION_KEYS
@@ -283,6 +303,11 @@ def build_body(draft: ProductDraft, actions: dict[str, Any]) -> dict[str, Any]:
     tick = set(actions.get("tick", []))
     if tick - set(CONFIRMABLE_FIELDS):
         raise ValueError(f"unknown tick fields: {sorted(tick - set(CONFIRMABLE_FIELDS))}")
+    # R23(a): an edit is a confirmation. Editing a field the chosen column asks to confirm, or
+    # typing/editing the serving size at all, confirms it without a tick.
+    asked = set(column_hints.confirm_fields) if (column_hints := _column(draft, basis)) else set()
+    edited_user_fields = {f for f in actions.get("edit", {}) if f in asked | {"serving_size_g"}}
+    confirmed = tick | edited_user_fields
     body: dict[str, Any] = {
         "name": draft.name,
         "brand": draft.brand,
@@ -294,7 +319,7 @@ def build_body(draft: ProductDraft, actions: dict[str, Any]) -> dict[str, Any]:
         "may_contain_statement": draft.may_contain_statement,
         "claims": list(draft.claims),
         "veg_mark": draft.veg_mark,
-        "confirmed_fields": [f for f in CONFIRMABLE_FIELDS if f in tick],
+        "confirmed_fields": [f for f in CONFIRMABLE_FIELDS if f in confirmed],
     }
     if basis is not None:
         body["basis"] = basis
@@ -343,7 +368,10 @@ def compute() -> dict[str, str]:
         saves = []
         for actions in case.saves:
             body = build_body(draft, actions)
-            saves.append({"actions": actions, "body": body, "result": save_result(draft, body)})
+            save = {"actions": actions, "body": body, "result": save_result(draft, body)}
+            if client_blocks(draft, body):
+                save["client_blocks"] = True
+            saves.append(save)
         expected[name] = {
             "description": case.description,
             "draft": f"{name}.json",

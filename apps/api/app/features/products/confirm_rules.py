@@ -89,6 +89,14 @@ class ColumnConfirm(BaseModel):
             "(never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`."
         )
     )
+    serving_required: bool = Field(
+        description=(
+            "Saving this basis stores nutrient values only with a confirmed `serving_size_g` "
+            "(`needs_serving_confirmation`, R19): keep save disabled until the serving size "
+            "is confirmed (ticked or edited). Server-side, an unconfirmed serving still "
+            "stores every nutrient as null."
+        )
+    )
 
 
 class ConfirmColumns(BaseModel):
@@ -187,6 +195,7 @@ def column_confirm(draft: DraftFacts, basis: Basis) -> ColumnConfirm:
         shared=basis_required(draft) and is_printed and not printed(draft, other),
         confirm_fields=confirm_fields(draft, basis),  # type: ignore[arg-type]
         sodium_unit_required=sodium_unit_unconfirmed(draft),
+        serving_required=needs_serving_confirmation(draft, basis),
     )
 
 

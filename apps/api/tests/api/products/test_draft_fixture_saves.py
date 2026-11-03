@@ -183,7 +183,8 @@ async def test_ignoring_the_hints_never_stores_a_guess(auth_client, db_session, 
         return
     assert r.status_code == 201, r.text
     hinted = set(hints.confirm_fields)
-    serving_hinted = "serving_size_g" in hinted
+    # R23(a): typing the serving size (a per-serving save without a readable one) confirms it.
+    serving_hinted = "serving_size_g" in hinted and "serving_size_g" not in body["confirmed_fields"]
     assert rec.serving_size_g == (None if serving_hinted else body["serving_size_g"])
     if all(v is None for v in rec.per_100g.values()):
         # Nothing stored: only allowed when an unticked serving size gates every value.
@@ -191,7 +192,42 @@ async def test_ignoring_the_hints_never_stores_a_guess(auth_client, db_session, 
         return
     honest = _honest(body)
     for field, value in rec.per_100g.items():
-        assert value == (None if field in hinted else honest[field]), field
+        unconfirmed = field in hinted and field not in body["confirmed_fields"]
+        assert value == (None if unconfirmed else honest[field]), field
+
+
+SERVING_REQUIRED = [
+    p
+    for p in CASE_BASES
+    if getattr(_draft(p.values[0]).confirm.columns, p.values[1]).serving_required
+]
+
+
+@pytest.mark.parametrize(("name", "basis"), SERVING_REQUIRED)
+async def test_serving_required_without_a_confirmed_serving_stores_no_nutrient(
+    auth_client, db_session, name, basis
+):
+    """R23(b): `serving_required` means nutrient values are stored only with a confirmed
+    serving size. Everything else is answered; the serving is neither ticked nor edited."""
+    draft = _draft(name)
+    hints = getattr(draft.confirm.columns, basis)
+    actions: dict[str, Any] = {
+        "pick_basis": basis,
+        "pick_category": draft.category,
+        "tick": [f for f in hints.confirm_fields if f != "serving_size_g"],
+        "edit": {k: v for k, v in _fix_implausible(draft).items() if k != "serving_size_g"},
+    }
+    if hints.sodium_unit_required:
+        actions["sodium_unit"] = "mg"
+    body = build_body(draft, actions)
+    assert "serving_size_g" not in body["confirmed_fields"]
+    r, rec = await _post(auth_client, db_session, name, body)
+    if r.status_code == 422:  # per serving with no readable serving: nothing to convert with
+        assert r.json()["error"]["details"]["fields"] == ["body.serving_size_g"]
+        return
+    assert r.status_code == 201, r.text
+    assert all(v is None for v in rec.per_100g.values())
+    assert rec.serving_size_g is None
 
 
 @pytest.mark.parametrize("name", [n for n in sorted(CASES) if _draft(n).confirm.basis_required])

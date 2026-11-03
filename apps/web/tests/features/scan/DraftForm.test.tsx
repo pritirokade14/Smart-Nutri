@@ -164,6 +164,7 @@ describe("DraftForm: confirm boxes come only from draft.confirm", () => {
       printed: true,
       shared: false,
       sodium_unit_required: false,
+      serving_required: false,
       confirm_fields: ["protein_g" as const, "serving_size_g" as const],
     };
     const draft: ProductDraft = {

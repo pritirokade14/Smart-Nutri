@@ -74,17 +74,22 @@ Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `der
 Column = {"printed": bool,            # the draft column of this name holds printed values
           "shared": bool,             # only printed column on a basis mismatch: show it for either basis
           "confirm_fields": [...],    # need an explicit tick when saving with this basis
-          "sodium_unit_required": bool}  # show a mg/g picker; send its value when sodium is not null
+          "sodium_unit_required": bool,  # show a mg/g picker; send its value when sodium is not null
+          "serving_required": bool}   # nutrients are stored only with a confirmed serving: keep save disabled until it is (R23)
 ```
+
+`serving_required` equals `needs_serving_confirmation(draft, basis)`, the helper `POST /v1/products` enforces with (a per-serving save, or any save of a derived draft). The server still accepts an unconfirmed serving and then stores every nutrient as null; the clients must not send it.
 
 **`expected.json` case:** `{"description", "draft": "<case>.json", "extraction": <raw NutritionExtraction>, "saves": [{"actions", "body", "result"}]}`.
 
-- `actions` (all optional): `pick_basis` (`per_100g`/`per_serving`), `pick_category`, `tick` (list of confirm fields), `sodium_unit` (`mg`/`g`), `edit` (`{field: number|null}` on the shown column, or `serving_size_g`). `{}` means the user changed nothing and pressed save.
+- `actions` (all optional): `pick_basis` (`per_100g`/`per_serving`), `pick_category`, `tick` (list of confirm fields), `sodium_unit` (`mg`/`g`), `edit` (`{field: number|null}` on the shown column, or `serving_size_g`). `{}` means the user changed nothing and pressed save: every case keeps one, the "unconfirmed -> stored null" control.
+- **Edit = confirm (R23).** The client adds a field to `confirmed_fields` when the user ticks its box OR edits its value. Editing a field in the chosen column's `confirm_fields`, or ANY edit of `serving_size_g` (typing it when unreadable, or changing it), confirms it with no tick. Editing a field the column does not ask about confirms nothing.
+- **`client_blocks`.** A save carries `"client_blocks": true` when the chosen column has `serving_required` and `serving_size_g` is not in `confirmed_fields`. The client keeps save disabled and must never send it; the recorded `result` is only what the server would do if it did (nulls, or 422 `body.serving_size_g`). The key is absent otherwise. A save with no basis chosen is not marked (the missing basis is the block).
 - `body` is the `POST /v1/products` body **without `scan_id`** (the client adds it; `barcode` is not sent). Built by this algorithm, which both clients implement:
   1. `basis` = `pick_basis`; else, when `basis_required` is false, the only non-null column; else omitted.
   2. `nutrients` (the nine engine fields plus `added_sugars_g`, `trans_fat_g`) = the draft column named by `basis` if that column is `printed`, else the `shared` column, else all null (with no basis: the shared column, else the first printed one); then `edit`.
   3. `category` = `pick_category`; else the draft's category when `category_required` is false; else omitted.
-  4. `sodium_unit` = the action or null. `serving_size_g` = the edit or the draft's. `confirmed_fields` = `tick` in contract order (engine fields, then `serving_size_g`).
+  4. `sodium_unit` = the action or null. `serving_size_g` = the edit or the draft's. `confirmed_fields` = `tick` plus the edit-confirmed fields (R23), in contract order (engine fields, then `serving_size_g`).
   5. `name`, `brand`, `ingredients`, `allergen_statement`, `may_contain_statement`, `claims`, `veg_mark` copied from the draft.
 - `result` is either `{"status": 201, "stored": {"category", "extraction_confidence", "per_100g": {11 fields}, "serving_size_g"}}` (values stored by the server, unrounded) or `{"status": 422, "error": {"code", "fields"}}` (`details.fields` of the error envelope, e.g. `["body.basis"]`, `["body.sodium_unit"]`, or `["carbs_g", "sugars_g"]` for `implausible_value`).
 

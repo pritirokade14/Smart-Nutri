@@ -11,6 +11,7 @@
       "per_100g": {
         "confirm_fields": [],
         "printed": true,
+        "serving_required": false,
         "shared": false,
         "sodium_unit_required": true
       },

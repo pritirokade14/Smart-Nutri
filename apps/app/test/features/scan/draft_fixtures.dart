@@ -66,6 +66,7 @@ Map<String, Object?> baseDraftJson() => {
         'shared': false,
         'confirm_fields': <String>[],
         'sodium_unit_required': false,
+        'serving_required': false,
       },
       'per_serving': null,
     },

@@ -12,6 +12,7 @@ ColumnConfirm _$ColumnConfirmFromJson(Map<String, dynamic> json) =>
           .map((e) => ColumnConfirmConfirmFields.fromJson(e as String))
           .toList(),
       printed: json['printed'] as bool,
+      servingRequired: json['serving_required'] as bool,
       shared: json['shared'] as bool,
       sodiumUnitRequired: json['sodium_unit_required'] as bool,
     );
@@ -22,6 +23,7 @@ Map<String, dynamic> _$ColumnConfirmToJson(ColumnConfirm instance) =>
           .map((e) => _$ColumnConfirmConfirmFieldsEnumMap[e]!)
           .toList(),
       'printed': instance.printed,
+      'serving_required': instance.servingRequired,
       'shared': instance.shared,
       'sodium_unit_required': instance.sodiumUnitRequired,
     };

@@ -13,6 +13,7 @@
           "protein_g"
         ],
         "printed": true,
+        "serving_required": false,
         "shared": false,
         "sodium_unit_required": false
       },

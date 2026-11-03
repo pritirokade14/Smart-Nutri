@@ -218,6 +218,11 @@ export interface components {
              */
             printed: boolean;
             /**
+             * Serving Required
+             * @description Saving this basis stores nutrient values only with a confirmed `serving_size_g` (`needs_serving_confirmation`, R19): keep save disabled until the serving size is confirmed (ticked or edited). Server-side, an unconfirmed serving still stores every nutrient as null.
+             */
+            serving_required: boolean;
+            /**
              * Shared
              * @description On a `basis_mismatch` draft, this is the only printed column: show its values whichever basis the user picks (its basis is the doubt).
              */

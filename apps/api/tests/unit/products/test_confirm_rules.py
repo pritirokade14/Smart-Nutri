@@ -67,12 +67,14 @@ def col(
     shared: bool = False,
     confirm_fields: list[str] | None = None,
     sodium_unit_required: bool = False,
+    serving_required: bool = False,
 ) -> ColumnConfirm:
     return ColumnConfirm(
         printed=printed,
         shared=shared,
         confirm_fields=confirm_fields or [],
         sodium_unit_required=sodium_unit_required,
+        serving_required=serving_required,
     )
 
 
@@ -118,7 +120,7 @@ def test_basis_mismatch_both_columns_printed():
     assert "basis_mismatch" in d.warnings
     assert d.confirm == hints(
         col(confirm_fields=["serving_size_g"]),
-        col(confirm_fields=["serving_size_g"]),
+        col(confirm_fields=["serving_size_g"], serving_required=True),
         basis=True,
     )
 
@@ -130,7 +132,7 @@ def test_basis_mismatch_one_column_is_shared():
     assert "basis_mismatch" in d.warnings and not d.derived_from_serving
     assert d.confirm == hints(
         col(shared=True, confirm_fields=["serving_size_g"]),
-        col(printed=False, confirm_fields=["serving_size_g"]),
+        col(printed=False, confirm_fields=["serving_size_g"], serving_required=True),
         basis=True,
     )
 
@@ -138,7 +140,9 @@ def test_basis_mismatch_one_column_is_shared():
 def test_basis_mismatch_without_a_serving_needs_one_only_for_per_serving():
     d = to_draft(ex(basis_detected="per_serving"))
     assert d.confirm == hints(
-        col(shared=True), col(printed=False, confirm_fields=["serving_size_g"]), basis=True
+        col(shared=True),
+        col(printed=False, confirm_fields=["serving_size_g"], serving_required=True),
+        basis=True,
     )
 
 
@@ -147,7 +151,7 @@ def test_derived_from_serving_offers_only_the_serving_column():
         ex(basis_detected="per_serving", per_100g=None, per_serving=n(), serving_size_g=30)
     )
     assert d.derived_from_serving and "basis_mismatch" not in d.warnings
-    assert d.confirm == hints(None, col(confirm_fields=["serving_size_g"]))
+    assert d.confirm == hints(None, col(confirm_fields=["serving_size_g"], serving_required=True))
 
 
 def test_derived_with_basis_mismatch_shares_the_serving_column():
@@ -156,8 +160,8 @@ def test_derived_with_basis_mismatch_shares_the_serving_column():
     d = to_draft(ex(basis_detected="per_100g", per_100g=None, per_serving=n(), serving_size_g=30))
     assert d.derived_from_serving and "basis_mismatch" in d.warnings
     assert d.confirm == hints(
-        col(printed=False, confirm_fields=["serving_size_g"]),
-        col(shared=True, confirm_fields=["serving_size_g"]),
+        col(printed=False, confirm_fields=["serving_size_g"], serving_required=True),
+        col(shared=True, confirm_fields=["serving_size_g"], serving_required=True),
         basis=True,
     )
 
@@ -174,8 +178,11 @@ def test_unit_unconfirmed_sodium_on_the_other_column_still_needs_the_unit():
     d = to_draft(ex(per_serving=n(sodium_unit=None, sodium_mg=0.06), serving_size_g=30))
     assert "unit_unconfirmed:per_serving.sodium_mg" in d.warnings
     # Both columns are printed, so both are offered (R22); the basis is not in doubt.
-    both = col(confirm_fields=["serving_size_g"], sodium_unit_required=True)
-    assert d.confirm == hints(both, both)
+    per_100g = col(confirm_fields=["serving_size_g"], sodium_unit_required=True)
+    per_serving = col(
+        confirm_fields=["serving_size_g"], sodium_unit_required=True, serving_required=True
+    )
+    assert d.confirm == hints(per_100g, per_serving)
 
 
 def test_upper_bound_protein_on_per_100g():
@@ -192,8 +199,10 @@ def test_upper_bound_protein_on_the_other_column_is_asked_too():
             upper_bound_fields=["per_serving.protein_g", "per_100g.fiber_g"],
         )
     )
-    both = col(confirm_fields=["protein_g", "fiber_g", "serving_size_g"])
-    assert d.confirm == hints(both, both)
+    fields = ["protein_g", "fiber_g", "serving_size_g"]
+    assert d.confirm == hints(
+        col(confirm_fields=fields), col(confirm_fields=fields, serving_required=True)
+    )
 
 
 def test_upper_bound_on_a_non_engine_doubt_field_is_not_asked():
@@ -232,7 +241,9 @@ def test_empty_draft_offers_both_unprinted_columns_and_requires_a_basis():
     d = to_draft(ex(per_100g=None))
     assert "per_100g_missing" in d.warnings
     assert d.confirm == hints(
-        col(printed=False), col(printed=False, confirm_fields=["serving_size_g"]), basis=True
+        col(printed=False),
+        col(printed=False, confirm_fields=["serving_size_g"], serving_required=True),
+        basis=True,
     )
 
 
@@ -324,7 +335,9 @@ def test_no_printed_column_offers_both_and_requires_a_basis():
     d = to_draft(ex(per_100g=None, per_serving=None))
     assert d.confirm.basis_required is True
     assert d.confirm.columns.per_100g == col(printed=False)
-    assert d.confirm.columns.per_serving == col(printed=False, confirm_fields=["serving_size_g"])
+    assert d.confirm.columns.per_serving == col(
+        printed=False, confirm_fields=["serving_size_g"], serving_required=True
+    )
 
 
 def test_both_columns_printed_without_a_mismatch_offers_both_with_a_preselectable_basis():
@@ -333,3 +346,19 @@ def test_both_columns_printed_without_a_mismatch_offers_both_with_a_preselectabl
     assert d.confirm.basis_required is False
     assert d.confirm.columns.per_100g is not None and d.confirm.columns.per_100g.printed
     assert d.confirm.columns.per_serving is not None and d.confirm.columns.per_serving.printed
+
+
+@pytest.mark.parametrize("derived", [False, True])
+@pytest.mark.parametrize("basis", ["per_100g", "per_serving"])
+def test_serving_required_is_the_enforcement_helper(derived, basis):
+    """R23(b): the hint is `needs_serving_confirmation` itself, per column."""
+    if derived:
+        d = to_draft(
+            ex(basis_detected="per_serving", per_100g=None, per_serving=n(), serving_size_g=30)
+        )
+    else:
+        d = to_draft(ex(basis_detected="unknown", per_serving=n(), serving_size_g=30))
+    column = getattr(d.confirm.columns, basis)
+    if column is not None:
+        assert column.serving_required is needs_serving_confirmation(d, basis)
+    assert needs_serving_confirmation(d, basis) is (derived or basis == "per_serving")

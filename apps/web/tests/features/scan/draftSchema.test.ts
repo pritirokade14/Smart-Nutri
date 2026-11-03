@@ -173,6 +173,7 @@ describe("isDraftConfirm (draft.confirm, R21)", () => {
     printed: true,
     shared: false,
     sodium_unit_required: false,
+    serving_required: false,
     confirm_fields: ["protein_g", "serving_size_g"],
   };
   const ok = {

@@ -13,6 +13,7 @@
           "serving_size_g"
         ],
         "printed": true,
+        "serving_required": false,
         "shared": true,
         "sodium_unit_required": false
       },
@@ -21,6 +22,7 @@
           "serving_size_g"
         ],
         "printed": false,
+        "serving_required": true,
         "shared": false,
         "sodium_unit_required": false
       }
