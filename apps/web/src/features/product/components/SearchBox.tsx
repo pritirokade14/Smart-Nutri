@@ -21,12 +21,13 @@ import { useSearch } from "../hooks/useProducts";
 /**
  * Product search (ours first, then Open Food Facts). Each hit links to its
  * result page, or wherever `hrefFor` says (e.g. as the second product of a
- * comparison). Queries under 2 letters never reach the API.
+ * comparison). Queries under 3 letters never reach the API; typing waits 600 ms,
+ * and Enter searches at once.
  */
 export function SearchBox({
   hrefFor,
   label,
-  debounceMs = 300,
+  debounceMs = 600,
 }: {
   hrefFor?: (hit: SearchHit) => string | null;
   /** Visible label; defaults to "Search products". */
@@ -136,6 +137,12 @@ export function SearchBox({
           placeholder={t("search.placeholder")}
           value={raw}
           onChange={(e) => setRaw(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              setQ(raw.trim());
+            }
+          }}
           className={inputClass}
         />
       </div>

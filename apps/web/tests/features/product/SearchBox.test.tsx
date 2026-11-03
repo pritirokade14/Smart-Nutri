@@ -62,12 +62,31 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("SearchBox", () => {
-  it("under 2 letters: a hint and no request", async () => {
+  it("under 3 letters: a hint and no request", async () => {
     const api = apiStub(fetchMock).on("GET", "/v1/products/search", HITS);
     view();
-    await userEvent.setup().type(screen.getByLabelText(en.search.title), "p");
+    await userEvent.setup().type(screen.getByLabelText(en.search.title), "pa");
     expect(await screen.findByText(en.search.too_short)).toBeTruthy();
     expect(api.callsTo("GET", "/v1/products/search")).toHaveLength(0);
+  });
+
+  it("default debounce is 600 ms and Enter searches at once", async () => {
+    const api = apiStub(fetchMock).on("GET", "/v1/products/search", HITS);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <NextIntlClientProvider locale="en" messages={clientMessages(en)}>
+          <SearchBox />
+        </NextIntlClientProvider>
+      </QueryClientProvider>,
+    );
+    const input = screen.getByLabelText(en.search.title);
+    const user = userEvent.setup();
+    await user.type(input, "par");
+    await new Promise((r) => setTimeout(r, 300));
+    expect(api.callsTo("GET", "/v1/products/search")).toHaveLength(0);
+    await user.type(input, "{Enter}");
+    expect((await screen.findAllByTestId("search-hit")).length).toBe(2);
+    expect(api.callsTo("GET", "/v1/products/search")).toHaveLength(1);
   });
 
   it("results: name, brand, grade, source, links, and the OFF credit", async () => {
@@ -75,12 +94,12 @@ describe("SearchBox", () => {
     view();
     await userEvent
       .setup()
-      .type(screen.getByLabelText(en.search.title), "  pa ");
+      .type(screen.getByLabelText(en.search.title), "  par ");
     const rows = await screen.findAllByTestId("search-hit");
     expect(rows).toHaveLength(2);
     expect(
       api.callsTo("GET", "/v1/products/search").at(-1)?.query.get("q"),
-    ).toBe("pa");
+    ).toBe("par");
     expect(
       within(rows[0])
         .getByRole("link", { name: /Masala Oats/ })
@@ -104,7 +123,7 @@ describe("SearchBox", () => {
   it("compare mode: each hit links where the caller says", async () => {
     apiStub(fetchMock).on("GET", "/v1/products/search", HITS);
     view({ hrefFor: (h) => `/en/compare?b_barcode=${h.barcode ?? "x"}` });
-    await userEvent.setup().type(screen.getByLabelText(en.search.title), "pa");
+    await userEvent.setup().type(screen.getByLabelText(en.search.title), "par");
     const rows = await screen.findAllByTestId("search-hit");
     expect(within(rows[1]).getByRole("link").getAttribute("href")).toBe(
       "/en/compare?b_barcode=8901063201089",
@@ -125,7 +144,7 @@ describe("SearchBox", () => {
       json(429, envelope("rate_limited")),
     );
     view();
-    await userEvent.setup().type(screen.getByLabelText(en.search.title), "pa");
+    await userEvent.setup().type(screen.getByLabelText(en.search.title), "par");
     expect(await screen.findByText(en.error.rate_limited)).toBeTruthy();
   });
 });

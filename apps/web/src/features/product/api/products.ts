@@ -47,7 +47,7 @@ export function getAlternatives(
       );
 }
 
-export const SEARCH_MIN = 2;
+export const SEARCH_MIN = 3;
 export const SEARCH_MAX = 80;
 
 export function searchProducts(q: string, limit = 20): Promise<SearchHit[]> {
