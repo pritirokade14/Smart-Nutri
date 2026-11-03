@@ -14,13 +14,14 @@ import pytest
 from pydantic import BaseModel
 from sqlalchemy import text
 
-from app.core.consent import REQUIRED, gate_for, member_gate_for
+from app.core.consent import REQUIRED, gate_for
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.consents.models import Consent
 from app.features.consents.policy import CURRENT_VERSIONS
 from app.features.me.service import ensure_account
 from app.features.members.models import Member
+from app.features.products.router import search_consent_gate, search_loads_member
 from app.main import CONSENT_GATES, PRE_GATE_DEPENDENCIES
 from scripts.export_fixture_responses import fixture_product_record
 from tests.api.routes import api_routes
@@ -298,23 +299,57 @@ def test_product_routes_gated_exactly_as_listed(app):
     assert gated == PRODUCT_GATES
 
 
-def test_search_gate_applies_only_with_member_id(app):
-    member_gates = {member_gate_for(f): f for f in REQUIRED}
+def test_search_gate_is_the_conditional_gate(app):
     found = {}
     for route in api_routes(app):
-        hit = [member_gates[c] for c in route.calls() if c in member_gates]
-        if hit:
+        if search_consent_gate in route.calls():
             for method in route.methods:
-                found[(route.path, method)] = hit[0]
+                found[(route.path, method)] = "product_verdicts"
             assert not {gate_for(f) for f in REQUIRED} & route.calls(), route.path
-            assert route.top_level_calls()[0] is member_gate_for(hit[0]), route.path
+            assert route.top_level_calls()[0] is search_consent_gate, route.path
     assert found == PRODUCT_MEMBER_GATES
+
+
+def test_search_loads_member_predicate():
+    from app.features.products.schemas import SearchSort
+
+    assert not search_loads_member(None, SearchSort.RELEVANCE)
+    assert search_loads_member(uuid4(), SearchSort.RELEVANCE)
+    assert search_loads_member(None, SearchSort.PROTEIN)
+
+
+def test_every_route_that_loads_a_member_is_gated(app):
+    """Explicit member id or the primary member: any handler calling `_member_or_primary`
+    (or reading the primary member) must carry a gate or the conditional search gate."""
+    import inspect
+
+    gates = {gate_for(f) for f in REQUIRED} | {search_consent_gate}
+    seen = 0
+    for route in api_routes(app):
+        src = inspect.getsource(route.dependant.call)
+        # Managing the member profile itself stays open (see MEMBER_ROUTES_WITHOUT_GATE).
+        if route.path.startswith(("/v1/members", "/v1/me")):
+            continue
+        if "_member_or_primary(" in src or "get_or_create_primary(" in src:
+            seen += 1
+            assert gates & route.calls(), f"{route.path} loads a member, no gate"
+    assert seen >= 1
 
 
 async def test_search_without_member_id_needs_no_consent(client, login, grant):
     await grant([])
     login()
     r = await client.get("/v1/products/search?q=biscuit")
+    assert r.status_code == 200, r.text
+
+
+async def test_search_protein_sort_without_member_id_needs_terms(client, login, grant):
+    await grant([])
+    login()
+    r = await client.get("/v1/products/search?q=biscuit&sort=protein")
+    assert _consent_error(r) == ["terms"]
+    await grant(["terms"])
+    r = await client.get("/v1/products/search?q=biscuit&sort=protein")
     assert r.status_code != 403, r.text
 
 
@@ -443,8 +478,7 @@ def test_every_route_taking_a_member_id_is_consent_gated(app):
             with_member.add(key)
             if key in MEMBER_ROUTES_WITHOUT_GATE:
                 continue
-            member_gates = {member_gate_for(f) for f in REQUIRED}
-            assert (gates | member_gates) & route.calls(), (
+            assert (gates | {search_consent_gate}) & route.calls(), (
                 f"{method} {route.path} takes a member id, no gate"
             )
     # The scan sees the routes it should (analyze body, voice form, meals and product queries).

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_app_settings
-from app.core.consent import CONSENT_RESPONSES, gate_for, member_gate_for
+from app.core.consent import CONSENT_RESPONSES, gate_for
 from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
 from app.core.ratelimit import limit
 from app.core.security import AccountContext, current_account
@@ -185,6 +185,36 @@ async def products_alternatives_by_barcode(
     )
 
 
+_SearchSortQuery = Annotated[
+    SearchSort,
+    Query(
+        description=(
+            "relevance: ours first, then Open Food Facts. protein: most protein per "
+            "100 kcal first (unknown last), never avoid for the member (member_id or the "
+            "primary member)"
+        )
+    ),
+]
+
+
+def search_loads_member(member_id: UUID | None, sort: SearchSort) -> bool:
+    """Whether a search loads a member (so returns rules-engine statuses for stored health
+    data): an explicit ``member_id``, or the primary member for ``sort=protein``. One predicate
+    for the consent gate and the handler, so they cannot drift apart."""
+    return member_id is not None or sort == SearchSort.PROTEIN
+
+
+async def search_consent_gate(
+    ctx: Annotated[AccountContext, Depends(current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    sort: _SearchSortQuery = SearchSort.RELEVANCE,
+    member_id: Annotated[UUID | None, Query()] = None,
+) -> None:
+    """`terms` consent, only when the search loads a member; plain search stays open."""
+    if search_loads_member(member_id, sort):
+        await gate_for("product_verdicts")(ctx, session)
+
+
 def search_query(
     q: Annotated[
         str,
@@ -224,12 +254,13 @@ def search_query(
         },
         **CONSENT_RESPONSES,
     },
-    # The consent gate first, only when member_id is given (hits then carry rules-engine
+    # The consent gate first, only when a member is loaded (member_id, or sort=protein: the
+    # primary member; hits then carry rules-engine
     # statuses for that member, like alternatives and compare: `terms`; plain search stays
     # open), then the query check (no quota for a too-short query), then limit(), which
     # commits.
     dependencies=[
-        Depends(member_gate_for("product_verdicts")),
+        Depends(search_consent_gate),
         Depends(search_query),
         Depends(limit("search")),
     ],
@@ -241,16 +272,7 @@ async def products_search(
     settings: Annotated[Settings, Depends(get_app_settings)],
     q: Annotated[str, Depends(search_query)],
     limit_: Annotated[int, Query(alias="limit", ge=1, le=50)] = 20,
-    sort: Annotated[
-        SearchSort,
-        Query(
-            description=(
-                "relevance: ours first, then Open Food Facts. protein: most protein per "
-                "100 kcal first (unknown last), never avoid for the member (member_id or the "
-                "primary member)"
-            )
-        ),
-    ] = SearchSort.RELEVANCE,
+    sort: _SearchSortQuery = SearchSort.RELEVANCE,
     member_id: Annotated[UUID | None, Query()] = None,
 ) -> list[SearchHit]:
     """Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.
@@ -266,7 +288,7 @@ async def products_search(
     account_id = current.account.id
     # The member first: a foreign member never reaches Open Food Facts.
     member = await _member_or_primary(
-        session, account_id, member_id, primary=sort == SearchSort.PROTEIN
+        session, account_id, member_id, primary=search_loads_member(member_id, sort)
     )
     scoring_member = to_scoring_member(member, today=today_ist()) if member is not None else None
     hits = await search.search_products(
