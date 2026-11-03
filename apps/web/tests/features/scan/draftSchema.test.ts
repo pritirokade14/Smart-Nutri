@@ -2,16 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   type DraftFormValues,
   draftSchema,
+  isDraftConfirm,
   NUTRIENT_FIELDS,
   type NumberInput,
   type NutrientField,
   parseNumberInput,
 } from "@/features/scan/lib/draftSchema";
-import {
-  highlightedFields,
-  parseWarning,
-  sodiumUnitUnconfirmed,
-} from "@/features/scan/lib/warnings";
+import { highlightedFields, parseWarning } from "@/features/scan/lib/warnings";
+import { draftCaseFiles, draftFile } from "../../support/drafts";
 
 function formWith(
   nutrients: Partial<Record<NutrientField, NumberInput>> = {},
@@ -168,16 +166,76 @@ describe("warnings", () => {
       ]),
     ]).toEqual(["sugars_g", "fat_g", "protein_g", "sodium_mg"]);
   });
+});
 
-  it("R19: a sodium unit warning on either column needs the unit picker", () => {
-    expect(
-      sodiumUnitUnconfirmed(["unit_unconfirmed:per_serving.sodium_mg"]),
-    ).toBe(true);
-    expect(sodiumUnitUnconfirmed(["unit_unconfirmed:per_100g.sodium_mg"])).toBe(
-      true,
+describe("isDraftConfirm (draft.confirm, R21)", () => {
+  const col = {
+    printed: true,
+    shared: false,
+    sodium_unit_required: false,
+    confirm_fields: ["protein_g", "serving_size_g"],
+  };
+  const ok = {
+    basis_required: false,
+    category_required: true,
+    columns: { per_100g: col, per_serving: null },
+  };
+
+  it("accepts every shared fixture draft's hints", () => {
+    for (const f of draftCaseFiles())
+      expect(isDraftConfirm(draftFile(f).confirm)).toBe(true);
+  });
+
+  it("accepts a well-formed hint", () => {
+    expect(isDraftConfirm(ok)).toBe(true);
+  });
+
+  it.each([
+    ["missing", undefined],
+    ["null", null],
+    [
+      "no bases offered",
+      { ...ok, columns: { per_100g: null, per_serving: null } },
+    ],
+    ["non-boolean flag", { ...ok, basis_required: "no" }],
+    [
+      "unknown confirm field",
+      {
+        ...ok,
+        columns: {
+          per_100g: { ...col, confirm_fields: ["name"] },
+          per_serving: null,
+        },
+      },
+    ],
+    [
+      "column without printed",
+      {
+        ...ok,
+        columns: {
+          per_100g: { ...col, printed: undefined },
+          per_serving: null,
+        },
+      },
+    ],
+  ])("rejects %s", (_, v) => {
+    expect(isDraftConfirm(v)).toBe(false);
+  });
+});
+
+describe("draftSchema: scan body shape", () => {
+  it("no barcode → no barcode key (as in the shared fixtures)", () => {
+    const body = draftSchema.parse(formWith({}, { barcode: null }));
+    expect("barcode" in body).toBe(false);
+  });
+
+  it("confirmed_fields go out once each, in contract order", () => {
+    const body = draftSchema.parse(
+      formWith(
+        {},
+        { confirmed_fields: ["serving_size_g", "protein_g", "protein_g"] },
+      ),
     );
-    expect(sodiumUnitUnconfirmed(["upper_bound:per_100g.sodium_mg"])).toBe(
-      false,
-    );
+    expect(body.confirmed_fields).toEqual(["protein_g", "serving_size_g"]);
   });
 });

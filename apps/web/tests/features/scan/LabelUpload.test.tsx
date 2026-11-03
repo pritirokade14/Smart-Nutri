@@ -1,6 +1,12 @@
 import messages from "@smartnutri/i18n/messages/en.json";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -20,6 +26,8 @@ vi.mock("@/lib/supabase/client", () => ({
     },
   }),
 }));
+const track = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/analytics", () => ({ track }));
 const resize = vi.hoisted(() => vi.fn());
 vi.mock("@/features/scan/lib/resizeImage", () => ({
   resizeImage: resize,
@@ -82,6 +90,7 @@ beforeEach(() => {
   router.push.mockReset();
   resize.mockReset();
   resize.mockResolvedValue(jpeg);
+  track.mockReset();
 });
 afterEach(cleanup);
 
@@ -129,7 +138,7 @@ describe("LabelUpload", () => {
     // The draft is handed to the confirm route in memory, with the barcode.
     const cached = getScanDraft(client, scanDraft("clean").scan_id);
     expect(cached?.barcode).toBe(BARCODE);
-    expect(cached?.scan.draft.name).toBe("Masala Oats");
+    expect(cached?.scan.draft.name).toBe("Masala Crunch");
   });
 
   it("without a barcode, none is sent", async () => {
@@ -194,6 +203,51 @@ describe("LabelUpload", () => {
       await screen.findByText(messages.error.image_too_large),
     ).toBeTruthy();
     expect(seen).toHaveLength(0);
+  });
+
+  it("analytics: label_scan_started on success, with no properties", async () => {
+    respond(okHandlers());
+    view();
+    await userEvent.upload(screen.getByLabelText(l.take_photo), photo());
+    await waitFor(() => expect(router.push).toHaveBeenCalled());
+    expect(track.mock.calls).toEqual([["label_scan_started"]]);
+  });
+
+  it("analytics: label_scan_failed on an error, with no properties", async () => {
+    respond(okHandlers(502, envelope("extraction_failed")));
+    view();
+    await userEvent.upload(screen.getByLabelText(l.take_photo), photo());
+    await screen.findByText(messages.error.extraction_failed);
+    expect(track.mock.calls).toEqual([
+      ["label_scan_started"],
+      ["label_scan_failed"],
+    ]);
+  });
+
+  it("a draft without confirm hints is never shown", async () => {
+    const { confirm: _, ...draft } = scanDraft("clean").draft;
+    respond(okHandlers(200, { ...scanDraft("clean"), draft }));
+    view();
+    await userEvent.upload(screen.getByLabelText(l.take_photo), photo());
+    expect(await screen.findByText(messages.error.internal_error)).toBeTruthy();
+    expect(router.push).not.toHaveBeenCalled();
+    expect(getScanDraft(client, scanDraft("clean").scan_id)).toBeUndefined();
+  });
+
+  it("a dropped HEIC file shows unsupported_image before anything is uploaded", async () => {
+    resize.mockRejectedValue(new ApiError("unsupported_image"));
+    respond(okHandlers());
+    view();
+    const heic = new File([new Uint8Array(5)], "label.heic", { type: "" });
+    fireEvent.drop(screen.getByText(l.drop_here), {
+      dataTransfer: { files: [heic] },
+    });
+    expect(
+      await screen.findByText(messages.error.unsupported_image),
+    ).toBeTruthy();
+    expect(resize).toHaveBeenCalledWith(heic);
+    expect(seen).toHaveLength(0);
+    expect(screen.getByRole("button", { name: l.retake })).toBeTruthy();
   });
 
   it("a failed PUT is storage_unavailable and never reaches extraction", async () => {

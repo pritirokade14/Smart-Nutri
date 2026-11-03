@@ -27,12 +27,14 @@ export function LabelUpload({ barcode }: { barcode: string | null }) {
 
   const start = (file: File | undefined) => {
     if (!file || upload.isPending) return;
+    // Event names only, no properties: no label content or health data.
     track("label_scan_started");
     upload.mutate(barcode ? { file, barcode } : { file }, {
       onSuccess: (scan) => {
         setScanDraft(client, scan, barcode);
         router.push(`/${locale}/scan/confirm/${scan.scan_id}`);
       },
+      onError: () => track("label_scan_failed"),
     });
   };
 
@@ -90,10 +92,9 @@ export function LabelUpload({ barcode }: { barcode: string | null }) {
           onDrop={(e) => {
             e.preventDefault();
             setDragging(false);
-            const file = Array.from(e.dataTransfer.files).find((f) =>
-              f.type.startsWith("image/"),
-            );
-            start(file);
+            // Any dropped file goes through the resize step, which rejects
+            // HEIC and non-images with unsupported_image before upload.
+            start(e.dataTransfer.files[0]);
           }}
           className={`rounded-(--radius-lg) border-2 border-dashed p-(--spacing-6) text-center text-(length:--text-md) ${dragging ? "border-(--color-text-primary)" : ""}`}
         >

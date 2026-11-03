@@ -6,6 +6,25 @@ export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 const QUALITIES = [0.85, 0.7, 0.55] as const;
 const MAX_SHRINKS = 6;
 
+const HEIC_TYPES = new Set([
+  "image/heic",
+  "image/heif",
+  "image/heic-sequence",
+  "image/heif-sequence",
+]);
+
+/**
+ * False for HEIC/HEIF (most browsers can't decode it, and the API takes only
+ * JPEG, PNG and WebP) and for anything that says it isn't an image. A file
+ * with no type is let through to the decoder, which has the last word.
+ */
+export function isSupportedImage(file: File): boolean {
+  const type = file.type.toLowerCase();
+  if (HEIC_TYPES.has(type)) return false;
+  if (/\.(heic|heif)$/i.test(file.name)) return false;
+  return type === "" || type.startsWith("image/");
+}
+
 function toJpeg(canvas: HTMLCanvasElement, quality: number) {
   return new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/jpeg", quality),
@@ -13,15 +32,56 @@ function toJpeg(canvas: HTMLCanvasElement, quality: number) {
 }
 
 /**
+ * The photo's size as displayed (EXIF orientation applied), read from the
+ * header through an <img>, without decoding the pixels into a bitmap.
+ */
+function displaySize(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    const done = () => URL.revokeObjectURL(url);
+    img.onload = () => {
+      done();
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.onerror = () => {
+      done();
+      reject(new Error("undecodable"));
+    };
+    img.src = url;
+  });
+}
+
+/**
+ * Decodes straight to at most `maxSide` on the longest side, so a 48 MP photo
+ * never sits in memory at full size. Only the longest side is given: the
+ * other follows the aspect ratio, so the picture is never stretched whichever
+ * way the browser orders orientation and resizing.
+ */
+async function decode(file: File, maxSide: number): Promise<ImageBitmap> {
+  const { width, height } = await displaySize(file);
+  const longest = Math.max(width, height);
+  const options: ImageBitmapOptions = { imageOrientation: "from-image" };
+  if (longest > maxSide) {
+    const scale = maxSide / longest;
+    options.resizeQuality = "high";
+    if (width >= height) options.resizeWidth = Math.round(width * scale);
+    else options.resizeHeight = Math.round(height * scale);
+  }
+  return createImageBitmap(file, options);
+}
+
+/**
  * Re-encodes a label photo in the browser: JPEG, longest side ≤ `maxSide`,
- * at most 8 MB. EXIF orientation is applied while decoding. Throws ApiError
- * `unsupported_image` if the file can't be decoded, `image_too_large` if it
- * can't be brought under the limit.
+ * at most 8 MB, EXIF orientation applied. Throws ApiError `unsupported_image`
+ * for HEIC or a file that can't be decoded (before anything is uploaded),
+ * `image_too_large` if it can't be brought under the limit.
  */
 export async function resizeImage(file: File, maxSide = 2000): Promise<Blob> {
+  if (!isSupportedImage(file)) throw new ApiError("unsupported_image");
   let bitmap: ImageBitmap;
   try {
-    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    bitmap = await decode(file, maxSide);
   } catch {
     throw new ApiError("unsupported_image");
   }

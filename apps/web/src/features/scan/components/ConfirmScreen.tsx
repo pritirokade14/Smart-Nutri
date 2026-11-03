@@ -87,7 +87,8 @@ export function ConfirmScreen({
       scanId={scanId}
       barcode={barcode}
       onSaved={(productId) => {
-        track("label_scan_saved");
+        // Event names only: no label content or health data.
+        track(scanId ? "label_scan_saved" : "manual_product_saved");
         setSavedId(productId);
         router.push(`/${locale}/product/${productId}`);
       }}

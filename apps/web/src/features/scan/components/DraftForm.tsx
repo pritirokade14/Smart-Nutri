@@ -7,6 +7,8 @@ import {
   type Basis,
   CATEGORIES,
   type Category,
+  CONFIRMABLE_FIELDS,
+  type ColumnConfirm,
   type ConfirmableField,
   type DraftFormValues,
   type DraftNutrients,
@@ -21,16 +23,13 @@ import {
   type SodiumUnit,
   type VegMark,
 } from "../lib/draftSchema";
-import {
-  hasWarning,
-  highlightedFields,
-  sodiumUnitUnconfirmed,
-} from "../lib/warnings";
+import { highlightedFields } from "../lib/warnings";
 import { WarningBanner } from "./WarningBanner";
 
 export type ServerFieldError = { code: string; fields: string[] };
 
 type Column = Record<NutrientField, NumberInput>;
+type Columns = Record<Basis, Column>;
 type Item = { id: number; text: string };
 
 const EMPTY_COLUMN = Object.fromEntries(
@@ -76,46 +75,76 @@ function shown(v: NumberInput): string {
   return v;
 }
 
-type Init = {
-  columns: Record<Basis, Column>;
+/**
+ * The form's reading of `draft.confirm` (Ruling R21). Nothing here looks at
+ * `warnings`, `engine_withheld`, `derived_from_serving` or `basis_mismatch`:
+ * the server computes the hints with the same helpers that enforce the save.
+ */
+type Hints = {
+  /** Bases the user may save with: the non-null `confirm.columns`. */
+  offered: readonly Basis[];
+  /** Per basis: the draft column whose printed values it shows. */
+  source: Record<Basis, Basis>;
+  /** Per basis: what to ask on save; null for manual entry or not offered. */
+  column: Record<Basis, ColumnConfirm | null>;
+  /** The column shown before the user picks a basis. */
+  fallback: Basis;
   basis: Basis | "";
   category: Category | "";
-  serving: NumberInput;
+  values: Columns;
 };
 
-function initial(draft: ProductDraft | null): Init {
+function hintsOf(draft: ProductDraft | null): Hints {
   if (!draft) {
+    // Manual entry: an empty form, both bases offered, nothing preselected.
     return {
-      columns: {
+      offered: BASES,
+      source: { per_100g: "per_100g", per_serving: "per_serving" },
+      column: { per_100g: null, per_serving: null },
+      fallback: "per_100g",
+      basis: "",
+      category: "",
+      values: {
         per_100g: { ...EMPTY_COLUMN },
         per_serving: { ...EMPTY_COLUMN },
       },
-      basis: "",
-      category: "",
-      serving: null,
     };
   }
-  const w = draft.warnings;
-  const mismatch = hasWarning(w, "basis_mismatch");
-  const derived = draft.derived_from_serving;
-  // R19: a derived draft's per_100g was computed by the server, not printed,
-  // so it is never shown or sent as if it were printed.
-  const per100 = derived ? column(null) : column(draft.per_100g);
-  const perServing = draft.per_serving
-    ? column(draft.per_serving)
-    : mismatch && !derived
-      ? column(draft.per_100g) // the printed numbers; their basis is in doubt
-      : column(null);
-  let basis: Basis | "" = "per_100g";
-  if (mismatch) basis = "";
-  else if (derived && draft.per_serving) basis = "per_serving";
-  const categoryInDoubt =
-    hasWarning(w, "category_unknown") || hasWarning(w, "category_check");
+  const { basis_required, category_required, columns: cols } = draft.confirm;
+  const offered = BASES.filter((b) => cols[b] !== null);
+  const shared = BASES.find((b) => cols[b]?.shared) ?? null;
+  const printed = BASES.filter((b) => cols[b]?.printed);
+  // Only a column the server marks printed is shown as printed: the
+  // server-derived per_100g of a per-serving label never is.
+  const draftColumn = (b: Basis) =>
+    b === "per_100g" ? draft.per_100g : draft.per_serving;
+  const values = {
+    per_100g: cols.per_100g?.printed
+      ? column(draftColumn("per_100g"))
+      : column(null),
+    per_serving: cols.per_serving?.printed
+      ? column(draftColumn("per_serving"))
+      : column(null),
+  };
+  const sourceOf = (b: Basis): Basis => (cols[b]?.printed ? b : (shared ?? b));
+  // R22: with the basis not in doubt, the only offered column, or per_100g
+  // when both are offered (the user can switch). In doubt: nothing.
+  const preselect: Basis | "" = basis_required
+    ? ""
+    : offered.length > 1 && offered.includes("per_100g")
+      ? "per_100g"
+      : (offered[0] ?? "");
   return {
-    columns: { per_100g: per100, per_serving: perServing },
-    basis,
-    category: categoryInDoubt ? "" : draft.category,
-    serving: draft.serving_size_g,
+    offered,
+    source: {
+      per_100g: sourceOf("per_100g"),
+      per_serving: sourceOf("per_serving"),
+    },
+    column: { per_100g: cols.per_100g, per_serving: cols.per_serving },
+    fallback: shared ?? printed[0] ?? offered[0] ?? "per_100g",
+    basis: preselect,
+    category: category_required ? "" : draft.category,
+    values,
   };
 }
 
@@ -141,29 +170,23 @@ export function DraftForm({
 }) {
   const t = useTranslations();
   const uid = useId();
-  const init = useMemo(() => initial(draft), [draft]);
+  const hints = useMemo(() => hintsOf(draft), [draft]);
   const isScan = draft !== null && scanId !== null;
   const warnings = draft?.warnings ?? [];
-  const withheld = new Set<string>(draft?.engine_withheld ?? []);
-  const derived = draft?.derived_from_serving ?? false;
-  // basis_mismatch with one printed column: both bases show the same printed
-  // numbers, so the user's edits follow the basis they pick.
-  const oneColumn =
-    draft !== null &&
-    hasWarning(draft.warnings, "basis_mismatch") &&
-    !derived &&
-    !draft.per_serving;
 
   const [name, setName] = useState(draft?.name ?? "");
   const [brand, setBrand] = useState(draft?.brand ?? "");
-  const [category, setCategory] = useState<Category | "">(init.category);
-  const [basis, setBasis] = useState<Basis | "">(init.basis);
+  const [category, setCategory] = useState<Category | "">(hints.category);
+  const [basis, setBasis] = useState<Basis | "">(hints.basis);
   const [sodiumUnit, setSodiumUnit] = useState<SodiumUnit | "">("");
-  const [columns, setColumns] = useState(init.columns);
-  const [serving, setServing] = useState<NumberInput>(init.serving);
-  const [confirmed, setConfirmed] = useState<Set<ConfirmableField>>(
-    () => new Set(),
+  const [columns, setColumns] = useState<Columns>(hints.values);
+  const [serving, setServing] = useState<NumberInput>(
+    draft?.serving_size_g ?? null,
   );
+  // Ticks and edits, keyed by the printed column whose value they confirm
+  // ("per_100g.protein_g"), or "serving_size_g" for the serving size.
+  const [ticked, setTicked] = useState<ReadonlySet<string>>(() => new Set());
+  const [edited, setEdited] = useState<ReadonlySet<string>>(() => new Set());
   const nextId = useRef(0);
   const [ingredients, setIngredients] = useState<Item[]>(() =>
     (draft?.ingredients ?? []).map((text) => ({ id: nextId.current++, text })),
@@ -177,25 +200,32 @@ export function DraftForm({
   const [claims, setClaims] = useState((draft?.claims ?? []).join("\n"));
   const [veg, setVeg] = useState<VegMark | "">(draft?.veg_mark ?? "");
 
-  // Before a basis is chosen, show the column a derived draft printed.
-  const shownBasis: Basis = basis || (derived ? "per_serving" : "per_100g");
-  const values = columns[shownBasis];
+  const shownBasis: Basis = basis || hints.fallback;
+  const source = hints.source[shownBasis];
+  const values = columns[source];
+  const hint = isScan ? hints.column[shownBasis] : null;
+  const sharedShown = isScan && (hints.column[source]?.shared ?? false);
+  const boxes = new Set<ConfirmableField>(hint?.confirm_fields ?? []);
+  const keyOf = (f: ConfirmableField) =>
+    f === "serving_size_g" ? f : `${source}.${f}`;
+  const confirmedFields = isScan
+    ? CONFIRMABLE_FIELDS.filter(
+        (f) =>
+          (boxes.has(f) && (ticked.has(keyOf(f)) || edited.has(keyOf(f)))) ||
+          // A serving size the user typed or edited is theirs (R18/R21),
+          // even where the draft had none and the hint lists no box for it.
+          (f === "serving_size_g" && edited.has(f)),
+      )
+    : [];
 
   const sodiumNow = parseNumberInput(values.sodium_mg);
-  // R19: any unit_unconfirmed sodium warning, on either column, needs a pick.
   const unitPicker =
-    isScan && sodiumUnitUnconfirmed(warnings) && sodiumNow !== null;
-  const servingShown =
-    !isScan ||
-    draft?.serving_size_g != null ||
-    basis === "per_serving" ||
-    derived;
-  // R18/R19: per-serving values (or a derived draft) are stored only with a
-  // confirmed serving size, so saving waits for the tick.
+    (hint?.sodium_unit_required ?? false) && sodiumNow !== null;
+  // A per-serving save with its serving size unconfirmed stores nothing.
   const servingTickNeeded =
-    isScan &&
-    (derived || basis === "per_serving") &&
-    !confirmed.has("serving_size_g");
+    basis === "per_serving" &&
+    boxes.has("serving_size_g") &&
+    !confirmedFields.includes("serving_size_g");
 
   const highlights = highlightedFields(warnings);
   const serverFields = new Set(
@@ -220,7 +250,7 @@ export function DraftForm({
     may_contain_statement: mayContain,
     claims: claims.split("\n"),
     veg_mark: veg,
-    confirmed_fields: [...confirmed],
+    confirmed_fields: confirmedFields,
   };
   const parsed = draftSchema.safeParse(formValues);
   const invalidNumbers = new Set(
@@ -246,27 +276,24 @@ export function DraftForm({
   const blocked =
     busy || !parsed.success || Object.values(missing).some(Boolean);
 
-  const confirm = (f: ConfirmableField, on: boolean) =>
-    setConfirmed((prev) => {
+  const tick = (f: ConfirmableField, on: boolean) =>
+    setTicked((prev) => {
       const next = new Set(prev);
-      if (on) next.add(f);
-      else next.delete(f);
+      if (on) next.add(keyOf(f));
+      else next.delete(keyOf(f));
       return next;
     });
 
-  const chooseBasis = (b: Basis) => {
-    if (oneColumn && b !== shownBasis)
-      setColumns((prev) => ({ ...prev, [b]: prev[shownBasis] }));
-    setBasis(b);
-  };
+  const markEdited = (key: string) =>
+    setEdited((prev) => (prev.has(key) ? prev : new Set(prev).add(key)));
 
   const editNutrient = (f: NutrientField, text: string) => {
     setColumns((prev) => ({
       ...prev,
-      [shownBasis]: { ...prev[shownBasis], [f]: text },
+      [source]: { ...prev[source], [f]: text },
     }));
-    // Editing a withheld value is an explicit confirmation of it.
-    if (isScan && withheld.has(f)) confirm(f as ConfirmableField, true);
+    // Editing a value is an explicit confirmation of it.
+    markEdited(`${source}.${f}`);
   };
 
   const fieldError = (field: string): ReactNode =>
@@ -284,12 +311,14 @@ export function DraftForm({
     </p>
   );
 
+  // Unticked by default; never pre-ticked.
   const confirmBox = (f: ConfirmableField) => (
     <label className="flex items-center gap-(--spacing-2) text-(length:--text-sm)">
       <input
         type="checkbox"
-        checked={confirmed.has(f)}
-        onChange={(e) => confirm(f, e.target.checked)}
+        data-testid={`confirm-${f}`}
+        checked={ticked.has(keyOf(f))}
+        onChange={(e) => tick(f, e.target.checked)}
       />
       {t("confirm.confirm_value")}
     </label>
@@ -300,12 +329,6 @@ export function DraftForm({
       highlights.has(field) ? "border-2 border-(--color-verdict-caution)" : ""
     }`;
   const inputClass = "w-full border p-(--spacing-2) text-(length:--text-md)";
-
-  const sodiumUnitText = unitPicker
-    ? sodiumUnit
-      ? t(`confirm.sodium_unit_option.${sodiumUnit}`)
-      : `${t("confirm.sodium_unit_option.mg")} / ${t("confirm.sodium_unit_option.g")}`
-    : t("confirm.sodium_unit_option.mg");
 
   return (
     <form
@@ -387,63 +410,66 @@ export function DraftForm({
           {t("confirm.basis")}
         </legend>
         <div className="flex flex-wrap gap-(--spacing-3)">
-          {BASES.map((b) => (
-            <label key={b} className="flex items-center gap-(--spacing-1)">
-              <input
-                type="radio"
-                name="basis"
-                value={b}
-                checked={basis === b}
-                onChange={() => chooseBasis(b)}
-              />
-              {t(`confirm.basis_option.${b}`)}
-            </label>
-          ))}
+          {BASES.map((b) => {
+            const off = !hints.offered.includes(b);
+            return (
+              <label
+                key={b}
+                className={`flex items-center gap-(--spacing-1) ${off ? "opacity-50" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="basis"
+                  value={b}
+                  checked={basis === b}
+                  disabled={off}
+                  onChange={() => setBasis(b)}
+                />
+                {t(`confirm.basis_option.${b}`)}
+              </label>
+            );
+          })}
         </div>
         {missing.basis ? chooseRequired : null}
         {fieldError("basis")}
       </fieldset>
 
-      {servingShown ? (
-        <div
-          data-testid="row-serving_size_g"
-          data-highlight={highlights.has("serving_size_g") ? "true" : "false"}
-          className={rowClass("serving_size_g")}
-        >
-          <label htmlFor={`${uid}-serving`} className="text-(length:--text-md)">
-            {t("confirm.serving_size")}
-          </label>
-          <input
-            id={`${uid}-serving`}
-            type="text"
-            inputMode="decimal"
-            autoComplete="off"
-            value={shown(serving)}
-            aria-invalid={
-              invalidNumbers.has("serving_size_g") ||
-              serverFields.has("serving_size_g") ||
-              missing.serving_value ||
-              undefined
-            }
-            onChange={(e) => {
-              setServing(e.target.value);
-              // Editing the serving size confirms it (R18).
-              if (isScan) confirm("serving_size_g", true);
-            }}
-            className={inputClass}
-          />
-          {isScan ? confirmBox("serving_size_g") : null}
-          {missing.serving_value || missing.serving_tick
-            ? chooseRequired
-            : null}
-          {invalidNumbers.has("serving_size_g") ? (
-            <p role="alert" className="text-(length:--text-sm)">
-              {t("error.validation_error")}
-            </p>
-          ) : null}
-          {fieldError("serving_size_g")}
-        </div>
-      ) : null}
+      <div
+        data-testid="row-serving_size_g"
+        data-highlight={highlights.has("serving_size_g") ? "true" : "false"}
+        className={rowClass("serving_size_g")}
+      >
+        <label htmlFor={`${uid}-serving`} className="text-(length:--text-md)">
+          {t("confirm.serving_size")}
+        </label>
+        <input
+          id={`${uid}-serving`}
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          value={shown(serving)}
+          aria-invalid={
+            invalidNumbers.has("serving_size_g") ||
+            serverFields.has("serving_size_g") ||
+            missing.serving_value ||
+            undefined
+          }
+          onChange={(e) => {
+            setServing(e.target.value);
+            // Typing or editing the serving size confirms it (R18/R21).
+            if (isScan) markEdited("serving_size_g");
+          }}
+          className={inputClass}
+        />
+        {boxes.has("serving_size_g") ? confirmBox("serving_size_g") : null}
+        {missing.serving_value || missing.serving_tick ? chooseRequired : null}
+        {invalidNumbers.has("serving_size_g") ? (
+          <p role="alert" className="text-(length:--text-sm)">
+            {t("error.validation_error")}
+          </p>
+        ) : null}
+        {fieldError("serving_size_g")}
+      </div>
 
       {unitPicker ? (
         <fieldset
@@ -476,7 +502,17 @@ export function DraftForm({
         <p className="text-(length:--text-sm)">
           {t("confirm.leave_blank_hint")}
         </p>
-        {derived ? (
+        {sharedShown && basis ? (
+          // One printed column whose basis is the doubt: say which basis
+          // these numbers will be saved as.
+          <p
+            data-testid="shared-basis"
+            className="text-(length:--text-md) font-semibold"
+          >
+            {t(`confirm.basis_option.${basis}`)}
+          </p>
+        ) : null}
+        {draft?.derived_from_serving ? (
           <p className="text-(length:--text-md) font-semibold">
             {t("confirm.derived_per_serving", { serving: shown(serving) })}
           </p>
@@ -484,11 +520,14 @@ export function DraftForm({
         {NUTRIENT_FIELDS.map((f) => {
           const id = `${uid}-${f}`;
           const isSodium = f === "sodium_mg";
+          // The picker's unit sits beside the input; otherwise the label
+          // already says "(mg)".
           const label =
             isSodium && unitPicker
               ? t("confirm.sodium")
               : t(`confirm.field.${f}`);
           const invalid = invalidNumbers.has(f) || serverFields.has(f);
+          const box = boxes.has(f as ConfirmableField);
           return (
             <div
               key={f}
@@ -510,16 +549,18 @@ export function DraftForm({
                   onChange={(e) => editNutrient(f, e.target.value)}
                   className={inputClass}
                 />
-                {isSodium ? (
+                {isSodium && unitPicker ? (
                   <span
                     data-testid="sodium-unit"
                     className="text-(length:--text-md)"
                   >
-                    {sodiumUnitText}
+                    {sodiumUnit
+                      ? t(`confirm.sodium_unit_option.${sodiumUnit}`)
+                      : `${t("confirm.sodium_unit_option.mg")} / ${t("confirm.sodium_unit_option.g")}`}
                   </span>
                 ) : null}
               </div>
-              {isScan && withheld.has(f) ? (
+              {box ? (
                 <>
                   <p className="text-(length:--text-sm)">
                     {t("confirm.withheld_hint")}

@@ -46,14 +46,5 @@ export function highlightedFields(warnings: readonly string[]): Set<string> {
   return out;
 }
 
-export function hasWarning(warnings: readonly string[], code: string): boolean {
-  return warnings.some((w) => parseWarning(w).code === code);
-}
-
-/** Ruling R19: any `unit_unconfirmed:*.sodium_mg`, on either printed column. */
-export function sodiumUnitUnconfirmed(warnings: readonly string[]): boolean {
-  return warnings.some((w) => {
-    const p = parseWarning(w);
-    return p.code === "unit_unconfirmed" && p.field === "sodium_mg";
-  });
-}
+// Warnings drive banners and highlights only. Which boxes, bases, pickers
+// and columns to show come from `draft.confirm` (Ruling R21), never from here.

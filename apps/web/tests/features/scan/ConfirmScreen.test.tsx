@@ -24,6 +24,8 @@ vi.mock("@/lib/supabase/client", () => ({
     },
   }),
 }));
+const track = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/analytics", () => ({ track }));
 const fetchMock = vi.hoisted(() => {
   const fn = vi.fn();
   globalThis.fetch = fn as unknown as typeof fetch;
@@ -81,6 +83,7 @@ beforeEach(() => {
   fetchMock.mockReset();
   router.push.mockReset();
   router.replace.mockReset();
+  track.mockReset();
 });
 afterEach(cleanup);
 
@@ -112,6 +115,7 @@ describe("ConfirmScreen", () => {
     expect(req.method).toBe("POST");
     expect(req.body.scan_id).toBe(scan?.scan_id);
     expect(req.body.barcode).toBe(BARCODE);
+    expect(track.mock.calls).toEqual([["label_scan_saved"]]);
     // The draft is dropped once saved.
     expect(
       client.getQueryCache().findAll({ queryKey: ["scan-draft"] }),
@@ -211,5 +215,6 @@ describe("ConfirmScreen", () => {
     const req = await lastRequest();
     expect("scan_id" in req.body).toBe(false);
     expect(req.body.barcode).toBe(BARCODE);
+    expect(track.mock.calls).toEqual([["manual_product_saved"]]);
   });
 });

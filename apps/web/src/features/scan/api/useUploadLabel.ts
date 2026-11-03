@@ -1,7 +1,7 @@
 import { type UseMutationResult, useMutation } from "@tanstack/react-query";
 import { getApi } from "@/lib/api/client";
 import { ApiError, networkError, toApiError } from "@/lib/api/errors";
-import type { ScanDraftOut } from "../lib/draftSchema";
+import { isDraftConfirm, type ScanDraftOut } from "../lib/draftSchema";
 import { resizeImage } from "../lib/resizeImage";
 
 export type UploadStage = "uploading" | "reading";
@@ -51,6 +51,11 @@ export async function uploadLabel(
     });
   if (scan.error !== undefined || !scan.data) {
     throw toApiError(scan.error, scan.response.status);
+  }
+  // The confirm screen renders only from the server's hints; a draft
+  // without them is never shown (the client has no rules to fall back on).
+  if (!isDraftConfirm(scan.data.draft?.confirm)) {
+    throw new ApiError("internal_error", scan.response.status);
   }
   return scan.data;
 }

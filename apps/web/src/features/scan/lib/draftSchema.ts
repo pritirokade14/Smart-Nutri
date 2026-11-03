@@ -5,6 +5,10 @@ export type PrintedNutrients = components["schemas"]["PrintedNutrients"];
 export type ProductDraft = components["schemas"]["ProductDraft"];
 export type DraftNutrients = components["schemas"]["DraftNutrients"];
 export type ScanDraftOut = components["schemas"]["ScanDraftOut"];
+/** Server-computed confirm-screen hints (R21): the form renders only these. */
+export type DraftConfirm = components["schemas"]["DraftConfirm"];
+/** What to ask when the user saves with one basis; null = basis not offered. */
+export type ColumnConfirm = components["schemas"]["ColumnConfirm"];
 export type Category = ProductCreate["category"];
 export type Basis = ProductCreate["basis"];
 export type SodiumUnit = NonNullable<ProductCreate["sodium_unit"]>;
@@ -42,6 +46,12 @@ export const NUTRIENT_FIELDS = [
   "sodium_mg",
 ] as const;
 export type NutrientField = (typeof NUTRIENT_FIELDS)[number];
+
+/** Fields that can be confirmed, in contract order (engine fields, then serving). */
+export const CONFIRMABLE_FIELDS: readonly ConfirmableField[] = [
+  ...ENGINE_FIELDS,
+  "serving_size_g",
+];
 
 export const CATEGORIES: readonly Category[] = [
   "general",
@@ -151,7 +161,7 @@ function safeParse(v: DraftFormValues): DraftParseResult {
   const isScan = typeof v.scan_id === "string" && v.scan_id !== "";
   const body: ProductCreate = {
     ...(isScan ? { scan_id: v.scan_id } : {}),
-    barcode: v.barcode ?? null,
+    ...(v.barcode ? { barcode: v.barcode } : {}),
     name,
     brand: blankToNull(v.brand),
     category: v.category,
@@ -166,7 +176,10 @@ function safeParse(v: DraftFormValues): DraftParseResult {
     claims: v.claims.map((c) => c.trim()).filter((c) => c !== ""),
     veg_mark: v.veg_mark === "" ? null : v.veg_mark,
     // Manual entry: every value is typed by the user, nothing to confirm.
-    confirmed_fields: isScan ? [...new Set(v.confirmed_fields)] : [],
+    // A scan sends its confirmations in contract order.
+    confirmed_fields: isScan
+      ? CONFIRMABLE_FIELDS.filter((f) => v.confirmed_fields.includes(f))
+      : [],
   };
   return { success: true, data: body };
 }
@@ -184,3 +197,39 @@ export const draftSchema = {
     return r.data;
   },
 };
+
+const CONFIRMABLE = new Set<string>(CONFIRMABLE_FIELDS);
+
+function isColumnConfirm(v: unknown): v is ColumnConfirm {
+  if (typeof v !== "object" || v === null) return false;
+  const c = v as Record<string, unknown>;
+  return (
+    typeof c.printed === "boolean" &&
+    typeof c.shared === "boolean" &&
+    typeof c.sodium_unit_required === "boolean" &&
+    Array.isArray(c.confirm_fields) &&
+    c.confirm_fields.every((f) => typeof f === "string" && CONFIRMABLE.has(f))
+  );
+}
+
+/**
+ * Runtime check of `ProductDraft.confirm`. A draft without valid hints is
+ * never rendered: the client has no rules of its own to fall back on.
+ */
+export function isDraftConfirm(v: unknown): v is DraftConfirm {
+  if (typeof v !== "object" || v === null) return false;
+  const c = v as Record<string, unknown>;
+  if (
+    typeof c.basis_required !== "boolean" ||
+    typeof c.category_required !== "boolean" ||
+    typeof c.columns !== "object" ||
+    c.columns === null
+  )
+    return false;
+  const cols = c.columns as Record<string, unknown>;
+  const offered = BASES.filter((b) => cols[b] !== null);
+  return (
+    offered.length > 0 &&
+    BASES.every((b) => cols[b] === null || isColumnConfirm(cols[b]))
+  );
+}
