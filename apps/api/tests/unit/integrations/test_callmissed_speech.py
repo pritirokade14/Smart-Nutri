@@ -129,6 +129,32 @@ async def test_synthesize_returns_mp3_bytes():
     assert body["voice"] == "anushka"
 
 
+async def test_transcribe_asks_for_india_processing():
+    """Ruling V1 S1: the spoken question can carry health data, so STT runs in India. The
+    SDK sends extra_body fields of a multipart request as form fields."""
+    mock = _make([_stt_ok()])
+    await mock.client.transcribe(b"RIFF....WAVE", "audio/wav", "hi")
+    body = mock.last_request.content
+    assert b'name="provider[data_residency]"\r\n\r\nin\r\n' in body
+
+
+async def test_synthesize_asks_for_india_processing():
+    """Ruling V1 S1: the spoken answer is about a member's verdict, so TTS runs in India."""
+    mock = _make([_tts_ok()])
+    await mock.client.synthesize("Avoid.", "hi")
+    body = json.loads(mock.last_request.content)
+    assert body["provider"] == {"data_residency": "in"}
+    assert body["language"] == "hi-IN"
+
+
+async def test_speech_requests_never_change_the_shared_residency_body():
+    mock = _make([_tts_ok()])
+    await mock.client.synthesize("Avoid.", "mr")
+    await mock.client.synthesize("Avoid.", "en")
+    assert callmissed.CHAT_EXTRA_BODY == {"provider": {"data_residency": "in"}}
+    assert json.loads(mock.last_request.content)["language"] == "en-IN"
+
+
 async def test_synthesize_rejects_non_audio_response():
     mock = _make([httpx.Response(200, content=b"<html>oops</html>")])
     with pytest.raises(SpeechUnavailable):

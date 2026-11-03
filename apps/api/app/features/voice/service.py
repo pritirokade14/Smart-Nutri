@@ -137,6 +137,8 @@ async def ask_voice(
         if not await consents_service.has_active_consent(session, account_id, "ai_processing"):
             raise ApiError("consent_required", 403, details={"purpose": "ai_processing"})
         member = await members_service.get_member(session, account_id, member_id)
+        # Every family name is redacted from the question before the LLM (Ruling V1 S2).
+        family_names = [m.name for m in await members_service.list_members(session, account_id)]
         found = await _resolve_product(
             session,
             off,
@@ -173,6 +175,7 @@ async def ask_voice(
                 member,
                 language,
                 question,
+                member_names=family_names,
                 emails=[email] if email else [],
                 today=today,
                 cat=cat,

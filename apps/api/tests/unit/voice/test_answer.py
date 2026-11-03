@@ -15,6 +15,7 @@ from app.features.voice.answer import (
     VOICE_LLM_BUDGET_S,
     VoiceLLM,
     answer_question,
+    build_user_message,
 )
 from app.features.voice.fallback import fallback_answer, verdict_sentence
 from app.integrations.providers import CompletionFailed, ProviderUnavailable
@@ -192,3 +193,162 @@ async def test_logs_carry_no_question_or_answer(avoid_case, caplog):
     await _ask(avoid_case, _llm("ok", "Mismatch answer."), question="chini kitni hai")
     assert "chini" not in caplog.text and "Secret answer" not in caplog.text
     assert "Mismatch answer" not in caplog.text
+
+
+# --- Ruling V1 (B1): claim and go-ahead phrasing never reaches the speaker ----------------
+# The safety review's probe answers (probe_voice.py), plus each new denied word on its own
+# (several probe answers were already caught by another word such as "ठीक").
+
+_PROBE_ANSWERS = [
+    ("avoid_case", "hi", "यह उत्पाद इस सदस्य के लिए ठीक रहेगा, थोड़ा खा सकते हैं।"),
+    ("avoid_case", "mr", "हे उत्पादन चालेल, थोडे खाऊ शकता."),
+    ("unknown_case", "hi", "इसे खाना ठीक रहेगा।"),
+    ("avoid_case", "en", "A small portion is acceptable and it helps control diabetes."),
+    ("avoid_case", "en", "This snack can cure and reverse diabetes."),
+    ("peanut_avoid_case", "en", "Peanut traces are small, so it is suitable for this member."),
+    ("unknown_case", "en", "Nothing worrying here, go ahead and eat it."),
+    # each new word or phrase alone
+    ("avoid_case", "en", "A small portion is acceptable."),
+    ("avoid_case", "en", "It helps control blood sugar."),
+    ("avoid_case", "en", "It controls cravings."),
+    ("avoid_case", "en", "It can help manage diabetes."),
+    ("avoid_case", "en", "It manages sugar spikes."),
+    ("unknown_case", "en", "Go ahead, have a little."),
+    ("unknown_case", "en", "You have the go-ahead for a small bowl."),
+    ("unknown_case", "en", "Go   ahead and eat it."),
+    ("avoid_case", "hi", "आप थोड़ा खा सकते हैं।"),
+    ("avoid_case", "hi", "वह थोड़ा खा सकती हैं।"),
+    ("avoid_case", "hi", "थोड़ा सा चल जाएगा।"),
+    ("avoid_case", "mr", "थोडे खाऊ शकता."),
+    ("avoid_case", "mr", "ती थोडे खाऊ शकते."),
+    ("avoid_case", "mr", "थोडे खाल्ले तर हरकत नाही."),
+]
+
+
+@pytest.mark.parametrize(("fixture", "language", "answer"), _PROBE_ANSWERS)
+async def test_probe_answers_end_in_the_fallback(request, fixture, language, answer):
+    c = request.getfixturevalue(fixture)
+    a = await _ask(c, _llm(c.verdict.status.value, answer), language=language)
+    assert a.source == "fallback", answer
+    assert a.text == fallback_answer(c.verdict, language)
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        "It helps control diabetes.",
+        "It can help manage blood sugar.",
+        "This can cure and reverse diabetes.",
+    ],
+)
+async def test_claim_words_are_rejected_even_for_ok(ok_case, answer):
+    assert (await _ask(ok_case, _llm("ok", answer))).source == "fallback"
+
+
+@pytest.mark.parametrize(
+    ("language", "answer"),
+    [
+        ("en", "Go ahead, it is plain water."),
+        ("en", "Plain water is acceptable here."),
+        ("hi", "यह सादा पानी है, आप इसे पी सकते हैं।"),
+        ("mr", "हे साधे पाणी आहे, हरकत नाही."),
+    ],
+)
+async def test_go_ahead_phrasing_is_allowed_only_when_ok(ok_case, language, answer):
+    assert (await _ask(ok_case, _llm("ok", answer), language=language)).source == "llm"
+
+
+def test_voice_prompt_lists_every_denied_word():
+    """The voice model is told about every word the shared guard drops."""
+    from app.features.analyze import explain as explain_mod
+    from app.prompts import load_prompt
+
+    text, _ = load_prompt(VOICE_PROMPT_VERSION)
+    for word in (
+        *explain_mod.DENY_WORDS,
+        *explain_mod.DENY_WORDS_NOT_ALL_OK,
+        *explain_mod.DENY_WORDS_CLAIMS,
+    ):
+        assert f'"{word}"' in text, word
+
+
+# --- Ruling V1 (S2): every account member's name leaves the transcript --------------------
+
+
+def test_build_user_message_redacts_the_members_name(avoid_case):
+    user = build_user_message(
+        avoid_case.result,
+        avoid_case.member,
+        "en",
+        "Can Asha eat this? She has diabetes.",
+        today=REFERENCE_DATE,
+    )
+    assert "Asha" not in user
+    assert user.endswith(
+        "<user_question>Can this member eat this? She has diabetes.</user_question>"
+    )
+
+
+async def test_every_account_member_name_is_redacted_before_the_llm(avoid_case):
+    llm = _llm("avoid", "Lots of sugar.")
+    await answer_question(
+        llm,
+        SETTINGS,
+        avoid_case.result,
+        avoid_case.member,
+        "en",
+        "can ASHA and Ravi Kumar share this? ravi's sugar is high, ask Kumar",
+        member_names=["Asha", "Ravi Kumar", "Meera"],
+        emails=[EMAIL],
+        today=REFERENCE_DATE,
+    )
+    user = llm.chat_calls[0]["user"]
+    question = user.split("<user_question>")[1]
+    assert "asha" not in question.lower() and "ravi" not in question.lower()
+    assert "kumar" not in question.lower()
+    assert question == (
+        "can this member and this member share this? this member's sugar is high, "
+        "ask this member</user_question>"
+    )
+
+
+def test_redaction_covers_devanagari_case_endings(avoid_case):
+    avoid_case.member.name = "आशा"
+    user = build_user_message(
+        avoid_case.result,
+        avoid_case.member,
+        "mr",
+        "आशाला हे चालेल का? आशा ला मधुमेह आहे.",
+        member_names=["रवी"],
+        today=REFERENCE_DATE,
+    )
+    question = user.split("<user_question>")[1]
+    assert "आशा" not in question
+    assert question == "this member हे चालेल का? this member ला मधुमेह आहे.</user_question>"
+
+
+def test_redaction_keeps_other_words_that_contain_a_name(avoid_case):
+    user = build_user_message(
+        avoid_case.result,
+        avoid_case.member,
+        "en",
+        "Is Ashanti brand ok? Ask Al about all of it.",
+        member_names=["Al"],
+        today=REFERENCE_DATE,
+    )
+    assert "<user_question>Is Ashanti brand ok? Ask this member about all of it." in user
+
+
+async def test_answer_naming_another_family_member_is_rejected(avoid_case):
+    llm = _llm("avoid", "Ravi should skip it too.")
+    a = await answer_question(
+        llm,
+        SETTINGS,
+        avoid_case.result,
+        avoid_case.member,
+        "en",
+        "is this ok?",
+        member_names=["Ravi"],
+        today=REFERENCE_DATE,
+    )
+    assert a.source == "fallback"

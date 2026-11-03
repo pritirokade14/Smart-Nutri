@@ -57,6 +57,7 @@ _AUDIO_EXTENSIONS = {
 }
 # Every chat_json request is processed in India (AGENTS rule 6, callmissed skill rule 3). A
 # module constant, not a setting, so it can't be configured away. Deep-copied into each request.
+# STT and TTS send it too (Ruling V1 S1): a spoken question or answer can carry health data.
 CHAT_EXTRA_BODY: dict[str, Any] = {"provider": {"data_residency": "in"}}
 
 _sleep = asyncio.sleep  # module alias so tests patch this, not asyncio.sleep globally
@@ -283,7 +284,8 @@ class CallMissedClient:
     # --- speech (SpeechProvider) -----------------------------------------------------------
 
     async def transcribe(self, audio: bytes, mime: str, language: str) -> str:
-        """Speech-to-text with the configured STT model and an `<xx>-IN` language hint.
+        """Speech-to-text with the configured STT model and an `<xx>-IN` language hint,
+        processed in India (data residency "in", Ruling V1 S1).
 
         Logs metadata only (model, latency, status, audio byte count), never the transcript.
         """
@@ -298,6 +300,8 @@ class CallMissedClient:
                 model=model,
                 file=(f"question.{ext}", audio, mime),
                 language=hint,
+                # Multipart: the SDK sends this as the form field provider[data_residency].
+                extra_body=copy.deepcopy(CHAT_EXTRA_BODY),
                 timeout=timeout,
             )
             text = getattr(result, "text", None)
@@ -308,7 +312,8 @@ class CallMissedClient:
         return await self._speech("callmissed_stt", model, call, size=f"audio_bytes={len(audio)}")
 
     async def synthesize(self, text: str, language: str) -> bytes:
-        """Text-to-speech (mp3) with the configured TTS model and voice.
+        """Text-to-speech (mp3) with the configured TTS model and voice, processed in India
+        (data residency "in", Ruling V1 S1).
 
         `text` must be at most MAX_TTS_CHARS (callers split longer answers on sentence
         boundaries). Logs metadata only, never the text.
@@ -326,7 +331,7 @@ class CallMissedClient:
                 input=text,
                 voice=voice,  # type: ignore[arg-type]  # CallMissed voices are not OpenAI's
                 response_format="mp3",
-                extra_body={"language": hint},
+                extra_body={**copy.deepcopy(CHAT_EXTRA_BODY), "language": hint},
                 timeout=timeout,
             )
             audio = response.content

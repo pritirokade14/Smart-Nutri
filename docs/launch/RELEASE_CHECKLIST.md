@@ -53,6 +53,7 @@
 | 28 | Store listing and Data safety entered | USER | Drafts: `docs/launch/store-listing.md`, `data-safety.md` |
 | 29 | Closed testing started: date ____, 14-day end date ____ | USER | 12 or more testers opted in for 14 consecutive days |
 | 30 | Phone OTP status | OFF | `PHONE_OTP_ENABLED=false` until Meta approves `smartnutri_otp` (Task 14). The CallMissed template body is unverified. |
+| 30a | Voice status | OFF | `VOICE_ENABLED=false` (`/v1/voice/ask` answers 503 `ai_unavailable`) until the 24 h voice retention is live (row 17 or a bucket lifecycle rule) AND the user approves the paid STT/TTS probe (`scripts.probe_stt_formats --yes-spend`), which must also confirm CallMissed accepts `provider[data_residency]=in` on STT and `provider.data_residency` on TTS (Ruling V1). |
 | 31 | CallMissed plan and budget cap for launch | USER | Task 14 Step 4 |
 
 ## Rollback

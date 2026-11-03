@@ -454,6 +454,9 @@ export interface paths {
          *     at most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The
          *     verdict comes only from the rules engine; `answer` starts with it. Needs the
          *     `ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).
+         *
+         *     Off by default: while the server setting `VOICE_ENABLED` is false, every call answers
+         *     503 `ai_unavailable` (clients show the same "voice unavailable" message as for an outage).
          */
         post: operations["voice_ask"];
         delete?: never;
@@ -3920,7 +3923,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Speech, AI, storage or OFF unavailable */
+            /** @description Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), or speech, AI, storage or OFF is unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;

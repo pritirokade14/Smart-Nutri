@@ -706,3 +706,28 @@ def test_claim_deny_list_contents():
         "इलाज", "उपचार", "बरा",
     } <= set(explain_mod.DENY_WORDS_CLAIMS)  # fmt: skip
     assert {"suitable", "योग्य", "उपयुक्त"} <= set(explain_mod.DENY_WORDS_NOT_ALL_OK)
+
+
+def test_ruling_v1_deny_list_additions():
+    """Ruling V1 B1: disease-management claims always; go-ahead phrasing when not all ok."""
+    assert {"manage", "manages", "control", "controls"} <= set(explain_mod.DENY_WORDS_CLAIMS)
+    assert {
+        "acceptable", "go ahead", "खा सकते", "चल जाएगा", "खाऊ शकता", "हरकत नाही",
+    } <= set(explain_mod.DENY_WORDS_NOT_ALL_OK)  # fmt: skip
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["member_1 can go ahead.", "member_1 के लिए चल जाएगा।", "member_1 साठी हरकत नाही."],
+)
+def test_guard_drops_go_ahead_for_a_non_ok_family(family_result, family_rows, all_ok, text):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+    ok_result, ok_rows = all_ok
+    assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is not None
+
+
+def test_guard_drops_disease_control_claims_for_every_status(family_result, family_rows, all_ok):
+    text = "It may help member_1 control blood sugar."
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+    ok_result, ok_rows = all_ok
+    assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is None

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_app_settings
-from app.core.errors import ERROR_RESPONSES, ErrorEnvelope
+from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
 from app.core.ratelimit import limit
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
@@ -25,8 +25,21 @@ _RESPONSES = {
     403: {"model": ErrorEnvelope, "description": "ai_processing consent required"},
     413: {"model": ErrorEnvelope, "description": "Audio longer than 30 s or larger than 5 MB"},
     415: {"model": ErrorEnvelope, "description": "Not an accepted audio format"},
-    503: {"model": ErrorEnvelope, "description": "Speech, AI, storage or OFF unavailable"},
+    503: {
+        "model": ErrorEnvelope,
+        "description": (
+            "Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), "
+            "or speech, AI, storage or OFF is unavailable"
+        ),
+    },
 }
+
+
+def require_voice_enabled(settings: Annotated[Settings, Depends(get_app_settings)]) -> None:
+    """503 `ai_unavailable` while VOICE_ENABLED is off (Ruling V1 S3), before the body is
+    read or validated and before any paid call."""
+    if not settings.voice_enabled:
+        raise ApiError("ai_unavailable", 503)
 
 
 @router.post(
@@ -34,7 +47,8 @@ _RESPONSES = {
     operation_id="voice_ask",
     response_model=VoiceAnswer,
     responses=_RESPONSES,
-    dependencies=[Depends(limit("voice"))],  # first: it commits the session
+    # limit first: it commits the session (and must sit right after the consent gate).
+    dependencies=[Depends(limit("voice")), Depends(require_voice_enabled)],
 )
 async def voice_ask(
     # format: binary so both generated clients send a file part (OpenAPI 3.1 alone gives
@@ -58,6 +72,9 @@ async def voice_ask(
     at most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The
     verdict comes only from the rules engine; `answer` starts with it. Needs the
     `ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).
+
+    Off by default: while the server setting `VOICE_ENABLED` is false, every call answers
+    503 `ai_unavailable` (clients show the same "voice unavailable" message as for an outage).
     """
     data = await audio.read(MAX_AUDIO_BYTES + 1)
     return await service.ask_voice(

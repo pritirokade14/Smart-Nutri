@@ -7,6 +7,7 @@ overrides). Audio is an ffmpeg tone (tests/audio.py); nothing reaches CallMissed
 import io
 import logging
 import wave
+from pathlib import Path
 from uuid import UUID, uuid4
 
 import pytest
@@ -15,6 +16,7 @@ from sqlalchemy import text
 from app.features.consents.models import Consent
 from app.features.voice.service import split_for_tts
 from app.integrations.providers import CompletionFailed, ProviderUnavailable
+from scripts.export_fixture_responses import fixture_member_record
 from tests.api.analyze.conftest import OFF_BARCODE
 from tests.api.voice.conftest import A, llm_answer
 from tests.fakes.llm import FakeLLM
@@ -251,6 +253,67 @@ async def test_requires_ai_processing_consent(
     # The route gate (ruling G1: voice needs terms + ai_processing) answers first.
     assert body["error"]["details"] == {"purposes": ["ai_processing"]}
     assert fakes.speech.stt_calls == []
+
+
+async def test_voice_disabled_is_503_before_any_paid_call(
+    client, app, seeded_member, seeded_biscuit, wav3s, fakes
+):
+    """Ruling V1 S3: with VOICE_ENABLED off the route answers 503 ai_unavailable and never
+    reads the audio or calls STT, the LLM, TTS or storage."""
+    app.state.settings.voice_enabled = False
+    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+    assert (r.status_code, r.json()["error"]["code"]) == (503, "ai_unavailable")
+    assert fakes.speech.stt_calls == [] and fakes.llm.chat_calls == []
+    assert fakes.speech.synth_calls == [] and fakes.storage.uploads == []
+
+
+async def test_voice_disabled_wins_over_a_bad_body(client, app, fakes):
+    app.state.settings.voice_enabled = False
+    r = await client.post("/v1/voice/ask", data={"language": "en"})
+    assert (r.status_code, r.json()["error"]["code"]) == (503, "ai_unavailable")
+
+
+def test_voice_is_off_by_default():
+    from app.core.config import Settings
+
+    assert Settings(_env_file=None).voice_enabled is False
+    env_example = (Path(__file__).parents[3] / ".env.example").read_text("utf-8")
+    assert "\nVOICE_ENABLED=false\n" in env_example
+
+
+def test_voice_flag_is_in_the_contract(app):
+    op = app.openapi()["paths"]["/v1/voice/ask"]["post"]
+    assert "VOICE_ENABLED" in op["description"]
+    assert "VOICE_ENABLED" in op["responses"]["503"]["description"]
+
+
+async def test_every_family_name_is_redacted_from_the_llm_question(
+    client, db_session, seeded_member, seeded_biscuit, wav3s, fakes
+):
+    """Ruling V1 S2: the names of ALL the account's members leave the transcript."""
+    other = fixture_member_record("diabetic_adult", account_id=A)
+    other.id, other.name = uuid4(), "Ravi Kumar"
+    db_session.add(other)
+    await db_session.flush()
+    fakes.speech.transcript = "Can Ravi and asha share this"
+    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+    assert r.status_code == 200
+    assert r.json()["question"] == "Can Ravi and asha share this"  # shown to the user as said
+    question = fakes.llm.chat_calls[0]["user"].split("<user_question>")[1]
+    assert question == "Can this member and this member share this</user_question>"
+
+
+async def test_answer_naming_another_family_member_is_not_spoken(
+    client, db_session, seeded_member, seeded_biscuit, wav3s, fakes
+):
+    other = fixture_member_record("diabetic_adult", account_id=A)
+    other.id, other.name = uuid4(), "Ravi"
+    db_session.add(other)
+    await db_session.flush()
+    fakes.llm = FakeLLM(chat_result=llm_answer("avoid", "Ravi should skip it as well."))
+    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+    assert r.json()["source"] == "fallback"
+    assert "Ravi" not in fakes.speech.synth_calls[0].text
 
 
 async def test_requires_auth_401(app, client, seeded_member, seeded_biscuit, wav3s):

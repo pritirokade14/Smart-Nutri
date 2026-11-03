@@ -10,8 +10,9 @@ and the `explanation_cache` (part B).
 - `guard` drops the explanation when an echoed status differs from the engine's, a member is
   missing or extra, the text names an unknown `member_N` or uses any other form of a member
   token ("member 2", "Member-2"), contains a denied word ("safe", "healthy" and their hi/mr
-  forms; also "fine" and "okay" when any member is not `ok`), or contains a member name or
-  the account email. It never edits the text: clients substitute the `member_N` tokens
+  forms; medical claims such as "cure" or "control"; also "fine", "okay", "acceptable" and
+  go-ahead phrases when any member is not `ok`), or contains a member name or the account
+  email. It never edits the text: clients substitute the `member_N` tokens
   (via `member_refs`) and show the disclaimer.
 - `complete` calls the provider within an 8 s budget and returns None on any failure; `explain`
   is build + complete + guard. Neither raises, and neither touches the `AnalysisResult`,
@@ -82,7 +83,8 @@ DENY_WORDS: tuple[str, ...] = (
     "निरोगी",
 )
 # Medical-claim words, denied for every status (no medical claims). "इलाज" and "उपचार" (hi, mr)
-# mean cure / treatment; "बरा" (mr) means cured.
+# mean cure / treatment; "बरा" (mr) means cured. "manage" and "control" ("helps control
+# diabetes") are disease-management claims (Ruling V1 B1).
 DENY_WORDS_CLAIMS: tuple[str, ...] = (
     "cure",
     "cures",
@@ -92,12 +94,18 @@ DENY_WORDS_CLAIMS: tuple[str, ...] = (
     "reverse",
     "prevent",
     "prevents",
+    "manage",
+    "manages",
+    "control",
+    "controls",
     "इलाज",
     "उपचार",
     "बरा",
 )
 # Also denied when any member's status is not `ok`. "ठीक" (hi) and "चालेल" (mr) say "okay";
-# "योग्य" and "उपयुक्त" say "suitable".
+# "योग्य" and "उपयुक्त" say "suitable". The go-ahead phrases (Ruling V1 B1): "खा सकते/सकती/सकता"
+# (hi, "can eat"), "चल जाएगा/जाएगी" (hi, "it will do"), "खाऊ शकता/शकतो/शकते" (mr, "can eat";
+# also matches "शकतात" as a prefix) and "हरकत नाही" (mr, "no harm").
 DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = (
     "fine",
     "okay",
@@ -106,7 +114,20 @@ DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = (
     "suitable",
     "योग्य",
     "उपयुक्त",
+    "acceptable",
+    "go ahead",
+    "go-ahead",
+    "खा सकते",
+    "खा सकती",
+    "खा सकता",
+    "चल जाएगा",
+    "चल जाएगी",
+    "खाऊ शकता",
+    "खाऊ शकतो",
+    "खाऊ शकते",
+    "हरकत नाही",
 )
+_SPACES_RE = re.compile(r"\s+")
 
 
 # --- input (what the model sees) -----------------------------------------------------------
@@ -371,7 +392,8 @@ def _drop_reason(
             return "member_token_variant"
         if token not in expected:
             return "unknown_member_token"
-    haystack = _normalise(combined)
+    # Runs of whitespace become one space, so "go   ahead" still matches "go ahead".
+    haystack = _SPACES_RE.sub(" ", _normalise(combined))
     deny = (*DENY_WORDS, *DENY_WORDS_CLAIMS)
     if any(v.status is not scoring.Status.OK for v in result.verdicts):
         deny = (*deny, *DENY_WORDS_NOT_ALL_OK)

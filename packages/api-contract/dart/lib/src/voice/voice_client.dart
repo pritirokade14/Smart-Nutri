@@ -25,6 +25,9 @@ abstract class VoiceClient {
   /// at most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The.
   /// verdict comes only from the rules engine; `answer` starts with it. Needs the.
   /// `ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).
+  ///
+  /// Off by default: while the server setting `VOICE_ENABLED` is false, every call answers.
+  /// 503 `ai_unavailable` (clients show the same "voice unavailable" message as for an outage).
   @MultiPart()
   @POST('/v1/voice/ask')
   Future<VoiceAnswer> voiceAsk({

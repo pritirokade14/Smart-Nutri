@@ -37,6 +37,12 @@ def llm_answer(status: str = "avoid", answer: str = "It has a lot of sugar.") ->
     return VoiceLLM(members=[MemberStatusEcho(ref="member_1", status=status)], answer=answer)
 
 
+@pytest.fixture(autouse=True)
+def voice_on(app) -> None:
+    """Voice is off by default (VOICE_ENABLED, Ruling V1 S3); these tests exercise it on."""
+    app.state.settings.voice_enabled = True
+
+
 @pytest.fixture
 def fakes() -> Fakes:
     return Fakes(
