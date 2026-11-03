@@ -749,5 +749,19 @@
     "privacy": "Privacy policy",
     "terms": "Terms of use",
     "open_failed": "Couldn't open the page. Please try again."
+  },
+  "settings": {
+    "language_system": "Device language",
+    "about_title": "About SmartNutri",
+    "account_title": "Account",
+    "delete_button": "Delete account",
+    "delete_title": "Delete your account?",
+    "delete_body": "This permanently deletes your account, your family members and their health details, your scans and label photos, your food log and your voice answers. Products you added stay in the catalogue without your name. This can't be undone.",
+    "delete_confirm_word": "DELETE",
+    "delete_confirm_label": "Type {word} to confirm",
+    "delete_confirm": "Delete permanently",
+    "goodbye_title": "Your account has been deleted",
+    "goodbye_body": "Your data has been erased. Thank you for using SmartNutri.",
+    "goodbye_action": "Back to sign in"
   }
 }

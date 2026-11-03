@@ -23,6 +23,7 @@ import '../../features/product/presentation/search_screen.dart';
 import '../../features/scan/presentation/confirm_screen.dart';
 import '../../features/scan/presentation/label_capture_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
+import '../../features/settings/presentation/goodbye_screen.dart';
 import '../../features/settings/presentation/profile_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../config/app_config.dart';
@@ -56,7 +57,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final location = state.matchedLocation;
       final onSignIn = location.startsWith('/sign-in');
-      if (!auth.isSignedIn) return onSignIn ? null : '/sign-in';
+      // Shown signed out, right after the account is deleted.
+      final onGoodbye = location == '/goodbye';
+      if (!auth.isSignedIn) return onSignIn || onGoodbye ? null : '/sign-in';
       // F11: nothing else until the current terms are agreed (ruling G1:
       // every product route needs `terms`). While the states load, or if
       // they fail to, the app goes on; a 403 brings the user back here.
@@ -64,7 +67,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (ref.read(termsStatusProvider) == TermsStatus.required) {
         return onTerms ? null : '/terms';
       }
-      if (onSignIn || onTerms) return '/home';
+      if (onSignIn || onTerms || onGoodbye) return '/home';
       return null;
     },
     routes: [
@@ -126,6 +129,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(path: '/goodbye', builder: (_, _) => const GoodbyeScreen()),
       GoRoute(
         path: '/terms',
         builder: (_, _) =>

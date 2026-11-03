@@ -162,3 +162,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `share.include`, `share.preview`, `search.hint`**: machine drafts; short labels.
 ## Plan 8 Task 1 (Android: terms screen and consent routing)
 - [ ] **hi/mr `consent.{screen_title,screen_intro,update_note,needs_update,required_to_continue,updates_banner,review,withdraw_terms_confirm}`, `common.cancel`, `policy.{privacy,terms,open_failed}`**: machine drafts. `required_to_continue` replaces the health-data text when a scan or check is refused for a missing consent; it must stay neutral ("please review and agree"). `withdraw_terms_confirm` must say plainly that scanning stops until the user agrees again, without pressure.
+
+## Plan 8 Task 2 (Android: profile tab and account deletion)
+- [ ] **hi/mr `settings.*`** (`language_system`, `about_title`, `account_title`, `delete_button`, `delete_title`, `delete_body`, `delete_confirm_label`, `delete_confirm`, `goodbye_title`, `goodbye_body`, `goodbye_action`): machine drafts. `delete_body` must list plainly what is erased and say it cannot be undone. **`settings.delete_confirm_word` is "DELETE" in all three languages on purpose** (easy to type on any keyboard); the app compares it ignoring case and spaces. If a reviewer localizes it, keep it a single word that is easy to type.

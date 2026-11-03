@@ -3064,6 +3064,78 @@ abstract class AppLocalizations {
   /// **'Type at least 2 letters.'**
   String get searchTooShort;
 
+  /// No description provided for @settingsAboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About SmartNutri'**
+  String get settingsAboutTitle;
+
+  /// No description provided for @settingsAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccountTitle;
+
+  /// No description provided for @settingsDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account, your family members and their health details, your scans and label photos, your food log and your voice answers. Products you added stay in the catalogue without your name. This can\'t be undone.'**
+  String get settingsDeleteBody;
+
+  /// No description provided for @settingsDeleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get settingsDeleteButton;
+
+  /// No description provided for @settingsDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get settingsDeleteConfirm;
+
+  /// No description provided for @settingsDeleteConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {word} to confirm'**
+  String settingsDeleteConfirmLabel(String word);
+
+  /// No description provided for @settingsDeleteConfirmWord.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get settingsDeleteConfirmWord;
+
+  /// No description provided for @settingsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get settingsDeleteTitle;
+
+  /// No description provided for @settingsGoodbyeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get settingsGoodbyeAction;
+
+  /// No description provided for @settingsGoodbyeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data has been erased. Thank you for using SmartNutri.'**
+  String get settingsGoodbyeBody;
+
+  /// No description provided for @settingsGoodbyeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted'**
+  String get settingsGoodbyeTitle;
+
+  /// No description provided for @settingsLanguageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Device language'**
+  String get settingsLanguageSystem;
+
   /// No description provided for @shareButton.
   ///
   /// In en, this message translates to:

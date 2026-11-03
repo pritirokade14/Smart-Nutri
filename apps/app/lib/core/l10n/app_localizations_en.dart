@@ -1726,6 +1726,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTooShort => 'Type at least 2 letters.';
 
   @override
+  String get settingsAboutTitle => 'About SmartNutri';
+
+  @override
+  String get settingsAccountTitle => 'Account';
+
+  @override
+  String get settingsDeleteBody =>
+      'This permanently deletes your account, your family members and their health details, your scans and label photos, your food log and your voice answers. Products you added stay in the catalogue without your name. This can\'t be undone.';
+
+  @override
+  String get settingsDeleteButton => 'Delete account';
+
+  @override
+  String get settingsDeleteConfirm => 'Delete permanently';
+
+  @override
+  String settingsDeleteConfirmLabel(String word) {
+    return 'Type $word to confirm';
+  }
+
+  @override
+  String get settingsDeleteConfirmWord => 'DELETE';
+
+  @override
+  String get settingsDeleteTitle => 'Delete your account?';
+
+  @override
+  String get settingsGoodbyeAction => 'Back to sign in';
+
+  @override
+  String get settingsGoodbyeBody =>
+      'Your data has been erased. Thank you for using SmartNutri.';
+
+  @override
+  String get settingsGoodbyeTitle => 'Your account has been deleted';
+
+  @override
+  String get settingsLanguageSystem => 'Device language';
+
+  @override
   String get shareButton => 'Share';
 
   @override

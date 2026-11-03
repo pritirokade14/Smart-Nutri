@@ -74,6 +74,10 @@ Future<void> _pump(
   FakeAuthRepository? auth,
   List<Uri>? opened,
 }) async {
+  // Tall enough for the whole profile.
+  t.view.physicalSize = const Size(900, 3000);
+  t.view.devicePixelRatio = 1;
+  addTearDown(t.view.reset);
   await t.pumpWidget(
     ProviderScope(
       overrides: [

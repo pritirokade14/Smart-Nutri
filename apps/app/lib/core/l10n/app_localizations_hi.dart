@@ -1733,6 +1733,46 @@ class AppLocalizationsHi extends AppLocalizations {
   String get searchTooShort => 'कम से कम 2 अक्षर लिखें।';
 
   @override
+  String get settingsAboutTitle => 'SmartNutri के बारे में';
+
+  @override
+  String get settingsAccountTitle => 'खाता';
+
+  @override
+  String get settingsDeleteBody =>
+      'इससे आपका खाता, आपके परिवार के सदस्य और उनकी स्वास्थ्य जानकारी, आपके स्कैन और लेबल की फ़ोटो, आपका भोजन लॉग और आपके वॉइस जवाब हमेशा के लिए हट जाएँगे। आपके जोड़े गए उत्पाद बिना आपके नाम के सूची में रहेंगे। इसे वापस नहीं किया जा सकता।';
+
+  @override
+  String get settingsDeleteButton => 'खाता हटाएँ';
+
+  @override
+  String get settingsDeleteConfirm => 'हमेशा के लिए हटाएँ';
+
+  @override
+  String settingsDeleteConfirmLabel(String word) {
+    return 'पुष्टि के लिए $word लिखें';
+  }
+
+  @override
+  String get settingsDeleteConfirmWord => 'DELETE';
+
+  @override
+  String get settingsDeleteTitle => 'क्या आप अपना खाता हटाना चाहते हैं?';
+
+  @override
+  String get settingsGoodbyeAction => 'साइन इन पर वापस जाएँ';
+
+  @override
+  String get settingsGoodbyeBody =>
+      'आपका डेटा मिटा दिया गया है। SmartNutri का उपयोग करने के लिए धन्यवाद।';
+
+  @override
+  String get settingsGoodbyeTitle => 'आपका खाता हटा दिया गया है';
+
+  @override
+  String get settingsLanguageSystem => 'डिवाइस की भाषा';
+
+  @override
   String get shareButton => 'शेयर करें';
 
   @override

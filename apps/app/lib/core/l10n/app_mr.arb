@@ -912,6 +912,25 @@
   "searchSourceOurs": "SmartNutri",
   "searchTitle": "उत्पादने शोधा",
   "searchTooShort": "किमान 2 अक्षरे लिहा.",
+  "settingsAboutTitle": "SmartNutri बद्दल",
+  "settingsAccountTitle": "खाते",
+  "settingsDeleteBody": "यामुळे तुमचे खाते, तुमच्या कुटुंबातील सदस्य आणि त्यांची आरोग्य माहिती, तुमचे स्कॅन आणि लेबलचे फोटो, तुमची आहार नोंद आणि तुमची व्हॉइस उत्तरे कायमची हटवली जातील. तुम्ही जोडलेली उत्पादने तुमच्या नावाशिवाय यादीत राहतील. हे परत करता येणार नाही.",
+  "settingsDeleteButton": "खाते हटवा",
+  "settingsDeleteConfirm": "कायमचे हटवा",
+  "settingsDeleteConfirmLabel": "खात्री करण्यासाठी {word} लिहा",
+  "@settingsDeleteConfirmLabel": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDeleteConfirmWord": "DELETE",
+  "settingsDeleteTitle": "तुमचे खाते हटवायचे?",
+  "settingsGoodbyeAction": "साइन इनकडे परत जा",
+  "settingsGoodbyeBody": "तुमचा डेटा पुसून टाकला आहे. SmartNutri वापरल्याबद्दल धन्यवाद.",
+  "settingsGoodbyeTitle": "तुमचे खाते हटवले गेले आहे",
+  "settingsLanguageSystem": "डिव्हाइसची भाषा",
   "shareButton": "शेअर करा",
   "shareCopied": "लिंक कॉपी झाली",
   "shareCopyLink": "लिंक कॉपी करा",

@@ -912,6 +912,25 @@
   "searchSourceOurs": "SmartNutri",
   "searchTitle": "Search products",
   "searchTooShort": "Type at least 2 letters.",
+  "settingsAboutTitle": "About SmartNutri",
+  "settingsAccountTitle": "Account",
+  "settingsDeleteBody": "This permanently deletes your account, your family members and their health details, your scans and label photos, your food log and your voice answers. Products you added stay in the catalogue without your name. This can't be undone.",
+  "settingsDeleteButton": "Delete account",
+  "settingsDeleteConfirm": "Delete permanently",
+  "settingsDeleteConfirmLabel": "Type {word} to confirm",
+  "@settingsDeleteConfirmLabel": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDeleteConfirmWord": "DELETE",
+  "settingsDeleteTitle": "Delete your account?",
+  "settingsGoodbyeAction": "Back to sign in",
+  "settingsGoodbyeBody": "Your data has been erased. Thank you for using SmartNutri.",
+  "settingsGoodbyeTitle": "Your account has been deleted",
+  "settingsLanguageSystem": "Device language",
   "shareButton": "Share",
   "shareCopied": "Link copied",
   "shareCopyLink": "Copy link",

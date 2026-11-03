@@ -5,6 +5,7 @@ import 'core/config/app_config.dart';
 import 'core/l10n/app_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/settings/presentation/settings_providers.dart';
 
 class SmartNutriApp extends ConsumerWidget {
   const SmartNutriApp({super.key});
@@ -32,6 +33,8 @@ class SmartNutriApp extends ConsumerWidget {
     }
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
+      // Null follows the device language.
+      locale: ref.watch(appLocaleProvider),
       theme: buildAppTheme(),
       darkTheme: buildDarkAppTheme(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
