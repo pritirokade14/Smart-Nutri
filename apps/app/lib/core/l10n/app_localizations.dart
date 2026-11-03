@@ -856,6 +856,12 @@ abstract class AppLocalizations {
   /// **'Not agreed'**
   String get consentNotGranted;
 
+  /// No description provided for @consentOptionalAiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. This only turns on the AI explanation; results are the same without it.'**
+  String get consentOptionalAiNote;
+
   /// No description provided for @consentTermsBody.
   ///
   /// In en, this message translates to:
@@ -1420,6 +1426,12 @@ abstract class AppLocalizations {
   /// **'Add a family member'**
   String get membersAdd;
 
+  /// No description provided for @membersBornIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Born {year}'**
+  String membersBornIn(String year);
+
   /// No description provided for @membersConsentWithdrawnNotice.
   ///
   /// In en, this message translates to:
@@ -1437,6 +1449,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get membersFormAllergenAdd;
+
+  /// No description provided for @membersFormAllergenLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Type 2 to 40 characters.'**
+  String get membersFormAllergenLength;
+
+  /// No description provided for @membersFormAllergenLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add up to 20 allergies.'**
+  String get membersFormAllergenLimit;
 
   /// No description provided for @membersFormAllergenOther.
   ///
@@ -1467,6 +1491,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Used for the checks for children and babies under 2.'**
   String get membersFormBirthYearHelp;
+
+  /// No description provided for @membersFormBirthYearInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a year from 1900 to {year}.'**
+  String membersFormBirthYearInvalid(String year);
 
   /// No description provided for @membersFormCancel.
   ///
@@ -1528,11 +1558,29 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get membersFormName;
 
+  /// No description provided for @membersFormNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name.'**
+  String get membersFormNameRequired;
+
+  /// No description provided for @membersFormNumberRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from {min} to {max}.'**
+  String membersFormNumberRange(String max, String min);
+
   /// No description provided for @membersFormRelation.
   ///
   /// In en, this message translates to:
   /// **'Relation'**
   String get membersFormRelation;
+
+  /// No description provided for @membersFormRemoveAllergyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {allergy} from the allergies for {name}? Products with it will no longer be flagged for them.'**
+  String membersFormRemoveAllergyConfirm(String allergy, String name);
 
   /// No description provided for @membersFormSave.
   ///
@@ -1803,6 +1851,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings are coming soon'**
   String get profileComingSoonTitle;
+
+  /// No description provided for @profileConsentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy and consent'**
+  String get profileConsentsTitle;
 
   /// No description provided for @profileTitle.
   ///

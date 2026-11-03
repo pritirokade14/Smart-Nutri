@@ -11,7 +11,8 @@ import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
-import '../../features/members/presentation/family_screen.dart';
+import '../../features/members/presentation/member_form_screen.dart';
+import '../../features/members/presentation/members_list_screen.dart';
 import '../../features/scan/presentation/confirm_screen.dart';
 import '../../features/scan/presentation/label_capture_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
@@ -78,7 +79,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/family', builder: (_, _) => const FamilyScreen()),
+              GoRoute(
+                path: '/family',
+                builder: (_, _) => const MembersListScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (_, _) => const MemberFormScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) =>
+                        MemberFormScreen(memberId: state.pathParameters['id']),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(

@@ -411,6 +411,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get consentNotGranted => 'सहमति नहीं दी गई';
 
   @override
+  String get consentOptionalAiNote =>
+      'वैकल्पिक। इससे केवल AI व्याख्या चालू होती है; इसके बिना भी नतीजे वही रहते हैं।';
+
+  @override
   String get consentTermsBody =>
       'मैं SmartNutri की उपयोग की शर्तों और गोपनीयता नीति से सहमत हूँ।';
 
@@ -729,6 +733,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get membersAdd => 'परिवार का सदस्य जोड़ें';
 
   @override
+  String membersBornIn(String year) {
+    return 'जन्म $year';
+  }
+
+  @override
   String get membersConsentWithdrawnNotice =>
       'स्वास्थ्य डेटा की सहमति बंद है। सहेजी गई एलर्जी और स्वास्थ्य स्थितियाँ अब भी उत्पादों की जाँच में इस्तेमाल होती हैं, लेकिन दोबारा सहमति देने तक नई नहीं सहेजी जा सकतीं।';
 
@@ -737,6 +746,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get membersFormAllergenAdd => 'जोड़ें';
+
+  @override
+  String get membersFormAllergenLength => '2 से 40 अक्षर लिखें।';
+
+  @override
+  String get membersFormAllergenLimit =>
+      'आप ज़्यादा से ज़्यादा 20 एलर्जी जोड़ सकते हैं।';
 
   @override
   String get membersFormAllergenOther => 'दूसरी एलर्जी';
@@ -753,6 +769,11 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get membersFormBirthYearHelp =>
       'बच्चों और 2 साल से छोटे बच्चों की जाँच के लिए इस्तेमाल होता है।';
+
+  @override
+  String membersFormBirthYearInvalid(String year) {
+    return '1900 से $year के बीच का वर्ष लिखें।';
+  }
 
   @override
   String get membersFormCancel => 'रद्द करें';
@@ -789,7 +810,20 @@ class AppLocalizationsHi extends AppLocalizations {
   String get membersFormName => 'नाम';
 
   @override
+  String get membersFormNameRequired => 'नाम लिखें।';
+
+  @override
+  String membersFormNumberRange(String max, String min) {
+    return '$min से $max के बीच की संख्या लिखें।';
+  }
+
+  @override
   String get membersFormRelation => 'रिश्ता';
+
+  @override
+  String membersFormRemoveAllergyConfirm(String allergy, String name) {
+    return '$name की एलर्जी से $allergy हटाएँ? इसके बाद इसवाले उत्पाद उनके लिए चिह्नित नहीं होंगे।';
+  }
 
   @override
   String get membersFormSave => 'सहेजें';
@@ -939,6 +973,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get profileComingSoonTitle => 'सेटिंग्स जल्द आ रही हैं';
+
+  @override
+  String get profileConsentsTitle => 'गोपनीयता और सहमति';
 
   @override
   String get profileTitle => 'प्रोफ़ाइल';

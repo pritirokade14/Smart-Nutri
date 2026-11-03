@@ -174,6 +174,7 @@
   "consentHealthDataBody": "आप जो एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न दर्ज करते हैं, SmartNutri उनसे परिवार के हर सदस्य के लिए उत्पादों की जाँच करता है। यह जानकारी है, चिकित्सा सलाह नहीं। आप यह सहमति कभी भी वापस ले सकते हैं।",
   "consentHealthDataTitle": "स्वास्थ्य डेटा",
   "consentNotGranted": "सहमति नहीं दी गई",
+  "consentOptionalAiNote": "वैकल्पिक। इससे केवल AI व्याख्या चालू होती है; इसके बिना भी नतीजे वही रहते हैं।",
   "consentTermsBody": "मैं SmartNutri की उपयोग की शर्तों और गोपनीयता नीति से सहमत हूँ।",
   "consentTermsTitle": "उपयोग की शर्तें",
   "consentWithdraw": "सहमति वापस लें",
@@ -282,14 +283,32 @@
   "languageLabel": "भाषा",
   "languageMr": "मराठी",
   "membersAdd": "परिवार का सदस्य जोड़ें",
+  "membersBornIn": "जन्म {year}",
+  "@membersBornIn": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "membersConsentWithdrawnNotice": "स्वास्थ्य डेटा की सहमति बंद है। सहेजी गई एलर्जी और स्वास्थ्य स्थितियाँ अब भी उत्पादों की जाँच में इस्तेमाल होती हैं, लेकिन दोबारा सहमति देने तक नई नहीं सहेजी जा सकतीं।",
   "membersEdit": "बदलें",
   "membersFormAllergenAdd": "जोड़ें",
+  "membersFormAllergenLength": "2 से 40 अक्षर लिखें।",
+  "membersFormAllergenLimit": "आप ज़्यादा से ज़्यादा 20 एलर्जी जोड़ सकते हैं।",
   "membersFormAllergenOther": "दूसरी एलर्जी",
   "membersFormAllergens": "एलर्जी",
   "membersFormAllergensHelp": "सूची में से चुनें, या खुद लिखें।",
   "membersFormBirthYear": "जन्म का वर्ष",
   "membersFormBirthYearHelp": "बच्चों और 2 साल से छोटे बच्चों की जाँच के लिए इस्तेमाल होता है।",
+  "membersFormBirthYearInvalid": "1900 से {year} के बीच का वर्ष लिखें।",
+  "@membersFormBirthYearInvalid": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "membersFormCancel": "रद्द करें",
   "membersFormClearAllergiesConfirm": "{name} की सारी एलर्जी हटाएँ? इन एलर्जी वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।",
   "@membersFormClearAllergiesConfirm": {
@@ -307,7 +326,30 @@
   "membersFormHealthFieldsNote": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न केवल स्वास्थ्य डेटा के उपयोग की आपकी सहमति से सहेजे जाते हैं।",
   "membersFormHeightCm": "ऊँचाई (सेमी, वैकल्पिक)",
   "membersFormName": "नाम",
+  "membersFormNameRequired": "नाम लिखें।",
+  "membersFormNumberRange": "{min} से {max} के बीच की संख्या लिखें।",
+  "@membersFormNumberRange": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
   "membersFormRelation": "रिश्ता",
+  "membersFormRemoveAllergyConfirm": "{name} की एलर्जी से {allergy} हटाएँ? इसके बाद इसवाले उत्पाद उनके लिए चिह्नित नहीं होंगे।",
+  "@membersFormRemoveAllergyConfirm": {
+    "placeholders": {
+      "allergy": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "membersFormSave": "सहेजें",
   "membersFormSex": "लिंग (वैकल्पिक)",
   "membersFormWeightKg": "वज़न (किग्रा, वैकल्पिक)",
@@ -374,6 +416,7 @@
   "profileBody": "आपके खाते, भाषा और गोपनीयता की सेटिंग्स यहाँ होंगी।",
   "profileComingSoonBody": "भाषा, गोपनीयता और खाते की सेटिंग्स यहाँ दिखेंगी।",
   "profileComingSoonTitle": "सेटिंग्स जल्द आ रही हैं",
+  "profileConsentsTitle": "गोपनीयता और सहमति",
   "profileTitle": "प्रोफ़ाइल",
   "reasonAddedSugars": "इसमें अतिरिक्त शर्करा मिलाई गई है: {ingredients}।",
   "@reasonAddedSugars": {

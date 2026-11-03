@@ -383,7 +383,13 @@
       "health_fields_note": "Allergies, health conditions, goal, height and weight are saved only with your consent to health data processing.",
       "clear_allergies_confirm": "Remove every allergy for {name}? Products with these allergens will no longer be flagged for them.",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "name_required": "Enter a name.",
+      "birth_year_invalid": "Enter a year from 1900 to {year}.",
+      "number_range": "Enter a number from {min} to {max}.",
+      "allergen_length": "Type 2 to 40 characters.",
+      "allergen_limit": "You can add up to 20 allergies.",
+      "remove_allergy_confirm": "Remove {allergy} from the allergies for {name}? Products with it will no longer be flagged for them."
     },
     "relation": {
       "self": "You",
@@ -401,7 +407,8 @@
       "healthy_eating": "Eat better",
       "weight_loss": "Lose weight",
       "weight_gain": "Gain weight"
-    }
+    },
+    "born_in": "Born {year}"
   },
   "consent": {
     "health_data": {
@@ -420,7 +427,8 @@
     "decline": "Not now",
     "withdraw": "Withdraw consent",
     "granted": "Agreed",
-    "not_granted": "Not agreed"
+    "not_granted": "Not agreed",
+    "optional_ai_note": "Optional. This only turns on the AI explanation; results are the same without it."
   },
   "explanation": {
     "title": "Why this result",
@@ -475,6 +483,7 @@
     "title": "Profile",
     "body": "Your account, language and privacy settings will be here.",
     "coming_soon_title": "Settings are coming soon",
-    "coming_soon_body": "Language, privacy and account settings will appear here."
+    "coming_soon_body": "Language, privacy and account settings will appear here.",
+    "consents_title": "Privacy and consent"
   }
 }

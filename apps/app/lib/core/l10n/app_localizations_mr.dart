@@ -410,6 +410,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get consentNotGranted => 'संमती दिलेली नाही';
 
   @override
+  String get consentOptionalAiNote =>
+      'ऐच्छिक. यामुळे फक्त AI स्पष्टीकरण सुरू होते; त्याशिवायही निकाल तेच राहतात.';
+
+  @override
   String get consentTermsBody =>
       'मी SmartNutri च्या वापराच्या अटी आणि गोपनीयता धोरणाशी सहमत आहे.';
 
@@ -727,6 +731,11 @@ class AppLocalizationsMr extends AppLocalizations {
   String get membersAdd => 'कुटुंबातील सदस्य जोडा';
 
   @override
+  String membersBornIn(String year) {
+    return 'जन्म $year';
+  }
+
+  @override
   String get membersConsentWithdrawnNotice =>
       'आरोग्य डेटाची संमती बंद आहे. जतन केलेल्या ॲलर्जी आणि आरोग्य स्थिती अजूनही उत्पादनांच्या तपासणीसाठी वापरल्या जातात, पण पुन्हा संमती देईपर्यंत नवीन जतन करता येणार नाहीत.';
 
@@ -735,6 +744,13 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get membersFormAllergenAdd => 'जोडा';
+
+  @override
+  String get membersFormAllergenLength => '2 ते 40 अक्षरे लिहा.';
+
+  @override
+  String get membersFormAllergenLimit =>
+      'तुम्ही जास्तीत जास्त 20 ॲलर्जी जोडू शकता.';
 
   @override
   String get membersFormAllergenOther => 'इतर ॲलर्जी';
@@ -751,6 +767,11 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get membersFormBirthYearHelp =>
       'मुलांच्या आणि 2 वर्षांखालील बाळांच्या तपासणीसाठी वापरले जाते.';
+
+  @override
+  String membersFormBirthYearInvalid(String year) {
+    return '1900 ते $year मधील वर्ष लिहा.';
+  }
 
   @override
   String get membersFormCancel => 'रद्द करा';
@@ -787,7 +808,20 @@ class AppLocalizationsMr extends AppLocalizations {
   String get membersFormName => 'नाव';
 
   @override
+  String get membersFormNameRequired => 'नाव लिहा.';
+
+  @override
+  String membersFormNumberRange(String max, String min) {
+    return '$min ते $max मधील संख्या लिहा.';
+  }
+
+  @override
   String get membersFormRelation => 'नाते';
+
+  @override
+  String membersFormRemoveAllergyConfirm(String allergy, String name) {
+    return '$name यांच्या ॲलर्जीमधून $allergy काढायचे? त्यानंतर ते असलेली उत्पादने त्यांच्यासाठी दाखवली जाणार नाहीत.';
+  }
 
   @override
   String get membersFormSave => 'जतन करा';
@@ -935,6 +969,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get profileComingSoonTitle => 'सेटिंग्ज लवकरच येत आहेत';
+
+  @override
+  String get profileConsentsTitle => 'गोपनीयता आणि संमती';
 
   @override
   String get profileTitle => 'प्रोफाइल';

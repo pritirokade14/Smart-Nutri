@@ -13,9 +13,11 @@ import 'package:smartnutri_ai/features/auth/presentation/phone_otp_screen.dart';
 import 'package:smartnutri_ai/features/auth/presentation/sign_in_screen.dart';
 import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
 import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
+import 'package:smartnutri_ai/features/settings/presentation/profile_screen.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../support/fake_auth.dart';
+import '../support/fake_members.dart';
 
 class _FakeMe implements MeClient {
   _FakeMe(this.result);
@@ -29,6 +31,8 @@ class _FakeApi implements SmartNutriApiClient {
   final MeClient _me;
   @override
   MeClient get me => _me;
+  @override
+  final ConsentsClient consents = FakeConsentsClient();
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
@@ -137,6 +141,17 @@ void main() {
     expect(find.text(l10n.errorRateLimited), findsOneWidget);
     // Sign-out lives on the Profile tab.
     await tester.tap(find.text(l10n.navProfile));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text(l10n.authSignOut),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ProfileScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text(l10n.authSignOut));
     await tester.pumpAndSettle();

@@ -174,6 +174,7 @@
   "consentHealthDataBody": "SmartNutri uses the allergies, health conditions, goal, height and weight you enter to check products for each family member. This is information, not medical advice. You can withdraw this consent at any time.",
   "consentHealthDataTitle": "Health data",
   "consentNotGranted": "Not agreed",
+  "consentOptionalAiNote": "Optional. This only turns on the AI explanation; results are the same without it.",
   "consentTermsBody": "I agree to the SmartNutri terms of use and privacy policy.",
   "consentTermsTitle": "Terms of use",
   "consentWithdraw": "Withdraw consent",
@@ -282,14 +283,32 @@
   "languageLabel": "Language",
   "languageMr": "मराठी",
   "membersAdd": "Add a family member",
+  "membersBornIn": "Born {year}",
+  "@membersBornIn": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "membersConsentWithdrawnNotice": "Health data consent is off. Saved allergies and conditions are still used to check products, but new ones can't be saved until you agree again.",
   "membersEdit": "Edit",
   "membersFormAllergenAdd": "Add",
+  "membersFormAllergenLength": "Type 2 to 40 characters.",
+  "membersFormAllergenLimit": "You can add up to 20 allergies.",
   "membersFormAllergenOther": "Other allergy",
   "membersFormAllergens": "Allergies",
   "membersFormAllergensHelp": "Pick from the list, or type your own.",
   "membersFormBirthYear": "Year of birth",
   "membersFormBirthYearHelp": "Used for the checks for children and babies under 2.",
+  "membersFormBirthYearInvalid": "Enter a year from 1900 to {year}.",
+  "@membersFormBirthYearInvalid": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "membersFormCancel": "Cancel",
   "membersFormClearAllergiesConfirm": "Remove every allergy for {name}? Products with these allergens will no longer be flagged for them.",
   "@membersFormClearAllergiesConfirm": {
@@ -307,7 +326,30 @@
   "membersFormHealthFieldsNote": "Allergies, health conditions, goal, height and weight are saved only with your consent to health data processing.",
   "membersFormHeightCm": "Height (cm, optional)",
   "membersFormName": "Name",
+  "membersFormNameRequired": "Enter a name.",
+  "membersFormNumberRange": "Enter a number from {min} to {max}.",
+  "@membersFormNumberRange": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
   "membersFormRelation": "Relation",
+  "membersFormRemoveAllergyConfirm": "Remove {allergy} from the allergies for {name}? Products with it will no longer be flagged for them.",
+  "@membersFormRemoveAllergyConfirm": {
+    "placeholders": {
+      "allergy": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "membersFormSave": "Save",
   "membersFormSex": "Sex (optional)",
   "membersFormWeightKg": "Weight (kg, optional)",
@@ -374,6 +416,7 @@
   "profileBody": "Your account, language and privacy settings will be here.",
   "profileComingSoonBody": "Language, privacy and account settings will appear here.",
   "profileComingSoonTitle": "Settings are coming soon",
+  "profileConsentsTitle": "Privacy and consent",
   "profileTitle": "Profile",
   "reasonAddedSugars": "Contains added sugars: {ingredients}.",
   "@reasonAddedSugars": {

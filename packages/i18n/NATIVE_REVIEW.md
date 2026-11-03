@@ -109,3 +109,9 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `history.*`, `family.*`, `profile.*`** (`title`, `coming_soon_title`, `coming_soon_body`): machine drafts. `family.coming_soon_body` mentions age, allergies and diet: keep it informational, no claim that the app manages a condition.
 - [ ] **hi/mr `result.{family_title,nutrition_title,not_on_label}`**: machine drafts. `not_on_label` must read as "the pack does not print this value", not "zero". Keep "100 ग्राम/मि.ली." / "100 ग्रॅम/मि.ली." consistent with the reason strings.
 - [ ] **hi/mr `confirm.{section_product,section_nutrition,section_allergens,section_pack}`**: machine drafts for the confirm-screen group titles. Check "एलर्जी कारक" (hi) and "ॲलर्जी घटक" (mr) for "Allergens", and "तालिका" / "तक्ता" for the nutrition table. Check "कृत्रिम स्वीटनर" (hi) and "कृत्रिम स्वीटनर (गोडवा)" (mr), "एमएसजी" for MSG, and keep `added_sugar` consistent with the open "अतिरिक्त चीनी" / "शर्करा" item above.
+
+## Android family members and consent (Plan 5 Task 9)
+- [ ] **hi/mr `members.form.remove_allergy_confirm`**: machine draft. It warns that a removed allergy is no longer flagged on products, so it must read as a clear, calm warning. Check the hi "इसवाले उत्पाद" phrasing and the mr "यांच्या" honorific with `{name}`.
+- [ ] **hi/mr `members.born_in`, `members.form.{name_required,birth_year_invalid,number_range,allergen_length,allergen_limit}`**: machine drafts for form labels and validation. Numbers stay in Latin digits.
+- [ ] **hi/mr `consent.optional_ai_note`**: machine draft. It must say the AI consent is optional and that results are the same without it (the AI never decides).
+- [ ] **hi/mr `profile.consents_title`**: machine draft ("गोपनीयता और सहमति" / "गोपनीयता आणि संमती").

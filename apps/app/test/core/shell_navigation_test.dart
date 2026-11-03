@@ -10,15 +10,15 @@ import 'package:smartnutri_ai/features/auth/data/auth_repository.dart';
 import 'package:smartnutri_ai/features/auth/presentation/sign_in_screen.dart';
 import 'package:smartnutri_ai/features/history/presentation/history_screen.dart';
 import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
-import 'package:smartnutri_ai/features/members/presentation/family_screen.dart';
+import 'package:smartnutri_ai/features/members/presentation/members_list_screen.dart';
 import 'package:smartnutri_ai/features/scan/presentation/label_capture_screen.dart';
 import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
 import 'package:smartnutri_ai/features/settings/presentation/profile_screen.dart';
 import 'package:smartnutri_ai/shared/widgets/app_shell.dart';
-import 'package:smartnutri_ai/shared/widgets/states.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../support/fake_auth.dart';
+import '../support/fake_members.dart';
 
 class _FakeMe implements MeClient {
   @override
@@ -34,6 +34,10 @@ class _FakeMe implements MeClient {
 class _FakeApi implements SmartNutriApiClient {
   @override
   MeClient get me => _FakeMe();
+  @override
+  final MembersClient members = FakeMembersClient();
+  @override
+  final ConsentsClient consents = FakeConsentsClient();
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
@@ -101,22 +105,29 @@ void main() {
     expect(_selected(t), 0);
   });
 
-  testWidgets('History, Family and Profile are "coming soon" tabs', (t) async {
+  testWidgets('History is a "coming soon" tab; Family lists members; '
+      'Profile shows consents', (t) async {
     await _pump(t);
-    final tabs = [
-      (en.navHistory, HistoryScreen, en.historyComingSoonTitle, 2),
-      (en.navFamily, FamilyScreen, en.familyComingSoonTitle, 3),
-      (en.navProfile, ProfileScreen, en.profileComingSoonTitle, 4),
-    ];
-    for (final (label, type, title, index) in tabs) {
-      await t.tap(_nav(label));
-      await t.pumpAndSettle();
-      expect(find.byType(type), findsOneWidget, reason: label);
-      expect(find.byType(EmptyState), findsOneWidget, reason: label);
-      expect(find.text(title), findsOneWidget, reason: label);
-      expect(find.text(en.commonComingSoon), findsOneWidget, reason: label);
-      expect(_selected(t), index, reason: label);
-    }
+    await t.tap(_nav(en.navHistory));
+    await t.pumpAndSettle();
+    expect(find.byType(HistoryScreen), findsOneWidget);
+    expect(find.text(en.historyComingSoonTitle), findsOneWidget);
+    expect(_selected(t), 2);
+
+    await t.tap(_nav(en.navFamily));
+    await t.pumpAndSettle();
+    expect(find.byType(MembersListScreen), findsOneWidget);
+    expect(find.text('Ravi'), findsOneWidget);
+    expect(find.text(en.membersAdd), findsOneWidget);
+    expect(_selected(t), 3);
+
+    await t.tap(_nav(en.navProfile));
+    await t.pumpAndSettle();
+    expect(find.byType(ProfileScreen), findsOneWidget);
+    expect(find.text(en.profileConsentsTitle), findsOneWidget);
+    expect(find.text(en.consentHealthDataTitle), findsOneWidget);
+    expect(_selected(t), 4);
+
     await t.tap(_nav(en.navHome));
     await t.pumpAndSettle();
     expect(find.byType(HomeScreen), findsOneWidget);
@@ -163,6 +174,17 @@ void main() {
   testWidgets('sign out from Profile returns to sign-in', (t) async {
     await _pump(t);
     await t.tap(_nav(en.navProfile));
+    await t.pumpAndSettle();
+    await t.scrollUntilVisible(
+      find.text(en.authSignOut),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ProfileScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     await t.pumpAndSettle();
     await t.tap(find.text(en.authSignOut));
     await t.pumpAndSettle();

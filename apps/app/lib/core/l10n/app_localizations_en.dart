@@ -408,6 +408,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentNotGranted => 'Not agreed';
 
   @override
+  String get consentOptionalAiNote =>
+      'Optional. This only turns on the AI explanation; results are the same without it.';
+
+  @override
   String get consentTermsBody =>
       'I agree to the SmartNutri terms of use and privacy policy.';
 
@@ -724,6 +728,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersAdd => 'Add a family member';
 
   @override
+  String membersBornIn(String year) {
+    return 'Born $year';
+  }
+
+  @override
   String get membersConsentWithdrawnNotice =>
       'Health data consent is off. Saved allergies and conditions are still used to check products, but new ones can\'t be saved until you agree again.';
 
@@ -732,6 +741,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get membersFormAllergenAdd => 'Add';
+
+  @override
+  String get membersFormAllergenLength => 'Type 2 to 40 characters.';
+
+  @override
+  String get membersFormAllergenLimit => 'You can add up to 20 allergies.';
 
   @override
   String get membersFormAllergenOther => 'Other allergy';
@@ -749,6 +764,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get membersFormBirthYearHelp =>
       'Used for the checks for children and babies under 2.';
+
+  @override
+  String membersFormBirthYearInvalid(String year) {
+    return 'Enter a year from 1900 to $year.';
+  }
 
   @override
   String get membersFormCancel => 'Cancel';
@@ -785,7 +805,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersFormName => 'Name';
 
   @override
+  String get membersFormNameRequired => 'Enter a name.';
+
+  @override
+  String membersFormNumberRange(String max, String min) {
+    return 'Enter a number from $min to $max.';
+  }
+
+  @override
   String get membersFormRelation => 'Relation';
+
+  @override
+  String membersFormRemoveAllergyConfirm(String allergy, String name) {
+    return 'Remove $allergy from the allergies for $name? Products with it will no longer be flagged for them.';
+  }
 
   @override
   String get membersFormSave => 'Save';
@@ -934,6 +967,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileComingSoonTitle => 'Settings are coming soon';
+
+  @override
+  String get profileConsentsTitle => 'Privacy and consent';
 
   @override
   String get profileTitle => 'Profile';
