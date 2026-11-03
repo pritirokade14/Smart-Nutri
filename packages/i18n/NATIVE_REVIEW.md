@@ -247,3 +247,6 @@ All hi/mr strings below are machine drafts and need a native reader. Safe words 
 - [ ] **hi/mr `members.goal.build_muscle_adults_only`**: machine drafts. Shown when "build muscle" is picked for a member under 18 (the API answers 422 `body.goal`). Neutral and factual; it must not suggest any protein amount or product for the child.
 - [ ] **hi/mr `confirm.category_suggestion.supplement`**: machine drafts. A hint on the confirm screen when the ingredients name whey or a protein isolate/concentrate, or protein is at least 50 g per 100 g. It must read as "may be", never as a recommendation; "सप्लीमेंट"/"सप्लिमेंट" should match `confirm.category_option.supplement`.
 - [ ] **hi/mr `methodology.section.{build_muscle,weight_loss,supplements}.description`** (amended): machine drafts of the added sentences (protein notes for adults 18+ only; build muscle can't be set under 18; the supplement question on the confirm screen and the under-18 protein-sort exclusion). Keep "प्रोटीन आइसोलेट"/"प्रोटीन आयसोलेट" understandable.
+
+## Plan 9 web (T12 to T14)
+- [ ] **hi/mr `user_types.prefill.goal_neither`**: machine drafts. The third option in the goal-conflict radio list ("Neither (keep my current goal)"); it must read as keeping the goal unchanged, not as removing it.

@@ -67,6 +67,50 @@ test("first sign-in: terms, then the picker, follow-ups and a confirmed pre-fill
   expect(s.members[0]?.goal).toBe("build_muscle");
   expect(s.consents.health_data).toBe("2026-11-01");
 
+  // Home is in the allergy_diet mode (priority over gym): its tabs, and the
+  // allergy card first.
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await expect(nav.getByTestId("nav-tab")).toHaveText([
+    "Home",
+    "Scan",
+    "Family",
+    "Search",
+    "Profile",
+  ]);
+  await expect(page.getByTestId(/^home-card-/).first()).toHaveAttribute(
+    "data-testid",
+    "home-card-allergy_check",
+  );
+  await expect(
+    page.getByTestId("home-card-allergy_check").getByText("You: Milk"),
+  ).toBeVisible();
+  // The switcher shows both types; switching changes the tabs at once.
+  const switcher = page.getByRole("radiogroup", { name: "Mode" });
+  await expect(switcher.getByRole("radio")).toHaveText([
+    "Allergy or diet",
+    "Gym and fitness",
+  ]);
+  await switcher.getByRole("radio", { name: "Gym and fitness" }).click();
+  await expect(nav.getByTestId("nav-tab")).toHaveText([
+    "Home",
+    "Scan",
+    "Protein",
+    "Compare",
+    "Profile",
+  ]);
+  // Nothing is lost: the rest is under More.
+  await page.getByRole("button", { name: "More" }).click();
+  await expect(page.getByTestId("more-dialog").getByRole("link")).toHaveText([
+    "History",
+    "Family",
+    "Search",
+    "How we score",
+  ]);
+  await page.keyboard.press("Escape");
+  await nav.getByRole("link", { name: "Protein" }).click();
+  await expect(page).toHaveURL(/\/en\/protein$/);
+  await expect(page.getByRole("heading", { name: "Protein" })).toBeVisible();
+
   // Answered: /welcome without ?edit=1 goes home.
   await page.goto("/en/welcome");
   await expect(page).toHaveURL(/\/en\/home$/);

@@ -183,7 +183,13 @@ function suggestPrefill(types, f, m) {
   };
   const goal = (value, reason) => {
     if (m.goal !== value)
-      changes.push({ field: "goal", current: m.goal, value, added: [], reason });
+      changes.push({
+        field: "goal",
+        current: m.goal,
+        value,
+        added: [],
+        reason,
+      });
   };
   if (types.includes("health_condition"))
     union("conditions", f.conditions, "health_condition");

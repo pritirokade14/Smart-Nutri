@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import en from "@smartnutri/i18n/messages/en.json";
 import hi from "@smartnutri/i18n/messages/hi.json";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { Suspense } from "react";
@@ -196,10 +197,13 @@ describe("footer links on every page", () => {
   });
 
   it("logged-in shell", async () => {
+    // The tab bar reads the focused mode (React Query).
     await show(
-      <AppShell locale="en">
-        <p>{"page"}</p>
-      </AppShell>,
+      <QueryClientProvider client={new QueryClient()}>
+        <AppShell locale="en">
+          <p>{"page"}</p>
+        </AppShell>
+      </QueryClientProvider>,
     );
     expectLinks(screen.getByRole("contentinfo"), "en");
   });

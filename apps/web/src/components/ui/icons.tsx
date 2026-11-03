@@ -186,3 +186,24 @@ export const SparkleIcon = (p: IconProps) => (
     <path d="M19 16v4M17 18h4" />
   </Icon>
 );
+
+export const DumbbellIcon = (p: IconProps) => (
+  <Icon name="dumbbell" {...p}>
+    <path d="M7 7v10M17 7v10M4 9.5v5M20 9.5v5M7 12h10" />
+  </Icon>
+);
+
+export const CompareIcon = (p: IconProps) => (
+  <Icon name="compare" {...p}>
+    <rect x="3.5" y="4" width="7" height="16" rx="1.5" />
+    <rect x="13.5" y="4" width="7" height="16" rx="1.5" />
+  </Icon>
+);
+
+export const MoreIcon = (p: IconProps) => (
+  <Icon name="more" {...p}>
+    <circle cx="6" cy="12" r="1.2" />
+    <circle cx="12" cy="12" r="1.2" />
+    <circle cx="18" cy="12" r="1.2" />
+  </Icon>
+);

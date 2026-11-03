@@ -25,11 +25,20 @@ afterEach(cleanup);
 
 const intl = (ui: React.ReactNode, locale = "en", messages = en) =>
   render(
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      {ui}
-    </NextIntlClientProvider>,
+    <QueryClientProvider
+      client={
+        new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      }
+    >
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        {ui}
+      </NextIntlClientProvider>
+    </QueryClientProvider>,
   );
 
+// The health-condition mode's bar (layouts.json); every mode's bar is
+// covered in tests/features/modes.
+const MODE = "health_condition" as const;
 const TABS = [
   ["home", "/en/home"],
   ["scan", "/en/scan"],
@@ -43,9 +52,9 @@ describe("AppNav", () => {
     "%s: five tabs in order, each with an icon and a label",
     (variant) => {
       path.value = "/en/home";
-      intl(<AppNav locale="en" variant={variant} />);
+      intl(<AppNav locale="en" variant={variant} mode={MODE} />);
       const nav = screen.getByRole("navigation", { name: en.nav.label });
-      const links = within(nav).getAllByRole("link");
+      const links = within(nav).getAllByTestId("nav-tab");
       expect(links.map((l) => l.textContent)).toEqual(
         TABS.map(([k]) => en.nav[k]),
       );
@@ -69,7 +78,7 @@ describe("AppNav", () => {
     ["/en/profile", "profile"],
   ] as const)("%s marks %s as the current tab", (p, tab) => {
     path.value = p;
-    intl(<AppNav locale="en" variant="bar" />);
+    intl(<AppNav locale="en" variant="bar" mode={MODE} />);
     const current = screen
       .getAllByRole("link")
       .filter((l) => l.getAttribute("aria-current") === "page");
@@ -78,7 +87,7 @@ describe("AppNav", () => {
 
   it("uses the active locale in links and labels", () => {
     path.value = "/hi/home";
-    intl(<AppNav locale="hi" variant="bar" />, "hi", hi);
+    intl(<AppNav locale="hi" variant="bar" mode={MODE} />, "hi", hi);
     expect(
       screen.getByRole("link", { name: hi.nav.family }).getAttribute("href"),
     ).toBe("/hi/family");

@@ -4,14 +4,35 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import HomePage from "@/app/[locale]/(app)/home/page";
+import { HomeView as HomePage } from "@/features/home/components/HomeView";
 import { ApiError } from "@/lib/api/errors";
+import { apiStub } from "./support/api-stub";
 
 const fetchMe = vi.hoisted(() => vi.fn());
 vi.mock("@/features/me/api/me", () => ({ fetchMe }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/en/home",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}));
+vi.mock("@/lib/supabase/client", () => ({
+  createSupabaseBrowserClient: () => ({
+    auth: { getSession: async () => ({ data: { session: null } }) },
+  }),
+}));
+// The cards' own API calls (members, meals, user types) answer 404 here;
+// tests/features/home/cards.test.tsx covers them.
+const fetchMock = vi.hoisted(() => {
+  const fn = vi.fn();
+  globalThis.fetch = fn as unknown as typeof fetch;
+  return fn;
+});
 
 afterEach(cleanup);
-beforeEach(() => fetchMe.mockReset());
+beforeEach(() => {
+  fetchMe.mockReset();
+  fetchMock.mockReset();
+  apiStub(fetchMock);
+});
 
 function view() {
   const client = new QueryClient({

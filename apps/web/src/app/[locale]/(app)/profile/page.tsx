@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { DeleteAccount } from "@/features/account/components/DeleteAccount";
 import { ConsentSettings } from "@/features/members/components/ConsentSettings";
+import { ActiveMoreList } from "@/features/modes/components/MoreMenu";
 import { ProfileFocus } from "@/features/user-types/components/ProfileFocus";
 
 // Account settings (same tab on Android): language, every consent (with
@@ -24,6 +25,13 @@ export default function ProfilePage({
   return (
     <main className={pageClass}>
       <SectionHeader as="h1" title={t("profile.title")} />
+      {/* More comes first (P9-R6): every destination not in the tab bar. */}
+      <section className="space-y-3" aria-labelledby="more-title">
+        <SectionHeader id="more-title" title={t("modes.more_title")} />
+        <Card padded={false} className="p-2">
+          <ActiveMoreList locale={locale} />
+        </Card>
+      </section>
       <section className="space-y-3" aria-labelledby="language-title">
         <SectionHeader id="language-title" title={t("language.label")} />
         <Card className="space-y-3">
