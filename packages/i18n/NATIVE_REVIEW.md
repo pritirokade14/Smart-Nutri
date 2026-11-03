@@ -125,3 +125,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `members.form.remove_allergy_confirm`**: one string for both clients, with `{name}` and `{allergen}`. Integration machine draft. `{allergen}` follows a colon so the sentence does not agree with the noun's gender. It must say plainly that products with this allergen will no longer be flagged for this person.
 - [ ] **Deduped keys**: `members.born_in` became `members.born`, `consent.optional_ai_note` became `consent.ai_optional`, `profile.consents_title` became `profile.privacy_title`. The web texts were kept; the Android drafts above for the removed keys no longer apply.
 - [ ] **hi/mr `reason.custom_alert_unknown`**: integration machine draft for "These alerts couldn't be checked: {alerts}." It no longer blames the ingredient list (the alert can be unchecked for other reasons). `{alerts}` follows a colon so the sentence does not agree with the list.
+
+## Plan 6 Task 3 (meal logging API)
+- [ ] **hi/mr `error.{portion_required,serving_size_unknown,eaten_at_out_of_range,meal_not_found}`**: machine drafts. Check "सर्विंग" / "सर्व्हिंग" and "ग्राम" / "ग्रॅम", and that "खाने की एंट्री" / "खाण्याची नोंद" reads naturally for "food log".

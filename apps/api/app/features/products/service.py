@@ -266,6 +266,42 @@ async def lookup_by_barcode(
     return _from_off(payload, barcode, settings)
 
 
+async def resolve_ref(
+    session: AsyncSession,
+    off: OffClient,
+    *,
+    product_id: UUID | None,
+    barcode: str | None,
+    settings: Settings,
+    account_id: UUID,
+) -> ProductLookup:
+    """Exactly one product reference (own ``product_id`` or a ``barcode``) -> ProductLookup.
+
+    The same resolution ``POST /v1/analyze`` uses: another account's pending product is never
+    served (CROSS-PLAN 18). Errors: ``invalid_product_ref`` (422), ``invalid_barcode`` (422),
+    ``off_unavailable`` (503), ``product_not_found`` (404). A stale OFF cache delete is
+    committed before the 404; an OFF cache write is left for the caller to commit.
+    """
+    if (product_id is None) == (barcode is None):
+        raise ApiError("invalid_product_ref", 422)
+    if product_id is not None:
+        found = await lookup_by_id(session, product_id, account_id=account_id)
+    else:
+        try:
+            found = await lookup_by_barcode(
+                session, off, barcode or "", settings=settings, account_id=account_id
+            )
+        except InvalidBarcode as exc:
+            raise ApiError("invalid_barcode", 422) from exc
+        except OffUnavailable as exc:
+            raise ApiError("off_unavailable", 503) from exc
+        if found is None:
+            await session.commit()  # persist a stale OFF cache delete
+    if found is None:
+        raise ApiError("product_not_found", 404)
+    return found
+
+
 # --- POST /v1/products: a confirmed label draft or a manual entry --------------------------
 
 MANUAL_ENTRY_CONFIDENCE = 1.0  # a person typed every value

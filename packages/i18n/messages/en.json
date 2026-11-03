@@ -218,7 +218,11 @@
     "storage_unavailable": "We couldn't handle the photo right now. Please try again in a moment.",
     "consent_required": "To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.",
     "member_limit": "You can add up to 10 family members.",
-    "primary_member": "Your own profile can't be removed."
+    "primary_member": "Your own profile can't be removed.",
+    "portion_required": "Choose how much was eaten: servings or grams.",
+    "serving_size_unknown": "This pack doesn't show a serving size. Enter the amount in grams.",
+    "eaten_at_out_of_range": "Choose a time within the last 30 days.",
+    "meal_not_found": "That food log wasn't found."
   },
   "scan": {
     "title": "Scan a barcode",

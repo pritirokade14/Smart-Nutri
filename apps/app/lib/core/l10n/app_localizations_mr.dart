@@ -458,6 +458,9 @@ class AppLocalizationsMr extends AppLocalizations {
       'संमतीचा मजकूर अद्ययावत झाला आहे. कृपया पुन्हा लोड करून तो पुन्हा पाहा.';
 
   @override
+  String get errorEatenAtOutOfRange => 'गेल्या 30 दिवसांतील वेळ निवडा.';
+
+  @override
   String get errorExtractionFailed =>
       'आम्हाला हे लेबल वाचता आले नाही. दुसरा फोटो वापरून पाहा किंवा माहिती स्वतः भरा.';
 
@@ -489,6 +492,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorInvalidProductRef => 'तपासण्यासाठी एक उत्पादन निवडा.';
 
   @override
+  String get errorMealNotFound => 'ही खाण्याची नोंद सापडली नाही.';
+
+  @override
   String get errorMemberLimit =>
       'तुम्ही कुटुंबातील जास्तीत जास्त 10 सदस्य जोडू शकता.';
 
@@ -508,6 +514,10 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get errorOffUnavailable =>
       'उत्पादन डेटाबेस सध्या व्यस्त आहे. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.';
+
+  @override
+  String get errorPortionRequired =>
+      'किती खाल्ले ते निवडा: सर्व्हिंग किंवा ग्रॅम.';
 
   @override
   String get errorPrimaryMember => 'तुमची स्वतःची प्रोफाइल काढता येत नाही.';
@@ -536,6 +546,10 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get errorScanNotFound =>
       'हा लेबल स्कॅन सापडला नाही. कृपया लेबल पुन्हा स्कॅन करा.';
+
+  @override
+  String get errorServingSizeUnknown =>
+      'या पॅकवर सर्व्हिंगचा आकार दिलेला नाही. प्रमाण ग्रॅममध्ये भरा.';
 
   @override
   String get errorStorageUnavailable =>

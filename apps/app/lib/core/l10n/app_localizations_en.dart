@@ -455,6 +455,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'This consent text has been updated. Please reload and review it again.';
 
   @override
+  String get errorEatenAtOutOfRange => 'Choose a time within the last 30 days.';
+
+  @override
   String get errorExtractionFailed =>
       'We couldn\'t read this label. Try another photo or enter the details manually.';
 
@@ -486,6 +489,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorInvalidProductRef => 'Choose a product to check.';
 
   @override
+  String get errorMealNotFound => 'That food log wasn\'t found.';
+
+  @override
   String get errorMemberLimit => 'You can add up to 10 family members.';
 
   @override
@@ -504,6 +510,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorOffUnavailable =>
       'The product database is busy right now. Please try again in a moment.';
+
+  @override
+  String get errorPortionRequired =>
+      'Choose how much was eaten: servings or grams.';
 
   @override
   String get errorPrimaryMember => 'Your own profile can\'t be removed.';
@@ -532,6 +542,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorScanNotFound =>
       'We couldn\'t find that label scan. Please scan the label again.';
+
+  @override
+  String get errorServingSizeUnknown =>
+      'This pack doesn\'t show a serving size. Enter the amount in grams.';
 
   @override
   String get errorStorageUnavailable =>

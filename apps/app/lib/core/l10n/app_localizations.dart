@@ -940,6 +940,12 @@ abstract class AppLocalizations {
   /// **'This consent text has been updated. Please reload and review it again.'**
   String get errorConsentVersionMismatch;
 
+  /// No description provided for @errorEatenAtOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a time within the last 30 days.'**
+  String get errorEatenAtOutOfRange;
+
   /// No description provided for @errorExtractionFailed.
   ///
   /// In en, this message translates to:
@@ -994,6 +1000,12 @@ abstract class AppLocalizations {
   /// **'Choose a product to check.'**
   String get errorInvalidProductRef;
 
+  /// No description provided for @errorMealNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That food log wasn\'t found.'**
+  String get errorMealNotFound;
+
   /// No description provided for @errorMemberLimit.
   ///
   /// In en, this message translates to:
@@ -1029,6 +1041,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The product database is busy right now. Please try again in a moment.'**
   String get errorOffUnavailable;
+
+  /// No description provided for @errorPortionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how much was eaten: servings or grams.'**
+  String get errorPortionRequired;
 
   /// No description provided for @errorPrimaryMember.
   ///
@@ -1077,6 +1095,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn\'t find that label scan. Please scan the label again.'**
   String get errorScanNotFound;
+
+  /// No description provided for @errorServingSizeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'This pack doesn\'t show a serving size. Enter the amount in grams.'**
+  String get errorServingSizeUnknown;
 
   /// No description provided for @errorStorageUnavailable.
   ///

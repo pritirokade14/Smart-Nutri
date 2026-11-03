@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     rate_limit_product_creates_per_day: int = 50
     rate_limit_analyze_per_hour: int = 120
     rate_limit_public_per_minute: int = 60
+    rate_limit_meal_logs_per_day: int = 300
+    rate_limit_search_per_minute: int = 60
+    # alternatives and compare (both may call Open Food Facts)
+    rate_limit_product_lookups_per_hour: int = 120
     # Trusted reverse-proxy hops in front of the API (see .env.example). 0 = use socket peer.
     trusted_proxy_hops: int = Field(default=0, ge=0)
     sentry_dsn: str | None = None

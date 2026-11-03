@@ -8,6 +8,7 @@ import 'analyze/analyze_client.dart';
 import 'consents/consents_client.dart';
 import 'health/health_client.dart';
 import 'me/me_client.dart';
+import 'meals/meals_client.dart';
 import 'members/members_client.dart';
 import 'products/products_client.dart';
 import 'scans/scans_client.dart';
@@ -27,6 +28,7 @@ class SmartNutriApiClient {
   ConsentsClient? _consents;
   HealthClient? _health;
   MeClient? _me;
+  MealsClient? _meals;
   MembersClient? _members;
   ProductsClient? _products;
   ScansClient? _scans;
@@ -40,6 +42,8 @@ class SmartNutriApiClient {
   HealthClient get health => _health ??= HealthClient(_dio, baseUrl: _baseUrl);
 
   MeClient get me => _me ??= MeClient(_dio, baseUrl: _baseUrl);
+
+  MealsClient get meals => _meals ??= MealsClient(_dio, baseUrl: _baseUrl);
 
   MembersClient get members =>
       _members ??= MembersClient(_dio, baseUrl: _baseUrl);

@@ -73,6 +73,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/meals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meals List
+         * @description A member's logs, newest first (at most 200). Default range: the last 7 IST days.
+         */
+        get: operations["meals_list"];
+        put?: never;
+        /**
+         * Meals Log
+         * @description Log "I ate this" for a member: 201 for a new log, 200 with the stored log when
+         *     ``client_id`` was already used (offline retries never duplicate).
+         */
+        post: operations["meals_log"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meals/{meal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Meals Delete */
+        delete: operations["meals_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/members": {
         parameters: {
             query?: never;
@@ -469,6 +511,82 @@ export interface components {
             language: "en" | "hi" | "mr";
         };
         /**
+         * MealIn
+         * @description Log what a member ate. Exactly one product reference (own ``product_id``, or a
+         *     ``barcode`` for Open Food Facts products) and exactly one portion (``grams`` or
+         *     ``servings``; servings need the product's serving size).
+         *
+         *     ``client_id`` makes the call idempotent: posting the same id again (an offline retry)
+         *     returns the stored log with 200 and never creates a second row.
+         */
+        MealIn: {
+            /** Barcode */
+            barcode?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Eaten At
+             * @description Timezone-aware. Default: now. At most 5 minutes ahead, at most 30 days ago.
+             */
+            eaten_at?: string | null;
+            /** Grams */
+            grams?: number | null;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Product Id */
+            product_id?: string | null;
+            /** Servings */
+            servings?: number | null;
+        };
+        /** MealOut */
+        MealOut: {
+            /**
+             * Attribution
+             * @description "attribution.off" for Open Food Facts products (credit OFF), else null
+             */
+            attribution: string | null;
+            /**
+             * Barcode
+             * @description Open Food Facts barcode; null for our products
+             */
+            barcode: string | null;
+            /** Client Id */
+            client_id: string | null;
+            /**
+             * Eaten At
+             * Format: date-time
+             */
+            eaten_at: string;
+            /**
+             * Grade
+             * @description Nutri-Score calculated by SmartNutri at log time; null if not enough data
+             */
+            grade: ("A" | "B" | "C" | "D" | "E") | null;
+            /** Grams */
+            grams: number;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            nutrients: components["schemas"]["NutrientSnapshot"];
+            /**
+             * Product Id
+             * @description Our own product; null for Open Food Facts
+             */
+            product_id: string | null;
+            /** Product Name */
+            product_name: string;
+        };
+        /**
          * MemberIn
          * @description Create a family member. The account holder (relation `self`) already exists.
          */
@@ -581,6 +699,27 @@ export interface components {
             sex?: ("female" | "male" | "other") | null;
             /** Weight Kg */
             weight_kg?: number | null;
+        };
+        /**
+         * NutrientSnapshot
+         * @description Nutrients in the portion eaten (per_100g x grams / 100, 1 dp). null = not on the label
+         *     (never counted as 0).
+         */
+        NutrientSnapshot: {
+            /** Carbs G */
+            carbs_g: number | null;
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            /** Fat G */
+            fat_g: number | null;
+            /** Protein G */
+            protein_g: number | null;
+            /** Salt G */
+            salt_g: number | null;
+            /** Sat Fat G */
+            sat_fat_g: number | null;
+            /** Sugars G */
+            sugars_g: number | null;
         };
         /** NutrientsOut */
         NutrientsOut: {
@@ -1246,6 +1385,227 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MeOut"];
                 };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_list: {
+        parameters: {
+            query: {
+                member_id: string;
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealOut"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_log: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealIn"];
+            };
+        };
+        responses: {
+            /** @description Already logged with this client_id (no new row) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Missing or invalid access token */
             401: {
