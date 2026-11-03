@@ -18,7 +18,7 @@ Status values: ⬜ not started · 🟡 in progress · ✅ done.
 | F1 | Accounts: Google, email OTP; phone OTP behind a flag | Plan 2 / M1 | 🟡 | 🟡 | 🟡 | `@supabase/ssr` cookie session, `/auth/callback` route for OAuth and magic link, Secure + SameSite=Lax cookies, JS-readable by design with strict CSP and HSTS (ADR 0014) |
 | F2 | Family members | M3 | ⬜ | ⬜ | ⬜ | react-hook-form + zod forms; same validation messages from i18n |
 | F3 | Scan by barcode | M1 | 🟡 | 🟡 | 🟡 | `BarcodeDetector` where supported, else `@zxing/browser` on the camera stream. Manual entry is always available. Desktop uses the webcam or manual entry. | **Status (M1):** built and tested on API, Android and web (shared golden fixtures + identical reason text in en/hi/mr); ✅ after the manual real-pack check on a phone and in a browser.
-| F4 | Scan by label photo plus confirm | M2 | ⬜ | ⬜ | ⬜ | `<input type="file" accept="image/*" capture="environment">`. Desktop: file upload or drag and drop. The confirm form is identical. |
+| F4 | Scan by label photo plus confirm | M2 | 🟡 | 🟡 | 🟡 | `<input type="file" accept="image/*" capture="environment">`. Desktop: file upload or drag and drop. The confirm form is identical. | **Status (M2):** code done on API, Android and web (ADR 0016). 🟡 until the label eval (plan 4, Task 6 Step 6) has run and the manual real-pack check passes. Known differences: after a reload, web loses the draft and shows "scan not found" with Retake / Enter manually; Android opening the confirm route with no draft shows an empty manual form.
 | F5 | Rules engine | Plan 1 | ⬜ | n/a (server) | n/a (server) | The clients only render reason codes |
 | F6 | Verdict per member | M3 | ⬜ | ⬜ | ⬜ | Rendered from shared tokens; fixtures check each member's colour and reason |
 | F7 | AI explanation (en/hi/mr) | M3 | ⬜ | ⬜ | ⬜ | Streamed or awaited text; same disclaimer component |
@@ -29,7 +29,7 @@ Status values: ⬜ not started · 🟡 in progress · ✅ done.
 | F12 | "How we score" page | M5 | ⬜ | ⬜ | ⬜ | **Public, statically rendered/ISR** at `/[locale]/how-we-score` for Google; in-app link on Android |
 | F13 | Result at a glance (colour, grade, one-line reason) | M1 (basic) → M3 | 🟡 | 🟡 | 🟡 | Same component contract on both clients; colour from tokens | **Status (M1, basic):** verdict colour from tokens (unknown never green), grade letter tile, allergen/avoid/unknown reasons always visible, profile-not-set-up note.
 | F14 | Report a problem | M5 | ⬜ | ⬜ | ⬜ | Dialog with the four reasons plus a note |
-| F15 | Product not found leads to a label-photo result | M2 | ⬜ | ⬜ | ⬜ | The web flow switches to the upload step automatically |
+| F15 | Product not found leads to a label-photo result | M2 | 🟡 | 🟡 | 🟡 | The web flow switches to the upload step automatically | **Status (M2):** code done; 🟡 pending the label eval (plan 4, Task 6 Step 6) and the manual real-pack check. Same reload difference as F4.
 | F16 | Custom ingredient alerts | M3 | ⬜ | ⬜ | ⬜ | Toggles in the member form |
 | F17 | Share result or weekly summary | M4 | ⬜ | ⬜ | ⬜ | Web Share API on mobile browsers. Desktop fallback: "Copy link" and a WhatsApp link (`wa.me/?text=`). The shared card image is rendered server-side (OG image). |
 

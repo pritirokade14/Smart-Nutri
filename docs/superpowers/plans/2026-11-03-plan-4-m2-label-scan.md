@@ -80,7 +80,7 @@ apps/api/tests/evals/labels/{run_eval.py,metrics.py,manifest.csv,expected/,resul
 packages/api-contract/**, packages/i18n/messages/*.json      # Task 7
 apps/app/lib/features/scan/...                    # Task 8  (Android, parallel with Task 9)
 apps/web/src/features/scan/...                    # Task 9  (web, parallel with Task 8)
-docs/FEATURE_PARITY.md, docs/adr/0013-*.md        # Task 10
+docs/FEATURE_PARITY.md, docs/adr/0016-label-scan-pipeline.md        # Task 10
 ```
 
 ---
@@ -122,7 +122,7 @@ def extraction_json_schema() -> dict     # NutritionExtraction.model_json_schema
 - The green or brown dot maps to `veg_mark`.
 - Output only JSON that matches the schema.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 def test_schema_is_strict():
@@ -140,10 +140,10 @@ def test_prompt_v1_exists_and_forbids_guessing():
 
 `sample_extraction(**overrides)` is a test helper that returns a complete valid dict.
 
-- [ ] **Step 2: Run them to verify they fail.** Run: `cd apps/api && uv run pytest tests/unit/scans/test_extraction_schema.py -v`. Expected: FAIL.
-- [ ] **Step 3: Implement** the schemas and write the prompt.
-- [ ] **Step 4: Run them to verify they pass.**
-- [ ] **Step 5: Commit** with message `feat(api): label extraction schema and prompt v1`.
+- [x] **Step 2: Run them to verify they fail.** Run: `cd apps/api && uv run pytest tests/unit/scans/test_extraction_schema.py -v`. Expected: FAIL.
+- [x] **Step 3: Implement** the schemas and write the prompt.
+- [x] **Step 4: Run them to verify they pass.**
+- [x] **Step 5: Commit** with message `feat(api): label extraction schema and prompt v1`.
 
 ---
 
@@ -176,7 +176,7 @@ class FakeLLM:                                           # tests/fakes/llm.py
   - 402: `ProviderUnavailable("insufficient_credits")`, with no retry.
 - **Logging:** one structured log line per call with `model`, `prompt_version`, `latency_ms`, `status`, and tokens or credits if returned. **Never** log the image or the response body.
 
-- [ ] **Step 1: Write failing tests** (the `openai` client is built with `http_client=httpx.AsyncClient(transport=httpx.MockTransport(handler))`)
+- [x] **Step 1: Write failing tests** (the `openai` client is built with `http_client=httpx.AsyncClient(transport=httpx.MockTransport(handler))`)
 
 ```python
 async def test_request_shape(mock_cm):
@@ -191,10 +191,10 @@ async def test_429_backoff_then_success(mock_cm_429_then_ok): ...
 async def test_log_has_no_body(caplog, mock_cm): ...                        # no base64 string and no "per_100g" in any log record
 ```
 
-- [ ] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/unit/integrations/test_callmissed_extract.py -v`. Expected: FAIL.
-- [ ] **Step 3: Implement.** Patch `asyncio.sleep` in tests so backoff is instant.
-- [ ] **Step 4: Run them to verify they pass.**
-- [ ] **Step 5: Commit** with message `feat(api): CallMissed vision extraction behind LLMProvider`.
+- [x] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/unit/integrations/test_callmissed_extract.py -v`. Expected: FAIL.
+- [x] **Step 3: Implement.** Patch `asyncio.sleep` in tests so backoff is instant.
+- [x] **Step 4: Run them to verify they pass.**
+- [x] **Step 5: Commit** with message `feat(api): CallMissed vision extraction behind LLMProvider`.
 
 ---
 
@@ -228,7 +228,7 @@ Rules:
 6. When `confidence < 0.7`, add `low_confidence` (the engine will treat ingredients as unknown).
 7. `category` = `category_guess` or `"general"`. Ingredients are stripped, empties dropped, the script untouched.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 def test_per_serving_converted_with_serving_size():
@@ -253,10 +253,10 @@ def test_low_confidence_warning():
 
 `ex(**kw)` and `n(**kw)` are helpers that build a `NutritionExtraction` or `NutrientsIn` with everything else `None` or empty.
 
-- [ ] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/unit/scans/test_normalize.py -v`. Expected: FAIL.
-- [ ] **Step 3: Implement** `to_draft`. Read the bounds from Plan 1's module constants; don't copy the numbers.
-- [ ] **Step 4: Run them to verify they pass.**
-- [ ] **Step 5: Commit** with message `feat(api): normalise extraction into a reviewed draft with plausibility warnings`.
+- [x] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/unit/scans/test_normalize.py -v`. Expected: FAIL.
+- [x] **Step 3: Implement** `to_draft`. Read the bounds from Plan 1's module constants; don't copy the numbers.
+- [x] **Step 4: Run them to verify they pass.**
+- [x] **Step 5: Commit** with message `feat(api): normalise extraction into a reviewed draft with plausibility warnings`.
 
 ---
 
@@ -296,7 +296,7 @@ The service flow for `scans_create_label`:
 6. Otherwise apply `limit("label_scans")`, call `extract_label` with the prompt file and `prompt_version = "extraction_v1"`, run `to_draft`, and store a `ScanRecord` with `image_path`, `image_sha256`, `analysis = {"draft": ..., "prompt_version": ...}` and the optional barcode.
 7. Map the errors.
 
-- [ ] **Step 1: Write failing tests** (`FakeStorage` + `FakeLLM` via dependency overrides)
+- [x] **Step 1: Write failing tests** (`FakeStorage` + `FakeLLM` via dependency overrides)
 
 ```python
 async def test_upload_url_path_scoped_to_account(auth_client): r = ...; assert r.json()["path"].startswith(str(auth_client.account_id) + "/")
@@ -313,10 +313,10 @@ async def test_provider_failure_returns_error_without_draft(auth_client, fake_st
 async def test_out_of_credits_is_503(auth_client, fake_storage_jpeg, fake_llm_unavailable): ...
 ```
 
-- [ ] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/api/scans -v`. Expected: FAIL.
-- [ ] **Step 3: Implement** the storage methods (Supabase Storage REST with the server secret key from settings), the sniffer, the service and the router.
-- [ ] **Step 4: Run them to verify they pass.**
-- [ ] **Step 5: Commit** with message `feat(api): label scan upload, extraction cache and rate limit`.
+- [x] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/api/scans -v`. Expected: FAIL.
+- [x] **Step 3: Implement** the storage methods (Supabase Storage REST with the server secret key from settings), the sniffer, the service and the router.
+- [x] **Step 4: Run them to verify they pass.**
+- [x] **Step 5: Commit** with message `feat(api): label scan upload, extraction cache and rate limit`.
 
 ---
 
@@ -352,7 +352,7 @@ Rules:
   - `ingredients_text` = `", ".join(ingredients)`.
 - After creation, the M1 `analyze_create` with `product_id` works unchanged.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 async def test_create_from_scan_keeps_extraction_confidence(auth_client, scan_with_draft_conf_0_6):
@@ -371,10 +371,10 @@ async def test_devanagari_ingredients_reach_engine(auth_client, peanut_allergic_
     assert (await analyze(auth_client, pid, peanut_allergic_member)).json()["verdicts"][0]["status"] == "avoid"
 ```
 
-- [ ] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/api/products/test_create_product.py -v`. Expected: FAIL.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run them to verify they pass,** plus the full `uv run pytest -q`.
-- [ ] **Step 5: Commit** with message `feat(api): create products from confirmed label drafts or manual entry`.
+- [x] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/api/products/test_create_product.py -v`. Expected: FAIL.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Run them to verify they pass,** plus the full `uv run pytest -q`.
+- [x] **Step 5: Commit** with message `feat(api): create products from confirmed label drafts or manual entry`.
 
 ---
 
@@ -406,7 +406,7 @@ def summarize(rows: list[dict]) -> dict                                 # overal
 
 The gates are copied from `.claude/skills/label-eval/SKILL.md`: numeric ≥ 90%, basis ≥ 98%, ingredient F1 ≥ 0.9, **allergen recall = 100% (hard)**, hallucinations ≤ 2%, p95 latency ≤ 8 s.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 def test_numeric_tolerance(): assert numeric_accuracy({"sugars_g": 10.4}, {"sugars_g": 10.0}) == (1, 1) and numeric_accuracy({"sugars_g": 12}, {"sugars_g": 10.0}) == (0, 1)
@@ -416,10 +416,10 @@ def test_allergen_recall_miss(): assert allergen_recall(draft(ingredients=["suga
 def test_summary_fails_on_any_allergen_miss(): assert summarize([row(allergen=(0, 1)), *[row()] * 49])["gates"]["allergen_recall"] is False
 ```
 
-- [ ] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/unit/evals -v`. Expected: FAIL.
-- [ ] **Step 3: Implement** `metrics.py` and `run_eval.py`. Write `manifest.csv` with the header `id,brand,category,languages,conditions,source` only, and a `README.md` describing how to add an image and its `expected/<id>.json`.
-- [ ] **Step 4: Run them to verify they pass.** Then run `uv run python tests/evals/labels/run_eval.py --model x --prompt extraction_v1 --dry-run`. Expected: it prints 0 images and makes no calls.
-- [ ] **Step 5: Commit** with message `feat(evals): label extraction eval harness and metrics`.
+- [x] **Step 2: Run them to verify they fail.** Run: `uv run pytest tests/unit/evals -v`. Expected: FAIL.
+- [x] **Step 3: Implement** `metrics.py` and `run_eval.py`. Write `manifest.csv` with the header `id,brand,category,languages,conditions,source` only, and a `README.md` describing how to add an image and its `expected/<id>.json`.
+- [x] **Step 4: Run them to verify they pass.** Then run `uv run python tests/evals/labels/run_eval.py --model x --prompt extraction_v1 --dry-run`. Expected: it prints 0 images and makes no calls.
+- [x] **Step 5: Commit** with message `feat(evals): label extraction eval harness and metrics`.
 - [ ] **Step 6 (needs the product owner):** collect at least 50 real label photos into the git-ignored `images/`, plus the committed `expected/*.json`.
   - Run every spec §3 candidate with `--limit 10`, then on the full set.
   - **Confirm the estimated cost with the user before each full run**, because it spends CallMissed credits.
@@ -443,10 +443,10 @@ def test_summary_fails_on_any_allergen_miss(): assert summarize([row(allergen=(0
   - `error.{image_too_large,unsupported_image,scan_image_not_found,rate_limited_scans,extraction_failed,extraction_unavailable,implausible_value,product_exists,scan_not_found}`
   - `notfound.go_to_label` ("We don't know this product yet — photograph its label")
 
-- [ ] **Step 1:** Run `just contract`. Confirm the three operations exist.
-- [ ] **Step 2:** Add the keys in en, hi and mr. Flag hi and mr as machine drafts in the PR. Run `just i18n` and the i18n key-set check.
-- [ ] **Step 3:** Run `just test-api`. Expected: pass.
-- [ ] **Step 4: Commit** with message `chore(contract): regenerate clients for M2; i18n for label scan and confirm`.
+- [x] **Step 1:** Run `just contract`. Confirm the three operations exist.
+- [x] **Step 2:** Add the keys in en, hi and mr. Flag hi and mr as machine drafts in the PR. Run `just i18n` and the i18n key-set check.
+- [x] **Step 3:** Run `just test-api`. Expected: pass.
+- [x] **Step 4: Commit** with message `chore(contract): regenerate clients for M2; i18n for label scan and confirm`.
 
 ---
 
@@ -482,7 +482,7 @@ Behaviour:
 - The confirm screen shows `warning.*` banners. Fields named in `implausible_value:*` are highlighted. Blank numbers stay blank (`null`), never `0`.
 - Saving calls `products_create`, then `analyze_create` (product_id), then navigates to the M1 result view.
 
-- [ ] **Step 1: Write failing widget tests**
+- [x] **Step 1: Write failing widget tests**
 
 ```dart
 testWidgets('draft blanks stay blank and are sent as null', ...);                 // fiber null → field empty → ProductCreate.perHundredG.fiberG == null
@@ -494,10 +494,10 @@ testWidgets('save → analyze → result screen shows verdict', ...);           
 test('compressForUpload keeps output ≤ 8 MB', ...);
 ```
 
-- [ ] **Step 2: Run them to verify they fail.** Run: `cd apps/app && flutter test test/features/scan`. Expected: FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2: Run them to verify they fail.** Run: `cd apps/app && flutter test test/features/scan`. Expected: FAIL.
+- [x] **Step 3: Implement.**
 - [ ] **Step 4: Run** `flutter analyze && flutter test`. Then do a manual emulator check with a real pack: photo → confirm → verdict, and an unknown barcode → label flow.
-- [ ] **Step 5: Commit** with message `feat(app): label photo, confirm screen and not-found flow (M2)`.
+- [x] **Step 5: Commit** with message `feat(app): label photo, confirm screen and not-found flow (M2)`.
 
 ---
 
@@ -529,7 +529,7 @@ Behaviour:
 - Upload flow: resize, signed-URL `PUT` (fetch, no auth header), `scans_create_label`, then navigate to the confirm route.
 - The error states, warnings, highlighting, blanks-stay-null rule and "Enter manually" match Android Task 8 exactly.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```ts
 it("empty numeric inputs parse to null, not 0", () => { expect(draftSchema.parse(formWith({ fiber_g: "" })).per_100g.fiber_g).toBeNull(); });
@@ -540,10 +540,10 @@ it("404 on result redirects to label page with barcode", ...);
 // e2e (API stubbed with fixture JSON): upload sample label → confirm (edit sugars) → save → verdict card visible
 ```
 
-- [ ] **Step 2: Run them to verify they fail.** Run: `pnpm --filter @smartnutri/web test`. Expected: FAIL.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run** the web lint, typecheck, test and e2e. Expected: green.
-- [ ] **Step 5: Commit** with message `feat(web): label upload, confirm form and not-found flow (M2)`.
+- [x] **Step 2: Run them to verify they fail.** Run: `pnpm --filter @smartnutri/web test`. Expected: FAIL.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Run** the web lint, typecheck, test and e2e. Expected: green.
+- [x] **Step 5: Commit** with message `feat(web): label upload, confirm form and not-found flow (M2)`.
 
 ---
 
@@ -554,6 +554,8 @@ it("404 on result redirects to label page with barcode", ...);
 
 - [ ] **Step 1:** Run `just test` and `just lint`. Expected: all pass.
 - [ ] **Step 2:** Run the `nutrition-safety-reviewer` agent over the M2 range. Its focus: the prompt never asks the model to guess; no invented values anywhere; confidence handling (user edits never raise it); the confirm screens on both clients; the Devanagari path; the cache and the rate limit. Fix blockers and re-run.
-- [ ] **Step 3:** Confirm the Task 6 Step 6 eval ran, the model is chosen and ADR 0013 is written. If not, M2 stays open; record that in `docs/FEATURE_PARITY.md`.
+- [ ] **Step 3:** Confirm the Task 6 Step 6 eval ran, the model is chosen and ADR 0016 is written. If not, M2 stays open; record that in `docs/FEATURE_PARITY.md`.
 - [ ] **Step 4:** Do a manual parity check on 3 real packs, including one Hindi or bilingual label and one per-serving-only label. Android and web must give identical drafts (same cached scan) and identical verdicts.
 - [ ] **Step 5: Commit** with message `docs: M2 parity status`.
+
+Note: the ADR for this milestone is `docs/adr/0016-label-scan-pipeline.md` (this plan called it ADR 0013, but 0013 was already taken). The model choice in it is still pending the eval.

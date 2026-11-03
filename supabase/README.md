@@ -57,4 +57,4 @@ just db-migrate       # Alembic creates tables + RLS in the local database
 
 - RLS is **on** for every table, with no exceptions. It is enforced by the Alembic migrations.
 - The service-role key is used only by `apps/api` and server-side hooks. Never use it in the Android app or the web app, including Next.js server code.
-- Storage bucket `label-photos` is private. Uploads use signed URLs, and objects are deleted after 30 days.
+- Storage bucket `label-photos` is private. Uploads use signed URLs. Deleting objects after 30 days is planned for Plan 8 (a retention job) and is not implemented yet.

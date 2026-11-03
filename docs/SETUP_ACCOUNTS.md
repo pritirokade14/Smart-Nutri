@@ -51,7 +51,14 @@ The Android ID can never change after the first Play Store upload. The prototype
    - Redirect URLs: add `http://localhost:3000/**` and `com.smartnutri.app://login-callback`
 6. **Authentication → Providers → Email:** enabled. Allow OTP / magic link.
 7. **Authentication → Providers → Google:** enable it after step 3.5, and paste in the Google client ID and secret.
-8. Create the production project, `smartnutri-prod` (Mumbai, **Pro plan**), only at launch (day 13–15).
+8. **Label photo storage** (Storage → New bucket):
+   - Name: `label-photos`. Private (not public). File size limit: **8 MiB**. Allowed MIME types: `image/jpeg`, `image/png`, `image/webp`.
+   - Add **no storage policies**. The API uses the secret key server-side to make signed upload URLs and to read the photo.
+   - Dev: created in the dashboard on 2026-11-03.
+   - Prod: create it the same way at launch (Plan 8).
+   - Local: the bucket comes from `supabase/config.toml`.
+   - Deleting photos after 30 days is planned for Plan 8 (a retention job). It is **not done yet**.
+9. Create the production project, `smartnutri-prod` (Mumbai, **Pro plan**), only at launch (day 13–15).
 
 ---
 
