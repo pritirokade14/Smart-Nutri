@@ -35,6 +35,10 @@ _RESPONSES = {
     **ERROR_RESPONSES,
     503: {"model": ErrorEnvelope, "description": "Open Food Facts unavailable"},
 }
+# Alternatives and compare (I3): `terms` consent, always. The gate first (a refused call
+# costs no quota), then limit(), which commits the session.
+_VERDICT_RESPONSES = {**_RESPONSES, **CONSENT_RESPONSES}
+_VERDICT_DEPENDENCIES = [Depends(gate_for("product_verdicts")), Depends(limit("product_lookups"))]
 
 
 async def _find(
@@ -121,9 +125,9 @@ _ALTERNATIVES_DOC = (
     "/{product_id}/alternatives",
     operation_id="products_alternatives",
     response_model=AlternativesOut,
-    responses=_RESPONSES,
+    responses=_VERDICT_RESPONSES,
     description=_ALTERNATIVES_DOC,
-    dependencies=[Depends(limit("product_lookups"))],  # first: it commits the session
+    dependencies=_VERDICT_DEPENDENCIES,
 )
 async def products_alternatives(
     product_id: UUID,
@@ -142,9 +146,9 @@ async def products_alternatives(
     "/barcode/{code}/alternatives",
     operation_id="products_alternatives_by_barcode",
     response_model=AlternativesOut,
-    responses=_RESPONSES,
+    responses=_VERDICT_RESPONSES,
     description=_ALTERNATIVES_DOC + " For products known by barcode (Open Food Facts).",
-    dependencies=[Depends(limit("product_lookups"))],  # first: it commits the session
+    dependencies=_VERDICT_DEPENDENCIES,
 )
 async def products_alternatives_by_barcode(
     code: str,
@@ -185,8 +189,8 @@ async def products_search(
     "/compare",
     operation_id="products_compare",
     response_model=CompareOut,
-    responses=_RESPONSES,
-    dependencies=[Depends(limit("product_lookups"))],  # first: it commits the session
+    responses=_VERDICT_RESPONSES,
+    dependencies=_VERDICT_DEPENDENCIES,
 )
 async def products_compare(
     current: Annotated[CurrentAccount, Depends(current_account_row)],

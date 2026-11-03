@@ -7,9 +7,11 @@ fields keeps the members `health_data` check, and the analyze explanation keeps 
 """
 
 from collections.abc import Iterable
+from typing import get_args
 from uuid import UUID, uuid4
 
 import pytest
+from pydantic import BaseModel
 from sqlalchemy import text
 
 from app.core.consent import REQUIRED, gate_for
@@ -245,23 +247,65 @@ def test_required_purposes_match_ruling_g1():
         "scans": ("terms",),
         "meals": ("terms",),
         "products_create": ("terms",),
+        "product_verdicts": ("terms",),
         "voice": ("terms", "ai_processing"),
     }
-    # products_create is gated on its route only: a /v1/products prefix gate would 401 the
-    # public /v1/products/{barcode}/public page.
-    assert set(CONSENT_GATES.values()) == set(REQUIRED) - {"products_create"}
+    # products_create and product_verdicts are gated on their routes only: a /v1/products
+    # prefix gate would 401 the public /v1/products/{barcode}/public page.
+    assert set(CONSENT_GATES.values()) == set(REQUIRED) - {"products_create", "product_verdicts"}
     assert "/v1/products" not in CONSENT_GATES
 
 
-def test_only_products_create_is_gated_under_products(app):
-    gated = set()
+# Routes under /v1/products with a route-level gate, and which one (I3: alternatives and
+# compare return rules-engine statuses, for a member when member_id is given).
+PRODUCT_GATES = {
+    ("/v1/products", "POST"): "products_create",
+    ("/v1/products/{product_id}/alternatives", "GET"): "product_verdicts",
+    ("/v1/products/barcode/{code}/alternatives", "GET"): "product_verdicts",
+    ("/v1/products/compare", "GET"): "product_verdicts",
+}
+
+
+def test_product_routes_gated_exactly_as_listed(app):
+    gates = {gate_for(f): f for f in REQUIRED}
+    gated = {}
     for route in api_routes(app):
-        under_products = route.path == "/v1/products" or route.path.startswith("/v1/products/")
-        if under_products and gate_for("products_create") in route.calls():
-            gated.add((route.path, frozenset(route.methods)))
+        if not (route.path == "/v1/products" or route.path.startswith("/v1/products/")):
+            continue
+        found = [gates[c] for c in route.calls() if c in gates]
+        if found:
+            assert len(found) == 1, route.path
+            for method in route.methods:
+                gated[(route.path, method)] = found[0]
             # First, so it runs before limit() and costs no quota.
-            assert route.top_level_calls()[0] is gate_for("products_create")
-    assert gated == {("/v1/products", frozenset({"POST"}))}
+            assert route.top_level_calls()[0] is gate_for(found[0]), route.path
+    assert gated == PRODUCT_GATES
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        f"/v1/products/{uuid4()}/alternatives",
+        "/v1/products/barcode/8901234567890/alternatives",
+        f"/v1/products/compare?a={uuid4()}&b={uuid4()}",
+    ],
+)
+async def test_alternatives_and_compare_need_terms(client, login, grant, path):
+    login()
+    assert _consent_error(await client.get(path)) == ["terms"]
+    assert _consent_error(
+        await client.get(f"{path}{'&' if '?' in path else '?'}member_id={uuid4()}")
+    ) == ["terms"]
+
+
+async def test_alternatives_and_compare_past_the_gate_with_terms(client, login, grant):
+    await grant(["terms"])
+    login()
+    # Past the gate: a random product id or member is simply not found.
+    r = await client.get(f"/v1/products/{uuid4()}/alternatives")
+    assert r.status_code == 404, r.text
+    r = await client.get(f"/v1/products/compare?a={uuid4()}&b={uuid4()}&member_id={uuid4()}")
+    assert r.status_code == 404, r.text
 
 
 def test_every_route_under_a_gated_prefix_has_the_gate(app):
@@ -280,3 +324,70 @@ def test_gated_operations_document_403(app):
     for path in ("/v1/analyze", "/v1/scans/upload-url", "/v1/scans/label", "/v1/products"):
         op = paths[path]["post"]
         assert "403" in op["responses"], path
+    for path, _ in PRODUCT_GATES:
+        for op in paths[path].values():
+            assert "403" in op["responses"], path
+
+
+# --- I3: every route that takes a member id is consent-gated -----------------------------------
+
+MEMBER_PARAMS = {"member_id", "member_ids"}
+# Routes that take a member id without a route gate, and why.
+MEMBER_ROUTES_WITHOUT_GATE = {
+    # Managing the member profile itself. Its health fields need `health_data` consent in
+    # members/service; reading and deleting a member must keep working after a withdrawal, so
+    # people can see and erase their own data (ADR 0018).
+    ("/v1/members/{member_id}", "GET"),
+    ("/v1/members/{member_id}", "PATCH"),
+    ("/v1/members/{member_id}", "DELETE"),
+}
+
+
+def _models(annotation) -> list[type[BaseModel]]:
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        return [annotation]
+    return [m for arg in get_args(annotation) for m in _models(arg)]
+
+
+def _param_names(dependant) -> set[str]:
+    """Every path, query, header, cookie and body parameter name (and body model field)."""
+    names: set[str] = set()
+    stack = [dependant]
+    while stack:
+        dep = stack.pop()
+        for param in (
+            *dep.path_params,
+            *dep.query_params,
+            *dep.header_params,
+            *dep.cookie_params,
+            *dep.body_params,
+        ):
+            names.update({param.name, param.alias})
+            for model in _models(param.field_info.annotation):
+                names.update(model.model_fields)
+                names.update(f.alias for f in model.model_fields.values() if f.alias)
+        stack.extend(dep.dependencies)
+    return names
+
+
+def test_every_route_taking_a_member_id_is_consent_gated(app):
+    gates = {gate_for(f) for f in REQUIRED}
+    with_member: set[tuple[str, str]] = set()
+    for route in api_routes(app):
+        if not MEMBER_PARAMS & _param_names(route.dependant):
+            continue
+        for method in route.methods:
+            key = (route.path, method)
+            with_member.add(key)
+            if key in MEMBER_ROUTES_WITHOUT_GATE:
+                continue
+            assert gates & route.calls(), f"{method} {route.path} takes a member id, no gate"
+    # The scan sees the routes it should (analyze body, voice form, meals and product queries).
+    assert {
+        ("/v1/analyze", "POST"),
+        ("/v1/voice/ask", "POST"),
+        ("/v1/meals", "GET"),
+        ("/v1/products/compare", "GET"),
+        ("/v1/products/{product_id}/alternatives", "GET"),
+    } <= with_member
+    assert MEMBER_ROUTES_WITHOUT_GATE <= with_member  # no stale exemptions

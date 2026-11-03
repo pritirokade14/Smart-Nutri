@@ -38,6 +38,9 @@ REQUIRED: dict[str, tuple[Purpose, ...]] = {
     "meals": ("terms",),
     # Gated on the route, not by prefix: /v1/products/{barcode}/public is public.
     "products_create": ("terms",),
+    # Alternatives and compare (I3): they return rules-engine statuses, for a member's stored
+    # allergies and conditions when member_id is given. Gated always, with or without it.
+    "product_verdicts": ("terms",),
     "voice": ("terms", "ai_processing"),
 }
 

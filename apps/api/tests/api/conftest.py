@@ -31,7 +31,7 @@ def consents_granted(monkeypatch):
 
 
 # Test folders whose routes are gated but whose tests are about something else.
-_GATE_BYPASS_DIRS = ("analyze", "scans", "products", "meals")
+_GATE_BYPASS_DIRS = ("analyze", "scans", "products", "meals", "discovery")
 
 
 @pytest.fixture(autouse=True)
