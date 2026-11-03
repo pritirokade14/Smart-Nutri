@@ -461,6 +461,15 @@ void main() {
       expect(_confirmed(h.last), ['serving_size_g']);
     });
 
+    testWidgets('derived_basis_mismatch saved per 100 g needs a confirmed '
+        'serving (server serving_required)', (t) async {
+      await _pump(t, draftFixture('derived_basis_mismatch'));
+      await _tap(t, 'basis:per_100g');
+      expect(_saveEnabled(t), isFalse);
+      await _tap(t, 'confirm:serving_size_g');
+      expect(_saveEnabled(t), isTrue);
+    });
+
     testWidgets('with basis_required the tick is still needed per serving', (
       t,
     ) async {

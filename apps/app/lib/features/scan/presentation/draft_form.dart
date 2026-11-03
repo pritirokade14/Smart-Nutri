@@ -279,11 +279,10 @@ class DraftFormState extends State<DraftForm> {
 
   bool get _servingConfirmed => _servingTicked || _serving.edited;
 
-  /// A per-serving save stores nothing without a confirmed serving size.
+  /// The server's hint (R23): the chosen column stores nutrients only with a
+  /// confirmed serving size, so Save stays disabled until it is.
   bool get _servingTickRequired =>
-      _basis == 'per_serving' &&
-      _confirmFields.contains('serving_size_g') &&
-      !_servingConfirmed;
+      _scan && (_selectedHint?.servingRequired ?? false) && !_servingConfirmed;
 
   bool _blankNeedsConfirm(String field) {
     final original = field == 'allergen_statement'

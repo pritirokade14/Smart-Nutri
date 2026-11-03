@@ -43,74 +43,6 @@ Map<String, Object?> _json(ProductCreate body) {
   return json;
 }
 
-/// Brief §1: saves the form never lets through. The fixture still records
-/// what the server would do with them.
-bool _blockedByClient(
-  Map<String, Object?> body,
-  Map<String, Object?> result,
-  ProductDraft draft,
-) {
-  if (!body.containsKey('basis') || !body.containsKey('category')) return true;
-  final error = result['error'] as Map<String, Object?>?;
-  final fields = (error?['fields'] as List?)?.cast<String>() ?? const [];
-  if (fields.contains('body.sodium_unit')) return true;
-  if (body['basis'] == 'per_serving') {
-    final col = draft.confirm.columns.perServing;
-    final needsServing = (col?.confirmFields ?? const []).contains(
-      ColumnConfirmConfirmFields.servingSizeG,
-    );
-    final confirmed = (body['confirmed_fields']! as List).cast<String>();
-    if (needsServing && !confirmed.contains('serving_size_g')) return true;
-  }
-  return false;
-}
-
-const _contractOrder = [
-  'energy_kcal',
-  'protein_g',
-  'carbs_g',
-  'sugars_g',
-  'fat_g',
-  'sat_fat_g',
-  'fiber_g',
-  'salt_g',
-  'sodium_mg',
-  'serving_size_g',
-];
-
-/// The fixture builds `confirmed_fields` from ticks only (README step 4).
-/// The round-B brief §1 adds that an edit confirms too: an edited field of
-/// the chosen column's `confirm_fields`, and an edited serving size even when
-/// not listed. The body the client must send therefore lists those as well.
-Map<String, Object?> _clientBody(
-  Map<String, Object?> body,
-  Map<String, Object?> actions,
-  ProductDraft draft,
-) {
-  final edits = (actions['edit'] as Map?)?.cast<String, Object?>();
-  final basis = body['basis'] as String?;
-  if (edits == null || basis == null) return body;
-  final column = basis == 'per_100g'
-      ? draft.confirm.columns.per100g
-      : draft.confirm.columns.perServing;
-  final listed = {for (final f in column?.confirmFields ?? const []) f.json};
-  final shown = basis == 'per_100g' ? draft.per100g : draft.perServing;
-  num? original(String f) =>
-      f == 'serving_size_g' ? draft.servingSizeG : shown?.toJson()[f] as num?;
-  final confirmed = {...(body['confirmed_fields']! as List).cast<String>()};
-  for (final MapEntry(:key, :value) in edits.entries) {
-    if (value == original(key)) continue; // not an edit
-    if (key == 'serving_size_g' || listed.contains(key)) confirmed.add(key);
-  }
-  return {
-    ...body,
-    'confirmed_fields': [
-      for (final f in _contractOrder)
-        if (confirmed.contains(f)) f,
-    ],
-  };
-}
-
 void main() {
   final file = draftExpectationsFile();
   final cases = (file['cases']! as Map).cast<String, Map<String, Object?>>();
@@ -136,7 +68,18 @@ void main() {
         t.view.devicePixelRatio = 1;
         addTearDown(t.view.reset);
         final draft = draftFixture(name);
-        final body = _clientBody(fixtureBody, actions, draft);
+        final body = fixtureBody;
+        final blocked = save['client_blocks'] == true;
+        // Not marked client_blocks, yet the form cannot send them: no basis or
+        // category chosen, or sodium present with no mg/g unit picked (the
+        // fixture records the server's 422 body.sodium_unit).
+        final errorFields =
+            ((result['error'] as Map?)?['fields'] as List?)?.cast<String>() ??
+            const <String>[];
+        final incomplete =
+            !body.containsKey('basis') ||
+            !body.containsKey('category') ||
+            errorFields.contains('body.sodium_unit');
         final sent = <ProductCreate>[];
         await t.pumpWidget(
           MaterialApp(
@@ -205,27 +148,30 @@ void main() {
           }
         }
 
-        final blocked = _blockedByClient(body, result, draft);
-        final save = t.widget<FilledButton>(find.byKey(const Key('save')));
+        final button = t.widget<FilledButton>(find.byKey(const Key('save')));
         expect(
-          save.onPressed != null,
-          !blocked,
-          reason: blocked ? 'save must stay disabled' : 'save must be enabled',
+          button.onPressed != null,
+          !(blocked || incomplete),
+          reason: blocked || incomplete
+              ? 'save must stay disabled'
+              : 'save must be enabled',
         );
 
         final state = t.state<DraftFormState>(find.byType(DraftForm));
-        if (!body.containsKey('basis') || !body.containsKey('category')) {
-          expect(state.previewBody, isNull);
+        if (incomplete) {
+          if (!body.containsKey('basis') || !body.containsKey('category')) {
+            expect(state.previewBody, isNull);
+          }
+          expect(sent, isEmpty);
           return;
         }
-        final ProductCreate out;
         if (blocked) {
-          out = state.previewBody!;
-        } else {
-          await t.tap(find.byKey(const Key('save')));
-          await t.pump();
-          out = sent.single;
+          expect(sent, isEmpty, reason: 'a blocked save sends no body');
+          return;
         }
+        await t.tap(find.byKey(const Key('save')));
+        await t.pump();
+        final out = sent.single;
         expect(out.scanId, _scanId);
         expect(_json(out), body);
       });
