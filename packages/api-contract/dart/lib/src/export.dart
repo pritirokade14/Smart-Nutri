@@ -36,6 +36,7 @@ export 'models/product_create_category.dart';
 export 'models/product_create_confirmed_fields.dart';
 export 'models/product_create_veg_mark.dart';
 export 'models/product_draft_category.dart';
+export 'models/product_draft_engine_withheld.dart';
 export 'models/product_draft_positive_suppressed.dart';
 export 'models/product_draft_veg_mark.dart';
 export 'models/product_out_source.dart';

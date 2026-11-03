@@ -10,7 +10,6 @@ are visible only to their creator; the public route serves verified products onl
 from uuid import UUID, uuid4
 
 import pytest
-from pydantic import Field
 from sqlalchemy import func, select
 
 from app.core.security import AccountContext, current_account
@@ -535,16 +534,11 @@ async def test_unknown_confirmed_field_is_rejected(auth_client):
 
 
 @pytest.fixture
-def r13_draft(monkeypatch):
-    """Simulate Ruling R13's ProductDraft.engine_withheld until it lands in normalize.py."""
-    from app.features.scans import normalize
-    from app.features.scans import service as scans_service
+def r13_draft():
+    """The real ProductDraft: Ruling R13's engine_withheld is part of normalize.py."""
+    from app.features.scans.normalize import ProductDraft
 
-    class R13Draft(normalize.ProductDraft):
-        engine_withheld: list[str] = Field(default_factory=list)
-
-    monkeypatch.setattr(scans_service, "ProductDraft", R13Draft)
-    return R13Draft
+    return ProductDraft
 
 
 async def _sodium_unit_unconfirmed_scan(db_session, r13_draft):
@@ -553,8 +547,8 @@ async def _sodium_unit_unconfirmed_scan(db_session, r13_draft):
         extraction(per_100g=n_in(energy_kcal=400, sodium_mg=600, sugars_g=5, carbs_g=60))
     )
     assert "unit_unconfirmed:per_100g.sodium_mg" in draft.warnings
-    data = draft.model_dump() | {"engine_withheld": ["sodium_mg"]}
-    return await _scan(db_session, A, r13_draft(**data)), draft
+    assert draft.engine_withheld == ["sodium_mg"]
+    return await _scan(db_session, A, draft), draft
 
 
 async def test_withheld_sodium_not_confirmed_gives_hypertensive_unknown(

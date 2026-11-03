@@ -266,13 +266,10 @@ MANUAL_ENTRY_CONFIDENCE = 1.0  # a person typed every value
 
 
 def _withheld(draft: ProductDraft) -> list[str]:
-    """Engine fields the draft withholds from the engine (Ruling R14).
-
-    Today these are ``positive_suppressed`` (upper-bound protein/fibre); Ruling R13
-    generalises them to ``engine_withheld`` (also sodium with an unconfirmed unit, and every
-    field on a basis mismatch).
-    """
-    return list(getattr(draft, "engine_withheld", None) or draft.positive_suppressed)
+    """Engine fields the draft withholds from the engine until the user confirms them
+    (Rulings R13/R14): upper-bound protein/fibre, sodium with an unconfirmed unit, and every
+    engine field on a basis mismatch."""
+    return list(draft.engine_withheld)
 
 
 def _draft_confidence(draft: ProductDraft) -> float:

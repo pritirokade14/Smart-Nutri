@@ -388,6 +388,8 @@ export interface components {
             confidence: number;
             /** Derived From Serving */
             derived_from_serving: boolean;
+            /** Engine Withheld */
+            engine_withheld: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg")[];
             /** Ingredients */
             ingredients: string[];
             /** May Contain Statement */

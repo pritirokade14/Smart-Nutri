@@ -6,6 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'draft_nutrients.dart';
 import 'product_draft_category.dart';
+import 'product_draft_engine_withheld.dart';
 import 'product_draft_positive_suppressed.dart';
 import 'product_draft_veg_mark.dart';
 
@@ -21,6 +22,7 @@ class ProductDraft {
     required this.claims,
     required this.confidence,
     required this.derivedFromServing,
+    required this.engineWithheld,
     required this.ingredients,
     required this.mayContainStatement,
     required this.name,
@@ -42,6 +44,8 @@ class ProductDraft {
   final num confidence;
   @JsonKey(name: 'derived_from_serving')
   final bool derivedFromServing;
+  @JsonKey(name: 'engine_withheld')
+  final List<ProductDraftEngineWithheld> engineWithheld;
   final List<String> ingredients;
   @JsonKey(name: 'may_contain_statement')
   final String? mayContainStatement;

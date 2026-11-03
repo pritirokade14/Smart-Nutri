@@ -13,6 +13,9 @@ ProductDraft _$ProductDraftFromJson(Map<String, dynamic> json) => ProductDraft(
   claims: (json['claims'] as List<dynamic>).map((e) => e as String).toList(),
   confidence: json['confidence'] as num,
   derivedFromServing: json['derived_from_serving'] as bool,
+  engineWithheld: (json['engine_withheld'] as List<dynamic>)
+      .map((e) => ProductDraftEngineWithheld.fromJson(e as String))
+      .toList(),
   ingredients: (json['ingredients'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
@@ -39,6 +42,9 @@ Map<String, dynamic> _$ProductDraftToJson(ProductDraft instance) =>
       'claims': instance.claims,
       'confidence': instance.confidence,
       'derived_from_serving': instance.derivedFromServing,
+      'engine_withheld': instance.engineWithheld
+          .map((e) => _$ProductDraftEngineWithheldEnumMap[e]!)
+          .toList(),
       'ingredients': instance.ingredients,
       'may_contain_statement': instance.mayContainStatement,
       'name': instance.name,
@@ -58,6 +64,19 @@ const _$ProductDraftCategoryEnumMap = {
   ProductDraftCategory.cheese: 'cheese',
   ProductDraftCategory.fat: 'fat',
   ProductDraftCategory.$unknown: r'$unknown',
+};
+
+const _$ProductDraftEngineWithheldEnumMap = {
+  ProductDraftEngineWithheld.energyKcal: 'energy_kcal',
+  ProductDraftEngineWithheld.proteinG: 'protein_g',
+  ProductDraftEngineWithheld.carbsG: 'carbs_g',
+  ProductDraftEngineWithheld.sugarsG: 'sugars_g',
+  ProductDraftEngineWithheld.fatG: 'fat_g',
+  ProductDraftEngineWithheld.satFatG: 'sat_fat_g',
+  ProductDraftEngineWithheld.fiberG: 'fiber_g',
+  ProductDraftEngineWithheld.saltG: 'salt_g',
+  ProductDraftEngineWithheld.sodiumMg: 'sodium_mg',
+  ProductDraftEngineWithheld.$unknown: r'$unknown',
 };
 
 const _$ProductDraftPositiveSuppressedEnumMap = {
