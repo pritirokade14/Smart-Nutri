@@ -551,7 +551,7 @@
       }
     }
   },
-  "reasonCustomAlertUnknown": "The ingredient list isn't available or isn't clear enough, so {alerts} couldn't be checked.",
+  "reasonCustomAlertUnknown": "These alerts couldn't be checked: {alerts}.",
   "@reasonCustomAlertUnknown": {
     "placeholders": {
       "alerts": {

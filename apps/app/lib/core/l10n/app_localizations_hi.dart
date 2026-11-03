@@ -1099,7 +1099,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String reasonCustomAlertUnknown(String alerts) {
-    return 'सामग्री की सूची उपलब्ध नहीं है या साफ़ नहीं है, इसलिए $alerts की जाँच नहीं हो सकी।';
+    return 'इन अलर्ट की जाँच नहीं हो सकी: $alerts।';
   }
 
   @override

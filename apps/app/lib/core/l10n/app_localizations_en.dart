@@ -1093,7 +1093,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reasonCustomAlertUnknown(String alerts) {
-    return 'The ingredient list isn\'t available or isn\'t clear enough, so $alerts couldn\'t be checked.';
+    return 'These alerts couldn\'t be checked: $alerts.';
   }
 
   @override

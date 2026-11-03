@@ -1095,7 +1095,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String reasonCustomAlertUnknown(String alerts) {
-    return 'घटकांची यादी उपलब्ध नाही किंवा पुरेशी स्पष्ट नाही, त्यामुळे $alerts तपासता आले नाही.';
+    return 'या अलर्टची तपासणी करता आली नाही: $alerts.';
   }
 
   @override

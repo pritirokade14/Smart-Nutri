@@ -99,7 +99,7 @@
     "cardio_risk_high_in": "High in {high_in}. People managing blood sugar are often advised to limit these; check with your doctor.",
     "age_unknown": "Add this member's birth year: this food may not suit young children or babies.",
     "custom_alert": "Contains {alert}: {ingredients}.",
-    "custom_alert_unknown": "The ingredient list isn't available or isn't clear enough, so {alerts} couldn't be checked."
+    "custom_alert_unknown": "These alerts couldn't be checked: {alerts}."
   },
   "reason_variant": {
     "nutrient_missing_low_confidence": "We couldn't read {nutrient} clearly on the label, so this check could not be done.",

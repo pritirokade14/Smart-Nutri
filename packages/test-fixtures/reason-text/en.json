@@ -276,7 +276,7 @@
       "severity": "unknown"
     },
     "reason_index": 0,
-    "text": "The ingredient list isn't available or isn't clear enough, so added sugar, artificial sweeteners couldn't be checked."
+    "text": "These alerts couldn't be checked: added sugar, artificial sweeteners."
   },
   {
     "key": "reason_variant.custom_alert_flag_only",

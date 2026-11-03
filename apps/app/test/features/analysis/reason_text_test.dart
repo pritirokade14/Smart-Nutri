@@ -271,6 +271,22 @@ void main() {
         expect(text, isNot(matches(RegExp(r'[\u0966-\u096F]'))));
       }
     });
+    test('flag-only wording is only for artificial_sweetener (as web)', () {
+      final sweet = _r('custom_alert', {
+        'alert': 'artificial_sweetener',
+        'ingredients': <String>[],
+      });
+      expect(reasonMessageKey(sweet), 'reason_variant.custom_alert_flag_only');
+      expect(reasonText(en, sweet), en.reasonVariantCustomAlertFlagOnly);
+      for (final alert in ['palm_oil', 'maida', 'added_sugar', 'msg']) {
+        final r = _r('custom_alert', {
+          'alert': alert,
+          'ingredients': <String>[],
+        });
+        expect(reasonMessageKey(r), 'reason.custom_alert');
+        expect(reasonText(en, r), en.verdictReasonUnavailable);
+      }
+    });
     test('mark-only needs mark == non_veg, else unavailable', () {
       for (final p in [
         {'diet': 'veg', 'ingredients': <String>[]},

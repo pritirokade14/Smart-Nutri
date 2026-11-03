@@ -2011,7 +2011,7 @@ abstract class AppLocalizations {
   /// No description provided for @reasonCustomAlertUnknown.
   ///
   /// In en, this message translates to:
-  /// **'The ingredient list isn\'t available or isn\'t clear enough, so {alerts} couldn\'t be checked.'**
+  /// **'These alerts couldn\'t be checked: {alerts}.'**
   String reasonCustomAlertUnknown(String alerts);
 
   /// No description provided for @reasonDietUnknown.

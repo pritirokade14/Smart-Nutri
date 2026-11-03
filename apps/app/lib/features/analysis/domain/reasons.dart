@@ -22,8 +22,12 @@ String reasonMessageKey(ReasonOut reason) {
                     (p['ingredients']! as List).isEmpty)):
       return 'reason_variant.diet_violation_mark_only';
     // Only the Open Food Facts sweetener flag matched (no ingredient term).
+    // Any other alert with no ingredient is not something the engine emits,
+    // so it falls through and renders as unavailable (as web does).
     case 'custom_alert'
-        when p['ingredients'] is List && (p['ingredients']! as List).isEmpty:
+        when p['alert'] == 'artificial_sweetener' &&
+            p['ingredients'] is List &&
+            (p['ingredients']! as List).isEmpty:
       return 'reason_variant.custom_alert_flag_only';
   }
   return 'reason.${reason.code}';
