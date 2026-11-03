@@ -98,7 +98,7 @@ def _period_bands(
 ) -> dict[str, Band]:
     """Ruling M1 B1: limit x days with logged items, and ``over`` if any day is ``over``."""
     logged_days = sum(1 for d in days if d.items > 0)
-    bands = _bands(whole.totals(), whole.incomplete, whole.items, limits, logged_days, cfg)
+    bands = _bands(whole.raw_totals(), whole.incomplete, whole.items, limits, logged_days, cfg)
     for key in ("sugar_g", "salt_g"):
         if any(getattr(d.bands, key) == NutrientBand.OVER for d in days):
             bands[key] = "over"
@@ -107,7 +107,8 @@ def _period_bands(
 
 class _Acc:
     def __init__(self) -> None:
-        self.sums = dict.fromkeys(NUTRIENTS, 0.0)
+        # Decimal sums of the stored values: exact, so 0.1 + 16.1 + 8.8 is 25, not 25.000…04.
+        self.sums = dict.fromkeys(NUTRIENTS, Decimal(0))
         self.known = dict.fromkeys(NUTRIENTS, 0)  # meals with a value, per nutrient
         self.incomplete = dict.fromkeys(NUTRIENTS, False)
         self.items = 0
@@ -119,7 +120,7 @@ class _Acc:
             if value is None:
                 self.incomplete[k] = True
             else:
-                self.sums[k] += float(value)
+                self.sums[k] += Decimal(repr(float(value)))
                 self.known[k] += 1
 
     def merge(self, other: "_Acc") -> None:
@@ -129,9 +130,14 @@ class _Acc:
             self.known[k] += other.known[k]
             self.incomplete[k] = self.incomplete[k] or other.incomplete[k]
 
+    def raw_totals(self) -> dict[str, float | None]:
+        """Unrounded sums, used for the bands (cleanup c1: 25.04 g is over a 25 g limit even
+        though it displays as 25.0 g); None when no meal had a value."""
+        return {k: float(v) if self.known[k] else None for k, v in self.sums.items()}
+
     def totals(self) -> dict[str, float | None]:
-        """Rounded sums; None when no meal had a value (Ruling M1 S1: never 0.0)."""
-        return {k: _round1(v) if self.known[k] else None for k, v in self.sums.items()}
+        """Rounded sums for display; None when no meal had a value (Ruling M1 S1: never 0.0)."""
+        return {k: None if v is None else _round1(v) for k, v in self.raw_totals().items()}
 
 
 def summarise(
@@ -164,14 +170,14 @@ def summarise(
     days: list[DaySummary] = []
     whole = _Acc()
     for day, acc in per_day.items():
-        totals = acc.totals()
+        raw = acc.raw_totals()
         days.append(
             DaySummary(
                 date=day,
-                totals=Totals(**totals),
+                totals=Totals(**acc.totals()),
                 items=acc.items,
                 incomplete=IncompleteNutrients(**acc.incomplete),
-                bands=NutrientBands(**_bands(totals, acc.incomplete, acc.items, limits, 1, cfg)),
+                bands=NutrientBands(**_bands(raw, acc.incomplete, acc.items, limits, 1, cfg)),
             )
         )
         whole.merge(acc)

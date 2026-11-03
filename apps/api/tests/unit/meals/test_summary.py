@@ -244,3 +244,59 @@ def test_bad_period_rejected(cfg):
 
 def test_nutrient_keys():
     assert NUTRIENTS == ("energy_kcal", "sugars_g", "salt_g", "protein_g")
+
+
+# --- cleanup c1: bands compare the UNROUNDED totals -------------------------------------
+
+
+def test_band_uses_unrounded_total_day(cfg):
+    """25.04 g shows as 25.0 g, but it is above a 25 g limit: the band is ``over``."""
+    s = summarise([meal(sugars=25.04)], ADULT_LIMITS, "day", TODAY, IST, cfg, member_id=MEMBER)
+    assert s.totals.sugars_g == 25.0
+    assert s.days[0].bands.sugar_g == "over"
+    assert s.bands.sugar_g == "over"
+
+
+def test_band_uses_unrounded_total_split_meals(cfg):
+    s = summarise(
+        [meal(sugars=12.52, salt=2.52), meal(sugars=12.52, salt=2.52)],
+        ADULT_LIMITS,
+        "day",
+        TODAY,
+        IST,
+        cfg,
+        member_id=MEMBER,
+    )
+    assert s.totals.sugars_g == 25.0 and s.totals.salt_g == 5.0
+    assert s.days[0].bands.sugar_g == "over"
+    assert s.days[0].bands.salt_g == "over"
+
+
+def test_unrounded_sum_has_no_float_drift(cfg):
+    """0.1 + 16.1 + 8.8 is exactly 25 g (float sum: 25.000000000000004): ``near``, not ``over``."""
+    s = summarise(
+        [meal(sugars=0.1), meal(sugars=16.1), meal(sugars=8.8)],
+        ADULT_LIMITS,
+        "day",
+        TODAY,
+        IST,
+        cfg,
+        member_id=MEMBER,
+    )
+    assert s.totals.sugars_g == 25.0
+    assert s.days[0].bands.sugar_g == "near"
+
+
+def test_period_band_uses_unrounded_total(cfg):
+    """Week: 2 logged days x 25 g = 50 g; 50.04 g rounds to 50.0 but is over."""
+    meals = [meal(day=TODAY, sugars=25.0), meal(day=TODAY - timedelta(days=1), sugars=25.04)]
+    s = summarise(meals, ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER)
+    assert s.totals.sugars_g == 50.0
+    assert s.bands.sugar_g == "over"
+
+
+def test_protein_target_uses_unrounded_total(cfg):
+    """58.06 g displays as 58.1 g but is below a 58.1 g target: no band, never ``ok``."""
+    s = summarise([meal(protein=58.06)], ADULT_LIMITS, "day", TODAY, IST, cfg, member_id=MEMBER)
+    assert s.totals.protein_g == 58.1
+    assert s.days[0].bands.protein_g == "unknown"
