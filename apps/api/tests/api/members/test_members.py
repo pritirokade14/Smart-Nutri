@@ -516,3 +516,57 @@ def test_openapi_documents_routes_and_403(app):
         assert content["application/json"]["schema"] == {
             "$ref": "#/components/schemas/ErrorEnvelope"
         }
+
+
+# --- m6: member writes are rate-limited per account per day ----------------------------------
+
+
+def test_default_member_writes_limit():
+    from app.core.config import Settings
+
+    assert Settings(_env_file=None).rate_limit_member_writes_per_day == 60
+
+
+async def test_member_create_and_update_share_a_daily_limit(app, client, consented, db_session):
+    app.state.settings.rate_limit_member_writes_per_day = 3
+    r = await client.post(
+        "/v1/members", json={"name": "Ravi", "relation": "spouse", "birth_year": 1990}
+    )
+    assert r.status_code == 201, r.text
+    member_id = r.json()["id"]
+    assert (
+        await client.patch(f"/v1/members/{member_id}", json={"name": "Ravi K"})
+    ).status_code == 200
+    r = await client.post(
+        "/v1/members", json={"name": "Meera", "relation": "child", "birth_year": 1990}
+    )
+    assert r.status_code == 201, r.text
+    r = await client.patch(f"/v1/members/{member_id}", json={"name": "Ravi Kumar"})
+    assert r.status_code == 429
+    assert r.json()["error"]["code"] == "rate_limited"
+    assert int(r.headers["retry-after"]) >= 1
+    r = await client.post(
+        "/v1/members", json={"name": "Asha", "relation": "parent", "birth_year": 1990}
+    )
+    assert r.status_code == 429
+    # Reading and deleting are not limited (erasure must always work).
+    assert (await client.get("/v1/members")).status_code == 200
+    assert (await client.get(f"/v1/members/{member_id}")).status_code == 200
+    assert (await client.delete(f"/v1/members/{member_id}")).status_code == 204
+
+
+async def test_member_write_limit_is_per_account(app, client, login, grant, db_session):
+    app.state.settings.rate_limit_member_writes_per_day = 1
+    for account in (ACC_A, ACC_B):
+        await grant(account)
+        login(account)
+        r = await client.post(
+            "/v1/members", json={"name": "Ravi", "relation": "spouse", "birth_year": 1990}
+        )
+        assert r.status_code == 201, r.text
+
+
+def test_member_writes_document_429(app):
+    paths = app.openapi()["paths"]
+    assert "429" in paths["/v1/members"]["post"]["responses"]
+    assert "429" in paths["/v1/members/{member_id}"]["patch"]["responses"]

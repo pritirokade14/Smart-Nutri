@@ -37,6 +37,8 @@ BUCKETS: dict[str, tuple[str, str]] = {
     # Ruling D1/S5: consent writes and account deletion.
     "consents": ("day", "rate_limit_consents_per_day"),
     "account_deletes": ("day", "rate_limit_account_deletes_per_day"),
+    # m6: member create and update share one bucket. Delete is never limited (erasure).
+    "member_writes": ("day", "rate_limit_member_writes_per_day"),
 }
 ERROR_CODES = {"label_scans": "rate_limited_scans", "voice": "rate_limited_voice"}
 _DEFAULT_CODE = "rate_limited"

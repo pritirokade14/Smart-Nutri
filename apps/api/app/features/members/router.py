@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ERROR_RESPONSES, ErrorEnvelope
+from app.core.ratelimit import limit
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
 from app.features.members import service
@@ -44,6 +45,7 @@ async def members_list(current: Current, session: Session) -> list[MemberOut]:
     response_model=MemberOut,
     status_code=201,
     responses=_WRITE_RESPONSES,
+    dependencies=[Depends(limit("member_writes"))],  # first: it commits the session
 )
 async def members_create(body: MemberIn, current: Current, session: Session) -> MemberOut:
     member = await service.create_member(session, current.account.id, body)
@@ -62,6 +64,7 @@ async def members_get(member_id: UUID, current: Current, session: Session) -> Me
     operation_id="members_update",
     response_model=MemberOut,
     responses=_WRITE_RESPONSES,
+    dependencies=[Depends(limit("member_writes"))],  # first: it commits the session
 )
 async def members_update(
     member_id: UUID, body: MemberPatch, current: Current, session: Session
