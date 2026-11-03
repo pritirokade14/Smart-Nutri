@@ -6,7 +6,8 @@
 The output has one row per numeric threshold in `app/scoring/data/thresholds.yaml`, loaded
 through `app.scoring.load_config`. Each row gives:
 - the path, value and unit;
-- the sources, from `methodology()`;
+- the sources of that number (`KEY_SOURCES`, else its section's sources from
+  `methodology()`), and the sources of the reason for the rule as "why: ...";
 - the question for the clinician;
 - blank Approved / Change to / Signed columns.
 
@@ -134,12 +135,71 @@ def question_of(path: tuple[str, ...]) -> str:
     return QUESTION_ADULT
 
 
-def sources_text(section: str | None, sections: dict[str, dict], sources: dict) -> str:
-    entry = sections.get(section or "")
-    if entry is None or not entry.get("threshold_sources"):
+# S4: path prefix -> (sources of the NUMBER, sources of the REASON for the rule), as keys of
+# `sources` in thresholds.yaml. The longest matching prefix wins; a path with no entry uses
+# its section's sources. Every row of a section citing several sources needs an entry, so a
+# reviewer sees which source backs each number (tests/unit/test_clinician_review_sheet.py).
+# Taken from the comments on `section_sources` in thresholds.yaml.
+_SMARTNUTRI = "smartnutri_working_values"
+KEY_SOURCES: dict[tuple[str, ...], tuple[list[str], list[str]]] = {
+    # Blood sugar: food avoid = UK FSA "high"; drink avoid = UK SDIL 5 g/100 ml; caution =
+    # FSSAI "low sugar" bands; carbs per serving = SmartNutri. ICMR-NIN and ADA back the
+    # cardio_high_in rule only, not these numbers.
+    ("conditions", "blood_sugar", "avoid_sugars_g", "food"): (["uk_fsa_front_of_pack"], []),
+    ("conditions", "blood_sugar", "avoid_sugars_g", "drink"): (["uk_sdil"], []),
+    ("conditions", "blood_sugar", "caution_sugars_g"): (["fssai_claims_2018"], []),
+    ("conditions", "blood_sugar", "caution_carbs_per_serving_g"): ([_SMARTNUTRI], []),
+    # Weight loss: both numbers are SmartNutri's; ICMR-NIN is the reason for the rule.
+    ("conditions", "weight_loss"): ([_SMARTNUTRI], ["icmr_nin_2024"]),
+    # Children: daily free-sugar limits by age are NHS; the age cut-off and shares are ours.
+    ("conditions", "child", "max_age"): ([_SMARTNUTRI], ["nhs_child_sugar"]),
+    ("conditions", "child", "free_sugar_daily_limit_g"): (["nhs_child_sugar"], []),
+    ("conditions", "child", "caution_pct_of_limit"): ([_SMARTNUTRI], ["nhs_child_sugar"]),
+    ("conditions", "child", "avoid_pct_of_limit"): ([_SMARTNUTRI], ["nhs_child_sugar"]),
+    # Infants: "under 2" and "no added sugar or salt" are WHO; the per-100 g values (Ruling
+    # R27) are SmartNutri's, with WHO as the reason.
+    ("conditions", "infant", "max_age"): (["who_infant"], []),
+    ("conditions", "infant", "avoid_sugars_g"): ([_SMARTNUTRI], ["who_infant"]),
+    ("conditions", "infant", "avoid_salt_g"): ([_SMARTNUTRI], ["who_infant"]),
+    # Daily limits for the food log.
+    ("daily_limits", "adult", "sugar_g"): (["who_free_sugars"], []),
+    ("daily_limits", "adult", "salt_g"): (["who_sodium"], []),
+    ("daily_limits", "adult", "protein_g_per_kg"): (["who_protein_2007"], []),
+    ("daily_limits", "protein_min_age"): ([_SMARTNUTRI], ["who_protein_2007"]),
+    ("daily_limits", "child_salt_g_by_min_age"): (["nhs_child_salt"], []),
+    ("daily_limits", "infant"): (["who_infant"], []),  # 0 g: no added sugar or salt under 2
+    ("daily_limits", "near_pct"): ([_SMARTNUTRI], []),
+}
+
+
+def key_entry(path: tuple[str, ...]) -> tuple[list[str], list[str]] | None:
+    """The KEY_SOURCES entry with the longest prefix of `path`, or None."""
+    for n in range(len(path), 0, -1):
+        entry = KEY_SOURCES.get(path[:n])
+        if entry is not None:
+            return entry
+    return None
+
+
+def source_keys(path: tuple[str, ...], sections: dict[str, dict]) -> tuple[list[str], list[str]]:
+    """(threshold source keys, rationale source keys) for one row."""
+    entry = key_entry(path)
+    if entry is not None:
+        return list(entry[0]), list(entry[1])
+    section = sections.get(section_of(path) or "") or {}
+    return list(section.get("threshold_sources") or []), list(
+        section.get("rationale_sources") or []
+    )
+
+
+def sources_text(path: tuple[str, ...], sections: dict[str, dict], sources: dict) -> str:
+    thresholds, rationale = source_keys(path, sections)
+    if not thresholds:
         return "SmartNutri working value (no external source)"
-    titles = [sources[k]["title"] for k in entry["threshold_sources"]]
-    return "; ".join(titles)
+    text = "; ".join(sources[k]["title"] for k in thresholds)
+    if rationale:
+        text += " (why: " + "; ".join(sources[k]["title"] for k in rationale) + ")"
+    return text
 
 
 def cell(text: Any) -> str:
@@ -190,7 +250,7 @@ def render() -> str:
     for i, (path, value) in enumerate(rows, 1):
         out.append(
             f"| {i} | `{cell('.'.join(path))}` | {cell(value)} | {cell(unit_of(path))} | "
-            f"{cell(sources_text(section_of(path), sections, meta['sources']))} | "
+            f"{cell(sources_text(path, sections, meta['sources']))} | "
             f"{cell(question_of(path))} |  |  |  |"
         )
 

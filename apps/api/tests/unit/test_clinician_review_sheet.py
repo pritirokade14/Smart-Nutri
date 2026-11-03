@@ -61,6 +61,95 @@ def test_daily_limit_questions(sheet):
     assert sheet.question_of(("daily_limits", "adult", "sugar_g")) == sheet.QUESTION_ADULT
 
 
+# --- S4: each row cites the sources of ITS number, not every source of its section ---------
+
+
+@pytest.fixture(scope="module")
+def meta():
+    from app.scoring import load_config, methodology
+
+    return methodology(load_config())
+
+
+def _sources(sheet, meta, path):
+    sections = {s["id"]: s for s in meta["sections"]}
+    return sheet.source_keys(path, sections)
+
+
+@pytest.mark.parametrize("leaf", ["sugar_g", "salt_g"])
+def test_infant_daily_limits_cite_who_under_2_only(sheet, meta, leaf):
+    thresholds, rationale = _sources(sheet, meta, ("daily_limits", "infant", leaf))
+    assert thresholds == ["who_infant"] and rationale == []
+
+
+@pytest.mark.parametrize("leaf", ["avoid_sugars_g", "avoid_salt_g"])
+def test_infant_per_100g_values_are_ours_with_who_as_the_reason(sheet, meta, leaf):
+    # Ruling R27: 5 g and 0.3 g are SmartNutri values, NOT WHO numbers.
+    thresholds, rationale = _sources(sheet, meta, ("conditions", "infant", leaf))
+    assert thresholds == ["smartnutri_working_values"] and rationale == ["who_infant"]
+
+
+@pytest.mark.parametrize(
+    ("path", "expected"),
+    [
+        (("daily_limits", "adult", "sugar_g"), ["who_free_sugars"]),
+        (("daily_limits", "adult", "salt_g"), ["who_sodium"]),
+        (("daily_limits", "adult", "protein_g_per_kg"), ["who_protein_2007"]),
+        (("daily_limits", "child_salt_g_by_min_age", "4"), ["nhs_child_salt"]),
+        (("daily_limits", "near_pct"), ["smartnutri_working_values"]),
+        (("conditions", "blood_sugar", "avoid_sugars_g", "food"), ["uk_fsa_front_of_pack"]),
+        (("conditions", "blood_sugar", "avoid_sugars_g", "drink"), ["uk_sdil"]),
+        (("conditions", "blood_sugar", "caution_sugars_g", "food"), ["fssai_claims_2018"]),
+        (
+            ("conditions", "blood_sugar", "caution_carbs_per_serving_g"),
+            ["smartnutri_working_values"],
+        ),
+        (("conditions", "child", "free_sugar_daily_limit_g", "7"), ["nhs_child_sugar"]),
+        (("conditions", "child", "avoid_pct_of_limit"), ["smartnutri_working_values"]),
+        # Single-source sections keep their section source.
+        (("high_in", "food", "salt_g"), ["uk_fsa_front_of_pack"]),
+    ],
+)
+def test_per_key_threshold_sources(sheet, meta, path, expected):
+    assert _sources(sheet, meta, path)[0] == expected
+
+
+def test_every_row_of_a_multi_source_section_has_its_own_sources(sheet, meta):
+    """A section citing several sources must say which one backs each number."""
+    from app.scoring import load_config
+
+    sections = {s["id"]: s for s in meta["sections"]}
+    rows = sheet.numeric_leaves(load_config().thresholds)
+    unresolved = [
+        ".".join(p)
+        for p, _ in rows
+        if len((sections.get(sheet.section_of(p)) or {}).get("threshold_sources") or []) > 1
+        and sheet.key_entry(p) is None
+    ]
+    assert unresolved == []
+
+
+def test_key_sources_name_real_sources_and_real_thresholds(sheet, meta):
+    from app.scoring import load_config
+
+    paths = [p for p, _ in sheet.numeric_leaves(load_config().thresholds)]
+    for prefix, (thresholds, rationale) in sheet.KEY_SOURCES.items():
+        assert set(thresholds) | set(rationale) <= set(meta["sources"]), prefix
+        assert any(p[: len(prefix)] == prefix for p in paths), f"stale entry {prefix}"
+
+
+def test_sheet_shows_the_reason_separately(sheet):
+    text = sheet.render()
+    row = next(line for line in text.splitlines() if "`conditions.infant.avoid_salt_g`" in line)
+    assert "SmartNutri working values" in row
+    assert "why: WHO guidance: no added sugar or salt under 2" in row
+    infant_daily = next(
+        line for line in text.splitlines() if "`daily_limits.infant.salt_g`" in line
+    )
+    assert "WHO guidance: no added sugar or salt under 2" in infant_daily
+    assert "sodium intake" not in infant_daily and "protein" not in infant_daily
+
+
 def test_committed_sheet_is_current(sheet):
     """Regenerate with: cd apps/api && uv run python ../../scripts/clinician_review_sheet.py
     > ../../docs/launch/clinician-review.md"""
