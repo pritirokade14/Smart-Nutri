@@ -21,6 +21,12 @@ const CODE_PARAM_NAMESPACE: Record<string, string> = {
   allergen: "allergen",
   claim: "claim",
   nutrient: "nutrient",
+  alert: "alert",
+};
+// List params whose items are codes: {high_in} → nutrient.*, {alerts} → alert.*.
+const LIST_PARAM_NAMESPACE: Record<string, string> = {
+  high_in: "nutrient",
+  alerts: "alert",
 };
 const SAFE_CODE = /^[a-z0-9_]+$/;
 
@@ -38,6 +44,16 @@ export function reasonKey(reason: ReasonOut): string {
     // shape is not something the engine emits, so show the generic line.
     return p.mark === "non_veg"
       ? "reason_variant.diet_violation_mark_only"
+      : "verdict.reason_unavailable";
+  }
+  if (
+    reason.code === "custom_alert" &&
+    !(Array.isArray(p.ingredients) && p.ingredients.length > 0)
+  ) {
+    // Only the Open Food Facts sweetener flag matches with no ingredient; any
+    // other shape is not something the engine emits.
+    return p.alert === "artificial_sweetener"
+      ? "reason_variant.custom_alert_flag_only"
       : "verdict.reason_unavailable";
   }
   return `reason.${reason.code}`;
@@ -62,8 +78,9 @@ export function reasonValues(
   const num = new Intl.NumberFormat("en", { maximumFractionDigits: 3 });
   const values: Record<string, string> = {};
   for (const [k, v] of Object.entries(reason.params ?? {})) {
-    if (k === "high_in" && Array.isArray(v)) {
-      values[k] = join(v.map((c) => label(t, "nutrient", String(c))));
+    if (k in LIST_PARAM_NAMESPACE && Array.isArray(v)) {
+      const ns = LIST_PARAM_NAMESPACE[k] as string;
+      values[k] = join(v.map((c) => label(t, ns, String(c))));
     } else if (k in CODE_PARAM_NAMESPACE && typeof v === "string") {
       values[k] = label(t, CODE_PARAM_NAMESPACE[k] as string, v);
     } else if (Array.isArray(v)) {
@@ -126,18 +143,19 @@ export function isAlwaysVisible(r: ReasonOut): boolean {
 }
 
 /**
- * Visible group first, collapsed group after; API order within each. When no
- * reason is always visible, the first one is shown and the rest collapse.
+ * Visible group first, collapsed group after; API order within each. The
+ * engine ranks reasons most severe first, so reasons[0] (the "why" line,
+ * Ruling P5-R14) is always visible and always leads; every other avoid,
+ * unknown or allergen reason stays visible too (R22).
  */
 export function partitionReasons(reasons: readonly ReasonOut[]): {
   visible: ReasonOut[];
   collapsed: ReasonOut[];
 } {
-  const all = displayReasons(reasons);
-  const visible = all.filter(isAlwaysVisible);
-  const collapsed = all.filter((r) => !isAlwaysVisible(r));
-  // Nothing must-show: lead with the first reason so the card is never bare.
-  const first = visible.length === 0 ? collapsed.shift() : undefined;
-  if (first) visible.push(first);
-  return { visible, collapsed };
+  const [top, ...rest] = displayReasons(reasons);
+  if (!top) return { visible: [], collapsed: [] };
+  return {
+    visible: [top, ...rest.filter(isAlwaysVisible)],
+    collapsed: rest.filter((r) => !isAlwaysVisible(r)),
+  };
 }

@@ -28,6 +28,8 @@ export function clientMessages(
 // What the logged-in verdict UI (ResultView, VerdictCard) needs on top of the
 // root client catalogue. `condition` is not needed: condition_unrecognised
 // carries the member's own wording (packages/i18n README, rule 2).
+// `alert` labels {alert}/{alerts} in custom_alert reasons; `claim_verdict`
+// and `claim_reason` are for the claims section.
 const RESULT_NAMESPACES = [
   "verdict",
   "status",
@@ -36,6 +38,9 @@ const RESULT_NAMESPACES = [
   "nutrient",
   "allergen",
   "diet",
+  "alert",
+  "claim_verdict",
+  "claim_reason",
 ] as const;
 
 /** Client catalogue for the result page: clientMessages + the verdict namespaces. */

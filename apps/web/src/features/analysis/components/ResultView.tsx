@@ -19,7 +19,11 @@ import {
   normalizeProductId,
   useAnalyze,
 } from "../api/useAnalyzeBarcode";
+import { readClaims } from "../lib/report";
+import { ClaimsSection } from "./ClaimsSection";
+import { ExplanationCard } from "./ExplanationCard";
 import { GradeChip } from "./GradeChip";
+import { NutritionTable } from "./NutritionTable";
 import { OffAttribution } from "./OffAttribution";
 import { VerdictCard } from "./VerdictCard";
 
@@ -85,13 +89,22 @@ function Analysis({
             id="members-title"
             className="text-md font-semibold text-text-secondary"
           >
-            {t("result.members_title")}
+            {t("result.family_title")}
           </h2>
         ) : null}
         {data.verdicts.map((v) => (
           <VerdictCard key={v.member_id} verdict={v} />
         ))}
       </section>
+
+      <ExplanationCard
+        explanation={data.explanation}
+        verdicts={data.verdicts}
+      />
+
+      <NutritionTable per100g={product.per_100g} />
+
+      <ClaimsSection checks={readClaims(data.report)} />
 
       {product.attribution != null && offBarcode ? (
         <OffAttribution barcode={offBarcode} />

@@ -3,6 +3,9 @@ import { defineConfig } from "@playwright/test";
 const port = Number(process.env.PORT ?? 3000);
 const stubPort = Number(process.env.STUB_API_PORT ?? 18000);
 const stubURL = `http://127.0.0.1:${stubPort}`;
+// The stub also stands in for Supabase Auth (signed-in e2e flows).
+const authPort = Number(process.env.STUB_AUTH_PORT ?? 54321);
+const authURL = `http://127.0.0.1:${authPort}`;
 const baseURL = `http://localhost:${port}`;
 
 export default defineConfig({
@@ -12,7 +15,10 @@ export default defineConfig({
     {
       command: "node e2e/stub-api.mjs",
       url: `${stubURL}/health`,
-      env: { STUB_API_PORT: String(stubPort) },
+      env: {
+        STUB_API_PORT: String(stubPort),
+        STUB_AUTH_PORT: String(authPort),
+      },
       ignoreHTTPSErrors: true,
       reuseExistingServer: false,
     },
@@ -22,7 +28,7 @@ export default defineConfig({
       env: {
         PORT: String(port),
         // Dummy public values (NEXT_PUBLIC_* is shipped to browsers anyway).
-        NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+        NEXT_PUBLIC_SUPABASE_URL: authURL,
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "dummy-publishable-key",
         NEXT_PUBLIC_API_BASE_URL: stubURL,
         NEXT_PUBLIC_SITE_URL: baseURL,

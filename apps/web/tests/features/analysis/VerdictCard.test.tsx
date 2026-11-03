@@ -93,20 +93,37 @@ describe("VerdictCard details", () => {
     return c.verdict;
   };
 
-  it("shows the member name, and 'You' for the primary member with no name", () => {
+  it("headline: '<status> for <name>', 'You' for an empty name, 'for you' for the account holder", () => {
+    const forMember = (name: string) =>
+      MESSAGES.en.verdict.for_member
+        .replace("{status}", MESSAGES.en.status.avoid)
+        .replace("{name}", name);
     renderCard(pick("sf_biscuit.diabetic_adult"));
     expect(
-      screen.getByRole("heading", { level: 2, name: "Diabetic Adult" }),
+      screen.getByRole("heading", {
+        level: 2,
+        name: forMember("Diabetic Adult"),
+      }),
     ).toBeTruthy();
     cleanup();
     renderCard({ ...pick("sf_biscuit.diabetic_adult"), member_name: "" });
     expect(
-      screen.getByRole("heading", { level: 2, name: MESSAGES.en.result.you }),
+      screen.getByRole("heading", {
+        level: 2,
+        name: forMember(MESSAGES.en.result.you),
+      }),
     ).toBeTruthy();
     cleanup();
     // No trimming (parity with Android): a whitespace name is shown as sent.
     renderCard({ ...pick("sf_biscuit.diabetic_adult"), member_name: " A " });
-    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(" A ");
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(
+      forMember(" A "),
+    );
+    cleanup();
+    renderCard({ ...pick("sf_biscuit.diabetic_adult"), is_primary: true });
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(
+      MESSAGES.en.verdict.for_you.replace("{status}", MESSAGES.en.status.avoid),
+    );
   });
 
   it("the avoid reason is visible; caution reasons sit behind the toggle, in API order", async () => {

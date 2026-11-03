@@ -226,5 +226,71 @@
     },
     "reason_index": 0,
     "text": "High in salt: 2.5 g per 100 g/ml."
+  },
+  {
+    "key": "reason.custom_alert",
+    "member": "palm_alert_adult",
+    "product": "sf_biscuit",
+    "reason": {
+      "code": "custom_alert",
+      "params": {
+        "alert": "palm_oil",
+        "ingredients": [
+          "palm"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "Contains palm oil: palm."
+  },
+  {
+    "key": "reason.custom_alert",
+    "member": "alert_child",
+    "product": "kiwi_yogurt",
+    "reason": {
+      "code": "custom_alert",
+      "params": {
+        "alert": "artificial_sweetener",
+        "ingredients": [
+          "ins955"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 2,
+    "text": "Contains artificial sweeteners: ins955."
+  },
+  {
+    "key": "reason.custom_alert_unknown",
+    "member": "alert_child",
+    "product": "no_ingredients",
+    "reason": {
+      "code": "custom_alert_unknown",
+      "params": {
+        "alerts": [
+          "added_sugar",
+          "artificial_sweetener"
+        ]
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "The ingredient list isn't available or isn't clear enough, so added sugar, artificial sweeteners couldn't be checked."
+  },
+  {
+    "key": "reason_variant.custom_alert_flag_only",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "custom_alert",
+      "params": {
+        "alert": "artificial_sweetener",
+        "ingredients": []
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "The product data says it contains sweeteners."
   }
 ]

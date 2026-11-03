@@ -18,8 +18,10 @@ import { ReasonLine } from "./ReasonLine";
  * grey), so the browser never picks or changes a verdict colour; the badge
  * also carries an icon and the status label, so it never relies on colour.
  *
- * Ruling R22: avoid, unknown and allergen_* reasons are always visible; only
- * the remaining caution/ok reasons sit behind the toggle.
+ * Headline (Ruling P5-R24): "<status> for you" for the account holder,
+ * otherwise "<status> for <name>". reasons[0], the engine's top reason, leads
+ * the visible reasons; avoid, unknown and allergen_* reasons are always
+ * visible (R22); only the remaining caution/ok reasons sit behind the toggle.
  */
 export function VerdictCard({ verdict }: { verdict: VerdictOut }) {
   const t = useTranslations();
@@ -30,6 +32,10 @@ export function VerdictCard({ verdict }: { verdict: VerdictOut }) {
     verdict.member_name === "" ? t("result.you") : verdict.member_name;
   // An unexpected status string renders as unknown (grey), never ok.
   const status = toneOf(verdict.status);
+  const statusLabel = t(`status.${status}`);
+  const headline = verdict.is_primary
+    ? t("verdict.for_you", { status: statusLabel })
+    : t("verdict.for_member", { status: statusLabel, name });
   const { visible, collapsed } = partitionReasons(verdict.reasons);
 
   const items = (rs: ReasonOut[]) =>
@@ -49,7 +55,7 @@ export function VerdictCard({ verdict }: { verdict: VerdictOut }) {
     >
       <header className="flex flex-wrap items-center justify-between gap-2 bg-(--verdict-soft) px-4 py-3 sm:px-5">
         <h2 className="min-w-0 text-lg font-semibold break-words text-text-primary">
-          {name}
+          {headline}
         </h2>
         <VerdictBadge status={status} />
       </header>

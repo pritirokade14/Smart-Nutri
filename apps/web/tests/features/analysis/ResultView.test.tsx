@@ -125,6 +125,50 @@ describe("ResultView success", () => {
     expect(screen.getByText(en.nutriscore.calculated_by)).toBeTruthy();
   });
 
+  it("orders the sections: family cards, explanation, nutrition, claims", async () => {
+    const body = structuredClone(analyzeResponse("sf_biscuit"));
+    const first = body.verdicts[0];
+    if (!first) throw new Error("no verdicts");
+    body.explanation = {
+      ...body.explanation,
+      source: "llm",
+      text: "member_1 may want to skip this.",
+      tips: [],
+      member_refs: { member_1: first.member_id },
+    };
+    fetchMock.mockResolvedValue(json(200, body));
+    view();
+    await screen.findAllByTestId("verdict-card");
+    expect(
+      screen.getByRole("heading", { level: 2, name: en.result.family_title }),
+    ).toBeTruthy();
+    const order = [
+      ...document.querySelectorAll(
+        '[data-testid="verdict-card"], [data-testid="explanation-card"], [data-testid="nutrition-table"], [data-testid="claims-section"], [data-testid="disclaimer"]',
+      ),
+    ].map((e) => e.getAttribute("data-testid"));
+    expect(order.filter((x, i) => x !== order[i - 1])).toEqual([
+      "verdict-card",
+      "explanation-card",
+      "nutrition-table",
+      "claims-section",
+      "disclaimer",
+    ]);
+    expect(
+      screen.getByText(`${first.member_name} may want to skip this.`),
+    ).toBeTruthy();
+    // The disclaimer once per view, not per card or section.
+    expect(screen.getAllByText(en.common.disclaimer)).toHaveLength(1);
+  });
+
+  it("shows no explanation card when the explanation is unavailable", async () => {
+    fetchMock.mockResolvedValue(json(200, analyzeResponse("sf_biscuit")));
+    view();
+    await screen.findAllByTestId("verdict-card");
+    expect(screen.queryByTestId("explanation-card")).toBeNull();
+    expect(screen.getByTestId("claims-section")).toBeTruthy();
+  });
+
   it("keeps no verdicts in the query cache once the view is gone (gcTime 0)", async () => {
     fetchMock.mockResolvedValue(json(200, analyzeResponse("sf_biscuit")));
     view();

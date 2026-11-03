@@ -76,10 +76,65 @@ describe("reasonKey (packages/i18n README rule 1)", () => {
       reasonKey(r("diet_violation", { diet: "veg", ingredients: ["egg"] })),
     ).toBe("reason.diet_violation");
   });
+  it("custom_alert with no ingredients (OFF sweetener flag) → flag-only variant", () => {
+    expect(
+      reasonKey(
+        r("custom_alert", { alert: "artificial_sweetener", ingredients: [] }),
+      ),
+    ).toBe("reason_variant.custom_alert_flag_only");
+    // Any other alert with no ingredients is not something the engine emits.
+    expect(
+      reasonKey(r("custom_alert", { alert: "palm_oil", ingredients: [] })),
+    ).toBe("verdict.reason_unavailable");
+    expect(
+      reasonKey(
+        r("custom_alert", { alert: "palm_oil", ingredients: ["palm"] }),
+      ),
+    ).toBe("reason.custom_alert");
+  });
 });
 
 describe("reasonText", () => {
   const en = translator("en");
+
+  it.each(LOCALES)(
+    "maps {alert} and {alerts} through alert.* (%s)",
+    (locale) => {
+      const t = translator(locale);
+      const m = MESSAGES[locale];
+      const one = reasonText(
+        t,
+        r("custom_alert", {
+          alert: "palm_oil",
+          ingredients: ["palm", "palmolein"],
+        }),
+        locale,
+      );
+      expect(one).toBe(
+        m.reason.custom_alert
+          .replace("{alert}", m.alert.palm_oil)
+          .replace("{ingredients}", "palm, palmolein"),
+      );
+      const many = reasonText(
+        t,
+        r("custom_alert_unknown", { alerts: ["maida", "msg"] }, "unknown"),
+        locale,
+      );
+      expect(many).toBe(
+        m.reason.custom_alert_unknown.replace(
+          "{alerts}",
+          `${m.alert.maida}, ${m.alert.msg}`,
+        ),
+      );
+      expect(
+        reasonText(
+          t,
+          r("custom_alert", { alert: "artificial_sweetener", ingredients: [] }),
+          locale,
+        ),
+      ).toBe(m.reason_variant.custom_alert_flag_only);
+    },
+  );
 
   it("maps diet, allergen, claim and nutrient codes through their namespaces", () => {
     expect(
@@ -293,11 +348,16 @@ describe("every reason in every golden response renders in en, hi and mr", () =>
           Record<string, string>
         >;
         const p = reason.params as Record<string, unknown>;
-        for (const ns of ["diet", "allergen", "claim", "nutrient"]) {
+        for (const ns of ["diet", "allergen", "claim", "nutrient", "alert"]) {
           const v = p[ns];
           if (typeof v === "string" && full[ns]?.[v])
             expect(text, `${c.name} ${ns}`).toContain(full[ns][v]);
         }
+        if (Array.isArray(p.alerts))
+          for (const k of p.alerts)
+            expect(text, `${c.name} alerts`).toContain(
+              full.alert?.[k as string],
+            );
         if (Array.isArray(p.high_in))
           for (const k of p.high_in)
             expect(text, `${c.name} high_in`).toContain(
