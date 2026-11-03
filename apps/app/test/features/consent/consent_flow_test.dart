@@ -20,6 +20,7 @@ import 'package:smartnutri_ai/shared/widgets/off_attribution.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_auth.dart';
+import '../../support/fake_meals.dart' show mealTestOverrides;
 import '../../support/fake_members.dart';
 
 class _FakeMe implements MeClient {
@@ -81,6 +82,7 @@ Future<void> _pump(
   await t.pumpWidget(
     ProviderScope(
       overrides: [
+        ...mealTestOverrides(),
         appConfigProvider.overrideWithValue(_config),
         authRepositoryProvider.overrideWithValue(
           auth ?? FakeAuthRepository(signedIn: true),
@@ -137,6 +139,25 @@ void main() {
     expect(find.text(_l(t).consentTermsBody), findsOneWidget);
     expect(find.byKey(PolicyLinks.privacyKey), findsOneWidget);
     expect(find.byKey(PolicyLinks.termsKey), findsOneWidget);
+  });
+
+  testWidgets('consent_load_failure_blocks_with_retry_then_goes_on', (t) async {
+    final consents = FakeConsentsClient(granted: {'terms'})
+      ..listErrors.add(
+        DioException(
+          requestOptions: RequestOptions(path: '/v1/consents'),
+          type: DioExceptionType.connectionError,
+        ),
+      );
+    await _pump(t, consents);
+    // Blocked: the app does not go on to home without knowing the consents.
+    expect(find.byType(HomeScreen), findsNothing);
+    expect(find.text(_l(t).errorNetwork), findsOneWidget);
+    expect(find.text(_l(t).commonRetry), findsOneWidget);
+    expect(find.byKey(ConsentScreen.declineKey), findsOneWidget);
+    await t.tap(find.text(_l(t).commonRetry));
+    await t.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 
   testWidgets('agreeing_terms_records_terms_and_goes_home', (t) async {

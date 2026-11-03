@@ -141,6 +141,9 @@ class FakeConsentsClient implements ConsentsClient {
   final recorded = <ConsentIn>[];
   int listCalls = 0;
 
+  /// Thrown by the next list calls, in order.
+  final listErrors = <Object>[];
+
   List<ConsentState> _states() => [
     for (final MapEntry(key: purpose, value: version)
         in consentVersions.entries)
@@ -160,6 +163,7 @@ class FakeConsentsClient implements ConsentsClient {
   @override
   Future<List<ConsentState>> consentsList() async {
     listCalls++;
+    if (listErrors.isNotEmpty) throw listErrors.removeAt(0);
     return _states();
   }
 

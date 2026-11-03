@@ -62,8 +62,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       final onGoodbye = location == '/goodbye';
       if (!auth.isSignedIn) return onSignIn || onGoodbye ? null : '/sign-in';
       // F11: nothing else until the current terms are agreed (ruling G1:
-      // every product route needs `terms`). While the states load, or if
-      // they fail to, the app goes on; a 403 brings the user back here.
+      // every product route needs `terms`). While the states load the app
+      // goes on (a 403 brings the user back here); if they fail to load, the
+      // terms screen blocks with an error and a retry.
       final onTerms = location == '/terms';
       if (ref.read(termsStatusProvider) == TermsStatus.required) {
         return onTerms ? null : '/terms';

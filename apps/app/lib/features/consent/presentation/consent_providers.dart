@@ -8,8 +8,8 @@ import '../../members/presentation/members_providers.dart';
 
 /// Whether the signed-in account has agreed to the current terms.
 enum TermsStatus {
-  /// Signed out, or the consent states are not loaded (or failed to load).
-  /// The app does not block; a gated call's 403 opens the consent screen.
+  /// Signed out, or the consent states are still loading. The app does not
+  /// wait; a gated call's 403 opens the consent screen.
   unknown,
   accepted,
 
@@ -20,8 +20,13 @@ enum TermsStatus {
 
 final termsStatusProvider = Provider<TermsStatus>((ref) {
   if (!ref.watch(signedInProvider)) return TermsStatus.unknown;
-  final states = ref.watch(consentStateProvider).value;
-  if (states == null) return TermsStatus.unknown;
+  final async = ref.watch(consentStateProvider);
+  final states = async.value;
+  // The states failed to load: not knowing is not consent. Block on the
+  // terms screen, which shows the error with a retry (as the web does).
+  if (states == null) {
+    return async.hasError ? TermsStatus.required : TermsStatus.unknown;
+  }
   return consentGranted(states, consentPurposeTerms) == true
       ? TermsStatus.accepted
       : TermsStatus.required;
