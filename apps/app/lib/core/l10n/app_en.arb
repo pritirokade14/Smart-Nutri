@@ -154,6 +154,17 @@
   "confirmVegMarkTitle": "Veg or non-veg mark",
   "confirmVegMarkVeg": "Vegetarian (green mark)",
   "confirmWithheldHint": "Check this value on the pack, then tick to confirm it.",
+  "consentAgree": "I agree",
+  "consentAiProcessingBody": "Allow SmartNutri to send a summary of each result, without names, to an AI service processed in India, to write a short explanation. The AI never decides a result.",
+  "consentAiProcessingTitle": "AI explanations",
+  "consentDecline": "Not now",
+  "consentGranted": "Agreed",
+  "consentHealthDataBody": "SmartNutri uses the allergies, health conditions, goal, height and weight you enter to check products for each family member. This is information, not medical advice. You can withdraw this consent at any time.",
+  "consentHealthDataTitle": "Health data",
+  "consentNotGranted": "Not agreed",
+  "consentTermsBody": "I agree to the SmartNutri terms of use and privacy policy.",
+  "consentTermsTitle": "Terms of use",
+  "consentWithdraw": "Withdraw consent",
   "dietEggetarian": "Eggetarian",
   "dietJain": "Jain",
   "dietNonVeg": "Non-vegetarian",
@@ -190,6 +201,9 @@
   "errorUnauthorized": "Please sign in.",
   "errorUnsupportedImage": "Please use a JPEG, PNG or WebP photo.",
   "errorValidationError": "Please check the highlighted fields.",
+  "explanationAiNote": "Written by AI from the results above. It never changes a result.",
+  "explanationTipsTitle": "Tips",
+  "explanationTitle": "Why this result",
   "highInFat": "High in fat",
   "highInPercentOfLimit": "{pct}% of the limit",
   "@highInPercentOfLimit": {
@@ -220,6 +234,59 @@
   "labelTakePhoto": "Take a photo",
   "labelTitle": "Photograph the label",
   "labelUploading": "Uploading the photo…",
+  "membersAdd": "Add a family member",
+  "membersConsentWithdrawnNotice": "Health data consent is off. Saved allergies and conditions are still used to check products, but new ones can't be saved until you agree again.",
+  "membersEdit": "Edit",
+  "membersFormAllergenAdd": "Add",
+  "membersFormAllergenOther": "Other allergy",
+  "membersFormAllergens": "Allergies",
+  "membersFormAllergensHelp": "Pick from the list, or type your own.",
+  "membersFormBirthYear": "Year of birth",
+  "membersFormBirthYearHelp": "Used for the checks for children and babies under 2.",
+  "membersFormCancel": "Cancel",
+  "membersFormClearAllergiesConfirm": "Remove every allergy for {name}? Products with these allergens will no longer be flagged for them.",
+  "@membersFormClearAllergiesConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormConditions": "Health conditions",
+  "membersFormCustomAlerts": "Ingredient alerts",
+  "membersFormCustomAlertsHelp": "We point these out on every product.",
+  "membersFormDiet": "Diet",
+  "membersFormGoal": "Goal (optional)",
+  "membersFormHealthFieldsNote": "Allergies, health conditions, goal, height and weight are saved only with your consent to health data processing.",
+  "membersFormHeightCm": "Height (cm, optional)",
+  "membersFormName": "Name",
+  "membersFormRelation": "Relation",
+  "membersFormSave": "Save",
+  "membersFormSex": "Sex (optional)",
+  "membersFormWeightKg": "Weight (kg, optional)",
+  "membersGoalHealthyEating": "Eat better",
+  "membersGoalWeightGain": "Gain weight",
+  "membersGoalWeightLoss": "Lose weight",
+  "membersRelationChild": "Child",
+  "membersRelationOther": "Other",
+  "membersRelationParent": "Parent",
+  "membersRelationSelf": "You",
+  "membersRelationSpouse": "Spouse",
+  "membersRemove": "Remove",
+  "membersRemoveConfirm": "Remove {name} from your family?",
+  "@membersRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersSaved": "Saved",
+  "membersSexFemale": "Female",
+  "membersSexMale": "Male",
+  "membersSexOther": "Other",
+  "membersTitle": "Family",
+  "membersYouBadge": "You",
   "notfoundGoToLabel": "We don't know this product yet — photograph its label",
   "nutrientCarbsG": "carbohydrate",
   "nutrientEnergyKcal": "energy (calories)",
@@ -355,15 +422,18 @@
       }
     }
   },
-  "reasonCustomAlert": "Contains {ingredients}, which you asked to be alerted about.",
+  "reasonCustomAlert": "Contains {alert}: {ingredients}.",
   "@reasonCustomAlert": {
     "placeholders": {
+      "alert": {
+        "type": "String"
+      },
       "ingredients": {
         "type": "String"
       }
     }
   },
-  "reasonCustomAlertUnknown": "We couldn't read the ingredients clearly, so we can't check for {alerts}, which you asked to be alerted about.",
+  "reasonCustomAlertUnknown": "The ingredient list isn't available or isn't clear enough, so {alerts} couldn't be checked.",
   "@reasonCustomAlertUnknown": {
     "placeholders": {
       "alerts": {
@@ -492,14 +562,7 @@
       }
     }
   },
-  "reasonVariantCustomAlertFlagOnly": "The product data lists {alert}, which you asked to be alerted about.",
-  "@reasonVariantCustomAlertFlagOnly": {
-    "placeholders": {
-      "alert": {
-        "type": "String"
-      }
-    }
-  },
+  "reasonVariantCustomAlertFlagOnly": "The product data says it contains sweeteners.",
   "reasonVariantDietViolationMarkOnly": "The pack has the brown non-vegetarian mark, so this may not match the {diet} diet.",
   "@reasonVariantDietViolationMarkOnly": {
     "placeholders": {
@@ -557,6 +620,25 @@
   "@verdictConfidenceNote": {
     "placeholders": {
       "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictForMember": "{status} for {name}",
+  "@verdictForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictForYou": "{status} for you",
+  "@verdictForYou": {
+    "placeholders": {
+      "status": {
         "type": "String"
       }
     }

@@ -24,3 +24,37 @@ def test_engine_matches_expected(product, member, expected):
     assert verdict.status.value == expected["status"]
     actual = [{"code": r.code, "severity": r.severity.value} for r in verdict.reasons]
     assert actual == expected["reasons"]
+
+
+# --- family coverage (Plan 5 Task 8) -----------------------------------------------------------
+
+
+def _codes(expected: dict) -> set[str]:
+    return {r["code"] for r in expected["reasons"]}
+
+
+def _members():
+    return [load_member(m.stem) for m in sorted((FIXTURES / "members").glob("*.json"))]
+
+
+def test_custom_alert_reasons_are_covered():
+    """Both clients render custom_alert and custom_alert_unknown from these fixtures."""
+    assert any("custom_alert" in _codes(e) for _, _, e in CASES)
+    assert any("custom_alert_unknown" in _codes(e) for _, _, e in CASES)
+
+
+def test_alert_members_cover_adult_child_infant_and_unknown_age():
+    """Controller ruling: an adult, a child, an infant and an age=None member with alerts."""
+    ages = [m.age for m in _members() if m.custom_alerts]
+    assert None in ages
+    assert any(a is not None and a < 2 for a in ages)  # infant
+    assert any(a is not None and 2 <= a < 13 for a in ages)  # child
+    assert any(a is not None and a >= 18 for a in ages)  # adult
+
+
+def test_free_text_allergen_fixture_is_avoid():
+    """kiwi_child: a typed-in (non-canonical) allergen reaches the engine as `avoid`."""
+    assert load_member("kiwi_child").allergens == ("kiwi",)
+    expected = next(e for p, m, e in CASES if (p, m) == ("kiwi_yogurt", "kiwi_child"))
+    assert expected["status"] == "avoid"
+    assert expected["reasons"][0] == {"code": "allergen_contains", "severity": "avoid"}

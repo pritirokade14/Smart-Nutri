@@ -63,6 +63,87 @@
   "verdicts": [
     {
       "is_primary": false,
+      "member_id": "d255f4a6-384b-56ed-b08b-b75d9d8e00db",
+      "member_name": "Alert Child",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "child_caffeine",
+          "params": {
+            "ingredients": [
+              "caffeine"
+            ]
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "child_sugar_high",
+          "params": {
+            "basis": "per_serving",
+            "limit_g": 24.0,
+            "pct": 132.5
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "custom_alert",
+          "params": {
+            "alert": "added_sugar",
+            "ingredients": [
+              "sugar"
+            ]
+          },
+          "severity": "caution"
+        }
+      ],
+      "relation": "other",
+      "status": "avoid"
+    },
+    {
+      "is_primary": false,
+      "member_id": "850fd0ae-600d-5eb2-adcb-3f758c52d829",
+      "member_name": "Alert Infant",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "infant_added_sugar",
+          "params": {
+            "ingredients": [
+              "sugar"
+            ]
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "infant_caffeine",
+          "params": {
+            "ingredients": [
+              "caffeine"
+            ]
+          },
+          "severity": "avoid"
+        }
+      ],
+      "relation": "other",
+      "status": "avoid"
+    },
+    {
+      "is_primary": false,
+      "member_id": "c731909f-6972-582d-99a2-86c8ac8efb2c",
+      "member_name": "Alert No Age",
+      "profile_set_up": false,
+      "reasons": [
+        {
+          "code": "age_unknown",
+          "params": {},
+          "severity": "unknown"
+        }
+      ],
+      "relation": "other",
+      "status": "unknown"
+    },
+    {
+      "is_primary": false,
       "member_id": "1e329317-586f-5b80-aaee-d07fd72fc6d6",
       "member_name": "BP Parent",
       "profile_set_up": true,
@@ -143,6 +224,41 @@
     },
     {
       "is_primary": false,
+      "member_id": "eb5b2e4d-0169-56b0-bf07-17dd84e5713b",
+      "member_name": "Kiwi Child",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "child_caffeine",
+          "params": {
+            "ingredients": [
+              "caffeine"
+            ]
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "child_sugar_high",
+          "params": {
+            "basis": "per_serving",
+            "limit_g": 24.0,
+            "pct": 132.5
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "allergen_unrecognised",
+          "params": {
+            "allergen": "kiwi"
+          },
+          "severity": "unknown"
+        }
+      ],
+      "relation": "other",
+      "status": "avoid"
+    },
+    {
+      "is_primary": false,
       "member_id": "834da0b9-324c-51a2-b07a-719afc7d08f0",
       "member_name": "Milk Allergic Child",
       "profile_set_up": true,
@@ -183,6 +299,15 @@
       ],
       "relation": "other",
       "status": "unknown"
+    },
+    {
+      "is_primary": false,
+      "member_id": "bc30a168-7266-5118-81e3-bc931399d699",
+      "member_name": "Palm Alert Adult",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
     },
     {
       "is_primary": false,

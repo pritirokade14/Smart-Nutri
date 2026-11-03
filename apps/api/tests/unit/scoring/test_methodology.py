@@ -85,8 +85,17 @@ def test_sources_are_honest_ruling_p7(cfg):
     # threshold (thresholds.yaml comments), not ICMR-NIN.
     m = methodology(cfg)
     blood = _section(m, "blood_sugar")
-    assert blood["threshold_sources"] == ["uk_fsa_front_of_pack", "fssai_claims_2018", "uk_sdil"]
+    # The 30 g carbs-per-serving caution is our own number (controller, c2897fd re-review).
+    assert blood["threshold_sources"] == [
+        "uk_fsa_front_of_pack",
+        "fssai_claims_2018",
+        "uk_sdil",
+        "smartnutri_working_values",
+    ]
     assert "icmr_nin_2024" not in blood["threshold_sources"]
+    # thresholds.yaml cites ADA Standards of Care as a rationale for cardio_high_in.
+    assert blood["rationale_sources"] == ["icmr_nin_2024", "ada_standards_of_care"]
+    assert "American Diabetes Association" in m["sources"]["ada_standards_of_care"]["title"]
     # The infant numbers are SmartNutri working values, not WHO numbers. WHO is only the
     # rationale (no added sugar or salt under 2).
     infant = _section(m, "infant")

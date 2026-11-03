@@ -5,7 +5,7 @@ Shared, realistic test cases: Indian products and family members, with the **ver
 ## Contents
 
 ```
-members/<id>.json                 # e.g. diabetic_adult, milk_allergic_child, jain_adult, bp_parent, infant
+members/<id>.json                 # e.g. diabetic_adult, milk_allergic_child, jain_adult, bp_parent, infant, palm_alert_adult (optional "custom_alerts")
 products/<name>.json              # per_100g nutrition, serving_size_g, ingredients, claims, "source"
 expected/<name>.<member>.json     # { "status": "avoid", "reasons": [{"code": "...", "severity": "avoid"}, ...] } (engine order)
 responses/                        # generated golden API responses (see "Golden API responses")
@@ -39,13 +39,15 @@ responses/public/<product>.json    # GET /v1/products/{barcode}/public body (Pub
 ```
 
 - **`index.json`:** `{"reference_date": "2026-01-01", "account_id": "<uuid>", "products": {"<product>": "<uuid>"}, "members": {"<member>": "<uuid>"}, "scans": {"<product>": "<uuid>"}}`. UUIDs are `uuid5(NAMESPACE_URL, "https://smartnutri.app/test-fixtures/<kind>/<name>")`.
-- **`analyze/<product>.json`:** `{scan_id, product, report, verdicts, explanation: null, tips: []}`. `verdicts` holds one entry per member, sorted by member file name (`bp_parent`, `diabetic_adult`, ...): `{member_id, member_name, status, reasons: [{code, severity, params}], profile_set_up}`. To find the verdict for `<product>.<member>`, look up `index.json` `members[<member>]` and match `member_id`; it agrees with `expected/<product>.<member>.json` (status, then codes and severities in order).
+- **`analyze/<product>.json`:** `{scan_id, product, report, verdicts, explanation}`. `verdicts` holds one entry per member, sorted by member file name (`alert_child`, `alert_infant`, ...): `{member_id, member_name, relation, is_primary, status, reasons: [{code, severity, params}], profile_set_up}`. Fixture members are all `relation: "other"`, `is_primary: false`. `explanation` is always the "unavailable" object (`{text: null, tips: [], language: "en", source: "unavailable", prompt_version, member_refs: {}}`): the goldens never call an LLM. To find the verdict for `<product>.<member>`, look up `index.json` `members[<member>]` and match `member_id`; it agrees with `expected/<product>.<member>.json` (status, then codes and severities in order).
 - **`public/<product>.json`:** `{product, report, score_label: "calculated_by_smartnutri"}`. No member data.
-- `profile_set_up` is display metadata (false when the member has no birth year, so age/allergies/diet may not be set). It is true for every fixture member and never affects status or reasons.
+- `profile_set_up` is display metadata (false when the member has no birth year, so age/allergies/diet may not be set). It is false only for the members with `"age": null` (`no_age`, `alert_no_age`) and never affects status or reasons.
 - Fixture products are served as our own verified catalogue products (`product.source = "smartnutri"`, `attribution = null`, `barcode = null`). Ages are turned into birth years against the fixed `reference_date`, which is also the engine's "today", so the files never change on 1 January.
 - All files use sorted keys, 2-space indent and a trailing newline.
 
-The products mirror the Plan 1 engine fixtures (`sf_biscuit`, `namkeen`, `curd`, `oats`, `cola`, `water`, `no_ingredients`) plus real packs added over time.
+The products mirror the Plan 1 engine fixtures (`sf_biscuit`, `namkeen`, `curd`, `oats`, `cola`, `water`, `no_ingredients`) plus real packs added over time. `kiwi_yogurt` (Plan 5) is synthetic: it carries a typed-in allergen (kiwi) and a sweetener for the alert members.
+
+Plan 5 members: `kiwi_child` (free-text allergen `kiwi`), and members with `custom_alerts` at every age band: `palm_alert_adult` (30), `alert_child` (9), `alert_infant` (1) and `alert_no_age` (`null`). Together they emit `custom_alert` (e.g. `sf_biscuit`, `kiwi_yogurt`) and `custom_alert_unknown` (`no_ingredients`), which `tests/fixtures/test_shared_fixtures.py` checks.
 
 ## Confirm-screen drafts (`drafts/`)
 

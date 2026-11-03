@@ -1,0 +1,9 @@
+{
+  "status": "unknown",
+  "reasons": [
+    {
+      "code": "allergen_unrecognised",
+      "severity": "unknown"
+    }
+  ]
+}

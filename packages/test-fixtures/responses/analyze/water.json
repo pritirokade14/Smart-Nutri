@@ -61,6 +61,33 @@
   "verdicts": [
     {
       "is_primary": false,
+      "member_id": "d255f4a6-384b-56ed-b08b-b75d9d8e00db",
+      "member_name": "Alert Child",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
+      "member_id": "850fd0ae-600d-5eb2-adcb-3f758c52d829",
+      "member_name": "Alert Infant",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
+      "member_id": "c731909f-6972-582d-99a2-86c8ac8efb2c",
+      "member_name": "Alert No Age",
+      "profile_set_up": false,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
       "member_id": "1e329317-586f-5b80-aaee-d07fd72fc6d6",
       "member_name": "BP Parent",
       "profile_set_up": true,
@@ -97,6 +124,23 @@
     },
     {
       "is_primary": false,
+      "member_id": "eb5b2e4d-0169-56b0-bf07-17dd84e5713b",
+      "member_name": "Kiwi Child",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "allergen_unrecognised",
+          "params": {
+            "allergen": "kiwi"
+          },
+          "severity": "unknown"
+        }
+      ],
+      "relation": "other",
+      "status": "unknown"
+    },
+    {
+      "is_primary": false,
       "member_id": "834da0b9-324c-51a2-b07a-719afc7d08f0",
       "member_name": "Milk Allergic Child",
       "profile_set_up": true,
@@ -109,6 +153,15 @@
       "member_id": "d4a4c7e7-01cc-521a-a16d-3b3002846e7c",
       "member_name": "No Age",
       "profile_set_up": false,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
+      "member_id": "bc30a168-7266-5118-81e3-bc931399d699",
+      "member_name": "Palm Alert Adult",
+      "profile_set_up": true,
       "reasons": [],
       "relation": "other",
       "status": "ok"

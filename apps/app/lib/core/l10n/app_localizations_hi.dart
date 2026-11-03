@@ -346,6 +346,42 @@ class AppLocalizationsHi extends AppLocalizations {
       'पैक पर यह मान जाँचें, फिर पुष्टि के लिए टिक करें।';
 
   @override
+  String get consentAgree => 'मैं सहमत हूँ';
+
+  @override
+  String get consentAiProcessingBody =>
+      'SmartNutri को हर नतीजे का सारांश, बिना नामों के, भारत में प्रोसेस होने वाली AI सेवा को भेजने दें, ताकि एक छोटी व्याख्या लिखी जा सके। नतीजा कभी AI तय नहीं करता।';
+
+  @override
+  String get consentAiProcessingTitle => 'AI से व्याख्या';
+
+  @override
+  String get consentDecline => 'अभी नहीं';
+
+  @override
+  String get consentGranted => 'सहमति दी गई';
+
+  @override
+  String get consentHealthDataBody =>
+      'आप जो एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न दर्ज करते हैं, SmartNutri उनसे परिवार के हर सदस्य के लिए उत्पादों की जाँच करता है। यह जानकारी है, चिकित्सा सलाह नहीं। आप यह सहमति कभी भी वापस ले सकते हैं।';
+
+  @override
+  String get consentHealthDataTitle => 'स्वास्थ्य डेटा';
+
+  @override
+  String get consentNotGranted => 'सहमति नहीं दी गई';
+
+  @override
+  String get consentTermsBody =>
+      'मैं SmartNutri की उपयोग की शर्तों और गोपनीयता नीति से सहमत हूँ।';
+
+  @override
+  String get consentTermsTitle => 'उपयोग की शर्तें';
+
+  @override
+  String get consentWithdraw => 'सहमति वापस लें';
+
+  @override
   String get dietEggetarian => 'अंडाहारी (अंडा खाने वाला शाकाहारी)';
 
   @override
@@ -369,7 +405,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get errorConsentRequired =>
-      'एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, लंबाई या वज़न सहेजने के लिए, कृपया पहले स्वास्थ्य डेटा के उपयोग के लिए सहमति दें।';
+      'एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए, कृपया पहले स्वास्थ्य डेटा के उपयोग के लिए सहमति दें।';
 
   @override
   String get errorConsentVersionMismatch =>
@@ -469,6 +505,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorValidationError => 'कृपया चिह्नित फ़ील्ड जाँचें।';
 
   @override
+  String get explanationAiNote =>
+      'ऊपर के नतीजों से AI ने लिखा है। यह कभी कोई नतीजा नहीं बदलता।';
+
+  @override
+  String get explanationTipsTitle => 'सुझाव';
+
+  @override
+  String get explanationTitle => 'यह नतीजा क्यों';
+
+  @override
   String get highInFat => 'वसा अधिक';
 
   @override
@@ -520,6 +566,130 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get labelUploading => 'फ़ोटो अपलोड हो रही है…';
+
+  @override
+  String get membersAdd => 'परिवार का सदस्य जोड़ें';
+
+  @override
+  String get membersConsentWithdrawnNotice =>
+      'स्वास्थ्य डेटा की सहमति बंद है। सहेजी गई एलर्जी और स्वास्थ्य स्थितियाँ अब भी उत्पादों की जाँच में इस्तेमाल होती हैं, लेकिन दोबारा सहमति देने तक नई नहीं सहेजी जा सकतीं।';
+
+  @override
+  String get membersEdit => 'बदलें';
+
+  @override
+  String get membersFormAllergenAdd => 'जोड़ें';
+
+  @override
+  String get membersFormAllergenOther => 'दूसरी एलर्जी';
+
+  @override
+  String get membersFormAllergens => 'एलर्जी';
+
+  @override
+  String get membersFormAllergensHelp => 'सूची में से चुनें, या खुद लिखें।';
+
+  @override
+  String get membersFormBirthYear => 'जन्म का वर्ष';
+
+  @override
+  String get membersFormBirthYearHelp =>
+      'बच्चों और 2 साल से छोटे बच्चों की जाँच के लिए इस्तेमाल होता है।';
+
+  @override
+  String get membersFormCancel => 'रद्द करें';
+
+  @override
+  String membersFormClearAllergiesConfirm(String name) {
+    return '$name की सारी एलर्जी हटाएँ? इन एलर्जी वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।';
+  }
+
+  @override
+  String get membersFormConditions => 'स्वास्थ्य स्थितियाँ';
+
+  @override
+  String get membersFormCustomAlerts => 'सामग्री अलर्ट';
+
+  @override
+  String get membersFormCustomAlertsHelp => 'हर उत्पाद पर हम इन्हें दिखाएँगे।';
+
+  @override
+  String get membersFormDiet => 'आहार';
+
+  @override
+  String get membersFormGoal => 'लक्ष्य (वैकल्पिक)';
+
+  @override
+  String get membersFormHealthFieldsNote =>
+      'एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न केवल स्वास्थ्य डेटा के उपयोग की आपकी सहमति से सहेजे जाते हैं।';
+
+  @override
+  String get membersFormHeightCm => 'ऊँचाई (सेमी, वैकल्पिक)';
+
+  @override
+  String get membersFormName => 'नाम';
+
+  @override
+  String get membersFormRelation => 'रिश्ता';
+
+  @override
+  String get membersFormSave => 'सहेजें';
+
+  @override
+  String get membersFormSex => 'लिंग (वैकल्पिक)';
+
+  @override
+  String get membersFormWeightKg => 'वज़न (किग्रा, वैकल्पिक)';
+
+  @override
+  String get membersGoalHealthyEating => 'बेहतर खाना';
+
+  @override
+  String get membersGoalWeightGain => 'वज़न बढ़ाना';
+
+  @override
+  String get membersGoalWeightLoss => 'वज़न घटाना';
+
+  @override
+  String get membersRelationChild => 'बच्चा';
+
+  @override
+  String get membersRelationOther => 'अन्य';
+
+  @override
+  String get membersRelationParent => 'माता-पिता';
+
+  @override
+  String get membersRelationSelf => 'आप';
+
+  @override
+  String get membersRelationSpouse => 'जीवनसाथी';
+
+  @override
+  String get membersRemove => 'हटाएँ';
+
+  @override
+  String membersRemoveConfirm(String name) {
+    return '$name को परिवार से हटाएँ?';
+  }
+
+  @override
+  String get membersSaved => 'सहेजा गया';
+
+  @override
+  String get membersSexFemale => 'महिला';
+
+  @override
+  String get membersSexMale => 'पुरुष';
+
+  @override
+  String get membersSexOther => 'अन्य';
+
+  @override
+  String get membersTitle => 'परिवार';
+
+  @override
+  String get membersYouBadge => 'आप';
 
   @override
   String get notfoundGoToLabel =>
@@ -654,13 +824,13 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String reasonCustomAlert(String ingredients) {
-    return 'सामग्री में $ingredients शामिल है। आपने इसके लिए अलर्ट चुना था।';
+  String reasonCustomAlert(String alert, String ingredients) {
+    return 'इसमें $alert है: $ingredients।';
   }
 
   @override
   String reasonCustomAlertUnknown(String alerts) {
-    return 'सामग्री साफ़ नहीं पढ़ी जा सकी, इसलिए हम $alerts की जाँच नहीं कर सके। आपने इनके लिए अलर्ट चुना था।';
+    return 'सामग्री की सूची उपलब्ध नहीं है या साफ़ नहीं है, इसलिए $alerts की जाँच नहीं हो सकी।';
   }
 
   @override
@@ -758,9 +928,8 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String reasonVariantCustomAlertFlagOnly(String alert) {
-    return 'उत्पाद की जानकारी में $alert दर्ज है। आपने इसके लिए अलर्ट चुना था।';
-  }
+  String get reasonVariantCustomAlertFlagOnly =>
+      'उत्पाद की जानकारी के अनुसार इसमें स्वीटनर हैं।';
 
   @override
   String reasonVariantDietViolationMarkOnly(String diet) {
@@ -856,6 +1025,16 @@ class AppLocalizationsHi extends AppLocalizations {
       'other': 'कुछ डेटा अनिश्चित है।',
     });
     return '$_temp0';
+  }
+
+  @override
+  String verdictForMember(String name, String status) {
+    return '$name के लिए $status';
+  }
+
+  @override
+  String verdictForYou(String status) {
+    return 'आपके लिए $status';
   }
 
   @override

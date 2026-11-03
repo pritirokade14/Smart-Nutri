@@ -100,7 +100,7 @@ def fixture_member_record(
         diet=m.diet.value,
         allergens=list(m.allergens),
         conditions=list(m.conditions),
-        custom_alerts=[],
+        custom_alerts=list(m.custom_alerts),
         goal=m.goal,
         is_primary=False,
     )

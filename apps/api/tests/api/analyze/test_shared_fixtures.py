@@ -65,6 +65,7 @@ def test_fixture_records_round_trip():
         assert scoring_member.allergens == fixture.allergens
         assert scoring_member.conditions == fixture.conditions
         assert scoring_member.goal == fixture.goal
+        assert scoring_member.custom_alerts == fixture.custom_alerts
 
 
 def test_fixture_responses_are_current(tmp_path):

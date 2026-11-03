@@ -75,7 +75,8 @@ describe("result page", () => {
       </QueryClientProvider>,
     );
     const cards = await screen.findAllByTestId("verdict-card");
-    expect(cards.length).toBe(9);
+    // One card per fixture member in the golden response.
+    expect(cards.length).toBe(analyzeResponse("sf_biscuit").verdicts.length);
     expect(
       screen.getAllByText(MESSAGES.mr.status.avoid).length,
     ).toBeGreaterThan(0);

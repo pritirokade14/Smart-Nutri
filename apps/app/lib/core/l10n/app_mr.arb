@@ -154,6 +154,17 @@
   "confirmVegMarkTitle": "शाकाहारी किंवा मांसाहारी खूण",
   "confirmVegMarkVeg": "शाकाहारी (हिरवी खूण)",
   "confirmWithheldHint": "पॅकवर हे मूल्य तपासा, मग खात्रीसाठी टिक करा.",
+  "consentAgree": "मी सहमत आहे",
+  "consentAiProcessingBody": "प्रत्येक निकालाचा सारांश, नावांशिवाय, भारतात प्रक्रिया होणाऱ्या AI सेवेला पाठवण्याची SmartNutri ला परवानगी द्या, म्हणजे छोटे स्पष्टीकरण लिहिता येईल. निकाल कधीही AI ठरवत नाही.",
+  "consentAiProcessingTitle": "AI स्पष्टीकरण",
+  "consentDecline": "आत्ता नाही",
+  "consentGranted": "संमती दिली",
+  "consentHealthDataBody": "तुम्ही नोंदवलेल्या ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची आणि वजन वापरून SmartNutri कुटुंबातील प्रत्येक सदस्यासाठी उत्पादने तपासते. ही माहिती आहे, वैद्यकीय सल्ला नाही. तुम्ही ही संमती कधीही मागे घेऊ शकता.",
+  "consentHealthDataTitle": "आरोग्य डेटा",
+  "consentNotGranted": "संमती दिलेली नाही",
+  "consentTermsBody": "मी SmartNutri च्या वापराच्या अटी आणि गोपनीयता धोरणाशी सहमत आहे.",
+  "consentTermsTitle": "वापराच्या अटी",
+  "consentWithdraw": "संमती मागे घ्या",
   "dietEggetarian": "अंडाहारी (अंडे खाणारा शाकाहारी)",
   "dietJain": "जैन",
   "dietNonVeg": "मांसाहारी",
@@ -190,6 +201,9 @@
   "errorUnauthorized": "कृपया साइन इन करा.",
   "errorUnsupportedImage": "कृपया JPEG, PNG किंवा WebP फोटो वापरा.",
   "errorValidationError": "कृपया अधोरेखित केलेली फील्ड तपासा.",
+  "explanationAiNote": "वरील निकालांवरून AI ने लिहिले आहे. यामुळे कोणताही निकाल बदलत नाही.",
+  "explanationTipsTitle": "सूचना",
+  "explanationTitle": "हा निकाल का",
   "highInFat": "फॅट जास्त",
   "highInPercentOfLimit": "मर्यादेच्या {pct}%",
   "@highInPercentOfLimit": {
@@ -220,6 +234,59 @@
   "labelTakePhoto": "फोटो घ्या",
   "labelTitle": "लेबलचा फोटो घ्या",
   "labelUploading": "फोटो अपलोड होत आहे…",
+  "membersAdd": "कुटुंबातील सदस्य जोडा",
+  "membersConsentWithdrawnNotice": "आरोग्य डेटाची संमती बंद आहे. जतन केलेल्या ॲलर्जी आणि आरोग्य स्थिती अजूनही उत्पादनांच्या तपासणीसाठी वापरल्या जातात, पण पुन्हा संमती देईपर्यंत नवीन जतन करता येणार नाहीत.",
+  "membersEdit": "बदला",
+  "membersFormAllergenAdd": "जोडा",
+  "membersFormAllergenOther": "इतर ॲलर्जी",
+  "membersFormAllergens": "ॲलर्जी",
+  "membersFormAllergensHelp": "यादीतून निवडा, किंवा स्वतः लिहा.",
+  "membersFormBirthYear": "जन्म वर्ष",
+  "membersFormBirthYearHelp": "मुलांच्या आणि 2 वर्षांखालील बाळांच्या तपासणीसाठी वापरले जाते.",
+  "membersFormCancel": "रद्द करा",
+  "membersFormClearAllergiesConfirm": "{name} यांच्या सर्व ॲलर्जी काढायच्या? या ॲलर्जी असलेल्या उत्पादनांवर त्यांच्यासाठी इशारा दिसणार नाही.",
+  "@membersFormClearAllergiesConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormConditions": "आरोग्य स्थिती",
+  "membersFormCustomAlerts": "घटक अलर्ट",
+  "membersFormCustomAlertsHelp": "प्रत्येक उत्पादनावर आम्ही हे दाखवू.",
+  "membersFormDiet": "आहार",
+  "membersFormGoal": "उद्दिष्ट (ऐच्छिक)",
+  "membersFormHealthFieldsNote": "ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची आणि वजन फक्त आरोग्य डेटाच्या वापराला तुमची संमती असल्यासच जतन केले जातात.",
+  "membersFormHeightCm": "उंची (सेमी, ऐच्छिक)",
+  "membersFormName": "नाव",
+  "membersFormRelation": "नाते",
+  "membersFormSave": "जतन करा",
+  "membersFormSex": "लिंग (ऐच्छिक)",
+  "membersFormWeightKg": "वजन (किलो, ऐच्छिक)",
+  "membersGoalHealthyEating": "चांगला आहार",
+  "membersGoalWeightGain": "वजन वाढवणे",
+  "membersGoalWeightLoss": "वजन कमी करणे",
+  "membersRelationChild": "मूल",
+  "membersRelationOther": "इतर",
+  "membersRelationParent": "आई-वडील",
+  "membersRelationSelf": "तुम्ही",
+  "membersRelationSpouse": "जोडीदार",
+  "membersRemove": "काढा",
+  "membersRemoveConfirm": "{name} यांना कुटुंबातून काढायचे?",
+  "@membersRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersSaved": "जतन केले",
+  "membersSexFemale": "स्त्री",
+  "membersSexMale": "पुरुष",
+  "membersSexOther": "इतर",
+  "membersTitle": "कुटुंब",
+  "membersYouBadge": "तुम्ही",
   "notfoundGoToLabel": "हे उत्पादन आम्हाला अजून माहीत नाही — त्याच्या लेबलचा फोटो घ्या",
   "nutrientCarbsG": "कार्बोहायड्रेट",
   "nutrientEnergyKcal": "ऊर्जा (कॅलरी)",
@@ -355,15 +422,18 @@
       }
     }
   },
-  "reasonCustomAlert": "घटकांमध्ये {ingredients} आहे. तुम्ही यासाठी अलर्ट निवडला होता.",
+  "reasonCustomAlert": "यात {alert} आहे: {ingredients}.",
   "@reasonCustomAlert": {
     "placeholders": {
+      "alert": {
+        "type": "String"
+      },
       "ingredients": {
         "type": "String"
       }
     }
   },
-  "reasonCustomAlertUnknown": "घटकांची यादी स्पष्ट वाचता आली नाही, त्यामुळे {alerts} यांची तपासणी करता आली नाही. तुम्ही यांसाठी अलर्ट निवडला होता.",
+  "reasonCustomAlertUnknown": "घटकांची यादी उपलब्ध नाही किंवा पुरेशी स्पष्ट नाही, त्यामुळे {alerts} तपासता आले नाही.",
   "@reasonCustomAlertUnknown": {
     "placeholders": {
       "alerts": {
@@ -492,14 +562,7 @@
       }
     }
   },
-  "reasonVariantCustomAlertFlagOnly": "उत्पादनाच्या माहितीत {alert} नोंदवलेले आहे. तुम्ही यासाठी अलर्ट निवडला होता.",
-  "@reasonVariantCustomAlertFlagOnly": {
-    "placeholders": {
-      "alert": {
-        "type": "String"
-      }
-    }
-  },
+  "reasonVariantCustomAlertFlagOnly": "उत्पादनाच्या माहितीनुसार यात स्वीटनर (गोडवा) आहेत.",
   "reasonVariantDietViolationMarkOnly": "पॅकवर तपकिरी रंगाची मांसाहारी खूण आहे, त्यामुळे हे कदाचित {diet} आहाराशी जुळणार नाही.",
   "@reasonVariantDietViolationMarkOnly": {
     "placeholders": {
@@ -557,6 +620,25 @@
   "@verdictConfidenceNote": {
     "placeholders": {
       "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictForMember": "{name} साठी {status}",
+  "@verdictForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictForYou": "तुमच्यासाठी {status}",
+  "@verdictForYou": {
+    "placeholders": {
+      "status": {
         "type": "String"
       }
     }

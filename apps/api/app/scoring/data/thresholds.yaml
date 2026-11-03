@@ -81,6 +81,7 @@ sources:
   nhs_child_sugar: {title: "NHS: sugar limits for children", url: "https://www.nhs.uk/live-well/eat-well/food-types/how-does-sugar-in-our-diet-affect-our-health/", url_verified: false}
   who_infant: {title: "WHO guidance: no added sugar or salt under 2", url: "https://www.who.int/news-room/fact-sheets/detail/healthy-diet", url_verified: false}
   uk_sdil: {title: "UK Soft Drinks Industry Levy (5 g sugar per 100 ml)", url: "https://www.gov.uk/guidance/soft-drinks-industry-levy", url_verified: false}
+  ada_standards_of_care: {title: "American Diabetes Association: Standards of Care in Diabetes, Section 5", url: "https://diabetesjournals.org/care/issue/48/Supplement_1", url_verified: false}
   # Numbers SmartNutri chose itself (no external source states them). No link.
   smartnutri_working_values: {title: "SmartNutri working values, pending clinician review", url: null, url_verified: false}
 # Section -> where its numbers come from (`thresholds`) and, optionally, why the rule exists
@@ -93,8 +94,9 @@ section_sources:
   diet:            {thresholds: [fssai_labelling_2020]}
   claims:          {thresholds: [fssai_claims_2018]}
   # avoid/caution sugars: UK FSA high-in and FSSAI low-sugar bands; drink avoid: UK SDIL;
-  # carbs per serving: SmartNutri. ICMR-NIN is only the rationale for cardio_high_in.
-  blood_sugar:     {thresholds: [uk_fsa_front_of_pack, fssai_claims_2018, uk_sdil], rationale: [icmr_nin_2024]}
+  # carbs per serving (30 g): SmartNutri. ICMR-NIN and ADA are only the rationale for
+  # cardio_high_in.
+  blood_sugar:     {thresholds: [uk_fsa_front_of_pack, fssai_claims_2018, uk_sdil, smartnutri_working_values], rationale: [icmr_nin_2024, ada_standards_of_care]}
   # avoid 1.5 g and caution 0.3 g salt per 100 g are the UK FSA high and low salt bands.
   hypertension:    {thresholds: [uk_fsa_front_of_pack], rationale: [icmr_nin_2024]}
   # 400 kcal and the protein density are SmartNutri values; D/E are Nutri-Score grades.

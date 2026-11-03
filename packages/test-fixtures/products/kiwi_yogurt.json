@@ -1,0 +1,26 @@
+{
+  "name": "Kiwi Yogurt",
+  "category": "general",
+  "per_100g": {
+    "energy_kcal": 95,
+    "protein_g": 3.2,
+    "carbs_g": 15.0,
+    "sugars_g": 12.0,
+    "fat_g": 2.5,
+    "sat_fat_g": 1.6,
+    "fiber_g": 0.5,
+    "salt_g": 0.1
+  },
+  "serving_size_g": 100,
+  "ingredients": [
+    "toned milk",
+    "kiwi pulp (8%)",
+    "sugar",
+    "milk solids",
+    "stabiliser (ins 440)",
+    "sweetener (ins 955)",
+    "active cultures"
+  ],
+  "claims": [],
+  "source": "synthetic fixture (Plan 5 T8): typed-in allergen and sweetener alert"
+}

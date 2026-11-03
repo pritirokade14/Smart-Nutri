@@ -154,6 +154,17 @@
   "confirmVegMarkTitle": "शाकाहारी या मांसाहारी निशान",
   "confirmVegMarkVeg": "शाकाहारी (हरा निशान)",
   "confirmWithheldHint": "पैक पर यह मान जाँचें, फिर पुष्टि के लिए टिक करें।",
+  "consentAgree": "मैं सहमत हूँ",
+  "consentAiProcessingBody": "SmartNutri को हर नतीजे का सारांश, बिना नामों के, भारत में प्रोसेस होने वाली AI सेवा को भेजने दें, ताकि एक छोटी व्याख्या लिखी जा सके। नतीजा कभी AI तय नहीं करता।",
+  "consentAiProcessingTitle": "AI से व्याख्या",
+  "consentDecline": "अभी नहीं",
+  "consentGranted": "सहमति दी गई",
+  "consentHealthDataBody": "आप जो एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न दर्ज करते हैं, SmartNutri उनसे परिवार के हर सदस्य के लिए उत्पादों की जाँच करता है। यह जानकारी है, चिकित्सा सलाह नहीं। आप यह सहमति कभी भी वापस ले सकते हैं।",
+  "consentHealthDataTitle": "स्वास्थ्य डेटा",
+  "consentNotGranted": "सहमति नहीं दी गई",
+  "consentTermsBody": "मैं SmartNutri की उपयोग की शर्तों और गोपनीयता नीति से सहमत हूँ।",
+  "consentTermsTitle": "उपयोग की शर्तें",
+  "consentWithdraw": "सहमति वापस लें",
   "dietEggetarian": "अंडाहारी (अंडा खाने वाला शाकाहारी)",
   "dietJain": "जैन",
   "dietNonVeg": "मांसाहारी",
@@ -161,7 +172,7 @@
   "dietVegan": "वीगन",
   "errorAuthInvalid": "आपका सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।",
   "errorAuthRequired": "कृपया साइन इन करें।",
-  "errorConsentRequired": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, लंबाई या वज़न सहेजने के लिए, कृपया पहले स्वास्थ्य डेटा के उपयोग के लिए सहमति दें।",
+  "errorConsentRequired": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए, कृपया पहले स्वास्थ्य डेटा के उपयोग के लिए सहमति दें।",
   "errorConsentVersionMismatch": "सहमति का पाठ अपडेट हो गया है। कृपया पेज फिर से लोड करके उसे दोबारा देखें।",
   "errorExtractionFailed": "हम यह लेबल नहीं पढ़ पाए। दूसरी फ़ोटो आज़माएँ या जानकारी खुद भरें।",
   "errorExtractionUnavailable": "लेबल पढ़ने की सुविधा अभी उपलब्ध नहीं है। बाद में फिर कोशिश करें या जानकारी खुद भरें।",
@@ -190,6 +201,9 @@
   "errorUnauthorized": "कृपया साइन इन करें।",
   "errorUnsupportedImage": "कृपया JPEG, PNG या WebP फ़ोटो इस्तेमाल करें।",
   "errorValidationError": "कृपया चिह्नित फ़ील्ड जाँचें।",
+  "explanationAiNote": "ऊपर के नतीजों से AI ने लिखा है। यह कभी कोई नतीजा नहीं बदलता।",
+  "explanationTipsTitle": "सुझाव",
+  "explanationTitle": "यह नतीजा क्यों",
   "highInFat": "वसा अधिक",
   "highInPercentOfLimit": "सीमा का {pct}%",
   "@highInPercentOfLimit": {
@@ -220,6 +234,59 @@
   "labelTakePhoto": "फ़ोटो लें",
   "labelTitle": "लेबल की फ़ोटो लें",
   "labelUploading": "फ़ोटो अपलोड हो रही है…",
+  "membersAdd": "परिवार का सदस्य जोड़ें",
+  "membersConsentWithdrawnNotice": "स्वास्थ्य डेटा की सहमति बंद है। सहेजी गई एलर्जी और स्वास्थ्य स्थितियाँ अब भी उत्पादों की जाँच में इस्तेमाल होती हैं, लेकिन दोबारा सहमति देने तक नई नहीं सहेजी जा सकतीं।",
+  "membersEdit": "बदलें",
+  "membersFormAllergenAdd": "जोड़ें",
+  "membersFormAllergenOther": "दूसरी एलर्जी",
+  "membersFormAllergens": "एलर्जी",
+  "membersFormAllergensHelp": "सूची में से चुनें, या खुद लिखें।",
+  "membersFormBirthYear": "जन्म का वर्ष",
+  "membersFormBirthYearHelp": "बच्चों और 2 साल से छोटे बच्चों की जाँच के लिए इस्तेमाल होता है।",
+  "membersFormCancel": "रद्द करें",
+  "membersFormClearAllergiesConfirm": "{name} की सारी एलर्जी हटाएँ? इन एलर्जी वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।",
+  "@membersFormClearAllergiesConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormConditions": "स्वास्थ्य स्थितियाँ",
+  "membersFormCustomAlerts": "सामग्री अलर्ट",
+  "membersFormCustomAlertsHelp": "हर उत्पाद पर हम इन्हें दिखाएँगे।",
+  "membersFormDiet": "आहार",
+  "membersFormGoal": "लक्ष्य (वैकल्पिक)",
+  "membersFormHealthFieldsNote": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न केवल स्वास्थ्य डेटा के उपयोग की आपकी सहमति से सहेजे जाते हैं।",
+  "membersFormHeightCm": "ऊँचाई (सेमी, वैकल्पिक)",
+  "membersFormName": "नाम",
+  "membersFormRelation": "रिश्ता",
+  "membersFormSave": "सहेजें",
+  "membersFormSex": "लिंग (वैकल्पिक)",
+  "membersFormWeightKg": "वज़न (किग्रा, वैकल्पिक)",
+  "membersGoalHealthyEating": "बेहतर खाना",
+  "membersGoalWeightGain": "वज़न बढ़ाना",
+  "membersGoalWeightLoss": "वज़न घटाना",
+  "membersRelationChild": "बच्चा",
+  "membersRelationOther": "अन्य",
+  "membersRelationParent": "माता-पिता",
+  "membersRelationSelf": "आप",
+  "membersRelationSpouse": "जीवनसाथी",
+  "membersRemove": "हटाएँ",
+  "membersRemoveConfirm": "{name} को परिवार से हटाएँ?",
+  "@membersRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersSaved": "सहेजा गया",
+  "membersSexFemale": "महिला",
+  "membersSexMale": "पुरुष",
+  "membersSexOther": "अन्य",
+  "membersTitle": "परिवार",
+  "membersYouBadge": "आप",
   "notfoundGoToLabel": "हम इस उत्पाद को अभी नहीं जानते — इसके लेबल की फ़ोटो लें",
   "nutrientCarbsG": "कार्बोहाइड्रेट",
   "nutrientEnergyKcal": "ऊर्जा (कैलोरी)",
@@ -355,15 +422,18 @@
       }
     }
   },
-  "reasonCustomAlert": "सामग्री में {ingredients} शामिल है। आपने इसके लिए अलर्ट चुना था।",
+  "reasonCustomAlert": "इसमें {alert} है: {ingredients}।",
   "@reasonCustomAlert": {
     "placeholders": {
+      "alert": {
+        "type": "String"
+      },
       "ingredients": {
         "type": "String"
       }
     }
   },
-  "reasonCustomAlertUnknown": "सामग्री साफ़ नहीं पढ़ी जा सकी, इसलिए हम {alerts} की जाँच नहीं कर सके। आपने इनके लिए अलर्ट चुना था।",
+  "reasonCustomAlertUnknown": "सामग्री की सूची उपलब्ध नहीं है या साफ़ नहीं है, इसलिए {alerts} की जाँच नहीं हो सकी।",
   "@reasonCustomAlertUnknown": {
     "placeholders": {
       "alerts": {
@@ -492,14 +562,7 @@
       }
     }
   },
-  "reasonVariantCustomAlertFlagOnly": "उत्पाद की जानकारी में {alert} दर्ज है। आपने इसके लिए अलर्ट चुना था।",
-  "@reasonVariantCustomAlertFlagOnly": {
-    "placeholders": {
-      "alert": {
-        "type": "String"
-      }
-    }
-  },
+  "reasonVariantCustomAlertFlagOnly": "उत्पाद की जानकारी के अनुसार इसमें स्वीटनर हैं।",
   "reasonVariantDietViolationMarkOnly": "पैक पर भूरे रंग का मांसाहारी निशान है, इसलिए यह शायद {diet} आहार के अनुरूप न हो।",
   "@reasonVariantDietViolationMarkOnly": {
     "placeholders": {
@@ -557,6 +620,25 @@
   "@verdictConfidenceNote": {
     "placeholders": {
       "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictForMember": "{name} के लिए {status}",
+  "@verdictForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictForYou": "आपके लिए {status}",
+  "@verdictForYou": {
+    "placeholders": {
+      "status": {
         "type": "String"
       }
     }

@@ -345,6 +345,42 @@ class AppLocalizationsMr extends AppLocalizations {
       'पॅकवर हे मूल्य तपासा, मग खात्रीसाठी टिक करा.';
 
   @override
+  String get consentAgree => 'मी सहमत आहे';
+
+  @override
+  String get consentAiProcessingBody =>
+      'प्रत्येक निकालाचा सारांश, नावांशिवाय, भारतात प्रक्रिया होणाऱ्या AI सेवेला पाठवण्याची SmartNutri ला परवानगी द्या, म्हणजे छोटे स्पष्टीकरण लिहिता येईल. निकाल कधीही AI ठरवत नाही.';
+
+  @override
+  String get consentAiProcessingTitle => 'AI स्पष्टीकरण';
+
+  @override
+  String get consentDecline => 'आत्ता नाही';
+
+  @override
+  String get consentGranted => 'संमती दिली';
+
+  @override
+  String get consentHealthDataBody =>
+      'तुम्ही नोंदवलेल्या ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची आणि वजन वापरून SmartNutri कुटुंबातील प्रत्येक सदस्यासाठी उत्पादने तपासते. ही माहिती आहे, वैद्यकीय सल्ला नाही. तुम्ही ही संमती कधीही मागे घेऊ शकता.';
+
+  @override
+  String get consentHealthDataTitle => 'आरोग्य डेटा';
+
+  @override
+  String get consentNotGranted => 'संमती दिलेली नाही';
+
+  @override
+  String get consentTermsBody =>
+      'मी SmartNutri च्या वापराच्या अटी आणि गोपनीयता धोरणाशी सहमत आहे.';
+
+  @override
+  String get consentTermsTitle => 'वापराच्या अटी';
+
+  @override
+  String get consentWithdraw => 'संमती मागे घ्या';
+
+  @override
   String get dietEggetarian => 'अंडाहारी (अंडे खाणारा शाकाहारी)';
 
   @override
@@ -468,6 +504,16 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorValidationError => 'कृपया अधोरेखित केलेली फील्ड तपासा.';
 
   @override
+  String get explanationAiNote =>
+      'वरील निकालांवरून AI ने लिहिले आहे. यामुळे कोणताही निकाल बदलत नाही.';
+
+  @override
+  String get explanationTipsTitle => 'सूचना';
+
+  @override
+  String get explanationTitle => 'हा निकाल का';
+
+  @override
   String get highInFat => 'फॅट जास्त';
 
   @override
@@ -519,6 +565,131 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get labelUploading => 'फोटो अपलोड होत आहे…';
+
+  @override
+  String get membersAdd => 'कुटुंबातील सदस्य जोडा';
+
+  @override
+  String get membersConsentWithdrawnNotice =>
+      'आरोग्य डेटाची संमती बंद आहे. जतन केलेल्या ॲलर्जी आणि आरोग्य स्थिती अजूनही उत्पादनांच्या तपासणीसाठी वापरल्या जातात, पण पुन्हा संमती देईपर्यंत नवीन जतन करता येणार नाहीत.';
+
+  @override
+  String get membersEdit => 'बदला';
+
+  @override
+  String get membersFormAllergenAdd => 'जोडा';
+
+  @override
+  String get membersFormAllergenOther => 'इतर ॲलर्जी';
+
+  @override
+  String get membersFormAllergens => 'ॲलर्जी';
+
+  @override
+  String get membersFormAllergensHelp => 'यादीतून निवडा, किंवा स्वतः लिहा.';
+
+  @override
+  String get membersFormBirthYear => 'जन्म वर्ष';
+
+  @override
+  String get membersFormBirthYearHelp =>
+      'मुलांच्या आणि 2 वर्षांखालील बाळांच्या तपासणीसाठी वापरले जाते.';
+
+  @override
+  String get membersFormCancel => 'रद्द करा';
+
+  @override
+  String membersFormClearAllergiesConfirm(String name) {
+    return '$name यांच्या सर्व ॲलर्जी काढायच्या? या ॲलर्जी असलेल्या उत्पादनांवर त्यांच्यासाठी इशारा दिसणार नाही.';
+  }
+
+  @override
+  String get membersFormConditions => 'आरोग्य स्थिती';
+
+  @override
+  String get membersFormCustomAlerts => 'घटक अलर्ट';
+
+  @override
+  String get membersFormCustomAlertsHelp =>
+      'प्रत्येक उत्पादनावर आम्ही हे दाखवू.';
+
+  @override
+  String get membersFormDiet => 'आहार';
+
+  @override
+  String get membersFormGoal => 'उद्दिष्ट (ऐच्छिक)';
+
+  @override
+  String get membersFormHealthFieldsNote =>
+      'ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची आणि वजन फक्त आरोग्य डेटाच्या वापराला तुमची संमती असल्यासच जतन केले जातात.';
+
+  @override
+  String get membersFormHeightCm => 'उंची (सेमी, ऐच्छिक)';
+
+  @override
+  String get membersFormName => 'नाव';
+
+  @override
+  String get membersFormRelation => 'नाते';
+
+  @override
+  String get membersFormSave => 'जतन करा';
+
+  @override
+  String get membersFormSex => 'लिंग (ऐच्छिक)';
+
+  @override
+  String get membersFormWeightKg => 'वजन (किलो, ऐच्छिक)';
+
+  @override
+  String get membersGoalHealthyEating => 'चांगला आहार';
+
+  @override
+  String get membersGoalWeightGain => 'वजन वाढवणे';
+
+  @override
+  String get membersGoalWeightLoss => 'वजन कमी करणे';
+
+  @override
+  String get membersRelationChild => 'मूल';
+
+  @override
+  String get membersRelationOther => 'इतर';
+
+  @override
+  String get membersRelationParent => 'आई-वडील';
+
+  @override
+  String get membersRelationSelf => 'तुम्ही';
+
+  @override
+  String get membersRelationSpouse => 'जोडीदार';
+
+  @override
+  String get membersRemove => 'काढा';
+
+  @override
+  String membersRemoveConfirm(String name) {
+    return '$name यांना कुटुंबातून काढायचे?';
+  }
+
+  @override
+  String get membersSaved => 'जतन केले';
+
+  @override
+  String get membersSexFemale => 'स्त्री';
+
+  @override
+  String get membersSexMale => 'पुरुष';
+
+  @override
+  String get membersSexOther => 'इतर';
+
+  @override
+  String get membersTitle => 'कुटुंब';
+
+  @override
+  String get membersYouBadge => 'तुम्ही';
 
   @override
   String get notfoundGoToLabel =>
@@ -652,13 +823,13 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
-  String reasonCustomAlert(String ingredients) {
-    return 'घटकांमध्ये $ingredients आहे. तुम्ही यासाठी अलर्ट निवडला होता.';
+  String reasonCustomAlert(String alert, String ingredients) {
+    return 'यात $alert आहे: $ingredients.';
   }
 
   @override
   String reasonCustomAlertUnknown(String alerts) {
-    return 'घटकांची यादी स्पष्ट वाचता आली नाही, त्यामुळे $alerts यांची तपासणी करता आली नाही. तुम्ही यांसाठी अलर्ट निवडला होता.';
+    return 'घटकांची यादी उपलब्ध नाही किंवा पुरेशी स्पष्ट नाही, त्यामुळे $alerts तपासता आले नाही.';
   }
 
   @override
@@ -756,9 +927,8 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
-  String reasonVariantCustomAlertFlagOnly(String alert) {
-    return 'उत्पादनाच्या माहितीत $alert नोंदवलेले आहे. तुम्ही यासाठी अलर्ट निवडला होता.';
-  }
+  String get reasonVariantCustomAlertFlagOnly =>
+      'उत्पादनाच्या माहितीनुसार यात स्वीटनर (गोडवा) आहेत.';
 
   @override
   String reasonVariantDietViolationMarkOnly(String diet) {
@@ -854,6 +1024,16 @@ class AppLocalizationsMr extends AppLocalizations {
       'other': 'काही माहिती अनिश्चित आहे.',
     });
     return '$_temp0';
+  }
+
+  @override
+  String verdictForMember(String name, String status) {
+    return '$name साठी $status';
+  }
+
+  @override
+  String verdictForYou(String status) {
+    return 'तुमच्यासाठी $status';
   }
 
   @override

@@ -69,6 +69,8 @@ class _ReasonFormatter {
         );
       case 'reason_variant.diet_violation_mark_only':
         return l10n.reasonVariantDietViolationMarkOnly(_diet(_str('diet')));
+      case 'reason_variant.custom_alert_flag_only':
+        return l10n.reasonVariantCustomAlertFlagOnly;
     }
     return switch (r.code) {
       'added_sugars' => l10n.reasonAddedSugars(_list('ingredients')),
@@ -99,6 +101,13 @@ class _ReasonFormatter {
       // The member's own wording: shown as-is.
       'condition_unrecognised' => l10n.reasonConditionUnrecognised(
         _str('condition'),
+      ),
+      'custom_alert' => l10n.reasonCustomAlert(
+        _alert(_str('alert')),
+        _nonEmptyList('ingredients'),
+      ),
+      'custom_alert_unknown' => l10n.reasonCustomAlertUnknown(
+        _list('alerts', _alert),
       ),
       'diet_unknown' => l10n.reasonDietUnknown(_diet(_str('diet'))),
       // Mark-only (no ingredients) is handled above; any other empty or
@@ -194,6 +203,17 @@ class _ReasonFormatter {
     'no_refined_sugar' => l10n.claimNoRefinedSugar,
     'diabetic_friendly' => l10n.claimDiabeticFriendly,
     _ => code,
+  };
+
+  // Member ingredient alerts (`alert.*`). An alert key this build does not
+  // know cannot be named, so the whole line falls back.
+  String _alert(String code) => switch (code) {
+    'palm_oil' => l10n.alertPalmOil,
+    'maida' => l10n.alertMaida,
+    'added_sugar' => l10n.alertAddedSugar,
+    'artificial_sweetener' => l10n.alertArtificialSweetener,
+    'msg' => l10n.alertMsg,
+    _ => throw const _BadParam(),
   };
 
   String _nutrient(String code) => switch (code) {

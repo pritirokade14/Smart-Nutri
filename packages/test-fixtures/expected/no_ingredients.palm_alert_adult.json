@@ -1,0 +1,9 @@
+{
+  "status": "unknown",
+  "reasons": [
+    {
+      "code": "custom_alert_unknown",
+      "severity": "unknown"
+    }
+  ]
+}

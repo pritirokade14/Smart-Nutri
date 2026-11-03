@@ -1,0 +1,25 @@
+{
+  "status": "avoid",
+  "reasons": [
+    {
+      "code": "infant_salt_high",
+      "severity": "avoid"
+    },
+    {
+      "code": "infant_sugar_high",
+      "severity": "avoid"
+    },
+    {
+      "code": "custom_alert_unknown",
+      "severity": "unknown"
+    },
+    {
+      "code": "diet_unknown",
+      "severity": "unknown"
+    },
+    {
+      "code": "ingredients_missing",
+      "severity": "unknown"
+    }
+  ]
+}

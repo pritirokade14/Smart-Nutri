@@ -1,0 +1,13 @@
+{
+  "status": "unknown",
+  "reasons": [
+    {
+      "code": "allergen_unrecognised",
+      "severity": "unknown"
+    },
+    {
+      "code": "child_salt_high",
+      "severity": "caution"
+    }
+  ]
+}

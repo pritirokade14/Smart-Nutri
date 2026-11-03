@@ -1,0 +1,13 @@
+{
+  "status": "unknown",
+  "reasons": [
+    {
+      "code": "age_unknown",
+      "severity": "unknown"
+    },
+    {
+      "code": "custom_alert_unknown",
+      "severity": "unknown"
+    }
+  ]
+}

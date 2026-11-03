@@ -344,6 +344,42 @@ class AppLocalizationsEn extends AppLocalizations {
       'Check this value on the pack, then tick to confirm it.';
 
   @override
+  String get consentAgree => 'I agree';
+
+  @override
+  String get consentAiProcessingBody =>
+      'Allow SmartNutri to send a summary of each result, without names, to an AI service processed in India, to write a short explanation. The AI never decides a result.';
+
+  @override
+  String get consentAiProcessingTitle => 'AI explanations';
+
+  @override
+  String get consentDecline => 'Not now';
+
+  @override
+  String get consentGranted => 'Agreed';
+
+  @override
+  String get consentHealthDataBody =>
+      'SmartNutri uses the allergies, health conditions, goal, height and weight you enter to check products for each family member. This is information, not medical advice. You can withdraw this consent at any time.';
+
+  @override
+  String get consentHealthDataTitle => 'Health data';
+
+  @override
+  String get consentNotGranted => 'Not agreed';
+
+  @override
+  String get consentTermsBody =>
+      'I agree to the SmartNutri terms of use and privacy policy.';
+
+  @override
+  String get consentTermsTitle => 'Terms of use';
+
+  @override
+  String get consentWithdraw => 'Withdraw consent';
+
+  @override
   String get dietEggetarian => 'Eggetarian';
 
   @override
@@ -465,6 +501,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorValidationError => 'Please check the highlighted fields.';
 
   @override
+  String get explanationAiNote =>
+      'Written by AI from the results above. It never changes a result.';
+
+  @override
+  String get explanationTipsTitle => 'Tips';
+
+  @override
+  String get explanationTitle => 'Why this result';
+
+  @override
   String get highInFat => 'High in fat';
 
   @override
@@ -516,6 +562,132 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labelUploading => 'Uploading the photo…';
+
+  @override
+  String get membersAdd => 'Add a family member';
+
+  @override
+  String get membersConsentWithdrawnNotice =>
+      'Health data consent is off. Saved allergies and conditions are still used to check products, but new ones can\'t be saved until you agree again.';
+
+  @override
+  String get membersEdit => 'Edit';
+
+  @override
+  String get membersFormAllergenAdd => 'Add';
+
+  @override
+  String get membersFormAllergenOther => 'Other allergy';
+
+  @override
+  String get membersFormAllergens => 'Allergies';
+
+  @override
+  String get membersFormAllergensHelp =>
+      'Pick from the list, or type your own.';
+
+  @override
+  String get membersFormBirthYear => 'Year of birth';
+
+  @override
+  String get membersFormBirthYearHelp =>
+      'Used for the checks for children and babies under 2.';
+
+  @override
+  String get membersFormCancel => 'Cancel';
+
+  @override
+  String membersFormClearAllergiesConfirm(String name) {
+    return 'Remove every allergy for $name? Products with these allergens will no longer be flagged for them.';
+  }
+
+  @override
+  String get membersFormConditions => 'Health conditions';
+
+  @override
+  String get membersFormCustomAlerts => 'Ingredient alerts';
+
+  @override
+  String get membersFormCustomAlertsHelp =>
+      'We point these out on every product.';
+
+  @override
+  String get membersFormDiet => 'Diet';
+
+  @override
+  String get membersFormGoal => 'Goal (optional)';
+
+  @override
+  String get membersFormHealthFieldsNote =>
+      'Allergies, health conditions, goal, height and weight are saved only with your consent to health data processing.';
+
+  @override
+  String get membersFormHeightCm => 'Height (cm, optional)';
+
+  @override
+  String get membersFormName => 'Name';
+
+  @override
+  String get membersFormRelation => 'Relation';
+
+  @override
+  String get membersFormSave => 'Save';
+
+  @override
+  String get membersFormSex => 'Sex (optional)';
+
+  @override
+  String get membersFormWeightKg => 'Weight (kg, optional)';
+
+  @override
+  String get membersGoalHealthyEating => 'Eat better';
+
+  @override
+  String get membersGoalWeightGain => 'Gain weight';
+
+  @override
+  String get membersGoalWeightLoss => 'Lose weight';
+
+  @override
+  String get membersRelationChild => 'Child';
+
+  @override
+  String get membersRelationOther => 'Other';
+
+  @override
+  String get membersRelationParent => 'Parent';
+
+  @override
+  String get membersRelationSelf => 'You';
+
+  @override
+  String get membersRelationSpouse => 'Spouse';
+
+  @override
+  String get membersRemove => 'Remove';
+
+  @override
+  String membersRemoveConfirm(String name) {
+    return 'Remove $name from your family?';
+  }
+
+  @override
+  String get membersSaved => 'Saved';
+
+  @override
+  String get membersSexFemale => 'Female';
+
+  @override
+  String get membersSexMale => 'Male';
+
+  @override
+  String get membersSexOther => 'Other';
+
+  @override
+  String get membersTitle => 'Family';
+
+  @override
+  String get membersYouBadge => 'You';
 
   @override
   String get notfoundGoToLabel =>
@@ -649,13 +821,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String reasonCustomAlert(String ingredients) {
-    return 'Contains $ingredients, which you asked to be alerted about.';
+  String reasonCustomAlert(String alert, String ingredients) {
+    return 'Contains $alert: $ingredients.';
   }
 
   @override
   String reasonCustomAlertUnknown(String alerts) {
-    return 'We couldn\'t read the ingredients clearly, so we can\'t check for $alerts, which you asked to be alerted about.';
+    return 'The ingredient list isn\'t available or isn\'t clear enough, so $alerts couldn\'t be checked.';
   }
 
   @override
@@ -753,9 +925,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String reasonVariantCustomAlertFlagOnly(String alert) {
-    return 'The product data lists $alert, which you asked to be alerted about.';
-  }
+  String get reasonVariantCustomAlertFlagOnly =>
+      'The product data says it contains sweeteners.';
 
   @override
   String reasonVariantDietViolationMarkOnly(String diet) {
@@ -852,6 +1023,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'other': 'Some data is uncertain.',
     });
     return '$_temp0';
+  }
+
+  @override
+  String verdictForMember(String name, String status) {
+    return '$status for $name';
+  }
+
+  @override
+  String verdictForYou(String status) {
+    return '$status for you';
   }
 
   @override

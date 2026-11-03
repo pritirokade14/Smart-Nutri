@@ -736,6 +736,72 @@ abstract class AppLocalizations {
   /// **'Check this value on the pack, then tick to confirm it.'**
   String get confirmWithheldHint;
 
+  /// No description provided for @consentAgree.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree'**
+  String get consentAgree;
+
+  /// No description provided for @consentAiProcessingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow SmartNutri to send a summary of each result, without names, to an AI service processed in India, to write a short explanation. The AI never decides a result.'**
+  String get consentAiProcessingBody;
+
+  /// No description provided for @consentAiProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI explanations'**
+  String get consentAiProcessingTitle;
+
+  /// No description provided for @consentDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get consentDecline;
+
+  /// No description provided for @consentGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Agreed'**
+  String get consentGranted;
+
+  /// No description provided for @consentHealthDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'SmartNutri uses the allergies, health conditions, goal, height and weight you enter to check products for each family member. This is information, not medical advice. You can withdraw this consent at any time.'**
+  String get consentHealthDataBody;
+
+  /// No description provided for @consentHealthDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Health data'**
+  String get consentHealthDataTitle;
+
+  /// No description provided for @consentNotGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not agreed'**
+  String get consentNotGranted;
+
+  /// No description provided for @consentTermsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the SmartNutri terms of use and privacy policy.'**
+  String get consentTermsBody;
+
+  /// No description provided for @consentTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get consentTermsTitle;
+
+  /// No description provided for @consentWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw consent'**
+  String get consentWithdraw;
+
   /// No description provided for @dietEggetarian.
   ///
   /// In en, this message translates to:
@@ -952,6 +1018,24 @@ abstract class AppLocalizations {
   /// **'Please check the highlighted fields.'**
   String get errorValidationError;
 
+  /// No description provided for @explanationAiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by AI from the results above. It never changes a result.'**
+  String get explanationAiNote;
+
+  /// No description provided for @explanationTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips'**
+  String get explanationTipsTitle;
+
+  /// No description provided for @explanationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why this result'**
+  String get explanationTitle;
+
   /// No description provided for @highInFat.
   ///
   /// In en, this message translates to:
@@ -1047,6 +1131,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uploading the photo…'**
   String get labelUploading;
+
+  /// No description provided for @membersAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a family member'**
+  String get membersAdd;
+
+  /// No description provided for @membersConsentWithdrawnNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Health data consent is off. Saved allergies and conditions are still used to check products, but new ones can\'t be saved until you agree again.'**
+  String get membersConsentWithdrawnNotice;
+
+  /// No description provided for @membersEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get membersEdit;
+
+  /// No description provided for @membersFormAllergenAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get membersFormAllergenAdd;
+
+  /// No description provided for @membersFormAllergenOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other allergy'**
+  String get membersFormAllergenOther;
+
+  /// No description provided for @membersFormAllergens.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergies'**
+  String get membersFormAllergens;
+
+  /// No description provided for @membersFormAllergensHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick from the list, or type your own.'**
+  String get membersFormAllergensHelp;
+
+  /// No description provided for @membersFormBirthYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year of birth'**
+  String get membersFormBirthYear;
+
+  /// No description provided for @membersFormBirthYearHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for the checks for children and babies under 2.'**
+  String get membersFormBirthYearHelp;
+
+  /// No description provided for @membersFormCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get membersFormCancel;
+
+  /// No description provided for @membersFormClearAllergiesConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove every allergy for {name}? Products with these allergens will no longer be flagged for them.'**
+  String membersFormClearAllergiesConfirm(String name);
+
+  /// No description provided for @membersFormConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Health conditions'**
+  String get membersFormConditions;
+
+  /// No description provided for @membersFormCustomAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredient alerts'**
+  String get membersFormCustomAlerts;
+
+  /// No description provided for @membersFormCustomAlertsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'We point these out on every product.'**
+  String get membersFormCustomAlertsHelp;
+
+  /// No description provided for @membersFormDiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet'**
+  String get membersFormDiet;
+
+  /// No description provided for @membersFormGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal (optional)'**
+  String get membersFormGoal;
+
+  /// No description provided for @membersFormHealthFieldsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergies, health conditions, goal, height and weight are saved only with your consent to health data processing.'**
+  String get membersFormHealthFieldsNote;
+
+  /// No description provided for @membersFormHeightCm.
+  ///
+  /// In en, this message translates to:
+  /// **'Height (cm, optional)'**
+  String get membersFormHeightCm;
+
+  /// No description provided for @membersFormName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get membersFormName;
+
+  /// No description provided for @membersFormRelation.
+  ///
+  /// In en, this message translates to:
+  /// **'Relation'**
+  String get membersFormRelation;
+
+  /// No description provided for @membersFormSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get membersFormSave;
+
+  /// No description provided for @membersFormSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Sex (optional)'**
+  String get membersFormSex;
+
+  /// No description provided for @membersFormWeightKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (kg, optional)'**
+  String get membersFormWeightKg;
+
+  /// No description provided for @membersGoalHealthyEating.
+  ///
+  /// In en, this message translates to:
+  /// **'Eat better'**
+  String get membersGoalHealthyEating;
+
+  /// No description provided for @membersGoalWeightGain.
+  ///
+  /// In en, this message translates to:
+  /// **'Gain weight'**
+  String get membersGoalWeightGain;
+
+  /// No description provided for @membersGoalWeightLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose weight'**
+  String get membersGoalWeightLoss;
+
+  /// No description provided for @membersRelationChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Child'**
+  String get membersRelationChild;
+
+  /// No description provided for @membersRelationOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get membersRelationOther;
+
+  /// No description provided for @membersRelationParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get membersRelationParent;
+
+  /// No description provided for @membersRelationSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get membersRelationSelf;
+
+  /// No description provided for @membersRelationSpouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Spouse'**
+  String get membersRelationSpouse;
+
+  /// No description provided for @membersRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get membersRemove;
+
+  /// No description provided for @membersRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from your family?'**
+  String membersRemoveConfirm(String name);
+
+  /// No description provided for @membersSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get membersSaved;
+
+  /// No description provided for @membersSexFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get membersSexFemale;
+
+  /// No description provided for @membersSexMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get membersSexMale;
+
+  /// No description provided for @membersSexOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get membersSexOther;
+
+  /// No description provided for @membersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get membersTitle;
+
+  /// No description provided for @membersYouBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get membersYouBadge;
 
   /// No description provided for @notfoundGoToLabel.
   ///
@@ -1225,13 +1543,13 @@ abstract class AppLocalizations {
   /// No description provided for @reasonCustomAlert.
   ///
   /// In en, this message translates to:
-  /// **'Contains {ingredients}, which you asked to be alerted about.'**
-  String reasonCustomAlert(String ingredients);
+  /// **'Contains {alert}: {ingredients}.'**
+  String reasonCustomAlert(String alert, String ingredients);
 
   /// No description provided for @reasonCustomAlertUnknown.
   ///
   /// In en, this message translates to:
-  /// **'We couldn\'t read the ingredients clearly, so we can\'t check for {alerts}, which you asked to be alerted about.'**
+  /// **'The ingredient list isn\'t available or isn\'t clear enough, so {alerts} couldn\'t be checked.'**
   String reasonCustomAlertUnknown(String alerts);
 
   /// No description provided for @reasonDietUnknown.
@@ -1357,8 +1675,8 @@ abstract class AppLocalizations {
   /// No description provided for @reasonVariantCustomAlertFlagOnly.
   ///
   /// In en, this message translates to:
-  /// **'The product data lists {alert}, which you asked to be alerted about.'**
-  String reasonVariantCustomAlertFlagOnly(String alert);
+  /// **'The product data says it contains sweeteners.'**
+  String get reasonVariantCustomAlertFlagOnly;
 
   /// No description provided for @reasonVariantDietViolationMarkOnly.
   ///
@@ -1515,6 +1833,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}'**
   String verdictConfidenceNote(String reason);
+
+  /// No description provided for @verdictForMember.
+  ///
+  /// In en, this message translates to:
+  /// **'{status} for {name}'**
+  String verdictForMember(String name, String status);
+
+  /// No description provided for @verdictForYou.
+  ///
+  /// In en, this message translates to:
+  /// **'{status} for you'**
+  String verdictForYou(String status);
 
   /// No description provided for @verdictHideReasons.
   ///

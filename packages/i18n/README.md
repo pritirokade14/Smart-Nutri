@@ -27,7 +27,7 @@ A reason arrives as `{code, severity, params}`. The engine is the source of trut
 |---|---|---|
 | `nutrient_missing` | `reason == "low_confidence"` (only sent then) | `reason_variant.nutrient_missing_low_confidence` |
 | `diet_violation` | `ingredients` is empty (brown non-veg mark, no listed non-veg ingredient) | `reason_variant.diet_violation_mark_only` |
-| `custom_alert` | `ingredients` is empty (only the Open Food Facts sweetener flag matched; `alert` is `artificial_sweetener`) | `reason_variant.custom_alert_flag_only` |
+| `custom_alert` | `ingredients` is empty (only the Open Food Facts sweetener flag matched; `alert` is `artificial_sweetener`). The variant says "sweeteners": the flag also covers stevia and polyols | `reason_variant.custom_alert_flag_only` |
 
 Claim results use `claim_reason.<reason_code>`; the claim itself is shown next to it via `claim.<claim>`.
 

@@ -1,0 +1,13 @@
+{
+  "status": "avoid",
+  "reasons": [
+    {
+      "code": "infant_added_sugar",
+      "severity": "avoid"
+    },
+    {
+      "code": "infant_caffeine",
+      "severity": "avoid"
+    }
+  ]
+}
