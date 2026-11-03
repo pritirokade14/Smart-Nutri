@@ -190,6 +190,7 @@
   "confirmCategoryOptionGeneral": "खाद्य पदार्थ",
   "confirmCategoryOptionSupplement": "सप्लीमेंट (प्रोटीन पाउडर, व्हे, हेल्थ सप्लीमेंट)",
   "confirmCategoryOptionWater": "पैक्ड पानी",
+  "confirmCategorySuggestionSupplement": "सामग्री या प्रोटीन की मात्रा से लगता है कि यह सप्लीमेंट (प्रोटीन पाउडर या व्हे) हो सकता है। अगर ऐसा है, तो प्रकार में सप्लीमेंट चुनें।",
   "confirmChooseRequired": "आगे बढ़ने के लिए एक चुनें",
   "confirmClaims": "पैक पर किए गए दावे",
   "confirmClearStatementConfirm": "मैंने पैक देख लिया है: यह कथन उस पर छपा नहीं है",

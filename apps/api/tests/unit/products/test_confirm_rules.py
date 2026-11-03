@@ -322,6 +322,36 @@ def test_basis_and_category_required():
     assert category_required(to_draft(ex(category_guess=None)))
 
 
+# --- P9 safety S5: a deterministic supplement hint ------------------------------------------
+
+
+def test_clean_draft_has_no_category_suggestion():
+    assert to_draft(ex()).confirm.category_suggestion is None
+
+
+@pytest.mark.parametrize(
+    "kw",
+    [
+        {"ingredients": ["whey protein concentrate", "cocoa", "sucralose"]},
+        {"ingredients": ["soy protein isolate", "cocoa"]},
+        # 55 g protein per 100 g (energy 400 so the Atwater check passes).
+        {"per_100g": n(protein_g=55.0, energy_kcal=400.0, carbs_g=30.0, sugars_g=5.0,
+                       fat_g=11.0)},
+    ],
+)  # fmt: skip
+def test_whey_or_high_protein_suggests_supplement_and_asks_for_the_category(kw):
+    d = to_draft(ex(**kw))
+    assert d.confirm.category_suggestion == "supplement"
+    assert d.confirm.category_required  # never preselect: the user picks
+    assert d.category != "supplement"  # a hint only: the category is never set for the user
+    assert d.confirm == confirm_hints(d)
+
+
+def test_whey_powder_in_a_biscuit_suggests_nothing():
+    d = to_draft(ex(ingredients=["wheat flour", "sugar", "whey powder", "milk solids"]))
+    assert d.confirm.category_suggestion is None and not d.confirm.category_required
+
+
 # --- R22: offer exactly the printed columns --------------------------------------------------
 
 

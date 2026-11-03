@@ -790,6 +790,12 @@ abstract class AppLocalizations {
   /// **'Packaged water'**
   String get confirmCategoryOptionWater;
 
+  /// No description provided for @confirmCategorySuggestionSupplement.
+  ///
+  /// In en, this message translates to:
+  /// **'The ingredients or the protein amount suggest this may be a supplement (protein powder or whey). If it is, pick Supplement as the type.'**
+  String get confirmCategorySuggestionSupplement;
+
   /// No description provided for @confirmChooseRequired.
   ///
   /// In en, this message translates to:

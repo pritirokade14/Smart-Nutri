@@ -12,7 +12,9 @@ Plan 9 Task 6: every hit carries ``report.protein`` (per 100 g and per 100 kcal)
 member, hits carry that member's status from the engine. ``sort="protein"`` (always with a
 member: member_id or the primary) drops ``avoid`` hits and supplements (Plan 9 Task 7) and
 orders by protein per 100 kcal, highest first, unknown last (stable otherwise).
-``sort="relevance"`` keeps every hit, supplements included (ungraded).
+``sort="relevance"`` keeps every hit, supplements included (ungraded). For a member under 18
+or of unknown age, ``sort="protein"`` also drops supplement suspects (P9 safety S5,
+``scoring.supplement_suspect``), ours and Open Food Facts alike.
 """
 
 import unicodedata
@@ -119,6 +121,17 @@ async def _search(
 ) -> list[SearchHit]:
     query = normalise_query(q)
     pattern = _like(query)
+    hide_suspects = (
+        skip_supplements and member is not None and scoring.hides_supplement_suspects(member)
+    )
+
+    def skipped(product: scoring.Product) -> bool:
+        if not skip_supplements:
+            return False
+        if product.category == scoring.Category.SUPPLEMENT:
+            return True
+        return hide_suspects and scoring.supplement_suspect(product)
+
     rows = await session.scalars(
         select(Product)
         .where(
@@ -136,7 +149,7 @@ async def _search(
         if row.barcode:
             seen.add(row.barcode)  # ours wins even when skipped: no OFF duplicate
         product = service.record_to_product(row)
-        if skip_supplements and product.category == scoring.Category.SUPPLEMENT:
+        if skipped(product):
             continue
         hits.append(
             SearchHit(
@@ -179,7 +192,7 @@ async def _search(
             continue
         seen.add(barcode)
         product = off_to_product(payload, confidence=settings.off_data_confidence)
-        if skip_supplements and product.category == scoring.Category.SUPPLEMENT:
+        if skipped(product):
             continue
         hits.append(
             SearchHit(

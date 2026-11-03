@@ -135,6 +135,65 @@ async def test_supplement_never_a_candidate(client, fake_off, sort):
     assert all(i["grade"] is not None for i in body["items"])
 
 
+# --- P9 safety S5: supplement-suspect OFF products (no supplement tag) ---------------------
+
+
+def _category_with_suspect_chana() -> list[dict]:
+    """Roasted Chana re-labelled with a protein isolate, but with no supplement tag."""
+    out = copy.deepcopy(NAMKEEN["products"])
+    for p in out:
+        if p.get("code") == CHANA_BARCODE:
+            p["ingredients_text_en"] = "roasted chana, soy protein isolate, salt"
+    return out
+
+
+async def test_protein_search_hides_suspects_for_a_minor_only(client, login, family):
+    off = FakeOff(text=_category_with_suspect_chana())
+    login(off=off)
+
+    async def names(member_id) -> list[str]:
+        params = {"q": "snack", "sort": "protein", "member_id": member_id}
+        return [h["name"] for h in (await client.get("/v1/products/search", params=params)).json()]
+
+    assert "Roasted Chana" not in await names(family.riya)  # 8 years old
+    assert "Roasted Chana" not in await names(family.me)  # no birth year: unknown age
+    assert "Roasted Chana" in await names(family.dad)  # an adult still sees it
+    plain = (await client.get("/v1/products/search?q=snack")).json()
+    assert "Roasted Chana" in [h["name"] for h in plain]  # relevance search: unchanged
+
+
+async def test_protein_alternatives_hide_suspects_for_a_minor_only(client, fake_off, family):
+    fake_off.category = _category_with_suspect_chana()
+
+    async def names(member_id) -> list[str]:
+        r = await client.get(f"{NAMKEEN_URL}?sort=protein&member_id={member_id}")
+        assert r.status_code == 200, r.text
+        return [i["name"] for i in r.json()["items"]]
+
+    assert "Roasted Chana" in await names(family.dad)
+    assert "Roasted Chana" not in await names(family.riya)
+
+
+def test_suspect_hidden_from_protein_alternatives_pure():
+    child = scoring.Member(id="c", name="", age=9)
+    adult = scoring.Member(id="a", name="", age=30)
+    suspect = _cand("isolate bar", grade="A", protein=9, category=scoring.Category.GENERAL)
+    suspect = Candidate(
+        product=scoring.Product(
+            name="isolate bar", per_100g=suspect.product.per_100g,
+            ingredients=("soy protein isolate", "rice flour"),
+        ),
+        grade="A", payload={},
+    )  # fmt: skip
+    source = scoring.Product(name="src", per_100g=scoring.Nutrients(
+        energy_kcal=100, protein_g=2, carbs_g=10, sugars_g=1, fat_g=1, sat_fat_g=0.1,
+        fiber_g=1, salt_g=0.1))  # fmt: skip
+    assert [c.product.name for c in rank_alternatives_by_protein(source, [suspect], adult)[0]] == [
+        "isolate bar"
+    ]
+    assert rank_alternatives_by_protein(source, [suspect], child)[0] == []
+
+
 async def test_protein_search_excludes_supplements(client, login, family):
     off = FakeOff(text=_category_with_supplement_chana())
     login(off=off)

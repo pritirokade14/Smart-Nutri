@@ -96,6 +96,15 @@ supplements:
   child_max_age: 18
   child_status: caution
   infant_status: avoid
+  # Supplement-suspect hint (P9 safety S5; SmartNutri working values, PENDING CLINICIAN
+  # REVIEW). A product that is not a supplement but lists one of suspect_terms, or has at least
+  # suspect_min_protein_g protein per 100 g, gets a confirm-screen hint suggesting the
+  # supplement category, and is left out of protein-sorted search and alternatives for members
+  # under child_max_age (or of unknown age). Never sets the category and never changes a
+  # verdict. Plain "whey" / "whey powder" are deliberately absent: biscuits and chocolates list
+  # them. 50 g also catches some ordinary dry foods (soya chunks ~52 g): only a hint for them.
+  suspect_min_protein_g: 50
+  suspect_terms: [whey protein, whey protein concentrate, whey protein isolate, hydrolysed whey, hydrolyzed whey, wpc, wpi, protein isolate, protein concentrate, व्हे प्रोटीन]
 # Daily limits for the meal-log summaries (Plan 6 T1). PENDING CLINICIAN REVIEW.
 # Read only by daily_limits.py, never by the verdict rules, with one exception: protein_min_age
 # also gates the OK-level good_protein_density reason (conditions.py, P9 safety S4), which never

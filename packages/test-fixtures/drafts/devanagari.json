@@ -7,6 +7,7 @@
   "confirm": {
     "basis_required": false,
     "category_required": false,
+    "category_suggestion": null,
     "columns": {
       "per_100g": {
         "confirm_fields": [],

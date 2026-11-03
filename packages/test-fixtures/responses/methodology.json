@@ -690,7 +690,20 @@
         "child_max_age": 18,
         "child_status": "caution",
         "infant_max_age": 2,
-        "infant_status": "avoid"
+        "infant_status": "avoid",
+        "suspect_min_protein_g": 50,
+        "suspect_terms": [
+          "whey protein",
+          "whey protein concentrate",
+          "whey protein isolate",
+          "hydrolysed whey",
+          "hydrolyzed whey",
+          "wpc",
+          "wpi",
+          "protein isolate",
+          "protein concentrate",
+          "व्हे प्रोटीन"
+        ]
       }
     },
     {
@@ -969,5 +982,5 @@
       "url_verified": false
     }
   ],
-  "version": "5063dbcef0e5"
+  "version": "938f95b373b6"
 }

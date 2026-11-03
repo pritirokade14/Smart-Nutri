@@ -190,6 +190,7 @@
   "confirmCategoryOptionGeneral": "खाद्यपदार्थ",
   "confirmCategoryOptionSupplement": "सप्लिमेंट (प्रोटीन पावडर, व्हे, हेल्थ सप्लिमेंट)",
   "confirmCategoryOptionWater": "पॅक्ड पाणी",
+  "confirmCategorySuggestionSupplement": "घटक किंवा प्रथिनांच्या प्रमाणावरून हे सप्लिमेंट (प्रोटीन पावडर किंवा व्हे) असू शकते असे दिसते. तसे असल्यास, प्रकारात सप्लिमेंट निवडा.",
   "confirmChooseRequired": "पुढे जाण्यासाठी एक निवडा",
   "confirmClaims": "पॅकवरील दावे",
   "confirmClearStatementConfirm": "मी पॅक तपासला आहे: हे विधान त्यावर छापलेले नाही",

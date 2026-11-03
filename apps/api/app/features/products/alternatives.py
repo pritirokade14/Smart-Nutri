@@ -16,6 +16,9 @@ then ok > caution > unknown, most protein per 100 kcal, grade, name; at most 5.
 
 Supplements (Plan 9 Task 7, P9-R10) are never suggested: a supplement source returns
 ``source_supplement`` (no search), and supplement candidates are dropped by both sorts.
+For a member under 18 or of unknown age, ``sort=protein`` also drops supplement suspects
+(``scoring.supplement_suspect``: a whey or protein isolate/concentrate ingredient, or at least
+50 g protein per 100 g, with no supplement category; P9 safety S5).
 """
 
 from collections.abc import Sequence
@@ -131,8 +134,9 @@ def rank_alternatives_by_protein(
         return [], "source_ungraded"
     bar_grade = _GRADES.index(source_grade)
     ranked: list[tuple[tuple[int, float, int, str], Candidate]] = []
+    hide_suspects = scoring.hides_supplement_suspects(member)
     for c in candidates:
-        if _is_supplement(c):
+        if _is_supplement(c) or (hide_suspects and scoring.supplement_suspect(c.product)):
             continue
         if c.grade not in _GRADES or _GRADES.index(c.grade) > bar_grade:
             continue

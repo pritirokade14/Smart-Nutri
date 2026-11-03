@@ -245,3 +245,4 @@ All hi/mr strings below are machine drafts and need a native reader. Safe words 
 ## P9 safety review fixes
 - [ ] **hi/mr `claim_reason.basis_unknown`**: machine drafts. Shown when a protein-amount claim does not say per 100 g or per serving (or names a bar or pack that may hold more than one serving). Neutral: the claim cannot be checked, never "wrong".
 - [ ] **hi/mr `members.goal.build_muscle_adults_only`**: machine drafts. Shown when "build muscle" is picked for a member under 18 (the API answers 422 `body.goal`). Neutral and factual; it must not suggest any protein amount or product for the child.
+- [ ] **hi/mr `confirm.category_suggestion.supplement`**: machine drafts. A hint on the confirm screen when the ingredients name whey or a protein isolate/concentrate, or protein is at least 50 g per 100 g. It must read as "may be", never as a recommendation; "सप्लीमेंट"/"सप्लिमेंट" should match `confirm.category_option.supplement`.

@@ -254,6 +254,17 @@ CASES: dict[str, Case] = {
             {"pick_basis": "per_serving", "pick_category": "beverage", **_TICK_SERVING},
         ],
     ),
+    "supplement_suggested": Case(
+        "Whey protein concentrate listed (P9 safety S5): `confirm.category_suggestion` is "
+        '"supplement" and the category must be picked (never preselected); either pick is '
+        "saved as is.",
+        _ex(
+            product_name="Choco Protein Mix",
+            ingredients=["whey protein concentrate", "cocoa", "sucralose"],
+            allergen_statement="Contains milk",
+        ),
+        [{"pick_category": "supplement"}, {"pick_category": "general"}, {}],
+    ),
     "category_unknown": Case(
         "No category guess: the user must pick the category.",
         _ex(category_guess=None),

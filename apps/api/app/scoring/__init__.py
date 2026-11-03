@@ -17,6 +17,7 @@ from app.scoring.models import (
     Status,
 )
 from app.scoring.nutriscore import NutriScoreResult
+from app.scoring.supplements import hides_supplement_suspects, supplement_suspect
 from app.scoring.verdict import AnalysisResult, MemberVerdict, ProductReport, analyze
 
 __all__ = [
@@ -40,7 +41,9 @@ __all__ = [
     "analyze",
     "custom_alert_reasons",
     "daily_limits_for",
+    "hides_supplement_suspects",
     "load_config",
     "methodology",
     "nutrient_band",
+    "supplement_suspect",
 ]

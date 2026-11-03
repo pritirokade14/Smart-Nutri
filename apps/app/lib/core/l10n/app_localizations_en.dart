@@ -389,6 +389,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmCategoryOptionWater => 'Packaged water';
 
   @override
+  String get confirmCategorySuggestionSupplement =>
+      'The ingredients or the protein amount suggest this may be a supplement (protein powder or whey). If it is, pick Supplement as the type.';
+
+  @override
   String get confirmChooseRequired => 'Choose one to continue';
 
   @override

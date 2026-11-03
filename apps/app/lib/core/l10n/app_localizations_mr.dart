@@ -391,6 +391,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get confirmCategoryOptionWater => 'पॅक्ड पाणी';
 
   @override
+  String get confirmCategorySuggestionSupplement =>
+      'घटक किंवा प्रथिनांच्या प्रमाणावरून हे सप्लिमेंट (प्रोटीन पावडर किंवा व्हे) असू शकते असे दिसते. तसे असल्यास, प्रकारात सप्लिमेंट निवडा.';
+
+  @override
   String get confirmChooseRequired => 'पुढे जाण्यासाठी एक निवडा';
 
   @override

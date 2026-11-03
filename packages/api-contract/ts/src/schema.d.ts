@@ -846,6 +846,11 @@ export interface components {
              * @description Category in doubt: never preselect; the user must pick a category.
              */
             category_required: boolean;
+            /**
+             * Category Suggestion
+             * @description A deterministic hint (never an LLM, P9 safety S5): the ingredients name a whey or protein isolate/concentrate, or protein is at least 50 g per 100 g, so the pack may be a supplement. Show `confirm.category_suggestion.supplement` next to the category picker. Never preselect it: `category_required` is true whenever this is set, and the user's pick is saved as is.
+             */
+            category_suggestion: "supplement" | null;
             columns: components["schemas"]["ConfirmColumns"];
         };
         /**

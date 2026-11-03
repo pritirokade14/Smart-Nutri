@@ -190,6 +190,7 @@
   "confirmCategoryOptionGeneral": "Food",
   "confirmCategoryOptionSupplement": "Supplement (protein powder, whey, health supplement)",
   "confirmCategoryOptionWater": "Packaged water",
+  "confirmCategorySuggestionSupplement": "The ingredients or the protein amount suggest this may be a supplement (protein powder or whey). If it is, pick Supplement as the type.",
   "confirmChooseRequired": "Choose one to continue",
   "confirmClaims": "Claims on the pack",
   "confirmClearStatementConfirm": "I checked the pack: this statement isn't printed",

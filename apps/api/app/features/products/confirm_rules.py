@@ -36,8 +36,9 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Literal, Protocol
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
+from app import scoring
 from app.features.products.schemas import CONFIRMABLE_FIELDS, NUTRIENT_FIELDS, ConfirmableField
 
 Basis = Literal["per_100g", "per_serving"]
@@ -73,6 +74,10 @@ class DraftFacts(Protocol):
     def per_100g(self) -> object: ...
     @property
     def per_serving(self) -> object | None: ...
+    @property
+    def category(self) -> str: ...
+    @property
+    def ingredients(self) -> Sequence[str]: ...
 
 
 class ColumnConfirm(BaseModel):
@@ -127,6 +132,10 @@ class DraftConfirm(BaseModel):
     """Server-computed confirm-screen hints (R21). Clients render these; they never
     re-derive the save rules. Computed from the draft itself, so always current."""
 
+    # `category_suggestion` has a default only so older callers still validate; the API always
+    # sends it, so the contract marks it required.
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     basis_required: bool = Field(
         description="Basis in doubt: offer both columns and never preselect a basis."
     )
@@ -134,6 +143,16 @@ class DraftConfirm(BaseModel):
         description="Category in doubt: never preselect; the user must pick a category."
     )
     columns: ConfirmColumns
+    category_suggestion: Literal["supplement"] | None = Field(
+        default=None,
+        description=(
+            "A deterministic hint (never an LLM, P9 safety S5): the ingredients name a whey or "
+            "protein isolate/concentrate, or protein is at least 50 g per 100 g, so the pack "
+            "may be a supplement. Show `confirm.category_suggestion.supplement` next to the "
+            "category picker. Never preselect it: `category_required` is true whenever this is "
+            "set, and the user's pick is saved as is."
+        ),
+    )
 
 
 def _has_engine_values(column: object | None) -> bool:
@@ -193,8 +212,27 @@ def basis_required(draft: DraftFacts) -> bool:
     return "basis_mismatch" in draft.warnings or not _printed_bases(draft)
 
 
+def category_suggestion(draft: DraftFacts) -> Literal["supplement"] | None:
+    """ "supplement" when the draft looks like one (`scoring.supplement_suspect`, P9 safety S5):
+    a hint only, never the category."""
+    protein = getattr(draft.per_100g, "protein_g", None)
+    try:
+        category = scoring.Category(draft.category)
+    except ValueError:
+        category = scoring.Category.GENERAL
+    product = scoring.Product(
+        name="",
+        category=category,
+        per_100g=scoring.Nutrients(protein_g=protein),
+        ingredients=tuple(draft.ingredients),
+    )
+    return "supplement" if scoring.supplement_suspect(product) else None
+
+
 def category_required(draft: DraftFacts) -> bool:
-    return any(w in draft.warnings for w in CATEGORY_WARNINGS)
+    return any(w in draft.warnings for w in CATEGORY_WARNINGS) or (
+        category_suggestion(draft) is not None
+    )
 
 
 def printed(draft: DraftFacts, basis: Basis) -> bool:
@@ -247,6 +285,7 @@ def confirm_hints(draft: DraftFacts) -> DraftConfirm:
         basis_required=basis_required(draft),
         category_required=category_required(draft),
         columns=ConfirmColumns(**columns),
+        category_suggestion=category_suggestion(draft),
     )
 
 

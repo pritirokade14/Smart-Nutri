@@ -423,7 +423,10 @@
     "section_product": "Product",
     "section_nutrition": "Nutrition table",
     "section_allergens": "Allergens",
-    "section_pack": "Claims and marks on the pack"
+    "section_pack": "Claims and marks on the pack",
+    "category_suggestion": {
+      "supplement": "The ingredients or the protein amount suggest this may be a supplement (protein powder or whey). If it is, pick Supplement as the type."
+    }
   },
   "warning": {
     "implausible_value": "This value looks unusual. Please check it against the pack.",
