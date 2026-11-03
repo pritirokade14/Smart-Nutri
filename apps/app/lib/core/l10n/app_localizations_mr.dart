@@ -788,6 +788,16 @@ class AppLocalizationsMr extends AppLocalizations {
   String get footerTagline => 'भारतीय कुटुंबांसाठी पॅकबंद अन्नाची माहिती.';
 
   @override
+  String get goodbyeBody =>
+      'तुमचे खाते आणि त्याचा डेटा हटवला गेला आहे, आणि तुम्ही साइन आउट झाला आहात. SmartNutri वापरून पाहिल्याबद्दल धन्यवाद.';
+
+  @override
+  String get goodbyeMetaTitle => 'खाते हटवले';
+
+  @override
+  String get goodbyeTitle => 'तुमचे खाते हटवले गेले आहे';
+
+  @override
   String get highInFat => 'फॅट जास्त';
 
   @override
@@ -1813,24 +1823,37 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get settingsDeleteBody =>
-      'यामुळे तुमचे खाते, तुमच्या कुटुंबातील सदस्य आणि त्यांची आरोग्य माहिती, तुमचे स्कॅन आणि लेबलचे फोटो, तुमची आहार नोंद आणि तुमची व्हॉइस उत्तरे कायमची हटवली जातील. तुम्ही जोडलेली उत्पादने तुमच्या नावाशिवाय यादीत राहतील. हे परत करता येणार नाही.';
+      'यामुळे तुमचे खाते, तुमच्या कुटुंबाच्या प्रोफाइल आणि आरोग्य डेटा, स्कॅन, खाण्याच्या नोंदी, लेबलचे फोटो आणि आवाजातील उत्तरे कायमची हटवली जातील. तुम्ही जोडलेली उत्पादने तुमच्या नावाशिवाय सामायिक यादीत राहतील. हे परत करता येणार नाही.';
 
   @override
   String get settingsDeleteButton => 'खाते हटवा';
+
+  @override
+  String get settingsDeleteCancel => 'रद्द करा';
 
   @override
   String get settingsDeleteConfirm => 'कायमचे हटवा';
 
   @override
   String settingsDeleteConfirmLabel(String word) {
-    return 'खात्री करण्यासाठी $word लिहा';
+    return 'पुष्टीसाठी $word लिहा';
   }
 
   @override
   String get settingsDeleteConfirmWord => 'DELETE';
 
   @override
-  String get settingsDeleteTitle => 'तुमचे खाते हटवायचे?';
+  String get settingsDeleteDialogTitle => 'तुमचे खाते कायमचे हटवायचे?';
+
+  @override
+  String get settingsDeleteRetrying =>
+      'अजून हटवले जात आहे. पुन्हा प्रयत्न करत आहोत…';
+
+  @override
+  String get settingsDeleteTitle => 'खाते हटवा';
+
+  @override
+  String get settingsDeleting => 'तुमचे खाते हटवले जात आहे…';
 
   @override
   String get settingsGoodbyeAction => 'साइन इनकडे परत जा';
@@ -1841,6 +1864,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get settingsGoodbyeTitle => 'तुमचे खाते हटवले गेले आहे';
+
+  @override
+  String get settingsLanguageBody => 'या डिव्हाइसवर SmartNutri ची भाषा निवडा.';
 
   @override
   String get settingsLanguageSystem => 'डिव्हाइसची भाषा';

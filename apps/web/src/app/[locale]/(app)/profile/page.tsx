@@ -1,13 +1,17 @@
 import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { use } from "react";
+import { LanguageSwitcher } from "@/components/shell/LanguageSwitcher";
 import { pageClass } from "@/components/shell/page";
 import { SignOutButton } from "@/components/shell/SignOutButton";
+import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { DeleteAccount } from "@/features/account/components/DeleteAccount";
 import { ConsentSettings } from "@/features/members/components/ConsentSettings";
 
-// Account settings: each consent's state (with withdraw), and sign out.
-// Language and account deletion come later (same tab on Android).
+// Account settings (same tab on Android): language, every consent (with
+// withdraw and re-consent), sign out, and Delete account. Reachable without
+// terms (the consent gate exempts it), so a user can always withdraw or erase.
 export default function ProfilePage({
   params,
 }: {
@@ -19,10 +23,20 @@ export default function ProfilePage({
   return (
     <main className={pageClass}>
       <SectionHeader as="h1" title={t("profile.title")} />
+      <section className="space-y-3" aria-labelledby="language-title">
+        <SectionHeader id="language-title" title={t("language.label")} />
+        <Card className="space-y-3">
+          <p className="text-md text-text-secondary">
+            {t("settings.language_body")}
+          </p>
+          <LanguageSwitcher locale={locale} />
+        </Card>
+      </section>
       <ConsentSettings />
       <div>
         <SignOutButton />
       </div>
+      <DeleteAccount />
     </main>
   );
 }

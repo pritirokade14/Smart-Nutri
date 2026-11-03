@@ -95,6 +95,11 @@ export function initAnalytics(key: string | undefined): boolean {
   return true;
 }
 
+/** Forgets this browser's analytics identity (after account deletion). */
+export function resetAnalytics(): void {
+  if (ready) posthog.reset();
+}
+
 export function track(event: string, props?: EventProps): void {
   if (!ready) return;
   posthog.capture(event, filterProps(props));

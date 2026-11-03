@@ -784,13 +784,23 @@
     "about_title": "About SmartNutri",
     "account_title": "Account",
     "delete_button": "Delete account",
-    "delete_title": "Delete your account?",
-    "delete_body": "This permanently deletes your account, your family members and their health details, your scans and label photos, your food log and your voice answers. Products you added stay in the catalogue without your name. This can't be undone.",
+    "delete_dialog_title": "Delete your account permanently?",
+    "delete_title": "Delete account",
+    "delete_body": "This permanently deletes your account, your family profiles and health data, scans, food logs, label photos and voice answers. Products you added stay in the shared catalogue without your name. This can't be undone.",
     "delete_confirm_word": "DELETE",
     "delete_confirm_label": "Type {word} to confirm",
     "delete_confirm": "Delete permanently",
+    "delete_cancel": "Cancel",
+    "deleting": "Deleting your account…",
+    "delete_retrying": "Still deleting. Trying again…",
     "goodbye_title": "Your account has been deleted",
     "goodbye_body": "Your data has been erased. Thank you for using SmartNutri.",
-    "goodbye_action": "Back to sign in"
+    "goodbye_action": "Back to sign in",
+    "language_body": "Choose the language for SmartNutri on this device."
+  },
+  "goodbye": {
+    "title": "Your account has been deleted",
+    "body": "Your account and its data have been deleted, and you have been signed out. Thank you for trying SmartNutri.",
+    "meta_title": "Account deleted"
   }
 }

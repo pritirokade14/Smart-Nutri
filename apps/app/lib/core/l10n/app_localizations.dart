@@ -1504,6 +1504,24 @@ abstract class AppLocalizations {
   /// **'Packaged-food information for Indian families.'**
   String get footerTagline;
 
+  /// No description provided for @goodbyeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and its data have been deleted, and you have been signed out. Thank you for trying SmartNutri.'**
+  String get goodbyeBody;
+
+  /// No description provided for @goodbyeMetaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted'**
+  String get goodbyeMetaTitle;
+
+  /// No description provided for @goodbyeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted'**
+  String get goodbyeTitle;
+
   /// No description provided for @highInFat.
   ///
   /// In en, this message translates to:
@@ -3205,7 +3223,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDeleteBody.
   ///
   /// In en, this message translates to:
-  /// **'This permanently deletes your account, your family members and their health details, your scans and label photos, your food log and your voice answers. Products you added stay in the catalogue without your name. This can\'t be undone.'**
+  /// **'This permanently deletes your account, your family profiles and health data, scans, food logs, label photos and voice answers. Products you added stay in the shared catalogue without your name. This can\'t be undone.'**
   String get settingsDeleteBody;
 
   /// No description provided for @settingsDeleteButton.
@@ -3213,6 +3231,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete account'**
   String get settingsDeleteButton;
+
+  /// No description provided for @settingsDeleteCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get settingsDeleteCancel;
 
   /// No description provided for @settingsDeleteConfirm.
   ///
@@ -3232,11 +3256,29 @@ abstract class AppLocalizations {
   /// **'DELETE'**
   String get settingsDeleteConfirmWord;
 
+  /// No description provided for @settingsDeleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account permanently?'**
+  String get settingsDeleteDialogTitle;
+
+  /// No description provided for @settingsDeleteRetrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Still deleting. Trying again…'**
+  String get settingsDeleteRetrying;
+
   /// No description provided for @settingsDeleteTitle.
   ///
   /// In en, this message translates to:
-  /// **'Delete your account?'**
+  /// **'Delete account'**
   String get settingsDeleteTitle;
+
+  /// No description provided for @settingsDeleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting your account…'**
+  String get settingsDeleting;
 
   /// No description provided for @settingsGoodbyeAction.
   ///
@@ -3255,6 +3297,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account has been deleted'**
   String get settingsGoodbyeTitle;
+
+  /// No description provided for @settingsLanguageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the language for SmartNutri on this device.'**
+  String get settingsLanguageBody;
 
   /// No description provided for @settingsLanguageSystem.
   ///

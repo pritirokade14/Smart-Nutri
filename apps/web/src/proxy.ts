@@ -16,6 +16,7 @@ export const PUBLIC = new Set([
   "how-we-score",
   "privacy",
   "terms",
+  "goodbye",
 ]);
 
 type Decision = { protected: boolean; locale: string; path: string };

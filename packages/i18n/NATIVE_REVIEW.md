@@ -178,3 +178,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 8 Task 1 (web: privacy and terms pages, footer)
 - [ ] **hi/mr `legal.*`, `footer.links_label`**: machine drafts. `english_only` must say plainly that the policy text is in English only for now (no promise of a date). `draft_notice` must say a lawyer is reviewing the text before launch. "गोपनीयता सूचना" / "उपयोग की शर्तें" (hi) and "गोपनीयता सूचना" / "वापराच्या अटी" (mr) must match `consent.terms_step.read_*`.
+
+## Plan 8 Task 2 (web: profile language and Delete account)
+- [ ] **hi/mr `settings.*`, `goodbye.*`**: machine drafts. `delete_body` must list plainly what is erased and say it cannot be undone; `goodbye.body` must not suggest anything was kept. `settings.delete_confirm_word` is "DELETE" in every language for now (typed in Latin script); decide with Android whether hi/mr should use a Devanagari word instead (the web compares case-insensitively).

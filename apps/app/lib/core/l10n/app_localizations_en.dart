@@ -782,6 +782,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get footerTagline => 'Packaged-food information for Indian families.';
 
   @override
+  String get goodbyeBody =>
+      'Your account and its data have been deleted, and you have been signed out. Thank you for trying SmartNutri.';
+
+  @override
+  String get goodbyeMetaTitle => 'Account deleted';
+
+  @override
+  String get goodbyeTitle => 'Your account has been deleted';
+
+  @override
   String get highInFat => 'High in fat';
 
   @override
@@ -1809,10 +1819,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDeleteBody =>
-      'This permanently deletes your account, your family members and their health details, your scans and label photos, your food log and your voice answers. Products you added stay in the catalogue without your name. This can\'t be undone.';
+      'This permanently deletes your account, your family profiles and health data, scans, food logs, label photos and voice answers. Products you added stay in the shared catalogue without your name. This can\'t be undone.';
 
   @override
   String get settingsDeleteButton => 'Delete account';
+
+  @override
+  String get settingsDeleteCancel => 'Cancel';
 
   @override
   String get settingsDeleteConfirm => 'Delete permanently';
@@ -1826,7 +1839,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDeleteConfirmWord => 'DELETE';
 
   @override
-  String get settingsDeleteTitle => 'Delete your account?';
+  String get settingsDeleteDialogTitle => 'Delete your account permanently?';
+
+  @override
+  String get settingsDeleteRetrying => 'Still deleting. Trying again…';
+
+  @override
+  String get settingsDeleteTitle => 'Delete account';
+
+  @override
+  String get settingsDeleting => 'Deleting your account…';
 
   @override
   String get settingsGoodbyeAction => 'Back to sign in';
@@ -1837,6 +1859,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGoodbyeTitle => 'Your account has been deleted';
+
+  @override
+  String get settingsLanguageBody =>
+      'Choose the language for SmartNutri on this device.';
 
   @override
   String get settingsLanguageSystem => 'Device language';
