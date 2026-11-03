@@ -7,7 +7,7 @@ that error to the consent screen.
 
 The gate runs before the route's own dependencies (including `limit()`), so a refused call
 does not use up rate-limit quota. Withdrawal stops processing; it does not erase stored data
-(ADR 0017). Erasure is `DELETE /v1/me`.
+(ADR 0018). Erasure is `DELETE /v1/me`.
 """
 
 from collections.abc import Awaitable, Callable

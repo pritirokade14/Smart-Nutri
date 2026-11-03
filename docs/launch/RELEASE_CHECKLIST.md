@@ -21,7 +21,7 @@
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 9 | Privacy policy and terms reviewed by a lawyer | USER | Drafts: `docs/launch/privacy-policy.md`, `terms.md`. Must include DPDP s. 8(7) withdrawal versus erasure (ADR 0017), grievance officer details and children's profiles (s. 9). |
+| 9 | Privacy policy and terms reviewed by a lawyer | USER | Drafts: `docs/launch/privacy-policy.md`, `terms.md`. Must include DPDP s. 8(7) withdrawal versus erasure (ADR 0018), grievance officer details and children's profiles (s. 9). |
 | 10 | Clinician sheet signed | USER | `docs/launch/clinician-review.md` (35 thresholds). Until signed, keep `# PENDING CLINICIAN REVIEW` and the methodology banner. |
 | 11 | Native-speaker review of hi and mr | USER | `packages/i18n/NATIVE_REVIEW.md` |
 | 12 | Methodology source URLs verified (`url_verified`) | TODO | All `false` today |
