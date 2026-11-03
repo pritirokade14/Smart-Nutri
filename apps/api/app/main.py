@@ -16,6 +16,7 @@ from app.features.analyze.router import router as analyze_router
 from app.features.consents.router import router as consents_router
 from app.features.health.router import router as health_router
 from app.features.me.router import router as me_router
+from app.features.members.router import router as members_router
 from app.features.products.router import router as products_router
 from app.features.scans.router import router as scans_router
 
@@ -26,6 +27,7 @@ ROUTERS: list[APIRouter] = [
     analyze_router,
     scans_router,
     consents_router,
+    members_router,
 ]
 
 

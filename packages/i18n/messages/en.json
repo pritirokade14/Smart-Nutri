@@ -186,7 +186,10 @@
     "unsupported_image": "Please use a JPEG, PNG or WebP photo.",
     "extraction_failed": "We couldn't read this label. Try another photo or enter the details manually.",
     "extraction_unavailable": "Label reading is unavailable right now. Try again later or enter the details manually.",
-    "storage_unavailable": "We couldn't handle the photo right now. Please try again in a moment."
+    "storage_unavailable": "We couldn't handle the photo right now. Please try again in a moment.",
+    "consent_required": "To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.",
+    "member_limit": "You can add up to 10 family members.",
+    "primary_member": "Your own profile can't be removed."
   },
   "scan": {
     "title": "Scan a barcode",

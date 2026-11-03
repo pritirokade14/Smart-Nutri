@@ -73,6 +73,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Members List
+         * @description The account's members, the primary (account holder) first. Creates the primary if new.
+         */
+        get: operations["members_list"];
+        put?: never;
+        /** Members Create */
+        post: operations["members_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/members/{member_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Members Get */
+        get: operations["members_get"];
+        put?: never;
+        post?: never;
+        /** Members Delete */
+        delete: operations["members_delete"];
+        options?: never;
+        head?: never;
+        /** Members Update */
+        patch: operations["members_update"];
+        trace?: never;
+    };
     "/v1/products": {
         parameters: {
             query?: never;
@@ -398,6 +438,120 @@ export interface components {
              * @enum {string}
              */
             language: "en" | "hi" | "mr";
+        };
+        /**
+         * MemberIn
+         * @description Create a family member. The account holder (relation `self`) already exists.
+         */
+        MemberIn: {
+            /**
+             * Allergens
+             * @default []
+             */
+            allergens: string[];
+            /** Birth Year */
+            birth_year: number;
+            /**
+             * Conditions
+             * @default []
+             */
+            conditions: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[];
+            /**
+             * Custom Alerts
+             * @default []
+             */
+            custom_alerts: ("palm_oil" | "maida" | "added_sugar" | "artificial_sweetener" | "msg")[];
+            /**
+             * Diet
+             * @default non_veg
+             * @enum {string}
+             */
+            diet: "veg" | "eggetarian" | "vegan" | "jain" | "non_veg";
+            /** Goal */
+            goal?: ("healthy_eating" | "weight_loss" | "weight_gain") | null;
+            /** Height Cm */
+            height_cm?: number | null;
+            /** Name */
+            name: string;
+            /**
+             * Relation
+             * @enum {string}
+             */
+            relation: "child" | "parent" | "spouse" | "other";
+            /** Sex */
+            sex?: ("female" | "male" | "other") | null;
+            /** Weight Kg */
+            weight_kg?: number | null;
+        };
+        /** MemberOut */
+        MemberOut: {
+            /** Allergens */
+            allergens: string[];
+            /** Birth Year */
+            birth_year: number | null;
+            /** Conditions */
+            conditions: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[];
+            /** Custom Alerts */
+            custom_alerts: ("palm_oil" | "maida" | "added_sugar" | "artificial_sweetener" | "msg")[];
+            /**
+             * Diet
+             * @enum {string}
+             */
+            diet: "veg" | "eggetarian" | "vegan" | "jain" | "non_veg";
+            /** Goal */
+            goal: ("healthy_eating" | "weight_loss" | "weight_gain") | null;
+            /** Height Cm */
+            height_cm: number | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Is Primary */
+            is_primary: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Relation
+             * @enum {string}
+             */
+            relation: "self" | "child" | "parent" | "spouse" | "other";
+            /** Sex */
+            sex: ("female" | "male" | "other") | null;
+            /** Weight Kg */
+            weight_kg: number | null;
+        };
+        /**
+         * MemberPatch
+         * @description Change only the fields sent. `relation` can't become `self`, or change on the primary.
+         *
+         *     `null` clears `sex`, `height_cm`, `weight_kg` and `goal`. For every other field `null`
+         *     means "unchanged" (the generated Dart client sends every field, unset ones as null), so
+         *     `birth_year` can never be cleared.
+         */
+        MemberPatch: {
+            /** Allergens */
+            allergens?: string[] | null;
+            /** Birth Year */
+            birth_year?: number | null;
+            /** Conditions */
+            conditions?: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[] | null;
+            /** Custom Alerts */
+            custom_alerts?: ("palm_oil" | "maida" | "added_sugar" | "artificial_sweetener" | "msg")[] | null;
+            /** Diet */
+            diet?: ("veg" | "eggetarian" | "vegan" | "jain" | "non_veg") | null;
+            /** Goal */
+            goal?: ("healthy_eating" | "weight_loss" | "weight_gain") | null;
+            /** Height Cm */
+            height_cm?: number | null;
+            /** Name */
+            name?: string | null;
+            /** Relation */
+            relation?: ("self" | "child" | "parent" | "spouse" | "other") | null;
+            /** Sex */
+            sex?: ("female" | "male" | "other") | null;
+            /** Weight Kg */
+            weight_kg?: number | null;
         };
         /** NutrientsOut */
         NutrientsOut: {
@@ -1055,6 +1209,361 @@ export interface operations {
             };
             /** @description Missing or invalid access token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Consent required: saving health fields needs the health_data consent */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                member_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                member_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                member_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Consent required: saving health fields needs the health_data consent */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

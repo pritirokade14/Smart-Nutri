@@ -353,6 +353,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करें।';
 
   @override
+  String get errorConsentRequired =>
+      'एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, लंबाई या वज़न सहेजने के लिए, कृपया पहले स्वास्थ्य डेटा के उपयोग के लिए सहमति दें।';
+
+  @override
   String get errorConsentVersionMismatch =>
       'सहमति का पाठ अपडेट हो गया है। कृपया पेज फिर से लोड करके उसे दोबारा देखें।';
 
@@ -388,6 +392,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorInvalidProductRef => 'जाँचने के लिए एक उत्पाद चुनें।';
 
   @override
+  String get errorMemberLimit => 'आप परिवार के अधिकतम 10 सदस्य जोड़ सकते हैं।';
+
+  @override
   String get errorMemberNotFound => 'परिवार का यह सदस्य नहीं मिला।';
 
   @override
@@ -403,6 +410,9 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get errorOffUnavailable =>
       'उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
+
+  @override
+  String get errorPrimaryMember => 'आपकी अपनी प्रोफ़ाइल हटाई नहीं जा सकती।';
 
   @override
   String get errorProductExists => 'यह उत्पाद पहले से सहेजा गया है।';

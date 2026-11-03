@@ -748,6 +748,12 @@ abstract class AppLocalizations {
   /// **'Please sign in.'**
   String get errorAuthRequired;
 
+  /// No description provided for @errorConsentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.'**
+  String get errorConsentRequired;
+
   /// No description provided for @errorConsentVersionMismatch.
   ///
   /// In en, this message translates to:
@@ -808,6 +814,12 @@ abstract class AppLocalizations {
   /// **'Choose a product to check.'**
   String get errorInvalidProductRef;
 
+  /// No description provided for @errorMemberLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add up to 10 family members.'**
+  String get errorMemberLimit;
+
   /// No description provided for @errorMemberNotFound.
   ///
   /// In en, this message translates to:
@@ -837,6 +849,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The product database is busy right now. Please try again in a moment.'**
   String get errorOffUnavailable;
+
+  /// No description provided for @errorPrimaryMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own profile can\'t be removed.'**
+  String get errorPrimaryMember;
 
   /// No description provided for @errorProductExists.
   ///

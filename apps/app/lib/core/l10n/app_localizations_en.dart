@@ -350,6 +350,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthRequired => 'Please sign in.';
 
   @override
+  String get errorConsentRequired =>
+      'To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.';
+
+  @override
   String get errorConsentVersionMismatch =>
       'This consent text has been updated. Please reload and review it again.';
 
@@ -385,6 +389,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorInvalidProductRef => 'Choose a product to check.';
 
   @override
+  String get errorMemberLimit => 'You can add up to 10 family members.';
+
+  @override
   String get errorMemberNotFound => 'That family member wasn\'t found.';
 
   @override
@@ -400,6 +407,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorOffUnavailable =>
       'The product database is busy right now. Please try again in a moment.';
+
+  @override
+  String get errorPrimaryMember => 'Your own profile can\'t be removed.';
 
   @override
   String get errorProductExists => 'This product is already saved.';

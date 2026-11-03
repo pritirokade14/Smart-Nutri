@@ -73,3 +73,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 5 Task 4 (consents API)
 - [ ] **hi/mr `error.consent_version_mismatch`**: machine drafts. Check that it reads as "the consent text changed, please review it again" (calm, no blame) and that the word for "consent" (सहमति in hi, संमती in mr) is the one users know.
+
+## Plan 5 Task 5 (members API)
+- [ ] **hi/mr `error.{consent_required,member_limit,primary_member}`**: machine drafts. `consent_required` must read as a calm request to agree to health data processing before saving allergies, conditions, a goal, height or weight (no blame, no implication that the app treats anything). Check "स्वास्थ्य डेटा" / "आरोग्य डेटा" and the health-field words (लंबाई/उंची, वज़न/वजन, लक्ष्य/उद्दिष्ट). `primary_member` means "your own (account holder) profile can't be removed"; check that "प्रोफ़ाइल" / "प्रोफाइल" is natural.
