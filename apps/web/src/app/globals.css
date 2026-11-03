@@ -90,3 +90,28 @@
   --verdict-color: var(--color-verdict-avoid);
   --verdict-soft: var(--color-verdict-soft-avoid);
 }
+
+/* Daily-limit band (meal summaries). The band comes only from the API on
+   data-band and reuses the verdict tokens: within → ok, close → caution,
+   over → avoid. The base rule is the unknown grey, so a missing or
+   unexpected band ("Not enough data") is never green. */
+[data-band] {
+  --band-color: var(--color-verdict-unknown);
+  --band-soft: var(--color-verdict-soft-unknown);
+}
+[data-band="ok"] {
+  --band-color: var(--color-verdict-ok);
+  --band-soft: var(--color-verdict-soft-ok);
+}
+[data-band="near"] {
+  --band-color: var(--color-verdict-caution);
+  --band-soft: var(--color-verdict-soft-caution);
+}
+[data-band="over"] {
+  --band-color: var(--color-verdict-avoid);
+  --band-soft: var(--color-verdict-soft-avoid);
+}
+[data-band="unknown"] {
+  --band-color: var(--color-verdict-unknown);
+  --band-soft: var(--color-verdict-soft-unknown);
+}

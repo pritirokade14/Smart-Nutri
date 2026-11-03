@@ -116,6 +116,8 @@
   "claimVerdictContradicted": "Label data contradicts this claim",
   "claimVerdictSupported": "Label data supports this claim",
   "claimVerdictUnverifiable": "Can't be checked from the label",
+  "commonCancel": "Cancel",
+  "commonClose": "Close",
   "commonComingSoon": "Coming soon",
   "commonDisclaimer": "Information, not medical advice.",
   "commonErrorTitle": "Something went wrong",
@@ -298,7 +300,10 @@
       }
     }
   },
+  "historyLoggedTitle": "What was eaten",
   "historyMember": "Family member",
+  "historyNextDay": "Next day",
+  "historyPreviousDay": "Previous day",
   "historyRemove": "Remove",
   "historyRemoveConfirm": "Remove this item from the log?",
   "historyThisWeek": "This week",
@@ -349,12 +354,21 @@
   "languageLabel": "Language",
   "languageMr": "मराठी",
   "mealsLogAmountGrams": "Amount in grams",
+  "mealsLogAmountInvalid": "Enter an amount more than 0 and up to {max}.",
+  "@mealsLogAmountInvalid": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "mealsLogAmountServings": "Number of servings",
   "mealsLogCta": "I ate this",
   "mealsLogEatenAt": "When",
   "mealsLogGrams": "Grams",
   "mealsLogMember": "Who ate it?",
   "mealsLogNow": "Now",
+  "mealsLogPortion": "How much was eaten?",
   "mealsLogSave": "Save",
   "mealsLogSaved": "Logged for {who}",
   "@mealsLogSaved": {
@@ -364,6 +378,7 @@
       }
     }
   },
+  "mealsLogSavedYou": "Logged for you",
   "mealsLogServingSize": "1 serving = {grams} g",
   "@mealsLogServingSize": {
     "placeholders": {
@@ -991,6 +1006,14 @@
   "summarySugarNote": "Labels show total sugars, including natural sugars, so this total may be higher than added sugar alone.",
   "summaryTitleDay": "Today",
   "summaryTitleWeek": "Last 7 days",
+  "summaryTotalG": "{total} g",
+  "@summaryTotalG": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "summaryTotalOfLimit": "{total} g of {limit} g",
   "@summaryTotalOfLimit": {
     "placeholders": {
@@ -1002,6 +1025,7 @@
       }
     }
   },
+  "summaryWeekNote": "The week is compared with the daily limit for each day something was logged.",
   "verdictConfidenceNote": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}",
   "@verdictConfidenceNote": {
     "placeholders": {

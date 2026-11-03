@@ -3,7 +3,12 @@ import type { vi } from "vitest";
 // A tiny router over the stubbed global fetch: the real getApi() and the
 // generated client send Requests; each test answers by method + path.
 
-export type Call = { method: string; path: string; body: unknown };
+export type Call = {
+  method: string;
+  path: string;
+  body: unknown;
+  query: URLSearchParams;
+};
 type Handler = (call: Call, n: number) => Response | Promise<Response>;
 
 export const json = (status: number, body?: unknown) =>
@@ -27,6 +32,7 @@ export function apiStub(fetchMock: ReturnType<typeof vi.fn>) {
       method: input.method,
       path: url.pathname,
       body: text ? JSON.parse(text) : undefined,
+      query: url.searchParams,
     };
     calls.push(call);
     const key = `${call.method} ${call.path}`;

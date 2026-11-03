@@ -116,29 +116,8 @@ describe("LanguageSwitcher", () => {
   });
 });
 
-describe("placeholder pages", () => {
-  const pages = [["history", HistoryPage]] as const;
-
-  it.each(pages)(
-    "%s: title and a coming-soon empty state",
-    async (key, Page) => {
-      await act(async () => {
-        intl(
-          <Suspense>
-            <Page params={Promise.resolve({ locale: "en" })} />
-          </Suspense>,
-        );
-      });
-      expect(
-        await screen.findByRole("heading", { level: 1, name: en[key].title }),
-      ).toBeTruthy();
-      const empty = screen.getByTestId("empty-state");
-      expect(within(empty).getByText(en.common.coming_soon)).toBeTruthy();
-      expect(within(empty).getByText(en[key].body)).toBeTruthy();
-    },
-  );
-
-  // Family and profile are real pages now; they load from the API.
+describe("app pages", () => {
+  // History, family and profile are real pages now; they load from the API.
   const withQuery = (ui: React.ReactNode) =>
     intl(
       <QueryClientProvider
@@ -162,6 +141,21 @@ describe("placeholder pages", () => {
       await screen.findByRole("heading", { level: 1, name: en.members.title }),
     ).toBeTruthy();
     expect(screen.queryByText(en.common.coming_soon)).toBeNull();
+  });
+
+  it("history: the title, no coming-soon state, and the disclaimer", async () => {
+    await act(async () => {
+      withQuery(
+        <Suspense>
+          <HistoryPage params={Promise.resolve({ locale: "en" })} />
+        </Suspense>,
+      );
+    });
+    expect(
+      await screen.findByRole("heading", { level: 1, name: en.history.title }),
+    ).toBeTruthy();
+    expect(screen.queryByText(en.common.coming_soon)).toBeNull();
+    expect(screen.getByTestId("disclaimer")).toBeTruthy();
   });
 
   it("profile: privacy and consent, and sign out", async () => {

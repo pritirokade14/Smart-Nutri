@@ -1,13 +1,10 @@
-import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { pageClass } from "@/components/shell/page";
-import { buttonClass } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { HistoryIcon } from "@/components/ui/icons";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { HistoryView } from "@/features/history/components/HistoryView";
 
-// Placeholder until the history feature ships (same tab on Android).
+// The History tab (same tab on Android): a member's logged food, the day's
+// totals against the daily limits and the last 7 days. Personal data is
+// fetched per request in the browser (the (app) layout is dynamic).
 export default function HistoryPage({
   params,
 }: {
@@ -15,20 +12,5 @@ export default function HistoryPage({
 }) {
   const { locale } = use(params);
   setRequestLocale(locale);
-  const t = useTranslations();
-  return (
-    <main className={pageClass}>
-      <SectionHeader as="h1" title={t("history.title")} />
-      <EmptyState
-        icon={<HistoryIcon />}
-        title={t("common.coming_soon")}
-        description={t("history.body")}
-        action={
-          <a href={`/${locale}/scan`} className={buttonClass()}>
-            {t("home.scan_cta")}
-          </a>
-        }
-      />
-    </main>
-  );
+  return <HistoryView />;
 }

@@ -11,6 +11,8 @@ import { DisclaimerFooter } from "@/components/ui/DisclaimerFooter";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { CameraIcon, ScanIcon } from "@/components/ui/icons";
 import { LoadingState } from "@/components/ui/Skeleton";
+import { LogMealButton } from "@/features/meals/components/LogMealButton";
+import type { LogMealProduct } from "@/features/meals/components/LogMealDialog";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
 import { routing } from "@/i18n/routing";
 import {
@@ -52,6 +54,22 @@ function Analysis({
   const { product } = data;
   const { grade, highIn } = readReport(data.report);
   const offBarcode = product.barcode ?? barcode;
+  // Logging needs exactly one product reference: our id, else the barcode.
+  const logProduct: LogMealProduct | null =
+    product.product_id || offBarcode
+      ? {
+          productId: product.product_id,
+          barcode: product.product_id ? null : offBarcode,
+          name: product.name ?? offBarcode ?? "",
+          servingSizeG: product.serving_size_g,
+        }
+      : null;
+  const members = data.verdicts.map((v) => ({
+    id: v.member_id,
+    name: v.member_name,
+    isPrimary: v.is_primary,
+    relation: v.relation,
+  }));
   return (
     <>
       <Card as="section" className="space-y-4">
@@ -93,7 +111,20 @@ function Analysis({
           </h2>
         ) : null}
         {data.verdicts.map((v) => (
-          <VerdictCard key={v.member_id} verdict={v} />
+          <div
+            key={v.member_id}
+            data-testid="member-result"
+            className="space-y-2"
+          >
+            <VerdictCard verdict={v} />
+            {logProduct ? (
+              <LogMealButton
+                product={logProduct}
+                members={members}
+                memberId={v.member_id}
+              />
+            ) : null}
+          </div>
         ))}
       </section>
 

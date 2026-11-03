@@ -10,6 +10,9 @@ const baseURL = `http://localhost:${port}`;
 
 export default defineConfig({
   testDir: "./e2e",
+  // The stub API keeps one in-memory state (members, meals) for every
+  // signed-in spec, so spec files must not run against it at the same time.
+  workers: 1,
   use: { baseURL },
   webServer: [
     {

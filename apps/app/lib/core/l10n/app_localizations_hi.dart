@@ -216,6 +216,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get claimVerdictUnverifiable => 'लेबल से इसकी जाँच नहीं हो सकती';
 
   @override
+  String get commonCancel => 'रद्द करें';
+
+  @override
+  String get commonClose => 'बंद करें';
+
+  @override
   String get commonComingSoon => 'जल्द आ रहा है';
 
   @override
@@ -748,7 +754,16 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get historyLoggedTitle => 'क्या खाया गया';
+
+  @override
   String get historyMember => 'परिवार का सदस्य';
+
+  @override
+  String get historyNextDay => 'अगला दिन';
+
+  @override
+  String get historyPreviousDay => 'पिछला दिन';
 
   @override
   String get historyRemove => 'हटाएँ';
@@ -892,6 +907,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get mealsLogAmountGrams => 'मात्रा ग्राम में';
 
   @override
+  String mealsLogAmountInvalid(String max) {
+    return '0 से ज़्यादा और $max तक की मात्रा डालें।';
+  }
+
+  @override
   String get mealsLogAmountServings => 'सर्विंग की संख्या';
 
   @override
@@ -910,12 +930,18 @@ class AppLocalizationsHi extends AppLocalizations {
   String get mealsLogNow => 'अभी';
 
   @override
+  String get mealsLogPortion => 'कितना खाया?';
+
+  @override
   String get mealsLogSave => 'सहेजें';
 
   @override
   String mealsLogSaved(String who) {
     return '$who के लिए दर्ज किया गया';
   }
+
+  @override
+  String get mealsLogSavedYou => 'आपके लिए दर्ज किया गया';
 
   @override
   String mealsLogServingSize(String grams) {
@@ -1798,9 +1824,18 @@ class AppLocalizationsHi extends AppLocalizations {
   String get summaryTitleWeek => 'पिछले 7 दिन';
 
   @override
+  String summaryTotalG(String total) {
+    return '$total ग्राम';
+  }
+
+  @override
   String summaryTotalOfLimit(String limit, String total) {
     return '$limit ग्राम में से $total ग्राम';
   }
+
+  @override
+  String get summaryWeekNote =>
+      'हफ़्ते की तुलना हर उस दिन की दैनिक सीमा से की जाती है, जिस दिन कुछ दर्ज किया गया।';
 
   @override
   String verdictConfidenceNote(String reason) {

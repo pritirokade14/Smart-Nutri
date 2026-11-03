@@ -10,7 +10,9 @@
     "coming_soon": "Coming soon",
     "skip_to_content": "Skip to content",
     "not_found_body": "The page you're looking for doesn't exist or has moved.",
-    "error_title": "Something went wrong"
+    "error_title": "Something went wrong",
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "auth": {
     "title": "Sign in",
@@ -510,7 +512,10 @@
     "empty": "Nothing logged yet.",
     "item_amount": "{grams} g",
     "remove": "Remove",
-    "remove_confirm": "Remove this item from the log?"
+    "remove_confirm": "Remove this item from the log?",
+    "previous_day": "Previous day",
+    "next_day": "Next day",
+    "logged_title": "What was eaten"
   },
   "family": {
     "title": "Family",
@@ -541,7 +546,10 @@
       "save": "Save",
       "saved": "Logged for {who}",
       "undo": "Undo",
-      "undone": "Removed from the log"
+      "undone": "Removed from the log",
+      "amount_invalid": "Enter an amount more than 0 and up to {max}.",
+      "saved_you": "Logged for you",
+      "portion": "How much was eaten?"
     },
     "online_only": "On the web, logging needs an internet connection. Items are not saved offline.",
     "queued_offline": "Saved on this phone. It will be added to the log when you are back online.",
@@ -573,7 +581,9 @@
     "nothing_logged": "Nothing logged on this day.",
     "incomplete": "Some logged items do not show this value on the label, so the real total may be higher.",
     "limits_note": "Limits pending clinician review.",
-    "sugar_note": "Labels show total sugars, including natural sugars, so this total may be higher than added sugar alone."
+    "sugar_note": "Labels show total sugars, including natural sugars, so this total may be higher than added sugar alone.",
+    "total_g": "{total} g",
+    "week_note": "The week is compared with the daily limit for each day something was logged."
   },
   "alternatives": {
     "title": "Healthier options",

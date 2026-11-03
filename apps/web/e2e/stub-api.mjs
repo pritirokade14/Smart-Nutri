@@ -51,6 +51,8 @@ let state;
 function reset() {
   state = {
     seq: 0,
+    scans: 0,
+    meals: [],
     consents: Object.fromEntries(PURPOSES.map((p) => [p, null])),
     members: [
       {
@@ -110,7 +112,132 @@ function analyze() {
   return golden;
 }
 
-function route(method, path, b) {
+// ---- Meal logs (e2e/log-and-share.spec.ts) ---------------------------------
+// Snapshots are per_100g x grams / 100 from the golden product (the API's
+// arithmetic, canned). The stub never decides a band: every band is
+// "unknown" and the limits are the week_family fixture's, as served.
+
+const SF = read("responses/analyze/sf_biscuit.json").product;
+const WEEK = read("meals/expected/week_family.dad_diabetic.json");
+const IST_MS = 330 * 60_000;
+const istDate = (iso) =>
+  new Date(new Date(iso).getTime() + IST_MS).toISOString().slice(0, 10);
+const addDays = (d, n) => {
+  const x = new Date(`${d}T00:00:00Z`);
+  x.setUTCDate(x.getUTCDate() + n);
+  return x.toISOString().slice(0, 10);
+};
+const KEYS = ["energy_kcal", "sugars_g", "salt_g", "protein_g"];
+const UNKNOWN_BANDS = {
+  kcal: "unknown",
+  protein_g: "unknown",
+  salt_g: "unknown",
+  sugar_g: "unknown",
+};
+const round1 = (n) => Math.round(n * 10) / 10;
+
+function logMeal(b) {
+  const prior =
+    b.client_id && state.meals.find((m) => m.client_id === b.client_id);
+  if (prior) return [200, prior];
+  if (!state.members.some((m) => m.id === b.member_id))
+    return [404, envelope("member_not_found")];
+  if (b.product_id !== SF.product_id)
+    return [404, envelope("product_not_found")];
+  const grams = b.grams ?? (b.servings ?? 0) * SF.serving_size_g;
+  if (!(grams > 0)) return [422, envelope("portion_required")];
+  const p = SF.per_100g;
+  const snap = (v) => (v == null ? null : round1((v * grams) / 100));
+  state.seq += 1;
+  const meal = {
+    id: `c0000000-0000-4000-8000-${String(state.seq).padStart(12, "0")}`,
+    member_id: b.member_id,
+    product_id: SF.product_id,
+    barcode: null,
+    product_name: SF.name,
+    grade: "D",
+    grams,
+    eaten_at: b.eaten_at ?? new Date().toISOString(),
+    nutrients: {
+      energy_kcal: snap(p.energy_kcal),
+      sugars_g: snap(p.sugars_g),
+      salt_g: snap(p.salt_g),
+      protein_g: snap(p.protein_g),
+      fat_g: snap(p.fat_g),
+      sat_fat_g: snap(p.sat_fat_g),
+      carbs_g: snap(p.carbs_g),
+    },
+    client_id: b.client_id ?? null,
+    attribution: null,
+  };
+  state.meals.push(meal);
+  return [201, meal];
+}
+
+function dayOf(memberId, date) {
+  const meals = state.meals.filter(
+    (m) => m.member_id === memberId && istDate(m.eaten_at) === date,
+  );
+  const totals = Object.fromEntries(
+    KEYS.map((k) => {
+      const known = meals.map((m) => m.nutrients[k]).filter((v) => v != null);
+      return [
+        k,
+        known.length ? round1(known.reduce((a, v) => a + v, 0)) : null,
+      ];
+    }),
+  );
+  const incomplete = Object.fromEntries(
+    KEYS.map((k) => [k, meals.some((m) => m.nutrients[k] == null)]),
+  );
+  return {
+    date,
+    items: meals.length,
+    totals,
+    incomplete,
+    bands: UNKNOWN_BANDS,
+  };
+}
+
+function summary(q) {
+  const memberId = q.get("member_id");
+  if (!state.members.some((m) => m.id === memberId))
+    return [404, envelope("member_not_found")];
+  const end = q.get("date") ?? istDate(new Date().toISOString());
+  const n = q.get("period") === "week" ? 7 : 1;
+  const days = Array.from({ length: n }, (_, i) =>
+    dayOf(memberId, addDays(end, i - n + 1)),
+  );
+  const totals = Object.fromEntries(
+    KEYS.map((k) => {
+      const known = days.map((d) => d.totals[k]).filter((v) => v != null);
+      return [
+        k,
+        known.length ? round1(known.reduce((a, v) => a + v, 0)) : null,
+      ];
+    }),
+  );
+  const incomplete = Object.fromEntries(
+    KEYS.map((k) => [k, days.some((d) => d.incomplete[k])]),
+  );
+  return [
+    200,
+    {
+      member_id: memberId,
+      period: n === 7 ? "week" : "day",
+      start: days[0].date,
+      end,
+      totals,
+      incomplete,
+      limits: WEEK.limits,
+      bands: UNKNOWN_BANDS,
+      days,
+      pending_clinician_review: true,
+    },
+  ];
+}
+
+function route(method, path, b, q = new URLSearchParams()) {
   if (method === "GET" && path === "/v1/consents")
     return [200, consentStates()];
   if (method === "POST" && path === "/v1/consents") {
@@ -154,7 +281,44 @@ function route(method, path, b) {
       return [200, m];
     }
   }
-  if (method === "POST" && path === "/v1/analyze") return [200, analyze()];
+  if (method === "POST" && path === "/v1/analyze") {
+    state.scans += 1;
+    return [200, analyze()];
+  }
+  if (method === "POST" && path === "/v1/meals") return logMeal(b);
+  if (method === "GET" && path === "/v1/meals") {
+    const from = new Date(q.get("from")).getTime();
+    const to = new Date(q.get("to")).getTime();
+    const list = state.meals
+      .filter((m) => m.member_id === q.get("member_id"))
+      .filter((m) => {
+        const t = new Date(m.eaten_at).getTime();
+        return t >= from && t < to;
+      })
+      .sort((x, y) => y.eaten_at.localeCompare(x.eaten_at));
+    return [200, list];
+  }
+  if (method === "GET" && path === "/v1/meals/summary") return summary(q);
+  if (method === "GET" && path === "/v1/meals/week_counts") {
+    const end = q.get("date") ?? istDate(new Date().toISOString());
+    return [
+      200,
+      {
+        start: addDays(end, -6),
+        end,
+        scans: state.scans,
+        logged: state.meals.length,
+      },
+    ];
+  }
+  const meal = path.match(/^\/v1\/meals\/([0-9a-f-]{36})$/);
+  if (meal && method === "DELETE") {
+    const before = state.meals.length;
+    state.meals = state.meals.filter((m) => m.id !== meal[1]);
+    return state.meals.length < before
+      ? [204, undefined]
+      : [404, envelope("meal_not_found")];
+  }
   return [404, envelope("not_found")];
 }
 
@@ -195,6 +359,7 @@ createServer((req, res) => {
           req.method,
           new URL(req.url, "http://x").pathname,
           raw ? JSON.parse(raw) : {},
+          new URL(req.url, "http://x").searchParams,
         )
       : [401, envelope("auth_required")];
     res.writeHead(status, { ...CORS, "content-type": "application/json" });

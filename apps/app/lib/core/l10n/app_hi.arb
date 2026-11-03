@@ -116,6 +116,8 @@
   "claimVerdictContradicted": "लेबल की जानकारी इस दावे से मेल नहीं खाती",
   "claimVerdictSupported": "लेबल की जानकारी इस दावे का समर्थन करती है",
   "claimVerdictUnverifiable": "लेबल से इसकी जाँच नहीं हो सकती",
+  "commonCancel": "रद्द करें",
+  "commonClose": "बंद करें",
   "commonComingSoon": "जल्द आ रहा है",
   "commonDisclaimer": "यह जानकारी है, चिकित्सकीय सलाह नहीं।",
   "commonErrorTitle": "कुछ गड़बड़ हो गई",
@@ -298,7 +300,10 @@
       }
     }
   },
+  "historyLoggedTitle": "क्या खाया गया",
   "historyMember": "परिवार का सदस्य",
+  "historyNextDay": "अगला दिन",
+  "historyPreviousDay": "पिछला दिन",
   "historyRemove": "हटाएँ",
   "historyRemoveConfirm": "इसे लॉग से हटाएँ?",
   "historyThisWeek": "इस हफ़्ते",
@@ -349,12 +354,21 @@
   "languageLabel": "भाषा",
   "languageMr": "मराठी",
   "mealsLogAmountGrams": "मात्रा ग्राम में",
+  "mealsLogAmountInvalid": "0 से ज़्यादा और {max} तक की मात्रा डालें।",
+  "@mealsLogAmountInvalid": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "mealsLogAmountServings": "सर्विंग की संख्या",
   "mealsLogCta": "मैंने यह खाया",
   "mealsLogEatenAt": "कब",
   "mealsLogGrams": "ग्राम",
   "mealsLogMember": "किसने खाया?",
   "mealsLogNow": "अभी",
+  "mealsLogPortion": "कितना खाया?",
   "mealsLogSave": "सहेजें",
   "mealsLogSaved": "{who} के लिए दर्ज किया गया",
   "@mealsLogSaved": {
@@ -364,6 +378,7 @@
       }
     }
   },
+  "mealsLogSavedYou": "आपके लिए दर्ज किया गया",
   "mealsLogServingSize": "1 सर्विंग = {grams} ग्राम",
   "@mealsLogServingSize": {
     "placeholders": {
@@ -991,6 +1006,14 @@
   "summarySugarNote": "लेबल पर कुल शर्करा होती है, जिसमें प्राकृतिक शर्करा भी शामिल है, इसलिए यह कुल केवल अतिरिक्त चीनी से ज़्यादा हो सकता है।",
   "summaryTitleDay": "आज",
   "summaryTitleWeek": "पिछले 7 दिन",
+  "summaryTotalG": "{total} ग्राम",
+  "@summaryTotalG": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "summaryTotalOfLimit": "{limit} ग्राम में से {total} ग्राम",
   "@summaryTotalOfLimit": {
     "placeholders": {
@@ -1002,6 +1025,7 @@
       }
     }
   },
+  "summaryWeekNote": "हफ़्ते की तुलना हर उस दिन की दैनिक सीमा से की जाती है, जिस दिन कुछ दर्ज किया गया।",
   "verdictConfidenceNote": "{reason, select, low_confidence {लेबल पढ़ना कठिन था, इसलिए यह परिणाम कम निश्चित है।} other {कुछ डेटा अनिश्चित है।}}",
   "@verdictConfidenceNote": {
     "placeholders": {

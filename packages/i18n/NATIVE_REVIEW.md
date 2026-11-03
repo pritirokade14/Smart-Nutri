@@ -151,3 +151,8 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 8 Task 5 (phone OTP hook)
 - [ ] **hi/mr `error.phone_otp_disabled`**: machine drafts. Calm "phone sign-in is not available yet, use email or Google"; keep "Google" in Latin script.
+
+## Plan 6 Task 10 (web: log and history)
+- [ ] **hi/mr `common.{cancel,close}`, `history.{previous_day,next_day,logged_title}`, `meals.log.{portion,saved_you}`**: machine drafts. Short button and heading labels; check `meals.log.saved_you` ("आपके लिए दर्ज किया गया" / "तुमच्यासाठी नोंदवले") matches `meals.log.saved`.
+- [ ] **hi/mr `meals.log.amount_invalid`**: machine draft; `{max}` is 200 (servings) or 5000 (grams), passed in Latin numerals.
+- [ ] **hi/mr `summary.total_g`, `summary.week_note`**: machine drafts. Health wording: `week_note` must say the week is compared with the DAILY limit for each day that has something logged (empty days are not counted), and must not read as a weekly allowance.

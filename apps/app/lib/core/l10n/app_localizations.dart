@@ -466,6 +466,18 @@ abstract class AppLocalizations {
   /// **'Can\'t be checked from the label'**
   String get claimVerdictUnverifiable;
 
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
   /// No description provided for @commonComingSoon.
   ///
   /// In en, this message translates to:
@@ -1432,11 +1444,29 @@ abstract class AppLocalizations {
   /// **'{grams} g'**
   String historyItemAmount(String grams);
 
+  /// No description provided for @historyLoggedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What was eaten'**
+  String get historyLoggedTitle;
+
   /// No description provided for @historyMember.
   ///
   /// In en, this message translates to:
   /// **'Family member'**
   String get historyMember;
+
+  /// No description provided for @historyNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get historyNextDay;
+
+  /// No description provided for @historyPreviousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get historyPreviousDay;
 
   /// No description provided for @historyRemove.
   ///
@@ -1696,6 +1726,12 @@ abstract class AppLocalizations {
   /// **'Amount in grams'**
   String get mealsLogAmountGrams;
 
+  /// No description provided for @mealsLogAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount more than 0 and up to {max}.'**
+  String mealsLogAmountInvalid(String max);
+
   /// No description provided for @mealsLogAmountServings.
   ///
   /// In en, this message translates to:
@@ -1732,6 +1768,12 @@ abstract class AppLocalizations {
   /// **'Now'**
   String get mealsLogNow;
 
+  /// No description provided for @mealsLogPortion.
+  ///
+  /// In en, this message translates to:
+  /// **'How much was eaten?'**
+  String get mealsLogPortion;
+
   /// No description provided for @mealsLogSave.
   ///
   /// In en, this message translates to:
@@ -1743,6 +1785,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logged for {who}'**
   String mealsLogSaved(String who);
+
+  /// No description provided for @mealsLogSavedYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged for you'**
+  String get mealsLogSavedYou;
 
   /// No description provided for @mealsLogServingSize.
   ///
@@ -3171,11 +3219,23 @@ abstract class AppLocalizations {
   /// **'Last 7 days'**
   String get summaryTitleWeek;
 
+  /// No description provided for @summaryTotalG.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} g'**
+  String summaryTotalG(String total);
+
   /// No description provided for @summaryTotalOfLimit.
   ///
   /// In en, this message translates to:
   /// **'{total} g of {limit} g'**
   String summaryTotalOfLimit(String limit, String total);
+
+  /// No description provided for @summaryWeekNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The week is compared with the daily limit for each day something was logged.'**
+  String get summaryWeekNote;
 
   /// No description provided for @verdictConfidenceNote.
   ///

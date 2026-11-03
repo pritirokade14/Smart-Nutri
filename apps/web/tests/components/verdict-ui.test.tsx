@@ -143,7 +143,7 @@ describe("verdict tone CSS (globals.css)", () => {
     expect(unknown?.body).not.toMatch(/-ok\b/);
   });
 
-  it("the ok (green) tokens are used only by the ok selector and the dark-mode swap", () => {
+  it("the ok (green) tokens are used only by the ok selectors and the dark-mode swap", () => {
     const usesOk = rules.filter((r) =>
       /var\(--color-(dark-)?verdict-(soft-)?ok\)/.test(r.body),
     );
@@ -151,8 +151,35 @@ describe("verdict tone CSS (globals.css)", () => {
       const darkSwap =
         r.selector === ":root" &&
         /--color-verdict-ok:\s*var\(--color-dark-verdict-ok\)/.test(r.body);
-      expect(r.selector === '[data-verdict="ok"]' || darkSwap).toBe(true);
+      // [data-band="ok"] is the API's "within limit" band (meal summaries).
+      expect(
+        r.selector === '[data-verdict="ok"]' ||
+          r.selector === '[data-band="ok"]' ||
+          darkSwap,
+      ).toBe(true);
     }
+  });
+
+  it("the default band (no or unexpected data-band) is the unknown grey", () => {
+    const base = rules.find((r) => r.selector === "[data-band]");
+    expect(base?.body).toMatch(
+      /--band-color:\s*var\(--color-verdict-unknown\)/,
+    );
+    expect(base?.body).toMatch(
+      /--band-soft:\s*var\(--color-verdict-soft-unknown\)/,
+    );
+    const unknown = rules.find((r) => r.selector === '[data-band="unknown"]');
+    expect(unknown?.body).toMatch(/var\(--color-verdict-unknown\)/);
+    expect(unknown?.body).not.toMatch(/-ok\b/);
+  });
+
+  it("near and over bands use the caution and avoid tokens", () => {
+    const near = rules.find((r) => r.selector === '[data-band="near"]');
+    const over = rules.find((r) => r.selector === '[data-band="over"]');
+    expect(near?.body).toMatch(
+      /--band-color:\s*var\(--color-verdict-caution\)/,
+    );
+    expect(over?.body).toMatch(/--band-color:\s*var\(--color-verdict-avoid\)/);
   });
 
   it("the dark palette swaps unknown to the dark unknown grey", () => {

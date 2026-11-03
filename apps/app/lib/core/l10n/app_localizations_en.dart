@@ -213,6 +213,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimVerdictUnverifiable => 'Can\'t be checked from the label';
 
   @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
   String get commonComingSoon => 'Coming soon';
 
   @override
@@ -742,7 +748,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get historyLoggedTitle => 'What was eaten';
+
+  @override
   String get historyMember => 'Family member';
+
+  @override
+  String get historyNextDay => 'Next day';
+
+  @override
+  String get historyPreviousDay => 'Previous day';
 
   @override
   String get historyRemove => 'Remove';
@@ -887,6 +902,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mealsLogAmountGrams => 'Amount in grams';
 
   @override
+  String mealsLogAmountInvalid(String max) {
+    return 'Enter an amount more than 0 and up to $max.';
+  }
+
+  @override
   String get mealsLogAmountServings => 'Number of servings';
 
   @override
@@ -905,12 +925,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mealsLogNow => 'Now';
 
   @override
+  String get mealsLogPortion => 'How much was eaten?';
+
+  @override
   String get mealsLogSave => 'Save';
 
   @override
   String mealsLogSaved(String who) {
     return 'Logged for $who';
   }
+
+  @override
+  String get mealsLogSavedYou => 'Logged for you';
 
   @override
   String mealsLogServingSize(String grams) {
@@ -1791,9 +1817,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summaryTitleWeek => 'Last 7 days';
 
   @override
+  String summaryTotalG(String total) {
+    return '$total g';
+  }
+
+  @override
   String summaryTotalOfLimit(String limit, String total) {
     return '$total g of $limit g';
   }
+
+  @override
+  String get summaryWeekNote =>
+      'The week is compared with the daily limit for each day something was logged.';
 
   @override
   String verdictConfidenceNote(String reason) {
