@@ -25,6 +25,18 @@ def test_head_is_latest(migrated):
 
 
 
+def test_single_alembic_head():
+    """Plan 9: 0006 and 0007 are chained, so there is exactly one head, 0007."""
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
+    script = ScriptDirectory.from_config(Config("alembic.ini"))
+    assert script.get_heads() == ["0007_plan9_supplement_category"]
+    assert script.get_revision("0007_plan9_supplement_category").down_revision == (
+        "0006_plan9_user_types"
+    )
+
+
 def test_user_types_downgrades_cleanly(migrated):
     """Plan 9 (P9-R1): account_user_types comes and goes with 0006, with forced RLS, its
     owner policy, SELECT-only for users and its check constraints."""
@@ -96,6 +108,7 @@ def test_user_types_check_constraints(migrated):
             )
             conn.rollback()
     finally:
+        engine.dispose()
 
 
 def _insert_product(conn, category: str) -> None:
@@ -118,7 +131,7 @@ def test_supplement_category_downgrades_cleanly(migrated):
         with engine.begin() as conn:
             conn.execute(text("delete from products where name = 'Whey'"))
             _insert_product(conn, "supplement")
-        command.downgrade(migrated, "0005_plan8_tombstone_auth")
+        command.downgrade(migrated, "0006_plan9_user_types")
         with engine.begin() as conn:
             cats = conn.execute(text("select category from products where name = 'Whey'"))
             assert [r[0] for r in cats] == ["general"]

@@ -21,7 +21,7 @@ from collections.abc import Sequence
 from alembic import op
 
 revision: str = "0007_plan9_supplement_category"
-down_revision: str | Sequence[str] | None = "0005_plan8_tombstone_auth"
+down_revision: str | Sequence[str] | None = "0006_plan9_user_types"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
