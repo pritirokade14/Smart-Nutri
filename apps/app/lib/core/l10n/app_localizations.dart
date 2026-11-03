@@ -1000,6 +1000,12 @@ abstract class AppLocalizations {
   /// **'Health data'**
   String get consentHealthDataTitle;
 
+  /// No description provided for @consentNeedsUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated, please review'**
+  String get consentNeedsUpdate;
+
   /// No description provided for @consentNotGranted.
   ///
   /// In en, this message translates to:
@@ -1011,6 +1017,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Needed to save allergies, health conditions, a goal, height or weight.'**
   String get consentRequiredNote;
+
+  /// No description provided for @consentRequiredToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Please review and agree to continue.'**
+  String get consentRequiredToContinue;
+
+  /// No description provided for @consentReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get consentReview;
+
+  /// No description provided for @consentScreenIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Please read and agree to continue using SmartNutri.'**
+  String get consentScreenIntro;
+
+  /// No description provided for @consentScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you continue'**
+  String get consentScreenTitle;
 
   /// No description provided for @consentTermsBody.
   ///
@@ -1024,11 +1054,29 @@ abstract class AppLocalizations {
   /// **'Terms of use'**
   String get consentTermsTitle;
 
+  /// No description provided for @consentUpdateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve updated this text. Please read it and agree again.'**
+  String get consentUpdateNote;
+
+  /// No description provided for @consentUpdatesBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve updated some consent texts. Please review them.'**
+  String get consentUpdatesBanner;
+
   /// No description provided for @consentWithdraw.
   ///
   /// In en, this message translates to:
   /// **'Withdraw consent'**
   String get consentWithdraw;
+
+  /// No description provided for @consentWithdrawTermsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw your agreement to the terms? You won\'t be able to scan or check products until you agree again.'**
+  String get consentWithdrawTermsConfirm;
 
   /// No description provided for @dietEggetarian.
   ///
@@ -2451,6 +2499,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not enough label data to calculate a Nutri-Score.'**
   String get nutriscoreInsufficientData;
+
+  /// No description provided for @policyOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the page. Please try again.'**
+  String get policyOpenFailed;
+
+  /// No description provided for @policyPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get policyPrivacy;
+
+  /// No description provided for @policyTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get policyTerms;
 
   /// No description provided for @productClaimsHeading.
   ///

@@ -41,7 +41,7 @@ class _FakeApi implements SmartNutriApiClient {
   @override
   final MembersClient members = FakeMembersClient();
   @override
-  final ConsentsClient consents = FakeConsentsClient();
+  final ConsentsClient consents = FakeConsentsClient(granted: {'terms'});
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }

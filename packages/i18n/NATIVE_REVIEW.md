@@ -160,3 +160,5 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 ## Plan 6 Task 11 (web: alternatives, search, compare, share)
 - [ ] **hi/mr `share.result.product_only`, `share.result.product_only_ungraded`**: machine drafts, used when the user leaves every member out of a share. They must match `share.result.text` / `share.result.ungraded` exactly, minus the `{members}` sentence (same "calculated by SmartNutri" wording and end punctuation).
 - [ ] **hi/mr `share.include`, `share.preview`, `search.hint`**: machine drafts; short labels.
+## Plan 8 Task 1 (Android: terms screen and consent routing)
+- [ ] **hi/mr `consent.{screen_title,screen_intro,update_note,needs_update,required_to_continue,updates_banner,review,withdraw_terms_confirm}`, `common.cancel`, `policy.{privacy,terms,open_failed}`**: machine drafts. `required_to_continue` replaces the health-data text when a scan or check is refused for a missing consent; it must stay neutral ("please review and agree"). `withdraw_terms_confirm` must say plainly that scanning stops until the user agrees again, without pressure.

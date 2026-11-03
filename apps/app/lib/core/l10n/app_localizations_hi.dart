@@ -493,11 +493,28 @@ class AppLocalizationsHi extends AppLocalizations {
   String get consentHealthDataTitle => 'स्वास्थ्य डेटा';
 
   @override
+  String get consentNeedsUpdate => 'अपडेट हुआ, कृपया देखें';
+
+  @override
   String get consentNotGranted => 'सहमति नहीं दी गई';
 
   @override
   String get consentRequiredNote =>
       'एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए ज़रूरी है।';
+
+  @override
+  String get consentRequiredToContinue =>
+      'आगे बढ़ने के लिए कृपया देखें और सहमति दें।';
+
+  @override
+  String get consentReview => 'देखें';
+
+  @override
+  String get consentScreenIntro =>
+      'SmartNutri का उपयोग जारी रखने के लिए कृपया पढ़ें और सहमति दें।';
+
+  @override
+  String get consentScreenTitle => 'आगे बढ़ने से पहले';
 
   @override
   String get consentTermsBody =>
@@ -507,7 +524,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get consentTermsTitle => 'उपयोग की शर्तें';
 
   @override
+  String get consentUpdateNote =>
+      'हमने यह जानकारी अपडेट की है। कृपया इसे पढ़ें और फिर से सहमति दें।';
+
+  @override
+  String get consentUpdatesBanner =>
+      'हमने कुछ सहमति की जानकारी अपडेट की है। कृपया उन्हें देखें।';
+
+  @override
   String get consentWithdraw => 'सहमति वापस लें';
+
+  @override
+  String get consentWithdrawTermsConfirm =>
+      'क्या आप शर्तों से अपनी सहमति वापस लेना चाहते हैं? फिर से सहमति देने तक आप उत्पाद स्कैन या जाँच नहीं कर पाएँगे।';
 
   @override
   String get dietEggetarian => 'अंडाहारी (अंडा खाने वाला शाकाहारी)';
@@ -1321,6 +1350,15 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get nutriscoreInsufficientData =>
       'Nutri-Score की गणना के लिए लेबल पर पर्याप्त जानकारी नहीं है।';
+
+  @override
+  String get policyOpenFailed => 'पेज नहीं खुल सका। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get policyPrivacy => 'गोपनीयता नीति';
+
+  @override
+  String get policyTerms => 'उपयोग की शर्तें';
 
   @override
   String get productClaimsHeading =>

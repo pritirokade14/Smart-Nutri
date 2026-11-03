@@ -13,11 +13,8 @@ class AppConfig {
     required this.posthogKey,
     required this.featurePhoneOtp,
     this.featureEmailOtp = false,
-    this.siteUrl = defaultSiteUrl,
+    this.siteUrl = '',
   });
-
-  /// The public web app, used in share links.
-  static const defaultSiteUrl = 'https://smartnutri.app';
 
   const AppConfig.fromEnvironment()
     : environment = const String.fromEnvironment(
@@ -37,10 +34,7 @@ class AppConfig {
         'FEATURE_EMAIL_OTP',
         defaultValue: false,
       ),
-      siteUrl = const String.fromEnvironment(
-        'SITE_URL',
-        defaultValue: defaultSiteUrl,
-      );
+      siteUrl = const String.fromEnvironment('SITE_URL');
 
   final String environment;
   final String apiBaseUrl;
@@ -52,8 +46,18 @@ class AppConfig {
   final bool featurePhoneOtp;
   final bool featureEmailOtp;
 
-  /// Public web origin for share links (`SITE_URL`, optional).
+  /// The public web app origin (e.g. `https://smartnutri.in`), for the
+  /// privacy policy and terms pages. Empty hides those links.
   final String siteUrl;
+
+  /// The localized privacy policy or terms page on the web app
+  /// (`<SITE_URL>/<locale>/privacy|terms`), or null without [siteUrl].
+  Uri? policyUri(String page, String locale) {
+    final base = siteUrl.trim();
+    if (base.isEmpty) return null;
+    final root = base.endsWith('/') ? base.substring(0, base.length - 1) : base;
+    return Uri.tryParse('$root/$locale/$page');
+  }
 
   /// Names of required keys that are empty.
   List<String> missingRequired() => [

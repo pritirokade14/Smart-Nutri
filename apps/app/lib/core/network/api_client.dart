@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/consent/data/consent_required_interceptor.dart';
+import '../../features/consent/domain/consent_error.dart';
+import '../../features/consent/presentation/consent_providers.dart';
 import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import 'auth_interceptor.dart';
@@ -12,8 +15,17 @@ import 'auth_interceptor.dart';
 final apiClientProvider = Provider<SmartNutriApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
   final auth = ref.watch(authRepositoryProvider);
+  // Rebuilt on every sign-in and sign-out, which drops every account-scoped
+  // provider's cached data (members, consents, results) with it.
+  ref.watch(signedInProvider);
   final dio = Dio(BaseOptions(baseUrl: config.apiBaseUrl))
-    ..interceptors.add(AuthInterceptor(auth.accessToken, auth.signOut));
+    ..interceptors.add(AuthInterceptor(auth.accessToken, auth.signOut))
+    ..interceptors.add(
+      ConsentRequiredInterceptor(
+        (purposes) =>
+            ref.read(consentRequestProvider.notifier).request(purposes),
+      ),
+    );
   return SmartNutriApiClient(dio);
 });
 
@@ -42,7 +54,17 @@ String? apiErrorCode(Object error) {
 /// Maps an API error to an `error.<code>` string. Unknown codes fall back to
 /// `error.internal_error`.
 String localizedApiError(AppLocalizations l10n, Object error) =>
-    localizedErrorCode(l10n, apiErrorCode(error));
+    isRouteConsentError(error)
+    ? l10n.consentRequiredToContinue
+    : localizedErrorCode(l10n, apiErrorCode(error));
+
+/// For screens whose calls sit behind the route consent gate (scans, product
+/// create, voice): `consent_required` there means "agree to continue", and
+/// the consent screen is already open. Other codes as [localizedErrorCode].
+String localizedGatedErrorCode(AppLocalizations l10n, String? code) =>
+    code == 'consent_required'
+    ? l10n.consentRequiredToContinue
+    : localizedErrorCode(l10n, code);
 
 /// The `error.<code>` string for an API error code (or `network`). Unknown
 /// codes fall back to `error.internal_error`.

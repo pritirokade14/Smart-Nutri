@@ -99,16 +99,17 @@ void main() {
 
   testWidgets('Profile shows consents and withdraws or grants them', (t) async {
     final l = l10nFor('en');
-    final consents = FakeConsentsClient(granted: {'health_data'});
+    final consents = FakeConsentsClient(granted: {'terms', 'health_data'});
     await pumpMembers(
       t,
       const Scaffold(body: SingleChildScrollView(child: ConsentsSection())),
       members: FakeMembersClient(),
       consents: consents,
     );
+    expect(find.text(l.consentTermsTitle), findsOneWidget);
     expect(find.text(l.consentHealthDataTitle), findsOneWidget);
     expect(find.text(l.consentAiProcessingTitle), findsOneWidget);
-    expect(find.text(l.consentGranted), findsOneWidget);
+    expect(find.text(l.consentGranted), findsNWidgets(2));
     expect(find.text(l.consentNotGranted), findsOneWidget);
 
     await t.tap(find.byKey(ConsentsSection.actionKey('health_data')));
@@ -119,7 +120,7 @@ void main() {
       [for (final r in consents.recorded) (r.purpose.json, r.granted)],
       [('health_data', false), ('ai_processing', true)],
     );
-    expect(find.text(l.consentGranted), findsOneWidget);
-    expect(find.text(l.consentWithdraw), findsOneWidget);
+    expect(find.text(l.consentGranted), findsNWidgets(2));
+    expect(find.text(l.consentWithdraw), findsNWidgets(2));
   });
 }

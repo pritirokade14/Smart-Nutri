@@ -51,7 +51,7 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
   static String _failureText(AppLocalizations l10n, String code) =>
       code == cameraPermissionDenied
       ? l10n.labelCameraPermissionDenied
-      : localizedErrorCode(l10n, code);
+      : localizedGatedErrorCode(l10n, code);
 
   @override
   Widget build(BuildContext context) {

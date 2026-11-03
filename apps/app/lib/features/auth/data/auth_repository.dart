@@ -106,3 +106,21 @@ class SupabaseAuthRepository implements AuthRepository {
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => SupabaseAuthRepository(ref.watch(appConfigProvider)),
 );
+
+/// Whether a session exists, updated on every sign-in and sign-out. The API
+/// client watches it, so every account-scoped provider (members, consents,
+/// results, ...) is rebuilt and its cached data dropped when the account
+/// changes or signs out.
+class SignedInNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    final auth = ref.watch(authRepositoryProvider);
+    final sub = auth.authStateChanges().listen((v) => state = v);
+    ref.onDispose(sub.cancel);
+    return auth.isSignedIn;
+  }
+}
+
+final signedInProvider = NotifierProvider<SignedInNotifier, bool>(
+  SignedInNotifier.new,
+);

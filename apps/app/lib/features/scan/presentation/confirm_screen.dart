@@ -174,7 +174,7 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: SnTokens.space2),
               child: InlineErrorBanner(
-                message: localizedErrorCode(l10n, failure.code),
+                message: localizedGatedErrorCode(l10n, failure.code),
                 action: failure.code == 'product_exists'
                     ? switch (failure.productId) {
                         final id? => TextButton(

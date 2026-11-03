@@ -44,7 +44,9 @@ final membersProvider = AsyncNotifierProvider<MembersNotifier, List<MemberOut>>(
   retry: (_, _) => null,
 );
 
-/// Consent purposes the app shows (terms is handled at sign-up).
+/// Consent purposes. Terms is asked for after the first sign-in (the terms
+/// screen) and again whenever its version changes.
+const consentPurposeTerms = 'terms';
 const consentPurposeHealthData = 'health_data';
 const consentPurposeAiProcessing = 'ai_processing';
 

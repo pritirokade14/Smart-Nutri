@@ -489,11 +489,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentHealthDataTitle => 'Health data';
 
   @override
+  String get consentNeedsUpdate => 'Updated, please review';
+
+  @override
   String get consentNotGranted => 'Not agreed';
 
   @override
   String get consentRequiredNote =>
       'Needed to save allergies, health conditions, a goal, height or weight.';
+
+  @override
+  String get consentRequiredToContinue =>
+      'Please review and agree to continue.';
+
+  @override
+  String get consentReview => 'Review';
+
+  @override
+  String get consentScreenIntro =>
+      'Please read and agree to continue using SmartNutri.';
+
+  @override
+  String get consentScreenTitle => 'Before you continue';
 
   @override
   String get consentTermsBody =>
@@ -503,7 +520,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentTermsTitle => 'Terms of use';
 
   @override
+  String get consentUpdateNote =>
+      'We\'ve updated this text. Please read it and agree again.';
+
+  @override
+  String get consentUpdatesBanner =>
+      'We\'ve updated some consent texts. Please review them.';
+
+  @override
   String get consentWithdraw => 'Withdraw consent';
+
+  @override
+  String get consentWithdrawTermsConfirm =>
+      'Withdraw your agreement to the terms? You won\'t be able to scan or check products until you agree again.';
 
   @override
   String get dietEggetarian => 'Eggetarian';
@@ -1315,6 +1344,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get nutriscoreInsufficientData =>
       'Not enough label data to calculate a Nutri-Score.';
+
+  @override
+  String get policyOpenFailed => 'Couldn\'t open the page. Please try again.';
+
+  @override
+  String get policyPrivacy => 'Privacy policy';
+
+  @override
+  String get policyTerms => 'Terms of use';
 
   @override
   String get productClaimsHeading =>

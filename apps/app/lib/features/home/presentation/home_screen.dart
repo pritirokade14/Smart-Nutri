@@ -11,6 +11,8 @@ import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/disclaimer_footer.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/states.dart';
+import '../../consent/presentation/consent_providers.dart';
+import '../../members/presentation/members_providers.dart';
 
 final meProvider = FutureProvider.autoDispose<MeOut>(
   (ref) => ref.watch(apiClientProvider).me.meGet(),
@@ -72,6 +74,7 @@ class HomeScreen extends ConsumerWidget {
                   );
                 },
               ),
+              const _ConsentUpdatesBanner(),
               const SizedBox(height: SnTokens.space5),
               _ActionCard(
                 icon: Icons.qr_code_scanner_rounded,
@@ -104,6 +107,50 @@ class HomeScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Asks the user to agree again to consents whose text changed
+/// (`needs_update`). Terms has its own screen.
+class _ConsentUpdatesBanner extends ConsumerWidget {
+  const _ConsentUpdatesBanner();
+
+  static const reviewKey = Key('home-consent-review');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final updates = consentsNeedingUpdate(
+      ref.watch(consentStateProvider).value,
+    );
+    if (updates.isEmpty) return const SizedBox.shrink();
+    final c = SnColors.of(context);
+    return Container(
+      margin: const EdgeInsets.only(top: SnTokens.space4),
+      padding: const EdgeInsets.all(SnTokens.space3),
+      decoration: BoxDecoration(
+        color: c.muted,
+        borderRadius: BorderRadius.circular(SnTokens.radiusMd),
+        border: Border.all(color: c.border),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.shield_outlined, color: c.brand),
+          const SizedBox(width: SnTokens.space2),
+          Expanded(child: Text(l10n.consentUpdatesBanner)),
+          TextButton(
+            key: reviewKey,
+            onPressed: () => context.push(
+              Uri(
+                path: '/consent',
+                queryParameters: {'purposes': updates.join(',')},
+              ).toString(),
+            ),
+            child: Text(l10n.consentReview),
+          ),
+        ],
       ),
     );
   }

@@ -9,11 +9,14 @@ import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/presentation/email_otp_screen.dart';
 import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
+import '../../features/consent/presentation/consent_providers.dart';
+import '../../features/consent/presentation/consent_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/meals/presentation/meals_providers.dart';
 import '../../features/members/presentation/member_form_screen.dart';
 import '../../features/members/presentation/members_list_screen.dart';
+import '../../features/members/presentation/members_providers.dart';
 import '../../features/product/presentation/compare_screen.dart';
 import '../../features/product/presentation/discovery_routes.dart';
 import '../../features/product/presentation/search_screen.dart';
@@ -30,6 +33,9 @@ class _AuthRefresh extends ChangeNotifier {
   }
   late final StreamSubscription<bool> _sub;
 
+  /// Re-runs the redirect (e.g. when the terms status changes).
+  void ping() => notifyListeners();
+
   @override
   void dispose() {
     _sub.cancel();
@@ -42,14 +48,23 @@ final routerProvider = Provider<GoRouter>((ref) {
   final config = ref.watch(appConfigProvider);
   final refresh = _AuthRefresh(auth.authStateChanges());
   ref.onDispose(refresh.dispose);
+  ref.listen(termsStatusProvider, (_, _) => refresh.ping());
 
   final router = GoRouter(
     initialLocation: '/home',
     refreshListenable: refresh,
     redirect: (context, state) {
-      final onSignIn = state.matchedLocation.startsWith('/sign-in');
+      final location = state.matchedLocation;
+      final onSignIn = location.startsWith('/sign-in');
       if (!auth.isSignedIn) return onSignIn ? null : '/sign-in';
-      if (onSignIn) return '/home';
+      // F11: nothing else until the current terms are agreed (ruling G1:
+      // every product route needs `terms`). While the states load, or if
+      // they fail to, the app goes on; a 403 brings the user back here.
+      final onTerms = location == '/terms';
+      if (ref.read(termsStatusProvider) == TermsStatus.required) {
+        return onTerms ? null : '/terms';
+      }
+      if (onSignIn || onTerms) return '/home';
       return null;
     },
     routes: [
@@ -111,6 +126,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(
+        path: '/terms',
+        builder: (_, _) =>
+            ConsentScreen(purposes: const [consentPurposeTerms], gate: true),
+      ),
+      GoRoute(
+        path: '/consent',
+        builder: (_, state) => ConsentScreen(
+          purposes: ConsentScreen.parsePurposes(
+            state.uri.queryParameters['purposes'],
+          ),
+        ),
+      ),
       GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
       GoRoute(
         path: '/scan/label',
@@ -149,5 +177,23 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
   ref.onDispose(router.dispose);
+
+  // A 403 `consent_required` from any gated call: reload the states (the
+  // terms screen follows if terms is missing) and open the consent screen
+  // for the other purposes.
+  ref.listen(consentRequestProvider, (_, purposes) {
+    if (purposes == null) return;
+    ref.read(consentRequestProvider.notifier).clear();
+    ref.invalidate(consentStateProvider);
+    if (purposes.contains(consentPurposeTerms)) return;
+    final path = router.routerDelegate.currentConfiguration.uri.path;
+    if (path == '/consent' || path == '/terms') return;
+    router.push(
+      Uri(
+        path: '/consent',
+        queryParameters: {'purposes': purposes.join(',')},
+      ).toString(),
+    );
+  });
   return router;
 });

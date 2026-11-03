@@ -456,7 +456,15 @@
     "granted": "Agreed",
     "not_granted": "Not agreed",
     "ai_optional": "Optional. Without it you still get every result, just no AI explanation.",
-    "required_note": "Needed to save allergies, health conditions, a goal, height or weight."
+    "required_note": "Needed to save allergies, health conditions, a goal, height or weight.",
+    "screen_title": "Before you continue",
+    "screen_intro": "Please read and agree to continue using SmartNutri.",
+    "update_note": "We've updated this text. Please read it and agree again.",
+    "needs_update": "Updated, please review",
+    "required_to_continue": "Please review and agree to continue.",
+    "updates_banner": "We've updated some consent texts. Please review them.",
+    "review": "Review",
+    "withdraw_terms_confirm": "Withdraw your agreement to the terms? You won't be able to scan or check products until you agree again."
   },
   "explanation": {
     "title": "Why this result",
@@ -736,5 +744,10 @@
     "note_label": "Tell us more (optional)",
     "submit": "Send report",
     "thanks": "Thanks. We'll review this product's data."
+  },
+  "policy": {
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "open_failed": "Couldn't open the page. Please try again."
   }
 }

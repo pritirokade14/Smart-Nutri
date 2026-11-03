@@ -127,13 +127,19 @@ class FakeConsentsClient implements ConsentsClient {
   FakeConsentsClient({
     Set<String> granted = const {},
     this.withdrawn = const {},
-  }) : granted = {...granted};
+    Set<String> needsUpdate = const {},
+  }) : granted = {...granted},
+       needsUpdate = {...needsUpdate};
 
   final Set<String> granted;
 
   /// Purposes agreed once and since withdrawn (version set, not granted).
   final Set<String> withdrawn;
+
+  /// Purposes agreed at an older version: not granted, `needs_update`.
+  final Set<String> needsUpdate;
   final recorded = <ConsentIn>[];
+  int listCalls = 0;
 
   List<ConsentState> _states() => [
     for (final MapEntry(key: purpose, value: version)
@@ -141,22 +147,28 @@ class FakeConsentsClient implements ConsentsClient {
       ConsentState(
         purpose: purpose,
         granted: granted.contains(purpose),
-        version: granted.contains(purpose) || withdrawn.contains(purpose)
+        version: needsUpdate.contains(purpose)
+            ? '2025-01-01'
+            : granted.contains(purpose) || withdrawn.contains(purpose)
             ? version
             : null,
         currentVersion: version,
-        needsUpdate: false,
+        needsUpdate: needsUpdate.contains(purpose),
       ),
   ];
 
   @override
-  Future<List<ConsentState>> consentsList() async => _states();
+  Future<List<ConsentState>> consentsList() async {
+    listCalls++;
+    return _states();
+  }
 
   @override
   Future<List<ConsentState>> consentsRecord({required ConsentIn body}) async {
     recorded.add(body);
     final purpose = body.purpose.json!;
     body.granted ? granted.add(purpose) : granted.remove(purpose);
+    needsUpdate.remove(purpose);
     return _states();
   }
 }

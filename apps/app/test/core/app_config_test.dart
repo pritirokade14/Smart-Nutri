@@ -15,4 +15,33 @@ void main() {
     );
     expect(c.missingRequired(), ['API_BASE_URL', 'SUPABASE_PUBLISHABLE_KEY']);
   });
+
+  test('policyUri builds the localized web page, or null without SITE_URL', () {
+    const base = AppConfig(
+      environment: 'dev',
+      apiBaseUrl: 'a',
+      supabaseUrl: 'x',
+      supabasePublishableKey: 'k',
+      googleWebClientId: '',
+      sentryDsn: '',
+      posthogKey: '',
+      featurePhoneOtp: false,
+    );
+    expect(base.policyUri('privacy', 'en'), isNull);
+    const site = AppConfig(
+      environment: 'dev',
+      apiBaseUrl: 'a',
+      supabaseUrl: 'x',
+      supabasePublishableKey: 'k',
+      googleWebClientId: '',
+      sentryDsn: '',
+      posthogKey: '',
+      featurePhoneOtp: false,
+      siteUrl: 'https://smartnutri.in/',
+    );
+    expect(
+      site.policyUri('terms', 'hi').toString(),
+      'https://smartnutri.in/hi/terms',
+    );
+  });
 }
