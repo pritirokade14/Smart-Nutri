@@ -146,7 +146,11 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
      - Fork pull request workflows: **Require approval for all outside collaborators**.
    - `.github/CODEOWNERS` already covers `.github/workflows/**` and `scripts/**`.
    - Note: the `pull_request` triggers of `api.yml`, `app.yml`, `web.yml`, `packages.yml` and `security.yml` have no `paths` filter (R35), so every required check always runs on PRs to `main`. Only `push` runs are path-filtered. Do not add a `paths` filter to a `pull_request` trigger: a required check that never runs blocks the PR.
-1. `bash scripts/push-secrets.sh` : copies the three dev secrets from `apps/api/.env` into Secret Manager.
+1. `bash scripts/push-secrets.sh dev`: copies the dev secrets from `apps/api/.env` into Secret Manager.
+   - Secrets are named `<var-lowercase-dashes>-dev`.
+   - Empty variables are skipped.
+   - `prod` reads `apps/api/.env.production`.
+   - `--dry-run` prints the names only.
 2. `bash scripts/setup-github-deploy.sh` (or `just setup-github-deploy`) : creates the service accounts, placeholder Cloud Run services with service-level roles, and the WIF pool and provider. Safe to re-run.
 3. GitHub repo → Settings → Secrets and variables → Actions → **Variables** → New repository variable `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the **public** publishable key). Optional variables: `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`.
 4. `just db-migrate` with `apps/api/.env` pointing at the dev database (applies Alembic migrations; the URL is read by the app and never printed).
