@@ -1,0 +1,48 @@
+{
+  "allergen_statement": null,
+  "brand": "Acme Foods",
+  "category": "beverage",
+  "claims": [],
+  "confidence": 0.9,
+  "confirm": {
+    "basis_required": false,
+    "category_required": true,
+    "columns": {
+      "per_100g": {
+        "confirm_fields": [],
+        "printed": true,
+        "shared": false,
+        "sodium_unit_required": false
+      },
+      "per_serving": null
+    }
+  },
+  "derived_from_serving": false,
+  "engine_withheld": [],
+  "ingredients": [
+    "water",
+    "sugar",
+    "lemon juice"
+  ],
+  "may_contain_statement": null,
+  "name": "Lemon Drink",
+  "per_100g": {
+    "added_sugars_g": null,
+    "carbs_g": 10.6,
+    "energy_kcal": 44.0,
+    "fat_g": 0.0,
+    "fiber_g": null,
+    "protein_g": 0.0,
+    "salt_g": null,
+    "sat_fat_g": null,
+    "sodium_mg": 10.0,
+    "sugars_g": 10.6,
+    "trans_fat_g": null
+  },
+  "per_serving": null,
+  "serving_size_g": null,
+  "veg_mark": "veg",
+  "warnings": [
+    "category_check"
+  ]
+}

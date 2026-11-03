@@ -45,7 +45,11 @@ Listed in `ENGINE_FIELDS` order, without duplicates:
 - `protein_g` / `fiber_g` printed as "<X" on the column used (an upper bound is never
   evidence for a positive reason such as good_protein_density);
 - `sodium_mg`, when `unit_unconfirmed` (sodium printed without a unit on the column used).
-`positive_suppressed` is a DEPRECATED alias: `engine_withheld` restricted to protein/fibre.
+
+`confirm` (ruling R21): what the confirm screen must ask (basis, category, ticks, sodium unit)
+per offered basis. Computed from the draft's own fields by
+`app.features.products.confirm_rules.confirm_hints`, the same helpers that enforce the save,
+every time a draft is built or loaded (a stored or posted `confirm` is ignored).
 
 Warning codes, always in this order:
   implausible_value:<field>   draft fields outside the engine's bounds: engine nutrient
@@ -79,8 +83,14 @@ import math
 from collections.abc import Mapping
 from typing import Literal, get_args
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.features.products.confirm_rules import (
+    UPPER_BOUND_FIELDS,
+    DraftConfirm,
+    confirm_hints,
+    placeholder_confirm,
+)
 from app.features.products.schemas import NutrientsOut
 from app.features.scans.schemas import NUTRIENT_FIELDS, NutrientsIn, NutritionExtraction
 from app.scoring import Nutrients, Product, load_config
@@ -100,7 +110,6 @@ __all__ = [
 
 _CategoryName = Literal["general", "beverage", "water", "cheese", "fat"]
 _CATEGORIES: tuple[_CategoryName, ...] = ("general", "beverage", "water", "cheese", "fat")
-_Suppressible = Literal["protein_g", "fiber_g"]
 # The draft fields the engine reads (`Nutrients` fields that the draft has), in engine
 # order. A test keeps this equal to the engine's own field list.
 EngineField = Literal[
@@ -156,17 +165,17 @@ class ProductDraft(BaseModel):
     # Shown, but the engine must not see them until the user confirms them on the confirm
     # screen (save: ProductCreate.confirmed_fields, ruling R14). ENGINE_FIELDS order.
     engine_withheld: list[EngineField]
-    # DEPRECATED alias of `engine_withheld` restricted to protein_g/fiber_g. Kept so
-    # existing callers don't break; either list withholds a field from the engine.
-    positive_suppressed: list[_Suppressible]
     warnings: list[str]  # codes, some as "<code>:<field or path>"
+    # R21: what the confirm screen must ask. Always recomputed from the fields above by
+    # the validator (the save path's own helpers), so it is never stale or client-supplied.
+    confirm: DraftConfirm = Field(default_factory=placeholder_confirm)
 
     @model_validator(mode="after")
-    def _withheld_consistent(self) -> ProductDraft:
-        """Union of both lists, deduplicated, in engine order; the alias is its restriction."""
-        withheld = set(self.engine_withheld) | set(self.positive_suppressed)
+    def _derive(self) -> ProductDraft:
+        """`engine_withheld` deduplicated in engine order; `confirm` computed from the draft."""
+        withheld = set(self.engine_withheld)
         self.engine_withheld = [f for f in ENGINE_FIELDS if f in withheld]
-        self.positive_suppressed = [f for f in _SUPPRESSIBLE if f in withheld]
+        self.confirm = confirm_hints(self)
         return self
 
 
@@ -179,7 +188,6 @@ SALT_MISMATCH_RATIO = 0.2
 # the engine's min_extraction_confidence (a test keeps it below), so allergens are unknown.
 UNREADABLE_ALLERGEN_CONFIDENCE_CAP = 0.69
 _ALLERGEN_PATHS = frozenset({"ingredients", "allergen_statement", "may_contain_statement"})
-_SUPPRESSIBLE: tuple[_Suppressible, ...] = ("protein_g", "fiber_g")
 _Column = Literal["per_100g", "per_serving"]
 
 # Display-only fields: (field, the engine field it is part of).
@@ -397,7 +405,7 @@ def _engine_withheld(
     withheld: set[str] = set()
     bounds = set(e.upper_bound_fields)
     # An upper-bound protein/fibre on the column used is never evidence for a positive reason.
-    withheld |= {f for f in _SUPPRESSIBLE if f"{path}.{f}" in bounds and values[f] is not None}
+    withheld |= {f for f in UPPER_BOUND_FIELDS if f"{path}.{f}" in bounds and values[f] is not None}
     if _sodium_unit_unconfirmed(source):
         withheld.add("sodium_mg")
     return [f for f in ENGINE_FIELDS if f in withheld]
@@ -416,11 +424,10 @@ def _path_warnings(code: str, paths: list[str]) -> list[str]:
 def engine_nutrients(draft: ProductDraft) -> Nutrients:
     """The engine-facing per-100 g values of a draft.
 
-    Fields in `engine_withheld` (or its deprecated alias `positive_suppressed`) are passed
-    as None: the engine must not see them until the user confirms them. Display-only
+    Fields in `engine_withheld` are passed as None: the engine must not see them until the user confirms them. Display-only
     fields (added sugars, trans fat) are not passed.
     """
-    withheld = set(draft.engine_withheld) | set(draft.positive_suppressed)
+    withheld = set(draft.engine_withheld)
     return Nutrients(
         **{f: None if f in withheld else getattr(draft.per_100g, f) for f in ENGINE_FIELDS}
     )
@@ -487,6 +494,5 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
         confidence=confidence,
         derived_from_serving=derived,
         engine_withheld=withheld,
-        positive_suppressed=[f for f in _SUPPRESSIBLE if f in withheld],
         warnings=warnings,
     )

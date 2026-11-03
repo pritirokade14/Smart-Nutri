@@ -53,8 +53,22 @@ Map<String, Object?> baseDraftJson() => {
   'confidence': 0.92,
   'derived_from_serving': false,
   'engine_withheld': <String>[],
-  'positive_suppressed': <String>[],
   'warnings': <String>[],
+  // Required by the contract since R21. Placeholder for a clean draft; the confirm UI
+  // does not read it yet (round B switches these tests to packages/test-fixtures/drafts).
+  'confirm': <String, Object?>{
+    'basis_required': false,
+    'category_required': false,
+    'columns': <String, Object?>{
+      'per_100g': <String, Object?>{
+        'printed': true,
+        'shared': false,
+        'confirm_fields': <String>[],
+        'sodium_unit_required': false,
+      },
+      'per_serving': null,
+    },
+  },
 };
 
 ProductDraft draftFrom(Map<String, Object?> json) =>
@@ -84,7 +98,6 @@ ProductDraft withheldProteinDraft() {
   final j = baseDraftJson();
   (j['per_100g']! as Map<String, Object?>)['protein_g'] = 0.5;
   j['engine_withheld'] = ['protein_g'];
-  j['positive_suppressed'] = ['protein_g'];
   j['warnings'] = ['upper_bound:per_100g.protein_g'];
   return draftFrom(j);
 }

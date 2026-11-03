@@ -49,6 +49,11 @@ def ex(**kw) -> NutritionExtraction:
     return NutritionExtraction(**(data | kw))
 
 
+def upper_withheld(d: ProductDraft) -> list[str]:
+    """The protein/fibre part of `engine_withheld` (an upper bound is never evidence)."""
+    return [f for f in d.engine_withheld if f in ("protein_g", "fiber_g")]
+
+
 def ex_raw(**kw) -> NutritionExtraction:
     """`ex()` then unvalidated overrides (values the schema would reject)."""
     return ex().model_copy(update=kw)
@@ -535,10 +540,10 @@ def test_upper_bound_value_kept_and_flagged():
     )
     assert d.per_100g.sugars_g == 0.5 and d.per_100g.trans_fat_g == 0.2
     assert d.warnings == ["upper_bound:per_100g.sugars_g", "upper_bound:per_100g.trans_fat_g"]
-    assert d.positive_suppressed == []
+    assert upper_withheld(d) == []
 
 
-def test_upper_bound_protein_and_fibre_are_positive_suppressed():
+def test_upper_bound_protein_and_fibre_are_withheld():
     d = to_draft(
         ex(
             per_100g=n(protein_g=0.1, fiber_g=0.5, sugars_g=3),
@@ -547,7 +552,7 @@ def test_upper_bound_protein_and_fibre_are_positive_suppressed():
     )
     # Shown to the user as printed ...
     assert d.per_100g.protein_g == 0.1 and d.per_100g.fiber_g == 0.5
-    assert d.positive_suppressed == ["protein_g", "fiber_g"]
+    assert upper_withheld(d) == ["protein_g", "fiber_g"]
     assert d.engine_withheld == ["protein_g", "fiber_g"]
     assert d.warnings == ["upper_bound:per_100g.fiber_g", "upper_bound:per_100g.protein_g"]
     # ... but never reach the engine as evidence.
@@ -557,7 +562,7 @@ def test_upper_bound_protein_and_fibre_are_positive_suppressed():
 
 def test_exact_protein_is_not_suppressed():
     d = to_draft(ex(per_100g=n(protein_g=12), upper_bound_fields=["per_100g.sugars_g"]))
-    assert d.positive_suppressed == [] and engine_nutrients(d).protein_g == 12
+    assert upper_withheld(d) == [] and engine_nutrients(d).protein_g == 12
 
 
 def test_upper_bound_on_unused_column_does_not_suppress():
@@ -569,7 +574,7 @@ def test_upper_bound_on_unused_column_does_not_suppress():
             upper_bound_fields=["per_serving.protein_g"],
         )
     )
-    assert d.positive_suppressed == []
+    assert upper_withheld(d) == []
 
 
 def test_upper_bound_on_serving_column_suppresses_when_derived():
@@ -584,7 +589,7 @@ def test_upper_bound_on_serving_column_suppresses_when_derived():
             upper_bound_fields=["per_serving.protein_g"],
         )
     )
-    assert d.per_100g.protein_g == 0.05 and d.positive_suppressed == ["protein_g"]
+    assert d.per_100g.protein_g == 0.05 and upper_withheld(d) == ["protein_g"]
     assert engine_nutrients(d).protein_g is None
 
 
@@ -613,7 +618,7 @@ def test_diet_drink_upper_bound_protein_gives_no_good_protein_density():
             ingredients=["carbonated water", "colour (INS 150d)", "sweetener (INS 951)"],
         )
     )
-    assert d.positive_suppressed == ["protein_g"]
+    assert upper_withheld(d) == ["protein_g"]
 
     def codes(product: Product) -> set[str]:
         return {r.code for r in analyze(product, [slimmer]).verdicts[0].reasons}
@@ -861,7 +866,7 @@ def test_sodium_without_unit_is_withheld_from_the_engine():
     d = to_draft(ex(per_100g=n(**_BISCUIT, sodium_mg=0.4), ingredients=_INGREDIENTS))
     assert d.per_100g.sodium_mg == 0.4  # shown as printed for the user to confirm
     assert d.warnings == ["unit_unconfirmed:per_100g.sodium_mg"]
-    assert d.engine_withheld == ["sodium_mg"] and d.positive_suppressed == []
+    assert d.engine_withheld == ["sodium_mg"]
     assert engine_nutrients(d) == Nutrients(**_BISCUIT)
     assert _table(d, _raw(d)) == _ALL_OK | {"diabetic": (Status.CAUTION, [_CARBS_70])}  # bug
     assert _table(d) == _TABLE_SALT_UNKNOWN
@@ -1020,7 +1025,6 @@ def test_per_serving_numbers_in_the_per_100g_object_are_withheld():
     assert not d.derived_from_serving
     assert d.warnings == ["basis_mismatch"]
     assert d.engine_withheld == list(ENGINE_FIELDS)
-    assert d.positive_suppressed == ["protein_g", "fiber_g"]
     assert engine_nutrients(d) == Nutrients()
     assert _table(d, _raw(d)) == _ALL_OK  # control: the bug
     assert _table(d) == _TABLE_ALL_WITHHELD
@@ -1168,26 +1172,14 @@ def test_warning_order_with_basis_warnings():
     assert d.engine_withheld == list(ENGINE_FIELDS)
 
 
-# Contract: engine_withheld and its deprecated alias positive_suppressed
-
-
-def test_positive_suppressed_alone_still_withholds():
-    base = to_draft(ex(per_100g=n(protein_g=12, sugars_g=3)))
-    d = ProductDraft(
-        **(base.model_dump() | {"engine_withheld": [], "positive_suppressed": ["protein_g"]})
-    )
-    assert d.engine_withheld == ["protein_g"] and d.positive_suppressed == ["protein_g"]
-    assert engine_nutrients(d) == Nutrients(sugars_g=3)
+# Contract: engine_withheld
 
 
 def test_engine_withheld_is_deduplicated_in_engine_order():
     base = to_draft(ex(per_100g=n(protein_g=12, sodium_mg=100, sodium_unit="mg")))
     withheld = ["sodium_mg", "protein_g", "sodium_mg"]
-    d = ProductDraft(
-        **(base.model_dump() | {"engine_withheld": withheld, "positive_suppressed": []})
-    )
+    d = ProductDraft(**(base.model_dump() | {"engine_withheld": withheld}))
     assert d.engine_withheld == ["protein_g", "sodium_mg"]
-    assert d.positive_suppressed == ["protein_g"]
     assert engine_nutrients(d) == Nutrients()
 
 

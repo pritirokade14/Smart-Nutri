@@ -39,7 +39,6 @@
       "salt_g",
       "sodium_mg"
     ],
-    "positive_suppressed": [],
     "warnings": ["basis_mismatch"]
   }
 }

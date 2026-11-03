@@ -47,6 +47,49 @@ responses/public/<product>.json    # GET /v1/products/{barcode}/public body (Pub
 
 The products mirror the Plan 1 engine fixtures (`sf_biscuit`, `namkeen`, `curd`, `oats`, `cola`, `water`, `no_ingredients`) plus real packs added over time.
 
+## Confirm-screen drafts (`drafts/`)
+
+Label drafts and the exact save each client must send for scripted user actions (Ruling R21). **Both clients render their confirm screen only from `draft.confirm`** (computed by the API with the same helpers that enforce `POST /v1/products`) and assert their request bodies against `expected.json`. They are **generated**, never edited by hand:
+
+```
+cd apps/api && uv run python scripts/export_draft_fixtures.py          # --check (default): diff, exit 1 if stale
+cd apps/api && uv run python scripts/export_draft_fixtures.py --write  # write only the files that differ
+```
+
+`tests/fixtures/test_draft_fixtures.py` fails when the files are stale; `tests/api/products/test_draft_fixture_saves.py` posts every body in `expected.json` to the real endpoint and checks the stored row. Cases (raw extractions) live in the script. A change needs `nutrition-safety-reviewer`.
+
+```
+drafts/<case>.json     # ProductDraft exactly as POST /v1/scans/label returns it in `draft`
+drafts/expected.json   # {"format_version": 1, "cases": {"<case>": {...}}}
+```
+
+Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`.
+
+**`draft.confirm`** (the hints):
+
+```
+{"basis_required": bool,              # basis in doubt: offer both columns, never preselect
+ "category_required": bool,           # category_unknown/category_check: never preselect
+ "columns": {"per_100g": Column|null, "per_serving": Column|null}}   # null = basis not offered
+Column = {"printed": bool,            # the draft column of this name holds printed values
+          "shared": bool,             # only printed column on a basis mismatch: show it for either basis
+          "confirm_fields": [...],    # need an explicit tick when saving with this basis
+          "sodium_unit_required": bool}  # show a mg/g picker; send its value when sodium is not null
+```
+
+**`expected.json` case:** `{"description", "draft": "<case>.json", "extraction": <raw NutritionExtraction>, "saves": [{"actions", "body", "result"}]}`.
+
+- `actions` (all optional): `pick_basis` (`per_100g`/`per_serving`), `pick_category`, `tick` (list of confirm fields), `sodium_unit` (`mg`/`g`), `edit` (`{field: number|null}` on the shown column, or `serving_size_g`). `{}` means the user changed nothing and pressed save.
+- `body` is the `POST /v1/products` body **without `scan_id`** (the client adds it; `barcode` is not sent). Built by this algorithm, which both clients implement:
+  1. `basis` = `pick_basis`; else, when `basis_required` is false, the only non-null column; else omitted.
+  2. `nutrients` (the nine engine fields plus `added_sugars_g`, `trans_fat_g`) = the draft column named by `basis` if that column is `printed`, else the `shared` column, else all null (with no basis: the shared column, else the first printed one); then `edit`.
+  3. `category` = `pick_category`; else the draft's category when `category_required` is false; else omitted.
+  4. `sodium_unit` = the action or null. `serving_size_g` = the edit or the draft's. `confirmed_fields` = `tick` in contract order (engine fields, then `serving_size_g`).
+  5. `name`, `brand`, `ingredients`, `allergen_statement`, `may_contain_statement`, `claims`, `veg_mark` copied from the draft.
+- `result` is either `{"status": 201, "stored": {"category", "extraction_confidence", "per_100g": {11 fields}, "serving_size_g"}}` (values stored by the server, unrounded) or `{"status": 422, "error": {"code", "fields"}}` (`details.fields` of the error envelope, e.g. `["body.basis"]`, `["body.sodium_unit"]`, or `["carbs_g", "sugars_g"]` for `implausible_value`).
+
+Files use sorted keys, 2-space indent, UTF-8 (Devanagari unescaped) and a trailing newline.
+
 ## Rendered reason text (`reason-text/`)
 
 ```

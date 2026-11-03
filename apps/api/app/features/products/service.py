@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import scoring
 from app.core.config import Settings
 from app.core.errors import ApiError
+from app.features.products import confirm_rules as rules
 from app.features.products.models import OffProductCache, Product
 from app.features.products.off_mapping import (
     ProductInfo,
@@ -270,45 +271,11 @@ async def lookup_by_barcode(
 MANUAL_ENTRY_CONFIDENCE = 1.0  # a person typed every value
 
 
-_UPPER_BOUND_WITHHELD = ("protein_g", "fiber_g")  # an upper bound is no evidence of protein
-_PRINTED_COLUMNS = ("per_100g", "per_serving")
 BARCODE_CONSTRAINT = "uq_products_barcode"
 
 
 def _validation_error(field: str) -> ApiError:
     return ApiError("validation_error", 422, details={"fields": [f"body.{field}"]})
-
-
-def _sodium_unit_unconfirmed(draft: ProductDraft) -> bool:
-    """Sodium was printed without a unit on ANY column (R19): the user must pick the unit,
-    whichever column they transcribe (a misread basis can put that number on either)."""
-    return any(f"unit_unconfirmed:{col}.sodium_mg" in draft.warnings for col in _PRINTED_COLUMNS)
-
-
-def _withheld(draft: ProductDraft) -> set[str]:
-    """Engine fields held back from storage until the user confirms them (R13/R14/R17/R19).
-
-    The draft's own list, except that on a basis mismatch the explicit `basis` answers the
-    basis doubt. Per-field doubts on ANY printed column (an upper-bound protein/fibre, a
-    unit-less sodium) still apply (R19), since the user may have transcribed either column.
-    """
-    withheld = set() if "basis_mismatch" in draft.warnings else set(draft.engine_withheld)
-    withheld |= {
-        f
-        for f in _UPPER_BOUND_WITHHELD
-        for col in _PRINTED_COLUMNS
-        if f"upper_bound:{col}.{f}" in draft.warnings
-    }
-    if _sodium_unit_unconfirmed(draft):
-        withheld.add("sodium_mg")
-    return withheld
-
-
-def _needs_serving_confirmation(draft: ProductDraft, body: ProductCreate) -> bool:
-    """Per-100 g values that depend on the serving size (sent per serving, or derived from it
-    by the normaliser, with or without a basis mismatch: R19) are trusted only when the user
-    confirmed the serving size."""
-    return body.basis == "per_serving" or draft.derived_from_serving
 
 
 def _draft_confidence(draft: ProductDraft) -> float:
@@ -342,20 +309,23 @@ def _ingredients_text(items: list[str]) -> str | None:
     return text
 
 
-def _per_100g(body: ProductCreate, label: scans_service.LabelScan | None) -> dict[str, Any]:
-    """The per-100 g values to store: the server's conversion of what the pack prints.
+def stored_values(
+    body: ProductCreate, draft: ProductDraft | None
+) -> tuple[dict[str, float | None], float | None]:
+    """(per-100 g values, serving size) to store: the server's conversion of what the pack
+    prints, gated by the confirm rules. Pure; ``draft`` is the scan's draft (None = manual).
 
     Sodium unit, then basis (the normaliser's own helpers), then what the user did not
-    confirm is set to None. Raises 422 for a missing serving size on a per-serving basis,
-    an implausible serving size that will be used for conversion (R19), or a sodium unit
-    the user had to pick and did not (R19: any unit-less sodium on the draft, either
-    column; confirming sodium never stands in for the unit).
+    confirm is set to None (``confirm_rules``, the helpers that also compute
+    ``ProductDraft.confirm``). Raises 422 for a missing serving size on a per-serving basis,
+    an implausible serving size that will be used for conversion (R19), a sodium unit the
+    user had to pick and did not (R19), or an implausible stored value (R16).
     """
     values: dict[str, float | None] = body.nutrients.model_dump()
     if (
-        label is not None
+        draft is not None
         and values["sodium_mg"] is not None
-        and _sodium_unit_unconfirmed(label.draft)
+        and rules.sodium_unit_unconfirmed(draft)
         and body.sodium_unit is None
     ):
         raise _validation_error("sodium_unit")
@@ -368,13 +338,17 @@ def _per_100g(body: ProductCreate, label: scans_service.LabelScan | None) -> dic
     confirmed = set(body.confirmed_fields)
     if body.sodium_unit is not None:
         confirmed.add("sodium_mg")  # picking the unit is confirming sodium (R17)
+    # R18: a scanned serving size is stored only when the user confirmed it (the engine's
+    # per-serving reasons would otherwise rest on a possibly misread value). A manual entry
+    # was typed by a person, so it is stored as given.
+    stored_serving = serving if draft is None or "serving_size_g" in confirmed else None
     if (
-        label is not None
-        and _needs_serving_confirmation(label.draft, body)
+        draft is not None
+        and rules.needs_serving_confirmation(draft, body.basis)
         and "serving_size_g" not in confirmed
     ):
         # Nothing is stored, so the (unconfirmed) serving is neither used nor checked (R19).
-        return dict.fromkeys(values)
+        return dict.fromkeys(values), None
 
     if body.basis == "per_serving" and serving is not None:  # None was rejected above
         if implausible_fields({}, serving_size_g=serving):
@@ -385,10 +359,11 @@ def _per_100g(body: ProductCreate, label: scans_service.LabelScan | None) -> dic
             )
         values = {k: per_100g_from_serving(v, serving) for k, v in values.items()}
 
-    if label is not None:
-        for field in _withheld(label.draft) - confirmed:
+    if draft is not None:
+        for field in rules.withheld_fields(draft) - confirmed:
             values[field] = None
-    return values
+    _check_plausible(values, stored_serving)  # only what will be stored (R16)
+    return values, stored_serving
 
 
 def _violated_constraint(exc: IntegrityError) -> str | None:
@@ -453,14 +428,7 @@ async def create_product(
             if saved is not None:  # already saved from this scan (e.g. a client retry)
                 raise ApiError("product_exists", 409, details={"product_id": str(saved.product_id)})
 
-    per_100g = _per_100g(body, label)
-    # R18: a scanned serving size is stored only when the user confirmed it (the engine's
-    # per-serving reasons would otherwise rest on a possibly misread value). A manual entry
-    # was typed by a person, so it is stored as given.
-    serving_size_g = body.serving_size_g
-    if label is not None and "serving_size_g" not in body.confirmed_fields:
-        serving_size_g = None
-    _check_plausible(per_100g, serving_size_g)  # only what will be stored (R16)
+    per_100g, serving_size_g = stored_values(body, label.draft if label is not None else None)
     ingredients_text = _ingredients_text(body.ingredients)
     barcode = await _barcode_for_new_product(session, account_id, barcode)
 

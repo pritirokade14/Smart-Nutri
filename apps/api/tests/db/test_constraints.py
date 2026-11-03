@@ -72,3 +72,28 @@ async def test_member_out_of_range_rejected(db, two_accounts, col, value):
 )
 async def test_member_in_range_accepted(db, two_accounts, cols):
     await _insert_member(db, two_accounts.a, **cols)
+
+
+# R21(d): one scan per uploaded photo path per account.
+
+
+async def _insert_scan(db, account, path):
+    async with db.begin_nested():
+        await db.execute(
+            text("insert into scans (account_id, image_path) values (:a, :p)"),
+            {"a": account, "p": path},
+        )
+
+
+async def test_scan_image_path_unique_per_account(db, two_accounts):
+    path = f"{two_accounts.a}/photo.jpg"
+    await _insert_scan(db, two_accounts.a, path)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _insert_scan(db, two_accounts.a, path)
+    assert "uq_scans_account_id_image_path" in str(exc_info.value)
+    await _insert_scan(db, two_accounts.b, path)  # another account: a different key
+
+
+async def test_scans_without_a_path_are_not_constrained(db, two_accounts):
+    await _insert_scan(db, two_accounts.a, None)
+    await _insert_scan(db, two_accounts.a, None)

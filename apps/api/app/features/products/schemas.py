@@ -131,6 +131,15 @@ class ProductCreate(BaseModel):
     stored draft. Text keeps its script (Devanagari stays Devanagari); only surrounding
     whitespace is trimmed and blank items are dropped.
 
+    **Clients do not re-derive the rules below: render `ProductDraft.confirm` (R21), which
+    the server computes with the same helpers that enforce them.** A body that honours the
+    hints is stored in full; one that ignores them is a 422 or stores null for each field it
+    did not confirm.
+
+    Every request counts toward the account's daily `product_creates` limit (429
+    `rate_limited`), including requests rejected with 422, so a client should fix the body
+    before retrying rather than resend it.
+
     Scan-save rules (422 `validation_error` with `details.fields` naming the field):
     - `category` and `basis` are always required (the user must pick them; nothing defaults).
     - (R19) `sodium_unit` must be `mg` or `g` (not null) whenever the draft has ANY

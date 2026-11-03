@@ -473,7 +473,7 @@ async def test_diet_drink_saved_without_confirming_protein(
     auth_client, db_session, weight_loss_member
 ):
     draft = _diet_drink_draft()
-    assert draft.positive_suppressed == ["protein_g"]
+    assert draft.engine_withheld == ["protein_g"]
     scan = await _scan(db_session, A, draft)
     r = await auth_client.post(URL, json=draft_body(draft) | {"scan_id": str(scan.id)})
     assert r.status_code == 201, r.text
@@ -727,6 +727,16 @@ async def test_product_create_rate_limited_writes_no_row(app, auth_client, db_se
     r = await create(auth_client, name="Snack 3")
     assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
     assert await _count_products(db_session) == before
+
+
+async def test_rejected_422s_count_toward_product_creates(app, auth_client, db_session):
+    # R21(e), documented on ProductCreate: a 422 (schema or service) still uses the bucket.
+    app.state.settings.rate_limit_product_creates_per_day = 2
+    assert (await auth_client.post(URL, json=body() | {"basis": None})).status_code == 422
+    r = await create(auth_client, nutrients=nutrients(sugars_g=250))
+    assert r.status_code == 422 and r.json()["error"]["code"] == "implausible_value"
+    r = await create(auth_client)
+    assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
 
 
 # --- Rulings R16/R17: the server does all nutrient arithmetic --------------------------------

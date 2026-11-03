@@ -4,10 +4,10 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'draft_confirm.dart';
 import 'draft_nutrients.dart';
 import 'product_draft_category.dart';
 import 'product_draft_engine_withheld.dart';
-import 'product_draft_positive_suppressed.dart';
 import 'product_draft_veg_mark.dart';
 
 part 'product_draft.g.dart';
@@ -21,6 +21,7 @@ class ProductDraft {
     required this.category,
     required this.claims,
     required this.confidence,
+    required this.confirm,
     required this.derivedFromServing,
     required this.engineWithheld,
     required this.ingredients,
@@ -28,7 +29,6 @@ class ProductDraft {
     required this.name,
     required this.per100g,
     required this.perServing,
-    required this.positiveSuppressed,
     required this.servingSizeG,
     required this.vegMark,
     required this.warnings,
@@ -43,6 +43,7 @@ class ProductDraft {
   final ProductDraftCategory category;
   final List<String> claims;
   final num confidence;
+  final DraftConfirm confirm;
   @JsonKey(name: 'derived_from_serving')
   final bool derivedFromServing;
   @JsonKey(name: 'engine_withheld')
@@ -55,8 +56,6 @@ class ProductDraft {
   final DraftNutrients per100g;
   @JsonKey(name: 'per_serving')
   final DraftNutrients? perServing;
-  @JsonKey(name: 'positive_suppressed')
-  final List<ProductDraftPositiveSuppressed> positiveSuppressed;
   @JsonKey(name: 'serving_size_g')
   final num? servingSizeG;
   @JsonKey(name: 'veg_mark')

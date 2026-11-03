@@ -29,7 +29,6 @@
     "confidence": 0.92,
     "derived_from_serving": false,
     "engine_withheld": ["protein_g"],
-    "positive_suppressed": ["protein_g"],
     "warnings": ["upper_bound:per_100g.protein_g"]
   }
 }

@@ -41,7 +41,6 @@
     "confidence": 0.92,
     "derived_from_serving": true,
     "engine_withheld": [],
-    "positive_suppressed": [],
     "warnings": ["derived_from_serving"]
   }
 }

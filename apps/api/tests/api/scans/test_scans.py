@@ -708,14 +708,84 @@ async def test_same_path_twice_returns_the_same_scan(
     assert fake_llm_ok.calls == 1 and await scan_limit_used(auth_client) == 1
 
 
-async def test_same_path_with_new_bytes_is_a_new_scan(
-    auth_client, fake_storage_unique_jpegs, fake_llm_ok, db_session
+async def test_same_path_with_new_bytes_returns_the_existing_scan(
+    auth_client, fake_storage_unique_jpegs, fake_llm_ok, db_session, scan_limit_used
 ):
+    # R21(d): one scan per (account, path). Signed uploads never overwrite an object, so
+    # new bytes at a used path are not a new photo; nothing is paid for twice.
     path = new_path(auth_client, "png")
     first = await post_label(auth_client, path)
     second = await post_label(auth_client, path)
-    assert second.json()["scan_id"] != first.json()["scan_id"]
-    assert len(await scans_for(db_session, A)) == 2
+    assert first.status_code == second.status_code == 200
+    assert second.json()["scan_id"] == first.json()["scan_id"]
+    assert second.json()["cached"] is True
+    assert len(await scans_for(db_session, A)) == 1
+    assert fake_llm_ok.calls == 1 and await scan_limit_used(auth_client) == 1
+
+
+async def test_same_path_after_a_model_change_returns_the_existing_scan(
+    scan_app, auth_client, fake_storage_jpeg, fake_llm_ok, db_session
+):
+    path = new_path(auth_client)
+    scan_app.state.settings.callmissed_extraction_model = "vision-a"
+    first = await post_label(auth_client, path)
+    scan_app.state.settings.callmissed_extraction_model = "vision-b"
+    second = await post_label(auth_client, path)
+    assert second.json()["scan_id"] == first.json()["scan_id"]
+    assert fake_llm_ok.calls == 1 and len(await scans_for(db_session, A)) == 1
+
+
+async def test_same_path_is_answered_without_downloading_again(
+    auth_client, fake_storage_jpeg, fake_llm_ok
+):
+    path = new_path(auth_client)
+    await post_label(auth_client, path)
+    downloads = len(fake_storage_jpeg.downloads)
+    await post_label(auth_client, path)
+    assert len(fake_storage_jpeg.downloads) == downloads
+
+
+class _RacingLLM(FakeLLM):
+    """A concurrent request for the same path stores its scan while this one is extracting."""
+
+    def __init__(self, db_session, path: str) -> None:
+        super().__init__(extraction())
+        self._db, self._path = db_session, path
+        self.racer: Scan | None = None
+
+    async def extract_label(self, **kwargs: object):
+        result = await super().extract_label(**kwargs)
+        from app.features.scans.normalize import to_draft
+        from app.features.scans.service import label_scan_analysis
+
+        self.racer = Scan(
+            account_id=A,
+            image_path=self._path,
+            image_sha256="racer",
+            analysis=label_scan_analysis(
+                to_draft(extraction(product_name="Racer")),
+                extraction=extraction(product_name="Racer"),
+                prompt_version="extraction_v1",
+                model="vision-racer",
+            ),
+        )
+        self._db.add(self.racer)
+        await self._db.flush()
+        return result
+
+
+async def test_concurrent_first_posts_of_a_path_make_one_scan(
+    scan_app, auth_client, fake_storage_jpeg, db_session
+):
+    path = new_path(auth_client)
+    llm = _use_llm(scan_app, _RacingLLM(db_session, path))
+    r = await post_label(auth_client, path)
+    assert r.status_code == 200, r.text
+    # The insert hit the unique index: the scan that won the race is returned, no second row.
+    assert r.json()["scan_id"] == str(llm.racer.id)
+    assert r.json()["draft"]["name"] == "Racer"
+    rows = await scans_for(db_session, A)
+    assert [s.id for s in rows if s.image_path == path] == [llm.racer.id]
 
 
 # (3) the DB connection is released before the storage download

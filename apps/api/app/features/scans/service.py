@@ -15,6 +15,7 @@ import anyio
 import sentry_sdk
 from pydantic import ValidationError
 from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
@@ -22,7 +23,7 @@ from app.core.errors import ApiError
 from app.core.ratelimit import consume, refund
 from app.features.scans.api_schemas import LabelScanIn, ScanDraftOut
 from app.features.scans.images import InvalidImage, prepare_for_extraction, sniff_image_mime
-from app.features.scans.models import Scan
+from app.features.scans.models import SCAN_PATH_INDEX, Scan
 from app.features.scans.normalize import ProductDraft, to_draft
 from app.features.scans.schemas import NutritionExtraction
 from app.integrations.openfoodfacts import InvalidBarcode, normalize_barcode
@@ -129,6 +130,11 @@ async def link_product(
     )
 
 
+def _violated_constraint(exc: IntegrityError) -> str | None:
+    diag = getattr(exc.orig, "diag", None)
+    return getattr(diag, "constraint_name", None)
+
+
 def new_upload_path(account_id: UUID, ext: str) -> str:
     """`<account_id>/<uuid4>.<ext>` in the private label-photo bucket."""
     if ext not in _EXTS:
@@ -178,31 +184,35 @@ async def _cached_extraction(
     return None if analysis is None else _extraction_of(analysis, prompt_version)
 
 
-async def _repeat_scan(
-    session: AsyncSession,
-    *,
-    account_id: UUID,
-    path: str,
-    image_sha256: str,
-    prompt_version: str,
-    model: str,
-) -> tuple[Scan, NutritionExtraction] | None:
-    """The caller's own scan of this same path and bytes (a client retry), if any."""
-    scan = await session.scalar(
+async def _scan_at_path(session: AsyncSession, account_id: UUID, path: str) -> Scan | None:
+    """The caller's scan of this upload path, if any (at most one: R21d unique index)."""
+    return await session.scalar(
         select(Scan)
-        .where(
-            Scan.account_id == account_id,
-            Scan.image_path == path,
-            *_cache_key(image_sha256, prompt_version, model),
-        )
-        .order_by(Scan.created_at.desc())
-        .limit(1)
+        .where(Scan.account_id == account_id, Scan.image_path == path)
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
-    if scan is None:
-        return None
-    extraction = _extraction_of(scan.analysis, prompt_version)
-    return None if extraction is None else (scan, extraction)
+
+
+async def _existing_scan_out(session: AsyncSession, scan: Scan) -> ScanDraftOut:
+    """Answer with an existing scan of this path (a client retry, or the winner of a race):
+    its raw extraction re-normalised (current rules), no new row and no paid call. Commits."""
+    analysis = scan.analysis if isinstance(scan.analysis, dict) else {}
+    prompt_version = str(analysis.get("prompt_version") or load_extraction_prompt()[1])
+    extraction = _extraction_of(analysis, prompt_version) if "extraction" in analysis else None
+    if extraction is not None:
+        draft = to_draft(extraction)
+        if scan.product_id is None:  # keep the stored draft (what a save reads) current
+            scan.analysis = {**analysis, "draft": draft.model_dump(mode="json")}
+    else:
+        try:
+            draft = ProductDraft.model_validate(analysis.get("draft"))
+        except ValidationError:
+            logger.warning("label scan has an unreadable draft", extra={"scan_id": str(scan.id)})
+            raise ApiError("extraction_failed", 502) from None
+    await session.commit()
+    logger.info("label_extraction cached=true repeat=true prompt_version=%s", prompt_version)
+    return ScanDraftOut(scan_id=scan.id, draft=draft, cached=True, prompt_version=prompt_version)
 
 
 async def _extract(
@@ -238,7 +248,9 @@ async def create_label_scan(
 
     Only a paid extraction counts toward the `label_scans` limit; a cache hit is free, and a
     provider refusal (no paid call happened) is refunded. The same account posting the same
-    path and bytes again gets its existing scan back (no new row).
+    path again gets its existing scan back (no download, no paid call, no new row): R21d
+    makes (account_id, image_path) unique, and a concurrent first post that loses the race
+    to insert gets the winner's scan.
     """
     if not owns_path(account_id, body.path):
         raise ApiError("scan_image_not_found", 404)
@@ -248,6 +260,11 @@ async def create_label_scan(
             barcode = normalize_barcode(body.barcode)
         except InvalidBarcode:
             raise ApiError("invalid_barcode", 422) from None
+
+    # One scan per upload path (R21d): a repeat post gets its scan back without a download.
+    existing = await _scan_at_path(session, account_id, body.path)
+    if existing is not None:
+        return await _existing_scan_out(session, existing)
 
     # Release the DB connection (ensure_account's read) before the slow storage download.
     await session.commit()
@@ -265,25 +282,6 @@ async def create_label_scan(
     image_sha256 = hashlib.sha256(data).hexdigest()
     prompt, prompt_version = load_extraction_prompt()
     model = settings.callmissed_extraction_model
-
-    repeat = await _repeat_scan(
-        session,
-        account_id=account_id,
-        path=body.path,
-        image_sha256=image_sha256,
-        prompt_version=prompt_version,
-        model=model,
-    )
-    if repeat is not None:
-        scan, extraction = repeat
-        draft = to_draft(extraction)
-        if scan.product_id is None:  # keep the stored draft (what a save reads) current
-            scan.analysis = {**scan.analysis, "draft": draft.model_dump(mode="json")}
-        await session.commit()
-        logger.info("label_extraction cached=true repeat=true prompt_version=%s", prompt_version)
-        return ScanDraftOut(
-            scan_id=scan.id, draft=draft, cached=True, prompt_version=prompt_version
-        )
 
     extraction = await _cached_extraction(session, image_sha256, prompt_version, model)
     cached = extraction is not None
@@ -315,24 +313,34 @@ async def create_label_scan(
 
     draft = to_draft(extraction)  # always the current normaliser, cached or not
     scan_id = uuid4()
-    session.add(
-        Scan(
-            id=scan_id,
-            account_id=account_id,
-            product_id=None,
-            image_path=body.path,
-            image_sha256=image_sha256,
-            analysis={
-                # The cache key includes the model, so on a hit this is still the model
-                # that produced the extraction.
-                **label_scan_analysis(
-                    draft, extraction=extraction, prompt_version=prompt_version, model=model
-                ),
-                "cached": cached,
-                "barcode": barcode,
-            },
-        )
+    scan = Scan(
+        id=scan_id,
+        account_id=account_id,
+        product_id=None,
+        image_path=body.path,
+        image_sha256=image_sha256,
+        analysis={
+            # The cache key includes the model, so on a hit this is still the model
+            # that produced the extraction.
+            **label_scan_analysis(
+                draft, extraction=extraction, prompt_version=prompt_version, model=model
+            ),
+            "cached": cached,
+            "barcode": barcode,
+        },
     )
-    await session.flush()
+    try:
+        async with session.begin_nested():
+            session.add(scan)
+            await session.flush()
+    except IntegrityError as exc:
+        # A concurrent post of the same path stored its scan first (R21d): answer with that
+        # one. This request's extraction was paid for and still counts toward the limit.
+        if _violated_constraint(exc) != SCAN_PATH_INDEX:
+            raise
+        winner = await _scan_at_path(session, account_id, body.path)
+        if winner is None:
+            raise
+        return await _existing_scan_out(session, winner)
     await session.commit()
     return ScanDraftOut(scan_id=scan_id, draft=draft, cached=cached, prompt_version=prompt_version)

@@ -203,6 +203,58 @@ export interface components {
             product_id?: string | null;
         };
         /**
+         * ColumnConfirm
+         * @description What to ask when the user saves with this `basis` (`ProductCreate.basis`).
+         */
+        ColumnConfirm: {
+            /**
+             * Confirm Fields
+             * @description Fields that need an explicit tick (`ProductCreate.confirmed_fields`) when this basis is saved; an unticked one is stored as null. `serving_size_g`, when listed and unticked on a per-serving or derived save, makes every nutrient null. Sodium is never listed when `sodium_unit_required` (the unit pick confirms it).
+             */
+            confirm_fields: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg" | "serving_size_g")[];
+            /**
+             * Printed
+             * @description The draft column of this name holds printed engine values (`per_100g` of a `derived_from_serving` draft never does: those numbers were calculated).
+             */
+            printed: boolean;
+            /**
+             * Shared
+             * @description On a `basis_mismatch` draft, this is the only printed column: show its values whichever basis the user picks (its basis is the doubt).
+             */
+            shared: boolean;
+            /**
+             * Sodium Unit Required
+             * @description Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`.
+             */
+            sodium_unit_required: boolean;
+        };
+        /**
+         * ConfirmColumns
+         * @description The bases the user may save with; null = not offered for this draft.
+         */
+        ConfirmColumns: {
+            per_100g: components["schemas"]["ColumnConfirm"] | null;
+            per_serving: components["schemas"]["ColumnConfirm"] | null;
+        };
+        /**
+         * DraftConfirm
+         * @description Server-computed confirm-screen hints (R21). Clients render these; they never
+         *     re-derive the save rules. Computed from the draft itself, so always current.
+         */
+        DraftConfirm: {
+            /**
+             * Basis Required
+             * @description Basis in doubt: offer both columns and never preselect a basis.
+             */
+            basis_required: boolean;
+            /**
+             * Category Required
+             * @description Category in doubt: never preselect; the user must pick a category.
+             */
+            category_required: boolean;
+            columns: components["schemas"]["ConfirmColumns"];
+        };
+        /**
          * DraftNutrients
          * @description Per 100 g / 100 ml for the confirm screen. None = not printed (never invented).
          *
@@ -411,6 +463,15 @@ export interface components {
          *     stored draft. Text keeps its script (Devanagari stays Devanagari); only surrounding
          *     whitespace is trimmed and blank items are dropped.
          *
+         *     **Clients do not re-derive the rules below: render `ProductDraft.confirm` (R21), which
+         *     the server computes with the same helpers that enforce them.** A body that honours the
+         *     hints is stored in full; one that ignores them is a 422 or stores null for each field it
+         *     did not confirm.
+         *
+         *     Every request counts toward the account's daily `product_creates` limit (429
+         *     `rate_limited`), including requests rejected with 422, so a client should fix the body
+         *     before retrying rather than resend it.
+         *
          *     Scan-save rules (422 `validation_error` with `details.fields` naming the field):
          *     - `category` and `basis` are always required (the user must pick them; nothing defaults).
          *     - (R19) `sodium_unit` must be `mg` or `g` (not null) whenever the draft has ANY
@@ -505,6 +566,7 @@ export interface components {
             claims: string[];
             /** Confidence */
             confidence: number;
+            confirm: components["schemas"]["DraftConfirm"];
             /** Derived From Serving */
             derived_from_serving: boolean;
             /** Engine Withheld */
@@ -517,8 +579,6 @@ export interface components {
             name: string | null;
             per_100g: components["schemas"]["DraftNutrients"];
             per_serving: components["schemas"]["DraftNutrients"] | null;
-            /** Positive Suppressed */
-            positive_suppressed: ("protein_g" | "fiber_g")[];
             /** Serving Size G */
             serving_size_g: number | null;
             /** Veg Mark */

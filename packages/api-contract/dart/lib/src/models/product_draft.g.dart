@@ -12,6 +12,7 @@ ProductDraft _$ProductDraftFromJson(Map<String, dynamic> json) => ProductDraft(
   category: ProductDraftCategory.fromJson(json['category'] as String),
   claims: (json['claims'] as List<dynamic>).map((e) => e as String).toList(),
   confidence: json['confidence'] as num,
+  confirm: DraftConfirm.fromJson(json['confirm'] as Map<String, dynamic>),
   derivedFromServing: json['derived_from_serving'] as bool,
   engineWithheld: (json['engine_withheld'] as List<dynamic>)
       .map((e) => ProductDraftEngineWithheld.fromJson(e as String))
@@ -25,9 +26,6 @@ ProductDraft _$ProductDraftFromJson(Map<String, dynamic> json) => ProductDraft(
   perServing: json['per_serving'] == null
       ? null
       : DraftNutrients.fromJson(json['per_serving'] as Map<String, dynamic>),
-  positiveSuppressed: (json['positive_suppressed'] as List<dynamic>)
-      .map((e) => ProductDraftPositiveSuppressed.fromJson(e as String))
-      .toList(),
   servingSizeG: json['serving_size_g'] as num?,
   vegMark: json['veg_mark'] == null
       ? null
@@ -44,6 +42,7 @@ Map<String, dynamic> _$ProductDraftToJson(ProductDraft instance) =>
       'category': _$ProductDraftCategoryEnumMap[instance.category]!,
       'claims': instance.claims,
       'confidence': instance.confidence,
+      'confirm': instance.confirm,
       'derived_from_serving': instance.derivedFromServing,
       'engine_withheld': instance.engineWithheld
           .map((e) => _$ProductDraftEngineWithheldEnumMap[e]!)
@@ -53,9 +52,6 @@ Map<String, dynamic> _$ProductDraftToJson(ProductDraft instance) =>
       'name': instance.name,
       'per_100g': instance.per100g,
       'per_serving': instance.perServing,
-      'positive_suppressed': instance.positiveSuppressed
-          .map((e) => _$ProductDraftPositiveSuppressedEnumMap[e]!)
-          .toList(),
       'serving_size_g': instance.servingSizeG,
       'veg_mark': _$ProductDraftVegMarkEnumMap[instance.vegMark],
       'warnings': instance.warnings,
@@ -81,12 +77,6 @@ const _$ProductDraftEngineWithheldEnumMap = {
   ProductDraftEngineWithheld.saltG: 'salt_g',
   ProductDraftEngineWithheld.sodiumMg: 'sodium_mg',
   ProductDraftEngineWithheld.$unknown: r'$unknown',
-};
-
-const _$ProductDraftPositiveSuppressedEnumMap = {
-  ProductDraftPositiveSuppressed.proteinG: 'protein_g',
-  ProductDraftPositiveSuppressed.fiberG: 'fiber_g',
-  ProductDraftPositiveSuppressed.$unknown: r'$unknown',
 };
 
 const _$ProductDraftVegMarkEnumMap = {
