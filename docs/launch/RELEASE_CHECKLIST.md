@@ -2,20 +2,20 @@
 
 > Plan 8 Task 16. Status values: `DONE`, `TODO`, `USER` (only the user can do it), `BLOCKED` (waiting on something named in the note).
 > Update a line only with evidence: a commit, a command output, or a dashboard check.
-> Last updated: 2026-11-03, after the Plan 8 code tasks (API side).
+> Last updated: 2026-11-04, after the final fix batch. All plan code is complete on `v1-rebuild` (API 2811, Flutter 1192, web 1083, e2e 42 at `0c69efd`).
 
 ## Code and review
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 1 | `just test` green (API, Android, web) | TODO | API: 2155 passed on the Plan 8 branch. Android and web need the Wave 2 client work. |
+| 1 | `just test` green (API, Android, web) | DONE (at `0c69efd`) | API 2811, Flutter 1192 + APK, web 1083, e2e 42. Re-run after the final fix batch. |
 | 2 | CI green on `v1-rebuild` | TODO | Local CI per user preference, then the PR to `main` |
-| 3 | nutrition-safety-reviewer approved (Plans 5–8) | TODO | Plan 8 touches consent gating, the fixture-free telemetry allow-list and the clinician sheet |
+| 3 | nutrition-safety-reviewer approved (Plans 5–8) | DONE, with changes | Final review at `0c69efd`: APPROVE WITH CHANGES; the final fix batch addresses them. Plan 8 touches consent gating, the fixture-free telemetry allow-list and the clinician sheet |
 | 4 | Whole-branch code review (Opus) | TODO | |
 | 5 | gitleaks clean | DONE (API branch) | `gitleaks detect`: no leaks (187 commits). Re-run on the merged branch. |
-| 6 | F11 on all three surfaces (consent withdrawal, delete account, policy pages) | TODO | API done (`consents_list.needs_update`, gate, `me_delete`). Android and web screens: Wave 2. |
-| 7 | Disclaimer on every verdict, explanation and voice surface (Android and web tests) | TODO | Client compliance tests from Plan 8 Task 6 |
-| 8 | Web security headers e2e (`security-headers.spec.ts`) | TODO | Web agent |
+| 6 | F11 on all three surfaces (consent withdrawal, delete account, policy pages) | DONE (code) | API, Android and web shipped in Plan 8; manual check on prod is row 18. |
+| 7 | Disclaimer on every verdict, explanation and voice surface (Android and web tests) | DONE (code) | Client compliance tests from Plan 8 Task 6 |
+| 8 | Web security headers e2e (`security-headers.spec.ts`) | DONE (code) | Part of the 42 e2e tests |
 
 ## Legal and clinical
 
@@ -24,7 +24,9 @@
 | 9 | Privacy policy and terms reviewed by a lawyer | USER | Drafts: `docs/launch/privacy-policy.md`, `terms.md`. Must include DPDP s. 8(7) withdrawal versus erasure (ADR 0018), grievance officer details and children's profiles (s. 9). |
 | 10 | Clinician sheet signed | USER | `docs/launch/clinician-review.md` (35 thresholds). Until signed, keep `# PENDING CLINICIAN REVIEW` and the methodology banner. |
 | 11 | Native-speaker review of hi and mr | USER | `packages/i18n/NATIVE_REVIEW.md` |
-| 12 | Methodology source URLs verified (`url_verified`) | TODO | All `false` today |
+| 12 | Methodology source URLs verified (`url_verified`) | USER | All `false` today |
+| 12a | Label-extraction eval run on 40–60 label photos (paid CallMissed spend) and extraction model chosen | USER | `apps/api/tests/evals/labels/README.md` |
+| 12b | Manual real-pack parity checks (3 packs) on a phone and in a browser | USER | Includes one Hindi or bilingual label |
 
 ## Production (Plan 8 Tasks 8–11)
 
@@ -34,7 +36,9 @@
 | 14 | Prod migrations at head | TODO | Task 8 Step 2. The storage buckets (`label-photos` and `voice-answers`, both used by deletion and retention) are **not** created by migrations. Create them private in the dashboard, or add a guarded migration (see `api-report.md`). |
 | 15 | Prod secrets in Secret Manager | USER | `bash scripts/push-secrets.sh prod --dry-run`, then `! bash scripts/push-secrets.sh prod` |
 | 16 | API and web deployed (min 1, max 4) | TODO | Task 10. `ENVIRONMENT=prod` requires `ALLOWED_ORIGINS` set to https origins, or the API refuses to start. |
-| 17 | Retention job and scheduler (02:30 IST) | TODO | `python -m app.jobs.retention`. Run `--dry-run` once first. Expect `photos_deleted=0 voice_deleted=0 scans_nulled=0` on a new project. |
+| 16a | Dev migrations 0003 and 0004 applied | USER | `just db-migrate`, before merging Plans 5–8 to `main` |
+| 16b | `voice-answers` bucket created (private, 5 MiB, `audio/mpeg`) on dev, then prod | USER | `docs/SETUP_ACCOUNTS.md` section 2, step 8. Migrations do not create buckets. |
+| 17 | Retention job and scheduler (02:30 IST) | USER (deploy step is DONE in `deploy-dev.yml`) | The workflow deploys the job from `main` only. USER runs `bash scripts/setup-retention-schedule.sh setup`, then `dry-run`, then `schedule` (`docs/SETUP_ACCOUNTS.md`). `python -m app.jobs.retention`. Run `--dry-run` once first. Expect `photos_deleted=0 voice_deleted=0 scans_nulled=0` on a new project. |
 | 18 | Consent, deletion and retention verified on prod | TODO | |
 | 19 | Sentry test error shows no PII | TODO | The event must have no body, no query, no auth header, and a hashed user id |
 | 20 | PostHog shows only allow-listed events | TODO | `ALLOWED_EVENTS` in `app/integrations/posthog.py`. The clients must mirror it. |
@@ -47,13 +51,13 @@
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 25 | Release signing and `com.smartnutri.app` in `build.gradle.kts` | TODO | Task 12 Step 1 (Android agent) |
+| 25 | Release signing and `com.smartnutri.app` in `build.gradle.kts` | TODO | Task 12 Step 1. Not done: the Android build is debug-signed only. |
 | 26 | Upload keystore created | USER | Task 12 Step 2 |
 | 27 | Play Console account, identity verified | USER | Task 13 Step 1 ($25) |
 | 28 | Store listing and Data safety entered | USER | Drafts: `docs/launch/store-listing.md`, `data-safety.md` |
 | 29 | Closed testing started: date ____, 14-day end date ____ | USER | 12 or more testers opted in for 14 consecutive days |
 | 30 | Phone OTP status | OFF | `PHONE_OTP_ENABLED=false` until Meta approves `smartnutri_otp` (Task 14). The CallMissed template body is unverified. |
-| 30a | Voice status | OFF | `VOICE_ENABLED=false` (`/v1/voice/ask` answers 503 `ai_unavailable`) until the 24 h voice retention is live (row 17 or a bucket lifecycle rule) AND the user approves the paid STT/TTS probe (`scripts.probe_stt_formats --yes-spend`), which must also confirm CallMissed accepts `provider[data_residency]=in` on STT and `provider.data_residency` on TTS (Ruling V1). |
+| 30a | Voice status | OFF | `VOICE_ENABLED=false` (`/v1/voice/ask` answers 503 `ai_unavailable`) until the 24 h voice retention is live (row 17 or a bucket lifecycle rule) AND the user approves the paid STT/TTS probe (`scripts.probe_stt_formats --yes-spend`), USER must approve the spend. The probe must also confirm CallMissed accepts `provider[data_residency]=in` on STT and `provider.data_residency` on TTS (Ruling V1). |
 | 31 | CallMissed plan and budget cap for launch | USER | Task 14 Step 4 |
 
 ## Rollback

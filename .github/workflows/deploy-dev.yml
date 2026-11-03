@@ -42,6 +42,7 @@ env:
   DEPLOYER_SA: github-deployer@smartnutri-513518.iam.gserviceaccount.com
   API_SA: smartnutri-api-dev@smartnutri-513518.iam.gserviceaccount.com
   WEB_SA: smartnutri-web-dev@smartnutri-513518.iam.gserviceaccount.com
+  RETENTION_JOB: smartnutri-retention-dev
   API_URL: https://smartnutri-api-dev-609833507754.asia-south1.run.app
   WEB_URL: https://smartnutri-web-dev-609833507754.asia-south1.run.app
 
@@ -118,6 +119,25 @@ jobs:
           gcloud run services update-traffic smartnutri-api-dev \
             --project "$GCP_PROJECT" --region "$REGION" \
             --remove-tags "c${GITHUB_SHA::7}" || echo "no tag to remove"
+
+      - name: Deploy the retention Cloud Run Job (same image, same service account)
+        # Main only. The job shell, its IAM and the 02:30 IST Cloud Scheduler trigger are one-time
+        # USER setup: scripts/setup-retention-schedule.sh (docs/SETUP_ACCOUNTS.md). This only updates
+        # the image, command and env. Nothing here runs the job; the scheduler does.
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if ! gcloud run jobs describe "$RETENTION_JOB" --project "$GCP_PROJECT" --region "$REGION" >/dev/null 2>&1; then
+            echo "::warning::Cloud Run Job $RETENTION_JOB does not exist yet: run 'bash scripts/setup-retention-schedule.sh setup' (USER), then redeploy. Retention is NOT running."
+            exit 0
+          fi
+          gcloud run jobs deploy "$RETENTION_JOB" \
+            --project "$GCP_PROJECT" --region "$REGION" \
+            --image "$IMAGE" \
+            --service-account "$API_SA" \
+            --command python --args "-m,app.jobs.retention" \
+            --max-retries 0 --task-timeout 600 --memory 512Mi --cpu 1 \
+            --set-secrets "SUPABASE_SECRET_KEY=supabase-secret-key-dev:latest,DATABASE_URL=database-url-dev:latest" \
+            --set-env-vars "^@^ENVIRONMENT=dev@SUPABASE_URL=https://uhjopvrewcwqvugmdhdw.supabase.co@SUPABASE_PROJECT_REF=uhjopvrewcwqvugmdhdw@SUPABASE_STORAGE_BUCKET=label-photos@SUPABASE_VOICE_BUCKET=voice-answers"
 
   deploy-web:
     # After the API so the first web build points at a live API.

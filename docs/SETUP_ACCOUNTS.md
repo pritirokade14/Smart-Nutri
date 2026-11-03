@@ -57,8 +57,8 @@ The Android ID can never change after the first Play Store upload. The prototype
    - Dev: created in the dashboard on 2026-11-03.
    - Prod: create it the same way at launch (Plan 8).
    - Local: the bucket comes from `supabase/config.toml`.
-   - Deleting photos after 30 days is planned for Plan 8 (a retention job). It is **not done yet**.
-   - **Voice answers (Plan 7):** a second bucket, `voice-answers`. Private. File size limit: **5 MiB**. Allowed MIME type: `audio/mpeg`. No storage policies: the API uploads `voice/{account_id}/{uuid}.mp3` with the secret key and hands out 1-hour signed URLs. Setting `SUPABASE_VOICE_BUCKET` (default `voice-answers`). Deleting answers after 24 hours is the Plan 8 retention job. **Dev: not created yet**; create it before testing voice against dev.
+   - Photos are deleted after 30 days by the retention job (see "Retention job" below).
+   - **Voice answers bucket (Plan 7), REQUIRED before any deploy that could enable voice:** a second bucket, `voice-answers`. **Private** (not public). File size limit **5 MiB**. Allowed MIME type **`audio/mpeg`**. Add **no storage policies**: the API uploads `voice/{account_id}/{uuid}.mp3` with the secret key and hands out 1-hour signed URLs. The name comes from `SUPABASE_VOICE_BUCKET` (default `voice-answers`). Migrations do not create buckets. **USER: dev bucket not created yet; create it now. Prod: create it the same way at launch.** The retention job deletes answers after 24 hours; without the bucket the job and voice both fail.
 9. Create the production project, `smartnutri-prod` (Mumbai, **Pro plan**), only at launch (day 13–15).
 
 ---
@@ -153,7 +153,7 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
    - `--dry-run` prints the names only.
 2. `bash scripts/setup-github-deploy.sh` (or `just setup-github-deploy`) : creates the service accounts, placeholder Cloud Run services with service-level roles, and the WIF pool and provider. Safe to re-run.
 3. GitHub repo → Settings → Secrets and variables → Actions → **Variables** → New repository variable `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the **public** publishable key). Optional variables: `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`.
-4. `just db-migrate` with `apps/api/.env` pointing at the dev database (applies Alembic migrations; the URL is read by the app and never printed).
+4. `just db-migrate` (head is now `0004_plan8_deleted_accounts`; migrations 0003 and 0004 must be applied to dev before Plans 5–8 reach `main`) with `apps/api/.env` pointing at the dev database (applies Alembic migrations; the URL is read by the app and never printed).
 5. Merge to `main` through a pull request when CI is green. The deploy runs on its own. To redeploy without a code change: `just deploy-dev` (= `gh workflow run deploy-dev.yml --ref main`).
 
 **Dev URLs (deterministic):**
@@ -172,6 +172,20 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
   1. Call it from a machine with a known egress IP, with `-H 'X-Forwarded-For: 203.0.113.9'`.
   2. Inspect the new key in `rate_limit_counters`.
   3. Your own egress IP: correct. `203.0.113.9`: the header is spoofable, lower the hops. A Google or `169.254.*` address: everyone shares one bucket, raise the hops.
+
+## Retention job (Cloud Run Job + Cloud Scheduler)
+
+`python -m app.jobs.retention` deletes label photos after 30 days and voice answers after 24 hours, nulls `scans.image_path`, and purges deletion tombstones after 7 days. It logs counts only. `deploy-dev.yml` deploys it on pushes to `main` only, using the same API image and the same runtime service account as the API (`smartnutri-api-dev`; it mounts only `DATABASE_URL` and `SUPABASE_SECRET_KEY` from Secret Manager). The workflow only updates an existing job; if the job does not exist it prints a warning and skips.
+
+**You (USER) run these, in order:**
+
+1. Create the `voice-answers` bucket (section 2, step 8).
+2. `bash scripts/setup-retention-schedule.sh setup`: creates the job shell `smartnutri-retention-dev`, gives `github-deployer` `run.developer` on that job only, and creates `smartnutri-scheduler-dev` with `run.invoker` on that job only.
+3. Merge to `main` (or `just deploy-dev`) so the workflow deploys the real image and command into the job.
+4. `bash scripts/setup-retention-schedule.sh dry-run`: executes the job with `--dry-run`. On a new project expect `photos_deleted=0 voice_deleted=0 scans_nulled=0`.
+5. `bash scripts/setup-retention-schedule.sh schedule`: creates the Cloud Scheduler trigger `smartnutri-retention-dev-daily` at **02:30 Asia/Kolkata** every day.
+
+Prod: repeat with prod names when the prod project exists (a prod job, prod secrets, a prod scheduler).
 
 ## Email sign-in codes (Google Workspace SMTP — after the domain)
 

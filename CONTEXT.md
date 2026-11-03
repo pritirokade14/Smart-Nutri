@@ -2,7 +2,7 @@
 
 **Read this first.** It's a one-page snapshot for anyone, human or AI agent, picking up the project. Details live in the linked docs. Update the **Status** section whenever a milestone moves.
 
-_Last updated: 2026-11-03_
+_Last updated: 2026-11-04_
 
 ---
 
@@ -80,16 +80,18 @@ See [AGENTS.md](AGENTS.md). In short:
 
 ## 7. Plans and build order
 
+All eight plans are **code complete on `v1-rebuild`** (head `0c69efd` plus the final fix batch). Nothing past Plan 4 has been merged to `main` or deployed. Plan 4 was merged (PR #2, `7d9fd3d`) and dev migration 0002 applied.
+
 | Plan | File | Status |
 |---|---|---|
-| 1. Rules engine | [plan-1](docs/superpowers/plans/2026-11-02-plan-1-rules-engine.md) | 🔄 in progress (subagent-driven, parallel waves) |
-| 2. Foundation (API skeleton, auth, DB/RLS, contract, i18n/tokens, app + web shells, CI, dev deploy) | `docs/superpowers/plans/2026-11-03-plan-2-foundation.md` | ✍️ being written |
-| 3. M1: barcode → verdict (Android + web), public product pages | `…-plan-3-m1-barcode-verdict.md` | ✍️ being written |
-| 4. M2: label photo → AI extraction → confirm | [plan-4](docs/superpowers/plans/2026-11-03-plan-4-m2-label-scan.md) | 🔄 code complete; M2 gates open (see Status) |
-| 5. M3: family members, per-member verdicts, claims, custom alerts | `…-plan-5-m3-family-verdicts.md` | ✍️ being written |
-| 6. M4: scan-to-log, weekly summary, alternatives, share | `…-plan-6-m4-log-share.md` | ✍️ being written |
-| 7. M5: voice Q&A, AI explanation, How we score, Report a problem | `…-plan-7-m5-voice-methodology-reports.md` | ✍️ being written |
-| 8. M6: hardening, consent/DPDP, prod deploy, Play closed test | `…-plan-8-m6-launch.md` | ✍️ being written |
+| 1. Rules engine | [plan-1](docs/superpowers/plans/2026-11-02-plan-1-rules-engine.md) | Done. Thresholds still PENDING CLINICIAN REVIEW |
+| 2. Foundation | `docs/superpowers/plans/2026-11-03-plan-2-foundation.md` | Code complete; dev deploy live |
+| 3. M1: barcode → verdict, public product pages | `…-plan-3-m1-barcode-verdict.md` | Code complete; manual real-pack check is USER |
+| 4. M2: label scan | [plan-4](docs/superpowers/plans/2026-11-03-plan-4-m2-label-scan.md) | Code complete, merged to `main`; label eval and real-pack check are USER |
+| 5. M3: family members, per-member verdicts, explanation, alerts | `…-plan-5-m3-family-verdicts.md` | Code complete on `v1-rebuild`, not merged |
+| 6. M4: scan-to-log, weekly summary, alternatives, compare, share | `…-plan-6-m4-log-share.md` | Code complete on `v1-rebuild`, not merged |
+| 7. M5: voice Q&A, How we score, Report a problem | `…-plan-7-m5-voice-methodology-reports.md` | Code complete; voice is **OFF** by flag until the USER steps in section 8 |
+| 8. M6: consent/DPDP, deletion, retention, release checklist | `…-plan-8-m6-launch.md` | Code complete; prod deploy, Play Store and legal are USER |
 
 **How plans are executed:** `superpowers:subagent-driven-development`, with a ledger in `.superpowers/sdd/<plan>/progress.md` (git-ignored). Independent tasks run in parallel git worktrees. For each slice: the API first → `just contract` → Android ∥ web → `nutrition-safety-reviewer`.
 
@@ -100,33 +102,50 @@ See [AGENTS.md](AGENTS.md). In short:
 - Monorepo restructure, docs, ADRs, tooling and CI (commit `5f943ff`).
 - Accounts: CallMissed keys, Supabase dev project (database tested), Google Cloud project with billing (free trial), OAuth clients, Google login enabled in Supabase, Cloud Run / Artifact Registry / Secret Manager / Build APIs enabled, ₹1,000 budget alert.
 - **Plan 1 (rules engine): complete.** Every ruling is listed in `docs/superpowers/plans/2026-11-02-plan-1-rulings.md`. Follow-up rulings R12/R13/R25 (Plan 2 ledger) add a blood-sugar heart-health caution, an `age_unknown` guard for members without a birth year, and `unknown` when saturated fat or salt is missing for blood-sugar members.
-- **Plan 2 (foundation), in progress:** config/logging/errors, health check, Supabase JWT verification, database baseline with RLS (ADR 0013: clients never write through the Supabase Data API), `/v1/me`, rate limits, shared i18n (en/hi/mr) with an engine-param contract test, design tokens, shared test fixtures, Next.js web shell. Live check against the dev database passed (`/v1/health` 200).
+- **Plan 2 (foundation): code complete.** Generated clients, login on both apps, CSP/HSTS, Sentry/PostHog with health-data scrubbing, Docker images, CI and the keyless GitHub Actions dev deploy (ADR 0015). Dev API and web are deployed.
+- **Plan 3 (M1) and Plan 4 (M2):** barcode and label scan to verdict on API, Android and web. Plan 4 was merged to `main` (PR #2, `7d9fd3d`); dev migration 0002 applied.
+- **Plans 5–8 (code complete on `v1-rebuild`, head `0c69efd` + final fix batch):**
+  - Plan 5: family members, per-member verdicts, claim checker, custom ingredient alerts, LLM explanation (consent gate G1: `terms` for core use, `health_data` to save member health fields, `ai_processing` for explanations and voice).
+  - Plan 6: scan-to-log (Android offline queue, web online-only), daily and weekly totals, alternatives, compare, search, share (member statuses opt-in, off by default). ADR 0017.
+  - Plan 7: voice Q&A (STT, guarded answer, TTS), How we score, Report a problem. Voice is **off by default** (`VOICE_ENABLED=false`, `NEXT_PUBLIC_FEATURE_VOICE=false`, `FEATURE_VOICE` on Android).
+  - Plan 8: consent and withdrawal (ADR 0018), account deletion with a tombstone (migration `0004_plan8_deleted_accounts`), retention job, EXIF stripping, telemetry allow-list, privacy policy and terms drafts, release checklist (`docs/launch/RELEASE_CHECKLIST.md`).
+  - Whole-branch nutrition-safety review: APPROVE WITH CHANGES; the final fix batch addresses them.
+- **Test totals at `0c69efd`:** API 2811, Flutter 1192 (APK builds), web 1083, web e2e 42.
 
-- **Plan 2 (foundation): code complete.** Generated Dart/TS clients, Flutter and web login, CSP/HSTS, Sentry/PostHog with health-data scrubbing, Docker images, CI, and the GitHub Actions dev-deploy workflow (keyless WIF, ADR 0015). What's left is the user's one-time deploy setup in `docs/SETUP_ACCOUNTS.md`.
-- **Plan 3 (M1: barcode → verdict): code complete on API, Android and web.** Barcode lookup (own products → Open Food Facts cache → OFF), safety-reviewed OFF mapping, `POST /v1/analyze`, a public product page, and scan/result screens on both clients. The clients render identical reason text in en/hi/mr, asserted by a shared fixture.
-- **Plan 4 (M2: label scan): code complete on `v1-rebuild`** (API, Android and web). Still open: a final client fix round (R20/R21: the server sends confirm hints, clients render them), the label eval run (needs the photo set and the CallMissed spend) and the manual real-pack check. The extraction model is not chosen yet. See ADR 0016.
+**Not done, by design or waiting on the user:**
+- Android has no release signing yet and nothing is on Play. No prod project exists.
+- Robots.txt and OG share-card images are **not built** (TODO in FEATURE_PARITY). `sitemap.ts` and hreflang exist.
+- Phone OTP is OFF (needs Meta template approval). Email OTP is OFF (needs a domain and SMTP).
+- Voice is OFF (see below).
 
-**Next:**
-- User: the one-time deploy setup (protect `main`, `push-secrets.sh`, `setup-github-deploy.sh`, the repo variable, `db-migrate`), then push and open the PR to `main`.
-- After the first dev deploy: a manual login check (Google and email OTP) on web and Android, and the M1 real-pack parity check on a phone and in a browser.
-- Finish the M2 gates (client fix round, label eval, manual real-pack check), then Plan 5.
+**Next (all USER unless noted):**
+1. Create the `voice-answers` bucket on dev (before any deploy that could enable voice).
+2. Apply migrations 0003 and 0004 to dev (`just db-migrate`), then PR `v1-rebuild` to `main` when local checks are green. The deploy also updates the retention job once its shell exists.
+3. Run `bash scripts/setup-retention-schedule.sh setup`, then after the deploy `dry-run`, then `schedule` (02:30 IST).
+4. Approve and run the paid STT/TTS probe, then enable voice.
+5. Run the label eval, the manual real-pack parity checks, clinician and native-language reviews, lawyer review, Play Store steps (all in section 9 and `docs/launch/RELEASE_CHECKLIST.md`).
 
 ## 9. Open items that only the user can do
 
-- [ ] Run `scripts/push-secrets.sh` (created in Plan 2) to copy secrets into Secret Manager before the first deploy.
-- [ ] Create the Google Play Console **personal** account ($25) and complete ID verification.
-- [ ] Recruit 12–20 closed-test testers once a usable build exists.
-- [ ] Clinician or dietitian review of `apps/api/app/scoring/data/thresholds.yaml` (all values are marked PENDING CLINICIAN REVIEW). Specific questions for them:
+- [ ] **USER:** `scripts/push-secrets.sh prod` before the prod deploy (dev secrets are already in Secret Manager).
+- [ ] **USER: create the `voice-answers` bucket** on dev (private, 5 MiB, `audio/mpeg`; `docs/SETUP_ACCOUNTS.md` section 2.8) before any deploy that could enable voice. Same on prod at launch.
+- [ ] **USER: apply dev migrations 0003 and 0004** (`just db-migrate`) before merging Plans 5–8 to `main`.
+- [ ] **USER: retention job schedule** (`scripts/setup-retention-schedule.sh`: `setup`, `dry-run`, `schedule`).
+- [ ] **USER: approve the paid STT/TTS probe** (`scripts.probe_stt_formats --yes-spend`). It must also confirm CallMissed accepts the India data-residency setting on STT and TTS. Voice stays off until then and until retention is live.
+- [ ] **USER: lawyer review** of the privacy policy and terms drafts (`docs/launch/`), including DPDP withdrawal versus erasure (ADR 0018) and children's profiles.
+- [ ] **USER: Play Store:** create the Google Play Console **personal** account ($25) and complete ID verification.
+- [ ] **USER:** recruit 12–20 closed-test testers once a usable build exists.
+- [ ] **USER: clinician or dietitian review** (sheet: `docs/launch/clinician-review.md`) of `apps/api/app/scoring/data/thresholds.yaml` (all values are marked PENDING CLINICIAN REVIEW). Specific questions for them:
   - Over-warning list from Plan 1: rice vermicelli / rava flagged as gluten; pistachio/almond "nuts" flagged for peanut allergy; coconut cream and butter beans flagged for milk; soya keema; chai masala / herbal tea flagged as caffeine for children; plain milk 250 ml for a 2-year-old = avoid; coconut water for diabetics; infant rice cereal salt.
   - Blood-sugar members: is CAUTION the right level for foods high in saturated fat or salt (UK FSA "high" limits: sat fat > 5 g, salt > 1.5 g per 100 g)? Is the 30 g carbs-per-serving threshold right (oats at 26 g per 40 g serving shows ok)?
   - Child rules compare total sugars with a daily free-sugar limit, and ignore saturated fat.
   - Ages come from birth year only. Should infant rules (under 2) also warn about very high natural sugar (dates, raisins), and should a 13-year-old still get child caffeine warnings?
   - Serving sizes: the engine accepts any serving above 0 g and up to 5000 g. Should there be a realistic lower bound (e.g. 1 g)? A confirmed serving of 0.0001 g would inflate per-100 g values by about a million times. Post-conversion plausibility catches this, except when every value is 0.
   - Open Food Facts data is crowd-sourced; the engine treats it at confidence 0.9 (allergen rules run, so an incomplete OFF ingredient list could show `ok` for an allergic member). Is that acceptable, or should OFF products be `unknown` for allergic members unless the label is confirmed?
-- [ ] M2 label scan:
+- [ ] **USER: M2 label scan:**
   - (a) Photograph 40–60 label packs for the eval (checklist in `apps/api/tests/evals/labels/README.md`) and approve the CallMissed spend.
   - (b) Do the manual 3-pack parity check on a phone and in a browser, including one Hindi or bilingual label and one per-serving-only label.
   - (c) Smoke-test a real photo upload on both clients on dev after the next deploy.
-- [ ] Native Hindi and Marathi speaker review of all UI strings: checklist in `packages/i18n/NATIVE_REVIEW.md`.
-- [ ] Before launch: domain name, privacy policy and terms, Supabase prod (Pro), CallMissed plan check, WhatsApp OTP template approval.
-- [ ] Before Play submission, decide whether to keep the Android package name `com.smartnutri.app` (it is permanent once published).
+- [ ] **USER: native Hindi and Marathi speaker review** of all UI strings: checklist in `packages/i18n/NATIVE_REVIEW.md`.
+- [ ] **USER:** before launch: domain name, privacy policy and terms, Supabase prod (Pro), CallMissed plan check, WhatsApp OTP template approval.
+- [ ] **USER:** before Play submission, decide whether to keep the Android package name `com.smartnutri.app` (it is permanent once published).
