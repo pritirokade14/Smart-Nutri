@@ -80,7 +80,10 @@ class VoiceAnswerSheet extends StatelessWidget {
           if (onClose case final close?)
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: TextButton(onPressed: close, child: Text(l10n.voiceClose)),
+              child: TextButton(
+                onPressed: close,
+                child: Text(l10n.commonClose),
+              ),
             ),
         ],
       ),

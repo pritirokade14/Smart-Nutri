@@ -162,16 +162,16 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `share.include`, `share.preview`, `search.hint`**: machine drafts; short labels.
 
 ## Plan 8 Task 1 (Android: terms screen and consent routing)
-- [ ] **hi/mr `consent.{screen_title,screen_intro,update_note,needs_update,required_to_continue,updates_banner,review,withdraw_terms_confirm}`, `common.cancel`, `policy.{privacy,terms,open_failed}`**: machine drafts. `required_to_continue` replaces the health-data text when a scan or check is refused for a missing consent; it must stay neutral ("please review and agree"). `withdraw_terms_confirm` must say plainly that scanning stops until the user agrees again, without pressure.
+- [ ] **hi/mr `consent.{update_note,needs_update,required_to_continue,updates_banner}`, `common.cancel`, `policy.open_failed`**: machine drafts. `required_to_continue` replaces the health-data text when a scan or check is refused for a missing consent; it must stay neutral ("please review and agree"). (Android now uses the web keys `consent.terms_step.*`, `consent.prompt.*`, `consent.review_agree` and `consent.terms.withdraw_confirm`; see the integration wave 3 note.)
 
 ## Plan 8 Task 2 (Android: profile tab and account deletion)
-- [ ] **hi/mr `settings.*`** (`language_system`, `about_title`, `account_title`, `delete_button`, `delete_title`, `delete_body`, `delete_confirm_label`, `delete_confirm`, `goodbye_title`, `goodbye_body`, `goodbye_action`): machine drafts. `delete_body` must list plainly what is erased and say it cannot be undone. **`settings.delete_confirm_word` is "DELETE" in all three languages on purpose** (easy to type on any keyboard); the app compares it ignoring case and spaces. If a reviewer localizes it, keep it a single word that is easy to type.
+- [ ] **hi/mr `settings.*`** (`language_system`, `about_title`, `account_title`, `delete_button`, `delete_title`, `delete_body`, `delete_confirm_label`, `delete_confirm`) and `goodbye.action`: machine drafts. `delete_body` must list plainly what is erased and say it cannot be undone. **`settings.delete_confirm_word` is "DELETE" in all three languages on purpose** (easy to type on any keyboard); the app compares it ignoring case and spaces. If a reviewer localizes it, keep it a single word that is easy to type.
 
 ## Plan 7 Task 9 (Android: how we score)
-- [ ] **hi/mr `methodology.{values_title,section_sources}`**: machine drafts. `section_sources` introduces source document titles (kept in their original language); it must read as "based on", not as an endorsement.
+- [ ] **hi/mr `methodology.{values,based_on}`** (now shared by both clients): machine drafts. `based_on` introduces source document titles (kept in their original language); it must read as "based on", not as an endorsement.
 
 ## Plan 7 Task 8 (Android: push-to-talk voice)
-- [ ] **hi/mr `voice.{close,replay}`**: machine drafts. Short button labels.
+- [ ] **hi/mr `voice.replay`**: machine drafts. Short button labels.
 
 ## Plan 8 Task 1 (web: terms acceptance and consent routing)
 - [ ] **hi/mr `consent.terms_step.*`, `consent.needs_update`, `consent.review_agree`, `consent.prompt.*`, `consent.terms.withdraw_confirm`**: machine drafts. The terms step must read as a clear, voluntary agreement (no pressure). `withdraw_confirm` must say plainly that checking and scanning stop until the user agrees again, and that saved data stays until the account is deleted (it is not erased by withdrawal). Keep "गोपनीयता सूचना" consistent with the privacy page title.
@@ -186,7 +186,12 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `methodology.{meta_description,values,based_on,unavailable}`**: machine drafts. `meta_description` is the search-result snippet: it must keep "information, not medical advice" and make no health claim.
 
 ## Plan 7 Task 11 (web: Report a problem)
-- [ ] **hi/mr `report.{reason_label,note_hint,cancel,close}`**: machine drafts. `note_hint` must clearly ask people not to type personal or health details into the free-text note.
+- [ ] **hi/mr `report.{reason_label,note_hint}`**: machine drafts. `note_hint` must clearly ask people not to type personal or health details into the free-text note.
 
 ## Plan 7 Task 10 (web: push-to-talk voice)
 - [ ] **hi/mr `voice.{title,hint,elapsed,no_mic,you_asked,answer_title}`**: machine drafts. `hint` names the Space key (keep "Space" in Latin script). `you_asked` shows the transcript back; check it reads naturally with a quoted question.
+
+## Integration wave 3 (Plans 6–8 clients merged)
+- [ ] **hi/mr `consent.needs_update`**: Android and web drafted different hi/mr text for the same key; the web drafts were kept ("अपडेट हुआ है, कृपया देखें" / "अपडेट झाले आहे, कृपया पाहा").
+- [ ] **hi/mr `settings.delete_title`, `settings.delete_body`, mr `settings.delete_confirm_label`**: both clients drafted these; the web drafts were kept. `delete_title` is now the section heading ("Delete account"); the Android dialog uses `settings.delete_dialog_title`.
+- Keys removed as duplicates (callers moved): `consent.{screen_title,screen_intro,review,withdraw_terms_confirm}`, `settings.{goodbye_title,goodbye_body,delete_cancel}`, `methodology.{values_title,section_sources}`, `policy.{privacy,terms}`, `report.{cancel,close}`, `voice.close`. `settings.goodbye_action` moved to `goodbye.action` (text unchanged).

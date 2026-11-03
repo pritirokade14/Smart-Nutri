@@ -513,17 +513,7 @@ class AppLocalizationsMr extends AppLocalizations {
       'पुढे जाण्यासाठी कृपया पाहा आणि संमती द्या.';
 
   @override
-  String get consentReview => 'पाहा';
-
-  @override
   String get consentReviewAgree => 'वाचा आणि संमती द्या';
-
-  @override
-  String get consentScreenIntro =>
-      'SmartNutri वापरणे सुरू ठेवण्यासाठी कृपया वाचा आणि संमती द्या.';
-
-  @override
-  String get consentScreenTitle => 'पुढे जाण्यापूर्वी';
 
   @override
   String get consentTermsBody =>
@@ -571,10 +561,6 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get consentWithdraw => 'संमती मागे घ्या';
-
-  @override
-  String get consentWithdrawTermsConfirm =>
-      'अटींना दिलेली संमती मागे घ्यायची? पुन्हा संमती देईपर्यंत तुम्हाला उत्पादने स्कॅन किंवा तपासता येणार नाहीत.';
 
   @override
   String get dietEggetarian => 'अंडाहारी (अंडे खाणारा शाकाहारी)';
@@ -786,6 +772,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get footerTagline => 'भारतीय कुटुंबांसाठी पॅकबंद अन्नाची माहिती.';
+
+  @override
+  String get goodbyeAction => 'साइन इनकडे परत जा';
 
   @override
   String get goodbyeBody =>
@@ -1361,11 +1350,6 @@ class AppLocalizationsMr extends AppLocalizations {
       'न्यूट्री-स्कोर (SmartNutri ने मोजलेला)';
 
   @override
-  String methodologySectionSources(String sources) {
-    return 'आधार: $sources';
-  }
-
-  @override
   String get methodologySectionWeightLossDescription =>
       'वजन कमी करणाऱ्या सदस्यांसाठी आम्ही जास्त कॅलरी असलेली उत्पादने आणि कमी न्यूट्री-स्कोर ग्रेड दाखवतो, आणि कॅलरीच्या मानाने चांगले प्रथिन असलेली उत्पादनेही सांगतो.';
 
@@ -1387,9 +1371,6 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get methodologyValues => 'नियमांची मूल्ये';
-
-  @override
-  String get methodologyValuesTitle => 'वापरलेली मूल्ये';
 
   @override
   String methodologyVersion(String version) {
@@ -1453,12 +1434,6 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get policyOpenFailed =>
       'पान उघडता आले नाही. कृपया पुन्हा प्रयत्न करा.';
-
-  @override
-  String get policyPrivacy => 'गोपनीयता धोरण';
-
-  @override
-  String get policyTerms => 'वापराच्या अटी';
 
   @override
   String get productClaimsHeading => 'लेबलवरील दावे, SmartNutri ने तपासलेले';
@@ -1700,12 +1675,6 @@ class AppLocalizationsMr extends AppLocalizations {
   String get reportButton => 'समस्या कळवा';
 
   @override
-  String get reportCancel => 'रद्द करा';
-
-  @override
-  String get reportClose => 'बंद करा';
-
-  @override
   String get reportNoteHint =>
       'कृपया वैयक्तिक किंवा आरोग्याविषयी माहिती लिहू नका.';
 
@@ -1856,9 +1825,6 @@ class AppLocalizationsMr extends AppLocalizations {
   String get settingsDeleteButton => 'खाते हटवा';
 
   @override
-  String get settingsDeleteCancel => 'रद्द करा';
-
-  @override
   String get settingsDeleteConfirm => 'कायमचे हटवा';
 
   @override
@@ -1881,16 +1847,6 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get settingsDeleting => 'तुमचे खाते हटवले जात आहे…';
-
-  @override
-  String get settingsGoodbyeAction => 'साइन इनकडे परत जा';
-
-  @override
-  String get settingsGoodbyeBody =>
-      'तुमचा डेटा पुसून टाकला आहे. SmartNutri वापरल्याबद्दल धन्यवाद.';
-
-  @override
-  String get settingsGoodbyeTitle => 'तुमचे खाते हटवले गेले आहे';
 
   @override
   String get settingsLanguageBody => 'या डिव्हाइसवर SmartNutri ची भाषा निवडा.';
@@ -2136,9 +2092,6 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get voiceButtonHold => 'विचारण्यासाठी दाबून ठेवा';
-
-  @override
-  String get voiceClose => 'बंद करा';
 
   @override
   String voiceElapsed(String seconds) {

@@ -148,7 +148,7 @@ class _ConsentUpdatesBanner extends ConsumerWidget {
                 queryParameters: {'purposes': updates.join(',')},
               ).toString(),
             ),
-            child: Text(l10n.consentReview),
+            child: Text(l10n.consentReviewAgree),
           ),
         ],
       ),

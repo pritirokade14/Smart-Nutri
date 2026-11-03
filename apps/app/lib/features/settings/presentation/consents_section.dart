@@ -56,7 +56,7 @@ class _ConsentsSectionState extends ConsumerState<ConsentsSection> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        content: Text(l10n.consentWithdrawTermsConfirm),
+        content: Text(l10n.consentTermsWithdrawConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

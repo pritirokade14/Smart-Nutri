@@ -111,7 +111,7 @@ describe("DeleteAccount", () => {
     setup();
     const dialog = await openDialog();
     await userEvent.click(
-      within(dialog).getByRole("button", { name: en.settings.delete_cancel }),
+      within(dialog).getByRole("button", { name: en.common.cancel }),
     );
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(api.calls).toHaveLength(0);

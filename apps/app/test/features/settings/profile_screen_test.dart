@@ -169,8 +169,8 @@ void main() {
     expect(h.auth.calls, contains('signOut'));
     expect(h.events, ['account_deleted']);
     expect(find.byType(GoodbyeScreen), findsOneWidget);
-    expect(find.text(l.settingsGoodbyeTitle), findsOneWidget);
-    await t.tap(find.text(l.settingsGoodbyeAction));
+    expect(find.text(l.goodbyeTitle), findsOneWidget);
+    await t.tap(find.text(l.goodbyeAction));
     await t.pumpAndSettle();
     expect(find.byType(SignInScreen), findsOneWidget);
   });

@@ -155,7 +155,7 @@ describe("ReportDialog", () => {
     wrap(<ReportButton productId={PRODUCT} />);
     const dialog = await open();
     await userEvent.click(
-      within(dialog).getByRole("button", { name: en.report.cancel }),
+      within(dialog).getByRole("button", { name: en.common.cancel }),
     );
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(api.calls).toHaveLength(0);

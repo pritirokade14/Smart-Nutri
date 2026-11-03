@@ -1036,29 +1036,11 @@ abstract class AppLocalizations {
   /// **'Please review and agree to continue.'**
   String get consentRequiredToContinue;
 
-  /// No description provided for @consentReview.
-  ///
-  /// In en, this message translates to:
-  /// **'Review'**
-  String get consentReview;
-
   /// No description provided for @consentReviewAgree.
   ///
   /// In en, this message translates to:
   /// **'Review and agree'**
   String get consentReviewAgree;
-
-  /// No description provided for @consentScreenIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'Please read and agree to continue using SmartNutri.'**
-  String get consentScreenIntro;
-
-  /// No description provided for @consentScreenTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Before you continue'**
-  String get consentScreenTitle;
 
   /// No description provided for @consentTermsBody.
   ///
@@ -1137,12 +1119,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Withdraw consent'**
   String get consentWithdraw;
-
-  /// No description provided for @consentWithdrawTermsConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Withdraw your agreement to the terms? You won\'t be able to scan or check products until you agree again.'**
-  String get consentWithdrawTermsConfirm;
 
   /// No description provided for @dietEggetarian.
   ///
@@ -1503,6 +1479,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Packaged-food information for Indian families.'**
   String get footerTagline;
+
+  /// No description provided for @goodbyeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get goodbyeAction;
 
   /// No description provided for @goodbyeBody.
   ///
@@ -2506,12 +2488,6 @@ abstract class AppLocalizations {
   /// **'Nutri-Score (calculated by SmartNutri)'**
   String get methodologySectionNutriscore2023Title;
 
-  /// No description provided for @methodologySectionSources.
-  ///
-  /// In en, this message translates to:
-  /// **'Based on: {sources}'**
-  String methodologySectionSources(String sources);
-
   /// No description provided for @methodologySectionWeightLossDescription.
   ///
   /// In en, this message translates to:
@@ -2553,12 +2529,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rule values'**
   String get methodologyValues;
-
-  /// No description provided for @methodologyValuesTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Values used'**
-  String get methodologyValuesTitle;
 
   /// No description provided for @methodologyVersion.
   ///
@@ -2673,18 +2643,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t open the page. Please try again.'**
   String get policyOpenFailed;
-
-  /// No description provided for @policyPrivacy.
-  ///
-  /// In en, this message translates to:
-  /// **'Privacy policy'**
-  String get policyPrivacy;
-
-  /// No description provided for @policyTerms.
-  ///
-  /// In en, this message translates to:
-  /// **'Terms of use'**
-  String get policyTerms;
 
   /// No description provided for @productClaimsHeading.
   ///
@@ -2992,18 +2950,6 @@ abstract class AppLocalizations {
   /// **'Report a problem'**
   String get reportButton;
 
-  /// No description provided for @reportCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get reportCancel;
-
-  /// No description provided for @reportClose.
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get reportClose;
-
   /// No description provided for @reportNoteHint.
   ///
   /// In en, this message translates to:
@@ -3280,12 +3226,6 @@ abstract class AppLocalizations {
   /// **'Delete account'**
   String get settingsDeleteButton;
 
-  /// No description provided for @settingsDeleteCancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get settingsDeleteCancel;
-
   /// No description provided for @settingsDeleteConfirm.
   ///
   /// In en, this message translates to:
@@ -3327,24 +3267,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deleting your account…'**
   String get settingsDeleting;
-
-  /// No description provided for @settingsGoodbyeAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Back to sign in'**
-  String get settingsGoodbyeAction;
-
-  /// No description provided for @settingsGoodbyeBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Your data has been erased. Thank you for using SmartNutri.'**
-  String get settingsGoodbyeBody;
-
-  /// No description provided for @settingsGoodbyeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Your account has been deleted'**
-  String get settingsGoodbyeTitle;
 
   /// No description provided for @settingsLanguageBody.
   ///
@@ -3740,12 +3662,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hold to ask'**
   String get voiceButtonHold;
-
-  /// No description provided for @voiceClose.
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get voiceClose;
 
   /// No description provided for @voiceElapsed.
   ///

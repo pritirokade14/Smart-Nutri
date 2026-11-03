@@ -20,10 +20,10 @@ class GoodbyeScreen extends StatelessWidget {
             padding: const EdgeInsets.all(SnTokens.space5),
             child: EmptyState(
               icon: Icons.check_circle_outline_rounded,
-              title: l10n.settingsGoodbyeTitle,
-              body: l10n.settingsGoodbyeBody,
+              title: l10n.goodbyeTitle,
+              body: l10n.goodbyeBody,
               action: PrimaryButton(
-                label: l10n.settingsGoodbyeAction,
+                label: l10n.goodbyeAction,
                 onPressed: () => context.go('/sign-in'),
               ),
             ),

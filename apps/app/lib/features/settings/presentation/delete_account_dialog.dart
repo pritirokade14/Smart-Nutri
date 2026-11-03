@@ -90,7 +90,7 @@ class _DeleteAccountDialogState extends ConsumerState<DeleteAccountDialog> {
     return PopScope(
       canPop: !_busy,
       child: AlertDialog(
-        title: Text(l10n.settingsDeleteTitle),
+        title: Text(l10n.settingsDeleteDialogTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,

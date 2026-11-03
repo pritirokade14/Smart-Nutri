@@ -57,14 +57,14 @@ class ProfileScreen extends ConsumerWidget {
                   ListTile(
                     key: privacyKey,
                     leading: const Icon(Icons.privacy_tip_outlined),
-                    title: Text(l10n.policyPrivacy),
+                    title: Text(l10n.legalPrivacyTitle),
                     trailing: const Icon(Icons.open_in_new_rounded),
                     onTap: () => openPolicy(context, ref, 'privacy'),
                   ),
                   ListTile(
                     key: termsKey,
                     leading: const Icon(Icons.description_outlined),
-                    title: Text(l10n.policyTerms),
+                    title: Text(l10n.legalTermsTitle),
                     trailing: const Icon(Icons.open_in_new_rounded),
                     onTap: () => openPolicy(context, ref, 'terms'),
                   ),

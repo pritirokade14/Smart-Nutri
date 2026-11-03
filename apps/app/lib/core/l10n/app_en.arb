@@ -218,10 +218,7 @@
   "consentPromptTitle": "Your agreement is needed",
   "consentRequiredNote": "Needed to save allergies, health conditions, a goal, height or weight.",
   "consentRequiredToContinue": "Please review and agree to continue.",
-  "consentReview": "Review",
   "consentReviewAgree": "Review and agree",
-  "consentScreenIntro": "Please read and agree to continue using SmartNutri.",
-  "consentScreenTitle": "Before you continue",
   "consentTermsBody": "I agree to the SmartNutri terms of use and privacy policy.",
   "consentTermsStepBody": "Please read our terms of use and privacy notice. You need to agree to them to check and scan products.",
   "consentTermsStepLeaveNote": "Don't want to agree? You can sign out, or delete your account from your profile.",
@@ -235,7 +232,6 @@
   "consentUpdateNote": "We've updated this text. Please read it and agree again.",
   "consentUpdatesBanner": "We've updated some consent texts. Please review them.",
   "consentWithdraw": "Withdraw consent",
-  "consentWithdrawTermsConfirm": "Withdraw your agreement to the terms? You won't be able to scan or check products until you agree again.",
   "dietEggetarian": "Eggetarian",
   "dietJain": "Jain",
   "dietNonVeg": "Non-vegetarian",
@@ -296,6 +292,7 @@
   "familyTitle": "Family",
   "footerLinksLabel": "About SmartNutri",
   "footerTagline": "Packaged-food information for Indian families.",
+  "goodbyeAction": "Back to sign in",
   "goodbyeBody": "Your account and its data have been deleted, and you have been signed out. Thank you for trying SmartNutri.",
   "goodbyeMetaTitle": "Account deleted",
   "goodbyeTitle": "Your account has been deleted",
@@ -567,14 +564,6 @@
   "methodologySectionInfantTitle": "Babies and toddlers",
   "methodologySectionNutriscore2023Description": "We calculate a Nutri-Score grade from the label, using the 2023 update of the method. It is calculated by SmartNutri; it is not an FSSAI rating.",
   "methodologySectionNutriscore2023Title": "Nutri-Score (calculated by SmartNutri)",
-  "methodologySectionSources": "Based on: {sources}",
-  "@methodologySectionSources": {
-    "placeholders": {
-      "sources": {
-        "type": "String"
-      }
-    }
-  },
   "methodologySectionWeightLossDescription": "For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.",
   "methodologySectionWeightLossTitle": "Weight loss",
   "methodologySourcesTitle": "Sources",
@@ -582,7 +571,6 @@
   "methodologyUnavailable": "We couldn't load the scoring rules right now. Please try again in a moment.",
   "methodologyUrlUnverified": "Link not yet checked",
   "methodologyValues": "Rule values",
-  "methodologyValuesTitle": "Values used",
   "methodologyVersion": "Rules version {version}",
   "@methodologyVersion": {
     "placeholders": {
@@ -609,8 +597,6 @@
   "nutriscoreCalculatedBy": "Nutri-Score calculated by SmartNutri",
   "nutriscoreInsufficientData": "Not enough label data to calculate a Nutri-Score.",
   "policyOpenFailed": "Couldn't open the page. Please try again.",
-  "policyPrivacy": "Privacy policy",
-  "policyTerms": "Terms of use",
   "productClaimsHeading": "Claims on the label, checked by SmartNutri",
   "productLabelSays": "Label says: {claim}",
   "@productLabelSays": {
@@ -900,8 +886,6 @@
     }
   },
   "reportButton": "Report a problem",
-  "reportCancel": "Cancel",
-  "reportClose": "Close",
   "reportNoteHint": "Please don't include personal or health details.",
   "reportNoteLabel": "Tell us more (optional)",
   "reportReasonLabel": "What's wrong?",
@@ -962,7 +946,6 @@
   "settingsAccountTitle": "Account",
   "settingsDeleteBody": "This permanently deletes your account, your family profiles and health data, scans, food logs, label photos and voice answers. Products you added stay in the shared catalogue without your name. This can't be undone.",
   "settingsDeleteButton": "Delete account",
-  "settingsDeleteCancel": "Cancel",
   "settingsDeleteConfirm": "Delete permanently",
   "settingsDeleteConfirmLabel": "Type {word} to confirm",
   "@settingsDeleteConfirmLabel": {
@@ -977,9 +960,6 @@
   "settingsDeleteRetrying": "Still deleting. Trying again…",
   "settingsDeleteTitle": "Delete account",
   "settingsDeleting": "Deleting your account…",
-  "settingsGoodbyeAction": "Back to sign in",
-  "settingsGoodbyeBody": "Your data has been erased. Thank you for using SmartNutri.",
-  "settingsGoodbyeTitle": "Your account has been deleted",
   "settingsLanguageBody": "Choose the language for SmartNutri on this device.",
   "settingsLanguageSystem": "Device language",
   "shareButton": "Share",
@@ -1185,7 +1165,6 @@
   "voiceAiUnavailable": "Voice answers are unavailable right now. Please try again later.",
   "voiceAnswerTitle": "Answer",
   "voiceButtonHold": "Hold to ask",
-  "voiceClose": "Close",
   "voiceElapsed": "{seconds} s of 30 s",
   "@voiceElapsed": {
     "placeholders": {

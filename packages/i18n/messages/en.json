@@ -467,8 +467,6 @@
       "read_privacy": "Privacy notice",
       "leave_note": "Don't want to agree? You can sign out, or delete your account from your profile."
     },
-    "screen_title": "Before you continue",
-    "screen_intro": "Please read and agree to continue using SmartNutri.",
     "update_note": "We've updated this text. Please read it and agree again.",
     "needs_update": "Updated, please review",
     "review_agree": "Review and agree",
@@ -477,9 +475,7 @@
       "body": "To continue, please agree to the following. You can withdraw at any time from your profile."
     },
     "required_to_continue": "Please review and agree to continue.",
-    "updates_banner": "We've updated some consent texts. Please review them.",
-    "review": "Review",
-    "withdraw_terms_confirm": "Withdraw your agreement to the terms? You won't be able to scan or check products until you agree again."
+    "updates_banner": "We've updated some consent texts. Please review them."
   },
   "explanation": {
     "title": "Why this result",
@@ -695,7 +691,6 @@
     "no_mic": "We couldn't find a microphone on this device.",
     "you_asked": "You asked: {question}",
     "answer_title": "Answer",
-    "close": "Close",
     "replay": "Play again"
   },
   "methodology": {
@@ -758,9 +753,7 @@
     "meta_description": "How SmartNutri checks packaged food for each family member: the fixed rules, their thresholds and sources. Information, not medical advice.",
     "values": "Rule values",
     "based_on": "Based on:",
-    "unavailable": "We couldn't load the scoring rules right now. Please try again in a moment.",
-    "values_title": "Values used",
-    "section_sources": "Based on: {sources}"
+    "unavailable": "We couldn't load the scoring rules right now. Please try again in a moment."
   },
   "report": {
     "button": "Report a problem",
@@ -775,9 +768,7 @@
     "submit": "Send report",
     "thanks": "Thanks. We'll review this product's data.",
     "reason_label": "What's wrong?",
-    "note_hint": "Please don't include personal or health details.",
-    "cancel": "Cancel",
-    "close": "Close"
+    "note_hint": "Please don't include personal or health details."
   },
   "legal": {
     "privacy_title": "Privacy notice",
@@ -789,8 +780,6 @@
     "version": "Version {version}"
   },
   "policy": {
-    "privacy": "Privacy policy",
-    "terms": "Terms of use",
     "open_failed": "Couldn't open the page. Please try again."
   },
   "settings": {
@@ -804,17 +793,14 @@
     "delete_confirm_word": "DELETE",
     "delete_confirm_label": "Type {word} to confirm",
     "delete_confirm": "Delete permanently",
-    "delete_cancel": "Cancel",
     "deleting": "Deleting your account…",
     "delete_retrying": "Still deleting. Trying again…",
-    "goodbye_title": "Your account has been deleted",
-    "goodbye_body": "Your data has been erased. Thank you for using SmartNutri.",
-    "goodbye_action": "Back to sign in",
     "language_body": "Choose the language for SmartNutri on this device."
   },
   "goodbye": {
     "title": "Your account has been deleted",
     "body": "Your account and its data have been deleted, and you have been signed out. Thank you for trying SmartNutri.",
-    "meta_title": "Account deleted"
+    "meta_title": "Account deleted",
+    "action": "Back to sign in"
   }
 }

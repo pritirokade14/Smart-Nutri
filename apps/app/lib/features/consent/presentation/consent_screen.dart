@@ -89,7 +89,9 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
       canPop: !widget.gate,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(l10n.consentScreenTitle),
+          title: Text(
+            widget.gate ? l10n.consentTermsStepTitle : l10n.consentPromptTitle,
+          ),
           automaticallyImplyLeading: !widget.gate,
         ),
         body: SafeArea(
@@ -133,7 +135,10 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
     return ListView(
       padding: const EdgeInsets.all(SnTokens.space4),
       children: [
-        Text(l10n.consentScreenIntro, style: theme.textTheme.bodyLarge),
+        Text(
+          widget.gate ? l10n.consentTermsStepBody : l10n.consentPromptBody,
+          style: theme.textTheme.bodyLarge,
+        ),
         const SizedBox(height: SnTokens.space4),
         for (final purpose in widget.purposes)
           Card(

@@ -28,6 +28,7 @@ export function ReportDialog({
 }) {
   const t = useTranslations("report");
   const te = useTranslations("error");
+  const tc = useTranslations("common");
   const noteId = useId();
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [note, setNote] = useState("");
@@ -48,7 +49,7 @@ export function ReportDialog({
         title={t("title")}
         onClose={onClose}
         testId="report-dialog"
-        actions={<Button onClick={onClose}>{t("close")}</Button>}
+        actions={<Button onClick={onClose}>{tc("close")}</Button>}
       >
         <p role="status" className="text-md text-text-primary">
           {t("thanks")}
@@ -65,7 +66,7 @@ export function ReportDialog({
       actions={
         <>
           <Button variant="outline" onClick={onClose}>
-            {t("cancel")}
+            {tc("cancel")}
           </Button>
           <Button disabled={!reason || report.isPending} onClick={submit}>
             {t("submit")}

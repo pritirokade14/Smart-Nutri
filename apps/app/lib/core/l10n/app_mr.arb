@@ -218,10 +218,7 @@
   "consentPromptTitle": "तुमची संमती हवी आहे",
   "consentRequiredNote": "ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची किंवा वजन जतन करण्यासाठी आवश्यक.",
   "consentRequiredToContinue": "पुढे जाण्यासाठी कृपया पाहा आणि संमती द्या.",
-  "consentReview": "पाहा",
   "consentReviewAgree": "वाचा आणि संमती द्या",
-  "consentScreenIntro": "SmartNutri वापरणे सुरू ठेवण्यासाठी कृपया वाचा आणि संमती द्या.",
-  "consentScreenTitle": "पुढे जाण्यापूर्वी",
   "consentTermsBody": "मी SmartNutri च्या वापराच्या अटी आणि गोपनीयता धोरणाशी सहमत आहे.",
   "consentTermsStepBody": "कृपया आमच्या वापराच्या अटी आणि गोपनीयता सूचना वाचा. उत्पादने तपासण्यासाठी आणि स्कॅन करण्यासाठी तुम्हाला त्यांना संमती द्यावी लागेल.",
   "consentTermsStepLeaveNote": "संमती द्यायची नाही? तुम्ही साइन आउट करू शकता, किंवा तुमच्या प्रोफाइलमधून तुमचे खाते हटवू शकता.",
@@ -235,7 +232,6 @@
   "consentUpdateNote": "आम्ही हा मजकूर अद्ययावत केला आहे. कृपया तो वाचा आणि पुन्हा संमती द्या.",
   "consentUpdatesBanner": "आम्ही काही संमतीचे मजकूर अद्ययावत केले आहेत. कृपया ते पाहा.",
   "consentWithdraw": "संमती मागे घ्या",
-  "consentWithdrawTermsConfirm": "अटींना दिलेली संमती मागे घ्यायची? पुन्हा संमती देईपर्यंत तुम्हाला उत्पादने स्कॅन किंवा तपासता येणार नाहीत.",
   "dietEggetarian": "अंडाहारी (अंडे खाणारा शाकाहारी)",
   "dietJain": "जैन",
   "dietNonVeg": "मांसाहारी",
@@ -296,6 +292,7 @@
   "familyTitle": "कुटुंब",
   "footerLinksLabel": "SmartNutri विषयी",
   "footerTagline": "भारतीय कुटुंबांसाठी पॅकबंद अन्नाची माहिती.",
+  "goodbyeAction": "साइन इनकडे परत जा",
   "goodbyeBody": "तुमचे खाते आणि त्याचा डेटा हटवला गेला आहे, आणि तुम्ही साइन आउट झाला आहात. SmartNutri वापरून पाहिल्याबद्दल धन्यवाद.",
   "goodbyeMetaTitle": "खाते हटवले",
   "goodbyeTitle": "तुमचे खाते हटवले गेले आहे",
@@ -567,14 +564,6 @@
   "methodologySectionInfantTitle": "बाळे आणि लहान मुले",
   "methodologySectionNutriscore2023Description": "आम्ही लेबलवरून न्यूट्री-स्कोर ग्रेड काढतो, या पद्धतीच्या 2023 च्या अद्यतनानुसार. तो SmartNutri मोजते; ते FSSAI रेटिंग नाही.",
   "methodologySectionNutriscore2023Title": "न्यूट्री-स्कोर (SmartNutri ने मोजलेला)",
-  "methodologySectionSources": "आधार: {sources}",
-  "@methodologySectionSources": {
-    "placeholders": {
-      "sources": {
-        "type": "String"
-      }
-    }
-  },
   "methodologySectionWeightLossDescription": "वजन कमी करणाऱ्या सदस्यांसाठी आम्ही जास्त कॅलरी असलेली उत्पादने आणि कमी न्यूट्री-स्कोर ग्रेड दाखवतो, आणि कॅलरीच्या मानाने चांगले प्रथिन असलेली उत्पादनेही सांगतो.",
   "methodologySectionWeightLossTitle": "वजन कमी करणे",
   "methodologySourcesTitle": "स्रोत",
@@ -582,7 +571,6 @@
   "methodologyUnavailable": "आम्ही सध्या तपासणीचे नियम लोड करू शकलो नाही. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.",
   "methodologyUrlUnverified": "लिंक अजून तपासलेली नाही",
   "methodologyValues": "नियमांची मूल्ये",
-  "methodologyValuesTitle": "वापरलेली मूल्ये",
   "methodologyVersion": "नियम आवृत्ती {version}",
   "@methodologyVersion": {
     "placeholders": {
@@ -609,8 +597,6 @@
   "nutriscoreCalculatedBy": "Nutri-Score ची गणना SmartNutri ने केली आहे",
   "nutriscoreInsufficientData": "Nutri-Score काढण्यासाठी लेबलवर पुरेशी माहिती नाही.",
   "policyOpenFailed": "पान उघडता आले नाही. कृपया पुन्हा प्रयत्न करा.",
-  "policyPrivacy": "गोपनीयता धोरण",
-  "policyTerms": "वापराच्या अटी",
   "productClaimsHeading": "लेबलवरील दावे, SmartNutri ने तपासलेले",
   "productLabelSays": "लेबलवर लिहिले आहे: {claim}",
   "@productLabelSays": {
@@ -900,8 +886,6 @@
     }
   },
   "reportButton": "समस्या कळवा",
-  "reportCancel": "रद्द करा",
-  "reportClose": "बंद करा",
   "reportNoteHint": "कृपया वैयक्तिक किंवा आरोग्याविषयी माहिती लिहू नका.",
   "reportNoteLabel": "अधिक सांगा (ऐच्छिक)",
   "reportReasonLabel": "काय चुकीचे आहे?",
@@ -962,7 +946,6 @@
   "settingsAccountTitle": "खाते",
   "settingsDeleteBody": "यामुळे तुमचे खाते, तुमच्या कुटुंबाच्या प्रोफाइल आणि आरोग्य डेटा, स्कॅन, खाण्याच्या नोंदी, लेबलचे फोटो आणि आवाजातील उत्तरे कायमची हटवली जातील. तुम्ही जोडलेली उत्पादने तुमच्या नावाशिवाय सामायिक यादीत राहतील. हे परत करता येणार नाही.",
   "settingsDeleteButton": "खाते हटवा",
-  "settingsDeleteCancel": "रद्द करा",
   "settingsDeleteConfirm": "कायमचे हटवा",
   "settingsDeleteConfirmLabel": "पुष्टीसाठी {word} लिहा",
   "@settingsDeleteConfirmLabel": {
@@ -977,9 +960,6 @@
   "settingsDeleteRetrying": "अजून हटवले जात आहे. पुन्हा प्रयत्न करत आहोत…",
   "settingsDeleteTitle": "खाते हटवा",
   "settingsDeleting": "तुमचे खाते हटवले जात आहे…",
-  "settingsGoodbyeAction": "साइन इनकडे परत जा",
-  "settingsGoodbyeBody": "तुमचा डेटा पुसून टाकला आहे. SmartNutri वापरल्याबद्दल धन्यवाद.",
-  "settingsGoodbyeTitle": "तुमचे खाते हटवले गेले आहे",
   "settingsLanguageBody": "या डिव्हाइसवर SmartNutri ची भाषा निवडा.",
   "settingsLanguageSystem": "डिव्हाइसची भाषा",
   "shareButton": "शेअर करा",
@@ -1185,7 +1165,6 @@
   "voiceAiUnavailable": "आवाजातील उत्तरे सध्या उपलब्ध नाहीत. कृपया नंतर पुन्हा प्रयत्न करा.",
   "voiceAnswerTitle": "उत्तर",
   "voiceButtonHold": "विचारण्यासाठी दाबून ठेवा",
-  "voiceClose": "बंद करा",
   "voiceElapsed": "30 पैकी {seconds} सेकंद",
   "@voiceElapsed": {
     "placeholders": {

@@ -73,7 +73,7 @@ export function DeleteAccount({
           actions={
             <>
               <Button variant="outline" onClick={close} disabled={busy}>
-                {t("settings.delete_cancel")}
+                {t("common.cancel")}
               </Button>
               {remove.isError ? (
                 <Button onClick={() => remove.mutate()}>

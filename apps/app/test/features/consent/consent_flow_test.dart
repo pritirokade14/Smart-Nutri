@@ -215,7 +215,7 @@ void main() {
       needsUpdate: {'health_data'},
     );
     await _pump(t, consents);
-    await t.tap(find.text(_l(t).consentReview));
+    await t.tap(find.text(_l(t).consentReviewAgree));
     await t.pumpAndSettle();
     expect(t.widget<ConsentScreen>(find.byType(ConsentScreen)).purposes, [
       'health_data',
@@ -227,7 +227,7 @@ void main() {
       [for (final r in consents.recorded) (r.purpose.json, r.granted)],
       [('health_data', true)],
     );
-    expect(find.text(_l(t).consentReview), findsNothing);
+    expect(find.text(_l(t).consentReviewAgree), findsNothing);
   });
 
   testWidgets('withdraw_health_consent_calls_api_and_keeps_scanning', (
@@ -256,7 +256,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.byKey(ConsentsSection.actionKey('terms')));
     await t.pumpAndSettle();
-    expect(find.text(_l(t).consentWithdrawTermsConfirm), findsOneWidget);
+    expect(find.text(_l(t).consentTermsWithdrawConfirm), findsOneWidget);
     expect(consents.recorded, isEmpty);
     await t.tap(find.byKey(ConsentsSection.confirmWithdrawKey));
     await t.pumpAndSettle();

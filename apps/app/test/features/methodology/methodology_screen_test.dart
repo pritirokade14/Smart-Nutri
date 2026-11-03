@@ -77,10 +77,7 @@ void main() {
       // The live sugar threshold for "high in" (food), straight from the API.
       final highIn = find.byKey(MethodologyScreen.sectionKey('high_in'));
       await t.tap(
-        find.descendant(
-          of: highIn,
-          matching: find.text(_l.methodologyValuesTitle),
-        ),
+        find.descendant(of: highIn, matching: find.text(_l.methodologyValues)),
       );
       await t.pumpAndSettle();
       expect(

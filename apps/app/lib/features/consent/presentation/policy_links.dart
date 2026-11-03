@@ -52,7 +52,7 @@ class PolicyLinks extends ConsumerWidget {
             Icons.open_in_new_rounded,
             size: SnTokens.fontSizeMd,
           ),
-          label: Text(l10n.policyPrivacy),
+          label: Text(l10n.legalPrivacyTitle),
           onPressed: () => openPolicy(context, ref, 'privacy'),
         ),
         TextButton.icon(
@@ -61,7 +61,7 @@ class PolicyLinks extends ConsumerWidget {
             Icons.open_in_new_rounded,
             size: SnTokens.fontSizeMd,
           ),
-          label: Text(l10n.policyTerms),
+          label: Text(l10n.legalTermsTitle),
           onPressed: () => openPolicy(context, ref, 'terms'),
         ),
       ],

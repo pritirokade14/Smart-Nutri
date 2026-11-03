@@ -510,17 +510,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please review and agree to continue.';
 
   @override
-  String get consentReview => 'Review';
-
-  @override
   String get consentReviewAgree => 'Review and agree';
-
-  @override
-  String get consentScreenIntro =>
-      'Please read and agree to continue using SmartNutri.';
-
-  @override
-  String get consentScreenTitle => 'Before you continue';
 
   @override
   String get consentTermsBody =>
@@ -567,10 +557,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get consentWithdraw => 'Withdraw consent';
-
-  @override
-  String get consentWithdrawTermsConfirm =>
-      'Withdraw your agreement to the terms? You won\'t be able to scan or check products until you agree again.';
 
   @override
   String get dietEggetarian => 'Eggetarian';
@@ -780,6 +766,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get footerTagline => 'Packaged-food information for Indian families.';
+
+  @override
+  String get goodbyeAction => 'Back to sign in';
 
   @override
   String get goodbyeBody =>
@@ -1357,11 +1346,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nutri-Score (calculated by SmartNutri)';
 
   @override
-  String methodologySectionSources(String sources) {
-    return 'Based on: $sources';
-  }
-
-  @override
   String get methodologySectionWeightLossDescription =>
       'For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.';
 
@@ -1383,9 +1367,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodologyValues => 'Rule values';
-
-  @override
-  String get methodologyValuesTitle => 'Values used';
 
   @override
   String methodologyVersion(String version) {
@@ -1447,12 +1428,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get policyOpenFailed => 'Couldn\'t open the page. Please try again.';
-
-  @override
-  String get policyPrivacy => 'Privacy policy';
-
-  @override
-  String get policyTerms => 'Terms of use';
 
   @override
   String get productClaimsHeading =>
@@ -1696,12 +1671,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportButton => 'Report a problem';
 
   @override
-  String get reportCancel => 'Cancel';
-
-  @override
-  String get reportClose => 'Close';
-
-  @override
   String get reportNoteHint =>
       'Please don\'t include personal or health details.';
 
@@ -1852,9 +1821,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDeleteButton => 'Delete account';
 
   @override
-  String get settingsDeleteCancel => 'Cancel';
-
-  @override
   String get settingsDeleteConfirm => 'Delete permanently';
 
   @override
@@ -1876,16 +1842,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDeleting => 'Deleting your account…';
-
-  @override
-  String get settingsGoodbyeAction => 'Back to sign in';
-
-  @override
-  String get settingsGoodbyeBody =>
-      'Your data has been erased. Thank you for using SmartNutri.';
-
-  @override
-  String get settingsGoodbyeTitle => 'Your account has been deleted';
 
   @override
   String get settingsLanguageBody =>
@@ -2131,9 +2087,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voiceButtonHold => 'Hold to ask';
-
-  @override
-  String get voiceClose => 'Close';
 
   @override
   String voiceElapsed(String seconds) {

@@ -253,7 +253,7 @@ class _SectionCard extends StatelessWidget {
             if (sources.isNotEmpty) ...[
               const SizedBox(height: SnTokens.space2),
               Text(
-                l10n.methodologySectionSources(sources.join('; ')),
+                '${l10n.methodologyBasedOn} ${sources.join('; ')}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: c.textSecondary,
                 ),
@@ -268,7 +268,7 @@ class _SectionCard extends StatelessWidget {
                     bottom: SnTokens.space2,
                   ),
                   title: Text(
-                    l10n.methodologyValuesTitle,
+                    l10n.methodologyValues,
                     style: theme.textTheme.labelLarge,
                   ),
                   children: [
