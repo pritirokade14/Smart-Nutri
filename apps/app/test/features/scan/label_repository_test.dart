@@ -55,6 +55,10 @@ class _FakeProducts implements ProductsClient {
     required String barcode,
     Language? language = Language.en,
   }) => throw UnimplementedError();
+
+  // Routes this test does not use (alternatives, search, compare, ...).
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 /// Records every request the upload Dio sends.

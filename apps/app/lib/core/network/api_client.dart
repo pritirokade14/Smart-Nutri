@@ -78,6 +78,10 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'primary_member' => l10n.errorPrimaryMember,
     'consent_required' => l10n.errorConsentRequired,
     'consent_version_mismatch' => l10n.errorConsentVersionMismatch,
+    'portion_required' => l10n.errorPortionRequired,
+    'serving_size_unknown' => l10n.errorServingSizeUnknown,
+    'eaten_at_out_of_range' => l10n.errorEatenAtOutOfRange,
+    'meal_not_found' => l10n.errorMealNotFound,
     'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };
