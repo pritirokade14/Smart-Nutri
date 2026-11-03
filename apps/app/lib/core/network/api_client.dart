@@ -84,6 +84,7 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'network' => l10n.errorNetwork,
     'image_too_large' => l10n.errorImageTooLarge,
     'unsupported_image' => l10n.errorUnsupportedImage,
+    'image_quality_low' => l10n.errorImageQualityLow,
     'scan_image_not_found' => l10n.errorScanImageNotFound,
     'scan_not_found' => l10n.errorScanNotFound,
     'extraction_failed' => l10n.errorExtractionFailed,
