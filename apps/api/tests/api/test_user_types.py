@@ -470,3 +470,120 @@ async def test_user_types_logs_no_types(client, login, grant, caplog):
     text_ = caplog.text
     assert "user_types status=saved count=1" in text_
     assert "health_condition" not in text_ and "diabetes" not in text_
+
+
+# --- Task 2: pre-fill suggestions (P9-R9) ----------------------------------------------------
+
+FULL = {
+    "types": ["health_condition", "allergy_diet", "eat_better"],
+    "follow_ups": {
+        "conditions": ["diabetes"],
+        "allergens": ["milk"],
+        "diet": "veg",
+        "alerts": ["palm_oil"],
+    },
+}
+
+
+async def test_put_returns_prefill_for_primary_only(client, login, grant, db_session):
+    await grant(A)
+    me = await _primary(db_session, A)
+    me.allergens = ["peanut"]
+    other = Member(account_id=A, name="Dad", relation="parent", birth_year=1950, diet="non_veg")
+    db_session.add(other)
+    await db_session.flush()
+    login(A)
+    r = await client.put(URL, json=FULL)
+    assert r.status_code == 200, r.text
+    prefill = r.json()["prefill"]
+    assert prefill["member_id"] == str(me.id) and prefill["member_id"] != str(other.id)
+    changes = {c["field"]: c for c in prefill["changes"]}
+    assert set(changes) == {"conditions", "allergens", "diet", "goal", "custom_alerts"}
+    assert changes["allergens"] == {
+        "field": "allergens",
+        "current": ["peanut"],
+        "value": ["peanut", "milk"],
+        "added": ["milk"],
+        "reason": "allergy_diet",
+    }
+    assert changes["diet"]["value"] == "veg" and changes["diet"]["current"] == "non_veg"
+    assert changes["goal"]["value"] == "healthy_eating"
+    assert prefill["goal_choice"] is None
+    assert prefill["needs_health_consent"] is False
+    # GET recomputes the same suggestions.
+    assert (await client.get(URL)).json()["prefill"] == prefill
+
+
+async def test_prefill_is_not_applied(client, login, grant, db_session):
+    await grant(A)
+    me = await _primary(db_session, A)
+    login(A)
+    assert (await client.put(URL, json=FULL)).status_code == 200
+    await client.get(URL)
+    after = await _fresh(db_session, me.id)
+    assert after.allergens == [] and after.conditions == [] and after.custom_alerts == []
+    assert after.diet == "non_veg" and after.goal is None
+
+
+async def test_prefill_empty_after_confirm(client, login, grant, db_session):
+    await grant(A)
+    login(A)
+    prefill = (await client.put(URL, json=FULL)).json()["prefill"]
+    patch = {c["field"]: c["value"] for c in prefill["changes"]}
+    r = await client.patch(f"/v1/members/{prefill['member_id']}", json=patch)
+    assert r.status_code == 200, r.text
+    again = (await client.get(URL)).json()["prefill"]
+    assert again["changes"] == [] and again["goal_choice"] is None
+    assert again["member_id"] == prefill["member_id"]
+
+
+async def test_prefill_for_skip_and_family_is_empty(client, login):
+    login(A)
+    for body in ({"types": []}, {"types": ["family"], "follow_ups": {"family_with": ["parents"]}}):
+        prefill = (await client.put(URL, json=body)).json()["prefill"]
+        assert prefill["changes"] == [] and prefill["goal_choice"] is None
+        assert prefill["needs_health_consent"] is False
+
+
+async def test_needs_health_consent_flag(client, login, grant, db_session):
+    await grant(A)
+    login(A)
+    r = await client.put(URL, json={"types": ["weight_loss"]})
+    assert r.json()["prefill"]["needs_health_consent"] is False
+    await db_session.execute(
+        text(
+            "update consents set withdrawn_at = now() "
+            "where account_id = :a and purpose = 'health_data'"
+        ),
+        {"a": A},
+    )
+    prefill = (await client.get(URL)).json()["prefill"]
+    assert [c["field"] for c in prefill["changes"]] == ["goal"]
+    assert prefill["needs_health_consent"] is True
+    # The members route keeps its own gate: confirming the goal without consent is refused.
+    r = await client.patch(f"/v1/members/{prefill['member_id']}", json={"goal": "weight_loss"})
+    assert r.status_code == 403
+
+
+async def test_needs_health_consent_false_for_non_health_fields(client, login, db_session):
+    login(A)  # no consent at all; diet and custom alerts are not health fields
+    prefill = (
+        await client.put(URL, json={"types": ["eat_better"], "follow_ups": {"alerts": ["msg"]}})
+    ).json()["prefill"]
+    fields = [c["field"] for c in prefill["changes"]]
+    assert fields == ["goal", "custom_alerts"] or fields == ["custom_alerts", "goal"]
+    # `goal` is a health field (HEALTH_FIELDS), so the flag is set.
+    assert prefill["needs_health_consent"] is True
+    me = await _primary(db_session, A)
+    me.goal = "weight_gain"
+    await db_session.flush()
+    prefill = (await client.get(URL)).json()["prefill"]
+    assert [c["field"] for c in prefill["changes"]] == ["custom_alerts"]
+    assert prefill["needs_health_consent"] is False
+
+
+async def test_prefill_set_active_response_has_prefill(client, login):
+    login(A)
+    await client.put(URL, json={"types": ["gym"], "follow_ups": {"gym_goal": "stay_fit"}})
+    r = await client.patch(ACTIVE, json={"active_type": "gym"})
+    assert [c["field"] for c in r.json()["prefill"]["changes"]] == ["goal"]

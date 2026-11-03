@@ -33,6 +33,9 @@ class _FakeMe implements MeClient {
 
   @override
   Future<void> meDelete() => throw UnimplementedError();
+
+  @override
+  dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
 
 class _FakeApi implements SmartNutriApiClient {

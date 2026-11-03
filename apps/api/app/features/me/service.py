@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.errors import ApiError
 from app.core.security import AccountContext, auth_invalid_error
 from app.features.consents import service as consents_service
+from app.features.me import prefill
 from app.features.me.models import Account, AccountUserTypes, DeletedAccount
 from app.features.me.schemas import (
     DEFAULT_TYPE,
@@ -22,6 +23,8 @@ from app.features.me.schemas import (
     UserTypesIn,
     UserTypesOut,
 )
+from app.features.members import service as members_service
+from app.features.members.schemas import HEALTH_FIELDS
 from app.integrations.storage import StorageClient
 
 logger = logging.getLogger(__name__)
@@ -212,6 +215,37 @@ async def get_user_types(session: AsyncSession, account_id: UUID) -> AccountUser
         select(AccountUserTypes)
         .where(AccountUserTypes.account_id == account_id)
         .execution_options(populate_existing=True)
+    )
+
+
+async def build_prefill(
+    session: AsyncSession, account_id: UUID, row: AccountUserTypes | None
+) -> PrefillSuggestion | None:
+    """Pre-fill suggestions for the primary member (Task 2, P9-R9), or None before the first
+    answer. Recomputed from the member every time, so it is empty once the user has
+    confirmed. Writes nothing to the member (it may create the primary row on first use,
+    like `GET /v1/members`; the caller commits)."""
+    if row is None:
+        return None
+    primary = await members_service.get_or_create_primary(session, account_id)
+    snapshot = prefill.MemberSnapshot(
+        conditions=tuple(primary.conditions or ()),
+        allergens=tuple(primary.allergens or ()),
+        diet=primary.diet,
+        goal=primary.goal,
+        custom_alerts=tuple(primary.custom_alerts or ()),
+    )
+    follow_ups = FollowUps.model_validate(row.follow_ups or {})
+    changes, goal_choice = prefill.suggest_prefill(row.types, follow_ups, snapshot)  # type: ignore[arg-type]
+    touches_health = goal_choice is not None or any(c.field in HEALTH_FIELDS for c in changes)
+    needs_consent = touches_health and not await consents_service.has_active_consent(
+        session, account_id, "health_data"
+    )
+    return PrefillSuggestion(
+        member_id=primary.id,
+        changes=changes,
+        goal_choice=goal_choice,
+        needs_health_consent=needs_consent,
     )
 
 

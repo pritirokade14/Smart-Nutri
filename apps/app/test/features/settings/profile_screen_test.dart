@@ -40,6 +40,9 @@ class _FakeMe implements MeClient {
     deleteCalls++;
     if (errors.isNotEmpty) throw errors.removeAt(0);
   }
+
+  @override
+  dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
 
 class _FakeApi implements SmartNutriApiClient {

@@ -4307,7 +4307,7 @@
     },
     "/v1/me/user-types": {
       "get": {
-        "description": "The account's user types. Without an answer yet: `answered=false`, `types=[]` and the\n`eat_better` mode (clients then show the picker).",
+        "description": "The account's user types. Without an answer yet: `answered=false`, `types=[]` and the\n`eat_better` mode (clients then show the picker).\n\n`prefill` lists suggested changes to the account holder's own member, recomputed on every\ncall (empty once confirmed). Nothing is applied: the client sends only the confirmed ones\nto `PATCH /v1/members/{member_id}`, which keeps its health_data check.",
         "operationId": "me_user_types_get",
         "responses": {
           "200": {
@@ -4382,7 +4382,7 @@
         ]
       },
       "put": {
-        "description": "Save up to 3 types (tap order) and their follow-ups; `types=[]` is \"Skip for now\".\n\nPresentation only: it never changes a member or a verdict. 422 `validation_error` for more\nthan 3 types or duplicates; 422 `follow_up_without_type` for a follow-up whose type is not\nchosen.",
+        "description": "Save up to 3 types (tap order) and their follow-ups; `types=[]` is \"Skip for now\".\n\nPresentation only: it never changes a member or a verdict. 422 `validation_error` for more\nthan 3 types or duplicates; 422 `follow_up_without_type` for a follow-up whose type is not\nchosen. The response's `prefill` only suggests member changes; none is applied.",
         "operationId": "me_user_types_put",
         "requestBody": {
           "content": {

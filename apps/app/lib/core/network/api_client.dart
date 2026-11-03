@@ -113,6 +113,9 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'phone_otp_disabled' => l10n.errorPhoneOtpDisabled,
     'payload_too_large' => l10n.errorPayloadTooLarge,
     'search_query_too_short' => l10n.errorSearchQueryTooShort,
+    'user_type_not_selected' => l10n.errorUserTypeNotSelected,
+    'follow_up_without_type' => l10n.errorFollowUpWithoutType,
+    'user_types_not_found' => l10n.errorUserTypesNotFound,
     'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };

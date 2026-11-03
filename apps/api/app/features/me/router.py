@@ -10,6 +10,7 @@ from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.me import service
 from app.features.me.dependencies import CurrentAccount, current_account_row
+from app.features.me.models import AccountUserTypes
 from app.features.me.schemas import ActiveTypeIn, MeOut, UserTypesIn, UserTypesOut
 from app.integrations.posthog import track
 from app.integrations.storage import (
@@ -55,12 +56,28 @@ _USER_TYPES_PUT_RESPONSES = {
 }
 
 
+async def _user_types_out(
+    session: AsyncSession, current: CurrentAccount, row: AccountUserTypes | None
+) -> UserTypesOut:
+    """The response with fresh pre-fill suggestions, then commit (the primary member may have
+    been created on first use)."""
+    suggestion = await service.build_prefill(session, current.account.id, row)
+    out = service.user_types_out(row, suggestion)
+    await session.commit()
+    return out
+
+
 @router.get("/user-types", operation_id="me_user_types_get", response_model=UserTypesOut)
 async def me_user_types_get(current: Current, session: Session) -> UserTypesOut:
     """The account's user types. Without an answer yet: `answered=false`, `types=[]` and the
-    `eat_better` mode (clients then show the picker)."""
+    `eat_better` mode (clients then show the picker).
+
+    `prefill` lists suggested changes to the account holder's own member, recomputed on every
+    call (empty once confirmed). Nothing is applied: the client sends only the confirmed ones
+    to `PATCH /v1/members/{member_id}`, which keeps its health_data check.
+    """
     row = await service.get_user_types(session, current.account.id)
-    return service.user_types_out(row)
+    return await _user_types_out(session, current, row)
 
 
 @router.put(
@@ -74,12 +91,10 @@ async def me_user_types_put(body: UserTypesIn, current: Current, session: Sessio
 
     Presentation only: it never changes a member or a verdict. 422 `validation_error` for more
     than 3 types or duplicates; 422 `follow_up_without_type` for a follow-up whose type is not
-    chosen.
+    chosen. The response's `prefill` only suggests member changes; none is applied.
     """
     row = await service.put_user_types(session, current.account.id, body)
-    out = service.user_types_out(row)
-    await session.commit()
-    return out
+    return await _user_types_out(session, current, row)
 
 
 @router.patch(
@@ -94,9 +109,7 @@ async def me_user_types_set_active(
     PUT; 422 `user_type_not_selected` unless it is one of the chosen types (or `eat_better`
     after "Skip for now")."""
     row = await service.set_active_type(session, current.account.id, body.active_type)
-    out = service.user_types_out(row)
-    await session.commit()
-    return out
+    return await _user_types_out(session, current, row)
 
 
 @router.delete(

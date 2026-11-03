@@ -38,6 +38,10 @@ abstract class MeClient {
   ///
   /// The account's user types. Without an answer yet: `answered=false`, `types=[]` and the.
   /// `eat_better` mode (clients then show the picker).
+  ///
+  /// `prefill` lists suggested changes to the account holder's own member, recomputed on every.
+  /// call (empty once confirmed). Nothing is applied: the client sends only the confirmed ones.
+  /// to `PATCH /v1/members/{member_id}`, which keeps its health_data check.
   @GET('/v1/me/user-types')
   Future<UserTypesOut> meUserTypesGet();
 
@@ -47,7 +51,7 @@ abstract class MeClient {
   ///
   /// Presentation only: it never changes a member or a verdict. 422 `validation_error` for more.
   /// than 3 types or duplicates; 422 `follow_up_without_type` for a follow-up whose type is not.
-  /// chosen.
+  /// chosen. The response's `prefill` only suggests member changes; none is applied.
   @PUT('/v1/me/user-types')
   Future<UserTypesOut> meUserTypesPut({@Body() required UserTypesIn body});
 
