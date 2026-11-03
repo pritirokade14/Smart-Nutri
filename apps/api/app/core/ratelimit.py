@@ -29,10 +29,10 @@ BUCKETS: dict[str, tuple[str, str]] = {
     "voice": ("day", "rate_limit_voice_per_day"),
     "reports": ("day", "rate_limit_reports_per_day"),
     "analyze": ("hour", "rate_limit_analyze_per_hour"),
+    "product_lookups": ("hour", "rate_limit_product_lookups_per_hour"),
     "public": ("minute", "rate_limit_public_per_minute"),
     "meal_logs": ("day", "rate_limit_meal_logs_per_day"),
     "search": ("minute", "rate_limit_search_per_minute"),
-    "product_lookups": ("hour", "rate_limit_product_lookups_per_hour"),
 }
 ERROR_CODES = {"label_scans": "rate_limited_scans", "voice": "rate_limited_voice"}
 _DEFAULT_CODE = "rate_limited"

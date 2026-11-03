@@ -28,7 +28,7 @@ def test_log_level_from_env(monkeypatch):
     from app.main import create_app
 
     monkeypatch.setenv("LOG_LEVEL", "debug")
-    settings = Settings(_env_file=None, environment="prod")
+    settings = Settings(_env_file=None, environment="prod", allowed_origins=["https://app.example"])
     assert settings.log_level == "DEBUG"
     create_app(settings)
     assert logging.getLogger().level == logging.DEBUG

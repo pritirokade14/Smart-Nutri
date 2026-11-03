@@ -63,6 +63,7 @@ async def _find(
     operation_id="products_get_by_barcode",
     response_model=ProductOut,
     responses=_RESPONSES,
+    dependencies=[Depends(limit("product_lookups"))],  # first: it commits the session
 )
 async def products_get_by_barcode(
     code: str,

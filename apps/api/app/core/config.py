@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Annotated, Any, Literal
 
 from fastapi import Request
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 from app.core.i18n import repo_messages_dir
@@ -52,8 +52,9 @@ class Settings(BaseSettings):
     rate_limit_public_per_minute: int = 60
     rate_limit_meal_logs_per_day: int = 300
     rate_limit_search_per_minute: int = 60
-    # alternatives and compare (both may call Open Food Facts)
-    rate_limit_product_lookups_per_hour: int = 120
+    # One shared bucket for every authenticated route that may call Open Food Facts on a
+    # cache miss: barcode lookup (Plan 8 Task 6), alternatives and compare (Plan 6).
+    rate_limit_product_lookups_per_hour: int = 300
     # Trusted reverse-proxy hops in front of the API (see .env.example). 0 = use socket peer.
     trusted_proxy_hops: int = Field(default=0, ge=0)
     sentry_dsn: str | None = None
@@ -84,6 +85,14 @@ class Settings(BaseSettings):
         if "*" in v:
             raise ValueError("allowed_origins must not contain '*'")
         return v
+
+    @model_validator(mode="after")
+    def _https_origins_in_prod(self) -> "Settings":
+        if self.environment == "prod":
+            bad = [o for o in self.allowed_origins if not o.startswith("https://")]
+            if bad:
+                raise ValueError("in prod, every allowed origin must be https://")
+        return self
 
 
 @cache

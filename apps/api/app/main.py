@@ -12,6 +12,7 @@ from app.core.errors import ERROR_RESPONSES, CatchAllMiddleware, install_error_h
 from app.core.logging import configure_logging
 from app.core.observability import init_observability, shutdown_observability
 from app.core.security import JwksCache
+from app.core.security_headers import SecurityHeadersMiddleware
 from app.db.session import build_engine, build_sessionmaker
 from app.features.analyze.router import router as analyze_router
 from app.features.auth_hooks.router import router as auth_hooks_router
@@ -77,6 +78,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     configure_logging(settings.log_level)
     init_observability(settings)
     engine = build_engine(settings)
+    prod = settings.environment == "prod"
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -94,6 +96,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version=_version(),
         lifespan=lifespan,
         responses=ERROR_RESPONSES,
+        # No interactive docs or live schema in prod: the contract is exported by script.
+        **({"docs_url": None, "redoc_url": None, "openapi_url": None} if prod else {}),
     )
     app.state.settings = settings
     app.state.engine = engine
@@ -111,6 +115,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # Lets the web app read the back-off on 429 responses.
         expose_headers=["Retry-After"],
     )
+    app.add_middleware(SecurityHeadersMiddleware, hsts=prod)  # outermost: every response
     install_error_handlers(app)
     for router in ROUTERS:
         _include(app, router)
