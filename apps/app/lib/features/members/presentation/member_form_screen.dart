@@ -115,7 +115,7 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
 
   late String? _relation = _initial.relation;
   late String? _sex = _initial.sex;
-  late String _diet = _initial.diet;
+  late String? _diet = _initial.diet;
   late String? _goal = _initial.goal;
   late final List<String> _allergens = [..._initial.allergens];
   late final List<String> _conditions = [..._initial.conditions];
@@ -156,6 +156,8 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
         if (_alerts.contains(a)) a,
     ],
     goal: _goal,
+    keepConditions: _initial.keepConditions,
+    keepCustomAlerts: _initial.keepCustomAlerts,
   );
 
   /// The member's name for confirm dialogs.

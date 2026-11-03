@@ -60,8 +60,13 @@ class MemberDraft {
     this.conditions = const [],
     this.customAlerts = const [],
     this.goal,
+    this.keepConditions = false,
+    this.keepCustomAlerts = false,
   });
 
+  /// A stored diet, condition or alert this app version doesn't know comes
+  /// back as `$unknown`. It is never dropped or coerced: the diet stays null
+  /// and the list is sent as null, which the API reads as "unchanged".
   factory MemberDraft.fromMember(MemberOut m) => MemberDraft(
     name: m.name,
     relation: m.relation.json,
@@ -69,7 +74,7 @@ class MemberDraft {
     sex: m.sex?.json,
     heightCm: m.heightCm,
     weightKg: m.weightKg,
-    diet: m.diet.json ?? 'non_veg',
+    diet: m.diet.json,
     allergens: List.unmodifiable(m.allergens),
     conditions: List.unmodifiable([
       for (final c in m.conditions)
@@ -80,6 +85,8 @@ class MemberDraft {
         if (a.json case final String code) code,
     ]),
     goal: m.goal?.json,
+    keepConditions: m.conditions.any((c) => c.json == null),
+    keepCustomAlerts: m.customAlerts.any((a) => a.json == null),
   );
 
   final String name;
@@ -88,11 +95,20 @@ class MemberDraft {
   final String? sex;
   final num? heightCm;
   final num? weightKg;
-  final String diet;
+
+  /// Null only for a stored diet this app version doesn't know.
+  final String? diet;
   final List<String> allergens;
   final List<String> conditions;
   final List<String> customAlerts;
   final String? goal;
+
+  /// The stored conditions hold a value this app doesn't know: send null
+  /// (unchanged) instead of a list that would drop it.
+  final bool keepConditions;
+
+  /// As [keepConditions], for the custom alerts.
+  final bool keepCustomAlerts;
 
   /// For `POST /v1/members`. [relation] and [birthYear] must be set.
   MemberIn toMemberIn() => MemberIn(
@@ -102,7 +118,7 @@ class MemberDraft {
     sex: sex == null ? null : MemberInSex.fromJson(sex!),
     heightCm: heightCm,
     weightKg: weightKg,
-    diet: MemberInDiet.fromJson(diet),
+    diet: MemberInDiet.fromJson(diet ?? 'non_veg'),
     allergens: allergens,
     conditions: [for (final c in conditions) MemberInConditions.fromJson(c)],
     customAlerts: [
@@ -121,12 +137,14 @@ class MemberDraft {
     sex: sex == null ? null : MemberPatchSex.fromJson(sex!),
     heightCm: heightCm,
     weightKg: weightKg,
-    diet: MemberPatchDiet.fromJson(diet),
+    diet: diet == null ? null : MemberPatchDiet.fromJson(diet!),
     allergens: allergens,
-    conditions: [for (final c in conditions) MemberPatchConditions.fromJson(c)],
-    customAlerts: [
-      for (final a in customAlerts) MemberPatchCustomAlerts.fromJson(a),
-    ],
+    conditions: keepConditions
+        ? null
+        : [for (final c in conditions) MemberPatchConditions.fromJson(c)],
+    customAlerts: keepCustomAlerts
+        ? null
+        : [for (final a in customAlerts) MemberPatchCustomAlerts.fromJson(a)],
     goal: goal == null ? null : MemberPatchGoal.fromJson(goal!),
   );
 }
