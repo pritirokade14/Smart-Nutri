@@ -61,21 +61,20 @@ void main() {
         );
 
         expect(find.text(expectedStatusText(l10n, status)), findsOneWidget);
-        expect(find.text(c.verdict.memberName), findsOneWidget);
+        expect(find.text(verdictHeadline(l10n, c.verdict)), findsOneWidget);
         expect(cardColor(t), verdictColor(status));
         if (status != 'ok') {
           expect(cardColor(t), isNot(SnTokens.verdictOk));
         }
-        final groups = splitReasons(displayReasons(c.verdict.reasons));
+        // reasons[0] first, then R22 for the rest (R23 holds: a card with
+        // reasons always shows at least one).
+        final groups = topFirstReasons(displayReasons(c.verdict.reasons));
         for (final r in groups.visible) {
           expect(find.text(reasonText(l10n, r)), findsWidgets);
         }
         expect(
           find.byKey(VerdictCard.reasonsToggleKey),
-          // R23: with nothing always-visible, the first collapsed one shows.
-          groups.collapsed.length > (groups.visible.isEmpty ? 1 : 0)
-              ? findsOneWidget
-              : findsNothing,
+          groups.collapsed.isNotEmpty ? findsOneWidget : findsNothing,
         );
         expect(t.takeException(), isNull);
       });
@@ -108,7 +107,10 @@ void main() {
       ),
     );
     final l10n = lookupAppLocalizations(const Locale('en'));
-    expect(find.text(l10n.resultYou), findsOneWidget);
+    expect(
+      find.text(l10n.verdictForMember(l10n.resultYou, l10n.statusAvoid)),
+      findsOneWidget,
+    );
   });
 
   testWidgets('a status the client does not know renders as unknown (grey)', (
@@ -142,12 +144,9 @@ void main() {
   ) async {
     final v = fixtureVerdict('sf_biscuit', 'diabetic_adult');
     final l10n = lookupAppLocalizations(const Locale('en'));
-    final groups = splitReasons(displayReasons(v.reasons));
+    final groups = topFirstReasons(displayReasons(v.reasons));
     await t.pumpWidget(wrap(VerdictCard(verdict: v)));
-    final hidden = [
-      for (final r in groups.collapsed.skip(groups.visible.isEmpty ? 1 : 0))
-        reasonText(l10n, r),
-    ];
+    final hidden = [for (final r in groups.collapsed) reasonText(l10n, r)];
     for (final text in hidden) {
       expect(find.text(text), findsNothing);
     }

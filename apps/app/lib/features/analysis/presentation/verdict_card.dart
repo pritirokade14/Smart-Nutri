@@ -19,9 +19,20 @@ String displayStatus(VerdictOutStatus status) =>
 String localizedStatus(AppLocalizations l10n, String status) =>
     verdictStatusLabel(l10n, status);
 
-/// One member's verdict, exactly as the API returned it: status, colour from
-/// the verdict tokens, and reasons in API order. Avoid, unknown and allergen
-/// reasons are always visible; the rest sit behind a toggle (R22).
+/// The card's headline: "`status` for you" for the account holder, otherwise
+/// "`status` for `name`". Display only; the status is the API's.
+String verdictHeadline(AppLocalizations l10n, VerdictOut verdict) {
+  final label = localizedStatus(l10n, displayStatus(verdict.status));
+  if (verdict.isPrimary) return l10n.verdictForYou(label);
+  final name = verdict.memberName.isEmpty ? l10n.resultYou : verdict.memberName;
+  return l10n.verdictForMember(name, label);
+}
+
+/// One member's verdict, exactly as the API returned it: a "`status` for
+/// `name`" headline, colour from the verdict tokens, and reasons in API
+/// order. The engine's top reason (`reasons[0]`) is always shown first; of
+/// the rest, avoid, unknown and allergen reasons are always visible and the
+/// others sit behind a toggle (R22).
 class VerdictCard extends StatefulWidget {
   const VerdictCard({super.key, required this.verdict});
 
@@ -45,16 +56,8 @@ class _VerdictCardState extends State<VerdictCard> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final status = displayStatus(verdict.status);
-    final name = verdict.memberName.isEmpty
-        ? l10n.resultYou
-        : verdict.memberName;
-    final split = splitReasons(displayReasons(verdict.reasons));
-    // R23: a card with nothing always-visible still shows its first reason.
-    final promote = split.visible.isEmpty && split.collapsed.isNotEmpty;
-    final groups = (
-      visible: promote ? [split.collapsed.first] : split.visible,
-      collapsed: promote ? split.collapsed.sublist(1) : split.collapsed,
-    );
+    final headline = verdictHeadline(l10n, verdict);
+    final groups = topFirstReasons(displayReasons(verdict.reasons));
 
     final c = SnColors.of(context);
     final tone = verdictTone(c, status);
@@ -97,7 +100,7 @@ class _VerdictCardState extends State<VerdictCard> {
                 const SizedBox(width: SnTokens.space3),
                 Expanded(
                   child: Text(
-                    name,
+                    headline,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontSize: SnTokens.fontSizeLg,
                     ),

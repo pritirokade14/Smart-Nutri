@@ -22,6 +22,7 @@ import '../data/analysis_repository.dart';
 import '../domain/report.dart';
 import 'analysis_providers.dart';
 import 'claims_section.dart';
+import 'explanation_card.dart';
 import 'verdict_card.dart';
 
 /// Result of a barcode scan or of a product saved from a label: the product,
@@ -196,6 +197,9 @@ class _ResultView extends StatelessWidget {
           ),
           // One card per member, in the order the API returned them.
           for (final v in out.verdicts) VerdictCard(verdict: v),
+          // The AI explanation sits under the verdicts and above the
+          // disclaimer, which covers both. Hidden when unavailable.
+          ExplanationCard(explanation: out.explanation, verdicts: out.verdicts),
           const DisclaimerFooter(),
           const SizedBox(height: SnTokens.space3),
           SectionHeader(

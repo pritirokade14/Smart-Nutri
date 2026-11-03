@@ -65,3 +65,14 @@ bool isAlwaysVisible(ReasonOut r) =>
       if (!isAlwaysVisible(r)) r,
   ],
 );
+
+/// The card's reason groups: `reasons[0]` (the engine's top reason, the
+/// one-line "why") always first, then the rest split by R22. This also keeps
+/// R23: a card always shows at least one reason when it has any.
+({List<ReasonOut> visible, List<ReasonOut> collapsed}) topFirstReasons(
+  List<ReasonOut> reasons,
+) {
+  if (reasons.isEmpty) return (visible: const [], collapsed: const []);
+  final rest = splitReasons(reasons.sublist(1));
+  return (visible: [reasons.first, ...rest.visible], collapsed: rest.collapsed);
+}

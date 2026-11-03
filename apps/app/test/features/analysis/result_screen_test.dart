@@ -109,13 +109,55 @@ void main() {
 
     expect(find.byType(VerdictCard), findsNWidgets(body.verdicts.length));
     final ys = [
-      for (final v in body.verdicts) t.getTopLeft(find.text(v.memberName)).dy,
+      for (final v in body.verdicts)
+        t.getTopLeft(find.text(verdictHeadline(en, v))).dy,
     ];
     expect(ys, [...ys]..sort(), reason: 'cards keep the API order');
     final cards = t.widgetList<VerdictCard>(find.byType(VerdictCard)).toList();
     expect(
       cards.map((c) => c.verdict.memberId).toList(),
       body.verdicts.map((v) => v.memberId).toList(),
+    );
+  });
+
+  testWidgets('explanation card hidden when unavailable', (t) async {
+    final body = analyzeFixture('sf_biscuit');
+    expect(body.explanation.source, ExplanationOutSource.unavailable);
+    await t.pumpWidget(_app(FakeAnalysisRepository([() => body])));
+    await t.pumpAndSettle();
+    expect(find.text(en.explanationTitle), findsNothing);
+    expect(find.text(en.commonDisclaimer), findsOneWidget);
+  });
+
+  testWidgets('explanation card under the verdicts, names substituted, '
+      'disclaimer below it', (t) async {
+    final json = analyzeJson('sf_biscuit');
+    final first = (json['verdicts']! as List).first as Map;
+    json['explanation'] = {
+      'language': 'en',
+      'member_refs': {'member_1': first['member_id']},
+      'prompt_version': 'explanation_v1',
+      'source': 'llm',
+      'text': 'Sugar matters for member_1.',
+      'tips': ['Check the serving size.'],
+    };
+    final body = AnalyzeOut.fromJson(json);
+    await t.pumpWidget(_app(FakeAnalysisRepository([() => body])));
+    await t.pumpAndSettle();
+    final text = 'Sugar matters for ${first['member_name']}.';
+    await t.scrollUntilVisible(find.text(text), 300);
+    expect(find.text(en.explanationTitle), findsOneWidget);
+    expect(find.text(en.explanationAiNote), findsOneWidget);
+    expect(find.text('Check the serving size.'), findsOneWidget);
+    final lastCard = find.byType(VerdictCard).last;
+    expect(
+      t.getTopLeft(find.text(text)).dy,
+      greaterThan(t.getTopLeft(lastCard).dy),
+    );
+    await t.scrollUntilVisible(find.text(en.commonDisclaimer), 300);
+    expect(
+      t.getTopLeft(find.text(en.commonDisclaimer)).dy,
+      greaterThan(t.getTopLeft(find.text(text)).dy),
     );
   });
 
