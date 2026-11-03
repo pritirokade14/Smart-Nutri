@@ -181,6 +181,133 @@ class AppLocalizationsMr extends AppLocalizations {
   String get conditionWeightLoss => 'वजन कमी करणे';
 
   @override
+  String get confirmAddIngredient => 'घटक जोडा';
+
+  @override
+  String get confirmAllergenStatement => 'ॲलर्जीविषयक विधान';
+
+  @override
+  String get confirmBasis => 'पॅकवरील मूल्ये आहेत';
+
+  @override
+  String get confirmBasisOptionPer100g => 'प्रति 100 g';
+
+  @override
+  String get confirmBasisOptionPerServing => 'प्रति सर्व्हिंग';
+
+  @override
+  String get confirmCategory => 'उत्पादनाचा प्रकार';
+
+  @override
+  String get confirmCategoryOptionBeverage => 'पेय';
+
+  @override
+  String get confirmCategoryOptionCheese => 'चीज';
+
+  @override
+  String get confirmCategoryOptionFat => 'तेल किंवा चरबी';
+
+  @override
+  String get confirmCategoryOptionGeneral => 'खाद्यपदार्थ';
+
+  @override
+  String get confirmCategoryOptionWater => 'पॅक्ड पाणी';
+
+  @override
+  String get confirmChooseRequired => 'पुढे जाण्यासाठी एक निवडा';
+
+  @override
+  String get confirmClaims => 'पॅकवरील दावे';
+
+  @override
+  String get confirmConfirmValue => 'पॅकशी जुळते';
+
+  @override
+  String confirmDerivedPerServing(String serving) {
+    return '$serving g च्या सर्व्हिंगवरून काढले';
+  }
+
+  @override
+  String get confirmFieldAddedSugarsG => 'वरून घातलेली साखर (g)';
+
+  @override
+  String get confirmFieldCarbsG => 'कार्बोहायड्रेट्स (g)';
+
+  @override
+  String get confirmFieldEnergyKcal => 'ऊर्जा (kcal)';
+
+  @override
+  String get confirmFieldFatG => 'एकूण चरबी (g)';
+
+  @override
+  String get confirmFieldFiberG => 'तंतू (g)';
+
+  @override
+  String get confirmFieldProteinG => 'प्रथिने (g)';
+
+  @override
+  String get confirmFieldSaltG => 'मीठ (g)';
+
+  @override
+  String get confirmFieldSatFatG => 'संतृप्त चरबी (g)';
+
+  @override
+  String get confirmFieldSodiumMg => 'सोडियम (mg)';
+
+  @override
+  String get confirmFieldSugarsG => 'एकूण साखर (g)';
+
+  @override
+  String get confirmFieldTransFatG => 'ट्रान्स फॅट (g)';
+
+  @override
+  String get confirmIngredients => 'घटक';
+
+  @override
+  String get confirmLeaveBlankHint => 'छापलेले नसेल तर रिकामे ठेवा';
+
+  @override
+  String get confirmMayContainStatement => '\"असू शकते\" हे विधान';
+
+  @override
+  String get confirmNotMedicalAdvice => 'ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get confirmSave => 'खात्री करा आणि जतन करा';
+
+  @override
+  String get confirmServingSize => 'सर्व्हिंग साइज (g)';
+
+  @override
+  String get confirmSodiumUnit => 'पॅकवरील सोडियमचे एकक';
+
+  @override
+  String get confirmSodiumUnitOptionG => 'g';
+
+  @override
+  String get confirmSodiumUnitOptionMg => 'mg';
+
+  @override
+  String get confirmSubtitle =>
+      'प्रत्येक मूल्य पॅकशी जुळवून तपासा. जे छापलेले नसेल ते रिकामे ठेवा.';
+
+  @override
+  String get confirmTitle => 'लेबलवरील मूल्ये तपासा';
+
+  @override
+  String get confirmVegMarkNonVeg => 'मांसाहारी (तपकिरी खूण)';
+
+  @override
+  String get confirmVegMarkNone => 'पॅकवर कोणतीही खूण नाही';
+
+  @override
+  String get confirmVegMarkVeg => 'शाकाहारी (हिरवी खूण)';
+
+  @override
+  String get confirmWithheldHint =>
+      'पॅकवर हे मूल्य तपासा, मग खात्रीसाठी टिक करा.';
+
+  @override
   String get dietEggetarian => 'अंडाहारी (अंडे खाणारा शाकाहारी)';
 
   @override
@@ -312,6 +439,34 @@ class AppLocalizationsMr extends AppLocalizations {
   String homeWelcome(String name) {
     return 'नमस्कार, $name';
   }
+
+  @override
+  String get labelChooseFile => 'फाइल निवडा';
+
+  @override
+  String get labelDropHere => 'फोटो इथे टाका';
+
+  @override
+  String get labelEnterManually => 'माहिती स्वतः भरा';
+
+  @override
+  String get labelReading => 'लेबल वाचले जात आहे…';
+
+  @override
+  String get labelRetake => 'पुन्हा घ्या';
+
+  @override
+  String get labelTakePhoto => 'फोटो घ्या';
+
+  @override
+  String get labelTitle => 'लेबलचा फोटो घ्या';
+
+  @override
+  String get labelUploading => 'फोटो अपलोड होत आहे…';
+
+  @override
+  String get notfoundGoToLabel =>
+      'हे उत्पादन आम्हाला अजून माहीत नाही — त्याच्या लेबलचा फोटो घ्या';
 
   @override
   String get nutrientCarbsG => 'कार्बोहायड्रेट';
@@ -660,4 +815,60 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get verdictStatusUnknown => 'लेबल स्पष्ट नाही';
+
+  @override
+  String get warningBasisMismatch =>
+      'ही मूल्ये प्रति 100 g आहेत की प्रति सर्व्हिंग हे आम्हाला समजले नाही. पॅकवर जे दिसते ते निवडा.';
+
+  @override
+  String get warningCategoryCheck =>
+      'उत्पादनाचा प्रकार बरोबर आहे का ते तपासा, कारण त्यामुळे मूल्ये वाचण्याची पद्धत बदलते.';
+
+  @override
+  String get warningCategoryUnknown =>
+      'हे कोणत्या प्रकारचे उत्पादन आहे हे आम्हाला समजले नाही. एक निवडा.';
+
+  @override
+  String get warningDerivedFromServing =>
+      'हे मूल्य प्रति सर्व्हिंगच्या प्रमाणावरून काढले आहे. ते पॅकशी जुळवून पाहा.';
+
+  @override
+  String get warningEnergyMismatch =>
+      'ऊर्जेचे मूल्य इतर मूल्यांशी जुळत नाही. ते पॅकवर तपासा.';
+
+  @override
+  String get warningImplausibleValue =>
+      'हे मूल्य असामान्य वाटते. कृपया पॅकशी जुळवून पाहा.';
+
+  @override
+  String get warningKcalKjMismatch =>
+      'kcal आणि kJ ची मूल्ये एकमेकांशी जुळत नाहीत. दोन्ही पॅकवर तपासा.';
+
+  @override
+  String get warningLowConfidence =>
+      'लेबल वाचणे कठीण होते. कृपया प्रत्येक मूल्य पॅकशी जुळवून तपासा.';
+
+  @override
+  String get warningPer100gMissing =>
+      'पॅकवरील प्रति 100 g ची मूल्ये सापडली नाहीत. आकडे तपासा किंवा पॅकवरून भरा.';
+
+  @override
+  String get warningPerServingIgnored =>
+      'पॅकवरील प्रति सर्व्हिंग मूल्ये वापरली गेली नाहीत. प्रति 100 g ची मूल्ये बरोबर आहेत का ते तपासा.';
+
+  @override
+  String get warningSaltSodiumMismatch =>
+      'मीठ आणि सोडियमची मूल्ये एकमेकांशी जुळत नाहीत. दोन्ही पॅकवर तपासा.';
+
+  @override
+  String get warningUnitUnconfirmed =>
+      'या मूल्याचे एकक स्पष्ट नव्हते. जसे छापले आहे तसे mg किंवा g निवडा.';
+
+  @override
+  String get warningUnreadableField =>
+      'आम्हाला हे मूल्य वाचता आले नाही. ते पॅकवरून भरा किंवा रिकामे ठेवा.';
+
+  @override
+  String get warningUpperBound =>
+      'पॅकवर या प्रमाणापेक्षा \"कमी\" असे लिहिले आहे. हे बरोबर असेल तर खात्री करा.';
 }
