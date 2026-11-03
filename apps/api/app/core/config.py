@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     off_data_confidence: float = 0.9
     rate_limit_label_scans_per_day: int = 30
     rate_limit_voice_per_day: int = 20
+    rate_limit_reports_per_day: int = 10
     rate_limit_scan_uploads_per_day: int = 60
     rate_limit_label_requests_per_day: int = 200
     rate_limit_product_creates_per_day: int = 50

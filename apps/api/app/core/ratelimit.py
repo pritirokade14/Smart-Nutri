@@ -27,6 +27,7 @@ BUCKETS: dict[str, tuple[str, str]] = {
     "label_requests": ("day", "rate_limit_label_requests_per_day"),
     "product_creates": ("day", "rate_limit_product_creates_per_day"),
     "voice": ("day", "rate_limit_voice_per_day"),
+    "reports": ("day", "rate_limit_reports_per_day"),
     "analyze": ("hour", "rate_limit_analyze_per_hour"),
     "public": ("minute", "rate_limit_public_per_minute"),
     "meal_logs": ("day", "rate_limit_meal_logs_per_day"),
