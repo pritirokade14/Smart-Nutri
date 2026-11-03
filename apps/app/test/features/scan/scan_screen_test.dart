@@ -11,6 +11,7 @@ import 'package:smartnutri_ai/features/scan/data/barcode_source.dart';
 import 'package:smartnutri_ai/features/scan/presentation/manual_barcode_field.dart';
 import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
 import 'package:smartnutri_api/src/export.dart';
+import '../../support/fake_meals.dart';
 
 class FakeBarcodeSource implements BarcodeSource {
   FakeBarcodeSource([this.status = BarcodeSourceStatus.ready]);
@@ -60,6 +61,7 @@ Widget _app(FakeBarcodeSource src, List<String> visited) {
   );
   return ProviderScope(
     overrides: [
+      ...mealTestOverrides(),
       barcodeSourceFactoryProvider.overrideWithValue(() => src),
       analysisRepositoryProvider.overrideWithValue(_PendingRepo()),
     ],

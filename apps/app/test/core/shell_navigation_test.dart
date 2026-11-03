@@ -19,6 +19,7 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../support/fake_auth.dart';
 import '../support/fake_members.dart';
+import '../support/fake_meals.dart';
 
 class _FakeMe implements MeClient {
   @override
@@ -64,6 +65,7 @@ Future<FakeAuthRepository> _pump(WidgetTester t, {bool dark = false}) async {
   await t.pumpWidget(
     ProviderScope(
       overrides: [
+        ...mealTestOverrides(),
         appConfigProvider.overrideWithValue(_cfg),
         authRepositoryProvider.overrideWithValue(repo),
         apiClientProvider.overrideWithValue(_FakeApi()),

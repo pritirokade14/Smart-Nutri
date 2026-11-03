@@ -21,6 +21,7 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fixtures.dart';
 import 'draft_fixtures.dart';
+import '../../support/fake_meals.dart';
 
 final en = lookupAppLocalizations(const Locale('en'));
 
@@ -138,6 +139,7 @@ Future<_Visits> _pumpFlow(
   await t.pumpWidget(
     ProviderScope(
       overrides: [
+        ...mealTestOverrides(),
         labelRepositoryProvider.overrideWithValue(
           labels ?? FakeLabelRepository(),
         ),

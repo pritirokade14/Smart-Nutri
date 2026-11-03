@@ -11,6 +11,7 @@ import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/meals/presentation/meals_providers.dart';
 import '../../features/members/presentation/member_form_screen.dart';
 import '../../features/members/presentation/members_list_screen.dart';
 import '../../features/scan/presentation/confirm_screen.dart';
@@ -62,7 +63,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       // The signed-in tabs. Scan, label capture, confirm and result are
       // full-screen routes above the shell (see AppShell).
       StatefulShellRoute.indexedStack(
-        builder: (_, _, shell) => AppShell(shell: shell),
+        // The offline log syncs while signed in (start, resume, back online).
+        builder: (_, _, shell) => MealSyncScope(child: AppShell(shell: shell)),
         branches: [
           StatefulShellBranch(
             routes: [

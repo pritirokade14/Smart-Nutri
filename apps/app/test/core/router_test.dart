@@ -18,6 +18,7 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../support/fake_auth.dart';
 import '../support/fake_members.dart';
+import '../support/fake_meals.dart';
 
 class _FakeMe implements MeClient {
   _FakeMe(this.result);
@@ -58,6 +59,7 @@ Widget _app(
   bool email = false,
 }) => ProviderScope(
   overrides: [
+    ...mealTestOverrides(),
     appConfigProvider.overrideWithValue(_cfg(phone, email)),
     authRepositoryProvider.overrideWithValue(repo),
     apiClientProvider.overrideWithValue(_FakeApi(me)),

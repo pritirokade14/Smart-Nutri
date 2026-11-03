@@ -12,6 +12,7 @@ import 'package:smartnutri_ai/shared/widgets/off_attribution.dart';
 import 'package:smartnutri_ai/shared/widgets/states.dart';
 import 'package:smartnutri_api/src/export.dart';
 
+import '../../support/fake_meals.dart';
 import '../../support/fixtures.dart';
 
 class FakeAnalysisRepository implements AnalysisRepository {
@@ -47,8 +48,10 @@ Widget _app(
   String locale = 'en',
   String barcode = '8901063201089',
   List<Uri>? opened,
+  FakeMealsClient? meals,
 }) => ProviderScope(
   overrides: [
+    ...mealTestOverrides(client: meals ?? FakeMealsClient()),
     analysisRepositoryProvider.overrideWithValue(repo),
     openExternalUrlProvider.overrideWithValue((uri) async {
       opened?.add(uri);
@@ -323,5 +326,60 @@ void main() {
     expect(repo.calls.single.$2, 'mr');
     final mr = lookupAppLocalizations(const Locale('mr'));
     expect(find.text(mr.commonDisclaimer), findsOneWidget);
+  });
+
+  testWidgets('each member card has "I ate this"; it logs for that member', (
+    t,
+  ) async {
+    final body = analyzeFixture('sf_biscuit');
+    final meals = FakeMealsClient();
+    await t.pumpWidget(
+      _app(FakeAnalysisRepository([() => body]), meals: meals),
+    );
+    await t.pumpAndSettle();
+    expect(find.text(en.mealsLogCta), findsNWidgets(body.verdicts.length));
+
+    final target = body.verdicts[4];
+    final button = find.byKey(Key('i-ate-this-${target.memberId}'));
+    await t.ensureVisible(button);
+    await t.pumpAndSettle();
+    await t.tap(button);
+    await t.pumpAndSettle();
+    final save = find.byKey(const Key('log-meal-save'));
+    await t.ensureVisible(save);
+    await t.pumpAndSettle();
+    await t.tap(save);
+    await t.pumpAndSettle();
+
+    final sent = meals.logged.single;
+    expect(sent.memberId, target.memberId);
+    expect(sent.productId, body.product.productId);
+    expect(sent.barcode, isNull);
+    expect(sent.servings, 1, reason: 'the product has a serving size');
+    expect(find.text(en.mealsLogSaved(target.memberName)), findsOneWidget);
+
+    await t.tap(find.text(en.mealsLogUndo));
+    await t.pumpAndSettle();
+    expect(meals.deleted, ['meal-1']);
+  });
+
+  testWidgets('an OFF product is logged by barcode', (t) async {
+    final meals = FakeMealsClient();
+    await t.pumpWidget(
+      _app(FakeAnalysisRepository([_offProduct]), meals: meals),
+    );
+    await t.pumpAndSettle();
+    final button = find.text(en.mealsLogCta).first;
+    await t.ensureVisible(button);
+    await t.pumpAndSettle();
+    await t.tap(button);
+    await t.pumpAndSettle();
+    final save = find.byKey(const Key('log-meal-save'));
+    await t.ensureVisible(save);
+    await t.pumpAndSettle();
+    await t.tap(save);
+    await t.pumpAndSettle();
+    expect(meals.logged.single.barcode, '8901063201089');
+    expect(meals.logged.single.productId, isNull);
   });
 }

@@ -34,9 +34,13 @@ String verdictHeadline(AppLocalizations l10n, VerdictOut verdict) {
 /// the rest, avoid, unknown and allergen reasons are always visible and the
 /// others sit behind a toggle (R22).
 class VerdictCard extends StatefulWidget {
-  const VerdictCard({super.key, required this.verdict});
+  const VerdictCard({super.key, required this.verdict, this.action});
 
   final VerdictOut verdict;
+
+  /// An optional action under the reasons (e.g. "I ate this"). It never
+  /// changes what the card shows.
+  final Widget? action;
 
   static const statusBadgeKey = Key('verdict-status-badge');
   static const reasonsToggleKey = Key('verdict-reasons-toggle');
@@ -187,6 +191,16 @@ class _VerdictCardState extends State<VerdictCard> {
                   ],
                 ],
               ),
+            ),
+          if (widget.action case final action?)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                SnTokens.space4,
+                SnTokens.space2,
+                SnTokens.space4,
+                SnTokens.space3,
+              ),
+              child: action,
             ),
         ],
       ),

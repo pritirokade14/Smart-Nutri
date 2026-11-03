@@ -16,6 +16,8 @@ import '../../../shared/widgets/nutrient_row.dart';
 import '../../../shared/widgets/off_attribution.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/states.dart';
+import '../../meals/presentation/i_ate_this_button.dart';
+import '../../meals/presentation/log_meal_sheet.dart';
 import '../../scan/domain/barcode.dart';
 import '../../scan/domain/number_text.dart';
 import '../data/analysis_repository.dart';
@@ -174,6 +176,16 @@ class _ResultView extends StatelessWidget {
       for (final code in highInCodes(out.report)) ?_highInLabel(l10n, code),
     ];
     final claims = claimChecks(out.report);
+    final productId = product.productId;
+    final productBarcode = product.barcode ?? barcode;
+    final logProduct = productId == null && productBarcode == null
+        ? null
+        : LogMealProduct(
+            productId: productId,
+            barcode: productId == null ? productBarcode : null,
+            name: product.name ?? productBarcode ?? '',
+            servingSizeG: product.servingSizeG,
+          );
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
         SnTokens.space4,
@@ -196,7 +208,17 @@ class _ResultView extends StatelessWidget {
             icon: Icons.groups_rounded,
           ),
           // One card per member, in the order the API returned them.
-          for (final v in out.verdicts) VerdictCard(verdict: v),
+          for (final v in out.verdicts)
+            VerdictCard(
+              verdict: v,
+              action: logProduct == null
+                  ? null
+                  : IAteThisButton(
+                      product: logProduct,
+                      verdicts: out.verdicts,
+                      memberId: v.memberId,
+                    ),
+            ),
           // The AI explanation sits under the verdicts and above the
           // disclaimer, which covers both. Hidden when unavailable.
           ExplanationCard(explanation: out.explanation, verdicts: out.verdicts),
