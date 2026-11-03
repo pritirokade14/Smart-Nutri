@@ -98,6 +98,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/meals/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meals Summary
+         * @description Totals of sugar, salt, protein and kcal against the member's daily limits (pending
+         *     clinician review). A nutrient missing on any logged label sets ``incomplete`` and is never
+         *     counted as 0.
+         */
+        get: operations["meals_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meals/week_counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meals Week Counts
+         * @description Counts for the weekly share text (products checked, items logged), whole family.
+         */
+        get: operations["meals_week_counts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/meals/{meal_id}": {
         parameters: {
             query?: never;
@@ -360,6 +402,40 @@ export interface components {
             version: string | null;
         };
         /**
+         * DailyLimitsOut
+         * @description Per DAY, from the rules engine (thresholds.yaml, pending clinician review).
+         */
+        DailyLimitsOut: {
+            /**
+             * Kcal
+             * @description Always null in v1 (no personal energy target)
+             */
+            kcal: number | null;
+            /**
+             * Protein Target G
+             * @description A target, not a limit; null without weight
+             */
+            protein_target_g: number | null;
+            /** Salt G */
+            salt_g: number | null;
+            /** Sugar G */
+            sugar_g: number | null;
+        };
+        /** DaySummary */
+        DaySummary: {
+            /** @description That day's totals vs the DAILY limits */
+            bands: components["schemas"]["NutrientBands"];
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            incomplete: components["schemas"]["IncompleteNutrients"];
+            /** Items */
+            items: number;
+            totals: components["schemas"]["Totals"];
+        };
+        /**
          * DraftConfirm
          * @description Server-computed confirm-screen hints (R21). Clients render these; they never
          *     re-derive the save rules. Computed from the draft itself, so always current.
@@ -480,6 +556,21 @@ export interface components {
              * @enum {string}
              */
             status: "ok" | "degraded" | "unavailable";
+        };
+        /**
+         * IncompleteNutrients
+         * @description Per nutrient (Totals keys): true when a meal had no value for it. The total then counts
+         *     only the known meals and is a lower bound.
+         */
+        IncompleteNutrients: {
+            /** Energy Kcal */
+            energy_kcal: boolean;
+            /** Protein G */
+            protein_g: boolean;
+            /** Salt G */
+            salt_g: boolean;
+            /** Sugars G */
+            sugars_g: boolean;
         };
         /** LabelScanIn */
         LabelScanIn: {
@@ -699,6 +790,26 @@ export interface components {
             sex?: ("female" | "male" | "other") | null;
             /** Weight Kg */
             weight_kg?: number | null;
+        };
+        /**
+         * NutrientBand
+         * @description Where a total stands against a limit. Never shown green unless ``ok``; ``unknown`` is
+         *     never green on any client.
+         * @enum {string}
+         */
+        NutrientBand: "ok" | "near" | "over" | "unknown";
+        /**
+         * NutrientBands
+         * @description day: total vs the daily limit; week: vs limit x 7. ``protein_g`` is a target and never
+         *     ``over`` (met -> ``ok``). ``unknown`` when the limit is unknown (``kcal`` always), when
+         *     nothing was logged, or when the total is incomplete and not already over (protein: not
+         *     already met).
+         */
+        NutrientBands: {
+            kcal: components["schemas"]["NutrientBand"];
+            protein_g: components["schemas"]["NutrientBand"];
+            salt_g: components["schemas"]["NutrientBand"];
+            sugar_g: components["schemas"]["NutrientBand"];
         };
         /**
          * NutrientSnapshot
@@ -1023,6 +1134,58 @@ export interface components {
              */
             scan_id: string;
         };
+        /** Summary */
+        Summary: {
+            bands: components["schemas"]["NutrientBands"];
+            /**
+             * Days
+             * @description 1 for day, 7 for week (oldest first)
+             */
+            days: components["schemas"]["DaySummary"][];
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            incomplete: components["schemas"]["IncompleteNutrients"];
+            limits: components["schemas"]["DailyLimitsOut"];
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /**
+             * Pending Clinician Review
+             * @default true
+             */
+            pending_clinician_review: boolean;
+            period: components["schemas"]["SummaryPeriod"];
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            totals: components["schemas"]["Totals"];
+        };
+        /**
+         * SummaryPeriod
+         * @enum {string}
+         */
+        SummaryPeriod: "day" | "week";
+        /**
+         * Totals
+         * @description Sums of the KNOWN values only; see ``Summary.incomplete``.
+         */
+        Totals: {
+            /** Energy Kcal */
+            energy_kcal: number;
+            /** Protein G */
+            protein_g: number;
+            /** Salt G */
+            salt_g: number;
+            /** Sugars G */
+            sugars_g: number;
+        };
         /** UploadUrlIn */
         UploadUrlIn: {
             /**
@@ -1072,6 +1235,32 @@ export interface components {
              * @enum {string}
              */
             status: "ok" | "caution" | "unknown" | "avoid";
+        };
+        /**
+         * WeekCounts
+         * @description Account-wide counts for the weekly share text. Counts only, no health data.
+         */
+        WeekCounts: {
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Logged
+             * @description Meal logs in the 7 IST days, all members
+             */
+            logged: number;
+            /**
+             * Scans
+             * @description Products checked (analyses) in the 7 IST days
+             */
+            scans: number;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
         };
     };
     responses: never;
@@ -1580,6 +1769,144 @@ export interface operations {
             };
             /** @description Open Food Facts unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_summary: {
+        parameters: {
+            query: {
+                member_id: string;
+                period?: components["schemas"]["SummaryPeriod"];
+                /** @description IST date; default today */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Summary"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_week_counts: {
+        parameters: {
+            query?: {
+                /** @description IST date; default today */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeekCounts"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };

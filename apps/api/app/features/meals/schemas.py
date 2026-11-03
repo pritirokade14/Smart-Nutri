@@ -1,4 +1,5 @@
 from datetime import date
+from enum import StrEnum
 from typing import Literal
 from uuid import UUID
 
@@ -84,44 +85,69 @@ class Totals(BaseModel):
     protein_g: float
 
 
+class SummaryPeriod(StrEnum):
+    DAY = "day"
+    WEEK = "week"
+
+
+class NutrientBand(StrEnum):
+    """Where a total stands against a limit. Never shown green unless ``ok``; ``unknown`` is
+    never green on any client."""
+
+    OK = "ok"
+    NEAR = "near"
+    OVER = "over"
+    UNKNOWN = "unknown"
+
+
+class IncompleteNutrients(BaseModel):
+    """Per nutrient (Totals keys): true when a meal had no value for it. The total then counts
+    only the known meals and is a lower bound."""
+
+    energy_kcal: bool
+    sugars_g: bool
+    salt_g: bool
+    protein_g: bool
+
+
+class DailyLimitsOut(BaseModel):
+    """Per DAY, from the rules engine (thresholds.yaml, pending clinician review)."""
+
+    sugar_g: float | None
+    salt_g: float | None
+    protein_target_g: float | None = Field(description="A target, not a limit; null without weight")
+    kcal: float | None = Field(description="Always null in v1 (no personal energy target)")
+
+
+class NutrientBands(BaseModel):
+    """day: total vs the daily limit; week: vs limit x 7. ``protein_g`` is a target and never
+    ``over`` (met -> ``ok``). ``unknown`` when the limit is unknown (``kcal`` always), when
+    nothing was logged, or when the total is incomplete and not already over (protein: not
+    already met)."""
+
+    sugar_g: NutrientBand
+    salt_g: NutrientBand
+    protein_g: NutrientBand
+    kcal: NutrientBand
+
+
 class DaySummary(BaseModel):
     date: date
     totals: Totals
     items: int
-    incomplete: dict[str, bool] = Field(
-        description="Per nutrient (Totals keys): true when a meal that day had no value"
-    )
-    bands: dict[str, Band] = Field(
-        description="That day's total vs the DAILY limit; same keys and rules as Summary.bands"
-    )
+    incomplete: IncompleteNutrients
+    bands: NutrientBands = Field(description="That day's totals vs the DAILY limits")
 
 
 class Summary(BaseModel):
     member_id: UUID
-    period: Literal["day", "week"]
+    period: SummaryPeriod
     start: date
     end: date
     totals: Totals
-    incomplete: dict[str, bool] = Field(
-        description=(
-            "Per nutrient (Totals keys): true when any meal in the period had no value for "
-            "it. The total then counts only the known meals and is a lower bound."
-        )
-    )
-    limits: dict[str, float | None] = Field(
-        description=(
-            "Per DAY: sugar_g, salt_g, protein_target_g, kcal (always null in v1). "
-            "Pending clinician review."
-        )
-    )
-    bands: dict[str, Band] = Field(
-        description=(
-            "sugar_g, salt_g, protein_g, kcal. day: total vs the daily limit; week: vs limit x 7. "
-            "protein is a target, never 'over' (met -> 'ok'). 'unknown' when the limit is "
-            "unknown (kcal always), when nothing was logged, or when the total is incomplete "
-            "and not already over (protein: not already met)."
-        )
-    )
+    incomplete: IncompleteNutrients
+    limits: DailyLimitsOut
+    bands: NutrientBands
     days: list[DaySummary] = Field(description="1 for day, 7 for week (oldest first)")
     pending_clinician_review: bool = True
 

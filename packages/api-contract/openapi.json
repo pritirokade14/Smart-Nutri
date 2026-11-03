@@ -242,6 +242,97 @@
         "title": "ConsentState",
         "type": "object"
       },
+      "DailyLimitsOut": {
+        "description": "Per DAY, from the rules engine (thresholds.yaml, pending clinician review).",
+        "properties": {
+          "kcal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Always null in v1 (no personal energy target)",
+            "title": "Kcal"
+          },
+          "protein_target_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A target, not a limit; null without weight",
+            "title": "Protein Target G"
+          },
+          "salt_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salt G"
+          },
+          "sugar_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sugar G"
+          }
+        },
+        "required": [
+          "sugar_g",
+          "salt_g",
+          "protein_target_g",
+          "kcal"
+        ],
+        "title": "DailyLimitsOut",
+        "type": "object"
+      },
+      "DaySummary": {
+        "properties": {
+          "bands": {
+            "$ref": "#/components/schemas/NutrientBands",
+            "description": "That day's totals vs the DAILY limits"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "incomplete": {
+            "$ref": "#/components/schemas/IncompleteNutrients"
+          },
+          "items": {
+            "title": "Items",
+            "type": "integer"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/Totals"
+          }
+        },
+        "required": [
+          "date",
+          "totals",
+          "items",
+          "incomplete",
+          "bands"
+        ],
+        "title": "DaySummary",
+        "type": "object"
+      },
       "DraftConfirm": {
         "description": "Server-computed confirm-screen hints (R21). Clients render these; they never\nre-derive the save rules. Computed from the draft itself, so always current.",
         "properties": {
@@ -537,6 +628,35 @@
           "database"
         ],
         "title": "HealthOut",
+        "type": "object"
+      },
+      "IncompleteNutrients": {
+        "description": "Per nutrient (Totals keys): true when a meal had no value for it. The total then counts\nonly the known meals and is a lower bound.",
+        "properties": {
+          "energy_kcal": {
+            "title": "Energy Kcal",
+            "type": "boolean"
+          },
+          "protein_g": {
+            "title": "Protein G",
+            "type": "boolean"
+          },
+          "salt_g": {
+            "title": "Salt G",
+            "type": "boolean"
+          },
+          "sugars_g": {
+            "title": "Sugars G",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "energy_kcal",
+          "sugars_g",
+          "salt_g",
+          "protein_g"
+        ],
+        "title": "IncompleteNutrients",
         "type": "object"
       },
       "LabelScanIn": {
@@ -1298,6 +1418,42 @@
           }
         },
         "title": "MemberPatch",
+        "type": "object"
+      },
+      "NutrientBand": {
+        "description": "Where a total stands against a limit. Never shown green unless ``ok``; ``unknown`` is\nnever green on any client.",
+        "enum": [
+          "ok",
+          "near",
+          "over",
+          "unknown"
+        ],
+        "title": "NutrientBand",
+        "type": "string"
+      },
+      "NutrientBands": {
+        "description": "day: total vs the daily limit; week: vs limit x 7. ``protein_g`` is a target and never\n``over`` (met -> ``ok``). ``unknown`` when the limit is unknown (``kcal`` always), when\nnothing was logged, or when the total is incomplete and not already over (protein: not\nalready met).",
+        "properties": {
+          "kcal": {
+            "$ref": "#/components/schemas/NutrientBand"
+          },
+          "protein_g": {
+            "$ref": "#/components/schemas/NutrientBand"
+          },
+          "salt_g": {
+            "$ref": "#/components/schemas/NutrientBand"
+          },
+          "sugar_g": {
+            "$ref": "#/components/schemas/NutrientBand"
+          }
+        },
+        "required": [
+          "sugar_g",
+          "salt_g",
+          "protein_g",
+          "kcal"
+        ],
+        "title": "NutrientBands",
         "type": "object"
       },
       "NutrientSnapshot": {
@@ -2227,6 +2383,103 @@
         "title": "ScanDraftOut",
         "type": "object"
       },
+      "Summary": {
+        "properties": {
+          "bands": {
+            "$ref": "#/components/schemas/NutrientBands"
+          },
+          "days": {
+            "description": "1 for day, 7 for week (oldest first)",
+            "items": {
+              "$ref": "#/components/schemas/DaySummary"
+            },
+            "title": "Days",
+            "type": "array"
+          },
+          "end": {
+            "format": "date",
+            "title": "End",
+            "type": "string"
+          },
+          "incomplete": {
+            "$ref": "#/components/schemas/IncompleteNutrients"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/DailyLimitsOut"
+          },
+          "member_id": {
+            "format": "uuid",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "pending_clinician_review": {
+            "default": true,
+            "title": "Pending Clinician Review",
+            "type": "boolean"
+          },
+          "period": {
+            "$ref": "#/components/schemas/SummaryPeriod"
+          },
+          "start": {
+            "format": "date",
+            "title": "Start",
+            "type": "string"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/Totals"
+          }
+        },
+        "required": [
+          "member_id",
+          "period",
+          "start",
+          "end",
+          "totals",
+          "incomplete",
+          "limits",
+          "bands",
+          "days"
+        ],
+        "title": "Summary",
+        "type": "object"
+      },
+      "SummaryPeriod": {
+        "enum": [
+          "day",
+          "week"
+        ],
+        "title": "SummaryPeriod",
+        "type": "string"
+      },
+      "Totals": {
+        "description": "Sums of the KNOWN values only; see ``Summary.incomplete``.",
+        "properties": {
+          "energy_kcal": {
+            "title": "Energy Kcal",
+            "type": "number"
+          },
+          "protein_g": {
+            "title": "Protein G",
+            "type": "number"
+          },
+          "salt_g": {
+            "title": "Salt G",
+            "type": "number"
+          },
+          "sugars_g": {
+            "title": "Sugars G",
+            "type": "number"
+          }
+        },
+        "required": [
+          "energy_kcal",
+          "sugars_g",
+          "salt_g",
+          "protein_g"
+        ],
+        "title": "Totals",
+        "type": "object"
+      },
       "UploadUrlIn": {
         "properties": {
           "ext": {
@@ -2329,6 +2582,39 @@
           "profile_set_up"
         ],
         "title": "VerdictOut",
+        "type": "object"
+      },
+      "WeekCounts": {
+        "description": "Account-wide counts for the weekly share text. Counts only, no health data.",
+        "properties": {
+          "end": {
+            "format": "date",
+            "title": "End",
+            "type": "string"
+          },
+          "logged": {
+            "description": "Meal logs in the 7 IST days, all members",
+            "title": "Logged",
+            "type": "integer"
+          },
+          "scans": {
+            "description": "Products checked (analyses) in the 7 IST days",
+            "title": "Scans",
+            "type": "integer"
+          },
+          "start": {
+            "format": "date",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "scans",
+          "logged"
+        ],
+        "title": "WeekCounts",
         "type": "object"
       }
     },
@@ -2993,6 +3279,221 @@
           }
         ],
         "summary": "Meals Log",
+        "tags": [
+          "meals"
+        ]
+      }
+    },
+    "/v1/meals/summary": {
+      "get": {
+        "description": "Totals of sugar, salt, protein and kcal against the member's daily limits (pending\nclinician review). A nutrient missing on any logged label sets ``incomplete`` and is never\ncounted as 0.",
+        "operationId": "meals_summary",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "member_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Member Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "period",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SummaryPeriod",
+              "default": "day"
+            }
+          },
+          {
+            "description": "IST date; default today",
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "IST date; default today",
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Summary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Meals Summary",
+        "tags": [
+          "meals"
+        ]
+      }
+    },
+    "/v1/meals/week_counts": {
+      "get": {
+        "description": "Counts for the weekly share text (products checked, items logged), whole family.",
+        "operationId": "meals_week_counts",
+        "parameters": [
+          {
+            "description": "IST date; default today",
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "IST date; default today",
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeekCounts"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Meals Week Counts",
         "tags": [
           "meals"
         ]

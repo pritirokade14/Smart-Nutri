@@ -8,13 +8,14 @@ import hashlib
 import logging
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
 import anyio
 import sentry_sdk
 from pydantic import ValidationError
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -344,3 +345,21 @@ async def create_label_scan(
         return await _existing_scan_out(session, winner)
     await session.commit()
     return ScanDraftOut(scan_id=scan_id, draft=draft, cached=cached, prompt_version=prompt_version)
+
+
+async def count_analyses(
+    session: AsyncSession, account_id: UUID, start: datetime, end: datetime
+) -> int:
+    """Products checked (``POST /v1/analyze`` scans, whose analysis holds ``verdicts``) with
+    start <= created_at < end. Label-photo scans are not checks and are not counted."""
+    count = await session.scalar(
+        select(func.count())
+        .select_from(Scan)
+        .where(
+            Scan.account_id == account_id,
+            Scan.analysis.has_key("verdicts"),
+            Scan.created_at >= start,
+            Scan.created_at < end,
+        )
+    )
+    return int(count or 0)

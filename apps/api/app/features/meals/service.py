@@ -18,9 +18,11 @@ from app.core.config import Settings
 from app.core.errors import ApiError
 from app.core.time import IST, today_ist
 from app.features.meals.models import MealLog
-from app.features.meals.schemas import MealIn, MealOut, NutrientSnapshot
+from app.features.meals.schemas import MealIn, MealOut, NutrientSnapshot, Summary, WeekCounts
+from app.features.meals.summary import PERIOD_DAYS, summarise
 from app.features.members import service as members_service
 from app.features.products import service as products_service
+from app.features.scans import service as scans_service
 from app.integrations.openfoodfacts import OffClient
 
 FUTURE_TOLERANCE = timedelta(minutes=5)
@@ -181,11 +183,14 @@ async def list_meals(
     member_id: UUID,
     start: datetime,
     end: datetime,
-    limit: int = 200,
+    limit: int | None = 200,
 ) -> list[MealLog]:
-    """The member's logs with start <= eaten_at < end, newest first. 404 for a foreign member."""
+    """The member's logs with start <= eaten_at < end, newest first. 404 for a foreign member.
+
+    ``limit=None`` returns every log in the range (summaries must never drop meals).
+    """
     await members_service.get_member(session, account_id, member_id)
-    rows = await session.scalars(
+    query = (
         select(MealLog)
         .where(
             MealLog.account_id == account_id,
@@ -194,9 +199,39 @@ async def list_meals(
             MealLog.eaten_at < end,
         )
         .order_by(MealLog.eaten_at.desc(), MealLog.id)
-        .limit(limit)
     )
-    return list(rows)
+    if limit is not None:
+        query = query.limit(limit)
+    return list(await session.scalars(query))
+
+
+async def member_summary(
+    session: AsyncSession, account_id: UUID, member_id: UUID, period: str, end_date: date
+) -> Summary:
+    """The member's summary for the ``period`` ending on ``end_date`` (IST). 404 if foreign.
+
+    Limits come from the engine (age from the birth year as of ``end_date``, protein from the
+    member's weight).
+    """
+    member = await members_service.get_member(session, account_id, member_id)
+    n_days = PERIOD_DAYS[period]
+    start, end = ist_day_bounds(end_date - timedelta(days=n_days - 1), end_date)
+    meals = await list_meals(session, account_id, member_id, start, end, limit=None)
+    scoring_member = members_service.to_scoring_member(member, today=end_date)
+    limits = scoring.daily_limits_for(scoring_member, member.weight_kg)
+    return summarise(meals, limits, period, end_date, IST, member_id=member.id)
+
+
+async def week_counts(session: AsyncSession, account_id: UUID, end_date: date) -> WeekCounts:
+    """Account-wide counts for the 7 IST days ending on ``end_date`` (weekly share text)."""
+    start_day = end_date - timedelta(days=6)
+    start, end = ist_day_bounds(start_day, end_date)
+    return WeekCounts(
+        start=start_day,
+        end=end_date,
+        scans=await scans_service.count_analyses(session, account_id, start, end),
+        logged=await count_logs(session, account_id, start, end),
+    )
 
 
 async def delete_meal(session: AsyncSession, account_id: UUID, meal_id: UUID) -> None:
