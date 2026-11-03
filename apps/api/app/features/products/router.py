@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_app_settings
+from app.core.consent import CONSENT_RESPONSES, gate_for
 from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
 from app.core.ratelimit import limit
 from app.core.security import AccountContext, current_account
@@ -225,8 +226,10 @@ async def products_compare(
     responses={
         **ERROR_RESPONSES,
         409: {"model": ErrorEnvelope, "description": "A product with this barcode exists"},
+        **CONSENT_RESPONSES,
     },
-    dependencies=[Depends(limit("product_creates"))],  # first: it commits the session
+    # The consent gate first (a refused call costs no quota), then limit(), which commits.
+    dependencies=[Depends(gate_for("products_create")), Depends(limit("product_creates"))],
 )
 async def products_create(
     body: ProductCreate,

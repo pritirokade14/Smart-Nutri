@@ -248,7 +248,8 @@ async def test_requires_ai_processing_consent(
     r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
     body = r.json()
     assert (r.status_code, body["error"]["code"]) == (403, "consent_required")
-    assert body["error"]["details"] == {"purpose": "ai_processing"}
+    # The route gate (ruling G1: voice needs terms + ai_processing) answers first.
+    assert body["error"]["details"] == {"purposes": ["ai_processing"]}
     assert fakes.speech.stt_calls == []
 
 

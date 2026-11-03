@@ -25,12 +25,19 @@ from app.features.consents import service as consents_service
 
 Purpose = Literal["terms", "health_data", "ai_processing"]
 
-# Feature -> purposes its routes need (Plan 8 Task 1). Edit here only.
+# Feature -> purposes its routes need. Edit here only. Ruling G1 (the user's decision):
+# everything that processes a product needs only `terms`; voice sends the question to AI models,
+# so it also needs `ai_processing`. `health_data` is not a route gate: it gates saving member
+# health fields (members/service), and analyze keeps reading stored allergies and conditions
+# after a withdrawal, so an allergic member never gets `ok` (ADR 0018). The analyze explanation
+# keeps its own `ai_processing` check (analyze/service).
 REQUIRED: dict[str, tuple[Purpose, ...]] = {
-    "analyze": ("terms", "health_data"),
-    "scans": ("terms", "health_data", "ai_processing"),
-    "voice": ("terms", "health_data", "ai_processing"),
-    "meals": ("terms", "health_data"),
+    "analyze": ("terms",),
+    "scans": ("terms",),
+    "meals": ("terms",),
+    # Gated on the route, not by prefix: /v1/products/{barcode}/public is public.
+    "products_create": ("terms",),
+    "voice": ("terms", "ai_processing"),
 }
 
 CONSENT_RESPONSES: dict[int | str, dict[str, Any]] = {

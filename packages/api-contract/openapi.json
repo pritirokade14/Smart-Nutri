@@ -5025,6 +5025,16 @@
             },
             "description": "Missing or invalid access token"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
           "404": {
             "content": {
               "application/json": {
