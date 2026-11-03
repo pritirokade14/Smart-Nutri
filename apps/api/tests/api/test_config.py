@@ -21,6 +21,17 @@ def test_settings_ignore_dotenv_in_cwd(tmp_path, monkeypatch):
     assert get_settings().supabase_url == ""
 
 
+def test_voice_transcode_mimes_from_comma_string(monkeypatch):
+    monkeypatch.setenv("VOICE_TRANSCODE_MIMES", "audio/webm, Audio/Ogg,,")
+    assert Settings(_env_file=None).voice_transcode_mimes == frozenset({"audio/webm", "audio/ogg"})
+
+
+def test_voice_transcode_mimes_default_transcodes_every_non_wav():
+    assert Settings(_env_file=None).voice_transcode_mimes == frozenset(
+        {"audio/mp4", "audio/webm", "audio/ogg", "audio/mpeg"}
+    )
+
+
 def test_wildcard_origin_rejected():
     with pytest.raises(ValueError):
         Settings(_env_file=None, allowed_origins=["*"])

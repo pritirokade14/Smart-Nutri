@@ -13,7 +13,7 @@ import logging
 import math
 import random
 import time
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from typing import Annotated, Any
 
 import httpx
@@ -28,10 +28,14 @@ from app.features.scans.schemas import (
     extraction_json_schema,
 )
 from app.integrations.providers import (
+    MAX_TTS_CHARS,
+    SPEECH_LANGUAGE_CODES,
     CompletionFailed,
     ExtractionFailed,
     LLMProvider,
     ProviderUnavailable,
+    SpeechProvider,
+    SpeechUnavailable,
 )
 
 logger = logging.getLogger(__name__)
@@ -43,6 +47,14 @@ MAX_UPSTREAM_RETRIES = 2
 MAX_VALIDATION_ATTEMPTS = 2
 _MAX_BACKOFF_S = 30.0
 DEADLINE_S = 70.0
+SPEECH_TIMEOUT_S = 20.0  # per attempt, STT and TTS (callmissed skill)
+_AUDIO_EXTENSIONS = {
+    "audio/wav": "wav",
+    "audio/mp4": "m4a",
+    "audio/webm": "webm",
+    "audio/ogg": "ogg",
+    "audio/mpeg": "mp3",
+}
 # Every chat_json request is processed in India (AGENTS rule 6, callmissed skill rule 3). A
 # module constant, not a setting, so it can't be configured away. Deep-copied into each request.
 CHAT_EXTRA_BODY: dict[str, Any] = {"provider": {"data_residency": "in"}}
@@ -58,8 +70,15 @@ class CallMissedClient:
         base_url: str,
         http_client: httpx.AsyncClient | None = None,
         clock: Callable[[], float] = time.monotonic,
+        stt_model: str | None = None,
+        tts_model: str | None = None,
+        tts_voice: str | None = None,
     ) -> None:
         self._clock = clock
+        # Speech model ids come from settings (never literals); None = speech not configured.
+        self._stt_model = stt_model
+        self._tts_model = tts_model
+        self._tts_voice = tts_voice
         key = api_key.get_secret_value() if isinstance(api_key, SecretStr) else api_key
         if not key:
             raise ProviderUnavailable("not_configured")
@@ -261,6 +280,130 @@ class CallMissedClient:
                 tokens[1],
             )
 
+    # --- speech (SpeechProvider) -----------------------------------------------------------
+
+    async def transcribe(self, audio: bytes, mime: str, language: str) -> str:
+        """Speech-to-text with the configured STT model and an `<xx>-IN` language hint.
+
+        Logs metadata only (model, latency, status, audio byte count), never the transcript.
+        """
+        hint = _speech_language(language)
+        model = self._stt_model
+        if not model:
+            raise SpeechUnavailable("not_configured")
+        ext = _AUDIO_EXTENSIONS.get(mime, "bin")
+
+        async def call(timeout: float) -> str:
+            result = await self._client.audio.transcriptions.create(
+                model=model,
+                file=(f"question.{ext}", audio, mime),
+                language=hint,
+                timeout=timeout,
+            )
+            text = getattr(result, "text", None)
+            if not isinstance(text, str):
+                raise SpeechUnavailable("malformed_response")
+            return text
+
+        return await self._speech("callmissed_stt", model, call, size=f"audio_bytes={len(audio)}")
+
+    async def synthesize(self, text: str, language: str) -> bytes:
+        """Text-to-speech (mp3) with the configured TTS model and voice.
+
+        `text` must be at most MAX_TTS_CHARS (callers split longer answers on sentence
+        boundaries). Logs metadata only, never the text.
+        """
+        if len(text) > MAX_TTS_CHARS:
+            raise ValueError(f"TTS input is limited to {MAX_TTS_CHARS} characters")
+        hint = _speech_language(language)
+        model, voice = self._tts_model, self._tts_voice
+        if not model or not voice:
+            raise SpeechUnavailable("not_configured")
+
+        async def call(timeout: float) -> bytes:
+            response = await self._client.audio.speech.create(
+                model=model,
+                input=text,
+                voice=voice,  # type: ignore[arg-type]  # CallMissed voices are not OpenAI's
+                response_format="mp3",
+                extra_body={"language": hint},
+                timeout=timeout,
+            )
+            audio = response.content
+            if not is_mp3(audio):
+                raise SpeechUnavailable("malformed_response")
+            return audio
+
+        return await self._speech("callmissed_tts", model, call, size=f"text_chars={len(text)}")
+
+    async def _speech[T](
+        self,
+        event: str,
+        model: str,
+        call: Callable[[float], Awaitable[T]],
+        *,
+        size: str,
+    ) -> T:
+        """Run one speech call with the skill's policy: 20 s per attempt; 429 -> backoff, at
+        most 3 tries; 5xx / timeout -> at most 2 retries; 402 and other 4xx -> no retry.
+        Every failure becomes SpeechUnavailable(reason)."""
+        start = self._clock()
+        status = "error"
+        tries_429 = 0
+        upstream_retries = 0
+        try:
+            while True:
+                try:
+                    result = await call(SPEECH_TIMEOUT_S)
+                except SpeechUnavailable as exc:
+                    status = exc.reason
+                    raise
+                except openai.APIStatusError as exc:
+                    code = exc.status_code
+                    if code == 402:
+                        status = "insufficient_credits"
+                        raise SpeechUnavailable("insufficient_credits") from None
+                    if code in (401, 403):
+                        status = "misconfigured"
+                        raise SpeechUnavailable("misconfigured") from None
+                    if code == 429:
+                        tries_429 += 1
+                        if tries_429 >= MAX_429_TRIES:
+                            status = "rate_limited"
+                            raise SpeechUnavailable("rate_limited") from None
+                        await _sleep(_backoff(tries_429, exc.response))
+                        continue
+                    if code >= 500:
+                        upstream_retries += 1
+                        if upstream_retries > MAX_UPSTREAM_RETRIES:
+                            status = f"http_{code}"
+                            raise SpeechUnavailable("upstream_error") from None
+                        await _sleep(_backoff(upstream_retries, None))
+                        continue
+                    status = f"http_{code}"
+                    raise SpeechUnavailable("rejected") from None
+                except (openai.APITimeoutError, openai.APIConnectionError):
+                    upstream_retries += 1
+                    if upstream_retries > MAX_UPSTREAM_RETRIES:
+                        status = "timeout"
+                        raise SpeechUnavailable("timeout") from None
+                    await _sleep(_backoff(upstream_retries, None))
+                    continue
+                except openai.OpenAIError:
+                    status = "sdk_error"
+                    raise SpeechUnavailable("sdk_error") from None
+                status = "ok"
+                return result
+        finally:
+            logger.info(
+                "%s model=%s latency_ms=%d status=%s %s",
+                event,
+                model,
+                (self._clock() - start) * 1000,
+                status,
+                size,
+            )
+
     async def _pause(
         self, delay: float, deadline: float, failure: type[Exception] = ExtractionFailed
     ) -> None:
@@ -304,6 +447,20 @@ def _strip_size_bounds(node: Any) -> None:
             _strip_size_bounds(value)
 
 
+def _speech_language(language: str) -> str:
+    try:
+        return SPEECH_LANGUAGE_CODES[language]
+    except KeyError:
+        raise ValueError("language must be en, hi or mr") from None
+
+
+def is_mp3(data: bytes) -> bool:
+    """An ID3 tag or an MPEG audio frame sync (11 set bits) at the start."""
+    if data.startswith(b"ID3"):
+        return True
+    return len(data) >= 2 and data[0] == 0xFF and data[1] & 0xE0 == 0xE0
+
+
 def _backoff(attempt: int, response: httpx.Response | None) -> float:
     if response is not None:
         retry_after = response.headers.get("retry-after")
@@ -324,9 +481,18 @@ class LazyCallMissed:
     key surfaces as ProviderUnavailable("not_configured") only when a paid call is attempted.
     """
 
-    def __init__(self, *, api_key: SecretStr | None, base_url: str) -> None:
+    def __init__(
+        self,
+        *,
+        api_key: SecretStr | None,
+        base_url: str,
+        stt_model: str | None = None,
+        tts_model: str | None = None,
+        tts_voice: str | None = None,
+    ) -> None:
         self._api_key = api_key
         self._base_url = base_url
+        self._speech = {"stt_model": stt_model, "tts_model": tts_model, "tts_voice": tts_voice}
         self._client: CallMissedClient | None = None
 
     def __repr__(self) -> str:
@@ -334,7 +500,9 @@ class LazyCallMissed:
 
     def _ensure(self) -> CallMissedClient:
         if self._client is None:
-            self._client = CallMissedClient(api_key=self._api_key, base_url=self._base_url)
+            self._client = CallMissedClient(
+                api_key=self._api_key, base_url=self._base_url, **self._speech
+            )
         return self._client
 
     async def extract_label(self, **kwargs: Any) -> BaseModel:
@@ -342,6 +510,18 @@ class LazyCallMissed:
 
     async def chat_json(self, **kwargs: Any) -> BaseModel:
         return await self._ensure().chat_json(**kwargs)
+
+    async def transcribe(self, audio: bytes, mime: str, language: str) -> str:
+        return await self._speech_client().transcribe(audio, mime, language)
+
+    async def synthesize(self, text: str, language: str) -> bytes:
+        return await self._speech_client().synthesize(text, language)
+
+    def _speech_client(self) -> CallMissedClient:
+        try:
+            return self._ensure()
+        except ProviderUnavailable as exc:  # no key: speech is unavailable, not a crash
+            raise SpeechUnavailable(exc.reason) from None
 
     async def aclose(self) -> None:
         if self._client is not None:
@@ -355,6 +535,23 @@ async def get_llm_provider(
     """FastAPI dependency: a per-request, lazily built CallMissed provider, closed afterwards."""
     provider = LazyCallMissed(
         api_key=settings.callmissed_api_key, base_url=settings.callmissed_base_url
+    )
+    try:
+        yield provider
+    finally:
+        await provider.aclose()
+
+
+async def get_speech_provider(
+    settings: Annotated[Settings, Depends(get_app_settings)],
+) -> AsyncIterator[SpeechProvider]:
+    """FastAPI dependency: a per-request, lazily built CallMissed speech provider."""
+    provider = LazyCallMissed(
+        api_key=settings.callmissed_api_key,
+        base_url=settings.callmissed_base_url,
+        stt_model=settings.callmissed_stt_model,
+        tts_model=settings.callmissed_tts_model,
+        tts_voice=settings.callmissed_tts_voice,
     )
     try:
         yield provider

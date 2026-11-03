@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Literal, Protocol
 
 from pydantic import BaseModel
 
@@ -49,4 +49,32 @@ class LLMProvider(Protocol):
         """Strict-JSON chat, validated with `schema`. Always processed in India (data residency
         "in"), so it may carry anonymised member health data. `timeout_s` is the total budget,
         retries included. Raises ProviderUnavailable or CompletionFailed."""
+        ...
+
+
+SpeechLanguage = Literal["en", "hi", "mr"]
+# BCP-47 hints the CallMissed (Sarvam) speech models take.
+SPEECH_LANGUAGE_CODES: dict[str, str] = {"en": "en-IN", "hi": "hi-IN", "mr": "mr-IN"}
+MAX_TTS_CHARS = 2500
+
+
+class SpeechUnavailable(Exception):
+    """Speech-to-text or text-to-speech cannot be served: 402 (credits), 401/403, another
+    upstream rejection, a malformed response, or retries exhausted. Never carries audio or
+    text, only a short machine reason."""
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(reason)
+        self.reason = reason
+
+
+class SpeechProvider(Protocol):
+    async def transcribe(self, audio: bytes, mime: str, language: str) -> str:
+        """The transcript of `audio`. `language` ("en" | "hi" | "mr") is sent as a hint.
+        Raises SpeechUnavailable."""
+        ...
+
+    async def synthesize(self, text: str, language: str) -> bytes:
+        """mp3 bytes for `text`. ValueError if `text` is longer than MAX_TTS_CHARS.
+        Raises SpeechUnavailable."""
         ...
