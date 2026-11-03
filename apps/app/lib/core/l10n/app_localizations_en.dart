@@ -99,6 +99,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authSubtitle => 'Sign in to check packaged foods for your family.';
 
   @override
+  String get authTagline =>
+      'Know if a packaged food suits each person in your family.';
+
+  @override
   String get authTitle => 'Sign in';
 
   @override
@@ -181,6 +185,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonDisclaimer => 'Information, not medical advice.';
+
+  @override
+  String get commonErrorTitle => 'Something went wrong';
 
   @override
   String get commonGoHome => 'Go to the home page';
@@ -323,6 +330,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmSave => 'Confirm and save';
+
+  @override
+  String get confirmSectionAllergens => 'Allergens';
+
+  @override
+  String get confirmSectionNutrition => 'Nutrition table';
+
+  @override
+  String get confirmSectionPack => 'Claims and marks on the pack';
+
+  @override
+  String get confirmSectionProduct => 'Product';
 
   @override
   String get confirmServingSize => 'Serving size (g)';
@@ -534,6 +553,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add each family member with their age, allergies and diet, so every result is about them.';
 
   @override
+  String get familyComingSoonBody =>
+      'Add each person\'s age, allergies and diet to get a result for each of them.';
+
+  @override
+  String get familyComingSoonTitle => 'Family profiles are coming soon';
+
+  @override
   String get familyTitle => 'Family';
 
   @override
@@ -561,6 +587,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Products you check will be listed here, so you can find them again.';
 
   @override
+  String get historyComingSoonBody =>
+      'You\'ll see every product you\'ve checked here.';
+
+  @override
+  String get historyComingSoonTitle => 'Your history is coming soon';
+
+  @override
   String get historyTitle => 'History';
 
   @override
@@ -568,8 +601,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'No barcode, or a product we don\'t know yet? Photograph the label.';
 
   @override
+  String get homeLabelTitle => 'Photograph a label';
+
+  @override
   String get homeManualBody =>
       'Type the nutrition facts from the pack yourself.';
+
+  @override
+  String get homeRecentEmptyBody => 'Products you check will show up here.';
+
+  @override
+  String get homeRecentEmptyTitle => 'No scans yet';
+
+  @override
+  String get homeRecentTitle => 'Recent scans';
 
   @override
   String get homeScanBody =>
@@ -585,6 +630,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeWelcome(String name) {
     return 'Hello, $name';
   }
+
+  @override
+  String get homeWelcomeNoName => 'Hello';
 
   @override
   String get labelCameraPermissionDenied =>
@@ -881,6 +929,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your account, language and privacy settings will be here.';
 
   @override
+  String get profileComingSoonBody =>
+      'Language, privacy and account settings will appear here.';
+
+  @override
+  String get profileComingSoonTitle => 'Settings are coming soon';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override
@@ -1077,6 +1132,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get resultFamilyTitle => 'For your family';
+
+  @override
   String resultForMember(String name) {
     return 'For $name';
   }
@@ -1097,6 +1155,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resultNoIngredients => 'Ingredients not available';
+
+  @override
+  String get resultNotOnLabel => 'Not on the label';
+
+  @override
+  String get resultNutritionTitle => 'Nutrition per 100 g/ml';
 
   @override
   String get resultScanAnother => 'Scan another product';

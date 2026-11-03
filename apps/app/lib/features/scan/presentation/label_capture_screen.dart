@@ -5,7 +5,10 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/buttons.dart';
+import '../../../shared/widgets/states.dart';
 import '../data/label_repository.dart';
 import '../domain/barcode.dart';
 import 'confirm_screen.dart';
@@ -69,38 +72,46 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
     final state = ref.watch(labelScanControllerProvider);
     final controller = ref.read(labelScanControllerProvider.notifier);
 
+    final c = SnColors.of(context);
     final Widget body = switch (state) {
       LabelScanBusy(:final phase) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(),
+          _LabelHero(
+            icon: phase == LabelPhase.uploading
+                ? Icons.cloud_upload_outlined
+                : Icons.document_scanner_outlined,
+          ),
+          const SizedBox(height: SnTokens.space5),
+          const SizedBox(
+            width: SnTokens.space8 * 3,
+            child: LinearProgressIndicator(),
+          ),
           const SizedBox(height: SnTokens.space3),
           Text(
             phase == LabelPhase.uploading
                 ? l10n.labelUploading
                 : l10n.labelReading,
             textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium,
           ),
         ],
       ),
-      LabelScanFailed(:final failure) => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            _failureText(l10n, failure.code),
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge,
-          ),
-          const SizedBox(height: SnTokens.space4),
-          FilledButton(
+      LabelScanFailed(:final failure) => ErrorState(
+        message: _failureText(l10n, failure.code),
+        icon: failure.code == cameraPermissionDenied
+            ? Icons.no_photography_outlined
+            : Icons.error_outline_rounded,
+        actions: [
+          PrimaryButton(
+            label: l10n.labelRetake,
+            icon: Icons.photo_camera_outlined,
             onPressed: controller.reset,
-            child: Text(l10n.labelRetake),
           ),
-          const SizedBox(height: SnTokens.space2),
-          OutlinedButton(
+          SecondaryButton(
+            label: l10n.labelEnterManually,
+            icon: Icons.edit_note_rounded,
             onPressed: () => _enterManually(context),
-            child: Text(l10n.labelEnterManually),
           ),
         ],
       ),
@@ -109,6 +120,8 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const _LabelHero(icon: Icons.document_scanner_outlined),
+          const SizedBox(height: SnTokens.space5),
           // F15: an unknown barcode led here.
           if (_code != null) ...[
             Text(
@@ -116,31 +129,33 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
-            const SizedBox(height: SnTokens.space4),
-          ],
-          Icon(
-            Icons.document_scanner_outlined,
-            size: 64,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: SnTokens.space4),
-          FilledButton.icon(
+          ] else
+            Text(
+              l10n.homeLabelBody,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: c.textSecondary,
+              ),
+            ),
+          const SizedBox(height: SnTokens.space5),
+          PrimaryButton(
+            label: l10n.labelTakePhoto,
+            icon: Icons.photo_camera_outlined,
             onPressed: () =>
                 controller.capture(ImageSource.camera, barcode: _code),
-            icon: const Icon(Icons.photo_camera_outlined),
-            label: Text(l10n.labelTakePhoto),
           ),
-          const SizedBox(height: SnTokens.space2),
-          OutlinedButton.icon(
+          const SizedBox(height: SnTokens.space3),
+          SecondaryButton(
+            label: l10n.labelChooseFile,
+            icon: Icons.photo_library_outlined,
             onPressed: () =>
                 controller.capture(ImageSource.gallery, barcode: _code),
-            icon: const Icon(Icons.photo_library_outlined),
-            label: Text(l10n.labelChooseFile),
           ),
           const SizedBox(height: SnTokens.space2),
-          TextButton(
+          TextButton.icon(
             onPressed: () => _enterManually(context),
-            child: Text(l10n.labelEnterManually),
+            icon: const Icon(Icons.edit_note_rounded),
+            label: Text(l10n.labelEnterManually),
           ),
         ],
       ),
@@ -153,6 +168,26 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
           padding: const EdgeInsets.all(SnTokens.space5),
           child: body,
         ),
+      ),
+    );
+  }
+}
+
+/// A soft brand circle with a large icon, for the capture states.
+class _LabelHero extends StatelessWidget {
+  const _LabelHero({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = SnColors.of(context);
+    return Center(
+      child: Container(
+        width: SnTokens.space8 * 2,
+        height: SnTokens.space8 * 2,
+        decoration: BoxDecoration(color: c.brandSoft, shape: BoxShape.circle),
+        child: Icon(icon, size: SnTokens.space8, color: c.brand),
       ),
     );
   }

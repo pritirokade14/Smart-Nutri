@@ -9,7 +9,8 @@
     "go_home": "Go to the home page",
     "coming_soon": "Coming soon",
     "skip_to_content": "Skip to content",
-    "not_found_body": "The page you're looking for doesn't exist or has moved."
+    "not_found_body": "The page you're looking for doesn't exist or has moved.",
+    "error_title": "Something went wrong"
   },
   "auth": {
     "title": "Sign in",
@@ -25,7 +26,8 @@
     "error": "Could not sign in. Please try again.",
     "signOut": "Sign out",
     "subtitle": "Sign in to check packaged foods for your family.",
-    "or": "or"
+    "or": "or",
+    "tagline": "Know if a packaged food suits each person in your family."
   },
   "home": {
     "welcome": "Hello, {name}",
@@ -33,7 +35,12 @@
     "subtitle": "What would you like to check today?",
     "scan_body": "Use your camera, or type the number under the barcode.",
     "label_body": "No barcode, or a product we don't know yet? Photograph the label.",
-    "manual_body": "Type the nutrition facts from the pack yourself."
+    "manual_body": "Type the nutrition facts from the pack yourself.",
+    "welcome_no_name": "Hello",
+    "label_title": "Photograph a label",
+    "recent_title": "Recent scans",
+    "recent_empty_title": "No scans yet",
+    "recent_empty_body": "Products you check will show up here."
   },
   "verdict": {
     "status": {
@@ -237,7 +244,10 @@
     "ingredients": "Ingredients",
     "no_ingredients": "Ingredients not available",
     "you": "You",
-    "members_title": "For your family"
+    "members_title": "For your family",
+    "family_title": "For your family",
+    "nutrition_title": "Nutrition per 100 g/ml",
+    "not_on_label": "Not on the label"
   },
   "product": {
     "public_cta": "Check it for your family",
@@ -319,7 +329,11 @@
     "veg_mark_title": "Veg or non-veg mark",
     "remove_ingredient": "Remove this ingredient",
     "clear_statement_confirm": "I checked the pack: this statement isn't printed",
-    "open_existing": "Open the saved product"
+    "open_existing": "Open the saved product",
+    "section_product": "Product",
+    "section_nutrition": "Nutrition table",
+    "section_allergens": "Allergens",
+    "section_pack": "Claims and marks on the pack"
   },
   "warning": {
     "implausible_value": "This value looks unusual. Please check it against the pack.",
@@ -447,14 +461,20 @@
   },
   "history": {
     "title": "History",
-    "body": "Products you check will be listed here, so you can find them again."
+    "body": "Products you check will be listed here, so you can find them again.",
+    "coming_soon_title": "Your history is coming soon",
+    "coming_soon_body": "You'll see every product you've checked here."
   },
   "family": {
     "title": "Family",
-    "body": "Add each family member with their age, allergies and diet, so every result is about them."
+    "body": "Add each family member with their age, allergies and diet, so every result is about them.",
+    "coming_soon_title": "Family profiles are coming soon",
+    "coming_soon_body": "Add each person's age, allergies and diet to get a result for each of them."
   },
   "profile": {
     "title": "Profile",
-    "body": "Your account, language and privacy settings will be here."
+    "body": "Your account, language and privacy settings will be here.",
+    "coming_soon_title": "Settings are coming soon",
+    "coming_soon_body": "Language, privacy and account settings will appear here."
   }
 }

@@ -280,6 +280,12 @@ abstract class AppLocalizations {
   /// **'Sign in to check packaged foods for your family.'**
   String get authSubtitle;
 
+  /// No description provided for @authTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Know if a packaged food suits each person in your family.'**
+  String get authTagline;
+
   /// No description provided for @authTitle.
   ///
   /// In en, this message translates to:
@@ -423,6 +429,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Information, not medical advice.'**
   String get commonDisclaimer;
+
+  /// No description provided for @commonErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get commonErrorTitle;
 
   /// No description provided for @commonGoHome.
   ///
@@ -699,6 +711,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm and save'**
   String get confirmSave;
+
+  /// No description provided for @confirmSectionAllergens.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergens'**
+  String get confirmSectionAllergens;
+
+  /// No description provided for @confirmSectionNutrition.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition table'**
+  String get confirmSectionNutrition;
+
+  /// No description provided for @confirmSectionPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Claims and marks on the pack'**
+  String get confirmSectionPack;
+
+  /// No description provided for @confirmSectionProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get confirmSectionProduct;
 
   /// No description provided for @confirmServingSize.
   ///
@@ -1078,6 +1114,18 @@ abstract class AppLocalizations {
   /// **'Add each family member with their age, allergies and diet, so every result is about them.'**
   String get familyBody;
 
+  /// No description provided for @familyComingSoonBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add each person\'s age, allergies and diet to get a result for each of them.'**
+  String get familyComingSoonBody;
+
+  /// No description provided for @familyComingSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Family profiles are coming soon'**
+  String get familyComingSoonTitle;
+
   /// No description provided for @familyTitle.
   ///
   /// In en, this message translates to:
@@ -1126,6 +1174,18 @@ abstract class AppLocalizations {
   /// **'Products you check will be listed here, so you can find them again.'**
   String get historyBody;
 
+  /// No description provided for @historyComingSoonBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll see every product you\'ve checked here.'**
+  String get historyComingSoonBody;
+
+  /// No description provided for @historyComingSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your history is coming soon'**
+  String get historyComingSoonTitle;
+
   /// No description provided for @historyTitle.
   ///
   /// In en, this message translates to:
@@ -1138,11 +1198,35 @@ abstract class AppLocalizations {
   /// **'No barcode, or a product we don\'t know yet? Photograph the label.'**
   String get homeLabelBody;
 
+  /// No description provided for @homeLabelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photograph a label'**
+  String get homeLabelTitle;
+
   /// No description provided for @homeManualBody.
   ///
   /// In en, this message translates to:
   /// **'Type the nutrition facts from the pack yourself.'**
   String get homeManualBody;
+
+  /// No description provided for @homeRecentEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Products you check will show up here.'**
+  String get homeRecentEmptyBody;
+
+  /// No description provided for @homeRecentEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No scans yet'**
+  String get homeRecentEmptyTitle;
+
+  /// No description provided for @homeRecentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent scans'**
+  String get homeRecentTitle;
 
   /// No description provided for @homeScanBody.
   ///
@@ -1167,6 +1251,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hello, {name}'**
   String homeWelcome(String name);
+
+  /// No description provided for @homeWelcomeNoName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello'**
+  String get homeWelcomeNoName;
 
   /// No description provided for @labelCameraPermissionDenied.
   ///
@@ -1702,6 +1792,18 @@ abstract class AppLocalizations {
   /// **'Your account, language and privacy settings will be here.'**
   String get profileBody;
 
+  /// No description provided for @profileComingSoonBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Language, privacy and account settings will appear here.'**
+  String get profileComingSoonBody;
+
+  /// No description provided for @profileComingSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings are coming soon'**
+  String get profileComingSoonTitle;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:
@@ -1936,6 +2038,12 @@ abstract class AppLocalizations {
   /// **'We couldn\'t read {nutrient} clearly on the label, so this check could not be done.'**
   String reasonVariantNutrientMissingLowConfidence(String nutrient);
 
+  /// No description provided for @resultFamilyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For your family'**
+  String get resultFamilyTitle;
+
   /// No description provided for @resultForMember.
   ///
   /// In en, this message translates to:
@@ -1971,6 +2079,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ingredients not available'**
   String get resultNoIngredients;
+
+  /// No description provided for @resultNotOnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the label'**
+  String get resultNotOnLabel;
+
+  /// No description provided for @resultNutritionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition per 100 g/ml'**
+  String get resultNutritionTitle;
 
   /// No description provided for @resultScanAnother.
   ///

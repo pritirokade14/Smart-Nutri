@@ -135,6 +135,9 @@ void main() {
     await tester.pumpAndSettle();
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
     expect(find.text(l10n.errorRateLimited), findsOneWidget);
+    // Sign-out lives on the Profile tab.
+    await tester.tap(find.text(l10n.navProfile));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l10n.authSignOut));
     await tester.pumpAndSettle();
     expect(find.byType(SignInScreen), findsOneWidget);

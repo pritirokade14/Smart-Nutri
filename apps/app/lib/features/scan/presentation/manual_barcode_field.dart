@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/buttons.dart';
 import '../domain/barcode.dart';
 
 class ManualBarcodeField extends StatefulWidget {
@@ -37,7 +38,10 @@ class _ManualBarcodeFieldState extends State<ManualBarcodeField> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(l10n.scanManualEntry),
+        Text(
+          l10n.scanManualEntry,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         const SizedBox(height: SnTokens.space2),
         TextField(
           controller: _controller,
@@ -48,12 +52,16 @@ class _ManualBarcodeFieldState extends State<ManualBarcodeField> {
           decoration: InputDecoration(
             hintText: l10n.scanManualPlaceholder,
             errorText: _invalid ? l10n.scanInvalid : null,
-            border: const OutlineInputBorder(),
+            prefixIcon: const Icon(Icons.dialpad_rounded),
           ),
           onSubmitted: (_) => _submit(),
         ),
-        const SizedBox(height: SnTokens.space2),
-        FilledButton(onPressed: _submit, child: Text(l10n.scanSubmit)),
+        const SizedBox(height: SnTokens.space3),
+        PrimaryButton(
+          label: l10n.scanSubmit,
+          icon: Icons.search_rounded,
+          onPressed: _submit,
+        ),
       ],
     );
   }

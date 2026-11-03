@@ -58,6 +58,49 @@ test("unknown is never green", () => {
   assert.ok(!isGreenish(tok("color.verdict.unknown")));
   assert.ok(deltaE(tok("color.verdict.unknown"), tok("color.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
 });
+test("dark-theme and tint unknown colours are never green", () => {
+  for (const p of ["color.dark.verdict.unknown", "color.surface.verdict.unknown", "color.dark.surface.verdict.unknown"])
+    assert.ok(!isGreenish(tok(p)), p);
+  assert.ok(deltaE(tok("color.dark.verdict.unknown"), tok("color.dark.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
+});
+test("brand colours are not green and are far from the ok verdict", () => {
+  for (const p of ["color.brand.primary", "color.brand.soft", "color.brand.strong", "color.dark.brand.primary"])
+    assert.ok(!isGreenish(tok(p)), p);
+  assert.ok(deltaE(tok("color.brand.primary"), tok("color.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
+  assert.ok(deltaE(tok("color.dark.brand.primary"), tok("color.dark.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
+});
+test("light text, brand and verdict colours meet WCAG AA on their backgrounds", () => {
+  const aa = (fg, bg) => assert.ok(contrast(tok(fg), tok(bg)) >= 4.5, `${fg} on ${bg}`);
+  for (const bg of ["color.surface.default", "color.surface.canvas", "color.surface.muted"]) {
+    aa("color.text.primary", bg);
+    aa("color.text.secondary", bg);
+    aa("color.brand.primary", bg);
+  }
+  aa("color.text.inverse", "color.brand.primary");
+  aa("color.brand.strong", "color.brand.soft");
+  for (const k of ["ok", "caution", "avoid", "unknown"]) {
+    aa(`color.verdict.${k}`, `color.surface.verdict.${k}`);
+    aa(`color.verdict.${k}`, "color.surface.canvas");
+    aa("color.text.inverse", `color.verdict.${k}`);
+    aa("color.text.primary", `color.surface.verdict.${k}`);
+  }
+});
+test("dark text, brand and verdict colours meet WCAG AA on their backgrounds", () => {
+  const aa = (fg, bg) => assert.ok(contrast(tok(fg), tok(bg)) >= 4.5, `${fg} on ${bg}`);
+  for (const bg of ["color.dark.surface.default", "color.dark.surface.canvas", "color.dark.surface.muted"]) {
+    aa("color.dark.text.primary", bg);
+    aa("color.dark.text.secondary", bg);
+    aa("color.dark.brand.primary", bg);
+    for (const k of ["ok", "caution", "avoid", "unknown"]) aa(`color.dark.verdict.${k}`, bg);
+  }
+  aa("color.dark.text.inverse", "color.dark.brand.primary");
+  aa("color.dark.brand.strong", "color.dark.brand.soft");
+  for (const k of ["ok", "caution", "avoid", "unknown"]) {
+    aa(`color.dark.verdict.${k}`, `color.dark.surface.verdict.${k}`);
+    aa("color.dark.text.inverse", `color.dark.verdict.${k}`);
+    aa("color.dark.text.primary", `color.dark.surface.verdict.${k}`);
+  }
+});
 test("the green check rejects teal and grey-green candidates", () => {
   assert.ok(!unknownOk("#0F766E"));
   assert.ok(!unknownOk("#4B5B4B"));

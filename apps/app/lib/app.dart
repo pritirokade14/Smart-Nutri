@@ -18,6 +18,7 @@ class SmartNutriApp extends ConsumerWidget {
       return MaterialApp(
         onGenerateTitle: (context) => AppLocalizations.of(context).appName,
         theme: buildAppTheme(),
+        darkTheme: buildDarkAppTheme(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
@@ -32,6 +33,7 @@ class SmartNutriApp extends ConsumerWidget {
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       theme: buildAppTheme(),
+      darkTheme: buildDarkAppTheme(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(routerProvider),

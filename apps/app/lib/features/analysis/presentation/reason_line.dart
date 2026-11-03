@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/l10n/app_localizations.dart';
-import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/reason_list.dart';
 import '../domain/reasons.dart';
 
 /// Generic line for a reason the app cannot render: a reason code this build
@@ -30,19 +30,8 @@ class ReasonLine extends StatelessWidget {
   final ReasonOut reason;
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: SnTokens.space1),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('•  '),
-          Expanded(child: Text(reasonText(l10n, reason))),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      ReasonBullet(text: reasonText(AppLocalizations.of(context), reason));
 }
 
 class _BadParam implements Exception {

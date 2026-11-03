@@ -9,10 +9,14 @@ import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/presentation/email_otp_screen.dart';
 import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
+import '../../features/history/presentation/history_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/members/presentation/family_screen.dart';
 import '../../features/scan/presentation/confirm_screen.dart';
 import '../../features/scan/presentation/label_capture_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
+import '../../features/settings/presentation/profile_screen.dart';
+import '../../shared/widgets/app_shell.dart';
 import '../config/app_config.dart';
 
 class _AuthRefresh extends ChangeNotifier {
@@ -54,7 +58,39 @@ final routerProvider = Provider<GoRouter>((ref) {
             GoRoute(path: 'phone', builder: (_, _) => const PhoneOtpScreen()),
         ],
       ),
-      GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
+      // The signed-in tabs. Scan, label capture, confirm and result are
+      // full-screen routes above the shell (see AppShell).
+      StatefulShellRoute.indexedStack(
+        builder: (_, _, shell) => AppShell(shell: shell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/history',
+                builder: (_, _) => const HistoryScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: '/family', builder: (_, _) => const FamilyScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (_, _) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
       GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
       GoRoute(
         path: '/scan/label',

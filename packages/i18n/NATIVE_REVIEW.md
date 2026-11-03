@@ -99,3 +99,13 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `nav.*`, `history.*`, `family.*`, `profile.*`, `footer.tagline`**: machine drafts. Tab labels must be short (they sit under icons in a bottom bar). Check "होम" vs "मुख्य पृष्ठ", and "परिवार" / "कुटुंब".
 - [ ] **hi/mr `common.{go_home,coming_soon,skip_to_content}`, `auth.{subtitle,or}`, `home.{subtitle,scan_body,label_body,manual_body}`, `scan.{subtitle,label_hint}`, `result.members_title`, `product.not_found_body`, `common.not_found_body`**: machine drafts. Check the tone (calm, no blame).
 - `language.{en,hi,mr}` are endonyms ("English", "हिन्दी", "मराठी") and are deliberately the same in all three files.
+- [ ] **hi/mr `alert.*`** (`palm_oil`, `maida`, `added_sugar`, `artificial_sweetener`, `msg`): machine drafts, interpolated mid-sentence.
+
+## Android design pass (app shell and restyled screens)
+- [ ] **hi/mr `nav.*`** (`home`, `scan`, `history`, `family`, `profile`): machine drafts for the bottom navigation labels. They must be short (one word fits under an icon). Check "होम" (a loanword) against "मुखपृष्ठ", and "प्रोफ़ाइल" / "प्रोफाइल".
+- [ ] **hi/mr `common.coming_soon`, `common.error_title`**: machine drafts. "जल्द आ रहा है" / "लवकरच येत आहे" should read as a friendly label, not a promise with a date.
+- [ ] **hi/mr `auth.tagline`, `auth.or`**: machine drafts. The tagline must stay informational ("know if it suits"), never a health promise. Check "पैकेज्ड खाना" (hi) and "पॅकबंद अन्न" (mr).
+- [ ] **hi/mr `home.{welcome_no_name,subtitle,scan_body,label_title,label_body,recent_title,recent_empty_title,recent_empty_body}`**: machine drafts. `label_title` repeats `label.title` on purpose (same action). Check that "पोषण लेबल" / "पोषण लेबल" is what users call the nutrition table on the pack.
+- [ ] **hi/mr `history.*`, `family.*`, `profile.*`** (`title`, `coming_soon_title`, `coming_soon_body`): machine drafts. `family.coming_soon_body` mentions age, allergies and diet: keep it informational, no claim that the app manages a condition.
+- [ ] **hi/mr `result.{family_title,nutrition_title,not_on_label}`**: machine drafts. `not_on_label` must read as "the pack does not print this value", not "zero". Keep "100 ग्राम/मि.ली." / "100 ग्रॅम/मि.ली." consistent with the reason strings.
+- [ ] **hi/mr `confirm.{section_product,section_nutrition,section_allergens,section_pack}`**: machine drafts for the confirm-screen group titles. Check "एलर्जी कारक" (hi) and "ॲलर्जी घटक" (mr) for "Allergens", and "तालिका" / "तक्ता" for the nutrition table. Check "कृत्रिम स्वीटनर" (hi) and "कृत्रिम स्वीटनर (गोडवा)" (mr), "एमएसजी" for MSG, and keep `added_sugar` consistent with the open "अतिरिक्त चीनी" / "शर्करा" item above.

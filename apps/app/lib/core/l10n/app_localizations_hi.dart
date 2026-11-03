@@ -100,6 +100,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'अपने परिवार के लिए पैकेटबंद खाना जाँचने हेतु साइन इन करें।';
 
   @override
+  String get authTagline =>
+      'जानिए कि कोई पैकेज्ड खाना आपके परिवार के हर सदस्य के लिए सही है या नहीं।';
+
+  @override
   String get authTitle => 'साइन इन करें';
 
   @override
@@ -184,6 +188,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get commonDisclaimer => 'यह जानकारी है, चिकित्सकीय सलाह नहीं।';
+
+  @override
+  String get commonErrorTitle => 'कुछ गड़बड़ हो गई';
 
   @override
   String get commonGoHome => 'होम पेज पर जाएँ';
@@ -326,6 +333,18 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get confirmSave => 'पुष्टि करें और सहेजें';
+
+  @override
+  String get confirmSectionAllergens => 'एलर्जी कारक';
+
+  @override
+  String get confirmSectionNutrition => 'पोषण तालिका';
+
+  @override
+  String get confirmSectionPack => 'पैक पर दावे और निशान';
+
+  @override
+  String get confirmSectionProduct => 'उत्पाद';
 
   @override
   String get confirmServingSize => 'सर्विंग साइज़ (g)';
@@ -539,6 +558,13 @@ class AppLocalizationsHi extends AppLocalizations {
       'परिवार के हर सदस्य को उनकी उम्र, एलर्जी और खान-पान के साथ जोड़ें, ताकि हर नतीजा उनके हिसाब से हो।';
 
   @override
+  String get familyComingSoonBody =>
+      'हर सदस्य की उम्र, एलर्जी और आहार जोड़ें, ताकि हर किसी के लिए अलग नतीजा मिले।';
+
+  @override
+  String get familyComingSoonTitle => 'परिवार प्रोफ़ाइल जल्द आ रही हैं';
+
+  @override
   String get familyTitle => 'परिवार';
 
   @override
@@ -567,6 +593,13 @@ class AppLocalizationsHi extends AppLocalizations {
       'आप जो उत्पाद जाँचेंगे, वे यहाँ दिखेंगे, ताकि आप उन्हें फिर से ढूँढ सकें।';
 
   @override
+  String get historyComingSoonBody =>
+      'आपने जो भी उत्पाद जाँचे हैं, वे सब यहाँ दिखेंगे।';
+
+  @override
+  String get historyComingSoonTitle => 'आपका इतिहास जल्द आ रहा है';
+
+  @override
   String get historyTitle => 'इतिहास';
 
   @override
@@ -574,7 +607,19 @@ class AppLocalizationsHi extends AppLocalizations {
       'बारकोड नहीं है, या उत्पाद हमें अभी पता नहीं? लेबल की फ़ोटो लें।';
 
   @override
+  String get homeLabelTitle => 'लेबल की फ़ोटो लें';
+
+  @override
   String get homeManualBody => 'पैक पर लिखी पोषण जानकारी खुद टाइप करें।';
+
+  @override
+  String get homeRecentEmptyBody => 'आप जो उत्पाद जाँचेंगे, वे यहाँ दिखेंगे।';
+
+  @override
+  String get homeRecentEmptyTitle => 'अभी कोई स्कैन नहीं';
+
+  @override
+  String get homeRecentTitle => 'हाल के स्कैन';
 
   @override
   String get homeScanBody =>
@@ -590,6 +635,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String homeWelcome(String name) {
     return 'नमस्ते, $name';
   }
+
+  @override
+  String get homeWelcomeNoName => 'नमस्ते';
 
   @override
   String get labelCameraPermissionDenied =>
@@ -886,6 +934,13 @@ class AppLocalizationsHi extends AppLocalizations {
       'आपके खाते, भाषा और गोपनीयता की सेटिंग्स यहाँ होंगी।';
 
   @override
+  String get profileComingSoonBody =>
+      'भाषा, गोपनीयता और खाते की सेटिंग्स यहाँ दिखेंगी।';
+
+  @override
+  String get profileComingSoonTitle => 'सेटिंग्स जल्द आ रही हैं';
+
+  @override
   String get profileTitle => 'प्रोफ़ाइल';
 
   @override
@@ -1082,6 +1137,9 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get resultFamilyTitle => 'आपके परिवार के लिए';
+
+  @override
   String resultForMember(String name) {
     return '$name के लिए';
   }
@@ -1102,6 +1160,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get resultNoIngredients => 'सामग्री उपलब्ध नहीं';
+
+  @override
+  String get resultNotOnLabel => 'लेबल पर नहीं';
+
+  @override
+  String get resultNutritionTitle => 'प्रति 100 ग्राम/मि.ली. पोषण';
 
   @override
   String get resultScanAnother => 'दूसरा उत्पाद स्कैन करें';

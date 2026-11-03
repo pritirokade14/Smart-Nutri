@@ -7,12 +7,21 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/buttons.dart';
+import '../../../shared/widgets/disclaimer_footer.dart';
+import '../../../shared/widgets/nutri_score_chip.dart';
+import '../../../shared/widgets/nutrient_row.dart';
 import '../../../shared/widgets/off_attribution.dart';
+import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/states.dart';
 import '../../scan/domain/barcode.dart';
+import '../../scan/domain/number_text.dart';
 import '../data/analysis_repository.dart';
 import '../domain/report.dart';
 import 'analysis_providers.dart';
+import 'claims_section.dart';
 import 'verdict_card.dart';
 
 /// Result of a barcode scan or of a product saved from a label: the product,
@@ -51,7 +60,10 @@ class ResultScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.resultTitle)),
       body: result.when(
         skipLoadingOnRefresh: false,
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SingleChildScrollView(
+          padding: EdgeInsets.all(SnTokens.space4),
+          child: LoadingSkeleton(card: true, lines: 4),
+        ),
         error: (error, _) => _ErrorView(
           message: _errorMessage(l10n, error),
           // An invalid barcode cannot succeed on retry.
@@ -106,33 +118,36 @@ class _ErrorViewState extends State<_ErrorView> {
 
   @override
   Widget build(BuildContext context) {
-    final message = widget.message;
     final onRetry = widget.onRetry;
     final labelBarcode = widget.labelBarcode;
     final l10n = AppLocalizations.of(context);
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(SnTokens.space5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: SnTokens.space4),
-            if (labelBarcode case final code?) ...[
-              FilledButton(
+      child: SingleChildScrollView(
+        child: ErrorState(
+          message: widget.message,
+          icon: labelBarcode == null
+              ? Icons.cloud_off_rounded
+              : Icons.search_off_rounded,
+          actions: [
+            if (labelBarcode case final code?)
+              PrimaryButton(
+                label: l10n.notfoundGoToLabel,
+                icon: Icons.photo_camera_outlined,
                 onPressed: () =>
                     context.pushReplacement('/scan/label?barcode=$code'),
-                child: Text(
-                  l10n.notfoundGoToLabel,
-                  textAlign: TextAlign.center,
-                ),
               ),
-              const SizedBox(height: SnTokens.space2),
-            ],
-            if (onRetry != null) ...[
-              FilledButton(onPressed: onRetry, child: Text(l10n.scanRetry)),
-              const SizedBox(height: SnTokens.space2),
-            ],
+            if (onRetry != null)
+              labelBarcode == null
+                  ? PrimaryButton(
+                      label: l10n.scanRetry,
+                      icon: Icons.refresh_rounded,
+                      onPressed: onRetry,
+                    )
+                  : SecondaryButton(
+                      label: l10n.scanRetry,
+                      icon: Icons.refresh_rounded,
+                      onPressed: onRetry,
+                    ),
             TextButton(
               onPressed: () => context.pushReplacement('/scan'),
               child: Text(l10n.resultScanAnother),
@@ -153,46 +168,55 @@ class _ResultView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final product = out.product;
     final highIn = [
       for (final code in highInCodes(out.report)) ?_highInLabel(l10n, code),
     ];
+    final claims = claimChecks(out.report);
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(SnTokens.space4),
+      padding: const EdgeInsets.fromLTRB(
+        SnTokens.space4,
+        SnTokens.space2,
+        SnTokens.space4,
+        SnTokens.space6,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            product.name ?? product.barcode ?? barcode ?? '',
-            style: theme.textTheme.headlineSmall,
+          _ProductCard(
+            name: product.name ?? product.barcode ?? barcode ?? '',
+            brand: product.brand,
+            grade: nutriscoreGrade(out.report),
+            highIn: highIn,
           ),
-          if (product.brand case final brand?)
-            Text(brand, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: SnTokens.space3),
-          _GradeChip(grade: nutriscoreGrade(out.report)),
-          if (highIn.isNotEmpty) ...[
-            const SizedBox(height: SnTokens.space3),
-            Text(l10n.resultHighInTitle, style: theme.textTheme.titleSmall),
-            const SizedBox(height: SnTokens.space1),
-            Wrap(
-              spacing: SnTokens.space2,
-              runSpacing: SnTokens.space1,
-              children: [for (final label in highIn) Chip(label: Text(label))],
-            ),
-          ],
-          const SizedBox(height: SnTokens.space3),
+          const SizedBox(height: SnTokens.space5),
+          SectionHeader(
+            title: l10n.resultFamilyTitle,
+            icon: Icons.groups_rounded,
+          ),
           // One card per member, in the order the API returned them.
           for (final v in out.verdicts) VerdictCard(verdict: v),
+          const DisclaimerFooter(),
           const SizedBox(height: SnTokens.space3),
-          Text(l10n.commonDisclaimer, style: theme.textTheme.bodySmall),
+          SectionHeader(
+            title: l10n.resultNutritionTitle,
+            icon: Icons.table_rows_rounded,
+          ),
+          _NutritionTable(per100g: product.per100g),
+          if (claims.isNotEmpty) ...[
+            const SizedBox(height: SnTokens.space5),
+            ClaimsSection(checks: claims),
+          ],
           if (product.attribution != null)
-            if (product.barcode ?? barcode case final code?)
+            if (product.barcode ?? barcode case final code?) ...[
+              const SizedBox(height: SnTokens.space2),
               OffAttribution(barcode: code),
-          const SizedBox(height: SnTokens.space3),
-          OutlinedButton(
+            ],
+          const SizedBox(height: SnTokens.space4),
+          SecondaryButton(
+            label: l10n.resultScanAnother,
+            icon: Icons.qr_code_scanner_rounded,
             onPressed: () => context.pushReplacement('/scan'),
-            child: Text(l10n.resultScanAnother),
           ),
         ],
       ),
@@ -209,75 +233,162 @@ class _ResultView extends StatelessWidget {
       };
 }
 
-class _GradeChip extends StatelessWidget {
-  const _GradeChip({required this.grade});
+/// The product, its Nutri-Score and its "high in" flags, as the API sent
+/// them.
+class _ProductCard extends StatelessWidget {
+  const _ProductCard({
+    required this.name,
+    required this.brand,
+    required this.grade,
+    required this.highIn,
+  });
 
-  static const gradeTileKey = Key('nutriscore-grade-tile');
-
+  final String name;
+  final String? brand;
   final String? grade;
+  final List<String> highIn;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final grade = this.grade;
-    if (grade == null) {
-      return Text(
-        l10n.nutriscoreInsufficientData,
-        style: theme.textTheme.bodyMedium,
-      );
-    }
-    final background = switch (grade) {
-      'A' => SnTokens.gradeA,
-      'B' => SnTokens.gradeB,
-      'C' => SnTokens.gradeC,
-      'D' => SnTokens.gradeD,
-      _ => SnTokens.gradeE,
-    };
-    // Whichever of the two text tokens contrasts more with the tile.
-    final foreground =
-        _contrast(background, SnTokens.textPrimary) >=
-            _contrast(background, SnTokens.surfaceDefault)
-        ? SnTokens.textPrimary
-        : SnTokens.surfaceDefault;
-    return Row(
-      children: [
-        // A square letter tile, deliberately unlike the pill status badge.
-        Container(
-          key: gradeTileKey,
-          width: 44,
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(SnTokens.radiusSm),
-          ),
-          child: Semantics(
-            label: l10n.resultGrade(grade),
-            excludeSemantics: true,
-            child: Text(
-              grade,
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: foreground,
-                fontWeight: FontWeight.w700,
-              ),
+    final c = SnColors.of(context);
+    final brand = this.brand;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(SnTokens.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: SnTokens.space7,
+                  height: SnTokens.space7,
+                  decoration: BoxDecoration(
+                    color: c.accentPeach,
+                    borderRadius: BorderRadius.circular(SnTokens.radiusMd),
+                  ),
+                  child: Icon(Icons.inventory_2_outlined, color: c.brandStrong),
+                ),
+                const SizedBox(width: SnTokens.space3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: theme.textTheme.headlineSmall),
+                      if (brand != null)
+                        Text(
+                          brand,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: c.textSecondary,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
+            const SizedBox(height: SnTokens.space4),
+            NutriScoreChip(grade: grade),
+            if (highIn.isNotEmpty) ...[
+              const SizedBox(height: SnTokens.space4),
+              Text(l10n.resultHighInTitle, style: theme.textTheme.titleSmall),
+              const SizedBox(height: SnTokens.space2),
+              Wrap(
+                spacing: SnTokens.space2,
+                runSpacing: SnTokens.space2,
+                children: [for (final label in highIn) _HighInChip(label)],
+              ),
+            ],
+          ],
         ),
-        const SizedBox(width: SnTokens.space2),
-        Expanded(
-          child: Text(
-            l10n.nutriscoreCalculatedBy,
-            style: theme.textTheme.bodySmall,
-          ),
-        ),
-      ],
+      ),
     );
   }
+}
 
-  static double _contrast(Color a, Color b) {
-    final la = a.computeLuminance() + 0.05;
-    final lb = b.computeLuminance() + 0.05;
-    return la > lb ? la / lb : lb / la;
+/// A product-level "high in" flag (not a member verdict): amber tint and an
+/// arrow, so it never relies on colour alone.
+class _HighInChip extends StatelessWidget {
+  const _HighInChip(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = SnColors.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: SnTokens.space3,
+        vertical: SnTokens.space1,
+      ),
+      decoration: BoxDecoration(
+        color: c.verdictCautionSurface,
+        borderRadius: BorderRadius.circular(SnTokens.radiusFull),
+        border: Border.all(color: c.verdictCaution),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.arrow_upward_rounded,
+            size: SnTokens.fontSizeMd,
+            color: c.verdictCaution,
+          ),
+          const SizedBox(width: SnTokens.space1),
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: c.textPrimary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// `product.per_100g` as the API sent it; a missing value says so and is
+/// never shown as 0.
+class _NutritionTable extends StatelessWidget {
+  const _NutritionTable({required this.per100g});
+
+  final NutrientsOut per100g;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final n = per100g;
+    final rows = <(String, num?)>[
+      (l10n.confirmFieldEnergyKcal, n.energyKcal),
+      (l10n.confirmFieldProteinG, n.proteinG),
+      (l10n.confirmFieldCarbsG, n.carbsG),
+      (l10n.confirmFieldSugarsG, n.sugarsG),
+      (l10n.confirmFieldFatG, n.fatG),
+      (l10n.confirmFieldSatFatG, n.satFatG),
+      (l10n.confirmFieldFiberG, n.fiberG),
+      (l10n.confirmFieldSaltG, n.saltG),
+      (l10n.confirmFieldSodiumMg, n.sodiumMg),
+    ];
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: SnTokens.space4,
+          vertical: SnTokens.space2,
+        ),
+        child: Column(
+          children: [
+            for (final (i, (label, value)) in rows.indexed)
+              NutrientRow(
+                label: label,
+                value: value == null ? null : formatForDisplay(value),
+                divider: i < rows.length - 1,
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

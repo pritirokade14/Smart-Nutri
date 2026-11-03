@@ -9,6 +9,7 @@ import 'package:smartnutri_ai/features/analysis/data/analysis_repository.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/result_screen.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/verdict_card.dart';
 import 'package:smartnutri_ai/shared/widgets/off_attribution.dart';
+import 'package:smartnutri_ai/shared/widgets/states.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fixtures.dart';
@@ -79,10 +80,10 @@ void main() {
   testWidgets('loading state while the API answers', (t) async {
     final pending = Completer<AnalyzeOut>();
     await t.pumpWidget(_app(FakeAnalysisRepository([() => pending.future])));
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(LoadingSkeleton), findsOneWidget);
     pending.complete(analyzeFixture('water'));
     await t.pumpAndSettle();
-    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byType(LoadingSkeleton), findsNothing);
   });
 
   testWidgets('renders product, grade, high-in and one card per verdict in API '

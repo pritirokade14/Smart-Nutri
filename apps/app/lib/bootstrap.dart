@@ -5,9 +5,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app.dart';
 import 'core/config/app_config.dart';
 import 'core/observability/analytics.dart';
+import 'core/theme/fonts.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerFontLicenses();
   const config = AppConfig.fromEnvironment();
   await runWithSentry(config, () => _start(config));
 }

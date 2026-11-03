@@ -10,7 +10,10 @@ import 'package:smartnutri_api/src/export.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/observability/analytics.dart';
+import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/disclaimer_footer.dart';
+import '../../../shared/widgets/states.dart';
 import '../data/label_repository.dart';
 import 'draft_form.dart';
 
@@ -113,6 +116,7 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final c = SnColors.of(context);
     final failure = _failure;
     final scan = _scan;
     return Scaffold(
@@ -126,72 +130,66 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
         fieldErrors: _fieldErrors(l10n),
         onSave: _save,
         header: [
-          Text(l10n.confirmSubtitle, style: theme.textTheme.bodyMedium),
+          Container(
+            padding: const EdgeInsets.all(SnTokens.space3),
+            decoration: BoxDecoration(
+              color: c.brandSoft,
+              borderRadius: BorderRadius.circular(SnTokens.radiusLg),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.fact_check_outlined, color: c.brandStrong),
+                const SizedBox(width: SnTokens.space3),
+                Expanded(
+                  child: Text(
+                    l10n.confirmSubtitle,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: c.brandStrong,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: SnTokens.space2),
           Wrap(
             spacing: SnTokens.space2,
+            runSpacing: SnTokens.space1,
             children: [
               OutlinedButton.icon(
                 onPressed: _retake,
                 icon: const Icon(Icons.photo_camera_outlined),
                 label: Text(l10n.labelRetake),
               ),
-              TextButton(
+              TextButton.icon(
                 onPressed: _enterManually,
-                child: Text(l10n.labelEnterManually),
+                icon: const Icon(Icons.edit_note_rounded),
+                label: Text(l10n.labelEnterManually),
               ),
             ],
           ),
           const SizedBox(height: SnTokens.space2),
           if (failure != null)
-            _FailureBanner(
-              message: localizedErrorCode(l10n, failure.code),
-              action: failure.code == 'product_exists'
-                  ? switch (failure.productId) {
-                      final id? => TextButton(
-                        onPressed: () => _openProduct(id),
-                        child: Text(l10n.confirmOpenExisting),
-                      ),
-                      null => null,
-                    }
-                  : null,
+            Padding(
+              padding: const EdgeInsets.only(bottom: SnTokens.space2),
+              child: InlineErrorBanner(
+                message: localizedErrorCode(l10n, failure.code),
+                action: failure.code == 'product_exists'
+                    ? switch (failure.productId) {
+                        final id? => TextButton(
+                          onPressed: () => _openProduct(id),
+                          child: Text(l10n.confirmOpenExisting),
+                        ),
+                        null => null,
+                      }
+                    : null,
+              ),
             ),
         ],
         footer: [
-          const SizedBox(height: SnTokens.space3),
-          Text(l10n.confirmNotMedicalAdvice, style: theme.textTheme.bodySmall),
-        ],
-      ),
-    );
-  }
-}
-
-class _FailureBanner extends StatelessWidget {
-  const _FailureBanner({required this.message, this.action});
-
-  final String message;
-  final Widget? action;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: SnTokens.space2),
-      padding: const EdgeInsets.all(SnTokens.space3),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(SnTokens.radiusMd),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            message,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onErrorContainer,
-            ),
-          ),
-          ?action,
+          const SizedBox(height: SnTokens.space2),
+          DisclaimerFooter(text: l10n.confirmNotMedicalAdvice),
         ],
       ),
     );
