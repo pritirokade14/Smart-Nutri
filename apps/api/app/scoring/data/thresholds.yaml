@@ -22,7 +22,9 @@ claims:   # verify values against FSSAI (Advertising & Claims) Regulations 2018,
   protein_amount_shortfall_pct: 10
   # "100% whey" / "whey protein" vs the ingredients (pending dietitian review).
   whey_terms: [whey, whey protein, whey protein concentrate, whey protein isolate, hydrolysed whey, hydrolyzed whey, wpc, wpi, व्हे]
-  other_protein_terms: [soy protein, soya protein, soy protein isolate, pea protein, rice protein, wheat protein, wheat gluten, collagen, gelatin, casein, caseinate, milk protein concentrate]
+  # Milk powders, milk solids, milk proteins and egg proteins are other protein sources too
+  # (P9 safety S1). Plain "soy" is deliberately absent: soy lecithin is an emulsifier.
+  other_protein_terms: [soy protein, soya protein, soy protein isolate, pea protein, rice protein, wheat protein, wheat gluten, collagen, gelatin, casein, caseinate, milk protein concentrate, milk protein isolate, milk protein, skimmed milk powder, skim milk powder, milk powder, milk solids, egg albumin, albumin, egg white, egg protein, मिल्क पाउडर, मिल्क सॉलिड्स, दूध पाउडर]
 # Member-entered condition/goal names -> canonical applies_to names (Ruling R24; pending clinician review).
 # Keys are normalised (lowercase, non-word runs -> "_"). Anything unrecognised -> condition_unrecognised (UNKNOWN).
 condition_aliases:

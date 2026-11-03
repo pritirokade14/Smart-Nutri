@@ -118,8 +118,36 @@ def test_whey_only_with_soy_protein_contradicted(cfg):
     assert c.params == {"ingredients": ["soy protein isolate"]}
 
 
+@pytest.mark.parametrize(
+    "other",
+    [
+        "skimmed milk powder",
+        "skim milk powder",
+        "milk solids",
+        "milk protein isolate",
+        "milk protein concentrate",
+        "egg albumin",
+        "egg white powder",
+    ],
+)
+def test_whey_only_with_milk_or_egg_protein_contradicted(cfg, other):
+    """P9 safety S1: milk powders, milk solids, milk proteins and egg proteins are other
+    protein sources, so "100% whey" is contradicted."""
+    p = _whey(claims=("100% whey",), ingredients=("whey protein concentrate", other, "cocoa"))
+    c = _one(p, cfg)
+    assert (c.verdict, c.reason_code) == (ClaimVerdict.CONTRADICTED, "other_protein_source")
+    assert c.params["ingredients"]
+
+
+def test_soy_lecithin_is_not_another_protein_source(cfg):
+    """Plain "soy" is deliberately not a protein term: soy lecithin is an emulsifier."""
+    p = _whey(claims=("100% whey",), ingredients=("whey protein concentrate", "soy lecithin"))
+    c = _one(p, cfg)
+    assert (c.verdict, c.reason_code) == (ClaimVerdict.SUPPORTED, "ok")
+
+
 def test_whey_only_without_whey_contradicted(cfg):
-    c = _one(_whey(claims=("100% whey",), ingredients=("skimmed milk powder", "cocoa")), cfg)
+    c = _one(_whey(claims=("100% whey",), ingredients=("maltodextrin", "cocoa")), cfg)
     assert (c.verdict, c.reason_code) == (ClaimVerdict.CONTRADICTED, "whey_not_listed")
 
 

@@ -1,7 +1,7 @@
 # Clinician review: SmartNutri scoring thresholds
 
 > **Generated** by `scripts/clinician_review_sheet.py` from `apps/api/app/scoring/data/thresholds.yaml`. Do not edit by hand.
-> Scoring version: `ba0f34255ad0`. Pending clinician review: **True**.
+> Scoring version: `5063dbcef0e5`. Pending clinician review: **True**.
 
 **For the reviewer.** SmartNutri shows packaged-food verdicts per family member: `ok`, `caution`, `unknown` or `avoid`. It is information, not medical advice. Values are per 100 g (food) or per 100 ml (drink) unless the unit says otherwise. For each row, tick Approved, or write the value you recommend in Change to, then initial the Signed column. Sign and date the bottom of the sheet.
 
@@ -75,9 +75,6 @@
 ## Sources
 
 - **Nutri-Score 2023 update (Santé publique France)**: https://www.santepubliquefrance.fr/nutri-score-2023-update (link not yet verified)
-- **Update of the Nutri-Score algorithm: Scientific Committee report 2022 (foods; fats, oils, nuts and seeds)**: https://www.santepubliquefrance.fr/en/nutri-score (link not yet verified)
-- **Update of the Nutri-Score algorithm for beverages: Scientific Committee report 2023**: https://www.santepubliquefrance.fr/en/nutri-score (link not yet verified)
-- **Open Food Facts: reference implementation of Nutri-Score 2023 (Nutriscore.pm)**: https://github.com/openfoodfacts/openfoodfacts-server/blob/main/lib/ProductOpener/Nutriscore.pm (link not yet verified)
 - **UK FSA front-of-pack guidance (high thresholds)**: https://www.food.gov.uk/safety-hygiene/check-the-label (link not yet verified)
 - **FSSAI (Advertising & Claims) Regulations 2018**: https://www.fssai.gov.in/upload/uploadfiles/files/Compendium_Advertising_Claims_Regulations_14_12_2022.pdf (link not yet verified)
 - **FSSAI Labelling & Display Regulations 2020**: https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php (link not yet verified)

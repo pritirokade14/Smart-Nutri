@@ -6,10 +6,7 @@
       "id": "nutriscore_2023",
       "rationale_sources": [],
       "threshold_sources": [
-        "nutriscore_2023",
-        "nutriscore_2023_foods",
-        "nutriscore_2023_beverages",
-        "off_nutriscore_2023"
+        "nutriscore_2023"
       ],
       "thresholds": {
         "beverage": [
@@ -24,24 +21,6 @@
           {
             "grade": "D",
             "max_points": 9
-          }
-        ],
-        "fat": [
-          {
-            "grade": "A",
-            "max_points": -6
-          },
-          {
-            "grade": "B",
-            "max_points": 2
-          },
-          {
-            "grade": "C",
-            "max_points": 10
-          },
-          {
-            "grade": "D",
-            "max_points": 18
           }
         ],
         "food": [
@@ -534,7 +513,20 @@
           "gelatin",
           "casein",
           "caseinate",
-          "milk protein concentrate"
+          "milk protein concentrate",
+          "milk protein isolate",
+          "milk protein",
+          "skimmed milk powder",
+          "skim milk powder",
+          "milk powder",
+          "milk solids",
+          "egg albumin",
+          "albumin",
+          "egg white",
+          "egg protein",
+          "मिल्क पाउडर",
+          "मिल्क सॉलिड्स",
+          "दूध पाउडर"
         ],
         "protein_amount_shortfall_pct": 10,
         "refined_sugar_terms": [
@@ -893,24 +885,6 @@
       "url_verified": false
     },
     {
-      "id": "nutriscore_2023_foods",
-      "title": "Update of the Nutri-Score algorithm: Scientific Committee report 2022 (foods; fats, oils, nuts and seeds)",
-      "url": "https://www.santepubliquefrance.fr/en/nutri-score",
-      "url_verified": false
-    },
-    {
-      "id": "nutriscore_2023_beverages",
-      "title": "Update of the Nutri-Score algorithm for beverages: Scientific Committee report 2023",
-      "url": "https://www.santepubliquefrance.fr/en/nutri-score",
-      "url_verified": false
-    },
-    {
-      "id": "off_nutriscore_2023",
-      "title": "Open Food Facts: reference implementation of Nutri-Score 2023 (Nutriscore.pm)",
-      "url": "https://github.com/openfoodfacts/openfoodfacts-server/blob/main/lib/ProductOpener/Nutriscore.pm",
-      "url_verified": false
-    },
-    {
       "id": "uk_fsa_front_of_pack",
       "title": "UK FSA front-of-pack guidance (high thresholds)",
       "url": "https://www.food.gov.uk/safety-hygiene/check-the-label",
@@ -995,5 +969,5 @@
       "url_verified": false
     }
   ],
-  "version": "ba0f34255ad0"
+  "version": "5063dbcef0e5"
 }
