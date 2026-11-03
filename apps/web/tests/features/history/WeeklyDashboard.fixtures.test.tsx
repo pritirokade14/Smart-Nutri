@@ -111,8 +111,8 @@ describe("WeeklyDashboard (week_family, Dad)", () => {
 
   it("week totals are shown as plain totals (never against a daily limit)", () => {
     view(golden());
-    expect(section("salt_g").textContent).toContain("1.8 g");
-    expect(section("salt_g").textContent).not.toContain("1.8 g of 5 g");
+    expect(section("salt_g").textContent).toContain("1.7 g");
+    expect(section("salt_g").textContent).not.toContain("1.7 g of 5 g");
   });
 
   it.each(LOCALES)(

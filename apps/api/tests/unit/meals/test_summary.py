@@ -6,8 +6,9 @@ import pytest
 
 from app.core.time import IST as FIXED_IST
 from app.features.meals.models import MealLog
+from app.features.meals.service import snapshot, to_meal_out
 from app.features.meals.summary import NUTRIENTS, summarise
-from app.scoring import DailyLimits, load_config
+from app.scoring import DailyLimits, Nutrients, load_config
 
 IST = ZoneInfo("Asia/Kolkata")
 TODAY = date(2026, 11, 3)
@@ -293,6 +294,56 @@ def test_period_band_uses_unrounded_total(cfg):
     s = summarise(meals, ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER)
     assert s.totals.sugars_g == 50.0
     assert s.bands.sugar_g == "over"
+
+
+# --- F1: portions are stored unrounded; only display rounds --------------------------------
+
+
+def _logged(per_100g: Nutrients, grams: float) -> MealLog:
+    """A meal log as log_meal stores it: the snapshot of the portion."""
+    return MealLog(
+        id=uuid4(),
+        member_id=MEMBER,
+        grams=grams,
+        eaten_at=datetime.combine(TODAY, time(13, 0), tzinfo=IST),
+        nutrients=snapshot(per_100g, grams).model_dump(),
+    )
+
+
+def test_f1_snapshot_keeps_the_exact_portion():
+    s = snapshot(Nutrients(sugars_g=10.016, salt_g=0.8), 250)
+    assert (s.sugars_g, s.salt_g) == (25.04, 2.0)  # exact, no float drift
+    assert snapshot(Nutrients(salt_g=0.8), 5).salt_g == 0.04
+
+
+def test_f1_250_g_at_10_016_per_100_g_is_over_25_g(cfg):
+    """25.04 g of sugar displays as 25.0 g but is over the 25 g adult limit."""
+    s = _day([_logged(Nutrients(sugars_g=10.016, salt_g=0), 250)], cfg=cfg)
+    assert s.totals.sugars_g == 25.0
+    assert s.days[0].bands.sugar_g == "over" and s.bands.sugar_g == "over"
+
+
+def test_f1_infant_5_g_at_0_8_salt_per_100_g_is_over(cfg):
+    """0.04 g of salt rounded to 0.0 at log time used to read as ``ok`` under the infant
+    "no added salt" limit (0 g). Stored unrounded, it is ``over``."""
+    infant = DailyLimits(sugar_g=0, salt_g=0, protein_target_g=None, kcal=None)
+    s = _day([_logged(Nutrients(sugars_g=0, salt_g=0.8), 5)], infant, cfg)
+    assert s.totals.salt_g == 0.0  # display only
+    assert s.days[0].bands.salt_g == "over" and s.bands.salt_g == "over"
+
+
+def test_f1_meal_out_rounds_for_display():
+    row = _logged(Nutrients(energy_kcal=401.4, sugars_g=10.016, salt_g=0.9, protein_g=None), 250)
+    row.product_name, row.grade, row.client_id = "Biscuit", None, None
+    row.product_id, row.off_barcode = uuid4(), None
+    out = to_meal_out(row)
+    assert (out.nutrients.energy_kcal, out.nutrients.sugars_g, out.nutrients.salt_g) == (
+        1003.5,
+        25.0,
+        2.3,  # 2.25, ROUND_HALF_UP
+    )
+    assert out.nutrients.protein_g is None  # never 0
+    assert row.nutrients["sugars_g"] == 25.04  # the stored value is untouched
 
 
 def test_protein_target_uses_unrounded_total(cfg):

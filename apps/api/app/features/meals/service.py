@@ -37,11 +37,19 @@ def _round1(value: float) -> float:
 
 
 def _portion(value: float | None, grams: float) -> float | None:
-    return None if value is None else _round1(value * grams / 100)
+    """value x grams / 100 in decimal arithmetic (10.016 x 250 / 100 is 25.04, not
+    25.039999...), NOT rounded."""
+    if value is None:
+        return None
+    return float(Decimal(repr(float(value))) * Decimal(repr(float(grams))) / 100)
 
 
 def snapshot(per_100g: scoring.Nutrients, grams: float) -> NutrientSnapshot:
-    """Nutrients in ``grams`` of the product, each rounded to 1 dp (ROUND_HALF_UP).
+    """Nutrients in ``grams`` of the product, UNROUNDED (F1): this is what a log stores.
+
+    Rounding happens only for display (``to_meal_out``, summary totals); the summary bands
+    compare the unrounded sums, so 25.04 g of sugar is over a 25 g limit and 0.04 g of salt
+    is over an infant's 0 g limit (rounded at log time, both read as within the limit).
 
     Implausible label values are dropped first (the engine's own sanitiser), so they are null
     here, never summed. None stays None. Salt comes from ``Nutrients.salt()`` (salt or
@@ -66,7 +74,13 @@ def ist_day_bounds(start_day: date, end_day: date) -> tuple[datetime, datetime]:
     return start, end
 
 
+def _display(value: float | None) -> float | None:
+    return None if value is None else _round1(float(value))
+
+
 def to_meal_out(row: MealLog) -> MealOut:
+    """The API shape of a log. Nutrients are rounded to 1 dp (ROUND_HALF_UP) here, for
+    display only; the stored snapshot stays unrounded (F1)."""
     return MealOut(
         id=row.id,
         member_id=row.member_id,
@@ -77,7 +91,7 @@ def to_meal_out(row: MealLog) -> MealOut:
         grams=row.grams,
         eaten_at=row.eaten_at,
         nutrients=NutrientSnapshot(
-            **{k: row.nutrients.get(k) for k in NutrientSnapshot.model_fields}
+            **{k: _display(row.nutrients.get(k)) for k in NutrientSnapshot.model_fields}
         ),
         client_id=row.client_id,
         attribution=OFF_ATTRIBUTION if row.off_barcode is not None else None,
