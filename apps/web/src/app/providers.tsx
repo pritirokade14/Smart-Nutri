@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { clearAnalyzeCache } from "@/features/analysis/api/useAnalyzeBarcode";
+import { clearMembersCache } from "@/features/members/api/members";
 import { clearScanDrafts } from "@/features/scan/api/draftCache";
 import { setUnauthorizedHandler } from "@/lib/api/client";
 import { handleUnauthorized } from "@/lib/api/unauthorized";
@@ -23,6 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         if (event === "SIGNED_OUT") {
           clearAnalyzeCache(client);
           clearScanDrafts(client);
+          clearMembersCache(client);
         }
       },
     );
@@ -39,6 +41,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           clearCache: () => {
             clearAnalyzeCache(client);
             clearScanDrafts(client);
+            clearMembersCache(client);
           },
           signOut: () => createSupabaseBrowserClient().auth.signOut(),
           currentPath: () => window.location.pathname + window.location.search,

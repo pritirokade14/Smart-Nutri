@@ -16,7 +16,8 @@ const TABS = [
   // Results and saved products are reached by scanning.
   { key: "scan", Icon: ScanIcon, also: ["result", "product"] },
   { key: "history", Icon: HistoryIcon, also: [] },
-  { key: "family", Icon: FamilyIcon, also: [] },
+  // Adding and editing members happens under /members.
+  { key: "family", Icon: FamilyIcon, also: ["members"] },
   { key: "profile", Icon: UserIcon, also: [] },
 ] as const;
 

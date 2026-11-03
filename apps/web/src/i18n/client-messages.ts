@@ -14,6 +14,7 @@ const SERVER_ONLY = new Set([
   "condition",
   "claim_verdict",
   "claim_reason",
+  "alert",
 ]);
 
 export function clientMessages(
@@ -43,6 +44,23 @@ export function resultMessages(
 ): AbstractIntlMessages {
   const picked = Object.fromEntries(
     RESULT_NAMESPACES.filter((ns) => ns in messages).map((ns) => [
+      ns,
+      messages[ns],
+    ]),
+  );
+  return { ...clientMessages(messages), ...picked };
+}
+
+// What the members pages (list, add, edit) need on top of the root client
+// catalogue: the labels for allergies, diets, conditions and ingredient alerts.
+const MEMBERS_NAMESPACES = ["allergen", "diet", "condition", "alert"] as const;
+
+/** Client catalogue for the members pages: clientMessages + the member labels. */
+export function membersMessages(
+  messages: AbstractIntlMessages,
+): AbstractIntlMessages {
+  const picked = Object.fromEntries(
+    MEMBERS_NAMESPACES.filter((ns) => ns in messages).map((ns) => [
       ns,
       messages[ns],
     ]),

@@ -2,11 +2,10 @@ import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { pageClass } from "@/components/shell/page";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { FamilyIcon } from "@/components/ui/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { MembersList } from "@/features/members/components/MembersList";
 
-// Placeholder until the family members feature ships (same tab on Android).
+// The Family tab: the account's members (the account holder first).
 export default function FamilyPage({
   params,
 }: {
@@ -17,12 +16,12 @@ export default function FamilyPage({
   const t = useTranslations();
   return (
     <main className={pageClass}>
-      <SectionHeader as="h1" title={t("family.title")} />
-      <EmptyState
-        icon={<FamilyIcon />}
-        title={t("common.coming_soon")}
+      <SectionHeader
+        as="h1"
+        title={t("members.title")}
         description={t("family.body")}
       />
+      <MembersList />
     </main>
   );
 }

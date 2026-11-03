@@ -115,3 +115,8 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `members.born_in`, `members.form.{name_required,birth_year_invalid,number_range,allergen_length,allergen_limit}`**: machine drafts for form labels and validation. Numbers stay in Latin digits.
 - [ ] **hi/mr `consent.optional_ai_note`**: machine draft. It must say the AI consent is optional and that results are the same without it (the AI never decides).
 - [ ] **hi/mr `profile.consents_title`**: machine draft ("गोपनीयता और सहमति" / "गोपनीयता आणि संमती").
+
+## Plan 5 Task 11 (web members form, consent dialog, profile consent)
+- [ ] **hi/mr `members.form.{not_set,name_invalid,relation_required,birth_year_invalid,height_invalid,weight_invalid,allergen_invalid,allergen_limit,remove_allergy}`, `members.{born,limit_reached}`**: machine drafts for form errors and list lines. Check that the error lines read as a calm instruction, not blame.
+- [ ] **hi/mr `members.form.remove_allergy_confirm`**: machine draft, allergy safety copy. It must say plainly that products with this allergen will no longer be flagged for this person. `{allergen}` comes after a colon so the sentence does not agree with the interpolated noun's gender.
+- [ ] **hi/mr `consent.{ai_optional,required_note}`, `profile.{privacy_title,give_consent}`**: machine drafts. `ai_optional` must make clear that every result still appears without AI; only the explanation is missing.

@@ -389,7 +389,14 @@
       "number_range": "Enter a number from {min} to {max}.",
       "allergen_length": "Type 2 to 40 characters.",
       "allergen_limit": "You can add up to 20 allergies.",
-      "remove_allergy_confirm": "Remove {allergy} from the allergies for {name}? Products with it will no longer be flagged for them."
+      "remove_allergy_confirm": "Remove the {allergen} allergy? Products containing it will no longer be flagged for this person.",
+      "not_set": "Not set",
+      "name_invalid": "Enter a name of up to 40 characters.",
+      "relation_required": "Choose a relation.",
+      "height_invalid": "Enter a height between 30 and 250 cm, or leave it blank.",
+      "weight_invalid": "Enter a weight between 2 and 300 kg, or leave it blank.",
+      "allergen_invalid": "An allergy must be 2 to 40 characters.",
+      "remove_allergy": "Remove {allergen}"
     },
     "relation": {
       "self": "You",
@@ -408,7 +415,9 @@
       "weight_loss": "Lose weight",
       "weight_gain": "Gain weight"
     },
-    "born_in": "Born {year}"
+    "born_in": "Born {year}",
+    "born": "Born {year}",
+    "limit_reached": "You have 10 family members, the most you can add."
   },
   "consent": {
     "health_data": {
@@ -428,7 +437,9 @@
     "withdraw": "Withdraw consent",
     "granted": "Agreed",
     "not_granted": "Not agreed",
-    "optional_ai_note": "Optional. This only turns on the AI explanation; results are the same without it."
+    "optional_ai_note": "Optional. This only turns on the AI explanation; results are the same without it.",
+    "ai_optional": "Optional. Without it you still get every result, just no AI explanation.",
+    "required_note": "Needed to save allergies, health conditions, a goal, height or weight."
   },
   "explanation": {
     "title": "Why this result",
@@ -484,6 +495,8 @@
     "body": "Your account, language and privacy settings will be here.",
     "coming_soon_title": "Settings are coming soon",
     "coming_soon_body": "Language, privacy and account settings will appear here.",
-    "consents_title": "Privacy and consent"
+    "consents_title": "Privacy and consent",
+    "privacy_title": "Privacy and consent",
+    "give_consent": "Agree"
   }
 }

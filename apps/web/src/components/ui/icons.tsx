@@ -160,3 +160,22 @@ export const LeafIcon = (p: IconProps) => (
     <path d="M5 19l8-8" />
   </Icon>
 );
+
+export const CloseIcon = (p: IconProps) => (
+  <Icon name="close" {...p}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </Icon>
+);
+
+export const PlusIcon = (p: IconProps) => (
+  <Icon name="plus" {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+);
+
+export const SparkleIcon = (p: IconProps) => (
+  <Icon name="sparkle" {...p}>
+    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
+    <path d="M19 16v4M17 18h4" />
+  </Icon>
+);

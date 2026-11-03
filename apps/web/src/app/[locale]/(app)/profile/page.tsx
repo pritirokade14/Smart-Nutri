@@ -3,12 +3,11 @@ import { setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { pageClass } from "@/components/shell/page";
 import { SignOutButton } from "@/components/shell/SignOutButton";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { UserIcon } from "@/components/ui/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { ConsentSettings } from "@/features/members/components/ConsentSettings";
 
-// Placeholder until account settings ship (same tab on Android). Sign out
-// lives here meanwhile.
+// Account settings: each consent's state (with withdraw), and sign out.
+// Language and account deletion come later (same tab on Android).
 export default function ProfilePage({
   params,
 }: {
@@ -20,12 +19,10 @@ export default function ProfilePage({
   return (
     <main className={pageClass}>
       <SectionHeader as="h1" title={t("profile.title")} />
-      <EmptyState
-        icon={<UserIcon />}
-        title={t("common.coming_soon")}
-        description={t("profile.body")}
-        action={<SignOutButton />}
-      />
+      <ConsentSettings />
+      <div>
+        <SignOutButton />
+      </div>
     </main>
   );
 }

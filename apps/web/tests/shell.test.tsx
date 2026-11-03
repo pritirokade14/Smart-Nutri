@@ -1,5 +1,6 @@
 import en from "@smartnutri/i18n/messages/en.json";
 import hi from "@smartnutri/i18n/messages/hi.json";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { Suspense } from "react";
@@ -63,6 +64,8 @@ describe("AppNav", () => {
     ["/en/product/7d1d2f8a-1111-4c3b-9a0e-0123456789ab", "scan"],
     ["/en/history", "history"],
     ["/en/family", "family"],
+    ["/en/members/new", "family"],
+    ["/en/members/7d1d2f8a-1111-4c3b-9a0e-0123456789ab", "family"],
     ["/en/profile", "profile"],
   ] as const)("%s marks %s as the current tab", (p, tab) => {
     path.value = p;
@@ -114,11 +117,7 @@ describe("LanguageSwitcher", () => {
 });
 
 describe("placeholder pages", () => {
-  const pages = [
-    ["history", HistoryPage],
-    ["family", FamilyPage],
-    ["profile", ProfilePage],
-  ] as const;
+  const pages = [["history", HistoryPage]] as const;
 
   it.each(pages)(
     "%s: title and a coming-soon empty state",
@@ -139,14 +138,46 @@ describe("placeholder pages", () => {
     },
   );
 
-  it("profile offers sign out", async () => {
+  // Family and profile are real pages now; they load from the API.
+  const withQuery = (ui: React.ReactNode) =>
+    intl(
+      <QueryClientProvider
+        client={
+          new QueryClient({ defaultOptions: { queries: { retry: false } } })
+        }
+      >
+        {ui}
+      </QueryClientProvider>,
+    );
+
+  it("family: the members title and the list loading", async () => {
     await act(async () => {
-      intl(
+      withQuery(
+        <Suspense>
+          <FamilyPage params={Promise.resolve({ locale: "en" })} />
+        </Suspense>,
+      );
+    });
+    expect(
+      await screen.findByRole("heading", { level: 1, name: en.members.title }),
+    ).toBeTruthy();
+    expect(screen.queryByText(en.common.coming_soon)).toBeNull();
+  });
+
+  it("profile: privacy and consent, and sign out", async () => {
+    await act(async () => {
+      withQuery(
         <Suspense>
           <ProfilePage params={Promise.resolve({ locale: "en" })} />
         </Suspense>,
       );
     });
+    expect(
+      await screen.findByRole("heading", { level: 1, name: en.profile.title }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { level: 2, name: en.profile.privacy_title }),
+    ).toBeTruthy();
     expect(
       await screen.findByRole("button", { name: en.auth.signOut }),
     ).toBeTruthy();
