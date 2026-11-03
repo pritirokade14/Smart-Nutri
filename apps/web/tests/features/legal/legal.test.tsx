@@ -14,6 +14,7 @@ import sitemap from "@/app/sitemap";
 import { AppShell } from "@/components/shell/AppShell";
 import { SiteFooter } from "@/components/shell/SiteFooter";
 import { markdown as privacyMd } from "@/content/legal/privacy";
+import { markdown as termsMd } from "@/content/legal/terms";
 import { Markdown } from "@/features/legal/components/Markdown";
 import {
   CONTENT_DIR,
@@ -70,6 +71,23 @@ describe("legal content", () => {
     expect(privacyMd).not.toContain("apps/api");
     expect(privacyMd).toContain("information, not medical advice");
     expect(privacyMd).toContain("30 days");
+  });
+
+  it("points to Profile (the app's name for the page), never Settings (cleanup c6)", () => {
+    expect(privacyMd).not.toContain("Settings →");
+    expect(privacyMd).toContain("Profile → Privacy and consent");
+    expect(privacyMd).toContain("Profile → Delete account");
+    expect(termsMd).not.toContain("Settings →");
+    expect(termsMd).toContain("Profile → Delete account");
+  });
+
+  it("follows ruling G1: verdicts, scans, meal logs and label reading rest on terms", () => {
+    expect(privacyMd).toContain(
+      "This covers the core service: verdicts, scans, meal logs and **reading the label photos you take**.",
+    );
+    expect(privacyMd).not.toContain(
+      "[Before launch: confirm both apps strip EXIF",
+    );
   });
 });
 

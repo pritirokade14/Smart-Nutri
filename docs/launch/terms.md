@@ -69,7 +69,7 @@ To the extent the law allows, SmartNutri is not liable for decisions made from i
 
 ## 10. Ending
 
-- You can delete your account at any time (Settings → Delete account).
+- You can delete your account at any time (Profile → Delete account).
 - We may suspend accounts that break these Terms.
 
 ## 11. Law and disputes
