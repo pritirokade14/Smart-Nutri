@@ -49,12 +49,23 @@ const goldenVerdict = (product, member) => {
 };
 
 let state;
-// POST /__reset?terms=current|old&delete_fails=N seeds the signed-in state:
-// terms agreed now or at an older text version (needs_update), and how many
-// DELETE /v1/me calls answer 503 deletion_incomplete before one succeeds.
+// POST /__reset?terms=current|old&delete_fails=N&user_types=unanswered|<a,b>
+// seeds the signed-in state: terms agreed now or at an older text version
+// (needs_update), how many DELETE /v1/me calls answer 503
+// deletion_incomplete before one succeeds, and the account's user types
+// (default: answered with "Skip for now", so other specs land on Home).
 function reset(params = new URLSearchParams()) {
   const terms = params.get("terms");
+  const userTypes = params.get("user_types");
   state = {
+    userTypes:
+      userTypes === "unanswered"
+        ? null
+        : {
+            types: userTypes ? userTypes.split(",") : [],
+            follow_ups: {},
+            active_type: null,
+          },
     seq: 0,
     scans: 0,
     meals: [],
@@ -134,6 +145,133 @@ function analyze() {
     };
   });
   return golden;
+}
+
+// ---- User types (e2e/user-types.spec.ts) -----------------------------------
+// The API's pre-fill table (Plan 9 Task 2), canned for the stub: suggestions
+// only add, never remove, never relax a diet, primary member only. The stub
+// never applies them; the browser PATCHes the member after the user confirms.
+
+const PRIORITY = [
+  "allergy_diet",
+  "health_condition",
+  "family",
+  "weight_loss",
+  "gym",
+  "eat_better",
+];
+const HEALTH_TYPES = ["health_condition", "weight_loss", "allergy_diet"];
+const HEALTH_FOLLOW_UPS = ["conditions", "allergens", "diet"];
+const GYM_GOAL = {
+  build_muscle: "build_muscle",
+  lose_fat: "weight_loss",
+  stay_fit: "healthy_eating",
+};
+
+function suggestPrefill(types, f, m) {
+  const changes = [];
+  const union = (field, chosen, reason) => {
+    const added = (chosen ?? []).filter((v) => !m[field].includes(v));
+    if (added.length)
+      changes.push({
+        field,
+        current: m[field],
+        value: [...m[field], ...added],
+        added,
+        reason,
+      });
+  };
+  const goal = (value, reason) => {
+    if (m.goal !== value)
+      changes.push({ field: "goal", current: m.goal, value, added: [], reason });
+  };
+  if (types.includes("health_condition"))
+    union("conditions", f.conditions, "health_condition");
+  if (types.includes("allergy_diet")) {
+    union("allergens", f.allergens, "allergy_diet");
+    if (f.diet && m.diet === "non_veg" && f.diet !== "non_veg")
+      changes.push({
+        field: "diet",
+        current: m.diet,
+        value: f.diet,
+        added: [],
+        reason: "allergy_diet",
+      });
+  }
+  let goalChoice = null;
+  const gymGoal = types.includes("gym") ? GYM_GOAL[f.gym_goal] : undefined;
+  if (types.includes("weight_loss") && gymGoal === "build_muscle")
+    goalChoice = ["weight_loss", "build_muscle"];
+  else if (types.includes("weight_loss")) goal("weight_loss", "weight_loss");
+  else if (gymGoal) goal(gymGoal, "gym");
+  if (types.includes("eat_better")) {
+    union("custom_alerts", f.alerts, "eat_better");
+    if (m.goal === null && !changes.some((c) => c.field === "goal"))
+      goal("healthy_eating", "eat_better");
+  }
+  return { changes, goalChoice };
+}
+
+function userTypesOut() {
+  const row = state.userTypes;
+  if (!row)
+    return {
+      types: [],
+      follow_ups: {},
+      active_type: "eat_better",
+      answered: false,
+      answered_at: null,
+      prefill: null,
+    };
+  const primary = state.members.find((m) => m.is_primary);
+  const { changes, goalChoice } = suggestPrefill(
+    row.types,
+    row.follow_ups,
+    primary,
+  );
+  return {
+    types: row.types,
+    follow_ups: row.follow_ups,
+    active_type:
+      row.active_type && row.types.includes(row.active_type)
+        ? row.active_type
+        : (PRIORITY.find((t) => row.types.includes(t)) ?? "eat_better"),
+    answered: true,
+    answered_at: "2026-11-04T00:00:00Z",
+    prefill: {
+      member_id: primary.id,
+      changes,
+      goal_choice: goalChoice,
+      needs_health_consent:
+        changes.length > 0 && state.consents.health_data === null,
+    },
+  };
+}
+
+function putUserTypes(b) {
+  const f = b.follow_ups ?? {};
+  const health =
+    b.types.some((t) => HEALTH_TYPES.includes(t)) ||
+    HEALTH_FOLLOW_UPS.some((k) => f[k] != null);
+  if (health && state.consents.health_data === null)
+    return [403, envelope("consent_required", { purposes: ["health_data"] })];
+  const keep = state.userTypes?.active_type;
+  state.userTypes = {
+    types: b.types,
+    follow_ups: f,
+    active_type: keep && b.types.includes(keep) ? keep : null,
+  };
+  return [200, userTypesOut()];
+}
+
+function setActive(b) {
+  if (!state.userTypes) return [404, envelope("user_types_not_found")];
+  const ok =
+    state.userTypes.types.includes(b.active_type) ||
+    (state.userTypes.types.length === 0 && b.active_type === "eat_better");
+  if (!ok) return [422, envelope("user_type_not_selected")];
+  state.userTypes.active_type = b.active_type;
+  return [200, userTypesOut()];
 }
 
 // ---- Meal logs (e2e/log-and-share.spec.ts) ---------------------------------
@@ -281,6 +419,11 @@ function route(method, path, b, q = new URLSearchParams()) {
     state.deleted = true;
     return [204, undefined];
   }
+  if (method === "GET" && path === "/v1/me/user-types")
+    return [200, userTypesOut()];
+  if (method === "PUT" && path === "/v1/me/user-types") return putUserTypes(b);
+  if (method === "PATCH" && path === "/v1/me/user-types/active")
+    return setActive(b);
   if (method === "GET" && path === "/v1/consents")
     return [200, consentStates()];
   if (method === "POST" && path === "/v1/consents") {
@@ -398,7 +541,7 @@ function route(method, path, b, q = new URLSearchParams()) {
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "authorization, content-type",
-  "access-control-allow-methods": "GET, POST, PATCH, DELETE, OPTIONS",
+  "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
 };
 
 createServer((req, res) => {

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { DeleteAccount } from "@/features/account/components/DeleteAccount";
 import { ConsentSettings } from "@/features/members/components/ConsentSettings";
+import { ProfileFocus } from "@/features/user-types/components/ProfileFocus";
 
 // Account settings (same tab on Android): language, every consent (with
 // withdraw and re-consent), sign out, and Delete account. Reachable without
@@ -32,6 +33,7 @@ export default function ProfilePage({
           <LanguageSwitcher locale={locale} />
         </Card>
       </section>
+      <ProfileFocus />
       <ConsentSettings />
       <div>
         <SignOutButton />

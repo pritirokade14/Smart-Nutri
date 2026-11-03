@@ -990,7 +990,8 @@
       "goal_conflict": "You picked weight loss and gym. Choose one goal for your profile.",
       "apply": "Add to profile",
       "not_now": "Not now",
-      "nothing": "Nothing to add."
+      "nothing": "Nothing to add.",
+      "goal_neither": "Neither (keep my current goal)"
     }
   },
   "modes": {

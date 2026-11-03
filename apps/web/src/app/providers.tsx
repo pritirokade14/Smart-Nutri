@@ -8,6 +8,7 @@ import { clearMealsCache } from "@/features/meals/api/meals";
 import { clearMembersCache } from "@/features/members/api/members";
 import { clearProductsCache } from "@/features/product/api/products";
 import { clearScanDrafts } from "@/features/scan/api/draftCache";
+import { clearUserTypesCache } from "@/features/user-types/api/userTypes";
 import { setUnauthorizedHandler } from "@/lib/api/client";
 import { handleUnauthorized } from "@/lib/api/unauthorized";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -29,6 +30,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           clearMembersCache(client);
           clearMealsCache(client);
           clearProductsCache(client);
+          clearUserTypesCache(client);
         }
       },
     );
@@ -48,6 +50,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             clearMembersCache(client);
             clearMealsCache(client);
             clearProductsCache(client);
+            clearUserTypesCache(client);
           },
           signOut: () => createSupabaseBrowserClient().auth.signOut(),
           currentPath: () => window.location.pathname + window.location.search,
