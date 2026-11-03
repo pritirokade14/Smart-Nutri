@@ -1,6 +1,7 @@
 from app.scoring.claims import ClaimCheck
 from app.scoring.config import load_config
 from app.scoring.custom_alerts import custom_alert_reasons
+from app.scoring.daily_limits import DailyLimits, daily_limits_for, nutrient_band
 from app.scoring.methodology import methodology
 from app.scoring.models import (
     CUSTOM_ALERT_KEYS,
@@ -24,6 +25,7 @@ __all__ = [
     "Category",
     "ClaimCheck",
     "ClaimVerdict",
+    "DailyLimits",
     "Diet",
     "Member",
     "MemberVerdict",
@@ -35,6 +37,8 @@ __all__ = [
     "Status",
     "analyze",
     "custom_alert_reasons",
+    "daily_limits_for",
     "load_config",
     "methodology",
+    "nutrient_band",
 ]

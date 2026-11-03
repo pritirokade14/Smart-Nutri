@@ -69,6 +69,28 @@ conditions:
     # 5 g lets plain milk (~4.7 g lactose) pass; infant formula (~7 g) would be flagged)
     avoid_sugars_g: 5.0
     avoid_salt_g: 0.3
+# Daily limits for the meal-log summaries (Plan 6 T1). PENDING CLINICIAN REVIEW.
+# Read only by daily_limits.py, never by the verdict rules. Per DAY; a week is limit x 7.
+# Summaries compare TOTAL sugars from labels with these free/added-sugar limits: labels do not
+# separate free from natural sugar, so the comparison over-warns (never under-warns).
+daily_limits:
+  # sugar 25 g: WHO conditional free-sugar recommendation (< 5 % of energy);
+  #   https://www.who.int/publications/i/item/9789241549028
+  # salt 5 g: WHO sodium guideline (< 2 g sodium a day);
+  #   https://www.who.int/publications/i/item/9789241504836
+  # protein 0.83 g/kg: WHO/FAO/UNU safe level for adults (TRS 935, 2007); a TARGET, not a limit.
+  #   https://www.who.int/publications/i/item/9789241209359
+  adult:  {sugar_g: 25, salt_g: 5, protein_g_per_kg: 0.83}
+  # key = min age of band, for infant.max_age <= age < child.max_age. Child SUGAR reuses
+  # conditions.child.free_sugar_daily_limit_g. NHS: 1-3 y 2 g, 4-6 y 3 g, 7-10 y 5 g, 11+ 6 g
+  # (Ruling P6-R1: 2-3 year olds keep NHS's own 2 g, the stricter value).
+  #   https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/
+  child_salt_g_by_min_age: {2: 2, 4: 3, 7: 5, 11: 6}
+  # Under 2 (conditions.infant.max_age): no added sugar or salt (WHO). 0 means any logged
+  # sugar or salt shows as "over" (total sugars include milk lactose, so this over-warns).
+  infant: {sugar_g: 0, salt_g: 0}
+  # "near" from this share of the limit (SmartNutri working value).
+  near_pct: 80
 # Sources shown on "How we score" (methodology(); Plan 5 T2). Read only by methodology(),
 # never by the rules. url_verified: false until a human has opened and checked each URL
 # (Ruling P5-R10); the public M5 page must not ship unverified links.
@@ -82,6 +104,10 @@ sources:
   who_infant: {title: "WHO guidance: no added sugar or salt under 2", url: "https://www.who.int/news-room/fact-sheets/detail/healthy-diet", url_verified: false}
   uk_sdil: {title: "UK Soft Drinks Industry Levy (5 g sugar per 100 ml)", url: "https://www.gov.uk/guidance/soft-drinks-industry-levy", url_verified: false}
   ada_standards_of_care: {title: "American Diabetes Association: Standards of Care in Diabetes, Section 5", url: "https://diabetesjournals.org/care/issue/48/Supplement_1", url_verified: false}
+  who_free_sugars: {title: "WHO guideline: sugars intake for adults and children", url: "https://www.who.int/publications/i/item/9789241549028", url_verified: false}
+  who_sodium: {title: "WHO guideline: sodium intake for adults and children", url: "https://www.who.int/publications/i/item/9789241504836", url_verified: false}
+  who_protein_2007: {title: "WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)", url: "https://www.who.int/publications/i/item/9789241209359", url_verified: false}
+  nhs_child_salt: {title: "NHS: salt limits for children", url: "https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/", url_verified: false}
   # Numbers SmartNutri chose itself (no external source states them). No link.
   smartnutri_working_values: {title: "SmartNutri working values, pending clinician review", url: null, url_verified: false}
 # Section -> where its numbers come from (`thresholds`) and, optionally, why the rule exists
@@ -107,3 +133,6 @@ section_sources:
   # 5 g sugar and 0.3 g salt per 100 g are SmartNutri values (Ruling R27), NOT WHO numbers.
   infant:          {thresholds: [smartnutri_working_values], rationale: [who_infant]}
   custom_alerts:   null
+  # Adult sugar and salt: WHO; protein target: WHO/FAO/UNU; child bands: NHS; the 80 % "near"
+  # share: SmartNutri. Infant 0 g rests on WHO's "no added sugar or salt under 2" (rationale).
+  daily_limits:    {thresholds: [who_free_sugars, who_sodium, who_protein_2007, nhs_child_sugar, nhs_child_salt, smartnutri_working_values], rationale: [who_infant]}

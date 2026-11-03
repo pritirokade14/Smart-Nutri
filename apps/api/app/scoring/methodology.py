@@ -28,6 +28,7 @@ SECTION_IDS: tuple[str, ...] = (
     "child",
     "infant",
     "custom_alerts",
+    "daily_limits",
 )
 _CONDITION_GROUPS = ("blood_sugar", "hypertension", "weight_loss", "child", "infant")
 
@@ -68,6 +69,16 @@ def _thresholds(section_id: str, cfg: ScoringConfig) -> Any:
         return cfg.diet
     if section_id == "custom_alerts":
         return _custom_alerts(cfg)
+    if section_id == "daily_limits":
+        # Child sugar bands live under conditions.child; shown here so the section is whole.
+        return {
+            **cfg.thresholds["daily_limits"],
+            "child_sugar_g_by_min_age": cfg.thresholds["conditions"]["child"][
+                "free_sugar_daily_limit_g"
+            ],
+            "child_max_age": cfg.thresholds["conditions"]["child"]["max_age"],
+            "infant_max_age": cfg.thresholds["conditions"]["infant"]["max_age"],
+        }
     raise KeyError(section_id)
 
 

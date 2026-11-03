@@ -16,6 +16,7 @@ SECTION_IDS = [
     "child",
     "infant",
     "custom_alerts",
+    "daily_limits",
 ]
 
 
@@ -182,3 +183,16 @@ def test_version_changes_with_the_config(cfg):
 
 def test_default_config_is_used_when_none(cfg):
     assert methodology()["version"] == methodology(cfg)["version"]
+
+
+def test_daily_limits_section_mirrors_config(cfg):
+    sec = _section(methodology(cfg), "daily_limits")
+    t, dl = sec["thresholds"], cfg.thresholds["daily_limits"]
+    assert t["adult"] == dl["adult"]
+    assert t["child_salt_g_by_min_age"] == dl["child_salt_g_by_min_age"]
+    assert (
+        t["child_sugar_g_by_min_age"]
+        == (cfg.thresholds["conditions"]["child"]["free_sugar_daily_limit_g"])
+    )
+    assert sec["threshold_sources"][0] == "who_free_sugars"
+    assert sec["rationale_sources"] == ["who_infant"]
