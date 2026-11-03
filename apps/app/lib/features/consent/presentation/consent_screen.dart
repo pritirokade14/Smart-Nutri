@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../meals/presentation/meals_providers.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
@@ -75,7 +76,10 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
 
   void _decline() {
     if (widget.gate) {
-      ref.read(authRepositoryProvider).signOut();
+      signOutClearingQueue(
+        ref.read(authRepositoryProvider),
+        ref.read(mealQueueProvider),
+      );
     } else {
       Navigator.of(context).pop(false);
     }

@@ -9,6 +9,7 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/meal_queue.dart';
+import '../../auth/data/auth_repository.dart';
 import '../data/meal_sync.dart';
 import '../data/meals_repository.dart';
 
@@ -18,6 +19,18 @@ final mealQueueProvider = Provider<MealQueue>((ref) {
   ref.onDispose(db.close);
   return DriftMealQueue(db);
 });
+
+/// Ends the session: the offline log is wiped first (a log belongs to the
+/// account that made it), then the user is signed out. A failed wipe never
+/// blocks the sign-out.
+Future<void> signOutClearingQueue(AuthRepository auth, MealQueue queue) async {
+  try {
+    await queue.clearAll();
+  } on Object {
+    // Still sign out.
+  }
+  await auth.signOut();
+}
 
 final mealsClientProvider = Provider<MealsClient>(
   (ref) => ref.watch(apiClientProvider).meals,

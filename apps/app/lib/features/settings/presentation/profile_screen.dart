@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../meals/presentation/meals_providers.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/buttons.dart';
 import '../../../shared/widgets/section_header.dart';
@@ -80,7 +81,10 @@ class ProfileScreen extends ConsumerWidget {
           SecondaryButton(
             label: l10n.authSignOut,
             icon: Icons.logout_rounded,
-            onPressed: () => ref.read(authRepositoryProvider).signOut(),
+            onPressed: () => signOutClearingQueue(
+              ref.read(authRepositoryProvider),
+              ref.read(mealQueueProvider),
+            ),
           ),
           const SizedBox(height: SnTokens.space2),
           TextButton.icon(

@@ -8,6 +8,7 @@ import '../../../core/observability/analytics.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/states.dart';
 import '../../auth/data/auth_repository.dart';
+import '../../meals/presentation/meals_providers.dart';
 import '../data/account_repository.dart';
 
 Future<void> showDeleteAccountDialog(BuildContext context) => showDialog<void>(
@@ -53,6 +54,7 @@ class _DeleteAccountDialogState extends ConsumerState<DeleteAccountDialog> {
     final navigator = Navigator.of(context);
     final analytics = ref.read(analyticsProvider);
     final auth = ref.read(authRepositoryProvider);
+    final queue = ref.read(mealQueueProvider);
     setState(() {
       _busy = true;
       _error = null;
@@ -74,7 +76,7 @@ class _DeleteAccountDialogState extends ConsumerState<DeleteAccountDialog> {
     }
     navigator.pop();
     try {
-      await auth.signOut();
+      await signOutClearingQueue(auth, queue);
     } on Object {
       // The auth user is already deleted server-side; the local session is
       // cleared before the sign-out call can fail.

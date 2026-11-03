@@ -69,6 +69,10 @@ abstract interface class MealQueue {
 
   /// Forgets the refused rows (after the user saw the notice).
   Future<void> clearFailed();
+
+  /// Forgets every row, sent or not. Called before the session ends, so the
+  /// next person on this phone never inherits (or sends) this one's logs.
+  Future<void> clearAll();
 }
 
 class DriftMealQueue implements MealQueue {
@@ -127,4 +131,7 @@ class DriftMealQueue implements MealQueue {
   @override
   Future<void> clearFailed() =>
       (_db.delete(_t)..where((r) => r.lastError.isNotNull())).go();
+
+  @override
+  Future<void> clearAll() => _db.delete(_t).go();
 }

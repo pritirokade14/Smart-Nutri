@@ -203,6 +203,16 @@ class MemoryMealQueue implements MealQueue {
     rows.removeWhere((_, r) => r.lastError != null);
     _changed();
   }
+
+  /// Called by [clearAll], for tests that check the order of calls.
+  void Function()? onClearAll;
+
+  @override
+  Future<void> clearAll() async {
+    onClearAll?.call();
+    rows.clear();
+    _changed();
+  }
 }
 
 /// Overrides that keep the offline log and its sync triggers off the
