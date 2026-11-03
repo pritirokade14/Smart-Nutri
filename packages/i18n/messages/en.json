@@ -222,7 +222,12 @@
     "portion_required": "Choose how much was eaten: servings or grams.",
     "serving_size_unknown": "This pack doesn't show a serving size. Enter the amount in grams.",
     "eaten_at_out_of_range": "Choose a time within the last 30 days.",
-    "meal_not_found": "That food log wasn't found."
+    "meal_not_found": "That food log wasn't found.",
+    "audio_too_long": "That recording is longer than 30 seconds. Please ask a shorter question.",
+    "audio_too_large": "That recording is too large. Please ask a shorter question.",
+    "audio_unsupported": "We couldn't play that recording. Please try again.",
+    "voice_not_understood": "We couldn't hear a question. Please hold the button and speak clearly.",
+    "ai_unavailable": "Voice answers are unavailable right now. Please try again later."
   },
   "scan": {
     "title": "Scan a barcode",

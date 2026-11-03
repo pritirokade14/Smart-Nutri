@@ -20,6 +20,21 @@ class FakeStorage:
         self.default = default
         self.signed: list[tuple[str, int]] = []
         self.downloads: list[str] = []
+        self.uploads: list[tuple[str, str]] = []  # (path, content_type)
+        self.signed_urls: list[tuple[str, int]] = []
+        self.fail_uploads = False
+
+    async def upload(self, path: str, data: bytes, content_type: str) -> None:
+        if self.fail_uploads:
+            from app.integrations.storage import StorageUnavailable
+
+            raise StorageUnavailable("fake")
+        self.uploads.append((path, content_type))
+        self.objects[path] = data
+
+    async def create_signed_url(self, path: str, expires_in: int) -> str:
+        self.signed_urls.append((path, expires_in))
+        return f"https://storage.test/sign/{path}?token=fake"
 
     async def create_signed_upload(self, path: str, expires_in: int) -> str:
         self.signed.append((path, expires_in))

@@ -20,6 +20,7 @@ from app.features.meals.router import router as meals_router
 from app.features.members.router import router as members_router
 from app.features.products.router import router as products_router
 from app.features.scans.router import router as scans_router
+from app.features.voice.router import router as voice_router
 
 ROUTERS: list[APIRouter] = [
     health_router,
@@ -30,6 +31,7 @@ ROUTERS: list[APIRouter] = [
     consents_router,
     members_router,
     meals_router,
+    voice_router,
 ]
 
 

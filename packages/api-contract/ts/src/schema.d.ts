@@ -380,6 +380,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/voice/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Voice Ask
+         * @description Answer a spoken question about one product for one family member.
+         *
+         *     Send exactly one of `product_id` (our catalogue) or `barcode` (Open Food Facts). Audio:
+         *     at most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The
+         *     verdict comes only from the rules engine; `answer` starts with it. Needs the
+         *     `ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).
+         */
+        post: operations["voice_ask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -470,6 +495,24 @@ export interface components {
          * @enum {string}
          */
         BetterSide: "a" | "b" | "same" | "unknown";
+        /** Body_voice_ask */
+        Body_voice_ask: {
+            /**
+             * Audio
+             * Format: binary
+             */
+            audio: string;
+            /** Barcode */
+            barcode?: string | null;
+            language: components["schemas"]["VoiceLanguage"];
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Product Id */
+            product_id?: string | null;
+        };
         /**
          * ColumnConfirm
          * @description What to ask when the user saves with this `basis` (`ProductCreate.basis`).
@@ -1445,6 +1488,53 @@ export interface components {
              */
             status: "ok" | "caution" | "unknown" | "avoid";
         };
+        /**
+         * VoiceAnswer
+         * @description A spoken answer. `answer` always starts with the engine's verdict sentence for
+         *     `verdict_status`; clients show it with the "not medical advice" disclaimer and never
+         *     derive a verdict from the text.
+         */
+        VoiceAnswer: {
+            /**
+             * Answer
+             * @description Engine verdict sentence, then the explanation.
+             */
+            answer: string;
+            /**
+             * Audio Expires In
+             * @description Seconds until audio_url expires.
+             * @default 3600
+             */
+            audio_expires_in: number;
+            /**
+             * Audio Url
+             * @description Signed URL of the mp3 answer; expires.
+             */
+            audio_url: string;
+            /**
+             * Question
+             * @description The transcribed question (never stored or logged).
+             */
+            question: string;
+            /**
+             * Source
+             * @description llm: AI explanation that passed every check; fallback: rule-based text.
+             * @enum {string}
+             */
+            source: "llm" | "fallback";
+            /**
+             * Verdict Status
+             * @enum {string}
+             */
+            verdict_status: "ok" | "caution" | "unknown" | "avoid";
+        };
+        /**
+         * VoiceLanguage
+         * @description Language of the question and of the spoken answer (a named schema, so the generated
+         *     clients get a real enum type for the multipart field).
+         * @enum {string}
+         */
+        VoiceLanguage: "en" | "hi" | "mr";
         /**
          * WeekCounts
          * @description Account-wide counts for the weekly share text. Counts only, no health data.
@@ -3258,6 +3348,111 @@ export interface operations {
                 };
             };
             /** @description Storage unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    voice_ask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_voice_ask"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceAnswer"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description ai_processing consent required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Audio longer than 30 s or larger than 5 MB */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not an accepted audio format */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Speech, AI, storage or OFF unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;

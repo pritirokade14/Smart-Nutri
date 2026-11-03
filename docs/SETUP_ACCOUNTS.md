@@ -58,6 +58,7 @@ The Android ID can never change after the first Play Store upload. The prototype
    - Prod: create it the same way at launch (Plan 8).
    - Local: the bucket comes from `supabase/config.toml`.
    - Deleting photos after 30 days is planned for Plan 8 (a retention job). It is **not done yet**.
+   - **Voice answers (Plan 7):** a second bucket, `voice-answers`. Private. File size limit: **5 MiB**. Allowed MIME type: `audio/mpeg`. No storage policies: the API uploads `voice/{account_id}/{uuid}.mp3` with the secret key and hands out 1-hour signed URLs. Setting `SUPABASE_VOICE_BUCKET` (default `voice-answers`). Deleting answers after 24 hours is the Plan 8 retention job. **Dev: not created yet**; create it before testing voice against dev.
 9. Create the production project, `smartnutri-prod` (Mumbai, **Pro plan**), only at launch (day 13–15).
 
 ---

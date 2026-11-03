@@ -1,4 +1,5 @@
-"""Supabase Storage (private label-photo bucket) over its REST API, server-side only.
+"""Supabase Storage (private label-photo and voice-answer buckets) over its REST API,
+server-side only.
 
 Uses the server secret key, which never leaves the API. Logs and exceptions carry no key,
 no image bytes and no response body.
@@ -43,6 +44,14 @@ class StorageClient(Protocol):
 
     async def download(self, path: str) -> bytes:
         """Return the object's bytes. Raises StorageNotFound."""
+        ...
+
+    async def upload(self, path: str, data: bytes, content_type: str) -> None:
+        """Store `data` at `path` (never overwriting). Raises StorageUnavailable."""
+        ...
+
+    async def create_signed_url(self, path: str, expires_in: int) -> str:
+        """An absolute URL that GETs the object for `expires_in` seconds."""
         ...
 
 
@@ -129,6 +138,39 @@ class SupabaseStorage:
             logger.warning("storage_download status=network_error")
             raise StorageUnavailable("network error") from None
 
+    async def upload(self, path: str, data: bytes, content_type: str) -> None:
+        url = f"{self._base}/object/{self._object(path)}"
+        headers = {**self._headers(), "Content-Type": content_type}
+        try:
+            response = await self._http.post(url, headers=headers, content=data)
+        except httpx.HTTPError:
+            logger.warning("storage_upload status=network_error")
+            raise StorageUnavailable("network error") from None
+        if response.status_code != 200:
+            logger.warning("storage_upload status=%d", response.status_code)
+            raise StorageUnavailable("upload failed")
+
+    async def create_signed_url(self, path: str, expires_in: int) -> str:
+        url = f"{self._base}/object/sign/{self._object(path)}"
+        try:
+            response = await self._http.post(
+                url, headers=self._headers(), json={"expiresIn": expires_in}
+            )
+        except httpx.HTTPError:
+            logger.warning("storage_sign_url status=network_error")
+            raise StorageUnavailable("network error") from None
+        if response.status_code != 200:
+            logger.warning("storage_sign_url status=%d", response.status_code)
+            raise StorageUnavailable("sign url failed")
+        try:
+            signed = response.json()["signedURL"]
+        except (ValueError, KeyError, TypeError):
+            signed = None
+        if not isinstance(signed, str) or not signed.startswith("/"):
+            logger.warning("storage_sign_url status=malformed")
+            raise StorageUnavailable("malformed response")
+        return f"{self._base}{signed}"
+
 
 class _UnconfiguredStorage:
     async def create_signed_upload(self, path: str, expires_in: int) -> str:
@@ -137,11 +179,14 @@ class _UnconfiguredStorage:
     async def download(self, path: str) -> bytes:
         raise StorageUnavailable("not configured")
 
+    async def upload(self, path: str, data: bytes, content_type: str) -> None:
+        raise StorageUnavailable("not configured")
 
-async def get_storage(
-    settings: Annotated[Settings, Depends(get_app_settings)],
-) -> AsyncIterator[StorageClient]:
-    """FastAPI dependency: Supabase Storage for this request (closed afterwards)."""
+    async def create_signed_url(self, path: str, expires_in: int) -> str:
+        raise StorageUnavailable("not configured")
+
+
+async def _storage(settings: Settings, bucket: str) -> AsyncIterator[StorageClient]:
     if not settings.supabase_url or settings.supabase_secret_key is None:
         yield _UnconfiguredStorage()
         return
@@ -150,5 +195,22 @@ async def get_storage(
             http,
             url=settings.supabase_url,
             secret_key=settings.supabase_secret_key,
-            bucket=settings.supabase_storage_bucket,
+            bucket=bucket,
         )
+
+
+async def get_storage(
+    settings: Annotated[Settings, Depends(get_app_settings)],
+) -> AsyncIterator[StorageClient]:
+    """FastAPI dependency: the label-photo bucket for this request (closed afterwards)."""
+    async for storage in _storage(settings, settings.supabase_storage_bucket):
+        yield storage
+
+
+async def get_voice_storage(
+    settings: Annotated[Settings, Depends(get_app_settings)],
+) -> AsyncIterator[StorageClient]:
+    """FastAPI dependency: the private voice-answer bucket (objects deleted after 24 h by the
+    M6 retention job)."""
+    async for storage in _storage(settings, settings.supabase_voice_bucket):
+        yield storage

@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     supabase_jwks_url: str = ""
     supabase_secret_key: SecretStr | None = None
     supabase_storage_bucket: str = "label-photos"
+    # Private bucket for spoken answers (voice/{account_id}/{uuid}.mp3), kept at most 24 h.
+    supabase_voice_bucket: str = "voice-answers"
     database_url: SecretStr = SecretStr(
         "postgresql+psycopg://postgres:postgres@127.0.0.1:54322/postgres"
     )

@@ -1048,6 +1048,30 @@ abstract class AppLocalizations {
   /// **'Vegan'**
   String get dietVegan;
 
+  /// No description provided for @errorAiUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice answers are unavailable right now. Please try again later.'**
+  String get errorAiUnavailable;
+
+  /// No description provided for @errorAudioTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'That recording is too large. Please ask a shorter question.'**
+  String get errorAudioTooLarge;
+
+  /// No description provided for @errorAudioTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'That recording is longer than 30 seconds. Please ask a shorter question.'**
+  String get errorAudioTooLong;
+
+  /// No description provided for @errorAudioUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t play that recording. Please try again.'**
+  String get errorAudioUnsupported;
+
   /// No description provided for @errorAuthInvalid.
   ///
   /// In en, this message translates to:
@@ -1258,11 +1282,35 @@ abstract class AppLocalizations {
   /// **'Please check the highlighted fields.'**
   String get errorValidationError;
 
+  /// No description provided for @errorVoiceNotUnderstood.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t hear a question. Please hold the button and speak clearly.'**
+  String get errorVoiceNotUnderstood;
+
   /// No description provided for @explanationAiNote.
   ///
   /// In en, this message translates to:
   /// **'Written by AI from the results above. It never changes a result.'**
   String get explanationAiNote;
+
+  /// No description provided for @explanationFallbackTip1.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare the labels of similar products and choose the one with less sugar and salt.'**
+  String get explanationFallbackTip1;
+
+  /// No description provided for @explanationFallbackTip2.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the serving size on the pack: the label values are per 100 g or 100 ml.'**
+  String get explanationFallbackTip2;
+
+  /// No description provided for @explanationFallbackTip3.
+  ///
+  /// In en, this message translates to:
+  /// **'If you have a health condition, ask your doctor or a dietitian before making changes.'**
+  String get explanationFallbackTip3;
 
   /// No description provided for @explanationTipsTitle.
   ///
@@ -2948,6 +2996,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Label unclear'**
   String get verdictStatusUnknown;
+
+  /// No description provided for @voiceVerdictSentenceAvoid.
+  ///
+  /// In en, this message translates to:
+  /// **'For this member, avoid this product.'**
+  String get voiceVerdictSentenceAvoid;
+
+  /// No description provided for @voiceVerdictSentenceCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'For this member, take care with this product.'**
+  String get voiceVerdictSentenceCaution;
+
+  /// No description provided for @voiceVerdictSentenceOk.
+  ///
+  /// In en, this message translates to:
+  /// **'For this member, this product looks OK.'**
+  String get voiceVerdictSentenceOk;
+
+  /// No description provided for @voiceVerdictSentenceUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'For this member, the label is unclear, so we can\'t say.'**
+  String get voiceVerdictSentenceUnknown;
+
+  /// No description provided for @voiceWordSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'safe'**
+  String get voiceWordSafe;
 
   /// No description provided for @warningBasisMismatch.
   ///

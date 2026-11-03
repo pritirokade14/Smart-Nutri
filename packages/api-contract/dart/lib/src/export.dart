@@ -11,6 +11,7 @@ export 'meals/meals_client.dart';
 export 'members/members_client.dart';
 export 'products/products_client.dart';
 export 'scans/scans_client.dart';
+export 'voice/voice_client.dart';
 // Data classes
 export 'models/alternative_out.dart';
 export 'models/alternatives_out.dart';
@@ -60,6 +61,8 @@ export 'models/totals.dart';
 export 'models/upload_url_in.dart';
 export 'models/upload_url_out.dart';
 export 'models/verdict_out.dart';
+export 'models/voice_answer.dart';
+export 'models/voice_language.dart';
 export 'models/week_counts.dart';
 export 'models/language.dart';
 export 'models/alternatives_out_reason.dart';
@@ -103,5 +106,7 @@ export 'models/search_hit_source.dart';
 export 'models/upload_url_in_ext.dart';
 export 'models/verdict_out_relation.dart';
 export 'models/verdict_out_status.dart';
+export 'models/voice_answer_source.dart';
+export 'models/voice_answer_verdict_status.dart';
 // Root client
 export 'smart_nutri_api_client.dart';

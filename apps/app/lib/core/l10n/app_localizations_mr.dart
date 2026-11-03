@@ -518,6 +518,22 @@ class AppLocalizationsMr extends AppLocalizations {
   String get dietVegan => 'व्हेगन';
 
   @override
+  String get errorAiUnavailable =>
+      'आवाजातील उत्तरे सध्या उपलब्ध नाहीत. कृपया नंतर पुन्हा प्रयत्न करा.';
+
+  @override
+  String get errorAudioTooLarge =>
+      'हे रेकॉर्डिंग खूप मोठे आहे. कृपया छोटा प्रश्न विचारा.';
+
+  @override
+  String get errorAudioTooLong =>
+      'हे रेकॉर्डिंग 30 सेकंदांपेक्षा मोठे आहे. कृपया छोटा प्रश्न विचारा.';
+
+  @override
+  String get errorAudioUnsupported =>
+      'आम्ही हे रेकॉर्डिंग चालवू शकलो नाही. कृपया पुन्हा प्रयत्न करा.';
+
+  @override
   String get errorAuthInvalid =>
       'तुमचे सत्र संपले आहे. कृपया पुन्हा साइन इन करा.';
 
@@ -640,8 +656,24 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorValidationError => 'कृपया अधोरेखित केलेली फील्ड तपासा.';
 
   @override
+  String get errorVoiceNotUnderstood =>
+      'आम्हाला प्रश्न ऐकू आला नाही. कृपया बटण दाबून ठेवा आणि स्पष्ट बोला.';
+
+  @override
   String get explanationAiNote =>
       'वरील निकालांवरून AI ने लिहिले आहे. यामुळे कोणताही निकाल बदलत नाही.';
+
+  @override
+  String get explanationFallbackTip1 =>
+      'सारख्या उत्पादनांची लेबले तुलना करा आणि कमी साखर व कमी मीठ असलेले उत्पादन निवडा.';
+
+  @override
+  String get explanationFallbackTip2 =>
+      'पॅकवरील सर्व्हिंगचा आकार पाहा: लेबलवरील मूल्ये प्रति 100 ग्रॅम किंवा 100 मि.ली. असतात.';
+
+  @override
+  String get explanationFallbackTip3 =>
+      'तुम्हाला आरोग्याची काही समस्या असल्यास, बदल करण्यापूर्वी तुमच्या डॉक्टरांना किंवा आहारतज्ज्ञांना विचारा.';
 
   @override
   String get explanationTipsTitle => 'सूचना';
@@ -1669,6 +1701,23 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get verdictStatusUnknown => 'लेबल स्पष्ट नाही';
+
+  @override
+  String get voiceVerdictSentenceAvoid => 'या सदस्यासाठी, हे उत्पादन टाळा.';
+
+  @override
+  String get voiceVerdictSentenceCaution =>
+      'या सदस्यासाठी, हे उत्पादन घेताना काळजी घ्या.';
+
+  @override
+  String get voiceVerdictSentenceOk => 'या सदस्यासाठी हे उत्पादन ठीक दिसते.';
+
+  @override
+  String get voiceVerdictSentenceUnknown =>
+      'या सदस्यासाठी लेबल स्पष्ट नाही, त्यामुळे आम्ही सांगू शकत नाही.';
+
+  @override
+  String get voiceWordSafe => 'सुरक्षित';
 
   @override
   String get warningBasisMismatch =>

@@ -12,6 +12,7 @@ from app.integrations.storage import (
     StorageUnavailable,
     SupabaseStorage,
     get_storage,
+    get_voice_storage,
 )
 
 URL = "https://proj.supabase.co"
@@ -129,4 +130,84 @@ async def test_unconfigured_storage_is_unavailable():
         await storage.create_signed_upload(PATH, 600)
     with pytest.raises(StorageUnavailable):
         await storage.download(PATH)
+    await gen.aclose()
+
+
+# --- upload + signed download URL (voice answers, Plan 7) -------------------------------------
+
+VOICE = "voice/11111111-1111-1111-1111-111111111111/5b0a5e8e-8a5e-4d0e-9a39-0f9a2f6b8c11.mp3"
+
+
+async def test_upload_request():
+    storage, seen = make(lambda r: httpx.Response(200, json={"Key": f"voice-answers/{VOICE}"}))
+    await storage.upload(VOICE, b"ID3data", "audio/mpeg")
+    [req] = seen
+    assert req.method == "POST"
+    assert str(req.url) == f"{URL}/storage/v1/object/label-photos/{VOICE}"
+    assert req.headers["content-type"] == "audio/mpeg"
+    assert req.headers["authorization"] == f"Bearer {KEY}"
+    assert req.headers.get("x-upsert") != "true"  # a fresh uuid path; never overwrite
+    assert req.content == b"ID3data"
+
+
+async def test_signed_download_url_is_absolute_and_expires():
+    storage, seen = make(
+        lambda r: httpx.Response(
+            200, json={"signedURL": f"/object/sign/label-photos/{VOICE}?token=t1"}
+        )
+    )
+    url = await storage.create_signed_url(VOICE, 3600)
+    assert url == f"{URL}/storage/v1/object/sign/label-photos/{VOICE}?token=t1"
+    [req] = seen
+    assert str(req.url) == f"{URL}/storage/v1/object/sign/label-photos/{VOICE}"
+    assert json.loads(req.content) == {"expiresIn": 3600}
+
+
+@pytest.mark.parametrize("status", [400, 401, 403, 409, 500])
+async def test_upload_and_sign_errors_unavailable(status):
+    storage, _ = make(lambda r: httpx.Response(status, json={"error": "boom"}))
+    with pytest.raises(StorageUnavailable):
+        await storage.upload(VOICE, b"x", "audio/mpeg")
+    with pytest.raises(StorageUnavailable):
+        await storage.create_signed_url(VOICE, 3600)
+
+
+async def test_upload_and_sign_network_error_unavailable():
+    def _boom(request):
+        raise httpx.ConnectError("down")
+
+    storage, _ = make(_boom)
+    with pytest.raises(StorageUnavailable):
+        await storage.upload(VOICE, b"x", "audio/mpeg")
+    with pytest.raises(StorageUnavailable):
+        await storage.create_signed_url(VOICE, 3600)
+
+
+@pytest.mark.parametrize("body", [{"nope": 1}, {"signedURL": "https://evil.example/x"}, []])
+async def test_malformed_signed_url_unavailable(body):
+    storage, _ = make(lambda r: httpx.Response(200, json=body))
+    with pytest.raises(StorageUnavailable):
+        await storage.create_signed_url(VOICE, 3600)
+
+
+async def test_voice_storage_uses_the_voice_bucket():
+    settings = Settings(
+        _env_file=None,
+        supabase_url=URL,
+        supabase_secret_key=SecretStr(KEY),
+        supabase_voice_bucket="voice-answers",
+    )
+    gen = get_voice_storage(settings)
+    storage = await anext(gen)
+    assert "voice-answers" in repr(storage) and KEY not in repr(storage)
+    await gen.aclose()
+
+
+async def test_unconfigured_voice_storage_is_unavailable():
+    gen = get_voice_storage(Settings(_env_file=None, supabase_url="", supabase_secret_key=None))
+    storage = await anext(gen)
+    with pytest.raises(StorageUnavailable):
+        await storage.upload(VOICE, b"x", "audio/mpeg")
+    with pytest.raises(StorageUnavailable):
+        await storage.create_signed_url(VOICE, 3600)
     await gen.aclose()

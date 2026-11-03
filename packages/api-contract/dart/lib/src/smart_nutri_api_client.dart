@@ -12,6 +12,7 @@ import 'meals/meals_client.dart';
 import 'members/members_client.dart';
 import 'products/products_client.dart';
 import 'scans/scans_client.dart';
+import 'voice/voice_client.dart';
 
 /// SmartNutri API `v0.0.0`
 class SmartNutriApiClient {
@@ -32,6 +33,7 @@ class SmartNutriApiClient {
   MembersClient? _members;
   ProductsClient? _products;
   ScansClient? _scans;
+  VoiceClient? _voice;
 
   AnalyzeClient get analyze =>
       _analyze ??= AnalyzeClient(_dio, baseUrl: _baseUrl);
@@ -52,4 +54,6 @@ class SmartNutriApiClient {
       _products ??= ProductsClient(_dio, baseUrl: _baseUrl);
 
   ScansClient get scans => _scans ??= ScansClient(_dio, baseUrl: _baseUrl);
+
+  VoiceClient get voice => _voice ??= VoiceClient(_dio, baseUrl: _baseUrl);
 }

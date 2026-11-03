@@ -515,6 +515,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dietVegan => 'Vegan';
 
   @override
+  String get errorAiUnavailable =>
+      'Voice answers are unavailable right now. Please try again later.';
+
+  @override
+  String get errorAudioTooLarge =>
+      'That recording is too large. Please ask a shorter question.';
+
+  @override
+  String get errorAudioTooLong =>
+      'That recording is longer than 30 seconds. Please ask a shorter question.';
+
+  @override
+  String get errorAudioUnsupported =>
+      'We couldn\'t play that recording. Please try again.';
+
+  @override
   String get errorAuthInvalid => 'Your session expired. Please sign in again.';
 
   @override
@@ -635,8 +651,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorValidationError => 'Please check the highlighted fields.';
 
   @override
+  String get errorVoiceNotUnderstood =>
+      'We couldn\'t hear a question. Please hold the button and speak clearly.';
+
+  @override
   String get explanationAiNote =>
       'Written by AI from the results above. It never changes a result.';
+
+  @override
+  String get explanationFallbackTip1 =>
+      'Compare the labels of similar products and choose the one with less sugar and salt.';
+
+  @override
+  String get explanationFallbackTip2 =>
+      'Check the serving size on the pack: the label values are per 100 g or 100 ml.';
+
+  @override
+  String get explanationFallbackTip3 =>
+      'If you have a health condition, ask your doctor or a dietitian before making changes.';
 
   @override
   String get explanationTipsTitle => 'Tips';
@@ -1666,6 +1698,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verdictStatusUnknown => 'Label unclear';
+
+  @override
+  String get voiceVerdictSentenceAvoid =>
+      'For this member, avoid this product.';
+
+  @override
+  String get voiceVerdictSentenceCaution =>
+      'For this member, take care with this product.';
+
+  @override
+  String get voiceVerdictSentenceOk =>
+      'For this member, this product looks OK.';
+
+  @override
+  String get voiceVerdictSentenceUnknown =>
+      'For this member, the label is unclear, so we can\'t say.';
+
+  @override
+  String get voiceWordSafe => 'safe';
 
   @override
   String get warningBasisMismatch =>
