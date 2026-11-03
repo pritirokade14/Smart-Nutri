@@ -12,6 +12,8 @@ export 'members/members_client.dart';
 export 'products/products_client.dart';
 export 'scans/scans_client.dart';
 // Data classes
+export 'models/alternative_out.dart';
+export 'models/alternatives_out.dart';
 export 'models/analyze_out.dart';
 export 'models/analyze_request.dart';
 export 'models/column_confirm.dart';
@@ -53,6 +55,9 @@ export 'models/upload_url_out.dart';
 export 'models/verdict_out.dart';
 export 'models/week_counts.dart';
 export 'models/language.dart';
+export 'models/alternative_out_grade.dart';
+export 'models/alternative_out_member_status.dart';
+export 'models/alternatives_out_reason.dart';
 export 'models/analyze_request_language.dart';
 export 'models/column_confirm_confirm_fields.dart';
 export 'models/consent_in_purpose.dart';

@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/alternatives_out.dart';
 import '../models/language.dart';
 import '../models/product_create.dart';
 import '../models/product_out.dart';
@@ -28,10 +29,28 @@ abstract class ProductsClient {
   @GET('/v1/products/barcode/{code}')
   Future<ProductOut> productsGetByBarcode({@Path('code') required String code});
 
+  /// Products Alternatives By Barcode.
+  ///
+  /// Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).
+  @GET('/v1/products/barcode/{code}/alternatives')
+  Future<AlternativesOut> productsAlternativesByBarcode({
+    @Path('code') required String code,
+    @Query('member_id') String? memberId,
+  });
+
   /// Products Get Public
   @GET('/v1/products/{barcode}/public')
   Future<PublicProductOut> productsGetPublic({
     @Path('barcode') required String barcode,
     @Query('language') Language? language = Language.en,
+  });
+
+  /// Products Alternatives.
+  ///
+  /// Up to 5 products from the same Open Food Facts category with a strictly better Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. Never an error for a product with no category: ``reason`` says why the list is empty.
+  @GET('/v1/products/{product_id}/alternatives')
+  Future<AlternativesOut> productsAlternatives({
+    @Path('product_id') required String productId,
+    @Query('member_id') String? memberId,
   });
 }

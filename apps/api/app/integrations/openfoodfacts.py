@@ -120,3 +120,63 @@ class OffClient:
             logger.info(
                 "off_lookup outcome=%s latency_ms=%d", outcome, (time.monotonic() - start) * 1000
             )
+
+    async def search_by_category(self, category_tag: str, page_size: int = 24) -> list[dict]:
+        """Products in one OFF category (v2 search), with the same fields as ``get_product``.
+
+        Callers cache the result (``off_product_cache``, >= 24 h): OFF limits search requests.
+        """
+        return await self._search(
+            "/api/v2/search",
+            {"categories_tags": category_tag, "page_size": str(page_size)},
+            kind="category",
+        )
+
+    async def search_text(self, query: str, page_size: int = 20) -> list[dict]:
+        """Full-text product search (the OFF search endpoint; v2 has no text search)."""
+        return await self._search(
+            "/cgi/search.pl",
+            {
+                "search_terms": query,
+                "search_simple": "1",
+                "action": "process",
+                "json": "1",
+                "page_size": str(page_size),
+            },
+            kind="text",
+        )
+
+    async def _search(self, path: str, params: dict[str, str], *, kind: str) -> list[dict]:
+        """GET a search endpoint; the ``products`` list (objects only). Logs never carry the
+        query, only the outcome, count and latency."""
+        start = time.monotonic()
+        outcome = "unavailable"
+        try:
+            try:
+                resp = await self._http.get(
+                    f"{self._base_url}{path}",
+                    params={**params, "fields": PRODUCT_FIELDS},
+                    headers={"User-Agent": self._user_agent},
+                    timeout=_TIMEOUT,
+                )
+            except httpx.HTTPError as exc:
+                raise OffUnavailable("off search failed") from exc
+            if resp.status_code != 200:
+                raise OffUnavailable("off search unexpected status")
+            try:
+                body = resp.json()
+            except ValueError as exc:
+                raise OffUnavailable("off search returned invalid json") from exc
+            products = body.get("products") if isinstance(body, dict) else None
+            if not isinstance(products, list):
+                raise OffUnavailable("off search body missing products")
+            found = [p for p in products if isinstance(p, dict)]
+            outcome = f"found:{len(found)}"
+            return found
+        finally:
+            logger.info(
+                "off_search kind=%s outcome=%s latency_ms=%d",
+                kind,
+                outcome,
+                (time.monotonic() - start) * 1000,
+            )

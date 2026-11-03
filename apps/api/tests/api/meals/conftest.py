@@ -39,16 +39,39 @@ OFF_PAYLOAD = {
 
 
 class FakeOff:
-    def __init__(self, payload=OFF_PAYLOAD, *, fail=False):
+    """No network: ``get_product`` returns ``payload`` (or the matching entry of
+    ``by_barcode``); searches return the recorded lists."""
+
+    def __init__(
+        self, payload=OFF_PAYLOAD, *, fail=False, by_barcode=None, category=None, text=None
+    ):
         self.payload = payload
         self.fail = fail
+        self.by_barcode = by_barcode or {}
+        self.category = category or []
+        self.text = text or []
         self.calls = 0
+        self.search_calls: list[tuple[str, str]] = []
 
     async def get_product(self, barcode):
         self.calls += 1
         if self.fail:
             raise OffUnavailable("down")
+        if self.by_barcode:
+            return self.by_barcode.get(barcode)
         return self.payload
+
+    async def search_by_category(self, category_tag, page_size=24):
+        self.search_calls.append(("category", category_tag))
+        if self.fail:
+            raise OffUnavailable("down")
+        return list(self.category)
+
+    async def search_text(self, query, page_size=20):
+        self.search_calls.append(("text", query))
+        if self.fail:
+            raise OffUnavailable("down")
+        return list(self.text)
 
 
 @pytest.fixture

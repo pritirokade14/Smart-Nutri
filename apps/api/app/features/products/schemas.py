@@ -228,3 +228,34 @@ class ProductCreate(BaseModel):
     @classmethod
     def _drop_blank_items(cls, value: list[str]) -> list[str]:
         return [s for v in value if (s := v.strip())]
+
+
+# --- alternatives, search and compare (Plan 6 T5/T6) ---------------------------------------
+
+Grade = Literal["A", "B", "C", "D", "E"]
+MemberStatus = Literal["ok", "caution", "unknown", "avoid"]
+
+
+class AlternativeOut(BaseModel):
+    """A product in the same Open Food Facts category with a strictly better Nutri-Score
+    (calculated by SmartNutri). Open it with ``products_get_by_barcode``."""
+
+    barcode: str | None
+    product_id: UUID | None
+    name: str
+    brand: str | None
+    image_url: str | None
+    grade: Grade
+    sugars_g: float | None = Field(description="Per 100 g/ml; null if not on the label")
+    high_in: list[str]
+    member_status: MemberStatus | None = Field(
+        description="The rules engine's verdict for member_id (only when member_id is given)"
+    )
+    attribution: str | None = Field(description='"attribution.off": credit Open Food Facts')
+
+
+class AlternativesOut(BaseModel):
+    items: list[AlternativeOut] = Field(
+        description="At most 5: best grade first, then less sugar, then name"
+    )
+    reason: Literal["ok", "no_category", "no_better_found", "source_ungraded"]

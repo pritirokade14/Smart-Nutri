@@ -8,10 +8,17 @@ from app.core.config import Settings, get_app_settings
 from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
 from app.core.ratelimit import limit
 from app.core.security import AccountContext, current_account
+from app.core.time import today_ist
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
-from app.features.products import service
-from app.features.products.schemas import ProductCreate, ProductOut, PublicProductOut
+from app.features.members import service as members_service
+from app.features.products import alternatives, service
+from app.features.products.schemas import (
+    AlternativesOut,
+    ProductCreate,
+    ProductOut,
+    PublicProductOut,
+)
 from app.integrations.openfoodfacts import (
     InvalidBarcode,
     OffClient,
@@ -64,6 +71,84 @@ async def products_get_by_barcode(
 ) -> ProductOut:
     # The caller sees verified products plus their own pending ones (CROSS-PLAN 18).
     return service.to_product_out(await _find(session, off, code, settings, ctx.account_id))
+
+
+async def _alternatives(
+    session: AsyncSession,
+    off: OffClient,
+    settings: Settings,
+    account_id: UUID,
+    member_id: UUID | None,
+    *,
+    product_id: UUID | None = None,
+    barcode: str | None = None,
+) -> AlternativesOut:
+    # The member first: a foreign member never reaches Open Food Facts.
+    member = (
+        await members_service.get_member(session, account_id, member_id)
+        if member_id is not None
+        else None
+    )
+    found = await service.resolve_ref(
+        session,
+        off,
+        product_id=product_id,
+        barcode=barcode,
+        settings=settings,
+        account_id=account_id,
+    )
+    out = await alternatives.find_alternatives(
+        session, off, found, member=member, settings=settings, today=today_ist()
+    )
+    await session.commit()  # OFF cache writes (product and category search)
+    return out
+
+
+_ALTERNATIVES_DOC = (
+    "Up to 5 products from the same Open Food Facts category with a strictly better "
+    "Nutri-Score (calculated by SmartNutri). ``member_status`` comes from the rules engine. "
+    "Never an error for a product with no category: ``reason`` says why the list is empty."
+)
+
+
+@router.get(
+    "/{product_id}/alternatives",
+    operation_id="products_alternatives",
+    response_model=AlternativesOut,
+    responses=_RESPONSES,
+    description=_ALTERNATIVES_DOC,
+    dependencies=[Depends(limit("product_lookups"))],  # first: it commits the session
+)
+async def products_alternatives(
+    product_id: UUID,
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    off: Annotated[OffClient, Depends(get_off_client)],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    member_id: Annotated[UUID | None, Query()] = None,
+) -> AlternativesOut:
+    return await _alternatives(
+        session, off, settings, current.account.id, member_id, product_id=product_id
+    )
+
+
+@router.get(
+    "/barcode/{code}/alternatives",
+    operation_id="products_alternatives_by_barcode",
+    response_model=AlternativesOut,
+    responses=_RESPONSES,
+    description=_ALTERNATIVES_DOC + " For products known by barcode (Open Food Facts).",
+    dependencies=[Depends(limit("product_lookups"))],  # first: it commits the session
+)
+async def products_alternatives_by_barcode(
+    code: str,
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    off: Annotated[OffClient, Depends(get_off_client)],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    member_id: Annotated[UUID | None, Query()] = None,
+) -> AlternativesOut:
+    return await _alternatives(session, off, settings, current.account.id, member_id, barcode=code)
 
 
 @router.post(

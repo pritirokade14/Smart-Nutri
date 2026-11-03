@@ -4,6 +4,7 @@ OFF payloads live only in ``off_product_cache`` (ODbL), never in ``products``.
 """
 
 import math
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
@@ -264,6 +265,47 @@ async def lookup_by_barcode(
 
     await _write_cache(session, barcode, payload)
     return _from_off(payload, barcode, settings)
+
+
+SEARCH_CACHE_TTL = timedelta(hours=24)  # OFF rate-limits search; never re-ask within a day
+SEARCH_CACHE_PREFIX = "search:"  # off_product_cache keys; barcodes are digits, so no clash
+
+
+async def cached_off_search(
+    session: AsyncSession,
+    key: str,
+    fetch: Callable[[], Awaitable[list[dict]]],
+) -> list[dict]:
+    """An OFF search result, cached in ``off_product_cache`` under ``search:<key>`` for 24 h.
+
+    OFF data stays in ``off_product_cache`` (ODbL). A stale entry is served when OFF is down;
+    with no entry, ``OffUnavailable`` propagates. The cache write is left for the caller to
+    commit.
+    """
+    cache_key = f"{SEARCH_CACHE_PREFIX}{key}"
+    cached = await session.scalar(
+        select(OffProductCache)
+        .where(OffProductCache.barcode == cache_key)
+        .execution_options(populate_existing=True)
+    )
+    if cached is not None and datetime.now(UTC) - cached.fetched_at < SEARCH_CACHE_TTL:
+        return list(cached.payload.get("products") or [])
+    try:
+        products = await fetch()
+    except OffUnavailable:
+        if cached is not None:
+            return list(cached.payload.get("products") or [])
+        raise
+    await _write_cache(session, cache_key, {"products": products})
+    return products
+
+
+async def off_payload(session: AsyncSession, barcode: str | None) -> dict | None:
+    """The cached OFF payload for a barcode (any age), or None. Never calls OFF."""
+    if not barcode:
+        return None
+    cached = await session.scalar(select(OffProductCache).where(OffProductCache.barcode == barcode))
+    return None if cached is None else cached.payload
 
 
 async def resolve_ref(
