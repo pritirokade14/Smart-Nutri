@@ -17,7 +17,15 @@
         "shared": false,
         "sodium_unit_required": false
       },
-      "per_serving": null
+      "per_serving": {
+        "confirm_fields": [
+          "protein_g",
+          "serving_size_g"
+        ],
+        "printed": true,
+        "shared": false,
+        "sodium_unit_required": false
+      }
     }
   },
   "derived_from_serving": false,

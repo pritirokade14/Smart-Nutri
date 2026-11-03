@@ -16,7 +16,14 @@
         "shared": false,
         "sodium_unit_required": true
       },
-      "per_serving": null
+      "per_serving": {
+        "confirm_fields": [
+          "serving_size_g"
+        ],
+        "printed": true,
+        "shared": false,
+        "sodium_unit_required": true
+      }
     }
   },
   "derived_from_serving": false,

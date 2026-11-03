@@ -63,7 +63,7 @@ drafts/<case>.json     # ProductDraft exactly as POST /v1/scans/label returns it
 drafts/expected.json   # {"format_version": 1, "cases": {"<case>": {...}}}
 ```
 
-Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`.
+Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `per_serving_only_no_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`.
 
 **`draft.confirm`** (the hints):
 

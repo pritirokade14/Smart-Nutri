@@ -113,10 +113,16 @@ def _offered(draft: ProductDraft) -> list[str]:
     return [b for b in ("per_100g", "per_serving") if getattr(draft.confirm.columns, b)]
 
 
-def _fix_implausible(draft: ProductDraft) -> dict[str, None]:
-    """The user blanks what the draft flags as implausible (not a confirm hint)."""
+def _fix_implausible(draft: ProductDraft, basis: str | None = None) -> dict[str, float | None]:
+    """The user blanks what the draft flags as implausible (not a confirm hint), and types
+    the serving size when saving per serving without a readable one (R22)."""
     prefix = "implausible_value:"
-    return {w[len(prefix) :]: None for w in draft.warnings if w.startswith(prefix)}
+    edits: dict[str, float | None] = {
+        w[len(prefix) :]: None for w in draft.warnings if w.startswith(prefix)
+    }
+    if basis == "per_serving" and draft.serving_size_g is None:
+        edits["serving_size_g"] = 30.0
+    return edits
 
 
 def _honest(body: dict[str, Any]) -> dict[str, float | None]:
@@ -145,7 +151,7 @@ async def test_honouring_the_hints_stores_every_value(auth_client, db_session, n
         "pick_basis": basis,
         "pick_category": draft.category,
         "tick": list(hints.confirm_fields),
-        "edit": _fix_implausible(draft),
+        "edit": _fix_implausible(draft, basis),
     }
     if hints.sodium_unit_required:
         actions["sodium_unit"] = "mg"
@@ -166,7 +172,7 @@ async def test_ignoring_the_hints_never_stores_a_guess(auth_client, db_session, 
     actions = {
         "pick_basis": basis,
         "pick_category": draft.category,
-        "edit": _fix_implausible(draft),
+        "edit": _fix_implausible(draft, basis),
     }
     body = build_body(draft, actions)
     r, rec = await _post(auth_client, db_session, name, body)

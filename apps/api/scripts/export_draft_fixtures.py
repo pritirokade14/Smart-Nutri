@@ -133,6 +133,24 @@ CASES: dict[str, Case] = {
         _ex(basis_detected="per_serving", per_100g=None, per_serving=_n(_S), serving_size_g=30),
         [_TICK_SERVING, {}],
     ),
+    "per_serving_only_no_serving": Case(
+        "Only per-serving values and no readable serving size: only the per-serving column is "
+        "offered, never an empty per-100 g one; the user types the serving size and ticks it.",
+        _ex(
+            basis_detected="per_serving",
+            per_100g=None,
+            per_serving=_n(_V, sugars_g=9.0),
+            serving_size_g=None,
+        ),
+        [
+            {
+                "pick_basis": "per_serving",
+                "edit": {"serving_size_g": 30.0, "sugars_g": 9.0},
+                **_TICK_SERVING,
+            },
+            {"pick_basis": "per_serving", "edit": {"serving_size_g": 30.0}},
+        ],
+    ),
     "derived_basis_mismatch": Case(
         "Label says per 100 g but only per-serving values: derived and in doubt; the "
         "per-serving column is shared.",
@@ -254,7 +272,7 @@ def build_body(draft: ProductDraft, actions: dict[str, Any]) -> dict[str, Any]:
     if basis is not None and basis not in offered:
         raise ValueError(f"basis {basis} is not offered ({offered})")
     if basis is None and not confirm.basis_required:
-        [basis] = offered
+        basis = "per_100g" if "per_100g" in offered else offered[0]  # the preselected basis
     category = actions.get("pick_category")
     if category is None and not confirm.category_required:
         category = draft.category

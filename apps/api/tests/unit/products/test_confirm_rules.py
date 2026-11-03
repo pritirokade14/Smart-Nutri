@@ -173,7 +173,9 @@ def test_unit_unconfirmed_sodium_on_the_other_column_still_needs_the_unit():
     # R19: a unit-less sodium on EITHER column, whichever column is saved.
     d = to_draft(ex(per_serving=n(sodium_unit=None, sodium_mg=0.06), serving_size_g=30))
     assert "unit_unconfirmed:per_serving.sodium_mg" in d.warnings
-    assert d.confirm == hints(col(confirm_fields=["serving_size_g"], sodium_unit_required=True))
+    # Both columns are printed, so both are offered (R22); the basis is not in doubt.
+    both = col(confirm_fields=["serving_size_g"], sodium_unit_required=True)
+    assert d.confirm == hints(both, both)
 
 
 def test_upper_bound_protein_on_per_100g():
@@ -190,7 +192,8 @@ def test_upper_bound_protein_on_the_other_column_is_asked_too():
             upper_bound_fields=["per_serving.protein_g", "per_100g.fiber_g"],
         )
     )
-    assert d.confirm == hints(col(confirm_fields=["protein_g", "fiber_g", "serving_size_g"]))
+    both = col(confirm_fields=["protein_g", "fiber_g", "serving_size_g"])
+    assert d.confirm == hints(both, both)
 
 
 def test_upper_bound_on_a_non_engine_doubt_field_is_not_asked():
@@ -225,10 +228,12 @@ def test_devanagari_changes_no_hint():
     assert d.ingredients == ["गेहूं का आटा", "चीनी"] and d.confirm == CLEAN
 
 
-def test_empty_draft_offers_an_unprinted_per_100g_column():
+def test_empty_draft_offers_both_unprinted_columns_and_requires_a_basis():
     d = to_draft(ex(per_100g=None))
     assert "per_100g_missing" in d.warnings
-    assert d.confirm == hints(col(printed=False))
+    assert d.confirm == hints(
+        col(printed=False), col(printed=False, confirm_fields=["serving_size_g"]), basis=True
+    )
 
 
 # --- the stored or posted confirm is never trusted ------------------------------------------
@@ -298,3 +303,33 @@ def test_basis_and_category_required():
     assert not basis_required(to_draft(ex())) and not category_required(to_draft(ex()))
     assert basis_required(to_draft(ex(basis_detected="unknown")))
     assert category_required(to_draft(ex(category_guess=None)))
+
+
+# --- R22: offer exactly the printed columns --------------------------------------------------
+
+
+def test_per_serving_only_without_a_serving_offers_only_per_serving():
+    # Never an empty per_100g column next to the printed per-serving one: the user could type
+    # the per-serving numbers into per-100 g inputs.
+    d = to_draft(ex(basis_detected="per_serving", per_100g=None, per_serving=n()))
+    assert not d.derived_from_serving and "basis_mismatch" not in d.warnings
+    assert d.confirm.columns.per_100g is None
+    assert d.confirm.columns.per_serving is not None
+    assert d.confirm.columns.per_serving.printed
+    assert "serving_size_g" in d.confirm.columns.per_serving.confirm_fields
+    assert d.confirm.basis_required is False
+
+
+def test_no_printed_column_offers_both_and_requires_a_basis():
+    d = to_draft(ex(per_100g=None, per_serving=None))
+    assert d.confirm.basis_required is True
+    assert d.confirm.columns.per_100g == col(printed=False)
+    assert d.confirm.columns.per_serving == col(printed=False, confirm_fields=["serving_size_g"])
+
+
+def test_both_columns_printed_without_a_mismatch_offers_both_with_a_preselectable_basis():
+    d = to_draft(ex(basis_detected="per_100g", per_serving=n(), serving_size_g=30))
+    assert "basis_mismatch" not in d.warnings and not d.derived_from_serving
+    assert d.confirm.basis_required is False
+    assert d.confirm.columns.per_100g is not None and d.confirm.columns.per_100g.printed
+    assert d.confirm.columns.per_serving is not None and d.confirm.columns.per_serving.printed

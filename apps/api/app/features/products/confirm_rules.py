@@ -139,7 +139,9 @@ def needs_serving_confirmation(draft: DraftFacts, basis: Basis) -> bool:
 
 
 def basis_required(draft: DraftFacts) -> bool:
-    return "basis_mismatch" in draft.warnings
+    """Basis in doubt: a mismatch, or no column printed (the user chooses, as in manual
+    entry; R22)."""
+    return "basis_mismatch" in draft.warnings or not _printed_bases(draft)
 
 
 def category_required(draft: DraftFacts) -> bool:
@@ -153,11 +155,18 @@ def printed(draft: DraftFacts, basis: Basis) -> bool:
     return not draft.derived_from_serving and _has_engine_values(draft.per_100g)
 
 
+def _printed_bases(draft: DraftFacts) -> tuple[Basis, ...]:
+    return tuple(b for b in BASES if printed(draft, b))
+
+
 def offered_bases(draft: DraftFacts) -> tuple[Basis, ...]:
-    """The bases the confirm screen offers (R20)."""
+    """The bases the confirm screen offers (R20, R22): exactly the printed columns (a
+    derived per-100 g column is never printed). Both when the basis is in doubt (mismatch,
+    or nothing printed), so an unprinted column is never offered next to a printed one
+    except on a mismatch."""
     if basis_required(draft):
         return BASES
-    return ("per_serving",) if draft.derived_from_serving else ("per_100g",)
+    return _printed_bases(draft)
 
 
 def confirm_fields(draft: DraftFacts, basis: Basis) -> list[str]:
