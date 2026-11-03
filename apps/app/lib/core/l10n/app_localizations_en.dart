@@ -372,7 +372,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmCategoryOptionCheese => 'Cheese';
 
   @override
-  String get confirmCategoryOptionFat => 'Oil or fat';
+  String get confirmCategoryOptionFat => 'Oil, fat, nuts or seeds';
 
   @override
   String get confirmCategoryOptionGeneral => 'Food';

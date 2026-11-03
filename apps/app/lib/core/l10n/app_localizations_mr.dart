@@ -374,7 +374,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get confirmCategoryOptionCheese => 'चीज';
 
   @override
-  String get confirmCategoryOptionFat => 'तेल किंवा चरबी';
+  String get confirmCategoryOptionFat => 'तेल, चरबी, नट्स किंवा बिया';
 
   @override
   String get confirmCategoryOptionGeneral => 'खाद्यपदार्थ';

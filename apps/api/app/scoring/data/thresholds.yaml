@@ -132,6 +132,14 @@ daily_limits:
 # (Ruling P5-R10); the public M5 page must not ship unverified links.
 sources:
   nutriscore_2023: {title: "Nutri-Score 2023 update (Santé publique France)", url: "https://www.santepubliquefrance.fr/nutri-score-2023-update", url_verified: false}
+  # EF1: the two Scientific Committee reports behind the 2023 algorithm. The point tables
+  # (official, not health thresholds of ours) live in app/scoring/nutriscore.py.
+  # Foods, incl. the fats/oils/nuts/seeds table (energy from saturates, sat/fat ratio, A <= -6).
+  nutriscore_2023_foods: {title: "Update of the Nutri-Score algorithm: Scientific Committee report 2022 (foods; fats, oils, nuts and seeds)", url: "https://www.santepubliquefrance.fr/en/nutri-score", url_verified: false}
+  # Beverages, incl. milk, dairy and plant drinks as beverages; only water gets A.
+  nutriscore_2023_beverages: {title: "Update of the Nutri-Score algorithm for beverages: Scientific Committee report 2023", url: "https://www.santepubliquefrance.fr/en/nutri-score", url_verified: false}
+  # Open reference implementation every table, operator and band was checked against (E2).
+  off_nutriscore_2023: {title: "Open Food Facts: reference implementation of Nutri-Score 2023 (Nutriscore.pm)", url: "https://github.com/openfoodfacts/openfoodfacts-server/blob/main/lib/ProductOpener/Nutriscore.pm", url_verified: false}
   uk_fsa_front_of_pack: {title: "UK FSA front-of-pack guidance (high thresholds)", url: "https://www.food.gov.uk/safety-hygiene/check-the-label", url_verified: false}
   fssai_claims_2018: {title: "FSSAI (Advertising & Claims) Regulations 2018", url: "https://www.fssai.gov.in/upload/uploadfiles/files/Compendium_Advertising_Claims_Regulations_14_12_2022.pdf", url_verified: false}
   fssai_labelling_2020: {title: "FSSAI Labelling & Display Regulations 2020", url: "https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php", url_verified: false}
@@ -151,7 +159,7 @@ sources:
 # (`rationale`). Both are lists of keys from `sources` above. null = a member's own preference,
 # not a health rule, so there is nothing to cite (Ruling P7).
 section_sources:
-  nutriscore_2023: {thresholds: [nutriscore_2023]}
+  nutriscore_2023: {thresholds: [nutriscore_2023, nutriscore_2023_foods, nutriscore_2023_beverages, off_nutriscore_2023]}
   high_in:         {thresholds: [uk_fsa_front_of_pack]}
   allergens:       {thresholds: [fssai_labelling_2020]}
   diet:            {thresholds: [fssai_labelling_2020]}

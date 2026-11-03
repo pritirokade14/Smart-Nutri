@@ -166,6 +166,13 @@ class Product:
     veg_mark: Literal["veg", "non_veg"] | None = None
     contains_sweeteners: bool = False
     extraction_confidence: float = 1.0
+    # Nutri-Score 2023 only (EF1): score this GENERAL product with the beverage tables. The
+    # official 2023 algorithm counts liquid milk as a beverage, but whether plain milk should
+    # also get the per-100 ml drink thresholds of the OTHER rules is pending clinician review,
+    # so milk keeps category GENERAL (is_drink False) and only Nutri-Score reads this flag.
+    # Set only by the Open Food Facts mapping (liquid-milk tags); ignored for any category
+    # other than GENERAL.
+    nutriscore_beverage: bool = False
 
     def __post_init__(self) -> None:
         _reject_bare_str(self, ("ingredients", "claims"))

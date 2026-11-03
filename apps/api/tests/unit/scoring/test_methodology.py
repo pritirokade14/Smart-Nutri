@@ -2,7 +2,7 @@ import json
 from dataclasses import replace
 
 from app.scoring import CUSTOM_ALERT_KEYS, methodology
-from app.scoring.nutriscore import GRADE_BANDS, GRADE_BANDS_BEVERAGE
+from app.scoring.nutriscore import GRADE_BANDS, GRADE_BANDS_BEVERAGE, GRADE_BANDS_FAT
 
 SECTION_IDS = [
     "nutriscore_2023",
@@ -164,6 +164,7 @@ def test_nutriscore_section_uses_the_engine_grade_bands(cfg):
     assert bands == {
         "food": [{"grade": g, "max_points": p} for g, p in GRADE_BANDS],
         "beverage": [{"grade": g, "max_points": p} for g, p in GRADE_BANDS_BEVERAGE],
+        "fat": [{"grade": g, "max_points": p} for g, p in GRADE_BANDS_FAT],
     }
 
 

@@ -14,7 +14,7 @@ from typing import Any
 
 from app.scoring.config import ScoringConfig, load_config
 from app.scoring.models import CUSTOM_ALERT_KEYS
-from app.scoring.nutriscore import GRADE_BANDS, GRADE_BANDS_BEVERAGE
+from app.scoring.nutriscore import GRADE_BANDS, GRADE_BANDS_BEVERAGE, GRADE_BANDS_FAT
 
 SECTION_IDS: tuple[str, ...] = (
     "nutriscore_2023",
@@ -51,7 +51,11 @@ def _bands(bands: tuple[tuple[str, int], ...]) -> list[dict[str, Any]]:
 
 
 def _nutriscore() -> dict[str, Any]:
-    return {"food": _bands(GRADE_BANDS), "beverage": _bands(GRADE_BANDS_BEVERAGE)}
+    return {
+        "food": _bands(GRADE_BANDS),
+        "beverage": _bands(GRADE_BANDS_BEVERAGE),
+        "fat": _bands(GRADE_BANDS_FAT),  # fats, oils, nuts and seeds (EF1)
+    }
 
 
 def _custom_alerts(cfg: ScoringConfig) -> dict[str, Any]:

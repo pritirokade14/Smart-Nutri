@@ -763,7 +763,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmCategoryOptionFat.
   ///
   /// In en, this message translates to:
-  /// **'Oil or fat'**
+  /// **'Oil, fat, nuts or seeds'**
   String get confirmCategoryOptionFat;
 
   /// No description provided for @confirmCategoryOptionGeneral.
