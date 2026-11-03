@@ -53,3 +53,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ### Verdict fallback and profile notes (R20/R21)
 - [ ] **hi/mr `verdict.reason_unavailable`, `verdict.profile_not_set_up`, `verdict.show_all_reasons`, `verdict.hide_reasons`**: machine drafts. Check tone (informational, tentative) and that "profile not set up" reads naturally.
+
+## Added for Plan 4 (M2 label scan, Task 5: saving a product)
+- [ ] **hi/mr `error.{scan_not_found,implausible_value,product_exists}`**: machine drafts. Check that `implausible_value` reads as "please check these numbers", not as blaming the user, and that "सहेजा गया" (hi) and "जतन केले" (mr) are natural for "saved".

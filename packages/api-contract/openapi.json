@@ -346,6 +346,164 @@
         "title": "NutrientsOut",
         "type": "object"
       },
+      "ProductCreate": {
+        "description": "A product the user confirmed on the label-confirm screen, or typed by hand.\n\nWith ``scan_id`` the values come from that label scan's draft (source ``label``, the\ndraft's extraction confidence); without it the entry is manual (source ``user``,\nconfidence 1.0). Blank values are null, never 0. Text keeps its script (Devanagari stays\nDevanagari); only surrounding whitespace is trimmed and blank items are dropped.",
+        "properties": {
+          "allergen_statement": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allergen Statement"
+          },
+          "barcode": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "category": {
+            "default": "general",
+            "enum": [
+              "general",
+              "beverage",
+              "water",
+              "cheese",
+              "fat"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "claims": {
+            "default": [],
+            "items": {
+              "maxLength": 200,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Claims",
+            "type": "array"
+          },
+          "confirmed_fields": {
+            "default": [],
+            "items": {
+              "enum": [
+                "energy_kcal",
+                "protein_g",
+                "carbs_g",
+                "sugars_g",
+                "fat_g",
+                "sat_fat_g",
+                "fiber_g",
+                "salt_g",
+                "sodium_mg"
+              ],
+              "type": "string"
+            },
+            "maxItems": 9,
+            "title": "Confirmed Fields",
+            "type": "array"
+          },
+          "ingredients": {
+            "default": [],
+            "items": {
+              "maxLength": 500,
+              "type": "string"
+            },
+            "maxItems": 300,
+            "title": "Ingredients",
+            "type": "array"
+          },
+          "may_contain_statement": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "May Contain Statement"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "per_100g": {
+            "$ref": "#/components/schemas/NutrientsOut"
+          },
+          "scan_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Id"
+          },
+          "serving_size_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serving Size G"
+          },
+          "veg_mark": {
+            "anyOf": [
+              {
+                "enum": [
+                  "veg",
+                  "non_veg"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Veg Mark"
+          }
+        },
+        "required": [
+          "name",
+          "per_100g"
+        ],
+        "title": "ProductCreate",
+        "type": "object"
+      },
       "ProductOut": {
         "properties": {
           "attribution": {
@@ -835,6 +993,103 @@
         "summary": "Me Get",
         "tags": [
           "me"
+        ]
+      }
+    },
+    "/v1/products": {
+      "post": {
+        "description": "Save a confirmed label draft (``scan_id``) or a manual entry as a pending product.\n\nThen call ``analyze_create`` with the returned ``product_id``.",
+        "operationId": "products_create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "A product with this barcode exists"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Products Create",
+        "tags": [
+          "products"
         ]
       }
     },

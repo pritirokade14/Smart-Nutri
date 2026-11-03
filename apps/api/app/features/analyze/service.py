@@ -67,14 +67,21 @@ def to_analyze_out(
 
 
 async def _resolve_product(
-    session: AsyncSession, off: OffClient, request: AnalyzeRequest, settings: Settings
+    session: AsyncSession,
+    off: OffClient,
+    request: AnalyzeRequest,
+    settings: Settings,
+    account_id: UUID,
 ) -> ProductLookup:
+    # Another account's pending (unreviewed) product is never served (CROSS-PLAN 18).
     if request.product_id is not None:
-        found = await products_service.lookup_by_id(session, request.product_id)
+        found = await products_service.lookup_by_id(
+            session, request.product_id, account_id=account_id
+        )
     else:
         try:
             found = await products_service.lookup_by_barcode(
-                session, off, request.barcode or "", settings=settings
+                session, off, request.barcode or "", settings=settings, account_id=account_id
             )
         except InvalidBarcode as exc:
             raise ApiError("invalid_barcode", 422) from exc
@@ -107,7 +114,7 @@ async def analyze_for_account(
         members = await members_service.get_many(session, account_id, request.member_ids)
         if members is None:  # unknown and foreign ids look the same (no existence leak)
             raise ApiError("member_not_found", 404)
-    found = await _resolve_product(session, off, request, settings)
+    found = await _resolve_product(session, off, request, settings, account_id)
     if members is None:
         members = [await members_service.get_or_create_primary(session, account_id)]
 

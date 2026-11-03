@@ -55,6 +55,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Products Create
+         * @description Save a confirmed label draft (``scan_id``) or a manual entry as a pending product.
+         *
+         *     Then call ``analyze_create`` with the returned ``product_id``.
+         */
+        post: operations["products_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/barcode/{code}": {
         parameters: {
             query?: never;
@@ -214,6 +236,55 @@ export interface components {
             sodium_mg: number | null;
             /** Sugars G */
             sugars_g: number | null;
+        };
+        /**
+         * ProductCreate
+         * @description A product the user confirmed on the label-confirm screen, or typed by hand.
+         *
+         *     With ``scan_id`` the values come from that label scan's draft (source ``label``, the
+         *     draft's extraction confidence); without it the entry is manual (source ``user``,
+         *     confidence 1.0). Blank values are null, never 0. Text keeps its script (Devanagari stays
+         *     Devanagari); only surrounding whitespace is trimmed and blank items are dropped.
+         */
+        ProductCreate: {
+            /** Allergen Statement */
+            allergen_statement?: string | null;
+            /** Barcode */
+            barcode?: string | null;
+            /** Brand */
+            brand?: string | null;
+            /**
+             * Category
+             * @default general
+             * @enum {string}
+             */
+            category: "general" | "beverage" | "water" | "cheese" | "fat";
+            /**
+             * Claims
+             * @default []
+             */
+            claims: string[];
+            /**
+             * Confirmed Fields
+             * @default []
+             */
+            confirmed_fields: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg")[];
+            /**
+             * Ingredients
+             * @default []
+             */
+            ingredients: string[];
+            /** May Contain Statement */
+            may_contain_statement?: string | null;
+            /** Name */
+            name: string;
+            per_100g: components["schemas"]["NutrientsOut"];
+            /** Scan Id */
+            scan_id?: string | null;
+            /** Serving Size G */
+            serving_size_g?: number | null;
+            /** Veg Mark */
+            veg_mark?: ("veg" | "non_veg") | null;
         };
         /** ProductOut */
         ProductOut: {
@@ -483,6 +554,84 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description A product with this barcode exists */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -472,6 +472,12 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get errorHttpError;
 
+  /// No description provided for @errorImplausibleValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Some values don\'t look right. Please check the highlighted fields, or leave them blank.'**
+  String get errorImplausibleValue;
+
   /// No description provided for @errorInternalError.
   ///
   /// In en, this message translates to:
@@ -520,6 +526,12 @@ abstract class AppLocalizations {
   /// **'The product database is busy right now. Please try again in a moment.'**
   String get errorOffUnavailable;
 
+  /// No description provided for @errorProductExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This product is already saved.'**
+  String get errorProductExists;
+
   /// No description provided for @errorProductNotFound.
   ///
   /// In en, this message translates to:
@@ -543,6 +555,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'ve reached today\'s voice-question limit.'**
   String get errorRateLimitedVoice;
+
+  /// No description provided for @errorScanNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that label scan. Please scan the label again.'**
+  String get errorScanNotFound;
 
   /// No description provided for @errorUnauthorized.
   ///

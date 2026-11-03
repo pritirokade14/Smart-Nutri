@@ -176,7 +176,10 @@
     "product_not_found": "We couldn't find this product yet.",
     "off_unavailable": "The product database is busy right now. Please try again in a moment.",
     "member_not_found": "That family member wasn't found.",
-    "invalid_product_ref": "Choose a product to check."
+    "invalid_product_ref": "Choose a product to check.",
+    "scan_not_found": "We couldn't find that label scan. Please scan the label again.",
+    "implausible_value": "Some values don't look right. Please check the highlighted fields, or leave them blank.",
+    "product_exists": "This product is already saved."
   },
   "scan": {
     "title": "Scan a barcode",

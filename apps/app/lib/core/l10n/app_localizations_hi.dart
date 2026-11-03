@@ -210,6 +210,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorHttpError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
 
   @override
+  String get errorImplausibleValue =>
+      'कुछ मान सही नहीं लगते। कृपया चिह्नित फ़ील्ड जाँचें, या उन्हें खाली छोड़ दें।';
+
+  @override
   String get errorInternalError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
 
   @override
@@ -236,6 +240,9 @@ class AppLocalizationsHi extends AppLocalizations {
       'उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
 
   @override
+  String get errorProductExists => 'यह उत्पाद पहले से सहेजा गया है।';
+
+  @override
   String get errorProductNotFound => 'यह उत्पाद अभी हमें नहीं मिला।';
 
   @override
@@ -248,6 +255,10 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get errorRateLimitedVoice =>
       'आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।';
+
+  @override
+  String get errorScanNotFound =>
+      'यह लेबल स्कैन नहीं मिला। कृपया लेबल फिर से स्कैन करें।';
 
   @override
   String get errorUnauthorized => 'कृपया साइन इन करें।';

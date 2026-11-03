@@ -207,6 +207,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorHttpError => 'Something went wrong. Please try again.';
 
   @override
+  String get errorImplausibleValue =>
+      'Some values don\'t look right. Please check the highlighted fields, or leave them blank.';
+
+  @override
   String get errorInternalError => 'Something went wrong. Please try again.';
 
   @override
@@ -233,6 +237,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'The product database is busy right now. Please try again in a moment.';
 
   @override
+  String get errorProductExists => 'This product is already saved.';
+
+  @override
   String get errorProductNotFound => 'We couldn\'t find this product yet.';
 
   @override
@@ -245,6 +252,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorRateLimitedVoice =>
       'You\'ve reached today\'s voice-question limit.';
+
+  @override
+  String get errorScanNotFound =>
+      'We couldn\'t find that label scan. Please scan the label again.';
 
   @override
   String get errorUnauthorized => 'Please sign in.';

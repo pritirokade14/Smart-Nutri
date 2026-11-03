@@ -209,6 +209,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorHttpError => 'काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.';
 
   @override
+  String get errorImplausibleValue =>
+      'काही मूल्ये बरोबर वाटत नाहीत. कृपया चिन्हांकित फील्ड तपासा, किंवा ती रिकामी सोडा.';
+
+  @override
   String get errorInternalError => 'काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.';
 
   @override
@@ -235,6 +239,9 @@ class AppLocalizationsMr extends AppLocalizations {
       'उत्पादन डेटाबेस सध्या व्यस्त आहे. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.';
 
   @override
+  String get errorProductExists => 'हे उत्पादन आधीच जतन केले आहे.';
+
+  @override
   String get errorProductNotFound => 'हे उत्पादन आम्हाला अजून सापडले नाही.';
 
   @override
@@ -247,6 +254,10 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get errorRateLimitedVoice =>
       'तुम्ही आजच्या आवाजाद्वारे प्रश्न विचारण्याच्या मर्यादेपर्यंत पोहोचला आहात.';
+
+  @override
+  String get errorScanNotFound =>
+      'हा लेबल स्कॅन सापडला नाही. कृपया लेबल पुन्हा स्कॅन करा.';
 
   @override
   String get errorUnauthorized => 'कृपया साइन इन करा.';
