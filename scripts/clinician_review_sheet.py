@@ -83,7 +83,25 @@ def section_of(path: tuple[str, ...]) -> str | None:
     return path[0]
 
 
+def daily_unit_of(path: tuple[str, ...]) -> str:
+    """Units for `daily_limits.*`: amounts per DAY (food-log totals), never per 100 g."""
+    leaf = path[-1]
+    if path[1] == "child_salt_g_by_min_age":
+        return "g salt per day (key = minimum age in years)"
+    if leaf == "protein_g_per_kg":
+        return "g per kg body weight per day"
+    if leaf == "protein_min_age":
+        return "years (minimum age)"
+    if leaf == "near_pct":
+        return "% of daily limit"
+    if leaf.endswith("_g"):
+        return "g per day"
+    return ""
+
+
 def unit_of(path: tuple[str, ...]) -> str:
+    if path[0] == "daily_limits":
+        return daily_unit_of(path)
     joined = ".".join(path)
     leaf = path[-1]
     if "free_sugar_daily_limit_g" in joined:
@@ -111,7 +129,7 @@ def unit_of(path: tuple[str, ...]) -> str:
 def question_of(path: tuple[str, ...]) -> str:
     if "infant" in path:
         return QUESTION_INFANT
-    if "child" in path:
+    if "child" in path or any(p.startswith("child_") for p in path):
         return QUESTION_CHILD
     return QUESTION_ADULT
 
@@ -155,6 +173,13 @@ def render() -> str:
             "Values are per 100 g (food) or per 100 ml (drink) unless the unit says otherwise. "
             "For each row, tick Approved, or write the value you recommend in Change to, then "
             "initial the Signed column. Sign and date the bottom of the sheet."
+        ),
+        "",
+        (
+            "**Daily limits** (`daily_limits.*`) are amounts per day. The food log compares "
+            "them with each member's day totals; a week uses the daily limit x the days with "
+            "something logged. Labels give TOTAL sugars, not free sugars, so the sugar "
+            "comparison can over-warn but never under-warns. Protein is a target, not a limit."
         ),
         "",
         "## Numeric thresholds",

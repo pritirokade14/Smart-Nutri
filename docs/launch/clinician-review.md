@@ -1,9 +1,11 @@
 # Clinician review: SmartNutri scoring thresholds
 
 > **Generated** by `scripts/clinician_review_sheet.py` from `apps/api/app/scoring/data/thresholds.yaml`. Do not edit by hand.
-> Scoring version: `b3b3e5e11d94`. Pending clinician review: **True**.
+> Scoring version: `45e46eafd3f9`. Pending clinician review: **True**.
 
 **For the reviewer.** SmartNutri shows packaged-food verdicts per family member: `ok`, `caution`, `unknown` or `avoid`. It is information, not medical advice. Values are per 100 g (food) or per 100 ml (drink) unless the unit says otherwise. For each row, tick Approved, or write the value you recommend in Change to, then initial the Signed column. Sign and date the bottom of the sheet.
+
+**Daily limits** (`daily_limits.*`) are amounts per day. The food log compares them with each member's day totals; a week uses the daily limit x the days with something logged. Labels give TOTAL sugars, not free sugars, so the sugar comparison can over-warn but never under-warns. Protein is a target, not a limit.
 
 ## Numeric thresholds
 
@@ -26,11 +28,11 @@
 | 15 | `claims.low_sodium_max_mg` | 120 | mg per 100 g | FSSAI (Advertising & Claims) Regulations 2018 | Is this appropriate for Indian adults? |  |  |  |
 | 16 | `claims.source_of_protein_min_energy_pct` | 10 | % of energy | FSSAI (Advertising & Claims) Regulations 2018 | Is this appropriate for Indian adults? |  |  |  |
 | 17 | `claims.high_protein_min_energy_pct` | 20 | % of energy | FSSAI (Advertising & Claims) Regulations 2018 | Is this appropriate for Indian adults? |  |  |  |
-| 18 | `conditions.blood_sugar.avoid_sugars_g.food` | 22.5 | g per 100 g | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml) | Is this appropriate for Indian adults? |  |  |  |
-| 19 | `conditions.blood_sugar.avoid_sugars_g.drink` | 5.0 | g per 100 ml | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml) | Is this appropriate for Indian adults? |  |  |  |
-| 20 | `conditions.blood_sugar.caution_sugars_g.food` | 5.0 | g per 100 g | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml) | Is this appropriate for Indian adults? |  |  |  |
-| 21 | `conditions.blood_sugar.caution_sugars_g.drink` | 2.5 | g per 100 ml | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml) | Is this appropriate for Indian adults? |  |  |  |
-| 22 | `conditions.blood_sugar.caution_carbs_per_serving_g` | 30 | g per serving | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml) | Is this appropriate for Indian adults? |  |  |  |
+| 18 | `conditions.blood_sugar.avoid_sugars_g.food` | 22.5 | g per 100 g | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml); SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 19 | `conditions.blood_sugar.avoid_sugars_g.drink` | 5.0 | g per 100 ml | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml); SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 20 | `conditions.blood_sugar.caution_sugars_g.food` | 5.0 | g per 100 g | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml); SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 21 | `conditions.blood_sugar.caution_sugars_g.drink` | 2.5 | g per 100 ml | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml); SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 22 | `conditions.blood_sugar.caution_carbs_per_serving_g` | 30 | g per serving | UK FSA front-of-pack guidance (high thresholds); FSSAI (Advertising & Claims) Regulations 2018; UK Soft Drinks Industry Levy (5 g sugar per 100 ml); SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
 | 23 | `conditions.hypertension.avoid_salt_g` | 1.5 | g per 100 g | UK FSA front-of-pack guidance (high thresholds) | Is this appropriate for Indian adults? |  |  |  |
 | 24 | `conditions.hypertension.caution_salt_g` | 0.3 | g per 100 g | UK FSA front-of-pack guidance (high thresholds) | Is this appropriate for Indian adults? |  |  |  |
 | 25 | `conditions.weight_loss.caution_energy_kcal` | 400 | kcal per 100 g | SmartNutri working values, pending clinician review; Nutri-Score 2023 update (Santé publique France) | Is this appropriate for Indian adults? |  |  |  |
@@ -44,6 +46,17 @@
 | 33 | `conditions.infant.max_age` | 2 | years (exclusive upper bound) | SmartNutri working values, pending clinician review | Is this appropriate for Indian infants under 2? |  |  |  |
 | 34 | `conditions.infant.avoid_sugars_g` | 5.0 | g per 100 g | SmartNutri working values, pending clinician review | Is this appropriate for Indian infants under 2? |  |  |  |
 | 35 | `conditions.infant.avoid_salt_g` | 0.3 | g per 100 g | SmartNutri working values, pending clinician review | Is this appropriate for Indian infants under 2? |  |  |  |
+| 36 | `daily_limits.adult.sugar_g` | 25 | g per day | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 37 | `daily_limits.adult.salt_g` | 5 | g per day | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 38 | `daily_limits.adult.protein_g_per_kg` | 0.83 | g per kg body weight per day | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 39 | `daily_limits.protein_min_age` | 18 | years (minimum age) | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 40 | `daily_limits.child_salt_g_by_min_age.2` | 2 | g salt per day (key = minimum age in years) | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 41 | `daily_limits.child_salt_g_by_min_age.4` | 3 | g salt per day (key = minimum age in years) | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 42 | `daily_limits.child_salt_g_by_min_age.7` | 5 | g salt per day (key = minimum age in years) | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 43 | `daily_limits.child_salt_g_by_min_age.11` | 6 | g salt per day (key = minimum age in years) | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 44 | `daily_limits.infant.sugar_g` | 0 | g per day | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian infants under 2? |  |  |  |
+| 45 | `daily_limits.infant.salt_g` | 0 | g per day | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian infants under 2? |  |  |  |
+| 46 | `daily_limits.near_pct` | 80 | % of daily limit | WHO guideline: sugars intake for adults and children; WHO guideline: sodium intake for adults and children; WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007); NHS: sugar limits for children; NHS: salt limits for children; SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
 
 ## Other rule settings
 
@@ -63,6 +76,11 @@
 - **NHS: sugar limits for children**: https://www.nhs.uk/live-well/eat-well/food-types/how-does-sugar-in-our-diet-affect-our-health/ (link not yet verified)
 - **WHO guidance: no added sugar or salt under 2**: https://www.who.int/news-room/fact-sheets/detail/healthy-diet (link not yet verified)
 - **UK Soft Drinks Industry Levy (5 g sugar per 100 ml)**: https://www.gov.uk/guidance/soft-drinks-industry-levy (link not yet verified)
+- **American Diabetes Association: Standards of Care in Diabetes, Section 5**: https://diabetesjournals.org/care/issue/48/Supplement_1 (link not yet verified)
+- **WHO guideline: sugars intake for adults and children**: https://www.who.int/publications/i/item/9789241549028 (link not yet verified)
+- **WHO guideline: sodium intake for adults and children**: https://www.who.int/publications/i/item/9789241504836 (link not yet verified)
+- **WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)**: https://www.who.int/publications/i/item/9789241209359 (link not yet verified)
+- **NHS: salt limits for children**: https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/ (link not yet verified)
 - **SmartNutri working values, pending clinician review** (link not yet verified)
 
 ## Sign-off
