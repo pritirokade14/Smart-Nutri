@@ -29,7 +29,7 @@
 | App activity → **Other user-generated content** | Yes | No | Optional | App functionality | Meal logs, products and label values the user confirms, problem reports |
 | App info and performance → **Crash logs** | Yes | No | Required | App functionality (stability) | Sentry, with request bodies and personal data scrubbed |
 | App info and performance → **Diagnostics** | Yes | No | Required | Analytics | |
-| Location, contacts, calendar, SMS, files, web history, financial info | **No** | | | | Label photo EXIF (including GPS) is stripped before extraction |
+| Location, contacts, calendar, SMS, files, web history, financial info | **No** | | | | **Check before you answer "No" for location.** The API strips EXIF (including GPS) before extraction, but the uploaded original stays in storage for up to 30 days with whatever EXIF the client sent. Both clients must strip EXIF before upload (Android camera and gallery, web file input). Confirm they do. |
 
 "Ephemeral processing" applies to the voice question recording. The label photo is not ephemeral: it is stored for up to 30 days.
 
