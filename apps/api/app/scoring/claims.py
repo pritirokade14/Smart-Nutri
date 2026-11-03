@@ -113,8 +113,18 @@ def _protein_amount(claim: str) -> float | None:
     return None
 
 
+# A negated whey phrase (P9 safety S3) is not a whey claim: "whey free", "whey-free", "no whey",
+# "free from whey", "without whey", "0% whey", "whey protein free". Matched on the normalised
+# text (punctuation and "%" become spaces) and removed before matching, so the rest of the claim
+# ("whey-free high protein") is still checked.
+_NEGATED_WHEY = re.compile(
+    r"(?<!\w)(?:(?:contains\s+)?no|zero|0|without|free\s+(?:from|of))\s+whey(?:\s+protein)?(?!\w)"
+    r"|(?<!\w)whey(?:\s+protein)?\s+free(?!\w)"
+)
+
+
 def _match(claim: str) -> str | None:
-    text = normalize(claim)
+    text = _NEGATED_WHEY.sub(" ", normalize(claim))
     for key, pats in _COMPILED:
         if key == "protein_amount":
             if _protein_amount(claim) is not None:

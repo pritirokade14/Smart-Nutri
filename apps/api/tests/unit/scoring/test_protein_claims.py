@@ -217,6 +217,23 @@ def test_whey_protein_supported_with_hindi_term(cfg):
     assert (c.claim, c.verdict) == ("whey_protein", ClaimVerdict.SUPPORTED)
 
 
+@pytest.mark.parametrize(
+    "claim",
+    ["whey free", "Whey-Free", "No whey", "free from whey", "Free of whey", "without whey",
+     "0% whey", "contains no whey", "whey protein free"],
+)  # fmt: skip
+def test_negated_whey_is_not_a_whey_claim(cfg, claim):
+    """P9 safety S3: "whey free" is not a whey claim, so a pea-protein pack is never told
+    that whey is missing."""
+    p = _whey(claims=(claim,), ingredients=("pea protein", "cocoa"))
+    assert check_claims(p, cfg) == ()
+
+
+def test_negated_whey_still_checks_the_protein_part(cfg):
+    p = _whey(claims=("Whey-free high protein",), ingredients=("pea protein", "cocoa"))
+    assert _one(p, cfg).claim == "high_protein"
+
+
 @pytest.mark.parametrize("claim", ["100% whey", "whey protein"])
 def test_whey_ingredients_unknown_unverifiable(cfg, claim):
     c = _one(_whey(claims=(claim,), ingredients=()), cfg)
