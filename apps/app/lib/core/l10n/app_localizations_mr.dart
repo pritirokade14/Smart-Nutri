@@ -676,6 +676,10 @@ class AppLocalizationsMr extends AppLocalizations {
       'तुम्हाला आरोग्याची काही समस्या असल्यास, बदल करण्यापूर्वी तुमच्या डॉक्टरांना किंवा आहारतज्ज्ञांना विचारा.';
 
   @override
+  String get explanationSourceFallbackNote =>
+      'AI स्पष्टीकरण सध्या उपलब्ध नाही, म्हणून हा सारांश आमच्या नियमांवरून तयार केला आहे.';
+
+  @override
   String get explanationTipsTitle => 'सूचना';
 
   @override
@@ -1122,6 +1126,107 @@ class AppLocalizationsMr extends AppLocalizations {
   String get membersYouBadge => 'तुम्ही';
 
   @override
+  String get methodologyIntro =>
+      'SmartNutri प्रत्येक पॅकबंद अन्न त्याच्या लेबलवरून आणि कुटुंबातील प्रत्येक सदस्याच्या प्रोफाइलवरून ठरलेल्या नियमांनुसार तपासते. AI फक्त निकाल समजावून सांगते, तो कधीच ठरवत नाही. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get methodologyPendingReview =>
+      'या मर्यादा सध्या कामचलाऊ मूल्ये आहेत आणि डॉक्टरांचे पुनरावलोकन बाकी आहे.';
+
+  @override
+  String get methodologySectionAllergensDescription =>
+      'आम्ही प्रत्येक ॲलर्जी घटकाची घटक-नावे आणि पॅकवरील ॲलर्जीची माहिती पाहतो. घटक वाचता आले नाहीत, तर आम्ही लेबल स्पष्ट नाही असे सांगतो, कधीच ठीक आहे असे नाही.';
+
+  @override
+  String get methodologySectionAllergensTitle => 'ॲलर्जी घटक';
+
+  @override
+  String get methodologySectionBloodSugarDescription =>
+      'रक्तातील साखरेकडे लक्ष देणाऱ्या सदस्यांसाठी (मधुमेह, प्रीडायबिटीज किंवा PCOS) आम्ही जास्त साखर, प्रति सर्व्हिंग जास्त कार्बोहायड्रेट आणि जास्त मीठ किंवा संतृप्त फॅट असलेली उत्पादने दाखवतो.';
+
+  @override
+  String get methodologySectionBloodSugarTitle => 'रक्तातील साखर';
+
+  @override
+  String get methodologySectionChildDescription =>
+      'मुलांसाठी आम्ही 100 ग्रॅम किंवा एका सर्व्हिंगमधील साखर त्यांच्या वयाच्या दैनिक साखर मर्यादेशी तुलना करतो.';
+
+  @override
+  String get methodologySectionChildTitle => 'मुले';
+
+  @override
+  String get methodologySectionClaimsDescription =>
+      '\"शुगर फ्री\" किंवा \"हाय प्रोटीन\" यांसारखे दावे आम्ही लेबलवरील मूल्ये आणि FSSAI मर्यादांशी जुळवून तपासतो.';
+
+  @override
+  String get methodologySectionClaimsTitle => 'पॅकच्या पुढील दावे';
+
+  @override
+  String get methodologySectionCustomAlertsDescription =>
+      'ज्या घटकांबद्दल सदस्याने सांगायला सांगितले आहे, जसे पाम तेल किंवा मैदा. या आवडीनिवडी आहेत, त्यामुळे त्यांना कोणताही स्रोत नाही.';
+
+  @override
+  String get methodologySectionCustomAlertsTitle => 'तुमचे घटक अलर्ट';
+
+  @override
+  String get methodologySectionDietDescription =>
+      'सदस्याच्या आहाराशी (शाकाहारी, अंडाहारी, व्हीगन किंवा जैन) न जुळणारे घटक आम्ही शोधतो आणि पॅकवरील हिरवी किंवा तपकिरी खूण तपासतो.';
+
+  @override
+  String get methodologySectionDietTitle => 'आहार';
+
+  @override
+  String get methodologySectionHighInDescription =>
+      'एखाद्या पोषक घटकाचे प्रमाण प्रति 100 ग्रॅम किंवा 100 मि.ली. या मर्यादांइतके किंवा त्यापेक्षा जास्त असल्यास, उत्पादनात तो घटक जास्त असल्याचे दाखवले जाते.';
+
+  @override
+  String get methodologySectionHighInTitle =>
+      'साखर, फॅट, संतृप्त फॅट किंवा मीठ जास्त';
+
+  @override
+  String get methodologySectionHypertensionDescription =>
+      'उच्च रक्तदाब असलेल्या सदस्यांसाठी आम्ही जास्त मीठ असलेली उत्पादने दाखवतो.';
+
+  @override
+  String get methodologySectionHypertensionTitle => 'रक्तदाब';
+
+  @override
+  String get methodologySectionInfantDescription =>
+      'बाळांसाठी आणि लहान मुलांसाठी आम्ही अतिरिक्त साखर, अतिरिक्त मीठ, मध आणि कॅफिन, तसेच जास्त साखर किंवा मीठ दाखवतो.';
+
+  @override
+  String get methodologySectionInfantTitle => 'बाळे आणि लहान मुले';
+
+  @override
+  String get methodologySectionNutriscore2023Description =>
+      'आम्ही लेबलवरून न्यूट्री-स्कोर ग्रेड काढतो, या पद्धतीच्या 2023 च्या अद्यतनानुसार. तो SmartNutri मोजते; ते FSSAI रेटिंग नाही.';
+
+  @override
+  String get methodologySectionNutriscore2023Title =>
+      'न्यूट्री-स्कोर (SmartNutri ने मोजलेला)';
+
+  @override
+  String get methodologySectionWeightLossDescription =>
+      'वजन कमी करणाऱ्या सदस्यांसाठी आम्ही जास्त कॅलरी असलेली उत्पादने आणि कमी न्यूट्री-स्कोर ग्रेड दाखवतो, आणि कॅलरीच्या मानाने चांगले प्रथिन असलेली उत्पादनेही सांगतो.';
+
+  @override
+  String get methodologySectionWeightLossTitle => 'वजन कमी करणे';
+
+  @override
+  String get methodologySourcesTitle => 'स्रोत';
+
+  @override
+  String get methodologyTitle => 'आम्ही कसे तपासतो';
+
+  @override
+  String get methodologyUrlUnverified => 'लिंक अजून तपासलेली नाही';
+
+  @override
+  String methodologyVersion(String version) {
+    return 'नियम आवृत्ती $version';
+  }
+
+  @override
   String get navFamily => 'कुटुंब';
 
   @override
@@ -1412,6 +1517,34 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String get reportButton => 'समस्या कळवा';
+
+  @override
+  String get reportNoteLabel => 'अधिक सांगा (ऐच्छिक)';
+
+  @override
+  String get reportReasonOther => 'दुसरे काही';
+
+  @override
+  String get reportReasonWrongIngredients => 'घटक चुकीचे आहेत';
+
+  @override
+  String get reportReasonWrongProduct => 'हे दुसरेच उत्पादन आहे';
+
+  @override
+  String get reportReasonWrongValues => 'पोषण मूल्ये चुकीची आहेत';
+
+  @override
+  String get reportSubmit => 'रिपोर्ट पाठवा';
+
+  @override
+  String get reportThanks =>
+      'धन्यवाद. आम्ही या उत्पादनाच्या माहितीचे पुनरावलोकन करू.';
+
+  @override
+  String get reportTitle => 'या उत्पादनाच्या माहितीत काय चूक आहे?';
+
+  @override
   String get resultFamilyTitle => 'तुमच्या कुटुंबासाठी';
 
   @override
@@ -1691,6 +1824,20 @@ class AppLocalizationsMr extends AppLocalizations {
   String get verdictShowAllReasons => 'सर्व कारणे दाखवा';
 
   @override
+  String get verdictSpokenAvoid => 'या सदस्यासाठी, हे उत्पादन टाळा.';
+
+  @override
+  String get verdictSpokenCaution =>
+      'या सदस्यासाठी, हे उत्पादन घेताना काळजी घ्या.';
+
+  @override
+  String get verdictSpokenOk => 'या सदस्यासाठी हे उत्पादन ठीक दिसते.';
+
+  @override
+  String get verdictSpokenUnknown =>
+      'या सदस्यासाठी लेबल स्पष्ट नाही, त्यामुळे आम्ही सांगू शकत नाही.';
+
+  @override
   String get verdictStatusAvoid => 'टाळा';
 
   @override
@@ -1703,18 +1850,39 @@ class AppLocalizationsMr extends AppLocalizations {
   String get verdictStatusUnknown => 'लेबल स्पष्ट नाही';
 
   @override
-  String get voiceVerdictSentenceAvoid => 'या सदस्यासाठी, हे उत्पादन टाळा.';
+  String get voiceAiUnavailable =>
+      'आवाजातील उत्तरे सध्या उपलब्ध नाहीत. कृपया नंतर पुन्हा प्रयत्न करा.';
 
   @override
-  String get voiceVerdictSentenceCaution =>
-      'या सदस्यासाठी, हे उत्पादन घेताना काळजी घ्या.';
+  String get voiceButtonHold => 'विचारण्यासाठी दाबून ठेवा';
 
   @override
-  String get voiceVerdictSentenceOk => 'या सदस्यासाठी हे उत्पादन ठीक दिसते.';
+  String get voiceMicDenied =>
+      'मायक्रोफोनची परवानगी बंद आहे. आवाजाने विचारण्यासाठी सेटिंग्जमध्ये ती सुरू करा.';
 
   @override
-  String get voiceVerdictSentenceUnknown =>
-      'या सदस्यासाठी लेबल स्पष्ट नाही, त्यामुळे आम्ही सांगू शकत नाही.';
+  String get voiceNotUnderstood =>
+      'आम्हाला प्रश्न ऐकू आला नाही. बटण दाबून ठेवा आणि स्पष्ट बोला.';
+
+  @override
+  String get voicePlaying => 'उत्तर ऐकवले जात आहे';
+
+  @override
+  String get voiceRateLimited =>
+      'आजच्या आवाजातील प्रश्नांची मर्यादा पूर्ण झाली आहे.';
+
+  @override
+  String get voiceRecording => 'ऐकत आहोत… पाठवण्यासाठी सोडा';
+
+  @override
+  String get voiceThinking => 'तुमचे उत्तर तयार होत आहे…';
+
+  @override
+  String get voiceTooLong => 'कृपया तुमचा प्रश्न 30 सेकंदांपेक्षा लहान ठेवा.';
+
+  @override
+  String get voiceUnsupportedBrowser =>
+      'या ब्राउझरमध्ये आवाजाने प्रश्न विचारता येत नाहीत. Chrome, Edge किंवा Firefox ची नवी आवृत्ती वापरून पाहा.';
 
   @override
   String get voiceWordSafe => 'सुरक्षित';

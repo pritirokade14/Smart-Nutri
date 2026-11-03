@@ -82,6 +82,11 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'serving_size_unknown' => l10n.errorServingSizeUnknown,
     'eaten_at_out_of_range' => l10n.errorEatenAtOutOfRange,
     'meal_not_found' => l10n.errorMealNotFound,
+    'audio_too_long' => l10n.errorAudioTooLong,
+    'audio_too_large' => l10n.errorAudioTooLarge,
+    'audio_unsupported' => l10n.errorAudioUnsupported,
+    'voice_not_understood' => l10n.errorVoiceNotUnderstood,
+    'ai_unavailable' => l10n.errorAiUnavailable,
     'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };

@@ -36,6 +36,9 @@ cd apps/api && uv run python scripts/export_fixture_responses.py
 responses/index.json               # fixture name -> fixed UUID, plus the reference date
 responses/analyze/<product>.json   # POST /v1/analyze body (AnalyzeOut) for the product and ALL members
 responses/public/<product>.json    # GET /v1/products/{barcode}/public body (PublicProductOut)
+responses/methodology.json         # GET /v1/methodology?language=en body (Methodology)
+responses/voice/answer_avoid.json  # POST /v1/voice/ask body (VoiceAnswer): sf_biscuit + diabetic_adult, source "llm"
+responses/voice/answer_avoid_fallback.json  # the same with source "fallback"
 ```
 
 - **`index.json`:** `{"reference_date": "2026-01-01", "account_id": "<uuid>", "products": {"<product>": "<uuid>"}, "members": {"<member>": "<uuid>"}, "scans": {"<product>": "<uuid>"}}`. UUIDs are `uuid5(NAMESPACE_URL, "https://smartnutri.app/test-fixtures/<kind>/<name>")`.

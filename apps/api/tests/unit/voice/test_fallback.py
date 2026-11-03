@@ -36,7 +36,7 @@ def test_t_falls_back_to_english_then_key():
 
 
 def test_t_reads_repo_messages():
-    assert t("voice.verdict_sentence.avoid", "en") == "For this member, avoid this product."
+    assert t("verdict.spoken.avoid", "en") == "For this member, avoid this product."
     assert t("status.ok", "hi") == "ठीक है"
 
 
@@ -107,8 +107,8 @@ def test_unknown_code_is_skipped():
 @pytest.mark.parametrize("status", list(S))
 def test_verdict_sentence_for_every_status_and_language(status, language):
     text = verdict_sentence(status, language)
-    assert text == t(f"voice.verdict_sentence.{status.value}", language)
-    assert text != f"voice.verdict_sentence.{status.value}"
+    assert text == t(f"verdict.spoken.{status.value}", language)
+    assert text != f"verdict.spoken.{status.value}"
 
 
 def test_avoid_fallback_starts_with_engine_verdict_and_lists_reasons(avoid_case):
@@ -120,7 +120,7 @@ def test_avoid_fallback_starts_with_engine_verdict_and_lists_reasons(avoid_case)
 
 def test_unknown_verdict_fallback_says_label_unclear(unknown_case):
     e = fallback_explanation(unknown_case.verdict, "mr")
-    assert e.text.startswith(t("voice.verdict_sentence.unknown", "mr"))
+    assert e.text.startswith(t("verdict.spoken.unknown", "mr"))
     assert "सुरक्षित" not in e.text
 
 
@@ -159,7 +159,7 @@ def test_fallback_explanation_has_three_tips(avoid_case):
 def test_fallback_is_pure_and_uses_the_given_catalog(avoid_case):
     cat = Catalog(
         {
-            "en": {"voice.verdict_sentence.avoid": "AVOID!", "reason.misleading_sugar_claim": "R."},
+            "en": {"verdict.spoken.avoid": "AVOID!", "reason.misleading_sugar_claim": "R."},
             "hi": {},
             "mr": {},
         }

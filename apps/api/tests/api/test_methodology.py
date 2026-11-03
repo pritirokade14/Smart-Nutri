@@ -87,3 +87,15 @@ def test_route_has_no_security_and_a_rate_limit(app):
     spec = app.openapi()
     op = spec["paths"]["/v1/methodology"]["get"]
     assert "security" not in op and op["operationId"] == "methodology_get"
+
+
+def test_every_section_has_client_strings_in_every_language():
+    from app.core.i18n import catalog
+
+    cat = catalog()
+    for language in ("en", "hi", "mr"):
+        for sid in SECTION_IDS:
+            for part in ("title", "description"):
+                assert cat.has(f"methodology.section.{sid}.{part}", language), (language, sid)
+        for key in ("title", "intro", "pending_review", "sources_title", "url_unverified"):
+            assert cat.has(f"methodology.{key}", language), (language, key)

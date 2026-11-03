@@ -8,6 +8,11 @@ Writes packages/test-fixtures/responses/:
   analyze/<product>.json     POST /v1/analyze for the product and EVERY fixture member
                              (verdicts in sorted member-name order)
   public/<product>.json      GET /v1/products/{barcode}/public for the product
+  methodology.json           GET /v1/methodology?language=en
+  voice/answer_avoid.json    a POST /v1/voice/ask body (VoiceAnswer) for sf_biscuit and
+                             diabetic_adult, source "llm"; answer_avoid_fallback.json is the
+                             same with source "fallback". The answer text is the engine-built
+                             fallback text, so it never contains invented values.
 
 The responses come from the same service functions the endpoints run (in-memory records, no
 database), so they cannot drift from the API. Output is deterministic: fixed UUIDs
@@ -30,8 +35,12 @@ sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from app.features.analyze import service as analyze_service
 from app.features.members.models import Member
+from app.features.methodology.router import build_methodology
+from app.features.methodology.schemas import MethodologyLanguage
 from app.features.products import service as products_service
 from app.features.products.models import Product
+from app.features.voice.fallback import fallback_answer
+from app.features.voice.schemas import VoiceAnswer
 from tests.fixtures.loader import FIXTURES, load_member, load_product
 
 # Ages in members/*.json are turned into birth years against this fixed date, and the same
@@ -125,6 +134,10 @@ def build(fixtures: Path = FIXTURES) -> dict[str, str]:
         out[f"analyze/{name}.json"] = _dump(analyzed.model_dump(mode="json"))
         public = products_service.to_public_out(found)
         out[f"public/{name}.json"] = _dump(public.model_dump(mode="json"))
+    out["methodology.json"] = _dump(
+        build_methodology(MethodologyLanguage.EN).model_dump(mode="json")
+    )
+    out.update(_voice_answers(fixtures))
     out["index.json"] = _dump(
         {
             "reference_date": REFERENCE_DATE.isoformat(),
@@ -134,6 +147,24 @@ def build(fixtures: Path = FIXTURES) -> dict[str, str]:
             "scans": {p: str(fixture_id("scan", p)) for p in products},
         }
     )
+    return out
+
+
+def _voice_answers(fixtures: Path) -> dict[str, str]:
+    found = products_service.lookup_from_record(fixture_product_record("sf_biscuit", fixtures))
+    member = fixture_member_record("diabetic_adult", fixtures=fixtures)
+    result = analyze_service.evaluate(found, [member], today=REFERENCE_DATE)
+    verdict = result.verdicts[0]
+    out: dict[str, str] = {}
+    for name, source in (("answer_avoid", "llm"), ("answer_avoid_fallback", "fallback")):
+        answer = VoiceAnswer(
+            question="is this ok for me",
+            answer=fallback_answer(verdict, "en"),
+            audio_url=f"https://storage.example/voice/{name}.mp3?token=placeholder",
+            verdict_status=verdict.status.value,
+            source=source,
+        )
+        out[f"voice/{name}.json"] = _dump(answer.model_dump(mode="json"))
     return out
 
 

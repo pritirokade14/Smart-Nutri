@@ -671,6 +671,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you have a health condition, ask your doctor or a dietitian before making changes.';
 
   @override
+  String get explanationSourceFallbackNote =>
+      'The AI explanation isn\'t available right now, so this summary comes from our rules.';
+
+  @override
   String get explanationTipsTitle => 'Tips';
 
   @override
@@ -1118,6 +1122,107 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersYouBadge => 'You';
 
   @override
+  String get methodologyIntro =>
+      'SmartNutri checks each packaged food against its label and each family member\'s profile using fixed rules. An AI only explains the result; it never decides it. This is information, not medical advice.';
+
+  @override
+  String get methodologyPendingReview =>
+      'These thresholds are working values, pending review by a clinician.';
+
+  @override
+  String get methodologySectionAllergensDescription =>
+      'We look for each allergen\'s ingredient names and for the pack\'s allergen statements. If the ingredients can\'t be read, we say the label is unclear, never OK.';
+
+  @override
+  String get methodologySectionAllergensTitle => 'Allergens';
+
+  @override
+  String get methodologySectionBloodSugarDescription =>
+      'For members managing blood sugar (diabetes, prediabetes or PCOS), we flag products with a lot of sugar, or a lot of carbohydrate per serving, and high salt or saturated fat.';
+
+  @override
+  String get methodologySectionBloodSugarTitle => 'Blood sugar';
+
+  @override
+  String get methodologySectionChildDescription =>
+      'For children, we compare the sugar in 100 g or one serving with a daily sugar limit for their age.';
+
+  @override
+  String get methodologySectionChildTitle => 'Children';
+
+  @override
+  String get methodologySectionClaimsDescription =>
+      'We check claims such as \"sugar free\" or \"high protein\" against the label values and the FSSAI limits.';
+
+  @override
+  String get methodologySectionClaimsTitle => 'Front-of-pack claims';
+
+  @override
+  String get methodologySectionCustomAlertsDescription =>
+      'Ingredients a member asked to be told about, such as palm oil or maida. These are preferences, so there is no source to cite.';
+
+  @override
+  String get methodologySectionCustomAlertsTitle => 'Your ingredient alerts';
+
+  @override
+  String get methodologySectionDietDescription =>
+      'We look for ingredients that don\'t fit a member\'s diet (vegetarian, eggetarian, vegan or Jain) and check the green or brown mark on the pack.';
+
+  @override
+  String get methodologySectionDietTitle => 'Diet';
+
+  @override
+  String get methodologySectionHighInDescription =>
+      'A product is marked high in a nutrient when its amount per 100 g or 100 ml is at or above these limits.';
+
+  @override
+  String get methodologySectionHighInTitle =>
+      'High in sugar, fat, saturated fat or salt';
+
+  @override
+  String get methodologySectionHypertensionDescription =>
+      'For members with high blood pressure, we flag products with a lot of salt.';
+
+  @override
+  String get methodologySectionHypertensionTitle => 'Blood pressure';
+
+  @override
+  String get methodologySectionInfantDescription =>
+      'For babies and toddlers, we flag added sugar, added salt, honey and caffeine, and high sugar or salt.';
+
+  @override
+  String get methodologySectionInfantTitle => 'Babies and toddlers';
+
+  @override
+  String get methodologySectionNutriscore2023Description =>
+      'We calculate a Nutri-Score grade from the label, using the 2023 update of the method. It is calculated by SmartNutri; it is not an FSSAI rating.';
+
+  @override
+  String get methodologySectionNutriscore2023Title =>
+      'Nutri-Score (calculated by SmartNutri)';
+
+  @override
+  String get methodologySectionWeightLossDescription =>
+      'For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.';
+
+  @override
+  String get methodologySectionWeightLossTitle => 'Weight loss';
+
+  @override
+  String get methodologySourcesTitle => 'Sources';
+
+  @override
+  String get methodologyTitle => 'How we score';
+
+  @override
+  String get methodologyUrlUnverified => 'Link not yet checked';
+
+  @override
+  String methodologyVersion(String version) {
+    return 'Rules version $version';
+  }
+
+  @override
   String get navFamily => 'Family';
 
   @override
@@ -1409,6 +1514,33 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get reportButton => 'Report a problem';
+
+  @override
+  String get reportNoteLabel => 'Tell us more (optional)';
+
+  @override
+  String get reportReasonOther => 'Something else';
+
+  @override
+  String get reportReasonWrongIngredients => 'The ingredients are wrong';
+
+  @override
+  String get reportReasonWrongProduct => 'This is a different product';
+
+  @override
+  String get reportReasonWrongValues => 'The nutrition values are wrong';
+
+  @override
+  String get reportSubmit => 'Send report';
+
+  @override
+  String get reportThanks => 'Thanks. We\'ll review this product\'s data.';
+
+  @override
+  String get reportTitle => 'What\'s wrong with this product\'s data?';
+
+  @override
   String get resultFamilyTitle => 'For your family';
 
   @override
@@ -1688,6 +1820,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verdictShowAllReasons => 'Show all reasons';
 
   @override
+  String get verdictSpokenAvoid => 'For this member, avoid this product.';
+
+  @override
+  String get verdictSpokenCaution =>
+      'For this member, take care with this product.';
+
+  @override
+  String get verdictSpokenOk => 'For this member, this product looks OK.';
+
+  @override
+  String get verdictSpokenUnknown =>
+      'For this member, the label is unclear, so we can\'t say.';
+
+  @override
   String get verdictStatusAvoid => 'Avoid';
 
   @override
@@ -1700,20 +1846,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verdictStatusUnknown => 'Label unclear';
 
   @override
-  String get voiceVerdictSentenceAvoid =>
-      'For this member, avoid this product.';
+  String get voiceAiUnavailable =>
+      'Voice answers are unavailable right now. Please try again later.';
 
   @override
-  String get voiceVerdictSentenceCaution =>
-      'For this member, take care with this product.';
+  String get voiceButtonHold => 'Hold to ask';
 
   @override
-  String get voiceVerdictSentenceOk =>
-      'For this member, this product looks OK.';
+  String get voiceMicDenied =>
+      'Microphone access is off. Allow it in your settings to ask by voice.';
 
   @override
-  String get voiceVerdictSentenceUnknown =>
-      'For this member, the label is unclear, so we can\'t say.';
+  String get voiceNotUnderstood =>
+      'We couldn\'t hear a question. Hold the button and speak clearly.';
+
+  @override
+  String get voicePlaying => 'Playing the answer';
+
+  @override
+  String get voiceRateLimited =>
+      'You\'ve reached today\'s voice-question limit.';
+
+  @override
+  String get voiceRecording => 'Listening… release to send';
+
+  @override
+  String get voiceThinking => 'Getting your answer…';
+
+  @override
+  String get voiceTooLong => 'Please keep your question under 30 seconds.';
+
+  @override
+  String get voiceUnsupportedBrowser =>
+      'Voice questions don\'t work in this browser. Try the latest Chrome, Edge or Firefox.';
 
   @override
   String get voiceWordSafe => 'safe';

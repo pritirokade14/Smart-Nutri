@@ -56,7 +56,13 @@
     "show_all_reasons": "Show all reasons",
     "hide_reasons": "Hide reasons",
     "for_member": "{status} for {name}",
-    "for_you": "{status} for you"
+    "for_you": "{status} for you",
+    "spoken": {
+      "ok": "For this member, this product looks OK.",
+      "caution": "For this member, take care with this product.",
+      "unknown": "For this member, the label is unclear, so we can't say.",
+      "avoid": "For this member, avoid this product."
+    }
   },
   "status": {
     "ok": "OK",
@@ -456,7 +462,8 @@
       "1": "Compare the labels of similar products and choose the one with less sugar and salt.",
       "2": "Check the serving size on the pack: the label values are per 100 g or 100 ml.",
       "3": "If you have a health condition, ask your doctor or a dietitian before making changes."
-    }
+    },
+    "source_fallback_note": "The AI explanation isn't available right now, so this summary comes from our rules."
   },
   "nav": {
     "label": "Main navigation",
@@ -630,12 +637,83 @@
     }
   },
   "voice": {
-    "verdict_sentence": {
-      "ok": "For this member, this product looks OK.",
-      "caution": "For this member, take care with this product.",
-      "unknown": "For this member, the label is unclear, so we can't say.",
-      "avoid": "For this member, avoid this product."
+    "word_safe": "safe",
+    "button_hold": "Hold to ask",
+    "recording": "Listening… release to send",
+    "thinking": "Getting your answer…",
+    "playing": "Playing the answer",
+    "mic_denied": "Microphone access is off. Allow it in your settings to ask by voice.",
+    "unsupported_browser": "Voice questions don't work in this browser. Try the latest Chrome, Edge or Firefox.",
+    "too_long": "Please keep your question under 30 seconds.",
+    "not_understood": "We couldn't hear a question. Hold the button and speak clearly.",
+    "rate_limited": "You've reached today's voice-question limit.",
+    "ai_unavailable": "Voice answers are unavailable right now. Please try again later."
+  },
+  "methodology": {
+    "title": "How we score",
+    "intro": "SmartNutri checks each packaged food against its label and each family member's profile using fixed rules. An AI only explains the result; it never decides it. This is information, not medical advice.",
+    "pending_review": "These thresholds are working values, pending review by a clinician.",
+    "sources_title": "Sources",
+    "url_unverified": "Link not yet checked",
+    "version": "Rules version {version}",
+    "section": {
+      "nutriscore_2023": {
+        "title": "Nutri-Score (calculated by SmartNutri)",
+        "description": "We calculate a Nutri-Score grade from the label, using the 2023 update of the method. It is calculated by SmartNutri; it is not an FSSAI rating."
+      },
+      "high_in": {
+        "title": "High in sugar, fat, saturated fat or salt",
+        "description": "A product is marked high in a nutrient when its amount per 100 g or 100 ml is at or above these limits."
+      },
+      "allergens": {
+        "title": "Allergens",
+        "description": "We look for each allergen's ingredient names and for the pack's allergen statements. If the ingredients can't be read, we say the label is unclear, never OK."
+      },
+      "diet": {
+        "title": "Diet",
+        "description": "We look for ingredients that don't fit a member's diet (vegetarian, eggetarian, vegan or Jain) and check the green or brown mark on the pack."
+      },
+      "claims": {
+        "title": "Front-of-pack claims",
+        "description": "We check claims such as \"sugar free\" or \"high protein\" against the label values and the FSSAI limits."
+      },
+      "blood_sugar": {
+        "title": "Blood sugar",
+        "description": "For members managing blood sugar (diabetes, prediabetes or PCOS), we flag products with a lot of sugar, or a lot of carbohydrate per serving, and high salt or saturated fat."
+      },
+      "hypertension": {
+        "title": "Blood pressure",
+        "description": "For members with high blood pressure, we flag products with a lot of salt."
+      },
+      "weight_loss": {
+        "title": "Weight loss",
+        "description": "For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories."
+      },
+      "child": {
+        "title": "Children",
+        "description": "For children, we compare the sugar in 100 g or one serving with a daily sugar limit for their age."
+      },
+      "infant": {
+        "title": "Babies and toddlers",
+        "description": "For babies and toddlers, we flag added sugar, added salt, honey and caffeine, and high sugar or salt."
+      },
+      "custom_alerts": {
+        "title": "Your ingredient alerts",
+        "description": "Ingredients a member asked to be told about, such as palm oil or maida. These are preferences, so there is no source to cite."
+      }
+    }
+  },
+  "report": {
+    "button": "Report a problem",
+    "title": "What's wrong with this product's data?",
+    "reason": {
+      "wrong_values": "The nutrition values are wrong",
+      "wrong_ingredients": "The ingredients are wrong",
+      "wrong_product": "This is a different product",
+      "other": "Something else"
     },
-    "word_safe": "safe"
+    "note_label": "Tell us more (optional)",
+    "submit": "Send report",
+    "thanks": "Thanks. We'll review this product's data."
   }
 }

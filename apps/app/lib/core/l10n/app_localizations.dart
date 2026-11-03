@@ -1312,6 +1312,12 @@ abstract class AppLocalizations {
   /// **'If you have a health condition, ask your doctor or a dietitian before making changes.'**
   String get explanationFallbackTip3;
 
+  /// No description provided for @explanationSourceFallbackNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI explanation isn\'t available right now, so this summary comes from our rules.'**
+  String get explanationSourceFallbackNote;
+
   /// No description provided for @explanationTipsTitle.
   ///
   /// In en, this message translates to:
@@ -2104,6 +2110,174 @@ abstract class AppLocalizations {
   /// **'You'**
   String get membersYouBadge;
 
+  /// No description provided for @methodologyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'SmartNutri checks each packaged food against its label and each family member\'s profile using fixed rules. An AI only explains the result; it never decides it. This is information, not medical advice.'**
+  String get methodologyIntro;
+
+  /// No description provided for @methodologyPendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'These thresholds are working values, pending review by a clinician.'**
+  String get methodologyPendingReview;
+
+  /// No description provided for @methodologySectionAllergensDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'We look for each allergen\'s ingredient names and for the pack\'s allergen statements. If the ingredients can\'t be read, we say the label is unclear, never OK.'**
+  String get methodologySectionAllergensDescription;
+
+  /// No description provided for @methodologySectionAllergensTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergens'**
+  String get methodologySectionAllergensTitle;
+
+  /// No description provided for @methodologySectionBloodSugarDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'For members managing blood sugar (diabetes, prediabetes or PCOS), we flag products with a lot of sugar, or a lot of carbohydrate per serving, and high salt or saturated fat.'**
+  String get methodologySectionBloodSugarDescription;
+
+  /// No description provided for @methodologySectionBloodSugarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood sugar'**
+  String get methodologySectionBloodSugarTitle;
+
+  /// No description provided for @methodologySectionChildDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'For children, we compare the sugar in 100 g or one serving with a daily sugar limit for their age.'**
+  String get methodologySectionChildDescription;
+
+  /// No description provided for @methodologySectionChildTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Children'**
+  String get methodologySectionChildTitle;
+
+  /// No description provided for @methodologySectionClaimsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'We check claims such as \"sugar free\" or \"high protein\" against the label values and the FSSAI limits.'**
+  String get methodologySectionClaimsDescription;
+
+  /// No description provided for @methodologySectionClaimsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Front-of-pack claims'**
+  String get methodologySectionClaimsTitle;
+
+  /// No description provided for @methodologySectionCustomAlertsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients a member asked to be told about, such as palm oil or maida. These are preferences, so there is no source to cite.'**
+  String get methodologySectionCustomAlertsDescription;
+
+  /// No description provided for @methodologySectionCustomAlertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ingredient alerts'**
+  String get methodologySectionCustomAlertsTitle;
+
+  /// No description provided for @methodologySectionDietDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'We look for ingredients that don\'t fit a member\'s diet (vegetarian, eggetarian, vegan or Jain) and check the green or brown mark on the pack.'**
+  String get methodologySectionDietDescription;
+
+  /// No description provided for @methodologySectionDietTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet'**
+  String get methodologySectionDietTitle;
+
+  /// No description provided for @methodologySectionHighInDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A product is marked high in a nutrient when its amount per 100 g or 100 ml is at or above these limits.'**
+  String get methodologySectionHighInDescription;
+
+  /// No description provided for @methodologySectionHighInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'High in sugar, fat, saturated fat or salt'**
+  String get methodologySectionHighInTitle;
+
+  /// No description provided for @methodologySectionHypertensionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'For members with high blood pressure, we flag products with a lot of salt.'**
+  String get methodologySectionHypertensionDescription;
+
+  /// No description provided for @methodologySectionHypertensionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood pressure'**
+  String get methodologySectionHypertensionTitle;
+
+  /// No description provided for @methodologySectionInfantDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'For babies and toddlers, we flag added sugar, added salt, honey and caffeine, and high sugar or salt.'**
+  String get methodologySectionInfantDescription;
+
+  /// No description provided for @methodologySectionInfantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Babies and toddlers'**
+  String get methodologySectionInfantTitle;
+
+  /// No description provided for @methodologySectionNutriscore2023Description.
+  ///
+  /// In en, this message translates to:
+  /// **'We calculate a Nutri-Score grade from the label, using the 2023 update of the method. It is calculated by SmartNutri; it is not an FSSAI rating.'**
+  String get methodologySectionNutriscore2023Description;
+
+  /// No description provided for @methodologySectionNutriscore2023Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutri-Score (calculated by SmartNutri)'**
+  String get methodologySectionNutriscore2023Title;
+
+  /// No description provided for @methodologySectionWeightLossDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.'**
+  String get methodologySectionWeightLossDescription;
+
+  /// No description provided for @methodologySectionWeightLossTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight loss'**
+  String get methodologySectionWeightLossTitle;
+
+  /// No description provided for @methodologySourcesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get methodologySourcesTitle;
+
+  /// No description provided for @methodologyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How we score'**
+  String get methodologyTitle;
+
+  /// No description provided for @methodologyUrlUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Link not yet checked'**
+  String get methodologyUrlUnverified;
+
+  /// No description provided for @methodologyVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules version {version}'**
+  String methodologyVersion(String version);
+
   /// No description provided for @navFamily.
   ///
   /// In en, this message translates to:
@@ -2505,6 +2679,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn\'t read {nutrient} clearly on the label, so this check could not be done.'**
   String reasonVariantNutrientMissingLowConfidence(String nutrient);
+
+  /// No description provided for @reportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem'**
+  String get reportButton;
+
+  /// No description provided for @reportNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us more (optional)'**
+  String get reportNoteLabel;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get reportReasonOther;
+
+  /// No description provided for @reportReasonWrongIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'The ingredients are wrong'**
+  String get reportReasonWrongIngredients;
+
+  /// No description provided for @reportReasonWrongProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a different product'**
+  String get reportReasonWrongProduct;
+
+  /// No description provided for @reportReasonWrongValues.
+  ///
+  /// In en, this message translates to:
+  /// **'The nutrition values are wrong'**
+  String get reportReasonWrongValues;
+
+  /// No description provided for @reportSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get reportSubmit;
+
+  /// No description provided for @reportThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks. We\'ll review this product\'s data.'**
+  String get reportThanks;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s wrong with this product\'s data?'**
+  String get reportTitle;
 
   /// No description provided for @resultFamilyTitle.
   ///
@@ -2973,6 +3201,30 @@ abstract class AppLocalizations {
   /// **'Show all reasons'**
   String get verdictShowAllReasons;
 
+  /// No description provided for @verdictSpokenAvoid.
+  ///
+  /// In en, this message translates to:
+  /// **'For this member, avoid this product.'**
+  String get verdictSpokenAvoid;
+
+  /// No description provided for @verdictSpokenCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'For this member, take care with this product.'**
+  String get verdictSpokenCaution;
+
+  /// No description provided for @verdictSpokenOk.
+  ///
+  /// In en, this message translates to:
+  /// **'For this member, this product looks OK.'**
+  String get verdictSpokenOk;
+
+  /// No description provided for @verdictSpokenUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'For this member, the label is unclear, so we can\'t say.'**
+  String get verdictSpokenUnknown;
+
   /// No description provided for @verdictStatusAvoid.
   ///
   /// In en, this message translates to:
@@ -2997,29 +3249,65 @@ abstract class AppLocalizations {
   /// **'Label unclear'**
   String get verdictStatusUnknown;
 
-  /// No description provided for @voiceVerdictSentenceAvoid.
+  /// No description provided for @voiceAiUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'For this member, avoid this product.'**
-  String get voiceVerdictSentenceAvoid;
+  /// **'Voice answers are unavailable right now. Please try again later.'**
+  String get voiceAiUnavailable;
 
-  /// No description provided for @voiceVerdictSentenceCaution.
+  /// No description provided for @voiceButtonHold.
   ///
   /// In en, this message translates to:
-  /// **'For this member, take care with this product.'**
-  String get voiceVerdictSentenceCaution;
+  /// **'Hold to ask'**
+  String get voiceButtonHold;
 
-  /// No description provided for @voiceVerdictSentenceOk.
+  /// No description provided for @voiceMicDenied.
   ///
   /// In en, this message translates to:
-  /// **'For this member, this product looks OK.'**
-  String get voiceVerdictSentenceOk;
+  /// **'Microphone access is off. Allow it in your settings to ask by voice.'**
+  String get voiceMicDenied;
 
-  /// No description provided for @voiceVerdictSentenceUnknown.
+  /// No description provided for @voiceNotUnderstood.
   ///
   /// In en, this message translates to:
-  /// **'For this member, the label is unclear, so we can\'t say.'**
-  String get voiceVerdictSentenceUnknown;
+  /// **'We couldn\'t hear a question. Hold the button and speak clearly.'**
+  String get voiceNotUnderstood;
+
+  /// No description provided for @voicePlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing the answer'**
+  String get voicePlaying;
+
+  /// No description provided for @voiceRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached today\'s voice-question limit.'**
+  String get voiceRateLimited;
+
+  /// No description provided for @voiceRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening… release to send'**
+  String get voiceRecording;
+
+  /// No description provided for @voiceThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting your answer…'**
+  String get voiceThinking;
+
+  /// No description provided for @voiceTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Please keep your question under 30 seconds.'**
+  String get voiceTooLong;
+
+  /// No description provided for @voiceUnsupportedBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice questions don\'t work in this browser. Try the latest Chrome, Edge or Firefox.'**
+  String get voiceUnsupportedBrowser;
 
   /// No description provided for @voiceWordSafe.
   ///

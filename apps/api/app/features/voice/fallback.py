@@ -58,7 +58,7 @@ def _cat(cat: Catalog | None) -> Catalog:
 
 
 def verdict_sentence(status: scoring.Status, language: str, cat: Catalog | None = None) -> str:
-    return _cat(cat).t(f"voice.verdict_sentence.{status.value}", language)
+    return _cat(cat).t(f"verdict.spoken.{status.value}", language)
 
 
 def reason_key(code: str, params: Mapping[str, Any]) -> str:

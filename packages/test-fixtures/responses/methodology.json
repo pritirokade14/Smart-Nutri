@@ -1,0 +1,819 @@
+{
+  "language": "en",
+  "pending_clinician_review": true,
+  "sections": [
+    {
+      "id": "nutriscore_2023",
+      "rationale_sources": [],
+      "threshold_sources": [
+        "nutriscore_2023"
+      ],
+      "thresholds": {
+        "beverage": [
+          {
+            "grade": "B",
+            "max_points": 2
+          },
+          {
+            "grade": "C",
+            "max_points": 6
+          },
+          {
+            "grade": "D",
+            "max_points": 9
+          }
+        ],
+        "food": [
+          {
+            "grade": "A",
+            "max_points": 0
+          },
+          {
+            "grade": "B",
+            "max_points": 2
+          },
+          {
+            "grade": "C",
+            "max_points": 10
+          },
+          {
+            "grade": "D",
+            "max_points": 18
+          }
+        ]
+      }
+    },
+    {
+      "id": "high_in",
+      "rationale_sources": [],
+      "threshold_sources": [
+        "uk_fsa_front_of_pack"
+      ],
+      "thresholds": {
+        "drink": {
+          "fat_g": 8.75,
+          "salt_g": 0.75,
+          "sat_fat_g": 2.5,
+          "sugars_g": 11.25
+        },
+        "food": {
+          "fat_g": 17.5,
+          "salt_g": 1.5,
+          "sat_fat_g": 5.0,
+          "sugars_g": 22.5
+        }
+      }
+    },
+    {
+      "id": "allergens",
+      "rationale_sources": [],
+      "threshold_sources": [
+        "fssai_labelling_2020"
+      ],
+      "thresholds": {
+        "crustacean": {
+          "contains": [
+            "crustacean",
+            "crustaceans",
+            "shellfish",
+            "prawn",
+            "shrimp",
+            "crab",
+            "lobster",
+            "झींगा"
+          ],
+          "exclude": [],
+          "possible": []
+        },
+        "egg": {
+          "contains": [
+            "egg",
+            "egg white",
+            "egg yolk",
+            "albumin",
+            "albumen",
+            "mayonnaise",
+            "अंडा",
+            "अंडे",
+            "ins1105"
+          ],
+          "exclude": [
+            "eggplant"
+          ],
+          "possible": []
+        },
+        "fish": {
+          "contains": [
+            "fish",
+            "anchovy",
+            "tuna",
+            "sardine",
+            "fish sauce",
+            "fish oil",
+            "salmon",
+            "mackerel",
+            "मछली"
+          ],
+          "exclude": [],
+          "possible": []
+        },
+        "gluten": {
+          "contains": [
+            "gluten",
+            "ग्लूटेन",
+            "wheat",
+            "atta",
+            "maida",
+            "sooji",
+            "suji",
+            "semolina",
+            "rava",
+            "barley",
+            "rye",
+            "malt",
+            "malt extract",
+            "dalia",
+            "spelt",
+            "गेहूं",
+            "मैदा",
+            "rawa",
+            "vermicelli",
+            "semiya",
+            "couscous",
+            "आटा",
+            "सूजी",
+            "गहू"
+          ],
+          "exclude": [],
+          "possible": [
+            "oats",
+            "hing",
+            "asafoetida"
+          ]
+        },
+        "milk": {
+          "contains": [
+            "milk",
+            "milk solids",
+            "milk powder",
+            "whey",
+            "casein",
+            "caseinate",
+            "lactose",
+            "butter",
+            "ghee",
+            "cream",
+            "cheese",
+            "paneer",
+            "khoya",
+            "khoa",
+            "curd",
+            "dahi",
+            "yoghurt",
+            "yogurt",
+            "malai",
+            "buttermilk",
+            "chhena",
+            "दूध",
+            "घी",
+            "पनीर",
+            "दही",
+            "dairy whitener",
+            "mawa",
+            "lactitol",
+            "ins966",
+            "milk fat",
+            "butter oil",
+            "मक्खन",
+            "मलाई",
+            "खोया",
+            "दूध पावडर"
+          ],
+          "exclude": [
+            "coconut milk",
+            "almond milk",
+            "oat milk",
+            "cocoa butter",
+            "peanut butter",
+            "nut butter",
+            "shea butter",
+            "cream of tartar"
+          ],
+          "possible": []
+        },
+        "mustard": {
+          "contains": [
+            "mustard",
+            "rai",
+            "sarson",
+            "सरसों",
+            "राई"
+          ],
+          "exclude": [],
+          "possible": []
+        },
+        "peanut": {
+          "contains": [
+            "peanut",
+            "groundnut",
+            "arachis oil",
+            "moongphali",
+            "मूंगफली",
+            "शेंगदाणा"
+          ],
+          "exclude": [
+            "tree nut",
+            "cashew nut",
+            "pine nut",
+            "brazil nut",
+            "hazel nut",
+            "macadamia nut",
+            "pecan nut",
+            "mixed tree nut",
+            "pistachio nut",
+            "almond nut"
+          ],
+          "possible": [
+            "nuts",
+            "nut"
+          ]
+        },
+        "sesame": {
+          "contains": [
+            "sesame",
+            "til",
+            "gingelly",
+            "तिल",
+            "tahini"
+          ],
+          "exclude": [],
+          "possible": []
+        },
+        "soy": {
+          "contains": [
+            "soy",
+            "soya",
+            "soybean",
+            "soy lecithin",
+            "सोया",
+            "सोयाबीन",
+            "tofu"
+          ],
+          "exclude": [
+            "sunflower lecithin"
+          ],
+          "possible": [
+            "lecithin",
+            "ins322",
+            "vegetable protein"
+          ]
+        },
+        "sulphite": {
+          "contains": [
+            "sulphite",
+            "sulfite",
+            "sulphur dioxide",
+            "sulfur dioxide",
+            "so2",
+            "metabisulphite",
+            "metabisulfite",
+            "ins220",
+            "ins221",
+            "ins222",
+            "ins223",
+            "ins224",
+            "ins225",
+            "ins226",
+            "ins227",
+            "ins228"
+          ],
+          "exclude": [],
+          "possible": []
+        },
+        "tree_nut": {
+          "contains": [
+            "almond",
+            "badam",
+            "cashew",
+            "kaju",
+            "pistachio",
+            "pista",
+            "walnut",
+            "akhrot",
+            "tree nut",
+            "tree nuts",
+            "hazelnut",
+            "pecan",
+            "macadamia",
+            "cashewnut",
+            "cashew nut",
+            "chironji",
+            "charoli",
+            "chilgoza",
+            "pine nut",
+            "brazil nut",
+            "काजू",
+            "बादाम",
+            "पिस्ता",
+            "अखरोट"
+          ],
+          "exclude": [
+            "coconut",
+            "nutmeg"
+          ],
+          "possible": [
+            "nuts",
+            "nut",
+            "dry fruit",
+            "dry fruits"
+          ]
+        }
+      }
+    },
+    {
+      "id": "diet",
+      "rationale_sources": [],
+      "threshold_sources": [
+        "fssai_labelling_2020"
+      ],
+      "thresholds": {
+        "animal_other": [
+          "honey",
+          "beeswax",
+          "ins901",
+          "shellac",
+          "ins904",
+          "lanolin"
+        ],
+        "dairy": [
+          "milk",
+          "milk solids",
+          "milk powder",
+          "whey",
+          "casein",
+          "caseinate",
+          "lactose",
+          "butter",
+          "ghee",
+          "cream",
+          "cheese",
+          "paneer",
+          "khoya",
+          "khoa",
+          "curd",
+          "dahi",
+          "yoghurt",
+          "yogurt",
+          "malai",
+          "buttermilk",
+          "chhena",
+          "दूध",
+          "घी",
+          "पनीर",
+          "दही",
+          "मक्खन",
+          "मलाई",
+          "खोया",
+          "dairy whitener",
+          "mawa",
+          "lactitol",
+          "ins966",
+          "milk fat",
+          "butter oil",
+          "दूध पावडर"
+        ],
+        "egg": [
+          "egg",
+          "egg white",
+          "egg yolk",
+          "albumin",
+          "albumen",
+          "mayonnaise",
+          "अंडा",
+          "अंडे",
+          "ins1105"
+        ],
+        "jain_exclusions": [
+          "onion",
+          "garlic",
+          "potato",
+          "carrot",
+          "beetroot",
+          "radish",
+          "ginger",
+          "yam",
+          "sweet potato",
+          "arbi",
+          "प्याज",
+          "लहसुन",
+          "onion powder",
+          "garlic powder",
+          "aloo",
+          "kanda",
+          "pyaz",
+          "pyaaz",
+          "lehsun",
+          "lahsun",
+          "adrak",
+          "gajar",
+          "shallot",
+          "leek",
+          "spring onion",
+          "mushroom",
+          "yeast",
+          "आलू",
+          "अदरक",
+          "गाजर",
+          "कांदा",
+          "लसूण",
+          "मूली",
+          "शकरकंद"
+        ],
+        "non_veg": [
+          "chicken",
+          "mutton",
+          "beef",
+          "pork",
+          "lamb",
+          "meat",
+          "meat extract",
+          "fish",
+          "anchovy",
+          "prawn",
+          "shrimp",
+          "crab",
+          "gelatin",
+          "gelatine",
+          "lard",
+          "tallow",
+          "rennet",
+          "isinglass",
+          "carmine",
+          "cochineal",
+          "ins120",
+          "bone",
+          "fish oil",
+          "fish sauce",
+          "tuna",
+          "salmon",
+          "mackerel",
+          "sardine",
+          "squid",
+          "octopus",
+          "lobster",
+          "oyster sauce",
+          "cod liver oil",
+          "collagen",
+          "seafood",
+          "keema",
+          "animal fat",
+          "bacon",
+          "ham",
+          "turkey",
+          "beef extract",
+          "ins441",
+          "ins542",
+          "ins920",
+          "चिकन",
+          "मछली",
+          "मांस",
+          "झींगा"
+        ]
+      }
+    },
+    {
+      "id": "claims",
+      "rationale_sources": [],
+      "threshold_sources": [
+        "fssai_claims_2018"
+      ],
+      "thresholds": {
+        "high_protein_min_energy_pct": 20,
+        "low_fat_max_g": {
+          "drink": 1.5,
+          "food": 3.0
+        },
+        "low_sodium_max_mg": 120,
+        "low_sugar_max_g": {
+          "drink": 2.5,
+          "food": 5.0
+        },
+        "refined_sugar_terms": [
+          "sugar",
+          "cane sugar",
+          "refined sugar",
+          "sucrose",
+          "brown sugar",
+          "icing sugar"
+        ],
+        "source_of_protein_min_energy_pct": 10,
+        "sugar_free_max_g": 0.5,
+        "unrefined_sugar_excludes": [
+          "coconut sugar",
+          "palm sugar",
+          "date sugar",
+          "jaggery",
+          "gur",
+          "khandsari",
+          "गुड़"
+        ]
+      }
+    },
+    {
+      "id": "blood_sugar",
+      "rationale_sources": [
+        "icmr_nin_2024"
+      ],
+      "threshold_sources": [
+        "uk_fsa_front_of_pack",
+        "fssai_claims_2018",
+        "uk_sdil"
+      ],
+      "thresholds": {
+        "applies_to": [
+          "diabetes",
+          "prediabetes",
+          "pcos"
+        ],
+        "avoid_sugars_g": {
+          "drink": 5.0,
+          "food": 22.5
+        },
+        "cardio_high_in": [
+          "salt",
+          "sat_fat"
+        ],
+        "caution_carbs_per_serving_g": 30,
+        "caution_sugars_g": {
+          "drink": 2.5,
+          "food": 5.0
+        }
+      }
+    },
+    {
+      "id": "hypertension",
+      "rationale_sources": [
+        "icmr_nin_2024"
+      ],
+      "threshold_sources": [
+        "uk_fsa_front_of_pack"
+      ],
+      "thresholds": {
+        "applies_to": [
+          "hypertension"
+        ],
+        "avoid_salt_g": 1.5,
+        "caution_salt_g": 0.3
+      }
+    },
+    {
+      "id": "weight_loss",
+      "rationale_sources": [
+        "icmr_nin_2024"
+      ],
+      "threshold_sources": [
+        "smartnutri_working_values",
+        "nutriscore_2023"
+      ],
+      "thresholds": {
+        "applies_to": [
+          "weight_loss"
+        ],
+        "caution_energy_kcal": 400,
+        "caution_nutriscore": [
+          "D",
+          "E"
+        ],
+        "good_protein_g_per_100kcal": 5
+      }
+    },
+    {
+      "id": "child",
+      "rationale_sources": [],
+      "threshold_sources": [
+        "nhs_child_sugar",
+        "smartnutri_working_values"
+      ],
+      "thresholds": {
+        "avoid_pct_of_limit": 50,
+        "caution_pct_of_limit": 25,
+        "free_sugar_daily_limit_g": {
+          "11": 30,
+          "2": 19,
+          "7": 24
+        },
+        "max_age": 13
+      }
+    },
+    {
+      "id": "infant",
+      "rationale_sources": [
+        "who_infant"
+      ],
+      "threshold_sources": [
+        "smartnutri_working_values"
+      ],
+      "thresholds": {
+        "avoid_salt_g": 0.3,
+        "avoid_sugars_g": 5.0,
+        "max_age": 2
+      }
+    },
+    {
+      "id": "custom_alerts",
+      "rationale_sources": null,
+      "threshold_sources": null,
+      "thresholds": {
+        "added_sugar": {
+          "exclude": [],
+          "terms": [
+            "sugar",
+            "cane sugar",
+            "brown sugar",
+            "jaggery",
+            "gur",
+            "khand",
+            "mishri",
+            "honey",
+            "चीनी",
+            "गुड़",
+            "शहद",
+            "मध",
+            "साखर",
+            "गूळ",
+            "शक्कर",
+            "खांड",
+            "मिश्री",
+            "बूरा",
+            "khandsari",
+            "misri",
+            "agave",
+            "coconut sugar",
+            "palm sugar",
+            "rice syrup",
+            "apple juice concentrate",
+            "fruit juice concentrate",
+            "juice concentrate",
+            "maltodextrin",
+            "dextrose",
+            "glucose",
+            "glucose syrup",
+            "liquid glucose",
+            "invert sugar",
+            "invert syrup",
+            "fructose",
+            "high fructose corn syrup",
+            "corn syrup",
+            "sucrose",
+            "malt extract",
+            "maltose",
+            "date syrup",
+            "fruit juice concentrate",
+            "golden syrup",
+            "molasses"
+          ]
+        },
+        "artificial_sweetener": {
+          "exclude": [],
+          "terms": [
+            "aspartame",
+            "ins951",
+            "sucralose",
+            "ins955",
+            "acesulfame potassium",
+            "acesulfame k",
+            "ins950",
+            "saccharin",
+            "ins954",
+            "neotame",
+            "ins961",
+            "artificial sweetener",
+            "artificial sweetening agent",
+            "non nutritive sweetener",
+            "ace k",
+            "acesulfame",
+            "एस्पार्टेम",
+            "सुक्रालोज",
+            "सैकरीन",
+            "सैक्रीन",
+            "एसेसल्फेम",
+            "कृत्रिम स्वीटनर",
+            "कृत्रिम मिठास",
+            "कृत्रिम गोडवा"
+          ]
+        },
+        "maida": {
+          "exclude": [],
+          "terms": [
+            "maida",
+            "refined wheat flour",
+            "refined flour",
+            "मैदा",
+            "all purpose flour",
+            "white flour",
+            "मैद्याचे पीठ"
+          ]
+        },
+        "msg": {
+          "exclude": [],
+          "terms": [
+            "monosodium glutamate",
+            "ins621",
+            "msg",
+            "ajinomoto",
+            "aji no moto",
+            "अजीनोमोटो",
+            "अजिनोमोटो",
+            "monosodium l glutamate",
+            "मोनोसोडियम ग्लूटामेट"
+          ]
+        },
+        "palm_oil": {
+          "exclude": [
+            "palm sugar",
+            "palm jaggery",
+            "palm candy",
+            "palmyra",
+            "पाम शुगर",
+            "पाम गुड़",
+            "palm heart",
+            "palm hearts",
+            "hearts of palm",
+            "heart of palm"
+          ],
+          "terms": [
+            "palm oil",
+            "palmolein",
+            "palm olein",
+            "palm kernel oil",
+            "vegetable oil (palm)",
+            "edible vegetable oil (palm)",
+            "palm",
+            "palm fat",
+            "पाम",
+            "पाम तेल",
+            "पाम ऑयल",
+            "पामोलिन"
+          ]
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "nutriscore_2023",
+      "title": "Nutri-Score 2023 update (Santé publique France)",
+      "url": "https://www.santepubliquefrance.fr/nutri-score-2023-update",
+      "url_verified": false
+    },
+    {
+      "id": "uk_fsa_front_of_pack",
+      "title": "UK FSA front-of-pack guidance (high thresholds)",
+      "url": "https://www.food.gov.uk/safety-hygiene/check-the-label",
+      "url_verified": false
+    },
+    {
+      "id": "fssai_claims_2018",
+      "title": "FSSAI (Advertising & Claims) Regulations 2018",
+      "url": "https://www.fssai.gov.in/upload/uploadfiles/files/Compendium_Advertising_Claims_Regulations_14_12_2022.pdf",
+      "url_verified": false
+    },
+    {
+      "id": "fssai_labelling_2020",
+      "title": "FSSAI Labelling & Display Regulations 2020",
+      "url": "https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php",
+      "url_verified": false
+    },
+    {
+      "id": "icmr_nin_2024",
+      "title": "ICMR-NIN Dietary Guidelines for Indians 2024",
+      "url": "https://www.nin.res.in/dietaryguidelines/",
+      "url_verified": false
+    },
+    {
+      "id": "nhs_child_sugar",
+      "title": "NHS: sugar limits for children",
+      "url": "https://www.nhs.uk/live-well/eat-well/food-types/how-does-sugar-in-our-diet-affect-our-health/",
+      "url_verified": false
+    },
+    {
+      "id": "who_infant",
+      "title": "WHO guidance: no added sugar or salt under 2",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/healthy-diet",
+      "url_verified": false
+    },
+    {
+      "id": "uk_sdil",
+      "title": "UK Soft Drinks Industry Levy (5 g sugar per 100 ml)",
+      "url": "https://www.gov.uk/guidance/soft-drinks-industry-levy",
+      "url_verified": false
+    },
+    {
+      "id": "smartnutri_working_values",
+      "title": "SmartNutri working values, pending clinician review",
+      "url": null,
+      "url_verified": false
+    }
+  ],
+  "version": "b3b3e5e11d94"
+}
