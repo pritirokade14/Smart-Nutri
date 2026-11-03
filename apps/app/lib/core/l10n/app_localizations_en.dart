@@ -238,6 +238,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'The page you\'re looking for doesn\'t exist or has moved.';
 
   @override
+  String get commonOpenSettings => 'Open settings';
+
+  @override
   String get commonRetry => 'Try again';
 
   @override
@@ -1805,7 +1808,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTitle => 'Search products';
 
   @override
-  String get searchTooShort => 'Type at least 2 letters.';
+  String get searchTooShort => 'Type at least 3 letters.';
 
   @override
   String get settingsAboutTitle => 'About SmartNutri';

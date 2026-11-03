@@ -514,6 +514,12 @@ abstract class AppLocalizations {
   /// **'The page you\'re looking for doesn\'t exist or has moved.'**
   String get commonNotFoundBody;
 
+  /// No description provided for @commonOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get commonOpenSettings;
+
   /// No description provided for @commonRetry.
   ///
   /// In en, this message translates to:
@@ -3199,7 +3205,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchTooShort.
   ///
   /// In en, this message translates to:
-  /// **'Type at least 2 letters.'**
+  /// **'Type at least 3 letters.'**
   String get searchTooShort;
 
   /// No description provided for @settingsAboutTitle.

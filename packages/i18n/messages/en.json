@@ -12,7 +12,8 @@
     "not_found_body": "The page you're looking for doesn't exist or has moved.",
     "error_title": "Something went wrong",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "open_settings": "Open settings"
   },
   "auth": {
     "title": "Sign in",
@@ -620,7 +621,7 @@
   "search": {
     "title": "Search products",
     "placeholder": "Search by name or brand",
-    "too_short": "Type at least 2 letters.",
+    "too_short": "Type at least 3 letters.",
     "no_results": "No products found.",
     "source": {
       "ours": "SmartNutri",

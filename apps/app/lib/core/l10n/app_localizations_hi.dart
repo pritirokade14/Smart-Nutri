@@ -241,6 +241,9 @@ class AppLocalizationsHi extends AppLocalizations {
       'आप जो पेज ढूँढ रहे हैं, वह मौजूद नहीं है या कहीं और चला गया है।';
 
   @override
+  String get commonOpenSettings => 'सेटिंग्स खोलें';
+
+  @override
   String get commonRetry => 'फिर से कोशिश करें';
 
   @override
@@ -1812,7 +1815,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get searchTitle => 'उत्पाद खोजें';
 
   @override
-  String get searchTooShort => 'कम से कम 2 अक्षर लिखें।';
+  String get searchTooShort => 'कम से कम 3 अक्षर लिखें।';
 
   @override
   String get settingsAboutTitle => 'SmartNutri के बारे में';

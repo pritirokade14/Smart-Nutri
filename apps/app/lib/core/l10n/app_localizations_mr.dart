@@ -240,6 +240,9 @@ class AppLocalizationsMr extends AppLocalizations {
       'तुम्ही शोधत असलेले पान अस्तित्वात नाही किंवा दुसरीकडे हलवले आहे.';
 
   @override
+  String get commonOpenSettings => 'सेटिंग्ज उघडा';
+
+  @override
   String get commonRetry => 'पुन्हा प्रयत्न करा';
 
   @override
@@ -1809,7 +1812,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get searchTitle => 'उत्पादने शोधा';
 
   @override
-  String get searchTooShort => 'किमान 2 अक्षरे लिहा.';
+  String get searchTooShort => 'किमान 3 अक्षरे लिहा.';
 
   @override
   String get settingsAboutTitle => 'SmartNutri बद्दल';
