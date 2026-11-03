@@ -19,6 +19,8 @@ ImageMime = Literal["image/jpeg", "image/png", "image/webp"]
 MAX_EDGE_PX = 1600
 # Decompression-bomb guard: a real label photo is far below this (a 50 MP phone ~ 50M px).
 MAX_PIXELS = 60_000_000
+# PNG/WebP decode at full size (no draft()), so they get a much lower cap.
+MAX_PIXELS_NON_JPEG = 25_000_000
 JPEG_QUALITY = 85
 _FORMATS = ("JPEG", "PNG", "WEBP")
 
@@ -44,7 +46,8 @@ def prepare_for_extraction(data: bytes) -> bytes:
     try:
         with Image.open(io.BytesIO(data), formats=_FORMATS) as img:
             width, height = img.size
-            if width * height > MAX_PIXELS:
+            max_px = MAX_PIXELS if img.format == "JPEG" else MAX_PIXELS_NON_JPEG
+            if width * height > max_px:
                 raise InvalidImage("too many pixels")
             img.draft("RGB", (MAX_EDGE_PX, MAX_EDGE_PX))  # JPEG: decode at reduced scale
             img.load()

@@ -100,5 +100,28 @@ def test_pixel_bomb_rejected(monkeypatch):
     from app.features.scans import images
 
     monkeypatch.setattr(images, "MAX_PIXELS", 100)
+    monkeypatch.setattr(images, "MAX_PIXELS_NON_JPEG", 100)
+    for fmt in ("JPEG", "PNG"):
+        with pytest.raises(InvalidImage):
+            prepare_for_extraction(img_bytes(fmt, (20, 20)))
+
+
+def test_big_png_rejected_before_full_decode(monkeypatch):
+    # 1-bit 6000x5000 (30 MP) compresses to a few KB but would decode to a huge buffer.
+    buf = io.BytesIO()
+    Image.new("1", (6000, 5000)).save(buf, format="PNG")
+    data = buf.getvalue()
+
+    def boom(self, *a, **k):
+        raise AssertionError("decoded an oversized PNG")
+
+    monkeypatch.setattr(Image.Image, "load", boom)
     with pytest.raises(InvalidImage):
-        prepare_for_extraction(img_bytes("PNG", (20, 20)))
+        prepare_for_extraction(data)
+
+
+def test_jpeg_keeps_the_larger_pixel_limit():
+    from app.features.scans import images
+
+    assert images.MAX_PIXELS == 60_000_000
+    assert images.MAX_PIXELS_NON_JPEG == 25_000_000

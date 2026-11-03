@@ -686,3 +686,16 @@ async def test_barcode_held_by_another_accounts_pending_product(client, login, d
     assert a.json()["product_id"] not in b.text  # A's product id is not leaked
     rec = await _product(db_session, b.json()["product_id"])
     assert rec.created_by == B and rec.barcode is None
+
+
+# --- R15: product_creates rate limit ----------------------------------------------------------
+
+
+async def test_product_create_rate_limited_writes_no_row(app, auth_client, db_session):
+    app.state.settings.rate_limit_product_creates_per_day = 2
+    for i in range(2):
+        assert (await create(auth_client, name=f"Snack {i}")).status_code == 201
+    before = await _count_products(db_session)
+    r = await create(auth_client, name="Snack 3")
+    assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
+    assert await _count_products(db_session) == before

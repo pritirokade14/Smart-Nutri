@@ -408,7 +408,8 @@ async def test_corrupt_image_with_jpeg_magic(scan_app, auth_client, fake_llm_ok,
     r = await post_label(auth_client)
     assert r.status_code == 415
     assert r.json()["error"]["code"] == "unsupported_image"
-    assert fake_llm_ok.calls == 0 and await scan_limit_used(auth_client) == 0
+    # R15: an undecodable upload still costs one label scan (counted before decode).
+    assert fake_llm_ok.calls == 0 and await scan_limit_used(auth_client) == 1
 
 
 async def test_foreign_path_404(auth_client, fake_storage_jpeg, fake_llm_ok):
@@ -468,6 +469,60 @@ async def test_cache_hit_allowed_when_over_limit(
     # A is now at its limit, but the same photo again is free and still served.
     r = await post_label(auth_client)
     assert r.status_code == 200 and r.json()["cached"] is True
+
+
+async def _bucket_used(db_session, client, bucket: str) -> int:
+    from sqlalchemy import text
+
+    return int(
+        await db_session.scalar(
+            text(
+                "select coalesce(sum(count), 0) from rate_limit_counters "
+                "where key = :k and bucket = :b"
+            ),
+            {"k": f"acct:{client.account_id}", "b": bucket},
+        )
+    )
+
+
+async def test_cache_hit_not_counted_as_label_scan(
+    auth_client, fake_storage_jpeg, fake_llm_ok, scan_limit_used
+):
+    await post_label(auth_client)
+    await post_label(auth_client)
+    assert await scan_limit_used(auth_client) == 1
+
+
+async def test_upload_url_rate_limited(scan_app, auth_client, fake_storage_jpeg):
+    scan_app.state.settings.rate_limit_scan_uploads_per_day = 2
+    codes = [
+        (await auth_client.post("/v1/scans/upload-url", json={"ext": "jpg"})).status_code
+        for _ in range(3)
+    ]
+    assert codes == [200, 200, 429]
+    r = await auth_client.post("/v1/scans/upload-url", json={"ext": "jpg"})
+    assert r.json()["error"]["code"] == "rate_limited"
+    assert len(fake_storage_jpeg.signed) == 2
+
+
+async def test_upload_url_default_limit_is_60(scan_app):
+    assert scan_app.state.settings.rate_limit_scan_uploads_per_day == 60
+    assert scan_app.state.settings.rate_limit_product_creates_per_day == 50
+    assert scan_app.state.settings.rate_limit_label_requests_per_day == 200
+
+
+async def test_label_requests_limit_blocks_before_download(
+    scan_app, auth_client, fake_storage_jpeg, fake_llm_ok
+):
+    scan_app.state.settings.rate_limit_label_requests_per_day = 2
+    assert (await post_label(auth_client)).status_code == 200
+    assert (await post_label(auth_client)).status_code == 200  # cache hit still counts
+    downloads = len(fake_storage_jpeg.downloads)
+    calls = fake_llm_ok.calls
+    r = await post_label(auth_client)
+    assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
+    assert len(fake_storage_jpeg.downloads) == downloads
+    assert fake_llm_ok.calls == calls
 
 
 async def test_consume_refuses_to_commit_staged_writes(db_session, scan_app):

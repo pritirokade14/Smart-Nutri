@@ -209,12 +209,13 @@ async def create_label_scan(
     draft = await _cached_draft(session, image_sha256, prompt_version)
     cached = draft is not None
     if draft is None:
+        # Count before decode (R15): undecodable uploads cost a scan too. Nothing is staged
+        # yet, so the limiter's commit only persists the counter.
+        await consume(session, settings, account_id=account_id, bucket="label_scans")
         try:
             prepared = await anyio.to_thread.run_sync(prepare_for_extraction, data)
         except InvalidImage:
             raise ApiError("unsupported_image", 415) from None
-        # Nothing is staged yet, so the limiter's commit only persists the counter.
-        await consume(session, settings, account_id=account_id, bucket="label_scans")
         model = settings.callmissed_extraction_model
         logger.info(
             "label_extraction cached=false prompt_version=%s model=%s", prompt_version, model

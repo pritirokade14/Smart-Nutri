@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_app_settings
 from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
+from app.core.ratelimit import limit
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
@@ -37,6 +38,7 @@ _LABEL_RESPONSES = {
     operation_id="scans_create_upload_url",
     response_model=UploadUrlOut,
     responses={**ERROR_RESPONSES, **_STORAGE_503},
+    dependencies=[Depends(limit("scan_uploads"))],  # first: it commits the session
 )
 async def scans_create_upload_url(
     body: UploadUrlIn,
@@ -57,6 +59,7 @@ async def scans_create_upload_url(
     operation_id="scans_create_label",
     response_model=ScanDraftOut,
     responses=_LABEL_RESPONSES,
+    dependencies=[Depends(limit("label_requests"))],  # first: it commits the session
 )
 async def scans_create_label(
     body: LabelScanIn,

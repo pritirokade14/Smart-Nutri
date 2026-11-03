@@ -75,6 +75,7 @@ async def products_get_by_barcode(
         **ERROR_RESPONSES,
         409: {"model": ErrorEnvelope, "description": "A product with this barcode exists"},
     },
+    dependencies=[Depends(limit("product_creates"))],  # first: it commits the session
 )
 async def products_create(
     body: ProductCreate,

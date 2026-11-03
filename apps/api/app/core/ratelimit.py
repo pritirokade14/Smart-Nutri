@@ -22,6 +22,9 @@ from app.db.session import get_session
 # bucket -> (window, settings attribute holding the limit)
 BUCKETS: dict[str, tuple[str, str]] = {
     "label_scans": ("day", "rate_limit_label_scans_per_day"),
+    "scan_uploads": ("day", "rate_limit_scan_uploads_per_day"),
+    "label_requests": ("day", "rate_limit_label_requests_per_day"),
+    "product_creates": ("day", "rate_limit_product_creates_per_day"),
     "voice": ("day", "rate_limit_voice_per_day"),
     "analyze": ("hour", "rate_limit_analyze_per_hour"),
     "public": ("minute", "rate_limit_public_per_minute"),
