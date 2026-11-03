@@ -31,8 +31,7 @@ function setup(
   render(
     <NextIntlClientProvider locale="en" messages={messages}>
       <DraftForm
-        draft={draft}
-        scanId={draft ? SCAN_ID : null}
+        scan={draft ? { scanId: SCAN_ID, draft } : null}
         barcode={barcode}
         onSave={onSave}
       />
@@ -266,6 +265,56 @@ describe("DraftForm: forced choices", () => {
       within(row("sodium_mg")).getByTestId("sodium-unit").textContent,
     ).toBe(c.sodium_unit_option.g);
     expect(save()).toHaveProperty("disabled", false);
+  });
+
+  it("sodium unit: switching the shown column clears the picked unit (R24)", async () => {
+    setup("unit_unconfirmed_sodium_per_serving");
+    await user().click(screen.getByRole("radio", { name: "g" }));
+    expect(screen.getByRole("radio", { name: "g" })).toHaveProperty(
+      "checked",
+      true,
+    );
+    await user().click(basisRadio("per_serving"));
+    await user().click(confirmBox("serving_size_g"));
+    expect(screen.getByRole("radio", { name: "g" })).toHaveProperty(
+      "checked",
+      false,
+    );
+    expect(screen.getByRole("radio", { name: "mg" })).toHaveProperty(
+      "checked",
+      false,
+    );
+    expect(save()).toHaveProperty("disabled", true);
+    await user().click(screen.getByRole("radio", { name: "mg" }));
+    expect(save()).toHaveProperty("disabled", false);
+  });
+
+  it("confirmed = ticked or changed: edit then revert is unconfirmed (R24)", async () => {
+    const { onSave, draft } = setup("upper_bound_protein_per_100g");
+    const printed = String(draft?.per_100g?.protein_g);
+    await user().clear(input("protein_g"));
+    await user().type(input("protein_g"), "0.5");
+    await user().clear(input("protein_g"));
+    await user().type(input("protein_g"), printed);
+    const body = await saved(onSave);
+    expect(body.confirmed_fields).toEqual([]);
+  });
+
+  it("serving edited back to the draft's value is unconfirmed (R24)", async () => {
+    const { onSave, draft } = setup("upper_bound_protein_per_serving");
+    await user().clear(input("serving_size_g"));
+    await user().type(input("serving_size_g"), "25");
+    await user().clear(input("serving_size_g"));
+    await user().type(input("serving_size_g"), String(draft?.serving_size_g));
+    const body = await saved(onSave);
+    expect(body.confirmed_fields).not.toContain("serving_size_g");
+  });
+
+  it("no confirm boxes until a basis is chosen (R24)", async () => {
+    setup("basis_mismatch_both_columns");
+    expect(screen.queryAllByTestId(/^confirm-/)).toHaveLength(0);
+    await user().click(basisRadio("per_100g"));
+    expect(screen.queryAllByTestId(/^confirm-/).length).toBeGreaterThan(0);
   });
 
   it("sodium unit: a blank sodium needs no pick", async () => {

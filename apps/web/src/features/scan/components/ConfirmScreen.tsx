@@ -160,8 +160,14 @@ function DraftStep({
           </section>
         ) : null}
         <DraftForm
-          draft={scanId !== null ? (draft.data?.scan.draft ?? null) : null}
-          scanId={scanId !== null ? (draft.data?.scan.scan_id ?? null) : null}
+          scan={
+            scanId !== null && draft.data
+              ? {
+                  scanId: draft.data.scan.scan_id,
+                  draft: draft.data.scan.draft,
+                }
+              : null
+          }
           barcode={code}
           busy={save.isPending}
           serverError={fieldErrors(error)}

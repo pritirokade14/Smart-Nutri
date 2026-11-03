@@ -153,25 +153,25 @@ function needsClearAck(original: string | null | undefined, now: string) {
 }
 
 export function DraftForm({
-  draft,
+  scan,
   onSave,
-  scanId = null,
   barcode = null,
   busy = false,
   serverError = null,
 }: {
-  draft: ProductDraft | null;
+  /** The scan and its draft; null for manual entry (R24: one prop, so a draft is never sent as manual entry). */
+  scan: { scanId: string; draft: ProductDraft } | null;
   onSave(v: ProductCreate): void;
-  /** The scan this draft came from; null for manual entry. */
-  scanId?: string | null;
   barcode?: string | null;
   busy?: boolean;
   serverError?: ServerFieldError | null;
 }) {
   const t = useTranslations();
   const uid = useId();
+  const draft = scan?.draft ?? null;
+  const scanId = scan?.scanId ?? null;
   const hints = useMemo(() => hintsOf(draft), [draft]);
-  const isScan = draft !== null && scanId !== null;
+  const isScan = scan !== null;
   const warnings = draft?.warnings ?? [];
 
   const [name, setName] = useState(draft?.name ?? "");
@@ -183,10 +183,9 @@ export function DraftForm({
   const [serving, setServing] = useState<NumberInput>(
     draft?.serving_size_g ?? null,
   );
-  // Ticks and edits, keyed by the printed column whose value they confirm
+  // Ticks, keyed by the printed column whose value they confirm
   // ("per_100g.protein_g"), or "serving_size_g" for the serving size.
   const [ticked, setTicked] = useState<ReadonlySet<string>>(() => new Set());
-  const [edited, setEdited] = useState<ReadonlySet<string>>(() => new Set());
   const nextId = useRef(0);
   const [ingredients, setIngredients] = useState<Item[]>(() =>
     (draft?.ingredients ?? []).map((text) => ({ id: nextId.current++, text })),
@@ -203,18 +202,29 @@ export function DraftForm({
   const shownBasis: Basis = basis || hints.fallback;
   const source = hints.source[shownBasis];
   const values = columns[source];
-  const hint = isScan ? hints.column[shownBasis] : null;
+  // R24: no confirm boxes (and no confirmations) until a basis is chosen.
+  const hint = isScan && basis !== "" ? hints.column[basis] : null;
   const sharedShown = isScan && (hints.column[source]?.shared ?? false);
   const boxes = new Set<ConfirmableField>(hint?.confirm_fields ?? []);
   const keyOf = (f: ConfirmableField) =>
     f === "serving_size_g" ? f : `${source}.${f}`;
+  // R24: confirmed = ticked, or the current value differs from the value the
+  // draft shows. Editing back to the draft's value confirms nothing.
+  const changed = (f: ConfirmableField): boolean => {
+    if (f === "serving_size_g")
+      return parseNumberInput(serving) !== (draft?.serving_size_g ?? null);
+    // Unparseable text is undefined, so it differs from any printed value.
+    return (
+      parseNumberInput(values[f]) !== parseNumberInput(hints.values[source][f])
+    );
+  };
   const confirmedFields = isScan
     ? CONFIRMABLE_FIELDS.filter(
         (f) =>
-          (boxes.has(f) && (ticked.has(keyOf(f)) || edited.has(keyOf(f)))) ||
-          // A serving size the user typed or edited is theirs (R18/R21),
+          (boxes.has(f) && (ticked.has(keyOf(f)) || changed(f))) ||
+          // A serving size the user typed or changed is theirs (R18/R21),
           // even where the draft had none and the hint lists no box for it.
-          (f === "serving_size_g" && edited.has(f)),
+          (f === "serving_size_g" && changed(f)),
       )
     : [];
 
@@ -285,16 +295,11 @@ export function DraftForm({
       return next;
     });
 
-  const markEdited = (key: string) =>
-    setEdited((prev) => (prev.has(key) ? prev : new Set(prev).add(key)));
-
   const editNutrient = (f: NutrientField, text: string) => {
     setColumns((prev) => ({
       ...prev,
       [source]: { ...prev[source], [f]: text },
     }));
-    // Editing a value is an explicit confirmation of it.
-    markEdited(`${source}.${f}`);
   };
 
   const fieldError = (field: string): ReactNode =>
@@ -424,7 +429,10 @@ export function DraftForm({
                   value={b}
                   checked={basis === b}
                   disabled={off}
-                  onChange={() => setBasis(b)}
+                  onChange={() => {
+                    if (b !== basis) setSodiumUnit(""); // R24: new column, new unit
+                    setBasis(b);
+                  }}
                 />
                 {t(`confirm.basis_option.${b}`)}
               </label>
@@ -457,8 +465,6 @@ export function DraftForm({
           }
           onChange={(e) => {
             setServing(e.target.value);
-            // Typing or editing the serving size confirms it (R18/R21).
-            if (isScan) markEdited("serving_size_g");
           }}
           className={inputClass}
         />

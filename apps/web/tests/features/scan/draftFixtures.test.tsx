@@ -10,7 +10,6 @@ import {
   draftFile,
   expectedDrafts,
   SCAN_ID,
-  type ScriptedSave,
 } from "../../support/drafts";
 
 /**
@@ -19,31 +18,15 @@ import {
  * real form, and the body the form would POST must equal the expected body
  * exactly (an edit confirms, as the fixtures now record).
  *
- * A save marked `client_blocks: true` (serving_required without a confirmed
- * serving) or one that needs a missing choice (`body.basis`, `body.category`,
- * `body.sodium_unit`) keeps save disabled and sends nothing. Every other
- * scripted save, including 422 `implausible_value`, is sent exactly as expected.
+ * Blocked vs sent is decided ONLY by `client_blocks` (R24): a marked save keeps
+ * save disabled and sends nothing; every other scripted save is sent exactly
+ * as expected, including ones the server would reject with a 422.
  */
 
 const c = messages.confirm;
 const expected = expectedDrafts();
-const CHOICE_FIELDS = new Set([
-  "body.basis",
-  "body.category",
-  "body.sodium_unit",
-]);
 
 afterEach(cleanup);
-
-function blockedBy(save: ScriptedSave): string | null {
-  if (
-    save.result.status === 422 &&
-    save.result.error.fields.some((f) => CHOICE_FIELDS.has(f))
-  )
-    return "missing choice";
-  if (save.client_blocks === true) return "serving not confirmed";
-  return null;
-}
 
 const row = (field: string) => screen.getByTestId(`row-${field}`);
 const saveButton = () => screen.getByRole("button", { name: c.save });
@@ -69,7 +52,7 @@ describe("shared confirm-screen fixtures (packages/test-fixtures/drafts)", () =>
         const draft = draftFile(kase.draft);
         render(
           <NextIntlClientProvider locale="en" messages={messages}>
-            <DraftForm draft={draft} scanId={SCAN_ID} onSave={vi.fn()} />
+            <DraftForm scan={{ scanId: SCAN_ID, draft }} onSave={vi.fn()} />
           </NextIntlClientProvider>,
         );
         const hints = draft.confirm;
@@ -111,7 +94,7 @@ describe("shared confirm-screen fixtures (packages/test-fixtures/drafts)", () =>
           const onSave = vi.fn<(v: ProductCreate) => void>();
           render(
             <NextIntlClientProvider locale="en" messages={messages}>
-              <DraftForm draft={draft} scanId={SCAN_ID} onSave={onSave} />
+              <DraftForm scan={{ scanId: SCAN_ID, draft }} onSave={onSave} />
             </NextIntlClientProvider>,
           );
           const user = userEvent.setup();
@@ -166,8 +149,7 @@ describe("shared confirm-screen fixtures (packages/test-fixtures/drafts)", () =>
             await user.click(box);
           }
 
-          const reason = blockedBy(save);
-          if (reason) {
+          if (save.client_blocks === true) {
             expect(saveButton()).toHaveProperty("disabled", true);
             await user.click(saveButton());
             expect(onSave).not.toHaveBeenCalled();
