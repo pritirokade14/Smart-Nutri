@@ -70,7 +70,14 @@ class _NumInput {
   final String initialText;
   final TextEditingController controller;
 
-  bool get edited => controller.text != initialText;
+  /// R24: the value differs from the draft's. Typing the same number, or
+  /// editing and then changing back, is not an edit (nothing is confirmed).
+  bool get edited {
+    if (controller.text == initialText) return false;
+    final parsed = parseNumber(controller.text);
+    return !(parsed.ok && parsed.value == original);
+  }
+
   bool get valid => !edited || parseNumber(controller.text).ok;
   num? get value => edited ? parseNumber(controller.text).value : original;
   bool get isBlank => controller.text.trim().isEmpty;
@@ -685,7 +692,12 @@ class DraftFormState extends State<DraftForm> {
               keyPrefix: 'basis',
               requiredChoice: true,
               selected: _basis,
-              onSelected: (v) => _basis = v,
+              onSelected: (v) {
+                // The picked unit belongs to the column it was picked for.
+                final before = _source;
+                _basis = v;
+                if (_source != before) _sodiumUnit = null;
+              },
               // Only the offered bases; a basis not offered is hidden.
               options: [for (final b in _offered) (b, b, _basisLabel(l10n, b))],
             ),

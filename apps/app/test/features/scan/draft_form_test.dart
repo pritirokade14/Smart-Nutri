@@ -359,6 +359,73 @@ void main() {
     expect(_confirmed(h.last), isEmpty);
   });
 
+  testWidgets('R24: a picked sodium unit is cleared when the shown column '
+      'changes; save is blocked until it is picked again', (t) async {
+    final h = await _pump(
+      t,
+      draftFixture('unit_unconfirmed_sodium_per_serving'),
+    );
+    await _tap(t, 'sodium_unit:g');
+    expect(_saveEnabled(t), isTrue);
+    await _tap(t, 'basis:per_serving');
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('sodium_unit_suffix')),
+        matching: find.text(en.confirmSodiumUnitOptionG),
+      ),
+      findsNothing,
+    );
+    await _tap(t, 'confirm:serving_size_g');
+    expect(_saveEnabled(t), isFalse, reason: 'unit is unset again');
+    await _tap(t, 'sodium_unit:mg');
+    expect(_saveEnabled(t), isTrue);
+    await _save(t);
+    expect(h.last.sodiumUnit, ProductCreateSodiumUnit.mg);
+  });
+
+  group('R24 confirmed = ticked or changed', () {
+    testWidgets('edit then revert a confirm field: unconfirmed', (t) async {
+      final h = await _pump(t, draftFixture('upper_bound_protein_per_100g'));
+      await _enter(t, 'protein_g', '0.4');
+      expect(_boxValue(t, 'protein_g'), isTrue);
+      await _enter(t, 'protein_g', '0.5');
+      expect(_boxValue(t, 'protein_g'), isFalse);
+      await _save(t);
+      expect(_confirmed(h.last), isEmpty);
+    });
+
+    testWidgets('typing the same number confirms nothing', (t) async {
+      final h = await _pump(t, draftFixture('upper_bound_protein_per_100g'));
+      await _enter(t, 'protein_g', '0.50');
+      expect(_boxValue(t, 'protein_g'), isFalse);
+      await _save(t);
+      expect(_confirmed(h.last), isEmpty);
+    });
+
+    testWidgets('serving_size_g: edit then revert is unconfirmed and blocks '
+        'save when required', (t) async {
+      final h = await _pump(t, draftFixture('derived_from_serving'));
+      await _enter(t, 'serving_size_g', '25');
+      expect(_saveEnabled(t), isTrue);
+      await _enter(t, 'serving_size_g', '30');
+      expect(_boxValue(t, 'serving_size_g'), isFalse);
+      expect(_saveEnabled(t), isFalse);
+      await _tap(t, 'confirm:serving_size_g');
+      await _save(t);
+      expect(_confirmed(h.last), ['serving_size_g']);
+    });
+  });
+
+  testWidgets('R24: no confirm boxes until a basis is chosen', (t) async {
+    await _pump(t, draftFixture('basis_mismatch_both_columns'));
+    expect(find.byType(CheckboxListTile), findsNothing);
+    await _tap(t, 'basis:per_serving');
+    expect(
+      find.byKey(const ValueKey('confirm:serving_size_g')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('sodium_unit_required from the other column: the picker shows '
       'and the picked unit sits beside the input', (t) async {
     final h = await _pump(

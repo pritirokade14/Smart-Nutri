@@ -36,9 +36,7 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
     // flow (ImagePicker.retrieveLostData).
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref
-          .read(labelScanControllerProvider.notifier)
-          .recoverLost(barcode: _code);
+      ref.read(labelScanControllerProvider.notifier).recoverLost();
     });
   }
 
@@ -60,7 +58,11 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
       if (next is LabelScanDrafted) {
         context.pushReplacement(
           '/scan/confirm',
-          extra: ConfirmArgs(scan: next.out, barcode: _code),
+          extra: ConfirmArgs(
+            scan: next.out,
+            // A recovered photo may be of another product (R24).
+            barcode: next.recovered ? null : _code,
+          ),
         );
       }
     });

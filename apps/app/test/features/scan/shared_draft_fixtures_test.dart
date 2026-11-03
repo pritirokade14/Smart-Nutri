@@ -61,7 +61,6 @@ void main() {
     for (final (i, save) in saves.indexed) {
       final actions = (save['actions']! as Map).cast<String, Object?>();
       final fixtureBody = (save['body']! as Map).cast<String, Object?>();
-      final result = (save['result']! as Map).cast<String, Object?>();
 
       testWidgets('$name #$i ${jsonEncode(actions)}', (t) async {
         t.view.physicalSize = const Size(1000, 12000);
@@ -70,16 +69,6 @@ void main() {
         final draft = draftFixture(name);
         final body = fixtureBody;
         final blocked = save['client_blocks'] == true;
-        // Not marked client_blocks, yet the form cannot send them: no basis or
-        // category chosen, or sodium present with no mg/g unit picked (the
-        // fixture records the server's 422 body.sodium_unit).
-        final errorFields =
-            ((result['error'] as Map?)?['fields'] as List?)?.cast<String>() ??
-            const <String>[];
-        final incomplete =
-            !body.containsKey('basis') ||
-            !body.containsKey('category') ||
-            errorFields.contains('body.sodium_unit');
         final sent = <ProductCreate>[];
         await t.pumpWidget(
           MaterialApp(
@@ -148,23 +137,13 @@ void main() {
           }
         }
 
+        // Blocked vs sent is decided ONLY by client_blocks (R24).
         final button = t.widget<FilledButton>(find.byKey(const Key('save')));
         expect(
           button.onPressed != null,
-          !(blocked || incomplete),
-          reason: blocked || incomplete
-              ? 'save must stay disabled'
-              : 'save must be enabled',
+          !blocked,
+          reason: blocked ? 'save must stay disabled' : 'save must be enabled',
         );
-
-        final state = t.state<DraftFormState>(find.byType(DraftForm));
-        if (incomplete) {
-          if (!body.containsKey('basis') || !body.containsKey('category')) {
-            expect(state.previewBody, isNull);
-          }
-          expect(sent, isEmpty);
-          return;
-        }
         if (blocked) {
           expect(sent, isEmpty, reason: 'a blocked save sends no body');
           return;

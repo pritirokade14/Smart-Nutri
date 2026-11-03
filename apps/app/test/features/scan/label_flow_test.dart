@@ -297,9 +297,31 @@ void main() {
         events: events,
         lostPhoto: () async => XFile.fromData(Uint8List.fromList([4, 5, 6])),
       );
-      expect(labels.scanBarcodes, ['8901063201089']);
+      // R24: a recovered photo can be of another product; no barcode.
+      expect(labels.scanBarcodes, [null]);
       expect(find.byType(ConfirmScreen), findsOneWidget);
       expect(events, contains('label_scan_started'));
+    });
+
+    testWidgets('R24: opened with ?barcode=B, a recovered photo is saved with '
+        'no barcode', (t) async {
+      final labels = FakeLabelRepository(
+        scan: () => scanOut(baseDraft()),
+        save: () => _savedProduct('p-9'),
+      );
+      await _pumpFlow(
+        t,
+        initial: '/scan/label?barcode=B',
+        labels: labels,
+        analysis: FakeAnalysisRepository(() => analyzeFixture('sf_biscuit')),
+        lostPhoto: () async => XFile.fromData(Uint8List.fromList([4, 5, 6])),
+      );
+      expect(labels.scanBarcodes, [null]);
+      expect(find.byType(ConfirmScreen), findsOneWidget);
+      await t.tap(find.byKey(const Key('save')));
+      await t.pumpAndSettle();
+      expect(labels.saved.single.scanId, 'scan-1');
+      expect(labels.saved.single.barcode, isNull);
     });
 
     testWidgets('no lost photo: the capture screen waits for the user', (

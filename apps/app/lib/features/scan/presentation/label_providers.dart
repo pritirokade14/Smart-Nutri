@@ -63,8 +63,12 @@ class LabelScanFailed extends LabelScanState {
 }
 
 class LabelScanDrafted extends LabelScanState {
-  const LabelScanDrafted(this.out);
+  const LabelScanDrafted(this.out, {this.recovered = false});
   final ScanDraftOut out;
+
+  /// The photo came from `retrieveLostData`, not from a capture the user just
+  /// made for this screen's barcode (R24).
+  final bool recovered;
 }
 
 class LabelScanController extends Notifier<LabelScanState> {
@@ -97,7 +101,10 @@ class LabelScanController extends Notifier<LabelScanState> {
   /// On capture-screen start: if Android killed the app while the camera was
   /// open, the photo it kept continues the flow. Platforms without lost data
   /// (or nothing lost) leave the screen idle.
-  Future<void> recoverLost({String? barcode}) async {
+  ///
+  /// R24: a recovered photo can be days old and of another product, so it is
+  /// scanned and confirmed with no barcode, whatever the screen was opened with.
+  Future<void> recoverLost() async {
     if (state is! LabelScanIdle) return;
     final XFile? photo;
     try {
@@ -110,13 +117,17 @@ class LabelScanController extends Notifier<LabelScanState> {
       return; // no lost-data support here
     }
     if (photo == null || !ref.mounted || state is! LabelScanIdle) return;
-    await _scan(photo, barcode: barcode);
+    await _scan(photo, recovered: true);
   }
 
   static bool _permissionDenied(PlatformException e) =>
       e.code == 'camera_access_denied';
 
-  Future<void> _scan(XFile photo, {String? barcode}) async {
+  Future<void> _scan(
+    XFile photo, {
+    String? barcode,
+    bool recovered = false,
+  }) async {
     final analytics = ref.read(analyticsProvider);
     unawaited(analytics.track('label_scan_started'));
     state = const LabelScanBusy(LabelPhase.uploading);
@@ -131,7 +142,7 @@ class LabelScanController extends Notifier<LabelScanState> {
             },
           );
       if (!ref.mounted) return;
-      state = LabelScanDrafted(out);
+      state = LabelScanDrafted(out, recovered: recovered);
     } on LabelFailure catch (f) {
       if (!ref.mounted) return;
       unawaited(analytics.track('label_scan_failed'));
