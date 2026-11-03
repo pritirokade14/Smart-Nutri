@@ -13,6 +13,7 @@ import {
 import { NutriScoreChip } from "@/components/ui/NutriScoreChip";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { OffAttribution } from "@/features/analysis/components/OffAttribution";
+import { PublicReportButton } from "@/features/reports/components/PublicReportButton";
 import type { PublicProductOut } from "../api/public-product";
 
 const OFF_IMAGE_PREFIX = "https://images.openfoodfacts.org/";
@@ -192,6 +193,10 @@ export function PublicProduct({
       <footer className="space-y-3">
         <DisclaimerFooter />
         {product.attribution ? <OffAttribution barcode={barcode} /> : null}
+        {/* F14: only our own catalogue can be reported (needs product_id). */}
+        {product.product_id ? (
+          <PublicReportButton productId={product.product_id} />
+        ) : null}
       </footer>
     </main>
   );
