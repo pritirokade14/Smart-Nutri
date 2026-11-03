@@ -9,6 +9,11 @@ ENV UV_COMPILE_BYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH"
 
+# ffmpeg: voice uploads are sniffed, measured and transcoded before STT (Plan 7).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN useradd --system --create-home --uid 10001 app
 WORKDIR /app
 
@@ -19,6 +24,10 @@ COPY alembic.ini ./
 COPY alembic ./alembic
 COPY app ./app
 COPY scripts ./scripts
+# Server-side strings (spoken fallback answers): packages/i18n/messages, passed as the named
+# build context `i18n` (docker build --build-context i18n=packages/i18n/messages apps/api).
+COPY --from=i18n *.json ./i18n/
+ENV I18N_MESSAGES_DIR=/app/i18n
 # Files stay root-owned and read-only for the app user (no runtime writes to /app).
 RUN uv sync --frozen --no-dev
 

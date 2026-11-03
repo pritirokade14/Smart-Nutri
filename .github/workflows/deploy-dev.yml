@@ -87,7 +87,7 @@ jobs:
       - run: gcloud auth configure-docker "$AR_HOST" --quiet
       - name: Build and push the API image
         run: |
-          docker build -t "$AR_REPO/api:${{ github.sha }}" apps/api
+          docker build --build-context i18n=packages/i18n/messages -t "$AR_REPO/api:${{ github.sha }}" apps/api
           docker push "$AR_REPO/api:${{ github.sha }}"
           echo "IMAGE=$(docker inspect --format '{{index .RepoDigests 0}}' "$AR_REPO/api:${{ github.sha }}")" >> "$GITHUB_ENV"
       - name: Deploy smartnutri-api-dev (no traffic, tagged)

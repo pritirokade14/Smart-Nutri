@@ -16,6 +16,48 @@ def _isolate_settings(monkeypatch):
     get_settings.cache_clear()
 
 
+def _audio(fmt: str, seconds: float, *, silent: bool = False) -> bytes:
+    from tests.audio import make_audio, require_ffmpeg
+
+    require_ffmpeg()
+    return make_audio(fmt, seconds, silent=silent)
+
+
+@pytest.fixture
+def wav3s() -> bytes:
+    return _audio("wav", 3)
+
+
+@pytest.fixture
+def wav31s() -> bytes:
+    return _audio("wav", 31)
+
+
+@pytest.fixture
+def m4a3s() -> bytes:
+    return _audio("m4a", 3)
+
+
+@pytest.fixture
+def webm3s() -> bytes:
+    return _audio("webm", 3)
+
+
+@pytest.fixture
+def ogg3s() -> bytes:
+    return _audio("ogg", 3)
+
+
+@pytest.fixture
+def mp3_3s() -> bytes:
+    return _audio("mp3", 3)
+
+
+@pytest.fixture
+def silent_wav3s() -> bytes:
+    return _audio("wav", 3, silent=True)
+
+
 @pytest.fixture
 def app():
     return create_app(
