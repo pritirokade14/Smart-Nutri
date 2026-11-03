@@ -9,6 +9,7 @@ from app.scoring.allergens import allergen_reasons, detect_allergens, ingredient
 from app.scoring.claims import ClaimCheck, check_claims
 from app.scoring.conditions import condition_reasons
 from app.scoring.config import ScoringConfig, load_config
+from app.scoring.custom_alerts import custom_alert_reasons
 from app.scoring.diet import diet_reasons, diet_violations, veg_mark_mismatch
 from app.scoring.models import AllergenState, Diet, Member, Product, Reason, Status
 from app.scoring.nutriscore import NutriScoreResult, compute_nutriscore
@@ -115,6 +116,7 @@ def evaluate_member(
             *allergen_reasons(product, member, cfg),
             *diet_reasons(product, member, cfg),
             *condition_reasons(product, member, report.nutriscore, report.claims, cfg),
+            *custom_alert_reasons(product, member, cfg),
         ]
     )
     status = Status.worst(r.severity for r in reasons)

@@ -207,3 +207,8 @@ def infant():
 @pytest.fixture
 def no_age():
     return Member(id="m9", name="No Age", age=None)
+
+
+@pytest.fixture
+def palm_member():
+    return Member(id="m10", name="P", age=30, custom_alerts=("palm_oil", "maida"))

@@ -195,9 +195,22 @@ class Member:
     allergens: tuple[str, ...] = ()
     conditions: tuple[str, ...] = ()
     goal: str | None = None
+    custom_alerts: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        _reject_bare_str(self, ("allergens", "conditions"))
+        _reject_bare_str(self, ("allergens", "conditions", "custom_alerts"))
+
+
+# Ingredient alerts a member can switch on (preferences, not safety rules). The order is
+# the order of `custom_alert` reasons. Terms: data/ingredients.yaml `custom_alerts`;
+# `added_sugar` reuses the added_sugars + hidden_sugars lists.
+CUSTOM_ALERT_KEYS: tuple[str, ...] = (
+    "palm_oil",
+    "maida",
+    "added_sugar",
+    "artificial_sweetener",
+    "msg",
+)
 
 
 @dataclass(frozen=True, slots=True)

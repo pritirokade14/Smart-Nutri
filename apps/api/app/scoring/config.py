@@ -17,7 +17,8 @@ _DEFAULT_DIR = Path(__file__).parent / "data"
 class ScoringConfig:
     allergens: Mapping[str, Mapping[str, list[str]]]
     diet: Mapping[str, list[str]]
-    ingredient_lists: Mapping[str, list[str]]
+    # Term lists, plus `custom_alerts`: {key: {"terms": [...], "exclude": [...]}}.
+    ingredient_lists: Mapping[str, Any]
     thresholds: Mapping[str, Any]
 
 
