@@ -62,10 +62,25 @@
   "claimLowSugar": "कमी साखर",
   "claimNoAddedSugar": "वरून साखर घातलेली नाही",
   "claimNoRefinedSugar": "रिफाइंड साखर नाही",
+  "claimProteinAmount": "प्रथिनांचे प्रमाण",
   "claimReasonAddedSugarIngredient": "घटकांमध्ये वरून घातलेली साखर आहे: {ingredients}.",
   "@claimReasonAddedSugarIngredient": {
     "placeholders": {
       "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonBelowClaimed": "पोषण तक्त्यात {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}} {value} ग्रॅम प्रथिने आहेत, जी दावा केलेल्या {claimed} ग्रॅमपेक्षा कमी आहेत.",
+  "@claimReasonBelowClaimed": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "claimed": {
+        "type": "String"
+      },
+      "value": {
         "type": "String"
       }
     }
@@ -103,6 +118,14 @@
     }
   },
   "claimReasonOk": "लेबलवरील माहिती या दाव्याशी जुळते.",
+  "claimReasonOtherProteinSource": "घटकांमध्ये प्रथिनांचा दुसरा स्रोतही आहे: {ingredients}.",
+  "@claimReasonOtherProteinSource": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
   "claimReasonRefinedSugarIngredient": "घटकांमध्ये रिफाइंड साखर आहे: {ingredients}.",
   "@claimReasonRefinedSugarIngredient": {
     "placeholders": {
@@ -111,11 +134,14 @@
       }
     }
   },
+  "claimReasonWheyNotListed": "घटकांच्या यादीत व्हे नाही.",
   "claimSourceOfProtein": "प्रथिनांचा स्रोत",
   "claimSugarFree": "साखरमुक्त",
   "claimVerdictContradicted": "लेबलवरील माहिती या दाव्याशी जुळत नाही",
   "claimVerdictSupported": "लेबलवरील माहिती या दाव्याला पुष्टी देते",
   "claimVerdictUnverifiable": "लेबलवरून तपासता येत नाही",
+  "claimWheyOnly": "100% व्हे",
+  "claimWheyProtein": "व्हे प्रोटीन",
   "commonCancel": "रद्द करा",
   "commonClose": "बंद करा",
   "commonComingSoon": "लवकरच येत आहे",
@@ -602,6 +628,7 @@
   "nutrientProteinG": "प्रथिने",
   "nutrientSalt": "मीठ",
   "nutrientSatFat": "संतृप्त फॅट",
+  "nutrientServingSizeG": "सर्व्हिंगचा आकार",
   "nutrientSodiumMg": "सोडियम",
   "nutrientSugarsG": "शर्करा (साखर)",
   "nutriscoreCalculatedBy": "Nutri-Score ची गणना SmartNutri ने केली आहे",

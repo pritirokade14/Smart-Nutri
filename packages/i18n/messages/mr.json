@@ -123,7 +123,8 @@
     "fat_g": "फॅट (स्निग्ध पदार्थ)",
     "sat_fat": "संतृप्त फॅट",
     "salt": "मीठ",
-    "sodium_mg": "सोडियम"
+    "sodium_mg": "सोडियम",
+    "serving_size_g": "सर्व्हिंगचा आकार"
   },
   "allergen": {
     "milk": "दूध",
@@ -180,7 +181,10 @@
     "high_protein": "जास्त प्रथिने",
     "source_of_protein": "प्रथिनांचा स्रोत",
     "no_refined_sugar": "रिफाइंड साखर नाही",
-    "diabetic_friendly": "डायबेटिसला अनुकूल"
+    "diabetic_friendly": "डायबेटिसला अनुकूल",
+    "protein_amount": "प्रथिनांचे प्रमाण",
+    "whey_only": "100% व्हे",
+    "whey_protein": "व्हे प्रोटीन"
   },
   "claim_verdict": {
     "supported": "लेबलवरील माहिती या दाव्याला पुष्टी देते",
@@ -195,7 +199,10 @@
     "ingredients_unknown": "घटकांची यादी उपलब्ध नाही, त्यामुळे हा दावा तपासता येत नाही.",
     "added_sugar_ingredient": "घटकांमध्ये वरून घातलेली साखर आहे: {ingredients}.",
     "refined_sugar_ingredient": "घटकांमध्ये रिफाइंड साखर आहे: {ingredients}.",
-    "no_standard": "हा दावा तपासण्यासाठी आमच्याकडे कोणतेही मानक नाही."
+    "no_standard": "हा दावा तपासण्यासाठी आमच्याकडे कोणतेही मानक नाही.",
+    "below_claimed": "पोषण तक्त्यात {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}} {value} ग्रॅम प्रथिने आहेत, जी दावा केलेल्या {claimed} ग्रॅमपेक्षा कमी आहेत.",
+    "other_protein_source": "घटकांमध्ये प्रथिनांचा दुसरा स्रोतही आहे: {ingredients}.",
+    "whey_not_listed": "घटकांच्या यादीत व्हे नाही."
   },
   "error": {
     "auth_required": "कृपया साइन इन करा.",

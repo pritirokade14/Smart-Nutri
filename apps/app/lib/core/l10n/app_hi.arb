@@ -62,10 +62,25 @@
   "claimLowSugar": "कम चीनी",
   "claimNoAddedSugar": "अतिरिक्त चीनी नहीं",
   "claimNoRefinedSugar": "रिफ़ाइंड चीनी नहीं",
+  "claimProteinAmount": "प्रोटीन की मात्रा",
   "claimReasonAddedSugarIngredient": "सामग्री में अतिरिक्त चीनी शामिल है: {ingredients}।",
   "@claimReasonAddedSugarIngredient": {
     "placeholders": {
       "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonBelowClaimed": "पोषण तालिका में {basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम}} {value} ग्राम प्रोटीन है, जो दावा किए गए {claimed} ग्राम से कम है।",
+  "@claimReasonBelowClaimed": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "claimed": {
+        "type": "String"
+      },
+      "value": {
         "type": "String"
       }
     }
@@ -103,6 +118,14 @@
     }
   },
   "claimReasonOk": "लेबल की जानकारी इस दावे से मेल खाती है।",
+  "claimReasonOtherProteinSource": "सामग्री में प्रोटीन का दूसरा स्रोत भी है: {ingredients}।",
+  "@claimReasonOtherProteinSource": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
   "claimReasonRefinedSugarIngredient": "सामग्री में रिफ़ाइंड चीनी शामिल है: {ingredients}।",
   "@claimReasonRefinedSugarIngredient": {
     "placeholders": {
@@ -111,11 +134,14 @@
       }
     }
   },
+  "claimReasonWheyNotListed": "सामग्री की सूची में व्हे नहीं है।",
   "claimSourceOfProtein": "प्रोटीन का स्रोत",
   "claimSugarFree": "चीनी रहित",
   "claimVerdictContradicted": "लेबल की जानकारी इस दावे से मेल नहीं खाती",
   "claimVerdictSupported": "लेबल की जानकारी इस दावे का समर्थन करती है",
   "claimVerdictUnverifiable": "लेबल से इसकी जाँच नहीं हो सकती",
+  "claimWheyOnly": "100% व्हे",
+  "claimWheyProtein": "व्हे प्रोटीन",
   "commonCancel": "रद्द करें",
   "commonClose": "बंद करें",
   "commonComingSoon": "जल्द आ रहा है",
@@ -602,6 +628,7 @@
   "nutrientProteinG": "प्रोटीन",
   "nutrientSalt": "नमक",
   "nutrientSatFat": "संतृप्त वसा",
+  "nutrientServingSizeG": "सर्विंग का आकार",
   "nutrientSodiumMg": "सोडियम",
   "nutrientSugarsG": "शर्करा (चीनी)",
   "nutriscoreCalculatedBy": "Nutri-Score की गणना SmartNutri ने की है",

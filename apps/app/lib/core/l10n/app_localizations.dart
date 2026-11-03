@@ -388,11 +388,23 @@ abstract class AppLocalizations {
   /// **'No refined sugar'**
   String get claimNoRefinedSugar;
 
+  /// No description provided for @claimProteinAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein amount'**
+  String get claimProteinAmount;
+
   /// No description provided for @claimReasonAddedSugarIngredient.
   ///
   /// In en, this message translates to:
   /// **'The ingredients include added sugar: {ingredients}.'**
   String claimReasonAddedSugarIngredient(String ingredients);
+
+  /// No description provided for @claimReasonBelowClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'The nutrition table shows {value} g protein {basis, select, per_serving {per serving} other {per 100 g}}, below the {claimed} g claimed.'**
+  String claimReasonBelowClaimed(String basis, String claimed, String value);
 
   /// No description provided for @claimReasonBelowMinimum.
   ///
@@ -430,11 +442,23 @@ abstract class AppLocalizations {
   /// **'The label data is consistent with this claim.'**
   String get claimReasonOk;
 
+  /// No description provided for @claimReasonOtherProteinSource.
+  ///
+  /// In en, this message translates to:
+  /// **'The ingredients include another protein source: {ingredients}.'**
+  String claimReasonOtherProteinSource(String ingredients);
+
   /// No description provided for @claimReasonRefinedSugarIngredient.
   ///
   /// In en, this message translates to:
   /// **'The ingredients include refined sugar: {ingredients}.'**
   String claimReasonRefinedSugarIngredient(String ingredients);
+
+  /// No description provided for @claimReasonWheyNotListed.
+  ///
+  /// In en, this message translates to:
+  /// **'Whey is not listed in the ingredients.'**
+  String get claimReasonWheyNotListed;
 
   /// No description provided for @claimSourceOfProtein.
   ///
@@ -465,6 +489,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Can\'t be checked from the label'**
   String get claimVerdictUnverifiable;
+
+  /// No description provided for @claimWheyOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'100% whey'**
+  String get claimWheyOnly;
+
+  /// No description provided for @claimWheyProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Whey protein'**
+  String get claimWheyProtein;
 
   /// No description provided for @commonCancel.
   ///
@@ -2673,6 +2709,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'saturated fat'**
   String get nutrientSatFat;
+
+  /// No description provided for @nutrientServingSizeG.
+  ///
+  /// In en, this message translates to:
+  /// **'serving size'**
+  String get nutrientServingSizeG;
 
   /// No description provided for @nutrientSodiumMg.
   ///

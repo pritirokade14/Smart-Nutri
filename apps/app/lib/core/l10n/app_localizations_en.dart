@@ -162,8 +162,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimNoRefinedSugar => 'No refined sugar';
 
   @override
+  String get claimProteinAmount => 'Protein amount';
+
+  @override
   String claimReasonAddedSugarIngredient(String ingredients) {
     return 'The ingredients include added sugar: $ingredients.';
+  }
+
+  @override
+  String claimReasonBelowClaimed(String basis, String claimed, String value) {
+    String _temp0 = intl.Intl.selectLogic(basis, {
+      'per_serving': 'per serving',
+      'other': 'per 100 g',
+    });
+    return 'The nutrition table shows $value g protein $_temp0, below the $claimed g claimed.';
   }
 
   @override
@@ -193,9 +205,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimReasonOk => 'The label data is consistent with this claim.';
 
   @override
+  String claimReasonOtherProteinSource(String ingredients) {
+    return 'The ingredients include another protein source: $ingredients.';
+  }
+
+  @override
   String claimReasonRefinedSugarIngredient(String ingredients) {
     return 'The ingredients include refined sugar: $ingredients.';
   }
+
+  @override
+  String get claimReasonWheyNotListed =>
+      'Whey is not listed in the ingredients.';
 
   @override
   String get claimSourceOfProtein => 'Source of protein';
@@ -211,6 +232,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get claimVerdictUnverifiable => 'Can\'t be checked from the label';
+
+  @override
+  String get claimWheyOnly => '100% whey';
+
+  @override
+  String get claimWheyProtein => 'Whey protein';
 
   @override
   String get commonCancel => 'Cancel';
@@ -1447,6 +1474,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nutrientSatFat => 'saturated fat';
+
+  @override
+  String get nutrientServingSizeG => 'serving size';
 
   @override
   String get nutrientSodiumMg => 'sodium';

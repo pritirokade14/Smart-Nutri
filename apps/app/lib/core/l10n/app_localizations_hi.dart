@@ -163,8 +163,20 @@ class AppLocalizationsHi extends AppLocalizations {
   String get claimNoRefinedSugar => 'रिफ़ाइंड चीनी नहीं';
 
   @override
+  String get claimProteinAmount => 'प्रोटीन की मात्रा';
+
+  @override
   String claimReasonAddedSugarIngredient(String ingredients) {
     return 'सामग्री में अतिरिक्त चीनी शामिल है: $ingredients।';
+  }
+
+  @override
+  String claimReasonBelowClaimed(String basis, String claimed, String value) {
+    String _temp0 = intl.Intl.selectLogic(basis, {
+      'per_serving': 'प्रति सर्विंग',
+      'other': 'प्रति 100 ग्राम',
+    });
+    return 'पोषण तालिका में $_temp0 $value ग्राम प्रोटीन है, जो दावा किए गए $claimed ग्राम से कम है।';
   }
 
   @override
@@ -194,9 +206,17 @@ class AppLocalizationsHi extends AppLocalizations {
   String get claimReasonOk => 'लेबल की जानकारी इस दावे से मेल खाती है।';
 
   @override
+  String claimReasonOtherProteinSource(String ingredients) {
+    return 'सामग्री में प्रोटीन का दूसरा स्रोत भी है: $ingredients।';
+  }
+
+  @override
   String claimReasonRefinedSugarIngredient(String ingredients) {
     return 'सामग्री में रिफ़ाइंड चीनी शामिल है: $ingredients।';
   }
+
+  @override
+  String get claimReasonWheyNotListed => 'सामग्री की सूची में व्हे नहीं है।';
 
   @override
   String get claimSourceOfProtein => 'प्रोटीन का स्रोत';
@@ -214,6 +234,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get claimVerdictUnverifiable => 'लेबल से इसकी जाँच नहीं हो सकती';
+
+  @override
+  String get claimWheyOnly => '100% व्हे';
+
+  @override
+  String get claimWheyProtein => 'व्हे प्रोटीन';
 
   @override
   String get commonCancel => 'रद्द करें';
@@ -1452,6 +1478,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get nutrientSatFat => 'संतृप्त वसा';
+
+  @override
+  String get nutrientServingSizeG => 'सर्विंग का आकार';
 
   @override
   String get nutrientSodiumMg => 'सोडियम';

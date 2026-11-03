@@ -39,6 +39,7 @@
       "milk": "contains",
       "soy": "may_contain"
     },
+    "caffeine": [],
     "claims": [
       {
         "claim": "sugar_free",
@@ -74,9 +75,16 @@
       "points": 15,
       "reason": null
     },
+    "protein": {
+      "per_100g": 8.0,
+      "per_100kcal": 1.8,
+      "per_serving": 2.0,
+      "serving_size_g": 25.0
+    },
     "sodium_additives": [
       "ins500"
     ],
+    "sweeteners": [],
     "veg_mark_mismatch": false
   },
   "score_label": "calculated_by_smartnutri"

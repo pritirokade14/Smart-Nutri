@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -64,6 +65,11 @@ _PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
             "low glycemic",
         ),
     ),
+    # Plan 9 Task 4: matched before high_protein and source_of_protein. protein_amount has
+    # no phrases: it is matched by _PROTEIN_AMOUNT (a number + g + protein).
+    ("protein_amount", ()),
+    ("whey_only", ("100% whey", "pure whey")),
+    ("whey_protein", ("whey", "whey protein")),
     (
         "high_protein",
         ("high protein", "high in protein", "protein rich", "rich in protein"),
@@ -76,9 +82,38 @@ _COMPILED = tuple(
 )
 
 
+_NUM = r"(\d+(?:[.,]\d+)?)"
+_GRAMS = r"(?:g|gm|gms|gram|grams)"
+# "24g protein", "24 g of protein", "24g whey protein", "protein: 24 g". Matched on the
+# lower-cased NFKC text (normalize() would turn "24.5" into "24 5").
+_PROTEIN_AMOUNT = (
+    re.compile(rf"(?<![\d.,]){_NUM}\s*{_GRAMS}\s+(?:of\s+)?(?:whey\s+)?protein(?![a-z])"),
+    re.compile(rf"(?<![a-z])protein\s*[:\-]?\s*{_NUM}\s*{_GRAMS}(?![a-z])"),
+)
+_PER_SERVING = re.compile(r"(?<![a-z])(?:serving|servings|scoop|scoops|serve|serves)(?![a-z])")
+
+
+def _claim_text(claim: str) -> str:
+    return unicodedata.normalize("NFKC", claim).lower()
+
+
+def _protein_amount(claim: str) -> float | None:
+    """The claimed grams of protein, or None when the claim states no amount."""
+    text = _claim_text(claim)
+    for pattern in _PROTEIN_AMOUNT:
+        m = pattern.search(text)
+        if m:
+            return float(m.group(1).replace(",", "."))
+    return None
+
+
 def _match(claim: str) -> str | None:
     text = normalize(claim)
     for key, pats in _COMPILED:
+        if key == "protein_amount":
+            if _protein_amount(claim) is not None:
+                return key
+            continue
         if any(p.search(text) for p in pats):
             return key
     return None
@@ -161,7 +196,62 @@ def _no_refined_sugar(product: Product, cfg: ScoringConfig) -> ClaimCheck:
     return _ingredient_rule("no_refined_sugar", product, cfg, terms, "refined_sugar_ingredient")
 
 
-def _evaluate(key: str, product: Product, cfg: ScoringConfig) -> ClaimCheck:
+def _protein_amount_check(claim: str, product: Product, cfg: ScoringConfig) -> ClaimCheck:
+    """Per serving when the claim says serving/scoop/serve, else per 100 g.
+
+    Contradicted when the table is more than `protein_amount_shortfall_pct` % below the claim.
+    """
+    key = "protein_amount"
+    claimed = _protein_amount(claim)
+    protein = product.per_100g.protein_g
+    if claimed is None or protein is None:
+        return _missing(key, "protein_g")
+    value, basis = protein, "per_100g"
+    if _PER_SERVING.search(_claim_text(claim)):
+        if product.serving_size_g is None:
+            return _missing(key, "serving_size_g")
+        value, basis = protein * product.serving_size_g / 100, "per_serving"
+    floor = claimed * (1 - cfg.thresholds["claims"]["protein_amount_shortfall_pct"] / 100)
+    if value >= floor:
+        return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
+    return ClaimCheck(
+        key,
+        ClaimVerdict.CONTRADICTED,
+        "below_claimed",
+        {"value": _num(value), "claimed": _num(claimed), "basis": basis},
+    )
+
+
+def _whey_listed(product: Product, cfg: ScoringConfig) -> bool:
+    return bool(find_terms(product.ingredients, cfg.thresholds["claims"]["whey_terms"]))
+
+
+def _whey_only(product: Product, cfg: ScoringConfig) -> ClaimCheck:
+    """The "100% whey" claim: no other protein source, and whey listed. A found term is
+    evidence at any confidence; a supported verdict needs known ingredients."""
+    key = "whey_only"
+    others = find_terms(product.ingredients, cfg.thresholds["claims"]["other_protein_terms"])
+    if others:
+        return ClaimCheck(
+            key, ClaimVerdict.CONTRADICTED, "other_protein_source", {"ingredients": others}
+        )
+    if not ingredients_known(product, cfg):
+        return ClaimCheck(key, ClaimVerdict.UNVERIFIABLE, "ingredients_unknown")
+    if not _whey_listed(product, cfg):
+        return ClaimCheck(key, ClaimVerdict.CONTRADICTED, "whey_not_listed")
+    return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
+
+
+def _whey_protein(product: Product, cfg: ScoringConfig) -> ClaimCheck:
+    key = "whey_protein"
+    if not ingredients_known(product, cfg):
+        return ClaimCheck(key, ClaimVerdict.UNVERIFIABLE, "ingredients_unknown")
+    if not _whey_listed(product, cfg):
+        return ClaimCheck(key, ClaimVerdict.CONTRADICTED, "whey_not_listed")
+    return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
+
+
+def _evaluate(key: str, claim: str, product: Product, cfg: ScoringConfig) -> ClaimCheck:
     c = cfg.thresholds["claims"]
     n = product.per_100g
     d = "drink" if product.is_drink else "food"
@@ -176,6 +266,9 @@ def _evaluate(key: str, product: Product, cfg: ScoringConfig) -> ClaimCheck:
         ),
         # No legal standard for these phrases: never verifiable from the label.
         "diabetic_friendly": lambda: ClaimCheck(key, ClaimVerdict.UNVERIFIABLE, "no_standard"),
+        "protein_amount": lambda: _protein_amount_check(claim, product, cfg),
+        "whey_only": lambda: _whey_only(product, cfg),
+        "whey_protein": lambda: _whey_protein(product, cfg),
         "high_protein": lambda: _min_rule(
             key, _protein_pct(product), c["high_protein_min_energy_pct"], _protein_nutrient(product)
         ),
@@ -194,5 +287,5 @@ def check_claims(product: Product, cfg: ScoringConfig) -> tuple[ClaimCheck, ...]
     for claim in product.claims:
         key = _match(claim)
         if key is not None:
-            out.append(_evaluate(key, product, cfg))
+            out.append(_evaluate(key, claim, product, cfg))
     return tuple(out)

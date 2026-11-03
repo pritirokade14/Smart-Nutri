@@ -35,6 +35,7 @@
     "allergens": {
       "milk": "contains"
     },
+    "caffeine": [],
     "claims": [],
     "diet_violations": {
       "eggetarian": [],
@@ -57,7 +58,16 @@
       "points": 4,
       "reason": null
     },
+    "protein": {
+      "per_100g": 3.2,
+      "per_100kcal": 3.4,
+      "per_serving": 3.2,
+      "serving_size_g": 100.0
+    },
     "sodium_additives": [],
+    "sweeteners": [
+      "ins955"
+    ],
     "veg_mark_mismatch": false
   },
   "score_label": "calculated_by_smartnutri"

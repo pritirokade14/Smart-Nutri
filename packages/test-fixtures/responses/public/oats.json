@@ -31,6 +31,7 @@
     "allergens": {
       "gluten": "may_contain"
     },
+    "caffeine": [],
     "claims": [
       {
         "claim": "high_protein",
@@ -60,7 +61,14 @@
       "points": -5,
       "reason": null
     },
+    "protein": {
+      "per_100g": 13.0,
+      "per_100kcal": 3.3,
+      "per_serving": 5.2,
+      "serving_size_g": 40.0
+    },
     "sodium_additives": [],
+    "sweeteners": [],
     "veg_mark_mismatch": false
   },
   "score_label": "calculated_by_smartnutri"

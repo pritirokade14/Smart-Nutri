@@ -111,6 +111,8 @@ def unit_of(path: tuple[str, ...]) -> str:
         return "g free sugar per day (key = minimum age in years)"
     if leaf == "max_age":
         return "years (exclusive upper bound)"
+    if leaf == "protein_amount_shortfall_pct":
+        return "% below the claimed protein amount"
     if leaf.endswith("_pct") or "_pct_" in leaf:
         return "% of daily limit" if "limit" in leaf else "% of energy"
     if "per_serving" in leaf:
@@ -137,6 +139,11 @@ QUESTIONS_BY_PATH: dict[tuple[str, ...], str] = {
         'copy says "If you have kidney disease, ask your doctor before eating more '
         'protein." Is that enough? Should weight loss get 1.2 g/kg (it now keeps 0.83 g/kg)?'
     ),
+    ("claims", "protein_amount_shortfall_pct"): (
+        'How far below a stated protein amount (e.g. "24 g protein per scoop") may the '
+        "nutrition table be before we show the claim as not matching? Is 10 % in line with "
+        "the FSSAI Labelling and Display Regulations 2020 tolerance?"
+    ),
 }
 
 
@@ -157,6 +164,9 @@ def question_of(path: tuple[str, ...]) -> str:
 # Taken from the comments on `section_sources` in thresholds.yaml.
 _SMARTNUTRI = "smartnutri_working_values"
 KEY_SOURCES: dict[tuple[str, ...], tuple[list[str], list[str]]] = {
+    # Claims: FSSAI 2018 limits; the protein-amount tolerance is ours (Plan 9 Task 4).
+    ("claims",): (["fssai_claims_2018"], []),
+    ("claims", "protein_amount_shortfall_pct"): ([_SMARTNUTRI], ["fssai_labelling_2020"]),
     # Blood sugar: food avoid = UK FSA "high"; drink avoid = UK SDIL 5 g/100 ml; caution =
     # FSSAI "low sugar" bands; carbs per serving = SmartNutri. ICMR-NIN and ADA back the
     # cardio_high_in rule only, not these numbers.

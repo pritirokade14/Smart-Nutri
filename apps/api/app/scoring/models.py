@@ -187,6 +187,18 @@ class Product:
 
 
 @dataclass(frozen=True, slots=True)
+class ProteinFacts:
+    """Protein numbers for the protein guide (Plan 9 Task 4). Information only: they never
+    change a verdict. All rounded to 1 dp from the SANITISED product; a missing input is None,
+    never 0."""
+
+    per_100g: float | None
+    per_serving: float | None  # None without serving_size_g (Product.per_serving)
+    per_100kcal: float | None  # protein_g / energy_kcal * 100; None if either is None or kcal == 0
+    serving_size_g: float | None
+
+
+@dataclass(frozen=True, slots=True)
 class Member:
     id: str
     name: str

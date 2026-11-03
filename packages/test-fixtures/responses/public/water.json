@@ -27,6 +27,7 @@
   },
   "report": {
     "allergens": {},
+    "caffeine": [],
     "claims": [],
     "diet_violations": {
       "eggetarian": [],
@@ -46,7 +47,14 @@
       "points": null,
       "reason": null
     },
+    "protein": {
+      "per_100g": 0.0,
+      "per_100kcal": null,
+      "per_serving": 0.0,
+      "serving_size_g": 500.0
+    },
     "sodium_additives": [],
+    "sweeteners": [],
     "veg_mark_mismatch": false
   },
   "score_label": "calculated_by_smartnutri"

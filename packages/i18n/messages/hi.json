@@ -123,7 +123,8 @@
     "fat_g": "वसा",
     "sat_fat": "संतृप्त वसा",
     "salt": "नमक",
-    "sodium_mg": "सोडियम"
+    "sodium_mg": "सोडियम",
+    "serving_size_g": "सर्विंग का आकार"
   },
   "allergen": {
     "milk": "दूध",
@@ -180,7 +181,10 @@
     "high_protein": "उच्च प्रोटीन",
     "source_of_protein": "प्रोटीन का स्रोत",
     "no_refined_sugar": "रिफ़ाइंड चीनी नहीं",
-    "diabetic_friendly": "डायबिटीज़ के अनुकूल"
+    "diabetic_friendly": "डायबिटीज़ के अनुकूल",
+    "protein_amount": "प्रोटीन की मात्रा",
+    "whey_only": "100% व्हे",
+    "whey_protein": "व्हे प्रोटीन"
   },
   "claim_verdict": {
     "supported": "लेबल की जानकारी इस दावे का समर्थन करती है",
@@ -195,7 +199,10 @@
     "ingredients_unknown": "सामग्री की सूची उपलब्ध नहीं है, इसलिए इस दावे की जाँच नहीं हो सकती।",
     "added_sugar_ingredient": "सामग्री में अतिरिक्त चीनी शामिल है: {ingredients}।",
     "refined_sugar_ingredient": "सामग्री में रिफ़ाइंड चीनी शामिल है: {ingredients}।",
-    "no_standard": "इस दावे की जाँच के लिए हमारे पास कोई मानक नहीं है।"
+    "no_standard": "इस दावे की जाँच के लिए हमारे पास कोई मानक नहीं है।",
+    "below_claimed": "पोषण तालिका में {basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम}} {value} ग्राम प्रोटीन है, जो दावा किए गए {claimed} ग्राम से कम है।",
+    "other_protein_source": "सामग्री में प्रोटीन का दूसरा स्रोत भी है: {ingredients}।",
+    "whey_not_listed": "सामग्री की सूची में व्हे नहीं है।"
   },
   "error": {
     "auth_required": "कृपया साइन इन करें।",

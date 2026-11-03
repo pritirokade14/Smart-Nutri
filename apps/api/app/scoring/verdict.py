@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
+from decimal import ROUND_HALF_UP, Decimal
 from enum import Enum
 from typing import Any
 
@@ -11,9 +12,21 @@ from app.scoring.conditions import condition_reasons
 from app.scoring.config import ScoringConfig, load_config
 from app.scoring.custom_alerts import custom_alert_reasons
 from app.scoring.diet import diet_reasons, diet_violations, veg_mark_mismatch
-from app.scoring.models import AllergenState, Diet, Member, Product, Reason, Status
+from app.scoring.ingredients import find_terms
+from app.scoring.models import (
+    AllergenState,
+    Diet,
+    Member,
+    Product,
+    ProteinFacts,
+    Reason,
+    Status,
+)
 from app.scoring.nutriscore import NutriScoreResult, compute_nutriscore
-from app.scoring.warnings import hidden_sugars, high_in, sodium_additives
+from app.scoring.warnings import hidden_sugars, high_in, ingredient_hits, sodium_additives
+
+# Listed in `sweeteners` when only the Open Food Facts flag (no ingredient term) says so.
+SWEETENER_FLAG = "contains_sweeteners"
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +41,10 @@ class ProductReport:
     sodium_additives: tuple[str, ...]
     claims: tuple[ClaimCheck, ...]
     dropped_fields: tuple[str, ...]
+    # Protein guide (Plan 9 Task 4, P9-R12): information only, never a verdict input.
+    protein: ProteinFacts
+    sweeteners: tuple[str, ...]  # custom_alerts.artificial_sweetener terms, or SWEETENER_FLAG
+    caffeine: tuple[str, ...]  # ingredients.yaml `caffeine` terms
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,6 +75,35 @@ class AnalysisResult:
         )
 
 
+def _round1(value: float | None) -> float | None:
+    """1 dp, half up (6.25 -> 6.3), so every client shows the same number."""
+    if value is None:
+        return None
+    return float(Decimal(repr(float(value))).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
+
+
+def protein_facts(product: Product) -> ProteinFacts:
+    """Protein per 100 g, per serving and per 100 kcal from a SANITISED product."""
+    n = product.per_100g
+    protein, kcal = n.protein_g, n.energy_kcal
+    per_100kcal = None if protein is None or not kcal else protein * 100 / kcal
+    return ProteinFacts(
+        per_100g=_round1(protein),
+        per_serving=_round1(product.per_serving(protein)),
+        per_100kcal=_round1(per_100kcal),
+        serving_size_g=_round1(product.serving_size_g),
+    )
+
+
+def sweeteners(product: Product, cfg: ScoringConfig) -> tuple[str, ...]:
+    """Sweetener terms in the ingredients; SWEETENER_FLAG when only the OFF flag says so."""
+    entry = cfg.ingredient_lists["custom_alerts"]["artificial_sweetener"]
+    terms = find_terms(product.ingredients, entry["terms"], entry.get("exclude") or ())
+    if terms:
+        return tuple(sorted(terms))
+    return (SWEETENER_FLAG,) if product.contains_sweeteners else ()
+
+
 def _sanitize(product: Product) -> tuple[Product, tuple[str, ...]]:
     return product.sanitized()
 
@@ -76,6 +122,9 @@ def _build(
         sodium_additives=sodium_additives(product, cfg),
         claims=check_claims(product, cfg),
         dropped_fields=dropped,
+        protein=protein_facts(product),
+        sweeteners=sweeteners(product, cfg),
+        caffeine=ingredient_hits(product, cfg, "caffeine"),
     )
 
 

@@ -38,6 +38,7 @@
     "allergens": {
       "milk": "contains"
     },
+    "caffeine": [],
     "claims": [],
     "diet_violations": {
       "eggetarian": [],
@@ -59,7 +60,14 @@
       "points": 1,
       "reason": null
     },
+    "protein": {
+      "per_100g": 3.5,
+      "per_100kcal": 5.8,
+      "per_serving": 3.5,
+      "serving_size_g": 100.0
+    },
     "sodium_additives": [],
+    "sweeteners": [],
     "veg_mark_mismatch": false
   },
   "scan_id": "ff6eaf5a-cc67-5a2a-9348-7516bdb9c183",

@@ -33,6 +33,7 @@
   },
   "report": {
     "allergens": {},
+    "caffeine": [],
     "claims": [],
     "diet_violations": {
       "eggetarian": [],
@@ -52,7 +53,14 @@
       "points": 14,
       "reason": null
     },
+    "protein": {
+      "per_100g": 5.0,
+      "per_100kcal": 1.3,
+      "per_serving": null,
+      "serving_size_g": null
+    },
     "sodium_additives": [],
+    "sweeteners": [],
     "veg_mark_mismatch": false
   },
   "scan_id": "fee2ddc8-be54-5a95-aa8d-6af75d544a9e",

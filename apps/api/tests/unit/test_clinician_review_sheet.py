@@ -43,6 +43,7 @@ def sheet():
         (("high_in", "drink", "salt_g"), "g per 100 ml"),
         (("conditions", "child", "caution_pct_of_limit"), "% of daily limit"),
         (("claims", "high_protein_min_energy_pct"), "% of energy"),
+        (("claims", "protein_amount_shortfall_pct"), "% below the claimed protein amount"),
         (("conditions", "infant", "avoid_salt_g"), "g per 100 g"),
     ],
 )
@@ -132,6 +133,8 @@ def test_infant_per_100g_values_are_ours_with_who_as_the_reason(sheet, meta, lea
         ),
         (("conditions", "child", "free_sugar_daily_limit_g", "7"), ["nhs_child_sugar"]),
         (("conditions", "child", "avoid_pct_of_limit"), ["smartnutri_working_values"]),
+        (("claims", "protein_amount_shortfall_pct"), ["smartnutri_working_values"]),
+        (("claims", "low_fat_max_g", "food"), ["fssai_claims_2018"]),
         # Single-source sections keep their section source.
         (("high_in", "food", "salt_g"), ["uk_fsa_front_of_pack"]),
     ],

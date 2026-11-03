@@ -483,9 +483,12 @@
     },
     {
       "id": "claims",
-      "rationale_sources": [],
+      "rationale_sources": [
+        "fssai_labelling_2020"
+      ],
       "threshold_sources": [
-        "fssai_claims_2018"
+        "fssai_claims_2018",
+        "smartnutri_working_values"
       ],
       "thresholds": {
         "high_protein_min_energy_pct": 20,
@@ -498,6 +501,21 @@
           "drink": 2.5,
           "food": 5.0
         },
+        "other_protein_terms": [
+          "soy protein",
+          "soya protein",
+          "soy protein isolate",
+          "pea protein",
+          "rice protein",
+          "wheat protein",
+          "wheat gluten",
+          "collagen",
+          "gelatin",
+          "casein",
+          "caseinate",
+          "milk protein concentrate"
+        ],
+        "protein_amount_shortfall_pct": 10,
         "refined_sugar_terms": [
           "sugar",
           "cane sugar",
@@ -516,6 +534,17 @@
           "gur",
           "khandsari",
           "गुड़"
+        ],
+        "whey_terms": [
+          "whey",
+          "whey protein",
+          "whey protein concentrate",
+          "whey protein isolate",
+          "hydrolysed whey",
+          "hydrolyzed whey",
+          "wpc",
+          "wpi",
+          "व्हे"
         ]
       }
     },
@@ -912,5 +941,5 @@
       "url_verified": false
     }
   ],
-  "version": "a4152c9a7222"
+  "version": "b8e9561cef53"
 }

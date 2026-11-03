@@ -12,6 +12,7 @@ from app.scoring.models import (
     Member,
     Nutrients,
     Product,
+    ProteinFacts,
     Reason,
     Status,
 )
@@ -33,6 +34,7 @@ __all__ = [
     "Nutrients",
     "Product",
     "ProductReport",
+    "ProteinFacts",
     "Reason",
     "Status",
     "analyze",

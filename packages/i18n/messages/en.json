@@ -123,7 +123,8 @@
     "fat_g": "fat",
     "sat_fat": "saturated fat",
     "salt": "salt",
-    "sodium_mg": "sodium"
+    "sodium_mg": "sodium",
+    "serving_size_g": "serving size"
   },
   "allergen": {
     "milk": "Milk",
@@ -180,7 +181,10 @@
     "high_protein": "High protein",
     "source_of_protein": "Source of protein",
     "no_refined_sugar": "No refined sugar",
-    "diabetic_friendly": "Diabetic friendly"
+    "diabetic_friendly": "Diabetic friendly",
+    "protein_amount": "Protein amount",
+    "whey_only": "100% whey",
+    "whey_protein": "Whey protein"
   },
   "claim_verdict": {
     "supported": "Label data supports this claim",
@@ -195,7 +199,10 @@
     "ingredients_unknown": "The ingredients list is not available, so this claim can't be checked.",
     "added_sugar_ingredient": "The ingredients include added sugar: {ingredients}.",
     "refined_sugar_ingredient": "The ingredients include refined sugar: {ingredients}.",
-    "no_standard": "There is no standard to check this claim against."
+    "no_standard": "There is no standard to check this claim against.",
+    "below_claimed": "The nutrition table shows {value} g protein {basis, select, per_serving {per serving} other {per 100 g}}, below the {claimed} g claimed.",
+    "other_protein_source": "The ingredients include another protein source: {ingredients}.",
+    "whey_not_listed": "Whey is not listed in the ingredients."
   },
   "error": {
     "auth_required": "Please sign in.",

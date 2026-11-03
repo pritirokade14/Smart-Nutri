@@ -15,6 +15,14 @@ claims:   # verify values against FSSAI (Advertising & Claims) Regulations 2018,
   refined_sugar_terms: [sugar, cane sugar, refined sugar, sucrose, brown sugar, icing sugar]
   # Unrefined sugars are not "refined sugar": excluded before matching (Ruling R33; pending clinician review)
   unrefined_sugar_excludes: [coconut sugar, palm sugar, date sugar, jaggery, gur, khandsari, गुड़]
+  # Protein claims vs the nutrition table (Plan 9 Task 4). PENDING CLINICIAN REVIEW;
+  # SmartNutri working value (verify against the FSSAI Labelling and Display Regulations 2020
+  # tolerance). "24 g protein per scoop" is contradicted when the table shows more than this
+  # share below the claimed amount. Claim checks add no member reason (P9-R12).
+  protein_amount_shortfall_pct: 10
+  # "100% whey" / "whey protein" vs the ingredients (pending dietitian review).
+  whey_terms: [whey, whey protein, whey protein concentrate, whey protein isolate, hydrolysed whey, hydrolyzed whey, wpc, wpi, व्हे]
+  other_protein_terms: [soy protein, soya protein, soy protein isolate, pea protein, rice protein, wheat protein, wheat gluten, collagen, gelatin, casein, caseinate, milk protein concentrate]
 # Member-entered condition/goal names -> canonical applies_to names (Ruling R24; pending clinician review).
 # Keys are normalised (lowercase, non-word runs -> "_"). Anything unrecognised -> condition_unrecognised (UNKNOWN).
 condition_aliases:
@@ -136,7 +144,8 @@ section_sources:
   high_in:         {thresholds: [uk_fsa_front_of_pack]}
   allergens:       {thresholds: [fssai_labelling_2020]}
   diet:            {thresholds: [fssai_labelling_2020]}
-  claims:          {thresholds: [fssai_claims_2018]}
+  # Claim limits: FSSAI 2018; the protein-amount tolerance is a SmartNutri value (Plan 9).
+  claims:          {thresholds: [fssai_claims_2018, smartnutri_working_values], rationale: [fssai_labelling_2020]}
   # avoid/caution sugars: UK FSA high-in and FSSAI low-sugar bands; drink avoid: UK SDIL;
   # carbs per serving (30 g): SmartNutri. ICMR-NIN and ADA are attached below as rationale
   # only (not threshold sources); they back the cardio_high_in rule. ICMR-NIN is likewise

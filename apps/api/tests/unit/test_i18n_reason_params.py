@@ -222,6 +222,21 @@ PRODUCTS = [
     ),
     # Nutrients known, ingredients unknown (infant numeric rules).
     Product(name="numbers-only", per_100g=Nutrients(sugars_g=10, salt_g=0.5, energy_kcal=100)),
+    # Plan 9 protein and whey claims: below the claimed amount, another protein source,
+    # whey not listed (all contradicted), and a per-scoop claim with no serving size.
+    Product(
+        name="whey-claims",
+        per_100g=Nutrients(energy_kcal=400, protein_g=25, carbs_g=50, sugars_g=5, fat_g=8),
+        serving_size_g=30,
+        ingredients=("soy protein isolate", "cocoa"),
+        claims=("40g protein per scoop", "100% whey", "whey protein"),
+    ),
+    Product(
+        name="whey-no-serving",
+        per_100g=Nutrients(energy_kcal=400, protein_g=80, carbs_g=8, sugars_g=4, fat_g=6),
+        ingredients=("whey protein concentrate",),
+        claims=("24g protein per scoop", "90 g protein"),
+    ),
     # Open Food Facts sweetener flag with no sweetener term in the ingredients.
     Product(
         name="flagged-sweetener",

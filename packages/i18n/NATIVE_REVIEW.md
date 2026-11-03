@@ -217,3 +217,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 9 Task 3 (build muscle goal)
 - [ ] **hi/mr `condition.build_muscle`, `members.goal.build_muscle`, `methodology.section.build_muscle.*`**: machine drafts ("मांसपेशियाँ बनाना" / "स्नायू बळकट करणे"). The description must stay informational: the daily protein figure is a guide, never "you need", and the kidney sentence must read as "ask your doctor", not as advice.
+
+## Plan 9 Task 4 (protein and whey claims)
+- [ ] **hi/mr `claim.protein_amount`, `claim.whey_only`, `claim.whey_protein`, `claim_reason.below_claimed`, `claim_reason.other_protein_source`, `claim_reason.whey_not_listed`, `nutrient.serving_size_g`**: machine drafts. "व्हे" is a transliteration of whey; check it is understood (or whether "व्हे (दूध से बना प्रोटीन)" is clearer). `below_claimed` starts with a `{basis, select}` phrase in hi/mr: check both branches. The tone must be factual (the table shows less than the claim), never "fake" or "cheating".

@@ -62,10 +62,25 @@
   "claimLowSugar": "Low sugar",
   "claimNoAddedSugar": "No added sugar",
   "claimNoRefinedSugar": "No refined sugar",
+  "claimProteinAmount": "Protein amount",
   "claimReasonAddedSugarIngredient": "The ingredients include added sugar: {ingredients}.",
   "@claimReasonAddedSugarIngredient": {
     "placeholders": {
       "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonBelowClaimed": "The nutrition table shows {value} g protein {basis, select, per_serving {per serving} other {per 100 g}}, below the {claimed} g claimed.",
+  "@claimReasonBelowClaimed": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "claimed": {
+        "type": "String"
+      },
+      "value": {
         "type": "String"
       }
     }
@@ -103,6 +118,14 @@
     }
   },
   "claimReasonOk": "The label data is consistent with this claim.",
+  "claimReasonOtherProteinSource": "The ingredients include another protein source: {ingredients}.",
+  "@claimReasonOtherProteinSource": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
   "claimReasonRefinedSugarIngredient": "The ingredients include refined sugar: {ingredients}.",
   "@claimReasonRefinedSugarIngredient": {
     "placeholders": {
@@ -111,11 +134,14 @@
       }
     }
   },
+  "claimReasonWheyNotListed": "Whey is not listed in the ingredients.",
   "claimSourceOfProtein": "Source of protein",
   "claimSugarFree": "Sugar free",
   "claimVerdictContradicted": "Label data contradicts this claim",
   "claimVerdictSupported": "Label data supports this claim",
   "claimVerdictUnverifiable": "Can't be checked from the label",
+  "claimWheyOnly": "100% whey",
+  "claimWheyProtein": "Whey protein",
   "commonCancel": "Cancel",
   "commonClose": "Close",
   "commonComingSoon": "Coming soon",
@@ -602,6 +628,7 @@
   "nutrientProteinG": "protein",
   "nutrientSalt": "salt",
   "nutrientSatFat": "saturated fat",
+  "nutrientServingSizeG": "serving size",
   "nutrientSodiumMg": "sodium",
   "nutrientSugarsG": "sugars",
   "nutriscoreCalculatedBy": "Nutri-Score calculated by SmartNutri",
