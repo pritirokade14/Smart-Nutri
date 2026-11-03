@@ -336,6 +336,14 @@ describe("DraftForm: serving size (R18/R21)", () => {
     expect(save()).toHaveProperty("disabled", false);
   });
 
+  it("derived_basis_mismatch: per_100g needs a confirmed serving (serving_required)", async () => {
+    setup("derived_basis_mismatch");
+    await user().click(basisRadio("per_100g"));
+    expect(save()).toHaveProperty("disabled", true);
+    await user().click(screen.getByTestId("confirm-serving_size_g"));
+    expect(save()).toHaveProperty("disabled", false);
+  });
+
   it("never shows the server-derived per_100g as printed", async () => {
     setup("derived_basis_mismatch");
     await user().click(basisRadio("per_100g"));

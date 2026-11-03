@@ -221,10 +221,11 @@ export function DraftForm({
   const sodiumNow = parseNumberInput(values.sodium_mg);
   const unitPicker =
     (hint?.sodium_unit_required ?? false) && sodiumNow !== null;
-  // A per-serving save with its serving size unconfirmed stores nothing.
+  // The server says when nutrients are stored only with a confirmed serving
+  // (R23); without it every nutrient would be saved as null.
   const servingTickNeeded =
-    basis === "per_serving" &&
-    boxes.has("serving_size_g") &&
+    basis !== "" &&
+    (hint?.serving_required ?? false) &&
     !confirmedFields.includes("serving_size_g");
 
   const highlights = highlightedFields(warnings);

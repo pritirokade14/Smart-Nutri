@@ -76,6 +76,8 @@ export type ScriptedActions = {
 
 export type ScriptedSave = {
   actions: ScriptedActions;
+  /** R23: serving_required and the serving not confirmed; the client never sends. */
+  client_blocks?: boolean;
   /** ProductCreate without scan_id (and no barcode). */
   body: Omit<ProductCreate, "scan_id" | "barcode">;
   result:

@@ -207,6 +207,7 @@ function isColumnConfirm(v: unknown): v is ColumnConfirm {
     typeof c.printed === "boolean" &&
     typeof c.shared === "boolean" &&
     typeof c.sodium_unit_required === "boolean" &&
+    typeof c.serving_required === "boolean" &&
     Array.isArray(c.confirm_fields) &&
     c.confirm_fields.every((f) => typeof f === "string" && CONFIRMABLE.has(f))
   );

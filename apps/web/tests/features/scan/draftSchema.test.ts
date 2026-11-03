@@ -200,6 +200,16 @@ describe("isDraftConfirm (draft.confirm, R21)", () => {
     ],
     ["non-boolean flag", { ...ok, basis_required: "no" }],
     [
+      "column without serving_required",
+      {
+        ...ok,
+        columns: {
+          per_100g: (({ serving_required: _s, ...rest }) => rest)(col),
+          per_serving: null,
+        },
+      },
+    ],
+    [
       "unknown confirm field",
       {
         ...ok,

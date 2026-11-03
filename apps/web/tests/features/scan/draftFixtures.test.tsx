@@ -4,14 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DraftForm } from "@/features/scan/components/DraftForm";
-import {
-  BASES,
-  type Basis,
-  CONFIRMABLE_FIELDS,
-  type ConfirmableField,
-  type ProductCreate,
-  type ProductDraft,
-} from "@/features/scan/lib/draftSchema";
+import { BASES, type ProductCreate } from "@/features/scan/lib/draftSchema";
 import {
   draftCaseFiles,
   draftFile,
@@ -21,24 +14,15 @@ import {
 } from "../../support/drafts";
 
 /**
- * Shared fixture test (AGENTS.md rule 11, Ruling R21): every scripted save in
- * packages/test-fixtures/drafts/expected.json is driven through the real form,
- * and the body the form would POST must equal the expected body exactly.
+ * Shared fixture test (AGENTS.md rule 11, Rulings R21/R23): every scripted
+ * save in packages/test-fixtures/drafts/expected.json is driven through the
+ * real form, and the body the form would POST must equal the expected body
+ * exactly (an edit confirms, as the fixtures now record).
  *
- * One documented transform (round-B brief §1): expected.json builds
- * `confirmed_fields` from `tick` only, but on the client an EDIT also
- * confirms a field: a field listed in the saved column's `confirm_fields`,
- * and `serving_size_g` whenever the user types or edits it. `clientBody`
- * adds exactly those; every other key must match expected.json unchanged.
- *
- * The form refuses to send (save stays disabled) in exactly two situations:
- * - the server would answer 422 on a missing choice (`body.basis`,
- *   `body.category` or `body.sodium_unit`): the user has to make it first;
- * - a per_serving save whose column lists `serving_size_g` in
- *   `confirm_fields` without the tick (round-B brief §1): nothing would be
- *   stored.
- * Every other scripted save, including the ones the server answers with a
- * 422 `implausible_value`, must be sent exactly as expected.
+ * A save marked `client_blocks: true` (serving_required without a confirmed
+ * serving) or one that needs a missing choice (`body.basis`, `body.category`,
+ * `body.sodium_unit`) keeps save disabled and sends nothing. Every other
+ * scripted save, including 422 `implausible_value`, is sent exactly as expected.
  */
 
 const c = messages.confirm;
@@ -51,39 +35,13 @@ const CHOICE_FIELDS = new Set([
 
 afterEach(cleanup);
 
-/** The scripted save as the client sends it: edits confirm (brief §1). */
-function clientBody(draft: ProductDraft, save: ScriptedSave) {
-  const basis = save.body.basis as Basis | undefined;
-  const listed = basis
-    ? (draft.confirm.columns[basis]?.confirm_fields ?? [])
-    : [];
-  const confirmed = new Set<string>(save.body.confirmed_fields ?? []);
-  for (const f of Object.keys(save.actions.edit ?? {}))
-    if (f === "serving_size_g" || listed.includes(f as ConfirmableField))
-      confirmed.add(f);
-  return {
-    ...save.body,
-    confirmed_fields: CONFIRMABLE_FIELDS.filter((f) => confirmed.has(f)),
-  };
-}
-
-function blockedBy(
-  draft: ProductDraft,
-  save: ScriptedSave,
-  body: ScriptedSave["body"],
-): string | null {
+function blockedBy(save: ScriptedSave): string | null {
   if (
     save.result.status === 422 &&
     save.result.error.fields.some((f) => CHOICE_FIELDS.has(f))
   )
     return "missing choice";
-  const servingHint = draft.confirm.columns.per_serving;
-  if (
-    body.basis === "per_serving" &&
-    servingHint?.confirm_fields.includes("serving_size_g") &&
-    !body.confirmed_fields?.includes("serving_size_g")
-  )
-    return "serving size not confirmed";
+  if (save.client_blocks === true) return "serving not confirmed";
   return null;
 }
 
@@ -208,8 +166,7 @@ describe("shared confirm-screen fixtures (packages/test-fixtures/drafts)", () =>
             await user.click(box);
           }
 
-          const want = clientBody(draft, save);
-          const reason = blockedBy(draft, save, want);
+          const reason = blockedBy(save);
           if (reason) {
             expect(saveButton()).toHaveProperty("disabled", true);
             await user.click(saveButton());
@@ -221,7 +178,7 @@ describe("shared confirm-screen fixtures (packages/test-fixtures/drafts)", () =>
           expect(onSave).toHaveBeenCalledTimes(1);
           const { scan_id, ...body } = onSave.mock.calls[0]?.[0] ?? {};
           expect(scan_id).toBe(SCAN_ID);
-          expect(body).toStrictEqual(want);
+          expect(body).toStrictEqual(save.body);
         });
       });
     });
