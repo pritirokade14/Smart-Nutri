@@ -1,7 +1,7 @@
-"""F7: an LLM explanation of the engine's verdicts that can never change them (Plan 5 T7a).
+"""F7: an LLM explanation of the engine's verdicts that can never change them (Plan 5 T7).
 
-Pure building blocks plus one async orchestrator; no DB, no cache (those come with the
-analyze wiring in part B).
+Pure building blocks plus async helpers; no DB. The analyze service adds the consent check
+and the `explanation_cache` (part B).
 
 - `build_explanation_input` anonymises the family: members become `member_1..N` (verdict
   order) with relation, age band and diet only. No names, ids, emails, product name, brand or
@@ -13,26 +13,32 @@ analyze wiring in part B).
   forms; also "fine" and "okay" when any member is not `ok`), or contains a member name or
   the account email. It never edits the text: clients substitute the `member_N` tokens
   (via `member_refs`) and show the disclaimer.
-- `explain` calls the provider within an 8 s budget and returns None on any failure. It never
-  raises, and it never touches the `AnalysisResult`, which is frozen and only read here.
+- `complete` calls the provider within an 8 s budget and returns None on any failure; `explain`
+  is build + complete + guard. Neither raises, and neither touches the `AnalysisResult`,
+  which is frozen and only read here.
+- `cache_key` hashes the anonymised input with the prompt version and the model. It holds no
+  names, ids or emails, so two accounts with the same anonymised family share an entry; the
+  guard runs again (with the caller's names and email) on every cache hit.
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import logging
 import re
 import unicodedata
 from collections.abc import Iterable, Mapping, Sequence
-from datetime import date, datetime
+from datetime import date
 from enum import Enum
 from typing import Annotated, Any, Literal
-from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import scoring
 from app.core.config import Settings
+from app.core.time import today_ist
 from app.features.analyze.schemas import VerdictStatus
 from app.features.members.models import Member
 from app.integrations.providers import LLMProvider, ProviderUnavailable
@@ -72,10 +78,11 @@ DENY_WORDS: tuple[str, ...] = (
     "सुरक्षित आहे",
     "सेहतमंद",
     "हेल्दी",
+    "स्वस्थ",
+    "निरोगी",
 )
-# Also denied when any member's status is not `ok`.
-DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = ("fine", "okay")
-_IST = ZoneInfo("Asia/Kolkata")
+# Also denied when any member's status is not `ok`. "ठीक" (hi) and "चालेल" (mr) say "okay".
+DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = ("fine", "okay", "ठीक", "चालेल")
 
 
 # --- input (what the model sees) -----------------------------------------------------------
@@ -233,10 +240,6 @@ def _product_facts(report: scoring.ProductReport, canonical: frozenset[str]) -> 
     )
 
 
-def today_ist() -> date:
-    return datetime.now(_IST).date()
-
-
 def build_explanation_input(
     result: scoring.AnalysisResult,
     members: Sequence[Member],
@@ -385,6 +388,58 @@ def guard(
 # --- orchestrator --------------------------------------------------------------------------
 
 
+def cache_key(data: ExplanationIn, prompt_version: str, model: str) -> str:
+    """sha256 of the anonymised input, the prompt version and the model (hex, 64 chars).
+
+    The input holds tokens, relations, age bands, diets, statuses, reason codes and cleaned
+    params, and product facts: no names, ids, emails, free text or product name. Language is
+    part of the input (and also its own cache column).
+    """
+    canonical = json.dumps(
+        {
+            "input": data.model_dump(mode="json"),
+            "prompt_version": prompt_version,
+            "model": model,
+        },
+        sort_keys=True,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+async def complete(
+    provider: LLMProvider,
+    settings: Settings,
+    data: ExplanationIn,
+    system: str,
+    prompt_version: str,
+) -> ExplanationLLM | None:
+    """The model's raw (unguarded) answer, or None. Never raises (cancellation aside); never
+    takes longer than EXPLANATION_BUDGET_S."""
+    budget = EXPLANATION_BUDGET_S
+    try:
+        async with asyncio.timeout(budget):
+            out = await provider.chat_json(
+                model=settings.callmissed_explanation_model,
+                system=system,
+                user=data.model_dump_json(),
+                schema=ExplanationLLM,
+                prompt_version=prompt_version,
+                timeout_s=budget,
+            )
+    except ProviderUnavailable as exc:
+        logger.warning("explanation_unavailable reason=%s", exc.reason)
+        return None
+    except Exception as exc:  # noqa: BLE001 - degrade to None, never fail the analysis
+        logger.warning("explanation_unavailable reason=%s", type(exc).__name__)
+        return None
+    if not isinstance(out, ExplanationLLM):
+        logger.warning("explanation_unavailable reason=wrong_type")
+        return None
+    return out
+
+
 async def explain(
     provider: LLMProvider,
     settings: Settings,
@@ -400,33 +455,20 @@ async def explain(
     if language not in LANGUAGES:
         return None
     lang: Language = language  # type: ignore[assignment]
-    budget = EXPLANATION_BUDGET_S
     try:
         data = build_explanation_input(result, members, lang, today=today)
         system, version = load_prompt(EXPLANATION_PROMPT_VERSION)
-        async with asyncio.timeout(budget):
-            out = await provider.chat_json(
-                model=settings.callmissed_explanation_model,
-                system=system,
-                user=data.model_dump_json(),
-                schema=ExplanationLLM,
-                prompt_version=version,
-                timeout_s=budget,
-            )
-        if not isinstance(out, ExplanationLLM):
-            logger.warning("explanation_unavailable reason=wrong_type")
-            return None
-        return guard(
-            out,
-            result,
-            [m.name for m in members],
-            emails,
-            language=lang,
-            prompt_version=version,
-        )
-    except ProviderUnavailable as exc:
-        logger.warning("explanation_unavailable reason=%s", exc.reason)
-        return None
     except Exception as exc:  # noqa: BLE001 - degrade to None, never fail the analysis
         logger.warning("explanation_unavailable reason=%s", type(exc).__name__)
         return None
+    out = await complete(provider, settings, data, system, version)
+    if out is None:
+        return None
+    return guard(
+        out,
+        result,
+        [m.name for m in members],
+        emails,
+        language=lang,
+        prompt_version=version,
+    )

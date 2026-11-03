@@ -4,15 +4,7 @@
       "AnalyzeOut": {
         "properties": {
           "explanation": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Explanation"
+            "$ref": "#/components/schemas/ExplanationOut"
           },
           "product": {
             "$ref": "#/components/schemas/ProductOut"
@@ -27,14 +19,6 @@
             "title": "Scan Id",
             "type": "string"
           },
-          "tips": {
-            "default": [],
-            "items": {
-              "type": "string"
-            },
-            "title": "Tips",
-            "type": "array"
-          },
           "verdicts": {
             "items": {
               "$ref": "#/components/schemas/VerdictOut"
@@ -47,7 +31,8 @@
           "scan_id",
           "product",
           "report",
-          "verdicts"
+          "verdicts",
+          "explanation"
         ],
         "title": "AnalyzeOut",
         "type": "object"
@@ -459,6 +444,70 @@
           "error"
         ],
         "title": "ErrorEnvelope",
+        "type": "object"
+      },
+      "ExplanationOut": {
+        "description": "The AI explanation (F7). It explains the verdicts and never changes them.\n\n`source == \"unavailable\"` (text null, no tips): no `ai_processing` consent, or the model\nfailed, timed out or disagreed with the engine. Clients then hide the explanation.\n`text` and `tips` refer to people only as `member_1`, `member_2`, ...; clients replace\neach token with that member's name (or \"you\") using `member_refs`.",
+        "properties": {
+          "language": {
+            "enum": [
+              "en",
+              "hi",
+              "mr"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "member_refs": {
+            "additionalProperties": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "description": "`member_N` token -> member_id (a member in `verdicts`). Empty when unavailable.",
+            "title": "Member Refs",
+            "type": "object"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "llm",
+              "unavailable"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "tips": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Tips",
+            "type": "array"
+          }
+        },
+        "required": [
+          "text",
+          "tips",
+          "language",
+          "source",
+          "prompt_version",
+          "member_refs"
+        ],
+        "title": "ExplanationOut",
         "type": "object"
       },
       "HealthOut": {

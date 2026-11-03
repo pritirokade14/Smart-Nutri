@@ -221,8 +221,7 @@ export interface components {
     schemas: {
         /** AnalyzeOut */
         AnalyzeOut: {
-            /** Explanation */
-            explanation?: string | null;
+            explanation: components["schemas"]["ExplanationOut"];
             product: components["schemas"]["ProductOut"];
             /** Report */
             report: {
@@ -233,11 +232,6 @@ export interface components {
              * Format: uuid
              */
             scan_id: string;
-            /**
-             * Tips
-             * @default []
-             */
-            tips: string[];
             /** Verdicts */
             verdicts: components["schemas"]["VerdictOut"][];
         };
@@ -393,6 +387,40 @@ export interface components {
          */
         ErrorEnvelope: {
             error: components["schemas"]["ErrorBody"];
+        };
+        /**
+         * ExplanationOut
+         * @description The AI explanation (F7). It explains the verdicts and never changes them.
+         *
+         *     `source == "unavailable"` (text null, no tips): no `ai_processing` consent, or the model
+         *     failed, timed out or disagreed with the engine. Clients then hide the explanation.
+         *     `text` and `tips` refer to people only as `member_1`, `member_2`, ...; clients replace
+         *     each token with that member's name (or "you") using `member_refs`.
+         */
+        ExplanationOut: {
+            /**
+             * Language
+             * @enum {string}
+             */
+            language: "en" | "hi" | "mr";
+            /**
+             * Member Refs
+             * @description `member_N` token -> member_id (a member in `verdicts`). Empty when unavailable.
+             */
+            member_refs: {
+                [key: string]: string;
+            };
+            /** Prompt Version */
+            prompt_version: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "llm" | "unavailable";
+            /** Text */
+            text: string | null;
+            /** Tips */
+            tips: string[];
         };
         /**
          * HealthOut

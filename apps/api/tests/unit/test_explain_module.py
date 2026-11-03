@@ -7,6 +7,7 @@ every failure degrades to None. Nothing calls the real CallMissed API.
 
 import asyncio
 import copy
+import dataclasses
 import json
 import uuid
 from datetime import date
@@ -458,12 +459,25 @@ def all_ok():
         "हे member_2 साठी सुरक्षित आहे.",
         "हा सुरक्षित पर्याय आहे.",
         "हा हेल्दी खाऊ आहे.",
+        # controller addition after the c2897fd re-review
+        "यह member_1 के लिए स्वस्थ विकल्प है।",
+        "हा निरोगी पर्याय आहे.",
+        "member_2 साठी निरोगी खाऊ.",
     ],
 )
 def test_guard_deny_list_for_every_status(family_result, family_rows, all_ok, text):
     assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
     ok_result, ok_rows = all_ok
     assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is None
+
+
+@pytest.mark.parametrize(
+    "text", ["member_2 के लिए ठीक है।", "member_2 साठी हे चालेल.", "member_2 साठी ठीक आहे."]
+)
+def test_guard_drops_hi_mr_okay_for_a_non_ok_member(family_result, family_rows, text):
+    """Controller addition: "ठीक" (hi) and "चालेल" (mr) for a member the engine did not mark ok."""
+    assert family_result.verdicts[1].status is not scoring.Status.OK
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
 
 
 def test_guard_deny_list_applies_to_tips(family_result, family_rows):
@@ -473,7 +487,15 @@ def test_guard_deny_list_applies_to_tips(family_result, family_rows):
 
 @pytest.mark.parametrize(
     "text",
-    ["member_1 is fine with this.", "It is Okay now and then.", "FINE for member_1"],
+    [
+        "member_1 is fine with this.",
+        "It is Okay now and then.",
+        "FINE for member_1",
+        "member_1 के लिए ठीक है।",
+        "यह member_1 के लिए ठीक रहेगा।",
+        "member_1 साठी चालेल.",
+        "हे member_1 ला चालेल.",
+    ],
 )
 def test_guard_denies_fine_and_okay_when_a_member_is_not_ok(
     family_result, family_rows, all_ok, text
@@ -546,6 +568,64 @@ def test_prompt_caution_wording_and_forbidden_words_ruling_p7():
     for word in ("safe", "healthy", "सुरक्षित", "सेहतमंद", "हेल्दी", "सुरक्षित आहे"):
         assert f'"{word}"' in text, word
     assert "for every status" in text
+
+
+def test_prompt_lists_every_denied_word():
+    """The model is told about every word the guard drops (so it can avoid them)."""
+    text, _ = load_prompt("explanation_v1")
+    for word in (*explain_mod.DENY_WORDS, *explain_mod.DENY_WORDS_NOT_ALL_OK):
+        assert f'"{word}"' in text, word
+
+
+def test_deny_lists_include_the_re_review_additions():
+    assert {"स्वस्थ", "निरोगी"} <= set(explain_mod.DENY_WORDS)
+    assert {"ठीक", "चालेल"} <= set(explain_mod.DENY_WORDS_NOT_ALL_OK)
+
+
+def test_no_duplicate_today_ist():
+    """Ruling P8.2: one IST "today", in app.core.time."""
+    from app.core import time as core_time
+
+    assert explain_mod.today_ist is core_time.today_ist
+    assert not hasattr(explain_mod, "_IST")
+
+
+# --- cache key -----------------------------------------------------------------------------
+
+
+def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, product):
+    data = build_explanation_input(family_result, family_rows, "hi", today=TODAY)
+    key = explain_mod.cache_key(data, "explanation_v1", "expl-model")
+    assert len(key) == 64 and int(key, 16) >= 0
+    assert key == explain_mod.cache_key(
+        build_explanation_input(family_result, family_rows, "hi", today=TODAY),
+        "explanation_v1",
+        "expl-model",
+    )
+    # Same anonymised family under other names and ids: same key (names never reach it).
+    renamed = [copy.copy(m) for m in family_rows]
+    for i, m in enumerate(renamed):
+        m.name, m.id = f"Other{i}", uuid.uuid4()
+    other = scoring.analyze(
+        dataclasses.replace(product, name="Another name"),
+        [to_scoring_member(m, today=TODAY) for m in renamed],
+    )
+    assert (
+        explain_mod.cache_key(
+            build_explanation_input(other, renamed, "hi", today=TODAY),
+            "explanation_v1",
+            "expl-model",
+        )
+        == key
+    )
+    # Language, prompt version and model each change it.
+    assert key != explain_mod.cache_key(
+        build_explanation_input(family_result, family_rows, "en", today=TODAY),
+        "explanation_v1",
+        "expl-model",
+    )
+    assert key != explain_mod.cache_key(data, "explanation_v2", "expl-model")
+    assert key != explain_mod.cache_key(data, "explanation_v1", "other-model")
 
 
 def test_prompt_lists_every_engine_reason_code():

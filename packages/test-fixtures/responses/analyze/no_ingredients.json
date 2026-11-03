@@ -1,5 +1,12 @@
 {
-  "explanation": null,
+  "explanation": {
+    "language": "en",
+    "member_refs": {},
+    "prompt_version": "explanation_v1",
+    "source": "unavailable",
+    "text": null,
+    "tips": []
+  },
   "product": {
     "attribution": null,
     "barcode": null,
@@ -49,7 +56,6 @@
     "veg_mark_mismatch": false
   },
   "scan_id": "fee2ddc8-be54-5a95-aa8d-6af75d544a9e",
-  "tips": [],
   "verdicts": [
     {
       "is_primary": false,

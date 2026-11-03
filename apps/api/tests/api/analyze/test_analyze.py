@@ -135,7 +135,16 @@ async def test_response_shape(auth_client, seeded_product):
     assert body["product"]["product_id"] == str(seeded_product.id)
     assert body["product"]["attribution"] is None
     assert "nutriscore" in body["report"]
-    assert body["explanation"] is None and body["tips"] == []
+    # No ai_processing consent: no LLM call, an "unavailable" explanation (P3, P5-R17).
+    assert body["explanation"] == {
+        "text": None,
+        "tips": [],
+        "language": "hi",
+        "source": "unavailable",
+        "prompt_version": "explanation_v1",
+        "member_refs": {},
+    }
+    assert "tips" not in body
     (v,) = body["verdicts"]
     assert v["status"] in {"ok", "caution", "unknown", "avoid"}
     assert set(v) == {
