@@ -78,17 +78,37 @@ class ResultScreen extends ConsumerWidget {
       };
 }
 
-class _ErrorView extends StatelessWidget {
+class _ErrorView extends StatefulWidget {
   const _ErrorView({required this.message, this.onRetry, this.labelBarcode});
 
   final String message;
   final VoidCallback? onRetry;
 
-  /// When set, offers to photograph the label of this unknown barcode.
+  /// When set, this unknown barcode goes straight to label capture (F15, as
+  /// on the web); the button stays as a fallback.
   final String? labelBarcode;
 
   @override
+  State<_ErrorView> createState() => _ErrorViewState();
+}
+
+class _ErrorViewState extends State<_ErrorView> {
+  @override
+  void initState() {
+    super.initState();
+    final code = widget.labelBarcode;
+    if (code == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      GoRouter.maybeOf(context)?.pushReplacement('/scan/label?barcode=$code');
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final message = widget.message;
+    final onRetry = widget.onRetry;
+    final labelBarcode = widget.labelBarcode;
     final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(

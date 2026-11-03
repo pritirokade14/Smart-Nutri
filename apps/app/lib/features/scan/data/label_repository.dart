@@ -27,8 +27,8 @@ class LabelFailure implements Exception {
 
   final String code;
 
-  /// Fields the API named (`details.fields`), without the `body.` prefix
-  /// (e.g. `protein_g`, `serving_size_g`, `sodium_unit`).
+  /// Fields the API named (`details.fields`), as form field names (e.g.
+  /// `protein_g`, `serving_size_g`, `sodium_unit`, `ingredients`).
   final List<String> fields;
 
   /// `product_exists`: the product the caller can already see, if given.
@@ -140,6 +140,17 @@ class LabelRepository {
     }
   }
 
+  /// The form field an API error path names: `body.nutrients.sodium_mg` is
+  /// `sodium_mg`, and a list item such as `body.ingredients.3` names its list
+  /// (`ingredients`).
+  static String? _fieldName(String path) {
+    final parts = [
+      for (final p in path.split('.'))
+        if (p.isNotEmpty && int.tryParse(p) == null) p,
+    ];
+    return parts.isEmpty ? null : parts.last;
+  }
+
   static LabelFailure _failure(Object error) {
     if (error is LabelFailure) return error;
     final code = apiErrorCode(error) ?? 'internal_error';
@@ -152,8 +163,8 @@ class LabelRepository {
       final raw = details['fields'];
       if (raw is List) {
         for (final f in raw.whereType<String>()) {
-          final name = f.split('.').last;
-          if (name.isNotEmpty && !fields.contains(name)) fields.add(name);
+          final name = _fieldName(f);
+          if (name != null && !fields.contains(name)) fields.add(name);
         }
       }
       final id = details['product_id'];

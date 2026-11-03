@@ -67,3 +67,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 4 Task 9 (web confirm screen)
 - [ ] **hi/mr `confirm.{name,brand,sodium,veg_mark_title,remove_ingredient,clear_statement_confirm,open_existing}`**: machine drafts. Check that `clear_statement_confirm` reads as a deliberate "the pack has no such statement" confirmation (it gates removing the allergen or may-contain text), and that `sodium` works as a field label next to the separate mg/g picker.
+
+## Plan 4 round B (Android label capture)
+- [ ] **hi/mr `label.camera_permission_denied`**: machine drafts. Check that "सेटिंग्स" / "सेटिंग्ज" is the word users see on their phone, that the sentence reads as a calm "turn on camera access" instruction (no blame), and that the two fallbacks (choose a photo, enter manually) match the `label.choose_file` and `label.enter_manually` wording.

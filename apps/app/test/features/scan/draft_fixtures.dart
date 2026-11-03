@@ -54,8 +54,9 @@ Map<String, Object?> baseDraftJson() => {
   'derived_from_serving': false,
   'engine_withheld': <String>[],
   'warnings': <String>[],
-  // Required by the contract since R21. Placeholder for a clean draft; the confirm UI
-  // does not read it yet (round B switches these tests to packages/test-fixtures/drafts).
+  // The server's hints for a clean per-100 g draft (as in
+  // packages/test-fixtures/drafts/clean.json). Drafts with save rules come
+  // from those shared fixtures, never from here.
   'confirm': <String, Object?>{
     'basis_required': false,
     'category_required': false,
@@ -75,99 +76,6 @@ ProductDraft draftFrom(Map<String, Object?> json) =>
     ProductDraft.fromJson(json);
 
 ProductDraft baseDraft() => draftFrom(baseDraftJson());
-
-/// `implausible_value:sugars_g` (sugars above carbs).
-ProductDraft implausibleDraft() {
-  final j = baseDraftJson();
-  (j['per_100g']! as Map<String, Object?>)['sugars_g'] = 95;
-  j['warnings'] = ['implausible_value:sugars_g'];
-  return draftFrom(j);
-}
-
-/// A per-serving-only label without a serving size: nothing per 100 g.
-ProductDraft per100gMissingDraft() {
-  final j = baseDraftJson();
-  j['per_100g'] = column();
-  j['per_serving'] = column(energyKcal: 120, proteinG: 2, sugarsG: 6);
-  j['warnings'] = ['per_100g_missing', 'per_serving_ignored'];
-  return draftFrom(j);
-}
-
-/// An upper-bound ("<0.5 g") protein the engine holds back.
-ProductDraft withheldProteinDraft() {
-  final j = baseDraftJson();
-  (j['per_100g']! as Map<String, Object?>)['protein_g'] = 0.5;
-  j['engine_withheld'] = ['protein_g'];
-  j['warnings'] = ['upper_bound:per_100g.protein_g'];
-  return draftFrom(j);
-}
-
-/// Values printed in the per-100 g column, but the label says "per serving".
-ProductDraft basisMismatchDraft() {
-  final j = baseDraftJson();
-  j['engine_withheld'] = [
-    'energy_kcal',
-    'protein_g',
-    'carbs_g',
-    'sugars_g',
-    'fat_g',
-    'sat_fat_g',
-    'fiber_g',
-    'salt_g',
-    'sodium_mg',
-  ];
-  j['warnings'] = ['basis_mismatch'];
-  return draftFrom(j);
-}
-
-/// Sodium printed as "0.4" with no unit on the per-100 g column.
-ProductDraft sodiumUnitDraft() {
-  final j = baseDraftJson();
-  (j['per_100g']! as Map<String, Object?>)['sodium_mg'] = 0.4;
-  j['engine_withheld'] = ['sodium_mg'];
-  j['warnings'] = ['unit_unconfirmed:per_100g.sodium_mg'];
-  return draftFrom(j);
-}
-
-/// Only a per-serving column (30 g serving) was printed; the server derived
-/// per-100 g values from it.
-Map<String, Object?> derivedDraftJson() {
-  final j = baseDraftJson();
-  j['per_100g'] = column(
-    energyKcal: 400,
-    proteinG: 6.666666666666667,
-    carbsG: 70,
-    sugarsG: 20,
-    fatG: 13.333333333333334,
-    satFatG: 6.666666666666667,
-    saltG: 1,
-    sodiumMg: 400,
-  );
-  j['per_serving'] = column(
-    energyKcal: 120,
-    proteinG: 2,
-    carbsG: 21,
-    sugarsG: 6,
-    fatG: 4,
-    satFatG: 2,
-    saltG: 0.3,
-    sodiumMg: 120,
-  );
-  j['serving_size_g'] = 30;
-  j['derived_from_serving'] = true;
-  j['warnings'] = ['derived_from_serving'];
-  return j;
-}
-
-ProductDraft derivedDraft() => draftFrom(derivedDraftJson());
-
-/// The model guessed the category from weak evidence.
-ProductDraft categoryCheckDraft() {
-  final j = baseDraftJson();
-  j['category'] = 'beverage';
-  j['warnings'] = ['category_check'];
-  return draftFrom(j);
-}
 
 ProductDraft lowConfidenceDraft() {
   final j = baseDraftJson();

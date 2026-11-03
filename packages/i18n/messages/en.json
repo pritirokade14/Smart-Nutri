@@ -228,7 +228,8 @@
     "uploading": "Uploading the photo…",
     "reading": "Reading the label…",
     "retake": "Retake",
-    "enter_manually": "Enter the details manually"
+    "enter_manually": "Enter the details manually",
+    "camera_permission_denied": "Camera access is off. Allow it in Settings to photograph the label, or choose a photo or enter the details manually."
   },
   "confirm": {
     "title": "Check the label values",

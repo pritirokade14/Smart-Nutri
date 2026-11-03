@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -100,6 +100,8 @@ Future<_Visits> _pumpFlow(
   FakeLabelRepository? labels,
   FakeAnalysisRepository? analysis,
   List<String>? events,
+  LabelPhotoPicker? picker,
+  LabelLostPhoto? lostPhoto,
 }) async {
   t.view.physicalSize = const Size(1000, 9000);
   t.view.devicePixelRatio = 1;
@@ -143,8 +145,9 @@ Future<_Visits> _pumpFlow(
           analysis ?? FakeAnalysisRepository(() => analyzeFixture('water')),
         ),
         labelPhotoPickerProvider.overrideWithValue(
-          (_) async => XFile.fromData(Uint8List.fromList([1, 2, 3])),
+          picker ?? (_) async => XFile.fromData(Uint8List.fromList([1, 2, 3])),
         ),
+        labelLostPhotoProvider.overrideWithValue(lostPhoto ?? () async => null),
         analyticsProvider.overrideWithValue(
           Analytics((event, props) async {
             events?.add(event);
@@ -201,9 +204,16 @@ void main() {
       final labels = FakeLabelRepository(
         scan: () => throw _failure('extraction_failed'),
       );
-      await _pumpFlow(t, initial: '/scan/label', labels: labels);
+      final events = <String>[];
+      await _pumpFlow(
+        t,
+        initial: '/scan/label',
+        labels: labels,
+        events: events,
+      );
       await t.tap(find.text(en.labelChooseFile));
       await t.pumpAndSettle();
+      expect(events, ['label_scan_started', 'label_scan_failed']);
       expect(find.text(en.errorExtractionFailed), findsOneWidget);
       expect(find.text(en.labelRetake), findsOneWidget);
       expect(find.text(en.labelEnterManually), findsOneWidget);
@@ -245,6 +255,60 @@ void main() {
         expect(find.text(en.labelEnterManually), findsOneWidget, reason: code);
         await t.pumpWidget(const SizedBox());
       }
+    });
+  });
+
+  group('capture parity', () {
+    testWidgets('with a barcode, the capture screen says why (F15)', (t) async {
+      await _pumpFlow(t, initial: '/scan/label?barcode=8901063201089');
+      expect(find.text(en.notfoundGoToLabel), findsOneWidget);
+      await t.pumpWidget(const SizedBox());
+      await _pumpFlow(t, initial: '/scan/label');
+      expect(find.text(en.notfoundGoToLabel), findsNothing);
+    });
+
+    testWidgets('a denied camera permission shows the permission message', (
+      t,
+    ) async {
+      final events = <String>[];
+      await _pumpFlow(
+        t,
+        initial: '/scan/label',
+        events: events,
+        picker: (_) async =>
+            throw PlatformException(code: 'camera_access_denied'),
+      );
+      await t.tap(find.text(en.labelTakePhoto));
+      await t.pumpAndSettle();
+      expect(find.text(en.labelCameraPermissionDenied), findsOneWidget);
+      expect(find.text(en.errorUnsupportedImage), findsNothing);
+      expect(find.text(en.labelRetake), findsOneWidget);
+      expect(find.text(en.labelEnterManually), findsOneWidget);
+    });
+
+    testWidgets('a photo lost when Android killed the app is recovered on '
+        'start and the flow continues', (t) async {
+      final labels = FakeLabelRepository(scan: () => scanOut(baseDraft()));
+      final events = <String>[];
+      await _pumpFlow(
+        t,
+        initial: '/scan/label?barcode=8901063201089',
+        labels: labels,
+        events: events,
+        lostPhoto: () async => XFile.fromData(Uint8List.fromList([4, 5, 6])),
+      );
+      expect(labels.scanBarcodes, ['8901063201089']);
+      expect(find.byType(ConfirmScreen), findsOneWidget);
+      expect(events, contains('label_scan_started'));
+    });
+
+    testWidgets('no lost photo: the capture screen waits for the user', (
+      t,
+    ) async {
+      final labels = FakeLabelRepository(scan: () => scanOut(baseDraft()));
+      await _pumpFlow(t, initial: '/scan/label', labels: labels);
+      expect(labels.scanBarcodes, isEmpty);
+      expect(find.text(en.labelTakePhoto), findsOneWidget);
     });
   });
 
@@ -312,6 +376,7 @@ void main() {
       t,
     ) async {
       final labels = FakeLabelRepository(save: () => _savedProduct('p-3'));
+      final events = <String>[];
       await _pumpFlow(
         t,
         initial: '/scan/confirm',
@@ -320,6 +385,7 @@ void main() {
           barcode: '12345670',
         ),
         labels: labels,
+        events: events,
       );
       await t.tap(find.text(en.labelEnterManually));
       await t.pumpAndSettle();
@@ -334,11 +400,13 @@ void main() {
         'Typed',
       );
       await t.tap(find.byKey(const ValueKey('category:general')));
+      await t.tap(find.byKey(const ValueKey('basis:per_100g')));
       await t.pump();
       await t.tap(find.byKey(const Key('save')));
       await t.pumpAndSettle();
       expect(labels.saved.single.scanId, isNull);
       expect(labels.saved.single.barcode, '12345670');
+      expect(events, ['manual_product_saved']);
       expect(labels.saved.single.nutrients.energyKcal, isNull);
     });
 
@@ -395,6 +463,35 @@ void main() {
       },
     );
 
+    testWidgets('a 422 on an ingredient highlights the ingredients field', (
+      t,
+    ) async {
+      final labels = FakeLabelRepository(
+        save: () => throw _failure('validation_error', fields: ['ingredients']),
+      );
+      await _pumpFlow(
+        t,
+        initial: '/scan/confirm',
+        extra: ConfirmArgs(scan: scanOut(baseDraft())),
+        labels: labels,
+      );
+      await t.tap(find.byKey(const Key('save')));
+      await t.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('highlight:ingredients')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('list:ingredients')),
+          matching: find.text(en.errorValidationError),
+        ),
+        findsOneWidget,
+      );
+      // Items are never dropped automatically.
+      expect(_fieldText(t, 'ingredient:2'), 'Palm oil');
+    });
+
     testWidgets('scan_not_found on save offers retake', (t) async {
       final labels = FakeLabelRepository(
         save: () => throw _failure('scan_not_found'),
@@ -423,10 +520,11 @@ void main() {
       initial: '/result?barcode=8901063201089',
       analysis: analysis,
     );
-    expect(find.text(en.scanNotFound), findsOneWidget);
-    await t.tap(find.text(en.notfoundGoToLabel));
-    await t.pumpAndSettle();
+    // F15: straight to label capture, as on the web; no tap needed.
+    expect(find.byType(ResultScreen), findsNothing);
     expect(find.byType(LabelCaptureScreen), findsOneWidget);
     expect(visits.locations.last, '/scan/label?barcode=8901063201089');
+    expect(find.text(en.notfoundGoToLabel), findsOneWidget);
+    expect(analysis.barcodes, ['8901063201089']);
   });
 }

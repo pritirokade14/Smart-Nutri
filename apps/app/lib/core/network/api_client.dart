@@ -71,6 +71,10 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'product_exists' => l10n.errorProductExists,
     'product_not_found' => l10n.errorProductNotFound,
     'invalid_product_ref' => l10n.errorInvalidProductRef,
+    'invalid_barcode' => l10n.errorInvalidBarcode,
+    'off_unavailable' => l10n.errorOffUnavailable,
+    'member_not_found' => l10n.errorMemberNotFound,
+    'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };
 }

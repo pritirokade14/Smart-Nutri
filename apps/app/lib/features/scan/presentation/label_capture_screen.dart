@@ -13,21 +13,47 @@ import 'label_providers.dart';
 
 /// Photograph (or choose) a label photo; the extracted draft opens the
 /// confirm screen. Every error offers Retake and Enter manually.
-class LabelCaptureScreen extends ConsumerWidget {
+class LabelCaptureScreen extends ConsumerStatefulWidget {
   const LabelCaptureScreen({super.key, this.barcode});
 
   /// The unknown barcode that led here (F15), carried to the scan and save.
   final String? barcode;
 
-  String? get _code => barcode == null ? null : normalizeBarcode(barcode!);
+  @override
+  ConsumerState<LabelCaptureScreen> createState() => _LabelCaptureScreenState();
+}
+
+class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
+  String? get _code {
+    final code = widget.barcode;
+    return code == null ? null : normalizeBarcode(code);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // A photo Android kept after killing the app mid-capture continues the
+    // flow (ImagePicker.retrieveLostData).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(labelScanControllerProvider.notifier)
+          .recoverLost(barcode: _code);
+    });
+  }
 
   void _enterManually(BuildContext context) => context.pushReplacement(
     '/scan/confirm',
     extra: ConfirmArgs(barcode: _code),
   );
 
+  static String _failureText(AppLocalizations l10n, String code) =>
+      code == cameraPermissionDenied
+      ? l10n.labelCameraPermissionDenied
+      : localizedErrorCode(l10n, code);
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     ref.listen(labelScanControllerProvider, (_, next) {
@@ -60,7 +86,7 @@ class LabelCaptureScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            localizedErrorCode(l10n, failure.code),
+            _failureText(l10n, failure.code),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge,
           ),
@@ -81,6 +107,15 @@ class LabelCaptureScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // F15: an unknown barcode led here.
+          if (_code != null) ...[
+            Text(
+              l10n.notfoundGoToLabel,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: SnTokens.space4),
+          ],
           Icon(
             Icons.document_scanner_outlined,
             size: 64,

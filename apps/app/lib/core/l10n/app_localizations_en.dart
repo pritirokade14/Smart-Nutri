@@ -461,6 +461,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get labelCameraPermissionDenied =>
+      'Camera access is off. Allow it in Settings to photograph the label, or choose a photo or enter the details manually.';
+
+  @override
   String get labelChooseFile => 'Choose a file';
 
   @override

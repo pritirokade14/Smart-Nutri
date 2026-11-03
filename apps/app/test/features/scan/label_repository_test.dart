@@ -271,6 +271,14 @@ void main() {
       );
       expect(validation.fields, ['sodium_mg', 'serving_size_g']);
 
+      // A list item names the list: the ingredients field is highlighted.
+      final ingredient = await failureFor(
+        _apiError('validation_error', 422, {
+          'fields': ['body.ingredients.3', 'body.ingredients.7', 'body.basis'],
+        }),
+      );
+      expect(ingredient.fields, ['ingredients', 'basis']);
+
       final exists = await failureFor(
         _apiError('product_exists', 409, {'product_id': 'p-9'}),
       );

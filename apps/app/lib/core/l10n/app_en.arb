@@ -202,6 +202,7 @@
       }
     }
   },
+  "labelCameraPermissionDenied": "Camera access is off. Allow it in Settings to photograph the label, or choose a photo or enter the details manually.",
   "labelChooseFile": "Choose a file",
   "labelDropHere": "Drop a photo here",
   "labelEnterManually": "Enter the details manually",

@@ -14,12 +14,18 @@ import 'warning_banner.dart';
 ///
 /// It transcribes what the pack prints and records the user's explicit
 /// choices; it never does nutrient arithmetic and never decides a verdict
-/// (Ruling R17). Safety rules (task 8/9 addendum, R19):
-/// - blanks stay blank and are sent as null, never 0;
-/// - withheld values, the serving size, the basis, the category and an
-///   unconfirmed sodium unit are never confirmed on the user's behalf;
-/// - for a `derived_from_serving` draft the printed per-serving column is
-///   shown and sent (basis per_serving), never the derived per-100 g values.
+/// (Ruling R17). For a scan, every save rule comes from the server's
+/// `draft.confirm` hints (Ruling R21); nothing is inferred from `warnings`,
+/// `engine_withheld`, `derived_from_serving` or `basis_mismatch`:
+/// - offered bases are the non-null `confirm.columns`; a lone one is selected,
+///   and of two, per 100 g is preselected (R22);
+/// - `basis_required` / `category_required` preselect nothing;
+/// - the shown values are the printed column of the chosen basis, else the
+///   `shared` printed column; server-derived values are never shown;
+/// - a box, unticked, for each of the chosen column's `confirm_fields`; a
+///   field is confirmed only by its tick or by an edit;
+/// - a mg/g picker when the column says `sodium_unit_required`.
+/// Blanks stay blank and are sent as null, never 0.
 class DraftForm extends StatefulWidget {
   const DraftForm({
     super.key,
@@ -48,7 +54,7 @@ class DraftForm extends StatefulWidget {
   final List<Widget> footer;
 
   @override
-  State<DraftForm> createState() => _DraftFormState();
+  State<DraftForm> createState() => DraftFormState();
 }
 
 /// One numeric input, showing the exact printed value. Unedited, it sends
@@ -85,40 +91,56 @@ num? _nutrient(DraftNutrients? n, String f) => switch (f) {
   _ => null,
 };
 
-bool _hasEngineValues(DraftNutrients? n) =>
-    n != null && engineFields.any((f) => _nutrient(n, f) != null);
+/// The two bases, in contract order.
+const _bases = ['per_100g', 'per_serving'];
+
+/// Input columns that are not a printed draft column.
+const _manualSource = 'manual';
+const _blankSource = 'blank';
 
 const _statementFields = ['allergen_statement', 'may_contain_statement'];
 
-class _DraftFormState extends State<DraftForm> {
+class DraftFormState extends State<DraftForm> {
   late final ProductDraft? _draft = widget.draft;
   late final List<DraftWarning> _warnings = [
     for (final w in _draft?.warnings ?? const <String>[]) DraftWarning.parse(w),
   ];
-  late final Set<String> _codes = {for (final w in _warnings) w.code};
-  late final List<String> _rawWarnings = _draft?.warnings ?? const [];
 
   bool get _scan => _draft != null;
-  bool get _mismatch => _codes.contains('basis_mismatch');
-  bool get _derived => _draft?.derivedFromServing ?? false;
 
-  /// One column for both bases (manual entry; a basis mismatch, where the
-  /// basis only says what the printed numbers mean).
-  late final bool _sharedColumn;
-  late final Map<String, _NumInput> _per100;
-  late final Map<String, _NumInput> _perServing;
+  /// The server's hint for saving with [basis] (null = not offered).
+  ColumnConfirm? _hint(String basis) {
+    final columns = _draft?.confirm.columns;
+    return basis == 'per_100g' ? columns?.per100g : columns?.perServing;
+  }
 
-  /// The printed column a shared column was taken from (for warning paths).
-  late final String _sharedSource;
+  /// Bases the user may save with: both for manual entry, else exactly the
+  /// non-null hint columns.
+  late final List<String> _offered = _scan
+      ? [
+          for (final b in _bases)
+            if (_hint(b) != null) b,
+        ]
+      : _bases;
 
-  ProductCreateBasis? _basis;
+  /// The printed column to show whatever basis is picked, if any.
+  late final String? _sharedSource = _scan
+      ? _bases.where((b) => _hint(b)?.shared ?? false).firstOrNull
+      : null;
+
+  /// Input columns by source: a printed draft column (`per_100g` /
+  /// `per_serving`), [_manualSource] or [_blankSource]. Only columns the
+  /// server marks `printed` are filled from the draft.
+  final Map<String, Map<String, _NumInput>> _inputs = {};
+
+  String? _basis;
   ProductCreateCategory? _category;
   ProductCreateSodiumUnit? _sodiumUnit;
   ProductCreateVegMark? _vegMark;
 
-  /// Withheld fields the user ticked or edited.
-  final Set<String> _confirmed = {};
-  bool _servingConfirmed = false;
+  /// Boxes the user ticked, as `<source>.<field>`.
+  final Set<String> _ticked = {};
+  bool _servingTicked = false;
   final Set<String> _blankConfirmed = {};
 
   late final _NumInput _serving = _NumInput(_draft?.servingSizeG);
@@ -154,69 +176,47 @@ class _DraftFormState extends State<DraftForm> {
       for (final f in formNutrientFields) f: _NumInput(_nutrient(n, f)),
     };
     if (draft == null) {
-      _sharedColumn = true;
-      _sharedSource = 'per_100g';
-      _per100 = column(null);
-      _perServing = _per100;
-      _basis = ProductCreateBasis.per100g;
-    } else if (draft.derivedFromServing) {
-      // R19: the per-100 g values were derived by the server; nothing was
-      // printed per 100 g. Show and send the printed per-serving column.
-      _sharedColumn = false;
-      _sharedSource = 'per_serving';
-      _per100 = column(null);
-      _perServing = column(draft.perServing);
-      _basis = ProductCreateBasis.perServing;
-    } else if (_mismatch) {
-      final fromServing =
-          !_hasEngineValues(draft.per100g) &&
-          _hasEngineValues(draft.perServing);
-      _sharedColumn = true;
-      _sharedSource = fromServing ? 'per_serving' : 'per_100g';
-      _per100 = column(fromServing ? draft.perServing : draft.per100g);
-      _perServing = _per100;
-      _basis = null; // forced choice
+      _inputs[_manualSource] = column(null);
     } else {
-      _sharedColumn = false;
-      _sharedSource = 'per_100g';
-      _per100 = column(draft.per100g);
-      _perServing = column(draft.perServing);
-      _basis = ProductCreateBasis.per100g;
-    }
-    if (draft != null &&
-        !_codes.contains('category_unknown') &&
-        !_codes.contains('category_check')) {
-      final c = ProductCreateCategory.fromJson(draft.category.json ?? '');
-      _category = c == ProductCreateCategory.$unknown ? null : c;
+      for (final b in _bases) {
+        if (_hint(b)?.printed ?? false) {
+          _inputs[b] = column(
+            b == 'per_100g' ? draft.per100g : draft.perServing,
+          );
+        }
+      }
+      _inputs[_blankSource] = column(null);
+      // Forced choice when the basis is in doubt. Otherwise a lone offered
+      // basis is the only possible one, and with two offered, per 100 g is
+      // preselected and the user can switch (R22).
+      if (!draft.confirm.basisRequired) {
+        if (_offered.length == 1) {
+          _basis = _offered.single;
+        } else if (_offered.contains('per_100g')) {
+          _basis = 'per_100g';
+        }
+      }
+      if (!draft.confirm.categoryRequired) {
+        final c = ProductCreateCategory.fromJson(draft.category.json ?? '');
+        _category = c == ProductCreateCategory.$unknown ? null : c;
+      }
     }
     final veg = ProductCreateVegMark.fromJson(draft?.vegMark?.json ?? '');
     _vegMark = veg == ProductCreateVegMark.$unknown ? null : veg;
 
-    for (final column in {_per100, _perServing}) {
-      for (final e in column.entries) {
-        e.value.controller.addListener(
-          () => _onNutrientChanged(e.key, e.value),
-        );
+    for (final column in _inputs.values) {
+      for (final input in column.values) {
+        input.controller.addListener(() => setState(() {}));
       }
     }
-    _serving.controller.addListener(() {
-      if (_serving.edited) _servingConfirmed = true;
-      setState(() {});
-    });
-    for (final c in [_name, ..._statements.values]) {
+    for (final c in [_serving.controller, _name, ..._statements.values]) {
       c.addListener(() => setState(() {}));
     }
   }
 
-  void _onNutrientChanged(String field, _NumInput input) {
-    // Editing a withheld value is confirming it.
-    if (input.edited && _withheld.contains(field)) _confirmed.add(field);
-    setState(() {});
-  }
-
   @override
   void dispose() {
-    for (final column in {_per100, _perServing}) {
+    for (final column in _inputs.values) {
       for (final i in column.values) {
         i.controller.dispose();
       }
@@ -234,56 +234,56 @@ class _DraftFormState extends State<DraftForm> {
     super.dispose();
   }
 
-  // --- derived state ------------------------------------------------------
+  // --- derived state (from draft.confirm only) ----------------------------
 
-  Map<String, _NumInput> get _shown => _sharedColumn
-      ? _per100
-      : (_basis == ProductCreateBasis.perServing ? _perServing : _per100);
-
-  /// The printed column the shown numbers came from.
-  String get _shownColumn => _sharedColumn
-      ? _sharedSource
-      : (_basis == ProductCreateBasis.perServing ? 'per_serving' : 'per_100g');
-
-  Set<String> get _columns => {_shownColumn, ?_basis?.json};
-
-  /// R19: any unit-less sodium on either column, with sodium not blank.
-  bool get _unitPickerShown =>
-      _scan &&
-      _rawWarnings.any(
-        (w) => w.startsWith('unit_unconfirmed:') && w.endsWith('.sodium_mg'),
-      ) &&
-      !_shown['sodium_mg']!.isBlank;
-
-  /// Engine fields the server stores only when confirmed (mirrors the save
-  /// rules): the draft's list (answered by the basis on a mismatch), plus an
-  /// upper-bound protein or fibre on the column in use. A unit-less sodium is
-  /// confirmed by choosing its unit instead (R19).
-  Set<String> get _withheld {
-    if (!_scan) return const {};
-    final out = <String>{
-      if (!_mismatch)
-        for (final f in _draft!.engineWithheld)
-          if (f.json case final String name) name,
-    };
-    for (final f in const ['protein_g', 'fiber_g']) {
-      if (_columns.any((c) => _rawWarnings.contains('upper_bound:$c.$f'))) {
-        out.add(f);
+  /// The input column on screen (packages/test-fixtures README, step 2): the
+  /// chosen basis's column if printed, else the shared printed column; with
+  /// no basis yet, the shared column, else the first printed one; else blank.
+  String get _source {
+    if (!_scan) return _manualSource;
+    final basis = _basis;
+    if (basis != null && _inputs.containsKey(basis)) return basis;
+    if (_sharedSource case final shared?) return shared;
+    if (basis == null) {
+      for (final b in _bases) {
+        if (_inputs.containsKey(b)) return b;
       }
     }
-    if (_unitPickerShown) out.remove('sodium_mg');
-    return out;
+    return _blankSource;
   }
 
-  bool get _servingShown =>
-      !_scan ||
-      _draft!.servingSizeG != null ||
-      _derived ||
-      _basis == ProductCreateBasis.perServing;
+  Map<String, _NumInput> get _shown => _inputs[_source]!;
 
-  /// R18/R19: per-serving values are stored only with a confirmed serving.
+  /// The shown numbers are the one printed column, saved as the chosen basis.
+  bool get _sharedShown => _sharedSource != null && _source == _sharedSource;
+
+  ColumnConfirm? get _selectedHint =>
+      _scan && _basis != null ? _hint(_basis!) : null;
+
+  /// The chosen column's `confirm_fields`.
+  Set<String> get _confirmFields => {
+    for (final f in _selectedHint?.confirmFields ?? const []) ?f.json,
+  };
+
+  bool get _sodiumUnitRequired {
+    if (!_scan) return false;
+    if (_selectedHint case final hint?) return hint.sodiumUnitRequired;
+    return _offered.any((b) => _hint(b)?.sodiumUnitRequired ?? false);
+  }
+
+  bool get _unitPickerShown =>
+      _sodiumUnitRequired && !_shown['sodium_mg']!.isBlank;
+
+  bool _isConfirmed(String field) =>
+      _ticked.contains('$_source.$field') || _shown[field]!.edited;
+
+  bool get _servingConfirmed => _servingTicked || _serving.edited;
+
+  /// A per-serving save stores nothing without a confirmed serving size.
   bool get _servingTickRequired =>
-      _scan && (_derived || _basis == ProductCreateBasis.perServing);
+      _basis == 'per_serving' &&
+      _confirmFields.contains('serving_size_g') &&
+      !_servingConfirmed;
 
   bool _blankNeedsConfirm(String field) {
     final original = field == 'allergen_statement'
@@ -310,8 +310,8 @@ class _DraftFormState extends State<DraftForm> {
       _category != null &&
       _basis != null &&
       !(_unitPickerShown && _sodiumUnit == null) &&
-      !(_servingTickRequired && !_servingConfirmed) &&
-      !(_basis == ProductCreateBasis.perServing && _serving.value == null) &&
+      !_servingTickRequired &&
+      !(_basis == 'per_serving' && _serving.value == null) &&
       _invalidFields.isEmpty &&
       _statementFields.every(
         (f) => !_blankNeedsConfirm(f) || _blankConfirmed.contains(f),
@@ -319,18 +319,26 @@ class _DraftFormState extends State<DraftForm> {
 
   // --- body ---------------------------------------------------------------
 
+  /// The body Save would send now, or null while basis or category is
+  /// unchosen. For tests that assert the body of a save the form blocks.
+  @visibleForTesting
+  ProductCreate? get previewBody =>
+      _basis == null || _category == null ? null : _body();
+
   ProductCreate _body() {
     final col = _shown;
     num? v(String f) => col[f]!.value;
     String? text(TextEditingController c) =>
         c.text.trim().isEmpty ? null : c.text;
-    final withheld = _withheld;
+    final fields = _confirmFields;
     final confirmed = <ProductCreateConfirmedFields>[
       if (_scan) ...[
         for (final f in engineFields)
-          if (withheld.contains(f) && _confirmed.contains(f))
+          if (fields.contains(f) && _isConfirmed(f))
             ProductCreateConfirmedFields.fromJson(f),
-        if (_servingShown && _servingConfirmed)
+        // Editing the serving size confirms it, even one the draft lacked.
+        if ((fields.contains('serving_size_g') && _servingTicked) ||
+            _serving.edited)
           ProductCreateConfirmedFields.servingSizeG,
       ],
     ];
@@ -340,7 +348,7 @@ class _DraftFormState extends State<DraftForm> {
       name: _name.text.trim(),
       brand: text(_brand)?.trim(),
       category: _category!,
-      basis: _basis!,
+      basis: ProductCreateBasis.fromJson(_basis!),
       nutrients: PrintedNutrients(
         energyKcal: v('energy_kcal'),
         proteinG: v('protein_g'),
@@ -356,7 +364,7 @@ class _DraftFormState extends State<DraftForm> {
       ),
       // Null means mg; only the user's explicit pick is ever sent.
       sodiumUnit: _unitPickerShown ? _sodiumUnit : null,
-      servingSizeG: _servingShown ? _serving.value : null,
+      servingSizeG: _serving.value,
       ingredients: [
         for (final c in _ingredients)
           if (c.text.trim().isNotEmpty) c.text,
@@ -458,7 +466,8 @@ class _DraftFormState extends State<DraftForm> {
     final label = field == 'sodium_mg' && _unitPickerShown
         ? l10n.confirmSodium
         : fieldLabel(l10n, field) ?? field;
-    final withheld = _withheld.contains(field);
+    final needsConfirm = _scan && _confirmFields.contains(field);
+    final tickKey = '$_source.$field';
     return _highlight(
       field,
       Column(
@@ -480,7 +489,7 @@ class _DraftFormState extends State<DraftForm> {
               suffixIcon: suffix,
             ),
           ),
-          if (withheld) ...[
+          if (needsConfirm) ...[
             Padding(
               padding: const EdgeInsets.only(top: SnTokens.space1),
               child: Text(
@@ -490,8 +499,8 @@ class _DraftFormState extends State<DraftForm> {
             ),
             _confirmBox(
               'confirm:$field',
-              _confirmed.contains(field),
-              (v) => v ? _confirmed.add(field) : _confirmed.remove(field),
+              _isConfirmed(field),
+              (v) => v ? _ticked.add(tickKey) : _ticked.remove(tickKey),
             ),
           ],
         ],
@@ -499,16 +508,16 @@ class _DraftFormState extends State<DraftForm> {
     );
   }
 
+  /// The picked sodium unit beside the input, shown only with the picker
+  /// (otherwise the label already says mg).
   Widget _sodiumSuffix(AppLocalizations l10n) {
-    final unit = !_unitPickerShown
-        ? l10n.confirmSodiumUnitOptionMg
-        : switch (_sodiumUnit) {
-            ProductCreateSodiumUnit.g => l10n.confirmSodiumUnitOptionG,
-            ProductCreateSodiumUnit.mg => l10n.confirmSodiumUnitOptionMg,
-            _ =>
-              '${l10n.confirmSodiumUnitOptionMg} / '
-                  '${l10n.confirmSodiumUnitOptionG}',
-          };
+    final unit = switch (_sodiumUnit) {
+      ProductCreateSodiumUnit.g => l10n.confirmSodiumUnitOptionG,
+      ProductCreateSodiumUnit.mg => l10n.confirmSodiumUnitOptionMg,
+      _ =>
+        '${l10n.confirmSodiumUnitOptionMg} / '
+            '${l10n.confirmSodiumUnitOptionG}',
+    };
     return Padding(
       key: const ValueKey('sodium_unit_suffix'),
       padding: const EdgeInsets.symmetric(horizontal: SnTokens.space3),
@@ -528,12 +537,24 @@ class _DraftFormState extends State<DraftForm> {
     required List<TextEditingController> items,
     required String itemKey,
   }) {
+    final error = widget.fieldErrors[field];
     return _highlight(
       field,
       Column(
+        key: ValueKey('list:$field'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: Theme.of(context).textTheme.titleSmall),
+          if (error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: SnTokens.space1),
+              child: Text(
+                error,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ),
           const SizedBox(height: SnTokens.space1),
           for (final (i, c) in items.indexed)
             Padding(
@@ -631,7 +652,8 @@ class _DraftFormState extends State<DraftForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final draftServing = _draft?.servingSizeG;
+    final serving = _serving.value;
+    final servingBox = _scan && _confirmFields.contains('serving_size_g');
     return SingleChildScrollView(
       padding: const EdgeInsets.all(SnTokens.space4),
       child: Column(
@@ -659,85 +681,92 @@ class _DraftFormState extends State<DraftForm> {
           ),
           _highlight(
             'basis',
-            _chips<ProductCreateBasis>(
+            _chips<String>(
               title: l10n.confirmBasis,
               keyPrefix: 'basis',
               requiredChoice: true,
               selected: _basis,
               onSelected: (v) => _basis = v,
-              options: [
-                (
-                  ProductCreateBasis.per100g,
-                  'per_100g',
-                  l10n.confirmBasisOptionPer100g,
+              // Only the offered bases; a basis not offered is hidden.
+              options: [for (final b in _offered) (b, b, _basisLabel(l10n, b))],
+            ),
+          ),
+          if (_draft?.derivedFromServing ?? false)
+            if (serving != null)
+              Padding(
+                key: const ValueKey('derived_per_serving'),
+                padding: const EdgeInsets.only(bottom: SnTokens.space2),
+                child: Text(
+                  // The serving as currently typed, not the draft's.
+                  l10n.confirmDerivedPerServing(formatForDisplay(serving)),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                (
-                  ProductCreateBasis.perServing,
-                  'per_serving',
-                  l10n.confirmBasisOptionPerServing,
+              ),
+          _highlight(
+            'serving_size_g',
+            Column(
+              key: const ValueKey('field:serving_size_g'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _serving.controller,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: l10n.confirmServingSize,
+                    border: const OutlineInputBorder(),
+                    errorText:
+                        widget.fieldErrors['serving_size_g'] ??
+                        (_serving.valid ? null : l10n.errorValidationError),
+                  ),
                 ),
+                if (servingBox) ...[
+                  if (_servingTickRequired)
+                    Padding(
+                      padding: const EdgeInsets.only(top: SnTokens.space1),
+                      child: Text(
+                        l10n.confirmWithheldHint,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: SnTokens.verdictCaution,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  _confirmBox(
+                    'confirm:serving_size_g',
+                    _servingConfirmed,
+                    (v) => _servingTicked = v,
+                  ),
+                ],
               ],
             ),
           ),
-          if (_derived && draftServing != null)
+          const SizedBox(height: SnTokens.space2),
+          if (_sharedShown && _basis != null)
             Padding(
+              key: const ValueKey('shared_basis'),
               padding: const EdgeInsets.only(bottom: SnTokens.space2),
-              child: Text(
-                l10n.confirmDerivedPerServing(formatForDisplay(draftServing)),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          if (_servingShown)
-            _highlight(
-              'serving_size_g',
-              Column(
-                key: const ValueKey('field:serving_size_g'),
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Wrap(
+                spacing: SnTokens.space2,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  TextField(
-                    controller: _serving.controller,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: l10n.confirmServingSize,
-                      border: const OutlineInputBorder(),
-                      errorText:
-                          widget.fieldErrors['serving_size_g'] ??
-                          (_serving.valid ? null : l10n.errorValidationError),
-                    ),
-                  ),
-                  if (_scan) ...[
-                    if (_servingTickRequired && !_servingConfirmed)
-                      Padding(
-                        padding: const EdgeInsets.only(top: SnTokens.space1),
-                        child: Text(
-                          l10n.confirmWithheldHint,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: SnTokens.verdictCaution,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    _confirmBox(
-                      'confirm:serving_size_g',
-                      _servingConfirmed,
-                      (v) => _servingConfirmed = v,
-                    ),
-                  ],
+                  Text(l10n.confirmBasis, style: theme.textTheme.bodyMedium),
+                  Chip(label: Text(_basisLabel(l10n, _basis!))),
                 ],
               ),
             ),
-          const SizedBox(height: SnTokens.space2),
           Text(l10n.confirmLeaveBlankHint, style: theme.textTheme.bodySmall),
           const SizedBox(height: SnTokens.space2),
           for (final f in formNutrientFields) ...[
             _numberField(
               f,
               _shown[f]!,
-              suffix: f == 'sodium_mg' ? _sodiumSuffix(l10n) : null,
+              suffix: f == 'sodium_mg' && _unitPickerShown
+                  ? _sodiumSuffix(l10n)
+                  : null,
             ),
             if (f == 'sodium_mg' && _unitPickerShown)
               _chips<ProductCreateSodiumUnit>(
@@ -822,6 +851,11 @@ class _DraftFormState extends State<DraftForm> {
       ),
     );
   }
+
+  static String _basisLabel(AppLocalizations l10n, String basis) =>
+      basis == 'per_serving'
+      ? l10n.confirmBasisOptionPerServing
+      : l10n.confirmBasisOptionPer100g;
 
   static String _categoryLabel(
     AppLocalizations l10n,

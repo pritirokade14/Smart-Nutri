@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_ai/core/l10n/app_localizations_en.dart';
@@ -71,5 +74,19 @@ void main() {
       localizedApiError(l10n, err('something_new')),
       l10n.errorInternalError,
     );
+  });
+
+  test('localizedErrorCode maps every error.* key in packages/i18n', () {
+    final l10n = AppLocalizationsEn();
+    final en =
+        jsonDecode(
+              File('../../packages/i18n/messages/en.json').readAsStringSync(),
+            )
+            as Map<String, Object?>;
+    final errors = (en['error']! as Map).cast<String, String>();
+    expect(errors.keys, containsAll(['invalid_barcode', 'off_unavailable']));
+    for (final MapEntry(key: code, value: text) in errors.entries) {
+      expect(localizedErrorCode(l10n, code), text, reason: 'error.$code');
+    }
   });
 }

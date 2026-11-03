@@ -940,6 +940,12 @@ abstract class AppLocalizations {
   /// **'Hello, {name}'**
   String homeWelcome(String name);
 
+  /// No description provided for @labelCameraPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is off. Allow it in Settings to photograph the label, or choose a photo or enter the details manually.'**
+  String get labelCameraPermissionDenied;
+
   /// No description provided for @labelChooseFile.
   ///
   /// In en, this message translates to:

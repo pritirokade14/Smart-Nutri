@@ -465,6 +465,10 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get labelCameraPermissionDenied =>
+      'कैमरा की अनुमति बंद है। लेबल की फ़ोटो लेने के लिए सेटिंग्स में इसे चालू करें, या कोई फ़ोटो चुनें या जानकारी खुद भरें।';
+
+  @override
   String get labelChooseFile => 'फ़ाइल चुनें';
 
   @override
