@@ -12,6 +12,7 @@ import 'package:smartnutri_ai/features/history/presentation/history_screen.dart'
 import 'package:smartnutri_ai/features/history/presentation/weekly_dashboard.dart';
 import 'package:smartnutri_ai/features/members/data/members_repository.dart';
 import 'package:smartnutri_ai/shared/share/share_sheet.dart';
+import 'package:smartnutri_ai/shared/widgets/nutri_score_chip.dart';
 import 'package:smartnutri_ai/shared/widgets/off_attribution.dart';
 import 'package:smartnutri_ai/shared/widgets/states.dart';
 import 'package:smartnutri_api/src/export.dart';
@@ -153,6 +154,32 @@ void main() {
     await t.pumpAndSettle();
     expect(h.meals.deleted, ['m-b']);
     expect(find.text('Cola'), findsNothing);
+  });
+
+  testWidgets('grades are labelled "calculated by SmartNutri" once per list', (
+    t,
+  ) async {
+    await _pump(t);
+    await _scrollTo(t, find.text('Cola'));
+    expect(find.byType(NutriScoreBadge), findsNWidgets(2));
+    expect(find.text(en.nutriscoreCalculatedBy), findsOneWidget);
+  });
+
+  testWidgets('no grade shown, no calculated-by line', (t) async {
+    await _pump(
+      t,
+      setUp: (h) => h.meals.meals = [
+        mealOut(
+          id: 'm-n',
+          memberId: 'p1',
+          productName: 'Plain',
+          eatenAt: DateTime.now().toUtc(),
+          grade: null,
+        ),
+      ],
+    );
+    await _scrollTo(t, find.text('Plain'));
+    expect(find.text(en.nutriscoreCalculatedBy), findsNothing);
   });
 
   testWidgets('switching member reloads for that member', (t) async {

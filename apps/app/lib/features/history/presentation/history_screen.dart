@@ -281,6 +281,21 @@ class _MealList extends ConsumerWidget {
               }
               children.add(_MealTile(meal: m));
             }
+            // Grades are calculated by us, never an official rating: say so
+            // once under the list, only when a grade is shown.
+            if (meals.any((m) => m.grade != null)) {
+              children.add(
+                Padding(
+                  padding: const EdgeInsets.only(top: SnTokens.space1),
+                  child: Text(
+                    l10n.nutriscoreCalculatedBy,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: SnColors.of(context).textSecondary,
+                    ),
+                  ),
+                ),
+              );
+            }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: children,
