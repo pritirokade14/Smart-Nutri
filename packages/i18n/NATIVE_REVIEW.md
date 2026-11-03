@@ -200,6 +200,9 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `share.privacy_note`, `share.include`**: new machine drafts. `privacy_note` must say only the product and its grade are shared, plus the result of anyone the user ticks; `include` must read as optional ("add a person's result").
 - [ ] **hi/mr `share.result.*`, `share.weekly`, `share.link`**: the old texts with the trailing "Checked with SmartNutri: {url}" sentence moved into the new `share.link` key (text unchanged), and a full stop (। in hi) added where the sentence now ends. Check the punctuation reads naturally.
 
+## Final fix batch (API errors)
+- [ ] **hi/mr `error.payload_too_large`**: machine drafts. Shown when a request body is over the server cap (I2); generic, no blame.
+
 ## Final fix batch (I4 search, m7 permissions)
 - [ ] **hi/mr `search.too_short`**: the minimum went from 2 to 3 letters (I4); only the number changed in the drafts.
 - [ ] **hi/mr `common.open_settings`**: machine drafts for the "Open settings" action shown when the microphone or camera permission is permanently denied (m7). "सेटिंग्स" (hi) and "सेटिंग्ज" (mr) match the existing permission messages.

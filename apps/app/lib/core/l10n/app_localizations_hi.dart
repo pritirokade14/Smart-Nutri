@@ -673,6 +673,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
 
   @override
+  String get errorPayloadTooLarge =>
+      'यह अनुरोध बहुत बड़ा है। कृपया कम डेटा के साथ फिर से कोशिश करें।';
+
+  @override
   String get errorPhoneOtpDisabled =>
       'फ़ोन से साइन-इन अभी उपलब्ध नहीं है। कृपया ईमेल या Google से साइन इन करें।';
 

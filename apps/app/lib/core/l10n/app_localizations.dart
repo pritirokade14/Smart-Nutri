@@ -1312,6 +1312,12 @@ abstract class AppLocalizations {
   /// **'The product database is busy right now. Please try again in a moment.'**
   String get errorOffUnavailable;
 
+  /// No description provided for @errorPayloadTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'That request is too large. Please try again with less.'**
+  String get errorPayloadTooLarge;
+
   /// No description provided for @errorPhoneOtpDisabled.
   ///
   /// In en, this message translates to:

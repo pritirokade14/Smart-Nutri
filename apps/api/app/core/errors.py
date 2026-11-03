@@ -20,6 +20,7 @@ HTTP_STATUS_CODES: dict[int, str] = {
     403: "forbidden",
     404: "not_found",
     405: "method_not_allowed",
+    413: "payload_too_large",  # app.core.body_limit (I2)
 }
 HTTP_FALLBACK_CODE = "http_error"
 

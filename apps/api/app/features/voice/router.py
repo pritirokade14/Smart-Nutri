@@ -23,7 +23,13 @@ router = APIRouter(prefix="/v1/voice", tags=["voice"])
 _RESPONSES = {
     **ERROR_RESPONSES,
     403: {"model": ErrorEnvelope, "description": "ai_processing consent required"},
-    413: {"model": ErrorEnvelope, "description": "Audio longer than 30 s or larger than 5 MB"},
+    413: {
+        "model": ErrorEnvelope,
+        "description": (
+            "Audio longer than 30 s or larger than 5 MB (audio_too_long, audio_too_large), "
+            "or the whole request over 6 MB (payload_too_large)"
+        ),
+    },
     415: {"model": ErrorEnvelope, "description": "Not an accepted audio format"},
     503: {
         "model": ErrorEnvelope,
@@ -36,8 +42,13 @@ _RESPONSES = {
 
 
 def require_voice_enabled(settings: Annotated[Settings, Depends(get_app_settings)]) -> None:
-    """503 `ai_unavailable` while VOICE_ENABLED is off (Ruling V1 S3), before the body is
-    read or validated and before any paid call."""
+    """503 `ai_unavailable` while VOICE_ENABLED is off (Ruling V1 S3), before the form is
+    validated and before any paid call.
+
+    FastAPI reads and parses the multipart body before any dependency runs, so this check
+    cannot stop an upload. The size cap is enforced earlier, before routing, by
+    `app.core.body_limit` (6 MB on this route; 413 `payload_too_large`).
+    """
     if not settings.voice_enabled:
         raise ApiError("ai_unavailable", 503)
 

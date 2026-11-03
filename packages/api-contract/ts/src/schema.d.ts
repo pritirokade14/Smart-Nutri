@@ -3879,7 +3879,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Audio longer than 30 s or larger than 5 MB */
+            /** @description Audio longer than 30 s or larger than 5 MB (audio_too_long, audio_too_large), or the whole request over 6 MB (payload_too_large) */
             413: {
                 headers: {
                     [name: string]: unknown;

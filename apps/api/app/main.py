@@ -6,6 +6,7 @@ import httpx
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.body_limit import BodySizeLimitMiddleware
 from app.core.config import Settings, get_settings
 from app.core.consent import CONSENT_RESPONSES, gate_for
 from app.core.errors import ERROR_RESPONSES, CatchAllMiddleware, install_error_handlers
@@ -105,6 +106,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.sessionmaker = build_sessionmaker(engine)
     app.state.jwks_cache = JwksCache(settings.supabase_jwks_url)
     app.add_middleware(CatchAllMiddleware)  # innermost
+    # Before routing, but inside CORS so a browser can read the 413 (I2).
+    app.add_middleware(BodySizeLimitMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,

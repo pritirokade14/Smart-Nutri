@@ -668,6 +668,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The product database is busy right now. Please try again in a moment.';
 
   @override
+  String get errorPayloadTooLarge =>
+      'That request is too large. Please try again with less.';
+
+  @override
   String get errorPhoneOtpDisabled =>
       'Phone sign-in is not available yet. Please sign in with email or Google.';
 
