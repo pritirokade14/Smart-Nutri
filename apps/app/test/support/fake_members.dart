@@ -145,6 +145,7 @@ class FakeConsentsClient implements ConsentsClient {
             ? version
             : null,
         currentVersion: version,
+        needsUpdate: false,
       ),
   ];
 

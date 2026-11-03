@@ -29,6 +29,9 @@ class _FakeMe implements MeClient {
     id: 'u1',
     language: MeOutLanguage.values.first,
   );
+
+  @override
+  Future<void> meDelete() => throw UnimplementedError();
 }
 
 class _FakeApi implements SmartNutriApiClient {
