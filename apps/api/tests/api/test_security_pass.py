@@ -91,9 +91,12 @@ def test_every_expensive_route_has_a_rate_limit(app):
 def test_rate_limit_runs_before_the_route_body(app):
     """limit() commits the session; it must be a route dependency, never called mid-route
     with staged writes (consume() guards that case)."""
+    # Checks that may run before limit(): they touch no session and refuse without counting
+    # (cleanup c4: a disabled voice server must not use quota).
+    pre_limit = {"require_voice_enabled"}
     for method, route in _routes(app):
         if (method, route.path) in EXPENSIVE and _is_rate_limited(route):
-            top = route.top_level_calls()
+            top = [c for c in route.top_level_calls() if c.__name__ not in pre_limit]
             limits = [i for i, c in enumerate(top) if "limit.<locals>" in c.__qualname__]
             assert limits and limits[0] <= 1, (method, route.path)  # after the consent gate
 
