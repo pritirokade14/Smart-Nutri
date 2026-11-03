@@ -208,3 +208,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 ## Final fix batch (I4 search, m7 permissions)
 - [ ] **hi/mr `search.too_short`**: the minimum went from 2 to 3 letters (I4); only the number changed in the drafts.
 - [ ] **hi/mr `common.open_settings`**: machine drafts for the "Open settings" action shown when the microphone or camera permission is permanently denied (m7). "सेटिंग्स" (hi) and "सेटिंग्ज" (mr) match the existing permission messages.
+
+## Search degraded note (follow-up a)
+- [ ] **hi/mr `search.off_degraded`**: machine drafts. A small note under search results when the product-database search budget is spent and only SmartNutri products are shown ("more results will be added later"). Neutral, no blame.

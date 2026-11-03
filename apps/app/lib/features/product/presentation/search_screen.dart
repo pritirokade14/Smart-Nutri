@@ -144,6 +144,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           children: [
                             for (final h in hits)
                               _HitTile(hit: h, onTap: () => _open(h)),
+                            if (hits.any((h) => h.offDegraded))
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: SnTokens.space2,
+                                ),
+                                child: Text(
+                                  l10n.searchOffDegraded,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: c.textSecondary,
+                                  ),
+                                ),
+                              ),
                             Text(
                               l10n.nutriscoreCalculatedBy,
                               style: theme.textTheme.bodySmall?.copyWith(

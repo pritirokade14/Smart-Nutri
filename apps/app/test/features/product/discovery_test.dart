@@ -265,6 +265,50 @@ void main() {
       expect(find.text('at /result?barcode=8901'), findsOneWidget);
     });
 
+    testWidgets('off_degraded shows local hits and the "more later" note', (
+      t,
+    ) async {
+      final api = FakeProductsClient()
+        ..hits = const [
+          SearchHit(
+            attribution: null,
+            barcode: null,
+            brand: null,
+            grade: null,
+            name: 'Masala Oats',
+            productId: 'p1',
+            source: SearchHitSource.ours,
+            offDegraded: true,
+          ),
+        ];
+      await _pump(t, api, const SearchScreen());
+      await t.enterText(find.byType(TextField), 'oats');
+      await t.pump(const Duration(milliseconds: 600));
+      await t.pumpAndSettle();
+      expect(find.text('Masala Oats'), findsOneWidget);
+      expect(find.text(en.searchOffDegraded), findsOneWidget);
+    });
+
+    testWidgets('no degraded note on a normal search', (t) async {
+      final api = FakeProductsClient()
+        ..hits = const [
+          SearchHit(
+            attribution: null,
+            barcode: null,
+            brand: null,
+            grade: null,
+            name: 'Masala Oats',
+            productId: 'p1',
+            source: SearchHitSource.ours,
+          ),
+        ];
+      await _pump(t, api, const SearchScreen());
+      await t.enterText(find.byType(TextField), 'oats');
+      await t.pump(const Duration(milliseconds: 600));
+      await t.pumpAndSettle();
+      expect(find.text(en.searchOffDegraded), findsNothing);
+    });
+
     testWidgets('no results', (t) async {
       final api = FakeProductsClient();
       await _pump(t, api, const SearchScreen());

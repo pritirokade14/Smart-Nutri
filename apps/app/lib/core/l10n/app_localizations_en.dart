@@ -1803,6 +1803,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchNoResults => 'No products found.';
 
   @override
+  String get searchOffDegraded => 'More results will be added later.';
+
+  @override
   String get searchPlaceholder => 'Search by name or brand';
 
   @override

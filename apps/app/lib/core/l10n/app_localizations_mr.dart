@@ -1807,6 +1807,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get searchNoResults => 'कोणतेही उत्पादन सापडले नाही.';
 
   @override
+  String get searchOffDegraded => 'आणखी निकाल नंतर जोडले जातील.';
+
+  @override
   String get searchPlaceholder => 'नाव किंवा ब्रँडने शोधा';
 
   @override

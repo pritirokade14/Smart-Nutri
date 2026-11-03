@@ -30,6 +30,7 @@ const HITS: SearchHit[] = [
     grade: "B",
     source: "ours",
     attribution: null,
+    off_degraded: false,
   },
   {
     product_id: null,
@@ -39,6 +40,7 @@ const HITS: SearchHit[] = [
     grade: null,
     source: "off",
     attribution: "attribution.off",
+    off_degraded: false,
   },
 ];
 
@@ -128,6 +130,24 @@ describe("SearchBox", () => {
     expect(within(rows[1]).getByRole("link").getAttribute("href")).toBe(
       "/en/compare?b_barcode=8901063201089",
     );
+  });
+
+  it("off_degraded: local hits plus a small 'more results later' note", async () => {
+    apiStub(fetchMock).on("GET", "/v1/products/search", [
+      { ...HITS[0], off_degraded: true },
+    ]);
+    view();
+    await userEvent.setup().type(screen.getByLabelText(en.search.title), "oat");
+    expect(await screen.findAllByTestId("search-hit")).toHaveLength(1);
+    expect(screen.getByText(en.search.off_degraded)).toBeTruthy();
+  });
+
+  it("no degraded note on a normal search", async () => {
+    apiStub(fetchMock).on("GET", "/v1/products/search", HITS);
+    view();
+    await userEvent.setup().type(screen.getByLabelText(en.search.title), "par");
+    await screen.findAllByTestId("search-hit");
+    expect(screen.queryByText(en.search.off_degraded)).toBeNull();
   });
 
   it("no results", async () => {

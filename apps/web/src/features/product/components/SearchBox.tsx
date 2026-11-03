@@ -115,6 +115,9 @@ export function SearchBox({
               );
             })}
           </ul>
+          {search.data.some((h) => h.off_degraded) ? (
+            <p className={hintClass}>{t("search.off_degraded")}</p>
+          ) : null}
           {search.data.some((h) => h.source === "off") ? (
             <OffAttribution barcode={null} />
           ) : null}

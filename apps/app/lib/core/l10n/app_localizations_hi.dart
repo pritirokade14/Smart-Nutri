@@ -1810,6 +1810,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get searchNoResults => 'कोई उत्पाद नहीं मिला।';
 
   @override
+  String get searchOffDegraded => 'और परिणाम बाद में जोड़े जाएँगे।';
+
+  @override
   String get searchPlaceholder => 'नाम या ब्रांड से खोजें';
 
   @override

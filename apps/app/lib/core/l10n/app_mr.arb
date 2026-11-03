@@ -940,6 +940,7 @@
   "scanTitle": "बारकोड स्कॅन करा",
   "searchHint": "नाव किंवा ब्रँडने उत्पादन शोधा, मग ते उघडा किंवा तुलना करा.",
   "searchNoResults": "कोणतेही उत्पादन सापडले नाही.",
+  "searchOffDegraded": "आणखी निकाल नंतर जोडले जातील.",
   "searchPlaceholder": "नाव किंवा ब्रँडने शोधा",
   "searchSourceOff": "Open Food Facts",
   "searchSourceOurs": "SmartNutri",

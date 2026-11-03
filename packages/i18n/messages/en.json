@@ -622,6 +622,7 @@
   },
   "search": {
     "title": "Search products",
+    "off_degraded": "More results will be added later.",
     "placeholder": "Search by name or brand",
     "too_short": "Type at least 3 letters.",
     "no_results": "No products found.",

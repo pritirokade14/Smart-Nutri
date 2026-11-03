@@ -940,6 +940,7 @@
   "scanTitle": "Scan a barcode",
   "searchHint": "Find a product by name or brand, then open it or compare it.",
   "searchNoResults": "No products found.",
+  "searchOffDegraded": "More results will be added later.",
   "searchPlaceholder": "Search by name or brand",
   "searchSourceOff": "Open Food Facts",
   "searchSourceOurs": "SmartNutri",

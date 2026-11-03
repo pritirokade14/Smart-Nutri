@@ -3190,6 +3190,12 @@ abstract class AppLocalizations {
   /// **'No products found.'**
   String get searchNoResults;
 
+  /// No description provided for @searchOffDegraded.
+  ///
+  /// In en, this message translates to:
+  /// **'More results will be added later.'**
+  String get searchOffDegraded;
+
   /// No description provided for @searchPlaceholder.
   ///
   /// In en, this message translates to:
