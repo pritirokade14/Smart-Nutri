@@ -426,6 +426,16 @@ createServer((req, res) => {
     res.end(JSON.stringify(state));
     return;
   }
+  if (req.method === "GET" && req.url?.startsWith("/v1/methodology")) {
+    // Public: the golden response (language is echoed; the values are the same).
+    const language =
+      new URL(req.url, "http://x").searchParams.get("language") ?? "en";
+    res.writeHead(200, { ...CORS, "content-type": "application/json" });
+    res.end(
+      JSON.stringify({ ...read("responses/methodology.json"), language }),
+    );
+    return;
+  }
   if (req.url?.startsWith("/v1/products/")) {
     const ok = req.url.startsWith("/v1/products/8901063201089/public");
     res.writeHead(ok ? 200 : 404, { "content-type": "application/json" });

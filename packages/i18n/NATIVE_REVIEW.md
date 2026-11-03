@@ -181,3 +181,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 8 Task 2 (web: profile language and Delete account)
 - [ ] **hi/mr `settings.*`, `goodbye.*`**: machine drafts. `delete_body` must list plainly what is erased and say it cannot be undone; `goodbye.body` must not suggest anything was kept. `settings.delete_confirm_word` is "DELETE" in every language for now (typed in Latin script); decide with Android whether hi/mr should use a Devanagari word instead (the web compares case-insensitively).
+
+## Plan 7 Task 11 (web: How we score page)
+- [ ] **hi/mr `methodology.{meta_description,values,based_on,unavailable}`**: machine drafts. `meta_description` is the search-result snippet: it must keep "information, not medical advice" and make no health claim.

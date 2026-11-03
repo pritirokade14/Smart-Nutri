@@ -2350,11 +2350,23 @@ abstract class AppLocalizations {
   /// **'You'**
   String get membersYouBadge;
 
+  /// No description provided for @methodologyBasedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on:'**
+  String get methodologyBasedOn;
+
   /// No description provided for @methodologyIntro.
   ///
   /// In en, this message translates to:
   /// **'SmartNutri checks each packaged food against its label and each family member\'s profile using fixed rules. An AI only explains the result; it never decides it. This is information, not medical advice.'**
   String get methodologyIntro;
+
+  /// No description provided for @methodologyMetaDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'How SmartNutri checks packaged food for each family member: the fixed rules, their thresholds and sources. Information, not medical advice.'**
+  String get methodologyMetaDescription;
 
   /// No description provided for @methodologyPendingReview.
   ///
@@ -2524,11 +2536,23 @@ abstract class AppLocalizations {
   /// **'How we score'**
   String get methodologyTitle;
 
+  /// No description provided for @methodologyUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load the scoring rules right now. Please try again in a moment.'**
+  String get methodologyUnavailable;
+
   /// No description provided for @methodologyUrlUnverified.
   ///
   /// In en, this message translates to:
   /// **'Link not yet checked'**
   String get methodologyUrlUnverified;
+
+  /// No description provided for @methodologyValues.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule values'**
+  String get methodologyValues;
 
   /// No description provided for @methodologyValuesTitle.
   ///

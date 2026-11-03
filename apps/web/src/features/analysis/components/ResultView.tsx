@@ -235,6 +235,12 @@ export function ResultView(props: ResultRef) {
       <footer className="space-y-4">
         <DisclaimerFooter />
         <a
+          href={`/${language}/how-we-score`}
+          className="inline-block text-sm font-semibold text-brand-primary underline underline-offset-4 hover:text-brand-strong"
+        >
+          {t("methodology.title")}
+        </a>
+        <a
           href={`/${language}/scan`}
           className={buttonClass({ variant: "outline", block: true })}
         >

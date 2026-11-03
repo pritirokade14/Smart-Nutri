@@ -1267,8 +1267,15 @@ class AppLocalizationsMr extends AppLocalizations {
   String get membersYouBadge => 'तुम्ही';
 
   @override
+  String get methodologyBasedOn => 'आधार:';
+
+  @override
   String get methodologyIntro =>
       'SmartNutri प्रत्येक पॅकबंद अन्न त्याच्या लेबलवरून आणि कुटुंबातील प्रत्येक सदस्याच्या प्रोफाइलवरून ठरलेल्या नियमांनुसार तपासते. AI फक्त निकाल समजावून सांगते, तो कधीच ठरवत नाही. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get methodologyMetaDescription =>
+      'SmartNutri कुटुंबातील प्रत्येक सदस्यासाठी पॅकबंद अन्न कसे तपासते: ठरलेले नियम, त्यांच्या मर्यादा आणि स्रोत. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
 
   @override
   String get methodologyPendingReview =>
@@ -1372,7 +1379,14 @@ class AppLocalizationsMr extends AppLocalizations {
   String get methodologyTitle => 'आम्ही कसे तपासतो';
 
   @override
+  String get methodologyUnavailable =>
+      'आम्ही सध्या तपासणीचे नियम लोड करू शकलो नाही. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.';
+
+  @override
   String get methodologyUrlUnverified => 'लिंक अजून तपासलेली नाही';
+
+  @override
+  String get methodologyValues => 'नियमांची मूल्ये';
 
   @override
   String get methodologyValuesTitle => 'वापरलेली मूल्ये';

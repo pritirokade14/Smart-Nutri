@@ -1263,8 +1263,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersYouBadge => 'You';
 
   @override
+  String get methodologyBasedOn => 'Based on:';
+
+  @override
   String get methodologyIntro =>
       'SmartNutri checks each packaged food against its label and each family member\'s profile using fixed rules. An AI only explains the result; it never decides it. This is information, not medical advice.';
+
+  @override
+  String get methodologyMetaDescription =>
+      'How SmartNutri checks packaged food for each family member: the fixed rules, their thresholds and sources. Information, not medical advice.';
 
   @override
   String get methodologyPendingReview =>
@@ -1368,7 +1375,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodologyTitle => 'How we score';
 
   @override
+  String get methodologyUnavailable =>
+      'We couldn\'t load the scoring rules right now. Please try again in a moment.';
+
+  @override
   String get methodologyUrlUnverified => 'Link not yet checked';
+
+  @override
+  String get methodologyValues => 'Rule values';
 
   @override
   String get methodologyValuesTitle => 'Values used';

@@ -307,6 +307,17 @@ describe("ResultView errors", () => {
     ).toBeTruthy();
   });
 
+  it("links to the public How we score page", async () => {
+    fetchMock.mockResolvedValue(json(422, envelope("invalid_barcode")));
+    view();
+    await screen.findByText(en.error.invalid_barcode);
+    expect(
+      screen
+        .getByRole("link", { name: en.methodology.title })
+        .getAttribute("href"),
+    ).toBe("/en/how-we-score");
+  });
+
   it("network failure → error.network", async () => {
     fetchMock.mockImplementation(async () => {
       throw new TypeError("Failed to fetch");
