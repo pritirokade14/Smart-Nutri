@@ -111,7 +111,9 @@ describe("reasonText", () => {
   it("shows an unrecognised allergen and condition as the member wrote them", () => {
     expect(
       reasonText(en, r("allergen_unrecognised", { allergen: "kiwi" }), "en"),
-    ).toBe('We don\'t recognise the allergen "kiwi" in your profile.');
+    ).toBe(
+      'We can only search the label for the exact word "kiwi". Check the ingredients yourself.',
+    );
     expect(
       reasonText(
         en,

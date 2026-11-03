@@ -1213,7 +1213,7 @@ abstract class AppLocalizations {
   /// No description provided for @membersFormCustomAlertsHelp.
   ///
   /// In en, this message translates to:
-  /// **'We point these out on every product.'**
+  /// **'We point these out when we find them on the label.'**
   String get membersFormCustomAlertsHelp;
 
   /// No description provided for @membersFormDiet.
@@ -1495,7 +1495,7 @@ abstract class AppLocalizations {
   /// No description provided for @reasonAllergenUnrecognised.
   ///
   /// In en, this message translates to:
-  /// **'We don\'t recognise the allergen \"{allergen}\" in your profile.'**
+  /// **'We can only search the label for the exact word \"{allergen}\". Check the ingredients yourself.'**
   String reasonAllergenUnrecognised(String allergen);
 
   /// No description provided for @reasonCarbsPerServingHigh.

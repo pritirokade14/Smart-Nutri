@@ -94,8 +94,9 @@ section_sources:
   diet:            {thresholds: [fssai_labelling_2020]}
   claims:          {thresholds: [fssai_claims_2018]}
   # avoid/caution sugars: UK FSA high-in and FSSAI low-sugar bands; drink avoid: UK SDIL;
-  # carbs per serving (30 g): SmartNutri. ICMR-NIN and ADA are only the rationale for
-  # cardio_high_in.
+  # carbs per serving (30 g): SmartNutri. ICMR-NIN and ADA are attached below as rationale
+  # only (not threshold sources); they back the cardio_high_in rule. ICMR-NIN is likewise
+  # rationale-only for hypertension and weight_loss.
   blood_sugar:     {thresholds: [uk_fsa_front_of_pack, fssai_claims_2018, uk_sdil, smartnutri_working_values], rationale: [icmr_nin_2024, ada_standards_of_care]}
   # avoid 1.5 g and caution 0.3 g salt per 100 g are the UK FSA high and low salt bands.
   hypertension:    {thresholds: [uk_fsa_front_of_pack], rationale: [icmr_nin_2024]}

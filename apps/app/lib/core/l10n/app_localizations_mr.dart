@@ -611,7 +611,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get membersFormCustomAlertsHelp =>
-      'प्रत्येक उत्पादनावर आम्ही हे दाखवू.';
+      'लेबलवर हे आढळल्यास आम्ही ते दाखवू.';
 
   @override
   String get membersFormDiet => 'आहार';
@@ -773,7 +773,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String reasonAllergenUnrecognised(String allergen) {
-    return 'तुमच्या प्रोफाइलमधील ॲलर्जन \"$allergen\" आम्हाला ओळखता आला नाही.';
+    return 'आम्ही लेबलवर फक्त \"$allergen\" हा नेमका शब्द शोधू शकतो. घटक स्वतः तपासा.';
   }
 
   @override

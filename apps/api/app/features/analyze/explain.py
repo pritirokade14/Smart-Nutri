@@ -81,8 +81,32 @@ DENY_WORDS: tuple[str, ...] = (
     "स्वस्थ",
     "निरोगी",
 )
-# Also denied when any member's status is not `ok`. "ठीक" (hi) and "चालेल" (mr) say "okay".
-DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = ("fine", "okay", "ठीक", "चालेल")
+# Medical-claim words, denied for every status (no medical claims). "इलाज" and "उपचार" (hi, mr)
+# mean cure / treatment; "बरा" (mr) means cured.
+DENY_WORDS_CLAIMS: tuple[str, ...] = (
+    "cure",
+    "cures",
+    "treat",
+    "treats",
+    "treatment",
+    "reverse",
+    "prevent",
+    "prevents",
+    "इलाज",
+    "उपचार",
+    "बरा",
+)
+# Also denied when any member's status is not `ok`. "ठीक" (hi) and "चालेल" (mr) say "okay";
+# "योग्य" and "उपयुक्त" say "suitable".
+DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = (
+    "fine",
+    "okay",
+    "ठीक",
+    "चालेल",
+    "suitable",
+    "योग्य",
+    "उपयुक्त",
+)
 
 
 # --- input (what the model sees) -----------------------------------------------------------
@@ -348,7 +372,7 @@ def _drop_reason(
         if token not in expected:
             return "unknown_member_token"
     haystack = _normalise(combined)
-    deny = DENY_WORDS
+    deny = (*DENY_WORDS, *DENY_WORDS_CLAIMS)
     if any(v.status is not scoring.Status.OK for v in result.verdicts):
         deny = (*deny, *DENY_WORDS_NOT_ALL_OK)
     if any(_contains_word(haystack, _normalise(w)) for w in deny):
@@ -388,8 +412,11 @@ def guard(
 # --- orchestrator --------------------------------------------------------------------------
 
 
-def cache_key(data: ExplanationIn, prompt_version: str, model: str) -> str:
-    """sha256 of the anonymised input, the prompt version and the model (hex, 64 chars).
+def cache_key(data: ExplanationIn, prompt_version: str, model: str, prompt_text: str) -> str:
+    """sha256 of the anonymised input, the prompt version and text, and the model (hex, 64 chars).
+
+    The prompt text is hashed too, so an in-place edit of a prompt file never serves entries
+    written under the old wording.
 
     The input holds tokens, relations, age bands, diets, statuses, reason codes and cleaned
     params, and product facts: no names, ids, emails, free text or product name. Language is
@@ -399,6 +426,7 @@ def cache_key(data: ExplanationIn, prompt_version: str, model: str) -> str:
         {
             "input": data.model_dump(mode="json"),
             "prompt_version": prompt_version,
+            "prompt_sha256": hashlib.sha256(prompt_text.encode("utf-8")).hexdigest(),
             "model": model,
         },
         sort_keys=True,

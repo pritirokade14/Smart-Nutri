@@ -150,7 +150,7 @@ def _explanation_job(
         data=data,
         system=system,
         prompt_version=version,
-        key=explain.cache_key(data, version, settings.callmissed_explanation_model),
+        key=explain.cache_key(data, version, settings.callmissed_explanation_model, system),
         product_key=explanation_product_key(found),
         member_names=tuple(m.name for m in members),
         emails=(email,) if email else (),

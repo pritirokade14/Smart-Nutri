@@ -254,7 +254,7 @@
   },
   "membersFormConditions": "Health conditions",
   "membersFormCustomAlerts": "Ingredient alerts",
-  "membersFormCustomAlertsHelp": "We point these out on every product.",
+  "membersFormCustomAlertsHelp": "We point these out when we find them on the label.",
   "membersFormDiet": "Diet",
   "membersFormGoal": "Goal (optional)",
   "membersFormHealthFieldsNote": "Allergies, health conditions, goal, height and weight are saved only with your consent to health data processing.",
@@ -350,7 +350,7 @@
       }
     }
   },
-  "reasonAllergenUnrecognised": "We don't recognise the allergen \"{allergen}\" in your profile.",
+  "reasonAllergenUnrecognised": "We can only search the label for the exact word \"{allergen}\". Check the ingredients yourself.",
   "@reasonAllergenUnrecognised": {
     "placeholders": {
       "allergen": {

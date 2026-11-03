@@ -254,7 +254,7 @@
   },
   "membersFormConditions": "आरोग्य स्थिती",
   "membersFormCustomAlerts": "घटक अलर्ट",
-  "membersFormCustomAlertsHelp": "प्रत्येक उत्पादनावर आम्ही हे दाखवू.",
+  "membersFormCustomAlertsHelp": "लेबलवर हे आढळल्यास आम्ही ते दाखवू.",
   "membersFormDiet": "आहार",
   "membersFormGoal": "उद्दिष्ट (ऐच्छिक)",
   "membersFormHealthFieldsNote": "ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची आणि वजन फक्त आरोग्य डेटाच्या वापराला तुमची संमती असल्यासच जतन केले जातात.",
@@ -350,7 +350,7 @@
       }
     }
   },
-  "reasonAllergenUnrecognised": "तुमच्या प्रोफाइलमधील ॲलर्जन \"{allergen}\" आम्हाला ओळखता आला नाही.",
+  "reasonAllergenUnrecognised": "आम्ही लेबलवर फक्त \"{allergen}\" हा नेमका शब्द शोधू शकतो. घटक स्वतः तपासा.",
   "@reasonAllergenUnrecognised": {
     "placeholders": {
       "allergen": {

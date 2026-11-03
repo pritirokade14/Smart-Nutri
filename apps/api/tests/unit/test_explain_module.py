@@ -573,7 +573,11 @@ def test_prompt_caution_wording_and_forbidden_words_ruling_p7():
 def test_prompt_lists_every_denied_word():
     """The model is told about every word the guard drops (so it can avoid them)."""
     text, _ = load_prompt("explanation_v1")
-    for word in (*explain_mod.DENY_WORDS, *explain_mod.DENY_WORDS_NOT_ALL_OK):
+    for word in (
+        *explain_mod.DENY_WORDS,
+        *explain_mod.DENY_WORDS_NOT_ALL_OK,
+        *explain_mod.DENY_WORDS_CLAIMS,
+    ):
         assert f'"{word}"' in text, word
 
 
@@ -595,12 +599,13 @@ def test_no_duplicate_today_ist():
 
 def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, product):
     data = build_explanation_input(family_result, family_rows, "hi", today=TODAY)
-    key = explain_mod.cache_key(data, "explanation_v1", "expl-model")
+    key = explain_mod.cache_key(data, "explanation_v1", "expl-model", "PROMPT")
     assert len(key) == 64 and int(key, 16) >= 0
     assert key == explain_mod.cache_key(
         build_explanation_input(family_result, family_rows, "hi", today=TODAY),
         "explanation_v1",
         "expl-model",
+        "PROMPT",
     )
     # Same anonymised family under other names and ids: same key (names never reach it).
     renamed = [copy.copy(m) for m in family_rows]
@@ -615,6 +620,7 @@ def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, produc
             build_explanation_input(other, renamed, "hi", today=TODAY),
             "explanation_v1",
             "expl-model",
+            "PROMPT",
         )
         == key
     )
@@ -623,9 +629,12 @@ def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, produc
         build_explanation_input(family_result, family_rows, "en", today=TODAY),
         "explanation_v1",
         "expl-model",
+        "PROMPT",
     )
-    assert key != explain_mod.cache_key(data, "explanation_v2", "expl-model")
-    assert key != explain_mod.cache_key(data, "explanation_v1", "other-model")
+    assert key != explain_mod.cache_key(data, "explanation_v2", "expl-model", "PROMPT")
+    assert key != explain_mod.cache_key(data, "explanation_v1", "other-model", "PROMPT")
+    # An in-place prompt edit (same version label) changes the key.
+    assert key != explain_mod.cache_key(data, "explanation_v1", "expl-model", "PROMPT edited")
 
 
 def test_prompt_lists_every_engine_reason_code():
@@ -637,3 +646,63 @@ def test_prompt_lists_every_engine_reason_code():
     )
     missing = [c for c in en["reason"] if f"`{c}`" not in text]
     assert missing == []
+
+
+# --- medical-claim and "suitable" deny words ----------------------------------------------
+
+_CLAIM_TEXTS = [
+    "This will cure your cough.",
+    "It cures acidity.",
+    "Helps treat diabetes.",
+    "It treats low sugar.",
+    "A good treatment option.",
+    "It can reverse the condition.",
+    "It may prevent spikes.",
+    "It prevents cravings.",
+    "यह इलाज में मदद करता है।",
+    "यह उपचार के लिए अच्छा है।",
+    "यामुळे आजार बरा होतो.",
+]
+_SUITABLE_TEXTS = [
+    "It is suitable for member_1.",
+    "यह member_1 के लिए योग्य है।",
+    "हे member_1 साठी उपयुक्त आहे.",
+    "यह उपयुक्त है।",
+]
+
+
+@pytest.mark.parametrize("text", _CLAIM_TEXTS)
+def test_guard_always_drops_medical_claim_words(family_result, family_rows, text):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+    tips = _llm_out(family_result, tips=[text])
+    assert _guard(tips, family_result, family_rows) is None
+
+
+@pytest.mark.parametrize("text", _CLAIM_TEXTS)
+def test_guard_drops_medical_claim_words_when_all_ok(family_result, product, text):
+    rows = [_row(id=uuid.uuid4(), name="Solo", relation="self", birth_year=1990)]
+    result = scoring.analyze(product, [to_scoring_member(m, today=TODAY) for m in rows])
+    assert all(v.status is scoring.Status.OK for v in result.verdicts)
+    assert _guard(_llm_out(result, text=text), result, rows) is None
+
+
+@pytest.mark.parametrize("text", _SUITABLE_TEXTS)
+def test_guard_drops_suitable_when_any_member_not_ok(family_result, family_rows, text):
+    assert any(v.status is not scoring.Status.OK for v in family_result.verdicts)
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+
+
+@pytest.mark.parametrize("text", _SUITABLE_TEXTS)
+def test_guard_allows_suitable_when_all_ok(product, text):
+    rows = [_row(id=uuid.uuid4(), name="Solo", relation="self", birth_year=1990)]
+    result = scoring.analyze(product, [to_scoring_member(m, today=TODAY) for m in rows])
+    assert all(v.status is scoring.Status.OK for v in result.verdicts)
+    assert _guard(_llm_out(result, text=text), result, rows) is not None
+
+
+def test_claim_deny_list_contents():
+    assert {
+        "cure", "cures", "treat", "treats", "treatment", "reverse", "prevent", "prevents",
+        "इलाज", "उपचार", "बरा",
+    } <= set(explain_mod.DENY_WORDS_CLAIMS)  # fmt: skip
+    assert {"suitable", "योग्य", "उपयुक्त"} <= set(explain_mod.DENY_WORDS_NOT_ALL_OK)
