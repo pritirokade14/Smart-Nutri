@@ -3,6 +3,14 @@
 import { useRouter } from "next/navigation";
 import { hasLocale, useLocale, useTranslations } from "next-intl";
 import { useEffect } from "react";
+import { pageClass } from "@/components/shell/page";
+import { buttonClass } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { chipClass } from "@/components/ui/Chip";
+import { DisclaimerFooter } from "@/components/ui/DisclaimerFooter";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { CameraIcon, ScanIcon } from "@/components/ui/icons";
+import { LoadingState } from "@/components/ui/Skeleton";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
 import { routing } from "@/i18n/routing";
 import {
@@ -42,37 +50,44 @@ function Analysis({
   const offBarcode = product.barcode ?? barcode;
   return (
     <>
-      <header className="space-y-(--spacing-1)">
-        <h1 className="text-(length:--text-xl)">
-          {product.name ?? product.barcode ?? barcode}
-        </h1>
-        {product.brand ? (
-          <p className="text-(length:--text-md)">{product.brand}</p>
+      <Card as="section" className="space-y-4">
+        <header className="space-y-1">
+          <h1 className="text-xl font-bold break-words text-text-primary sm:text-2xl">
+            {product.name ?? product.barcode ?? barcode}
+          </h1>
+          {product.brand ? (
+            <p className="text-md text-text-secondary">{product.brand}</p>
+          ) : null}
+        </header>
+
+        <GradeChip grade={grade} />
+
+        {highIn.length > 0 ? (
+          <section className="space-y-2">
+            <h2 className="text-sm font-semibold text-text-secondary">
+              {t("result.high_in_title")}
+            </h2>
+            <ul className="flex flex-wrap gap-2">
+              {highIn.map((k) => (
+                <li key={k} className={chipClass}>
+                  {t(`high_in.${k}`)}
+                </li>
+              ))}
+            </ul>
+          </section>
         ) : null}
-      </header>
-
-      <GradeChip grade={grade} />
-
-      {highIn.length > 0 ? (
-        <section className="space-y-(--spacing-2)">
-          <h2 className="text-(length:--text-md)">
-            {t("result.high_in_title")}
-          </h2>
-          <ul className="flex flex-wrap gap-(--spacing-2)">
-            {highIn.map((k) => (
-              <li
-                key={k}
-                className="rounded-(--radius-sm) border px-(--spacing-2) py-(--spacing-1) text-(length:--text-sm)"
-              >
-                {t(`high_in.${k}`)}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      </Card>
 
       {/* One card per member, in the order the API sent them. */}
-      <section className="space-y-(--spacing-3)">
+      <section aria-labelledby="members-title" className="space-y-3">
+        {data.verdicts.length > 0 ? (
+          <h2
+            id="members-title"
+            className="text-md font-semibold text-text-secondary"
+          >
+            {t("result.members_title")}
+          </h2>
+        ) : null}
         {data.verdicts.map((v) => (
           <VerdictCard key={v.member_id} verdict={v} />
         ))}
@@ -124,67 +139,45 @@ export function ResultView(props: ResultRef) {
 
   let body: React.ReactNode;
   if (!byId && code === null) {
-    body = (
-      <p role="alert" className="text-(length:--text-md)">
-        {t("error.invalid_barcode")}
-      </p>
-    );
+    body = <ErrorState message={t("error.invalid_barcode")} />;
   } else if (byId && id === null) {
-    body = (
-      <p role="alert" className="text-(length:--text-md)">
-        {t("error.invalid_product_ref")}
-      </p>
-    );
+    body = <ErrorState message={t("error.invalid_product_ref")} />;
   } else if (notFound && labelUrl) {
     body = (
-      <a
-        href={labelUrl}
-        className="inline-block rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md) underline"
-      >
+      <a href={labelUrl} className={buttonClass({ size: "lg", block: true })}>
+        <CameraIcon />
         {t("notfound.go_to_label")}
       </a>
     );
   } else if (query.isPending) {
-    body = (
-      <p role="status" className="text-(length:--text-md)">
-        {t("common.loading")}
-      </p>
-    );
+    body = <LoadingState label={t("common.loading")} />;
   } else if (query.isError) {
     const view = analyzeErrorView(query.error);
     const message = t.has(view.messageKey)
       ? t(view.messageKey)
       : t("error.internal_error");
     body = (
-      <section className="space-y-(--spacing-2)">
-        <p role="alert" className="text-(length:--text-md)">
-          {message}
-        </p>
-        {view.kind !== "invalid" ? (
-          <button
-            type="button"
-            disabled={query.isFetching}
-            onClick={() => query.refetch()}
-            className="rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md)"
-          >
-            {t("scan.retry")}
-          </button>
-        ) : null}
-      </section>
+      <ErrorState
+        message={message}
+        onRetry={view.kind !== "invalid" ? () => query.refetch() : undefined}
+        retrying={query.isFetching}
+        retryLabel={t("scan.retry")}
+      />
     );
   } else {
     body = <Analysis data={query.data} barcode={code} />;
   }
 
   return (
-    <main className="mx-auto max-w-xl space-y-(--spacing-4) p-(--spacing-4)">
+    <main className={pageClass}>
       {body}
-      <footer className="space-y-(--spacing-2)">
-        <p className="text-(length:--text-sm)">{t("common.disclaimer")}</p>
+      <footer className="space-y-4">
+        <DisclaimerFooter />
         <a
           href={`/${language}/scan`}
-          className="inline-block rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md) underline"
+          className={buttonClass({ variant: "outline", block: true })}
         >
+          <ScanIcon />
           {t("result.scan_another")}
         </a>
       </footer>

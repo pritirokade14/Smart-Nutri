@@ -286,13 +286,12 @@ describe("VerdictCard details", () => {
   });
 });
 
+// The card's tone is keyed on data-verdict (the API status) in globals.css.
 describe("verdict colours (globals.css)", () => {
   const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
   const rule = (status: string) =>
     css.match(
-      new RegExp(
-        `\\.verdict-card\\[data-status="${status}"\\]\\s*\\{([^}]*)\\}`,
-      ),
+      new RegExp(`(?:^|\\n)\\[data-verdict="${status}"\\]\\s*\\{([^}]*)\\}`),
     )?.[1] ?? "";
 
   it.each(["ok", "caution", "unknown", "avoid"])(
@@ -303,7 +302,7 @@ describe("verdict colours (globals.css)", () => {
   );
   it("unknown is never green, and the default is the unknown grey", () => {
     expect(rule("unknown")).not.toContain("verdict-ok");
-    const base = css.match(/\.verdict-card\s*\{([^}]*)\}/)?.[1] ?? "";
+    const base = css.match(/(?:^|\n)\[data-verdict\]\s*\{([^}]*)\}/)?.[1] ?? "";
     expect(base).toContain("var(--color-verdict-unknown)");
     expect(base).not.toContain("verdict-ok");
   });

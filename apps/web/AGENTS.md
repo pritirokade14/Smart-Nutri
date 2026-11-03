@@ -2,7 +2,7 @@
 
 This is the **web app** for SmartNutri AI, built with Next.js. It ships **every v1 feature** that the Android app (`apps/app`) ships (full parity), plus **public pages that Google can index**. Root rules in `../../AGENTS.md` apply first.
 
-> **Current state:** shell scaffolded (Plan 2 Task 13): locales, landing page, tokens, Biome, Vitest, Playwright. shadcn is not initialised yet; run `pnpm dlx shadcn@4.23.0 init` in the first task that needs a component.
+> **Current state:** design system and app shell in place. `src/components/ui` holds hand-built, dependency-free primitives (Button, Card, SectionHeader, EmptyState, ErrorState, Skeleton/LoadingState, DisclaimerFooter, VerdictBadge, ReasonList, NutriScoreChip, icons); `src/components/shell` holds the header, language switcher, tab bar/sidebar and footer. shadcn is not initialised. Verdict tone comes only from `data-verdict` CSS in `globals.css` (default: unknown grey). Fonts: Noto Sans + Noto Sans Devanagari via next/font (self-hosted). Dark mode follows `prefers-color-scheme` via the `color.dark.*` tokens.
 
 ## Stack (versions checked 2026-11-02)
 

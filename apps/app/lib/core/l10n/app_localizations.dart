@@ -244,6 +244,12 @@ abstract class AppLocalizations {
   /// **'Continue with Google'**
   String get authGoogle;
 
+  /// No description provided for @authOr.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get authOr;
+
   /// No description provided for @authPhone.
   ///
   /// In en, this message translates to:
@@ -267,6 +273,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign out'**
   String get authSignOut;
+
+  /// No description provided for @authSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to check packaged foods for your family.'**
+  String get authSubtitle;
 
   /// No description provided for @authTitle.
   ///
@@ -400,11 +412,23 @@ abstract class AppLocalizations {
   /// **'Can\'t be checked from the label'**
   String get claimVerdictUnverifiable;
 
+  /// No description provided for @commonComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get commonComingSoon;
+
   /// No description provided for @commonDisclaimer.
   ///
   /// In en, this message translates to:
   /// **'Information, not medical advice.'**
   String get commonDisclaimer;
+
+  /// No description provided for @commonGoHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to the home page'**
+  String get commonGoHome;
 
   /// No description provided for @commonLoading.
   ///
@@ -412,11 +436,23 @@ abstract class AppLocalizations {
   /// **'Loading…'**
   String get commonLoading;
 
+  /// No description provided for @commonNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The page you\'re looking for doesn\'t exist or has moved.'**
+  String get commonNotFoundBody;
+
   /// No description provided for @commonRetry.
   ///
   /// In en, this message translates to:
   /// **'Try again'**
   String get commonRetry;
+
+  /// No description provided for @commonSkipToContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip to content'**
+  String get commonSkipToContent;
 
   /// No description provided for @conditionDiabetes.
   ///
@@ -1036,6 +1072,24 @@ abstract class AppLocalizations {
   /// **'Why this result'**
   String get explanationTitle;
 
+  /// No description provided for @familyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add each family member with their age, allergies and diet, so every result is about them.'**
+  String get familyBody;
+
+  /// No description provided for @familyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get familyTitle;
+
+  /// No description provided for @footerTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Packaged-food information for Indian families.'**
+  String get footerTagline;
+
   /// No description provided for @highInFat.
   ///
   /// In en, this message translates to:
@@ -1066,11 +1120,47 @@ abstract class AppLocalizations {
   /// **'High in sugar'**
   String get highInSugar;
 
+  /// No description provided for @historyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Products you check will be listed here, so you can find them again.'**
+  String get historyBody;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTitle;
+
+  /// No description provided for @homeLabelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No barcode, or a product we don\'t know yet? Photograph the label.'**
+  String get homeLabelBody;
+
+  /// No description provided for @homeManualBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the nutrition facts from the pack yourself.'**
+  String get homeManualBody;
+
+  /// No description provided for @homeScanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your camera, or type the number under the barcode.'**
+  String get homeScanBody;
+
   /// No description provided for @homeScanCta.
   ///
   /// In en, this message translates to:
   /// **'Scan a product'**
   String get homeScanCta;
+
+  /// No description provided for @homeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to check today?'**
+  String get homeSubtitle;
 
   /// No description provided for @homeWelcome.
   ///
@@ -1131,6 +1221,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uploading the photo…'**
   String get labelUploading;
+
+  /// No description provided for @landingCtaStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get landingCtaStart;
+
+  /// No description provided for @landingEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'For Indian families'**
+  String get landingEyebrow;
+
+  /// No description provided for @landingHeroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode or photograph the label. SmartNutri reads it, checks it against each person\'s age, allergies and diet, and tells you why.'**
+  String get landingHeroBody;
+
+  /// No description provided for @landingHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Know if a packaged food is right for each member of your family'**
+  String get landingHeroTitle;
+
+  /// No description provided for @landingHowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get landingHowTitle;
+
+  /// No description provided for @landingMetaDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a packaged food and see whether it suits each member of your family, with the reasons. Information, not medical advice.'**
+  String get landingMetaDescription;
+
+  /// No description provided for @landingMetaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SmartNutri AI – is this packaged food right for your family?'**
+  String get landingMetaTitle;
+
+  /// No description provided for @landingStep1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the barcode, or take a photo of the nutrition label on the pack.'**
+  String get landingStep1Body;
+
+  /// No description provided for @landingStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan or snap'**
+  String get landingStep1Title;
+
+  /// No description provided for @landingStep2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'You confirm the label details before anything is saved.'**
+  String get landingStep2Body;
+
+  /// No description provided for @landingStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Check what we read'**
+  String get landingStep2Title;
+
+  /// No description provided for @landingStep3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a simple result for each family member, with the reasons in plain words.'**
+  String get landingStep3Body;
+
+  /// No description provided for @landingStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'See who it suits'**
+  String get landingStep3Title;
+
+  /// No description provided for @languageEn.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEn;
+
+  /// No description provided for @languageHi.
+  ///
+  /// In en, this message translates to:
+  /// **'हिन्दी'**
+  String get languageHi;
+
+  /// No description provided for @languageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageLabel;
+
+  /// No description provided for @languageMr.
+  ///
+  /// In en, this message translates to:
+  /// **'मराठी'**
+  String get languageMr;
 
   /// No description provided for @membersAdd.
   ///
@@ -1366,6 +1558,42 @@ abstract class AppLocalizations {
   /// **'You'**
   String get membersYouBadge;
 
+  /// No description provided for @navFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get navFamily;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get navHistory;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Main navigation'**
+  String get navLabel;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @navScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get navScan;
+
   /// No description provided for @notfoundGoToLabel.
   ///
   /// In en, this message translates to:
@@ -1456,11 +1684,29 @@ abstract class AppLocalizations {
   /// **'{name} – nutrition facts | SmartNutri'**
   String productMetaTitle(String name);
 
+  /// No description provided for @productNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the barcode number. You can also sign in and photograph the label to add this product.'**
+  String get productNotFoundBody;
+
   /// No description provided for @productPublicCta.
   ///
   /// In en, this message translates to:
   /// **'Check it for your family'**
   String get productPublicCta;
+
+  /// No description provided for @profileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account, language and privacy settings will be here.'**
+  String get profileBody;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
 
   /// No description provided for @reasonAddedSugars.
   ///
@@ -1714,6 +1960,12 @@ abstract class AppLocalizations {
   /// **'Ingredients'**
   String get resultIngredients;
 
+  /// No description provided for @resultMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For your family'**
+  String get resultMembersTitle;
+
   /// No description provided for @resultNoIngredients.
   ///
   /// In en, this message translates to:
@@ -1756,6 +2008,12 @@ abstract class AppLocalizations {
   /// **'Enter the 8, 12, 13 or 14 digits under the barcode.'**
   String get scanInvalid;
 
+  /// No description provided for @scanLabelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No barcode? Photograph the label instead.'**
+  String get scanLabelHint;
+
   /// No description provided for @scanManualEntry.
   ///
   /// In en, this message translates to:
@@ -1797,6 +2055,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check this product'**
   String get scanSubmit;
+
+  /// No description provided for @scanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Point your camera at the barcode, or type the number below.'**
+  String get scanSubtitle;
 
   /// No description provided for @scanTitle.
   ///

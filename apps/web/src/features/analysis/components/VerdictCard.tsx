@@ -2,6 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
+import { ReasonList } from "@/components/ui/ReasonList";
+import { VerdictBadge } from "@/components/ui/VerdictBadge";
+import { toneOf } from "@/components/ui/verdict-tone";
 import {
   partitionReasons,
   type ReasonOut,
@@ -9,12 +12,11 @@ import {
 } from "../lib/reasons";
 import { ReasonLine } from "./ReasonLine";
 
-const KNOWN_STATUS = new Set<string>(["ok", "caution", "unknown", "avoid"]);
-
 /**
  * One member's verdict, exactly as the API returned it. The colour comes from
- * CSS keyed on data-status (globals.css: .verdict-card → --color-verdict-*),
- * so the browser never picks or changes a verdict colour.
+ * CSS keyed on data-verdict (globals.css → --color-verdict-*, default unknown
+ * grey), so the browser never picks or changes a verdict colour; the badge
+ * also carries an icon and the status label, so it never relies on colour.
  *
  * Ruling R22: avoid, unknown and allergen_* reasons are always visible; only
  * the remaining caution/ok reasons sit behind the toggle.
@@ -27,65 +29,62 @@ export function VerdictCard({ verdict }: { verdict: VerdictOut }) {
   const name =
     verdict.member_name === "" ? t("result.you") : verdict.member_name;
   // An unexpected status string renders as unknown (grey), never ok.
-  const status = KNOWN_STATUS.has(verdict.status) ? verdict.status : "unknown";
+  const status = toneOf(verdict.status);
   const { visible, collapsed } = partitionReasons(verdict.reasons);
 
-  const item = (r: ReasonOut, i: number) => (
-    // Reasons have no id; API order is stable for one response.
-    <li key={`${i}-${r.code}`}>
-      <ReasonLine reason={r} />
-    </li>
-  );
+  const items = (rs: ReasonOut[]) =>
+    rs.map((r, i) => ({
+      // Reasons have no id; API order is stable for one response.
+      key: `${i}-${r.code}`,
+      severity: r.severity,
+      content: <ReasonLine reason={r} />,
+    }));
 
   return (
     <article
       data-testid="verdict-card"
       data-status={status}
-      className="verdict-card space-y-(--spacing-2) rounded-(--radius-md) border p-(--spacing-4)"
+      data-verdict={status}
+      className="overflow-hidden rounded-lg border border-s-[6px] border-border-default border-s-(--verdict-color) bg-surface-default shadow-sm"
     >
-      <header className="flex flex-wrap items-center justify-between gap-(--spacing-2)">
-        <h2 className="text-(length:--text-lg)">{name}</h2>
-        <span className="verdict-badge rounded-(--radius-sm) px-(--spacing-2) py-(--spacing-1) text-(length:--text-md) font-semibold">
-          {t(`status.${status}`)}
-        </span>
+      <header className="flex flex-wrap items-center justify-between gap-2 bg-(--verdict-soft) px-4 py-3 sm:px-5">
+        <h2 className="min-w-0 text-lg font-semibold break-words text-text-primary">
+          {name}
+        </h2>
+        <VerdictBadge status={status} />
       </header>
-      {verdict.profile_set_up === false ? (
-        <p
-          data-testid="profile-note"
-          className="profile-note rounded-(--radius-sm) border border-dashed px-(--spacing-2) py-(--spacing-1) text-(length:--text-sm)"
-        >
-          {t("verdict.profile_not_set_up")}
-        </p>
-      ) : null}
-      {visible.length > 0 ? (
-        <ul
-          data-testid="visible-reasons"
-          className="list-disc space-y-(--spacing-1) ps-(--spacing-5) text-(length:--text-md)"
-        >
-          {visible.map(item)}
-        </ul>
-      ) : null}
-      {collapsed.length > 0 ? (
-        <div className="text-(length:--text-md)">
-          <button
-            type="button"
-            aria-expanded={open}
-            aria-controls={listId}
-            onClick={() => setOpen((o) => !o)}
-            className="cursor-pointer underline"
+      <div className="space-y-3 px-4 py-4 sm:px-5">
+        {verdict.profile_set_up === false ? (
+          <p
+            data-testid="profile-note"
+            className="rounded-md border border-dashed border-text-secondary px-3 py-2 text-sm text-text-secondary"
           >
-            {open ? t("verdict.hide_reasons") : t("verdict.show_all_reasons")}
-          </button>
-          <ul
-            id={listId}
-            hidden={!open}
-            data-testid="collapsed-reasons"
-            className="mt-(--spacing-2) list-disc space-y-(--spacing-1) ps-(--spacing-5)"
-          >
-            {collapsed.map(item)}
-          </ul>
-        </div>
-      ) : null}
+            {t("verdict.profile_not_set_up")}
+          </p>
+        ) : null}
+        {visible.length > 0 ? (
+          <ReasonList items={items(visible)} testId="visible-reasons" />
+        ) : null}
+        {collapsed.length > 0 ? (
+          <div className="space-y-2">
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls={listId}
+              onClick={() => setOpen((o) => !o)}
+              className="min-h-11 cursor-pointer text-md font-semibold text-brand-primary underline-offset-4 hover:underline"
+            >
+              {open ? t("verdict.hide_reasons") : t("verdict.show_all_reasons")}
+            </button>
+            <ReasonList
+              items={items(collapsed)}
+              id={listId}
+              hidden={!open}
+              testId="collapsed-reasons"
+            />
+          </div>
+        ) : null}
+      </div>
     </article>
   );
 }

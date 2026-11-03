@@ -81,6 +81,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get authGoogle => 'Google सह पुढे जा';
 
   @override
+  String get authOr => 'किंवा';
+
+  @override
   String get authPhone => 'फोनसह पुढे जा';
 
   @override
@@ -91,6 +94,10 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get authSignOut => 'साइन आउट करा';
+
+  @override
+  String get authSubtitle =>
+      'तुमच्या कुटुंबासाठी पॅकबंद अन्न तपासण्यासाठी साइन इन करा.';
 
   @override
   String get authTitle => 'साइन इन करा';
@@ -172,13 +179,26 @@ class AppLocalizationsMr extends AppLocalizations {
   String get claimVerdictUnverifiable => 'लेबलवरून तपासता येत नाही';
 
   @override
+  String get commonComingSoon => 'लवकरच येत आहे';
+
+  @override
   String get commonDisclaimer => 'ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get commonGoHome => 'मुख्य पानावर जा';
 
   @override
   String get commonLoading => 'लोड होत आहे…';
 
   @override
+  String get commonNotFoundBody =>
+      'तुम्ही शोधत असलेले पान अस्तित्वात नाही किंवा दुसरीकडे हलवले आहे.';
+
+  @override
   String get commonRetry => 'पुन्हा प्रयत्न करा';
+
+  @override
+  String get commonSkipToContent => 'थेट मुख्य मजकुराकडे जा';
 
   @override
   String get conditionDiabetes => 'मधुमेह (डायबेटिस)';
@@ -514,6 +534,16 @@ class AppLocalizationsMr extends AppLocalizations {
   String get explanationTitle => 'हा निकाल का';
 
   @override
+  String get familyBody =>
+      'कुटुंबातील प्रत्येक सदस्याला त्यांचे वय, ॲलर्जी आणि आहार यांसह जोडा, म्हणजे प्रत्येक निकाल त्यांच्यानुसार असेल.';
+
+  @override
+  String get familyTitle => 'कुटुंब';
+
+  @override
+  String get footerTagline => 'भारतीय कुटुंबांसाठी पॅकबंद अन्नाची माहिती.';
+
+  @override
   String get highInFat => 'फॅट जास्त';
 
   @override
@@ -531,7 +561,28 @@ class AppLocalizationsMr extends AppLocalizations {
   String get highInSugar => 'साखर जास्त';
 
   @override
+  String get historyBody =>
+      'तुम्ही तपासलेली उत्पादने इथे दिसतील, म्हणजे ती पुन्हा शोधता येतील.';
+
+  @override
+  String get historyTitle => 'इतिहास';
+
+  @override
+  String get homeLabelBody =>
+      'बारकोड नाही, किंवा उत्पादन आम्हाला अजून माहीत नाही? लेबलचा फोटो घ्या.';
+
+  @override
+  String get homeManualBody => 'पाकिटावरील पोषण माहिती स्वतः टाइप करा.';
+
+  @override
+  String get homeScanBody =>
+      'कॅमेरा वापरा, किंवा बारकोडखालील क्रमांक टाइप करा.';
+
+  @override
   String get homeScanCta => 'उत्पादन स्कॅन करा';
+
+  @override
+  String get homeSubtitle => 'आज तुम्हाला काय तपासायचे आहे?';
 
   @override
   String homeWelcome(String name) {
@@ -565,6 +616,64 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get labelUploading => 'फोटो अपलोड होत आहे…';
+
+  @override
+  String get landingCtaStart => 'सुरुवात करा';
+
+  @override
+  String get landingEyebrow => 'भारतीय कुटुंबांसाठी';
+
+  @override
+  String get landingHeroBody =>
+      'बारकोड स्कॅन करा किंवा लेबलचा फोटो घ्या. SmartNutri ते वाचून प्रत्येक व्यक्तीचे वय, ॲलर्जी आणि आहार यांनुसार तपासते आणि कारणही सांगते.';
+
+  @override
+  String get landingHeroTitle =>
+      'पॅकबंद अन्न तुमच्या कुटुंबातील प्रत्येक सदस्यासाठी योग्य आहे का, ते जाणून घ्या';
+
+  @override
+  String get landingHowTitle => 'हे कसे काम करते';
+
+  @override
+  String get landingMetaDescription =>
+      'पॅकबंद अन्न स्कॅन करा आणि ते तुमच्या कुटुंबातील प्रत्येक सदस्यासाठी योग्य आहे का ते कारणांसह पाहा. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get landingMetaTitle =>
+      'SmartNutri AI – हे पॅकबंद अन्न तुमच्या कुटुंबासाठी योग्य आहे का?';
+
+  @override
+  String get landingStep1Body =>
+      'बारकोड स्कॅन करा, किंवा पाकिटावरील पोषण लेबलचा फोटो घ्या.';
+
+  @override
+  String get landingStep1Title => 'स्कॅन करा किंवा फोटो घ्या';
+
+  @override
+  String get landingStep2Body =>
+      'काहीही जतन करण्यापूर्वी तुम्ही लेबलवरील माहितीची खात्री करता.';
+
+  @override
+  String get landingStep2Title => 'आम्ही काय वाचले ते तपासा';
+
+  @override
+  String get landingStep3Body =>
+      'कुटुंबातील प्रत्येक सदस्यासाठी सोपा निकाल मिळवा, सोप्या शब्दांतील कारणांसह.';
+
+  @override
+  String get landingStep3Title => 'हे कोणासाठी योग्य आहे ते पाहा';
+
+  @override
+  String get languageEn => 'English';
+
+  @override
+  String get languageHi => 'हिन्दी';
+
+  @override
+  String get languageLabel => 'भाषा';
+
+  @override
+  String get languageMr => 'मराठी';
 
   @override
   String get membersAdd => 'कुटुंबातील सदस्य जोडा';
@@ -692,6 +801,24 @@ class AppLocalizationsMr extends AppLocalizations {
   String get membersYouBadge => 'तुम्ही';
 
   @override
+  String get navFamily => 'कुटुंब';
+
+  @override
+  String get navHistory => 'इतिहास';
+
+  @override
+  String get navHome => 'होम';
+
+  @override
+  String get navLabel => 'मुख्य मेनू';
+
+  @override
+  String get navProfile => 'प्रोफाइल';
+
+  @override
+  String get navScan => 'स्कॅन';
+
+  @override
   String get notfoundGoToLabel =>
       'हे उत्पादन आम्हाला अजून माहीत नाही — त्याच्या लेबलचा फोटो घ्या';
 
@@ -745,7 +872,17 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String get productNotFoundBody =>
+      'बारकोड क्रमांक तपासा. तुम्ही साइन इन करून लेबलचा फोटो घेऊन हे उत्पादन जोडू शकता.';
+
+  @override
   String get productPublicCta => 'तुमच्या कुटुंबासाठी तपासा';
+
+  @override
+  String get profileBody => 'तुमचे खाते, भाषा आणि गोपनीयता सेटिंग्ज इथे असतील.';
+
+  @override
+  String get profileTitle => 'प्रोफाइल';
 
   @override
   String reasonAddedSugars(String ingredients) {
@@ -957,6 +1094,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get resultIngredients => 'घटक';
 
   @override
+  String get resultMembersTitle => 'तुमच्या कुटुंबासाठी';
+
+  @override
   String get resultNoIngredients => 'घटक उपलब्ध नाहीत';
 
   @override
@@ -980,6 +1120,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get scanInvalid => 'बारकोडखालील 8, 12, 13 किंवा 14 अंक टाका.';
 
   @override
+  String get scanLabelHint => 'बारकोड नाही? त्याऐवजी लेबलचा फोटो घ्या.';
+
+  @override
   String get scanManualEntry => 'किंवा बारकोड टाइप करा';
 
   @override
@@ -1000,6 +1143,10 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get scanSubmit => 'हे उत्पादन तपासा';
+
+  @override
+  String get scanSubtitle =>
+      'कॅमेरा बारकोडकडे धरा, किंवा खाली क्रमांक टाइप करा.';
 
   @override
   String get scanTitle => 'बारकोड स्कॅन करा';

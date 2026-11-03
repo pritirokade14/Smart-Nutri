@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Providers } from "@/app/providers";
+import { AppShell } from "@/components/shell/AppShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // Defence in depth: the proxy already gates these routes, but the server
@@ -15,5 +16,9 @@ export default async function AppLayout({
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims) redirect(`/${locale}/sign-in`);
-  return <Providers>{children}</Providers>;
+  return (
+    <Providers>
+      <AppShell locale={locale}>{children}</AppShell>
+    </Providers>
+  );
 }

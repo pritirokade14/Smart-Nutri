@@ -5,7 +5,11 @@
   "common": {
     "disclaimer": "Information, not medical advice.",
     "loading": "Loading…",
-    "retry": "Try again"
+    "retry": "Try again",
+    "go_home": "Go to the home page",
+    "coming_soon": "Coming soon",
+    "skip_to_content": "Skip to content",
+    "not_found_body": "The page you're looking for doesn't exist or has moved."
   },
   "auth": {
     "title": "Sign in",
@@ -19,11 +23,17 @@
     "phoneLabel": "Phone number (with country code)",
     "change": "Change",
     "error": "Could not sign in. Please try again.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "subtitle": "Sign in to check packaged foods for your family.",
+    "or": "or"
   },
   "home": {
     "welcome": "Hello, {name}",
-    "scan_cta": "Scan a product"
+    "scan_cta": "Scan a product",
+    "subtitle": "What would you like to check today?",
+    "scan_body": "Use your camera, or type the number under the barcode.",
+    "label_body": "No barcode, or a product we don't know yet? Photograph the label.",
+    "manual_body": "Type the nutrition facts from the pack yourself."
   },
   "verdict": {
     "status": {
@@ -214,7 +224,9 @@
     "not_found": "We couldn't find this product yet.",
     "retry": "Try again",
     "off_unavailable": "The product database is busy right now. Please try again in a moment.",
-    "scanning": "Point the camera at the barcode"
+    "scanning": "Point the camera at the barcode",
+    "subtitle": "Point your camera at the barcode, or type the number below.",
+    "label_hint": "No barcode? Photograph the label instead."
   },
   "result": {
     "title": "Result",
@@ -224,14 +236,16 @@
     "scan_another": "Scan another product",
     "ingredients": "Ingredients",
     "no_ingredients": "Ingredients not available",
-    "you": "You"
+    "you": "You",
+    "members_title": "For your family"
   },
   "product": {
     "public_cta": "Check it for your family",
     "meta_title": "{name} – nutrition facts | SmartNutri",
     "meta_description": "Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice.",
     "claims_heading": "Claims on the label, checked by SmartNutri",
-    "label_says": "Label says: {claim}"
+    "label_says": "Label says: {claim}",
+    "not_found_body": "Check the barcode number. You can also sign in and photograph the label to add this product."
   },
   "attribution": {
     "off": "Data from Open Food Facts (ODbL)"
@@ -398,5 +412,49 @@
     "title": "Why this result",
     "ai_note": "Written by AI from the results above. It never changes a result.",
     "tips_title": "Tips"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "Home",
+    "scan": "Scan",
+    "history": "History",
+    "family": "Family",
+    "profile": "Profile"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "hi": "हिन्दी",
+    "mr": "मराठी"
+  },
+  "landing": {
+    "eyebrow": "For Indian families",
+    "hero_title": "Know if a packaged food is right for each member of your family",
+    "hero_body": "Scan a barcode or photograph the label. SmartNutri reads it, checks it against each person's age, allergies and diet, and tells you why.",
+    "cta_start": "Get started",
+    "how_title": "How it works",
+    "step1_title": "Scan or snap",
+    "step1_body": "Scan the barcode, or take a photo of the nutrition label on the pack.",
+    "step2_title": "Check what we read",
+    "step2_body": "You confirm the label details before anything is saved.",
+    "step3_title": "See who it suits",
+    "step3_body": "Get a simple result for each family member, with the reasons in plain words.",
+    "meta_title": "SmartNutri AI – is this packaged food right for your family?",
+    "meta_description": "Scan a packaged food and see whether it suits each member of your family, with the reasons. Information, not medical advice."
+  },
+  "footer": {
+    "tagline": "Packaged-food information for Indian families."
+  },
+  "history": {
+    "title": "History",
+    "body": "Products you check will be listed here, so you can find them again."
+  },
+  "family": {
+    "title": "Family",
+    "body": "Add each family member with their age, allergies and diet, so every result is about them."
+  },
+  "profile": {
+    "title": "Profile",
+    "body": "Your account, language and privacy settings will be here."
   }
 }

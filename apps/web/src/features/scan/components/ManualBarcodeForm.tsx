@@ -2,6 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { buttonClass } from "@/components/ui/Button";
+import { inputClass, labelClass } from "@/components/ui/field";
 import { normalizeBarcode } from "../lib/barcode";
 
 export function ManualBarcodeForm({
@@ -15,7 +17,7 @@ export function ManualBarcodeForm({
 
   return (
     <form
-      className="flex flex-col gap-(--spacing-2)"
+      className="flex flex-col gap-2"
       onSubmit={(e) => {
         e.preventDefault();
         const code = normalizeBarcode(value);
@@ -23,28 +25,30 @@ export function ManualBarcodeForm({
         if (code) onSubmit(code);
       }}
     >
-      <label className="text-(length:--text-md)" htmlFor="manual-barcode">
+      <label className={labelClass} htmlFor="manual-barcode">
         {t("manual_entry")}
       </label>
-      <input
-        id="manual-barcode"
-        type="text"
-        inputMode="numeric"
-        autoComplete="off"
-        value={value}
-        placeholder={t("manual_placeholder")}
-        aria-invalid={invalid}
-        onChange={(e) => setValue(e.target.value)}
-        className="border p-(--spacing-2)"
-      />
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <input
+          id="manual-barcode"
+          type="text"
+          inputMode="numeric"
+          autoComplete="off"
+          value={value}
+          placeholder={t("manual_placeholder")}
+          aria-invalid={invalid}
+          onChange={(e) => setValue(e.target.value)}
+          className={`${inputClass} font-mono tracking-wide sm:flex-1`}
+        />
+        <button type="submit" className={buttonClass()}>
+          {t("submit")}
+        </button>
+      </div>
       {invalid && (
-        <p role="alert" className="text-(length:--text-sm)">
+        <p role="alert" className="text-sm text-text-primary">
           {t("invalid")}
         </p>
       )}
-      <button type="submit" className="border p-(--spacing-2)">
-        {t("submit")}
-      </button>
     </form>
   );
 }

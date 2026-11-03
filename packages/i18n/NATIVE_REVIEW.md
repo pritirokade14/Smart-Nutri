@@ -92,3 +92,10 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 ## Plan 5 safety should-fixes (allergen and alert copy)
 - [ ] **hi/mr `reason.allergen_unrecognised` (rewritten)**: machine drafts. Meaning: "We can only search the label for the exact word "{allergen}". Check the ingredients yourself." It must read as a calm limit of the search, not an error, so a parent does not delete the allergy to make it go away. hi: "हम लेबल पर केवल "{allergen}" शब्द ही खोज सकते हैं। सामग्री खुद भी जाँच लें।" mr: "आम्ही लेबलवर फक्त "{allergen}" हा नेमका शब्द शोधू शकतो. घटक स्वतः तपासा." Check "सामग्री" (hi) vs "घटक" (mr) for ingredients, matching the rest of the file.
 - [ ] **hi/mr `members.form.custom_alerts_help` (rewritten)**: machine drafts. Meaning: "We point these out when we find them on the label." hi: "लेबल पर ये मिलने पर हम इन्हें बताएँगे।" mr: "लेबलवर हे आढळल्यास आम्ही ते दाखवू."
+
+
+## Web design pass (app shell, landing, placeholders)
+- [ ] **hi/mr `landing.*`** (`eyebrow`, `hero_title`, `hero_body`, `cta_start`, `how_title`, `step1_*`, `step2_*`, `step3_*`, `meta_title`, `meta_description`): machine drafts. The hero is the public value proposition and the page title in search results: check that it reads naturally and stays informational ("सही है या नहीं" / "योग्य आहे का"), never a promise about health. `meta_description` must keep the "information, not medical advice" wording. Check "पैकेटबंद खाना" (hi) and "पॅकबंद अन्न" (mr) for "packaged food".
+- [ ] **hi/mr `nav.*`, `history.*`, `family.*`, `profile.*`, `footer.tagline`**: machine drafts. Tab labels must be short (they sit under icons in a bottom bar). Check "होम" vs "मुख्य पृष्ठ", and "परिवार" / "कुटुंब".
+- [ ] **hi/mr `common.{go_home,coming_soon,skip_to_content}`, `auth.{subtitle,or}`, `home.{subtitle,scan_body,label_body,manual_body}`, `scan.{subtitle,label_hint}`, `result.members_title`, `product.not_found_body`, `common.not_found_body`**: machine drafts. Check the tone (calm, no blame).
+- `language.{en,hi,mr}` are endonyms ("English", "हिन्दी", "मराठी") and are deliberately the same in all three files.

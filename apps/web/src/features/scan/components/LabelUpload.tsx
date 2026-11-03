@@ -4,6 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useRef, useState } from "react";
+import { pageClass } from "@/components/shell/page";
+import { buttonClass } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { DisclaimerFooter } from "@/components/ui/DisclaimerFooter";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { CameraIcon, PencilIcon, UploadIcon } from "@/components/ui/icons";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { track } from "@/lib/analytics";
 import { setScanDraft } from "../api/draftCache";
 import { type UploadStage, useUploadLabel } from "../api/useUploadLabel";
@@ -43,41 +51,51 @@ export function LabelUpload({ barcode }: { barcode: string | null }) {
     cameraRef.current?.click();
   };
 
-  const btn =
-    "inline-block cursor-pointer rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md)";
+  const btn = buttonClass({ variant: "outline" });
 
   let body: React.ReactNode;
   if (upload.isPending || upload.isSuccess) {
     body = (
-      <p role="status" className="text-(length:--text-md)">
-        {stage === "reading" ? t("label.reading") : t("label.uploading")}
-      </p>
+      <Card className="flex flex-col items-center gap-4 py-10 text-center">
+        <span className="flex size-16 items-center justify-center rounded-full bg-brand-soft text-brand-primary">
+          <UploadIcon className="size-8 animate-pulse motion-reduce:animate-none" />
+        </span>
+        <p role="status" className="text-md font-medium text-text-primary">
+          {stage === "reading" ? t("label.reading") : t("label.uploading")}
+        </p>
+        <Skeleton className="h-2 w-40 rounded-full" />
+      </Card>
     );
   } else if (upload.isError) {
     const key = `error.${upload.error.code}`;
     body = (
-      <section className="space-y-(--spacing-3)">
-        <p role="alert" className="text-(length:--text-md)">
-          {t.has(key) ? t(key) : t("error.internal_error")}
-        </p>
-        <div className="flex flex-wrap gap-(--spacing-2)">
-          <button type="button" onClick={retake} className={btn}>
-            {t("label.retake")}
-          </button>
-          <a href={`/${locale}/scan/manual${q}`} className={btn}>
-            {t("label.enter_manually")}
-          </a>
-        </div>
-      </section>
+      <ErrorState message={t.has(key) ? t(key) : t("error.internal_error")}>
+        <button type="button" onClick={retake} className={btn}>
+          <CameraIcon />
+          {t("label.retake")}
+        </button>
+        <a href={`/${locale}/scan/manual${q}`} className={btn}>
+          <PencilIcon />
+          {t("label.enter_manually")}
+        </a>
+      </ErrorState>
     );
   } else {
     body = (
-      <section className="space-y-(--spacing-3)">
-        <div className="flex flex-wrap gap-(--spacing-2)">
-          <label htmlFor={`${uid}-camera`} className={btn}>
+      <>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label
+            htmlFor={`${uid}-camera`}
+            className={buttonClass({ size: "lg" })}
+          >
+            <CameraIcon />
             {t("label.take_photo")}
           </label>
-          <label htmlFor={`${uid}-file`} className={btn}>
+          <label
+            htmlFor={`${uid}-file`}
+            className={buttonClass({ variant: "outline", size: "lg" })}
+          >
+            <UploadIcon />
             {t("label.choose_file")}
           </label>
         </div>
@@ -96,20 +114,25 @@ export function LabelUpload({ barcode }: { barcode: string | null }) {
             // HEIC and non-images with unsupported_image before upload.
             start(e.dataTransfer.files[0]);
           }}
-          className={`rounded-(--radius-lg) border-2 border-dashed p-(--spacing-6) text-center text-(length:--text-md) ${dragging ? "border-(--color-text-primary)" : ""}`}
+          className={`flex flex-col items-center gap-3 rounded-lg border-2 border-dashed p-8 text-center text-md text-text-secondary transition-colors max-sm:hidden ${dragging ? "border-brand-primary bg-brand-soft" : "border-border-default bg-surface-default"}`}
         >
+          <UploadIcon className="size-8" />
           <p>{t("label.drop_here")}</p>
         </section>
-        <a href={`/${locale}/scan/manual${q}`} className={btn}>
+        <a
+          href={`/${locale}/scan/manual${q}`}
+          className={buttonClass({ variant: "ghost", className: "self-start" })}
+        >
+          <PencilIcon />
           {t("label.enter_manually")}
         </a>
-      </section>
+      </>
     );
   }
 
   return (
-    <main className="mx-auto flex max-w-xl flex-col gap-(--spacing-4) p-(--spacing-4)">
-      <h1 className="text-(length:--text-xl)">{t("label.title")}</h1>
+    <main className={`${pageClass} flex flex-col`}>
+      <SectionHeader as="h1" title={t("label.title")} />
       {/* Inputs stay mounted so Retake can reopen the camera. */}
       <input
         ref={cameraRef}
@@ -136,7 +159,7 @@ export function LabelUpload({ barcode }: { barcode: string | null }) {
         }}
       />
       {body}
-      <p className="text-(length:--text-sm)">{t("common.disclaimer")}</p>
+      <DisclaimerFooter />
     </main>
   );
 }

@@ -81,6 +81,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authGoogle => 'Continue with Google';
 
   @override
+  String get authOr => 'or';
+
+  @override
   String get authPhone => 'Continue with phone';
 
   @override
@@ -91,6 +94,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authSignOut => 'Sign out';
+
+  @override
+  String get authSubtitle => 'Sign in to check packaged foods for your family.';
 
   @override
   String get authTitle => 'Sign in';
@@ -171,13 +177,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claimVerdictUnverifiable => 'Can\'t be checked from the label';
 
   @override
+  String get commonComingSoon => 'Coming soon';
+
+  @override
   String get commonDisclaimer => 'Information, not medical advice.';
+
+  @override
+  String get commonGoHome => 'Go to the home page';
 
   @override
   String get commonLoading => 'Loading…';
 
   @override
+  String get commonNotFoundBody =>
+      'The page you\'re looking for doesn\'t exist or has moved.';
+
+  @override
   String get commonRetry => 'Try again';
+
+  @override
+  String get commonSkipToContent => 'Skip to content';
 
   @override
   String get conditionDiabetes => 'Diabetes';
@@ -511,6 +530,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get explanationTitle => 'Why this result';
 
   @override
+  String get familyBody =>
+      'Add each family member with their age, allergies and diet, so every result is about them.';
+
+  @override
+  String get familyTitle => 'Family';
+
+  @override
+  String get footerTagline => 'Packaged-food information for Indian families.';
+
+  @override
   String get highInFat => 'High in fat';
 
   @override
@@ -528,7 +557,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get highInSugar => 'High in sugar';
 
   @override
+  String get historyBody =>
+      'Products you check will be listed here, so you can find them again.';
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String get homeLabelBody =>
+      'No barcode, or a product we don\'t know yet? Photograph the label.';
+
+  @override
+  String get homeManualBody =>
+      'Type the nutrition facts from the pack yourself.';
+
+  @override
+  String get homeScanBody =>
+      'Use your camera, or type the number under the barcode.';
+
+  @override
   String get homeScanCta => 'Scan a product';
+
+  @override
+  String get homeSubtitle => 'What would you like to check today?';
 
   @override
   String homeWelcome(String name) {
@@ -562,6 +613,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labelUploading => 'Uploading the photo…';
+
+  @override
+  String get landingCtaStart => 'Get started';
+
+  @override
+  String get landingEyebrow => 'For Indian families';
+
+  @override
+  String get landingHeroBody =>
+      'Scan a barcode or photograph the label. SmartNutri reads it, checks it against each person\'s age, allergies and diet, and tells you why.';
+
+  @override
+  String get landingHeroTitle =>
+      'Know if a packaged food is right for each member of your family';
+
+  @override
+  String get landingHowTitle => 'How it works';
+
+  @override
+  String get landingMetaDescription =>
+      'Scan a packaged food and see whether it suits each member of your family, with the reasons. Information, not medical advice.';
+
+  @override
+  String get landingMetaTitle =>
+      'SmartNutri AI – is this packaged food right for your family?';
+
+  @override
+  String get landingStep1Body =>
+      'Scan the barcode, or take a photo of the nutrition label on the pack.';
+
+  @override
+  String get landingStep1Title => 'Scan or snap';
+
+  @override
+  String get landingStep2Body =>
+      'You confirm the label details before anything is saved.';
+
+  @override
+  String get landingStep2Title => 'Check what we read';
+
+  @override
+  String get landingStep3Body =>
+      'Get a simple result for each family member, with the reasons in plain words.';
+
+  @override
+  String get landingStep3Title => 'See who it suits';
+
+  @override
+  String get languageEn => 'English';
+
+  @override
+  String get languageHi => 'हिन्दी';
+
+  @override
+  String get languageLabel => 'Language';
+
+  @override
+  String get languageMr => 'मराठी';
 
   @override
   String get membersAdd => 'Add a family member';
@@ -690,6 +799,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membersYouBadge => 'You';
 
   @override
+  String get navFamily => 'Family';
+
+  @override
+  String get navHistory => 'History';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navLabel => 'Main navigation';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get navScan => 'Scan';
+
+  @override
   String get notfoundGoToLabel =>
       'We don\'t know this product yet — photograph its label';
 
@@ -743,7 +870,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get productNotFoundBody =>
+      'Check the barcode number. You can also sign in and photograph the label to add this product.';
+
+  @override
   String get productPublicCta => 'Check it for your family';
+
+  @override
+  String get profileBody =>
+      'Your account, language and privacy settings will be here.';
+
+  @override
+  String get profileTitle => 'Profile';
 
   @override
   String reasonAddedSugars(String ingredients) {
@@ -955,6 +1093,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resultIngredients => 'Ingredients';
 
   @override
+  String get resultMembersTitle => 'For your family';
+
+  @override
   String get resultNoIngredients => 'Ingredients not available';
 
   @override
@@ -979,6 +1120,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter the 8, 12, 13 or 14 digits under the barcode.';
 
   @override
+  String get scanLabelHint => 'No barcode? Photograph the label instead.';
+
+  @override
   String get scanManualEntry => 'Or type the barcode';
 
   @override
@@ -999,6 +1143,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanSubmit => 'Check this product';
+
+  @override
+  String get scanSubtitle =>
+      'Point your camera at the barcode, or type the number below.';
 
   @override
   String get scanTitle => 'Scan a barcode';
