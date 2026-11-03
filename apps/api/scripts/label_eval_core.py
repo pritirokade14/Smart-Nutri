@@ -427,7 +427,7 @@ def render_markdown(model: str, prompt: str, date: str, agg: dict[str, Any],
     lines = [f"# Label extraction eval: {model} / {prompt} / {date}", ""]
     lines += ["| Metric | Value | Gate | Pass |", "|---|---|---|---|"]
     for name, (op, lim) in GATES.items():
-        key = "latency_p95_s" if name == "latency_p95" else name
+        key = "latency_p95_s" if name == "latency_p95" else name  # gitleaks:allow (metric name)
         ok = agg["gates"][name]
         lines.append(
             f"| {name} | {_fmt(agg['metrics'][key])} | {op} {lim} | "

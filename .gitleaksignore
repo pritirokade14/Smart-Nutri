@@ -1,0 +1,2 @@
+# False positive: a metric name in the label-eval report (latency p95), not a credential.
+afa35d29aa96f27dd83efe3f525b9939c3140ea3:apps/api/scripts/label_eval_core.py:generic-api-key:430
