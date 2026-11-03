@@ -9,6 +9,21 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
+  String get alertAddedSugar => 'अतिरिक्त चीनी';
+
+  @override
+  String get alertArtificialSweetener => 'कृत्रिम स्वीटनर';
+
+  @override
+  String get alertMaida => 'मैदा';
+
+  @override
+  String get alertMsg => 'एमएसजी (मोनोसोडियम ग्लूटामेट)';
+
+  @override
+  String get alertPalmOil => 'पाम तेल';
+
+  @override
   String get allergenCrustacean => 'शेलफ़िश (झींगा, केकड़ा आदि)';
 
   @override
@@ -639,6 +654,16 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String reasonCustomAlert(String ingredients) {
+    return 'सामग्री में $ingredients शामिल है। आपने इसके लिए अलर्ट चुना था।';
+  }
+
+  @override
+  String reasonCustomAlertUnknown(String alerts) {
+    return 'सामग्री साफ़ नहीं पढ़ी जा सकी, इसलिए हम $alerts की जाँच नहीं कर सके। आपने इनके लिए अलर्ट चुना था।';
+  }
+
+  @override
   String reasonDietUnknown(String diet) {
     return 'हम यह नहीं बता सकते कि यह $diet आहार के अनुकूल है या नहीं।';
   }
@@ -730,6 +755,11 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String reasonSugarModerate(String sugars_g) {
     return 'चीनी मध्यम है: प्रति 100 ग्राम/मि.ली. $sugars_g ग्राम।';
+  }
+
+  @override
+  String reasonVariantCustomAlertFlagOnly(String alert) {
+    return 'उत्पाद की जानकारी में $alert दर्ज है। आपने इसके लिए अलर्ट चुना था।';
   }
 
   @override

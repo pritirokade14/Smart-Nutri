@@ -80,4 +80,27 @@ sources:
   icmr_nin_2024: {title: "ICMR-NIN Dietary Guidelines for Indians 2024", url: "https://www.nin.res.in/dietaryguidelines/", url_verified: false}
   nhs_child_sugar: {title: "NHS: sugar limits for children", url: "https://www.nhs.uk/live-well/eat-well/food-types/how-does-sugar-in-our-diet-affect-our-health/", url_verified: false}
   who_infant: {title: "WHO guidance: no added sugar or salt under 2", url: "https://www.who.int/news-room/fact-sheets/detail/healthy-diet", url_verified: false}
-section_sources: {nutriscore_2023: nutriscore_2023, high_in: uk_fsa_front_of_pack, allergens: fssai_labelling_2020, diet: fssai_labelling_2020, claims: fssai_claims_2018, blood_sugar: icmr_nin_2024, hypertension: icmr_nin_2024, weight_loss: icmr_nin_2024, child: nhs_child_sugar, infant: who_infant, custom_alerts: fssai_labelling_2020}
+  uk_sdil: {title: "UK Soft Drinks Industry Levy (5 g sugar per 100 ml)", url: "https://www.gov.uk/guidance/soft-drinks-industry-levy", url_verified: false}
+  # Numbers SmartNutri chose itself (no external source states them). No link.
+  smartnutri_working_values: {title: "SmartNutri working values, pending clinician review", url: null, url_verified: false}
+# Section -> where its numbers come from (`thresholds`) and, optionally, why the rule exists
+# (`rationale`). Both are lists of keys from `sources` above. null = a member's own preference,
+# not a health rule, so there is nothing to cite (Ruling P7).
+section_sources:
+  nutriscore_2023: {thresholds: [nutriscore_2023]}
+  high_in:         {thresholds: [uk_fsa_front_of_pack]}
+  allergens:       {thresholds: [fssai_labelling_2020]}
+  diet:            {thresholds: [fssai_labelling_2020]}
+  claims:          {thresholds: [fssai_claims_2018]}
+  # avoid/caution sugars: UK FSA high-in and FSSAI low-sugar bands; drink avoid: UK SDIL;
+  # carbs per serving: SmartNutri. ICMR-NIN is only the rationale for cardio_high_in.
+  blood_sugar:     {thresholds: [uk_fsa_front_of_pack, fssai_claims_2018, uk_sdil], rationale: [icmr_nin_2024]}
+  # avoid 1.5 g and caution 0.3 g salt per 100 g are the UK FSA high and low salt bands.
+  hypertension:    {thresholds: [uk_fsa_front_of_pack], rationale: [icmr_nin_2024]}
+  # 400 kcal and the protein density are SmartNutri values; D/E are Nutri-Score grades.
+  weight_loss:     {thresholds: [smartnutri_working_values, nutriscore_2023], rationale: [icmr_nin_2024]}
+  # Daily free-sugar limits by age are NHS; the 25 % / 50 % shares are SmartNutri values.
+  child:           {thresholds: [nhs_child_sugar, smartnutri_working_values]}
+  # 5 g sugar and 0.3 g salt per 100 g are SmartNutri values (Ruling R27), NOT WHO numbers.
+  infant:          {thresholds: [smartnutri_working_values], rationale: [who_infant]}
+  custom_alerts:   null

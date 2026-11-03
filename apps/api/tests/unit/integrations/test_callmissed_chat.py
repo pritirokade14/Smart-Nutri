@@ -123,6 +123,45 @@ async def test_data_residency_in_request_body():
     assert CHAT_EXTRA_BODY == {"provider": {"data_residency": "in"}}
 
 
+def _every_attempt_is_in(mock: Mock) -> None:
+    bodies = [json.loads(r.content) for r in mock.requests]
+    assert bodies, "no request was made"
+    for i, body in enumerate(bodies):
+        assert body["provider"] == {"data_residency": "in"}, f"attempt {i + 1}"
+
+
+async def test_data_residency_on_every_attempt_including_retries(no_sleep):
+    # 429, then 503, then invalid output, then success: four attempts, all residency "in".
+    client, mock = make(
+        [
+            httpx.Response(429, json={}),
+            httpx.Response(503, json={}),
+            _ok('{"text": "x"}'),
+            _ok(),
+        ]
+    )
+    await _call(client)
+    assert mock.calls >= 3
+    _every_attempt_is_in(mock)
+
+
+@pytest.mark.parametrize(
+    "responses",
+    [
+        [httpx.Response(429, json={})],
+        [httpx.Response(503, json={})],
+        [_ok('{"text": "x"}')],
+    ],
+    ids=["429", "5xx", "invalid_output"],
+)
+async def test_data_residency_on_every_failed_retry(responses):
+    client, mock = make(responses)
+    with pytest.raises(CompletionFailed):
+        await _call(client)
+    assert mock.calls >= 2
+    _every_attempt_is_in(mock)
+
+
 async def test_request_shape_strict_schema_temperature_zero():
     client, mock = make([_ok()])
     result = await _call(client)

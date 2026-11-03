@@ -9,6 +9,21 @@ class AppLocalizationsMr extends AppLocalizations {
   AppLocalizationsMr([String locale = 'mr']) : super(locale);
 
   @override
+  String get alertAddedSugar => 'वरून घातलेली साखर';
+
+  @override
+  String get alertArtificialSweetener => 'कृत्रिम स्वीटनर (गोडवा)';
+
+  @override
+  String get alertMaida => 'मैदा';
+
+  @override
+  String get alertMsg => 'एमएसजी (मोनोसोडियम ग्लूटामेट)';
+
+  @override
+  String get alertPalmOil => 'पाम तेल';
+
+  @override
   String get allergenCrustacean => 'शेलफिश (कोळंबी, खेकडा इ.)';
 
   @override
@@ -637,6 +652,16 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String reasonCustomAlert(String ingredients) {
+    return 'घटकांमध्ये $ingredients आहे. तुम्ही यासाठी अलर्ट निवडला होता.';
+  }
+
+  @override
+  String reasonCustomAlertUnknown(String alerts) {
+    return 'घटकांची यादी स्पष्ट वाचता आली नाही, त्यामुळे $alerts यांची तपासणी करता आली नाही. तुम्ही यांसाठी अलर्ट निवडला होता.';
+  }
+
+  @override
   String reasonDietUnknown(String diet) {
     return 'हे $diet आहाराला अनुकूल आहे की नाही हे आम्ही सांगू शकत नाही.';
   }
@@ -728,6 +753,11 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String reasonSugarModerate(String sugars_g) {
     return 'साखर मध्यम आहे: प्रति 100 ग्रॅम/मि.ली. $sugars_g ग्रॅम.';
+  }
+
+  @override
+  String reasonVariantCustomAlertFlagOnly(String alert) {
+    return 'उत्पादनाच्या माहितीत $alert नोंदवलेले आहे. तुम्ही यासाठी अलर्ट निवडला होता.';
   }
 
   @override

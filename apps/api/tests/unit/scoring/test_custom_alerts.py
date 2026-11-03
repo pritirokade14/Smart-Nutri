@@ -3,7 +3,7 @@ from dataclasses import replace
 import pytest
 
 from app.scoring import CUSTOM_ALERT_KEYS, analyze, custom_alert_reasons
-from app.scoring.models import Member, Status
+from app.scoring.models import Member, Nutrients, Product, Status
 
 ALL_ALERTS = Member(id="all", name="All", age=30, custom_alerts=CUSTOM_ALERT_KEYS)
 
@@ -126,7 +126,7 @@ def test_added_sugar_alert_uses_added_and_hidden_sugars(curd, cfg):
     ("ingredients", "hits"),
     [
         (("sweetener (ins 955)",), ["ins955"]),
-        (("artificial sweetener (E951)",), ["ins951"]),
+        (("artificial sweetener (E951)",), ["artificial sweetener", "ins951"]),
         (("acesulfame k", "sucralose"), ["acesulfame k", "sucralose"]),
     ],
 )
@@ -149,21 +149,232 @@ def test_msg_forms(curd, cfg, ingredients, hits):
     assert _alerts(replace(curd, ingredients=ingredients), m, cfg) == [("msg", hits)]
 
 
-# --- unknown ingredients (Ruling P4 / P5-R25) --------------------------------------------
+# --- unknown ingredients (Ruling P7) ----------------------------------------------------
+
+# The reviewer's probe: a non_veg adult with no allergens, conditions or goal, every alert on.
+PROBE = Member(id="probe", name="Probe", age=30, custom_alerts=CUSTOM_ALERT_KEYS)
+UNKNOWN_ALL = ("custom_alert_unknown", Status.UNKNOWN, {"alerts": list(CUSTOM_ALERT_KEYS)})
+
+
+def _codes(reasons):
+    return [(r.code, r.severity, r.params) for r in reasons]
+
+
+def test_probe_member_with_no_ingredients_is_unknown_not_ok(cfg):
+    p = Product(name="x", per_100g=Nutrients(energy_kcal=100, sugars_g=1, salt_g=0.1))
+    (v,) = analyze(p, [PROBE], cfg).verdicts
+    assert v.status == Status.UNKNOWN
+    assert _codes(v.reasons) == [UNKNOWN_ALL]
 
 
 @pytest.mark.parametrize("ingredients", [(), ("N/A",), ("see pack",), ("  ",)])
-def test_unknown_ingredients_give_no_custom_alert(no_ingredients, cfg, ingredients):
+def test_unreadable_ingredients_give_custom_alert_unknown(no_ingredients, cfg, ingredients):
     p = replace(no_ingredients, ingredients=ingredients)
-    assert custom_alert_reasons(p, ALL_ALERTS, cfg) == []
-    codes = [r.code for r in analyze(p, [ALL_ALERTS], cfg).verdicts[0].reasons]
-    assert "custom_alert" not in codes
+    assert _codes(custom_alert_reasons(p, PROBE, cfg)) == [UNKNOWN_ALL]
+    (v,) = analyze(p, [PROBE], cfg).verdicts
+    assert v.status == Status.UNKNOWN
+    assert "custom_alert" not in [r.code for r in v.reasons]
 
 
-def test_low_confidence_match_still_alerts(sf_biscuit, palm_member, cfg):
-    # A match is evidence; the low-confidence UNKNOWN comes from the existing rules.
+def test_na_ingredients_probe_is_unknown(cfg):
+    p = Product(name="x", ingredients=("N/A",))
+    assert analyze(p, [PROBE], cfg).verdicts[0].status == Status.UNKNOWN
+
+
+def test_low_confidence_without_a_match_is_unknown(cfg):
+    p = Product(name="x", ingredients=("whole wheat flour", "salt"), extraction_confidence=0.3)
+    assert _codes(custom_alert_reasons(p, PROBE, cfg)) == [UNKNOWN_ALL]
+    assert analyze(p, [PROBE], cfg).verdicts[0].status == Status.UNKNOWN
+
+
+def test_low_confidence_match_alerts_and_lists_the_rest_as_unknown(cfg):
+    # A match is evidence at any confidence; the alerts it could not rule out are unknown.
+    p = Product(name="x", ingredients=("refined palm oil", "salt"), extraction_confidence=0.3)
+    assert _codes(custom_alert_reasons(p, PROBE, cfg)) == [
+        ("custom_alert", Status.CAUTION, {"alert": "palm_oil", "ingredients": ["palm oil"]}),
+        (
+            "custom_alert_unknown",
+            Status.UNKNOWN,
+            {"alerts": ["maida", "added_sugar", "artificial_sweetener", "msg"]},
+        ),
+    ]
+    (v,) = analyze(p, [PROBE], cfg).verdicts
+    assert v.status != Status.OK
+    assert ("custom_alert", Status.CAUTION) in [(r.code, r.severity) for r in v.reasons]
+
+
+def test_low_confidence_single_alert_match_is_caution_not_ok(cfg):
+    m = Member(id="x", name="X", age=30, custom_alerts=("palm_oil",))
+    p = Product(name="x", ingredients=("refined palm oil", "salt"), extraction_confidence=0.3)
+    (v,) = analyze(p, [m], cfg).verdicts
+    assert _codes(v.reasons) == [
+        ("custom_alert", Status.CAUTION, {"alert": "palm_oil", "ingredients": ["palm oil"]})
+    ]
+    assert v.status == Status.CAUTION
+
+
+def test_low_confidence_every_alert_matched_has_no_unknown(sf_biscuit, palm_member, cfg):
     p = replace(sf_biscuit, extraction_confidence=0.4)
+    assert [r.code for r in custom_alert_reasons(p, palm_member, cfg)] == [
+        "custom_alert",
+        "custom_alert",
+    ]
     assert [a for a, _ in _alerts(p, palm_member, cfg)] == ["palm_oil", "maida"]
+
+
+def test_unknown_lists_only_enabled_alerts_in_key_order(cfg):
+    m = Member(id="x", name="X", age=30, custom_alerts=("msg", "glitter", "palm_oil", "msg"))
+    assert _codes(custom_alert_reasons(Product(name="x"), m, cfg)) == [
+        ("custom_alert_unknown", Status.UNKNOWN, {"alerts": ["palm_oil", "msg"]})
+    ]
+
+
+def test_only_unrecognised_alert_keys_give_nothing(cfg):
+    m = Member(id="x", name="X", age=30, custom_alerts=("glitter",))
+    assert custom_alert_reasons(Product(name="x"), m, cfg) == []
+
+
+@pytest.mark.parametrize(
+    "product",
+    [
+        Product(name="x"),
+        Product(name="x", ingredients=("N/A",)),
+        Product(name="x", ingredients=("salt",), extraction_confidence=0.3),
+    ],
+)
+def test_member_without_alerts_unaffected_by_unknown_ingredients(cfg, product):
+    m = Member(id="x", name="X", age=30)
+    assert custom_alert_reasons(product, m, cfg) == []
+    assert "custom_alert_unknown" not in [
+        r.code for r in analyze(product, [m], cfg).verdicts[0].reasons
+    ]
+
+
+def test_member_without_alerts_and_no_ingredients_stays_ok(cfg):
+    (v,) = analyze(Product(name="x"), [Member(id="x", name="X", age=30)], cfg).verdicts
+    assert v.status == Status.OK and v.reasons == ()
+
+
+# --- OFF sweetener flag ------------------------------------------------------------------
+
+
+def test_sweetener_flag_fires_the_artificial_sweetener_alert(curd, cfg):
+    m = Member(id="x", name="X", age=30, custom_alerts=("artificial_sweetener",))
+    p = replace(curd, contains_sweeteners=True)
+    assert _codes(custom_alert_reasons(p, m, cfg)) == [
+        ("custom_alert", Status.CAUTION, {"alert": "artificial_sweetener", "ingredients": []})
+    ]
+
+
+def test_sweetener_flag_with_a_term_match_reports_the_terms(curd, cfg):
+    m = Member(id="x", name="X", age=30, custom_alerts=("artificial_sweetener",))
+    p = replace(curd, ingredients=("milk", "sucralose"), contains_sweeteners=True)
+    assert _alerts(p, m, cfg) == [("artificial_sweetener", ["sucralose"])]
+
+
+def test_sweetener_flag_without_ingredients_alerts_and_rest_unknown(cfg):
+    p = Product(name="x", contains_sweeteners=True)
+    assert _codes(custom_alert_reasons(p, PROBE, cfg)) == [
+        ("custom_alert", Status.CAUTION, {"alert": "artificial_sweetener", "ingredients": []}),
+        (
+            "custom_alert_unknown",
+            Status.UNKNOWN,
+            {"alerts": ["palm_oil", "maida", "added_sugar", "msg"]},
+        ),
+    ]
+
+
+def test_sweetener_flag_ignored_when_alert_is_off(curd, cfg):
+    m = Member(id="x", name="X", age=30, custom_alerts=("msg",))
+    assert custom_alert_reasons(replace(curd, contains_sweeteners=True), m, cfg) == []
+
+
+# --- more label terms (Ruling P7 should-fix) ---------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "hits"),
+    [
+        (("sugar", "milk solids", "contains artificial sweetener"), ["artificial sweetener"]),
+        (
+            ("CONTAINS ARTIFICIAL SWEETENER. NOT RECOMMENDED FOR CHILDREN",),
+            ["artificial sweetener"],
+        ),
+        (
+            ("milk solids", "artificial sweetening agents (ins 950, ins 955)"),
+            ["artificial sweetening agent", "ins950", "ins955"],
+        ),
+        (("non-nutritive sweetener (sucralose)",), ["non nutritive sweetener", "sucralose"]),
+        (("cocoa", "sweeteners (Ace-K, aspartame)"), ["ace k", "aspartame"]),
+        (("Acesulfame", "water"), ["acesulfame"]),
+        (("Acesulfame-K", "water"), ["acesulfame k"]),
+        (("कोको", "एस्पार्टेम"), ["एस्पार्टेम"]),
+        (("दूध", "सुक्रालोज"), ["सुक्रालोज"]),
+        (("सैकरीन",), ["सैकरीन"]),
+        (("सैक्रीन",), ["सैक्रीन"]),
+        (("एसेसल्फेम पोटैशियम",), ["एसेसल्फेम"]),
+        (("इसमें कृत्रिम स्वीटनर है",), ["कृत्रिम स्वीटनर"]),
+        (("इसमें कृत्रिम मिठास मिलाई गई है",), ["कृत्रिम मिठास"]),
+        (("यात कृत्रिम गोडवा आहे",), ["कृत्रिम गोडवा"]),
+    ],
+)
+def test_more_artificial_sweetener_terms(curd, cfg, ingredients, hits):
+    m = Member(id="x", name="X", age=30, custom_alerts=("artificial_sweetener",))
+    assert _alerts(replace(curd, ingredients=ingredients), m, cfg) == [
+        ("artificial_sweetener", hits)
+    ]
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "hits"),
+    [
+        (("noodles", "tastemaker (salt, Ajinomoto)"), ["ajinomoto"]),
+        (("seasoning (aji-no-moto)",), ["aji no moto"]),
+        (("नमक", "अजीनोमोटो"), ["अजीनोमोटो"]),
+        (("अजिनोमोटो",), ["अजिनोमोटो"]),
+        (("flavour enhancer (Monosodium L-glutamate)",), ["monosodium l glutamate"]),
+        (("स्वाद वर्धक (मोनोसोडियम ग्लूटामेट)",), ["मोनोसोडियम ग्लूटामेट"]),
+    ],
+)
+def test_more_msg_terms(curd, cfg, ingredients, hits):
+    m = Member(id="x", name="X", age=30, custom_alerts=("msg",))
+    assert _alerts(replace(curd, ingredients=ingredients), m, cfg) == [("msg", hits)]
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "hits"),
+    [
+        (("All-purpose flour", "sugar"), ["all purpose flour"]),
+        (("white flour", "yeast"), ["white flour"]),
+        (("मैद्याचे पीठ", "साखर"), ["मैद्याचे पीठ"]),
+    ],
+)
+def test_more_maida_terms(curd, cfg, ingredients, hits):
+    m = Member(id="x", name="X", age=30, custom_alerts=("maida",))
+    assert _alerts(replace(curd, ingredients=ingredients), m, cfg) == [("maida", hits)]
+
+
+def test_wheat_flour_refined_in_brackets_is_a_known_gap(curd, cfg):
+    # Documented limitation (ingredients.yaml): the bracket splits "wheat flour" from
+    # "refined", so "Wheat flour (refined)" does not raise the maida alert.
+    m = Member(id="x", name="X", age=30, custom_alerts=("maida",))
+    p = replace(curd, ingredients=("Wheat flour (refined)",))
+    assert custom_alert_reasons(p, m, cfg) == []
+
+
+@pytest.mark.parametrize(
+    "ingredients",
+    [("palm heart",), ("Palm hearts", "brine"), ("hearts of palm",), ("heart of palm",)],
+)
+def test_palm_heart_is_not_a_palm_oil_alert(curd, cfg, ingredients):
+    m = Member(id="x", name="X", age=30, custom_alerts=("palm_oil",))
+    assert custom_alert_reasons(replace(curd, ingredients=ingredients), m, cfg) == []
+
+
+def test_palm_heart_with_palm_oil_still_alerts(curd, cfg):
+    m = Member(id="x", name="X", age=30, custom_alerts=("palm_oil",))
+    p = replace(curd, ingredients=("hearts of palm", "palm oil"))
+    assert _alerts(p, m, cfg) == [("palm_oil", ["palm oil"])]
 
 
 # --- ordering, wiring and data -----------------------------------------------------------
@@ -184,6 +395,7 @@ def test_ingredients_param_is_sorted_list(curd, cfg):
 
 def test_no_match_gives_no_reason(curd, cfg):
     assert custom_alert_reasons(curd, ALL_ALERTS, cfg) == []
+    assert analyze(curd, [ALL_ALERTS], cfg).verdicts[0].status == Status.OK
 
 
 def test_analyze_includes_custom_alert_reasons(sf_biscuit, palm_member, cfg):

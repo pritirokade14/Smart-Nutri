@@ -100,6 +100,36 @@ abstract class AppLocalizations {
     Locale('mr'),
   ];
 
+  /// No description provided for @alertAddedSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'added sugar'**
+  String get alertAddedSugar;
+
+  /// No description provided for @alertArtificialSweetener.
+  ///
+  /// In en, this message translates to:
+  /// **'artificial sweeteners'**
+  String get alertArtificialSweetener;
+
+  /// No description provided for @alertMaida.
+  ///
+  /// In en, this message translates to:
+  /// **'maida (refined wheat flour)'**
+  String get alertMaida;
+
+  /// No description provided for @alertMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'MSG (monosodium glutamate)'**
+  String get alertMsg;
+
+  /// No description provided for @alertPalmOil.
+  ///
+  /// In en, this message translates to:
+  /// **'palm oil'**
+  String get alertPalmOil;
+
   /// No description provided for @allergenCrustacean.
   ///
   /// In en, this message translates to:
@@ -1192,6 +1222,18 @@ abstract class AppLocalizations {
   /// **'We do not have guidance for \"{condition}\" yet.'**
   String reasonConditionUnrecognised(String condition);
 
+  /// No description provided for @reasonCustomAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Contains {ingredients}, which you asked to be alerted about.'**
+  String reasonCustomAlert(String ingredients);
+
+  /// No description provided for @reasonCustomAlertUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read the ingredients clearly, so we can\'t check for {alerts}, which you asked to be alerted about.'**
+  String reasonCustomAlertUnknown(String alerts);
+
   /// No description provided for @reasonDietUnknown.
   ///
   /// In en, this message translates to:
@@ -1311,6 +1353,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Moderate sugar: {sugars_g} g per 100 g/ml.'**
   String reasonSugarModerate(String sugars_g);
+
+  /// No description provided for @reasonVariantCustomAlertFlagOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The product data lists {alert}, which you asked to be alerted about.'**
+  String reasonVariantCustomAlertFlagOnly(String alert);
 
   /// No description provided for @reasonVariantDietViolationMarkOnly.
   ///

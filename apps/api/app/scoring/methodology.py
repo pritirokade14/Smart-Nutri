@@ -81,22 +81,37 @@ def _version(cfg: ScoringConfig) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
 
 
-def methodology(cfg: ScoringConfig | None = None) -> dict[str, Any]:
-    """{version, pending_clinician_review, sections: [{id, source, thresholds}], sources}.
+def _source_lists(entry: Any) -> tuple[list[str] | None, list[str] | None]:
+    """(threshold_sources, rationale_sources) for one `section_sources` entry.
 
-    Returns fresh copies: mutating the result never changes the (cached) config.
+    None for both means a member preference with nothing to cite (custom alerts, Ruling P7).
+    """
+    if entry is None:
+        return None, None
+    return list(entry["thresholds"]), list(entry.get("rationale") or [])
+
+
+def methodology(cfg: ScoringConfig | None = None) -> dict[str, Any]:
+    """{version, pending_clinician_review, sections, sources}.
+
+    Each section is {id, threshold_sources, rationale_sources, thresholds}: lists of keys
+    into `sources` for where the numbers come from and why the rule exists (both None for
+    custom alerts). Returns fresh copies: mutating the result never changes the config.
     """
     if cfg is None:
         cfg = load_config()
     section_sources = cfg.thresholds["section_sources"]
-    sections = [
-        {
-            "id": sid,
-            "source": section_sources[sid],
-            "thresholds": copy.deepcopy(_thresholds(sid, cfg)),
-        }
-        for sid in SECTION_IDS
-    ]
+    sections = []
+    for sid in SECTION_IDS:
+        threshold_sources, rationale_sources = _source_lists(section_sources[sid])
+        sections.append(
+            {
+                "id": sid,
+                "threshold_sources": threshold_sources,
+                "rationale_sources": rationale_sources,
+                "thresholds": copy.deepcopy(_thresholds(sid, cfg)),
+            }
+        )
     return {
         "version": _version(cfg),
         "pending_clinician_review": PENDING_CLINICIAN_REVIEW,

@@ -8,8 +8,10 @@ analyze wiring in part B).
   raw ingredient text; free-text params (a typed-in allergen or condition) become "other".
 - `ExplanationLLM` is the strict schema the model must fill. It echoes every member's status.
 - `guard` drops the explanation when an echoed status differs from the engine's, a member is
-  missing or extra, the text names an unknown `member_N`, or the text contains a member name
-  or the account email. It never edits the text: clients substitute the `member_N` tokens
+  missing or extra, the text names an unknown `member_N` or uses any other form of a member
+  token ("member 2", "Member-2"), contains a denied word ("safe", "healthy" and their hi/mr
+  forms; also "fine" and "okay" when any member is not `ok`), or contains a member name or
+  the account email. It never edits the text: clients substitute the `member_N` tokens
   (via `member_refs`) and show the disclaimer.
 - `explain` calls the provider within an 8 s budget and returns None on any failure. It never
   raises, and it never touches the `AnalysisResult`, which is frozen and only read here.
@@ -53,7 +55,26 @@ _ALLERGEN_PARAM = "allergen"
 _FREE_TEXT_PARAMS = frozenset({"condition"})
 OTHER = "other"
 
-_TOKEN_RE = re.compile(r"member[\s_-]*(\d+)", re.IGNORECASE)
+# Anything that looks like a member token: "member_2", "Member 2", "member-2", "member2",
+# "member_०२". Only the exact `member_N` form (no leading zero, ASCII digits) is accepted
+# (Ruling P7), because clients substitute only that form. Not preceded by an ASCII letter, so
+# "remember 2" is not a token.
+_TOKEN_LIKE_RE = re.compile(r"(?<![a-z])member[\s_-]*(\d+)", re.IGNORECASE)
+_EXACT_TOKEN_RE = re.compile(r"member_[1-9][0-9]*")
+
+# Words the explanation must never use, for any status (Ruling P7). Latin words match as
+# whole words; Devanagari words also match as a word prefix (case endings attach).
+DENY_WORDS: tuple[str, ...] = (
+    "safe",
+    "safely",
+    "healthy",
+    "सुरक्षित",
+    "सुरक्षित आहे",
+    "सेहतमंद",
+    "हेल्दी",
+)
+# Also denied when any member's status is not `ok`.
+DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = ("fine", "okay")
 _IST = ZoneInfo("Asia/Kolkata")
 
 
@@ -317,10 +338,18 @@ def _drop_reason(
     if not out.text.strip():
         return "empty"
     combined = "\n".join([out.text, *out.tips])
-    for number in _TOKEN_RE.findall(combined):
-        if f"member_{int(number)}" not in expected:
+    for m in _TOKEN_LIKE_RE.finditer(combined):
+        token = m.group(0)
+        if not _EXACT_TOKEN_RE.fullmatch(token):
+            return "member_token_variant"
+        if token not in expected:
             return "unknown_member_token"
     haystack = _normalise(combined)
+    deny = DENY_WORDS
+    if any(v.status is not scoring.Status.OK for v in result.verdicts):
+        deny = (*deny, *DENY_WORDS_NOT_ALL_OK)
+    if any(_contains_word(haystack, _normalise(w)) for w in deny):
+        return "denied_word"
     if any(_contains_word(haystack, n) for n in _name_needles(member_names)):
         return "member_name"
     for email in emails:

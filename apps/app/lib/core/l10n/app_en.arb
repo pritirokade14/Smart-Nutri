@@ -1,5 +1,10 @@
 {
   "@@locale": "en",
+  "alertAddedSugar": "added sugar",
+  "alertArtificialSweetener": "artificial sweeteners",
+  "alertMaida": "maida (refined wheat flour)",
+  "alertMsg": "MSG (monosodium glutamate)",
+  "alertPalmOil": "palm oil",
   "allergenCrustacean": "Shellfish (crustaceans)",
   "allergenEgg": "Egg",
   "allergenFish": "Fish",
@@ -350,6 +355,22 @@
       }
     }
   },
+  "reasonCustomAlert": "Contains {ingredients}, which you asked to be alerted about.",
+  "@reasonCustomAlert": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCustomAlertUnknown": "We couldn't read the ingredients clearly, so we can't check for {alerts}, which you asked to be alerted about.",
+  "@reasonCustomAlertUnknown": {
+    "placeholders": {
+      "alerts": {
+        "type": "String"
+      }
+    }
+  },
   "reasonDietUnknown": "We can't tell whether this fits the {diet} diet.",
   "@reasonDietUnknown": {
     "placeholders": {
@@ -467,6 +488,14 @@
   "@reasonSugarModerate": {
     "placeholders": {
       "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonVariantCustomAlertFlagOnly": "The product data lists {alert}, which you asked to be alerted about.",
+  "@reasonVariantCustomAlertFlagOnly": {
+    "placeholders": {
+      "alert": {
         "type": "String"
       }
     }

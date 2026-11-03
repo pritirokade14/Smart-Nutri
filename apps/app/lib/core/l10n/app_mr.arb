@@ -1,5 +1,10 @@
 {
   "@@locale": "mr",
+  "alertAddedSugar": "वरून घातलेली साखर",
+  "alertArtificialSweetener": "कृत्रिम स्वीटनर (गोडवा)",
+  "alertMaida": "मैदा",
+  "alertMsg": "एमएसजी (मोनोसोडियम ग्लूटामेट)",
+  "alertPalmOil": "पाम तेल",
   "allergenCrustacean": "शेलफिश (कोळंबी, खेकडा इ.)",
   "allergenEgg": "अंडे",
   "allergenFish": "मासे",
@@ -350,6 +355,22 @@
       }
     }
   },
+  "reasonCustomAlert": "घटकांमध्ये {ingredients} आहे. तुम्ही यासाठी अलर्ट निवडला होता.",
+  "@reasonCustomAlert": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCustomAlertUnknown": "घटकांची यादी स्पष्ट वाचता आली नाही, त्यामुळे {alerts} यांची तपासणी करता आली नाही. तुम्ही यांसाठी अलर्ट निवडला होता.",
+  "@reasonCustomAlertUnknown": {
+    "placeholders": {
+      "alerts": {
+        "type": "String"
+      }
+    }
+  },
   "reasonDietUnknown": "हे {diet} आहाराला अनुकूल आहे की नाही हे आम्ही सांगू शकत नाही.",
   "@reasonDietUnknown": {
     "placeholders": {
@@ -467,6 +488,14 @@
   "@reasonSugarModerate": {
     "placeholders": {
       "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonVariantCustomAlertFlagOnly": "उत्पादनाच्या माहितीत {alert} नोंदवलेले आहे. तुम्ही यासाठी अलर्ट निवडला होता.",
+  "@reasonVariantCustomAlertFlagOnly": {
+    "placeholders": {
+      "alert": {
         "type": "String"
       }
     }

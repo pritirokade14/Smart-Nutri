@@ -1,5 +1,10 @@
 {
   "@@locale": "hi",
+  "alertAddedSugar": "अतिरिक्त चीनी",
+  "alertArtificialSweetener": "कृत्रिम स्वीटनर",
+  "alertMaida": "मैदा",
+  "alertMsg": "एमएसजी (मोनोसोडियम ग्लूटामेट)",
+  "alertPalmOil": "पाम तेल",
   "allergenCrustacean": "शेलफ़िश (झींगा, केकड़ा आदि)",
   "allergenEgg": "अंडा",
   "allergenFish": "मछली",
@@ -350,6 +355,22 @@
       }
     }
   },
+  "reasonCustomAlert": "सामग्री में {ingredients} शामिल है। आपने इसके लिए अलर्ट चुना था।",
+  "@reasonCustomAlert": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCustomAlertUnknown": "सामग्री साफ़ नहीं पढ़ी जा सकी, इसलिए हम {alerts} की जाँच नहीं कर सके। आपने इनके लिए अलर्ट चुना था।",
+  "@reasonCustomAlertUnknown": {
+    "placeholders": {
+      "alerts": {
+        "type": "String"
+      }
+    }
+  },
   "reasonDietUnknown": "हम यह नहीं बता सकते कि यह {diet} आहार के अनुकूल है या नहीं।",
   "@reasonDietUnknown": {
     "placeholders": {
@@ -467,6 +488,14 @@
   "@reasonSugarModerate": {
     "placeholders": {
       "sugars_g": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonVariantCustomAlertFlagOnly": "उत्पाद की जानकारी में {alert} दर्ज है। आपने इसके लिए अलर्ट चुना था।",
+  "@reasonVariantCustomAlertFlagOnly": {
+    "placeholders": {
+      "alert": {
         "type": "String"
       }
     }

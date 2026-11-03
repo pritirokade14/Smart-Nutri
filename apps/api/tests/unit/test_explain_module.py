@@ -10,6 +10,7 @@ import copy
 import json
 import uuid
 from datetime import date
+from pathlib import Path
 
 import httpx
 import pytest
@@ -396,6 +397,106 @@ def test_guard_name_needs_a_word_start(family_result, product):
     assert _guard(out, result, rows) is not None
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "member 2 should skip it.",
+        "Member-2 should skip it.",
+        "Member_1 should skip it.",
+        "MEMBER_1 should skip it.",
+        "member2 should skip it.",
+        "member_01 should skip it.",
+        "member_२ को यह नहीं देना चाहिए।",
+        "member_1 and member - 2 should skip it.",
+    ],
+)
+def test_guard_drops_member_token_variants(family_result, family_rows, text):
+    # Ruling P7: only the exact `member_N` form is substituted by clients.
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+
+
+def test_guard_drops_member_token_variant_in_tips(family_result, family_rows):
+    out = _llm_out(family_result, tips=["Member 1 can compare labels."])
+    assert _guard(out, family_result, family_rows) is None
+
+
+def test_guard_ignores_member_inside_another_word(family_result, family_rows):
+    out = _llm_out(family_result, text="member_1: remember 2 things on the label.")
+    assert _guard(out, family_result, family_rows) is not None
+
+
+@pytest.fixture
+def all_ok():
+    rows = [_row(id=uuid.uuid4(), name="Zed", relation="self", birth_year=1990)]
+    product = scoring.Product(
+        name="plain",
+        per_100g=scoring.Nutrients(
+            energy_kcal=350, sugars_g=1, carbs_g=60, fat_g=6, sat_fat_g=1, salt_g=0.01,
+            protein_g=12, fiber_g=10,
+        ),
+        ingredients=("rolled oats",),
+    )  # fmt: skip
+    result = scoring.analyze(product, [to_scoring_member(m, today=TODAY) for m in rows])
+    assert [v.status for v in result.verdicts] == [scoring.Status.OK]
+    return result, rows
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        # en
+        "This is safe for member_1.",
+        "SAFE choice.",
+        "member_2 can safely eat it.",
+        "A healthy snack for member_1.",
+        "Healthy!",
+        # hi
+        "यह member_1 के लिए सुरक्षित है।",
+        "यह एक सेहतमंद नाश्ता है।",
+        "यह हेल्दी स्नैक है।",
+        # mr
+        "हे member_2 साठी सुरक्षित आहे.",
+        "हा सुरक्षित पर्याय आहे.",
+        "हा हेल्दी खाऊ आहे.",
+    ],
+)
+def test_guard_deny_list_for_every_status(family_result, family_rows, all_ok, text):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+    ok_result, ok_rows = all_ok
+    assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is None
+
+
+def test_guard_deny_list_applies_to_tips(family_result, family_rows):
+    out = _llm_out(family_result, tips=["Pick a healthy version."])
+    assert _guard(out, family_result, family_rows) is None
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["member_1 is fine with this.", "It is Okay now and then.", "FINE for member_1"],
+)
+def test_guard_denies_fine_and_okay_when_a_member_is_not_ok(
+    family_result, family_rows, all_ok, text
+):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+    ok_result, ok_rows = all_ok
+    assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is not None
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "member_1 should check the safety seal.",
+        "Unhealthy fats are listed; member_2 should skip it.",
+        "member_1: the finer print lists sugar.",
+        "member_1 को चीनी कम लेनी चाहिए।",
+        "member_2 ने हे टाळावे.",
+    ],
+)
+def test_guard_deny_list_matches_whole_latin_words_only(family_result, family_rows, text):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is not None
+
+
 def test_guard_drops_blank_text(family_result, family_rows):
     assert _guard(_llm_out(family_result, text="   "), family_result, family_rows) is None
 
@@ -436,3 +537,23 @@ def test_prompt_file_rules():
         assert needle in text, needle
     assert "Make no medical claims" in text
     assert "Unknown is NOT safe" in text
+
+
+def test_prompt_caution_wording_and_forbidden_words_ruling_p7():
+    text, _ = load_prompt("explanation_v1")
+    assert "fine now and then" not in text and "small portion" not in text
+    assert "there is something to watch; see the reasons" in text
+    for word in ("safe", "healthy", "सुरक्षित", "सेहतमंद", "हेल्दी", "सुरक्षित आहे"):
+        assert f'"{word}"' in text, word
+    assert "for every status" in text
+
+
+def test_prompt_lists_every_engine_reason_code():
+    text, _ = load_prompt("explanation_v1")
+    for code in ("carbs_per_serving_high", "good_protein_density", "custom_alert_unknown"):
+        assert f"`{code}`" in text, code
+    en = json.loads(
+        (Path(__file__).parents[4] / "packages/i18n/messages/en.json").read_text("utf-8")
+    )
+    missing = [c for c in en["reason"] if f"`{c}`" not in text]
+    assert missing == []

@@ -26,10 +26,14 @@ def _section(m, sid):
 # --- plan tests --------------------------------------------------------------------------
 
 
+def _keys(section):
+    return [*(section["threshold_sources"] or []), *(section["rationale_sources"] or [])]
+
+
 def test_sections_in_order_with_sources(cfg):
     m = methodology(cfg)
     assert [s["id"] for s in m["sections"]] == SECTION_IDS
-    assert all(s["source"] in m["sources"] for s in m["sections"])
+    assert all(k in m["sources"] for s in m["sections"] for k in _keys(s))
 
 
 def test_thresholds_mirror_config(cfg):
@@ -53,8 +57,49 @@ def test_json_serialisable(cfg):
 
 def test_section_sources_match_the_yaml_map(cfg):
     m = methodology(cfg)
-    assert {s["id"]: s["source"] for s in m["sections"]} == cfg.thresholds["section_sources"]
-    assert set(cfg.thresholds["section_sources"]) == set(SECTION_IDS)
+    yaml_map = cfg.thresholds["section_sources"]
+    assert set(yaml_map) == set(SECTION_IDS)
+    for s in m["sections"]:
+        entry = yaml_map[s["id"]]
+        if entry is None:
+            assert s["threshold_sources"] is None and s["rationale_sources"] is None
+        else:
+            assert s["threshold_sources"] == entry["thresholds"]
+            assert s["rationale_sources"] == entry.get("rationale", [])
+
+
+def test_section_source_lists_are_lists_of_known_keys(cfg):
+    sources = cfg.thresholds["sources"]
+    for sid, entry in cfg.thresholds["section_sources"].items():
+        if entry is None:
+            continue
+        assert set(entry) <= {"thresholds", "rationale"}, sid
+        assert isinstance(entry["thresholds"], list) and entry["thresholds"], sid
+        assert isinstance(entry.get("rationale", []), list), sid
+        for key in [*entry["thresholds"], *entry.get("rationale", [])]:
+            assert key in sources, (sid, key)
+
+
+def test_sources_are_honest_ruling_p7(cfg):
+    # blood_sugar numbers are UK FSA high-in / FSSAI low-sugar bands and the UK SDIL drink
+    # threshold (thresholds.yaml comments), not ICMR-NIN.
+    m = methodology(cfg)
+    blood = _section(m, "blood_sugar")
+    assert blood["threshold_sources"] == ["uk_fsa_front_of_pack", "fssai_claims_2018", "uk_sdil"]
+    assert "icmr_nin_2024" not in blood["threshold_sources"]
+    # The infant numbers are SmartNutri working values, not WHO numbers. WHO is only the
+    # rationale (no added sugar or salt under 2).
+    infant = _section(m, "infant")
+    assert infant["threshold_sources"] == ["smartnutri_working_values"]
+    assert infant["rationale_sources"] == ["who_infant"]
+    working = m["sources"]["smartnutri_working_values"]
+    assert "pending clinician review" in working["title"].lower()
+    assert "who" not in working["title"].lower()
+    # A member's own alerts are a preference, not a health rule: no source.
+    alerts = _section(m, "custom_alerts")
+    assert alerts["threshold_sources"] is None and alerts["rationale_sources"] is None
+    # No section cites ICMR-NIN as the source of its numbers.
+    assert all("icmr_nin_2024" not in (s["threshold_sources"] or []) for s in m["sections"])
 
 
 def test_sources_have_title_url_and_are_unverified(cfg):
@@ -63,13 +108,18 @@ def test_sources_have_title_url_and_are_unverified(cfg):
     assert m["sources"]
     for key, src in m["sources"].items():
         assert set(src) == {"title", "url", "url_verified"}, key
-        assert src["title"] and src["url"].startswith("https://"), key
+        assert src["title"], key
+        # Internal working values have no external link.
+        if key == "smartnutri_working_values":
+            assert src["url"] is None
+        else:
+            assert src["url"].startswith("https://"), key
         assert src["url_verified"] is False, key
 
 
-def test_every_section_has_exactly_id_source_thresholds(cfg):
+def test_every_section_has_exactly_id_sources_thresholds(cfg):
     for s in methodology(cfg)["sections"]:
-        assert set(s) == {"id", "source", "thresholds"}
+        assert set(s) == {"id", "threshold_sources", "rationale_sources", "thresholds"}
 
 
 def test_condition_sections_mirror_config(cfg):

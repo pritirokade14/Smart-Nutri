@@ -27,6 +27,7 @@ A reason arrives as `{code, severity, params}`. The engine is the source of trut
 |---|---|---|
 | `nutrient_missing` | `reason == "low_confidence"` (only sent then) | `reason_variant.nutrient_missing_low_confidence` |
 | `diet_violation` | `ingredients` is empty (brown non-veg mark, no listed non-veg ingredient) | `reason_variant.diet_violation_mark_only` |
+| `custom_alert` | `ingredients` is empty (only the Open Food Facts sweetener flag matched; `alert` is `artificial_sweetener`) | `reason_variant.custom_alert_flag_only` |
 
 Claim results use `claim_reason.<reason_code>`; the claim itself is shown next to it via `claim.<claim>`.
 
@@ -40,6 +41,8 @@ Claim results use `claim_reason.<reason_code>`; the claim itself is shown next t
 | `{claim}` | `claim.<code>` | |
 | `{nutrient}` | `nutrient.<code>` | Codes: `energy_kcal`, `protein_g`, `carbs_g`, `sugars_g`, `fat_g`, `sat_fat`, `salt`, `sodium_mg`. Labels are lower-case because they sit mid-sentence. |
 | `{high_in}` | `nutrient.<code>` for each item, then join | A list of codes (`sat_fat`, `salt`). Not `high_in.*`, whose labels are whole phrases ("High in salt"). |
+| `{alert}` | `alert.<code>` | A member ingredient alert: `palm_oil`, `maida`, `added_sugar`, `artificial_sweetener`, `msg`. Labels are lower-case because they sit mid-sentence. |
+| `{alerts}` | `alert.<code>` for each item, then join | `custom_alert_unknown`: the enabled alerts that could not be checked, in that fixed order. |
 
 **3. Lists.** `{ingredients}` (and `{high_in}` after mapping) is a list: join lists with ", " (comma + space) in every locale (no `Intl.ListFormat`, no locale conjunction) and pass the result as one string.
 

@@ -9,6 +9,21 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get alertAddedSugar => 'added sugar';
+
+  @override
+  String get alertArtificialSweetener => 'artificial sweeteners';
+
+  @override
+  String get alertMaida => 'maida (refined wheat flour)';
+
+  @override
+  String get alertMsg => 'MSG (monosodium glutamate)';
+
+  @override
+  String get alertPalmOil => 'palm oil';
+
+  @override
   String get allergenCrustacean => 'Shellfish (crustaceans)';
 
   @override
@@ -634,6 +649,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String reasonCustomAlert(String ingredients) {
+    return 'Contains $ingredients, which you asked to be alerted about.';
+  }
+
+  @override
+  String reasonCustomAlertUnknown(String alerts) {
+    return 'We couldn\'t read the ingredients clearly, so we can\'t check for $alerts, which you asked to be alerted about.';
+  }
+
+  @override
   String reasonDietUnknown(String diet) {
     return 'We can\'t tell whether this fits the $diet diet.';
   }
@@ -725,6 +750,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String reasonSugarModerate(String sugars_g) {
     return 'Moderate sugar: $sugars_g g per 100 g/ml.';
+  }
+
+  @override
+  String reasonVariantCustomAlertFlagOnly(String alert) {
+    return 'The product data lists $alert, which you asked to be alerted about.';
   }
 
   @override
