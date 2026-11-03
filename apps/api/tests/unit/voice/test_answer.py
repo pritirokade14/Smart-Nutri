@@ -16,6 +16,7 @@ from app.features.voice.answer import (
     VoiceLLM,
     answer_question,
     build_user_message,
+    redact_names,
 )
 from app.features.voice.fallback import fallback_answer, verdict_sentence
 from app.integrations.providers import CompletionFailed, ProviderUnavailable
@@ -337,6 +338,40 @@ def test_redaction_keeps_other_words_that_contain_a_name(avoid_case):
         today=REFERENCE_DATE,
     )
     assert "<user_question>Is Ashanti brand ok? Ask this member about all of it." in user
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "can strauss eat this",
+        "can STRAUSS eat this",
+        "can Strauß eat this",
+        "can STRAUẞ eat this",  # capital sharp s
+    ],
+)
+@pytest.mark.parametrize("name", ["Strauß", "Strauss", "STRAUẞ"])
+def test_redaction_folds_name_and_text_the_same_way(name, question):
+    """Security review: an expanding case fold (ß -> ss) must not let a name escape."""
+    assert redact_names(question, [name]) == "can this member eat this"
+
+
+ZOYA_PRECOMPOSED = "ज़ोया"  # ज़ as one code point (U+095B)
+ZOYA_DECOMPOSED = "ज़ोया"  # ज + nukta (the NFD form)
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        f"{ZOYA_PRECOMPOSED}ला हे चालेल का",
+        f"{ZOYA_DECOMPOSED}ला हे चालेल का",
+        "ज‍़ोयाला हे चालेल का",  # ZWJ inside the name
+        "ज़‌ो‍याला हे चालेल का",  # ZWNJ and ZWJ inside the name
+        "आ‍शाला हे चालेल का",
+    ],
+)
+@pytest.mark.parametrize("names", [[ZOYA_PRECOMPOSED, "आशा"], [ZOYA_DECOMPOSED, "आ‌शा"]])
+def test_redaction_ignores_normal_form_and_joiners_in_devanagari(names, question):
+    assert redact_names(question, names) == "this member हे चालेल का"
 
 
 async def test_answer_naming_another_family_member_is_rejected(avoid_case):

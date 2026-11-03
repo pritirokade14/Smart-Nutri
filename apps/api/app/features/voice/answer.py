@@ -25,6 +25,7 @@ import asyncio
 import logging
 import re
 import unicodedata
+from bisect import bisect_left
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date
@@ -39,7 +40,6 @@ from app.features.analyze.explain import (
     ExplanationLLM,
     MemberStatusEcho,
     _is_word_char,
-    _name_needles,
     build_explanation_input,
     guard,
 )
@@ -79,44 +79,90 @@ class VoiceText:
     prompt_version: str | None
 
 
+def _prepare(text: str) -> str:
+    """NFKC (canonical composition included, so NFC and NFD input compare equal) with the
+    invisible format characters (ZWJ, ZWNJ, soft hyphen...) removed."""
+    text = unicodedata.normalize("NFKC", text)
+    return "".join(c for c in text if unicodedata.category(c) != "Cf")
+
+
+def _fold(text: str) -> tuple[str, list[int]]:
+    """Full case fold of `text`, one character at a time (the one rule for names and
+    transcripts), and for each folded character the index of the `text` character it came
+    from. "ß" and "ẞ" fold to "ss", so "Strauß", "STRAUSS" and "strauss" all compare equal."""
+    folded: list[str] = []
+    origin: list[int] = []
+    for i, c in enumerate(text):
+        f = c.casefold()
+        folded.append(f)
+        origin.extend([i] * len(f))
+    return "".join(folded), origin
+
+
+def _redaction_needles(names: Iterable[str]) -> list[str]:
+    """Folded needles, longest first: each full name and each part of two or more
+    characters (split on spaces and punctuation only: Devanagari vowel signs are not `\\w`)."""
+    needles: set[str] = set()
+    for name in names:
+        full = _fold(_prepare(name))[0].strip()
+        if len(full) >= 2:
+            needles.add(full)
+        part = ""
+        for c in f"{full} ":
+            if _is_word_char(c):
+                part += c
+                continue
+            if len(part) >= 2:
+                needles.add(part)
+            part = ""
+    return sorted(needles, key=len, reverse=True)
+
+
 def redact_names(text: str, names: Iterable[str]) -> str:
     """`text` with every member name (the full name and each part of two or more characters)
     replaced by "this member" (Ruling V1 S2).
 
-    Matching is case-insensitive, after NFKC and with invisible format characters removed (as
-    the guard does). Latin names match whole words only ("Asha" is not in "Ashanti"); other
-    scripts also take the rest of the word, because Hindi and Marathi attach case endings
-    ("आशाला"). Longer names are tried first.
+    Name and text are prepared the same way (`_prepare`, then `_fold`), so case, an expanding
+    fold (ß/ss), NFC vs NFD and joiners inside a word never let a name through. Latin names
+    match whole words only ("Asha" is not in "Ashanti"); other scripts also take the rest of
+    the word, because Hindi and Marathi attach case endings ("आशाला"). Longer names first.
     """
-    text = unicodedata.normalize("NFKC", text)
-    text = "".join(c for c in text if unicodedata.category(c) != "Cf")
-    needles = sorted(_name_needles(names), key=len, reverse=True)
+    text = _prepare(text)
+    needles = _redaction_needles(names)
     if not needles:
         return text
-    # Fold per character so indexes still line up with `text`.
-    folded = "".join(f if len(f := c.casefold()) == 1 else c for c in text)
+    folded, origin = _fold(text)
+    n = len(folded)
+
+    def starts_char(k: int) -> bool:  # folded index k is the first folded char of its source
+        return k == 0 or origin[k] != origin[k - 1]
+
     out: list[str] = []
-    i = 0
-    while i < len(text):
-        end = None
-        if i == 0 or not _is_word_char(text[i - 1]):
+    k = 0
+    while k < n:
+        i = origin[k]
+        end = None  # index into `text` just past the match
+        if starts_char(k) and (i == 0 or not _is_word_char(text[i - 1])):
             for needle in needles:
-                if not folded.startswith(needle, i):
+                stop = k + len(needle)
+                if not folded.startswith(needle, k) or (stop < n and not starts_char(stop)):
                     continue
-                stop = i + len(needle)
+                j = origin[stop] if stop < n else len(text)
                 if not needle.isascii():
-                    while stop < len(text) and _is_word_char(text[stop]):
-                        stop += 1
-                elif stop < len(text) and _is_word_char(text[stop]):
+                    while j < len(text) and _is_word_char(text[j]):
+                        j += 1
+                elif j < len(text) and _is_word_char(text[j]):
                     continue
-                end = stop
+                end = j
                 break
         if end is None:
             out.append(text[i])
-            i += 1
+            k += 1
+            while k < n and not starts_char(k):  # rest of an expanded fold: same source char
+                k += 1
         else:
             out.append(NAME_REPLACEMENT)
-            i = end
+            k = bisect_left(origin, end)  # first folded char of text[end] (or n)
     return "".join(out)
 
 
