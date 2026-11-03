@@ -48,7 +48,8 @@ Listed in `ENGINE_FIELDS` order, without duplicates:
 - every printed field a failed arithmetic check involves (label accuracy v2), using the map
   `confirm_rules.CHECK_FIELDS` shared with the confirm hints: `energy_mismatch` -> energy,
   protein, carbs, fat, fibre; `kcal_kj_mismatch` -> energy; `salt_sodium_mismatch` -> salt,
-  sodium; `fat_parts_mismatch` -> fat, sat fat; `decimal_shift:<path>` -> that field.
+  sodium; `fat_parts_mismatch` -> fat, sat fat; `decimal_shift:<path>` and
+  `column_mismatch:<field>` -> that field.
 
 Arithmetic checks (on the column used; tolerances are data-quality constants, not health
 thresholds, and are tested in tests/unit/scans/test_consistency_checks.py):
@@ -87,6 +88,10 @@ Warning codes, always in this order:
   fat_parts_mismatch          sat fat + trans fat is more than total fat
   decimal_shift:<path>        a x10 or /10 slip on this printed cell would explain a failed
                               check (draft field order)
+  column_mismatch:<field>     both columns and a plausible serving are printed, and this
+                              engine field's per-serving value is not per_100g x serving / 100
+                              within max(10%, its rounding unit); never on a derived draft;
+                              upper bounds and unit-less sodium are skipped (engine order)
   unit_unconfirmed:<path>     sodium printed without a unit, per printed column
                               (per_100g first, then per_serving); the printed number is shown;
                               withheld from the engine when on the column used
@@ -159,6 +164,7 @@ WARNING_CODES: tuple[str, ...] = (
     "salt_sodium_mismatch",
     "fat_parts_mismatch",
     "decimal_shift",
+    "column_mismatch",
     "unit_unconfirmed",
     "low_confidence",
     "category_unknown",
@@ -230,6 +236,12 @@ SALT_MISMATCH_RATIO = 0.2
 # (EU Regulation 1169/2011 Annex XIV). A decimal slip is one field off by x10 or /10.
 FIBRE_KCAL_PER_G = 2.0
 DECIMAL_SHIFT_FACTORS = (10.0, 0.1)
+# Column ratio check: per_serving ~= per_100g x serving / 100 within
+# max(COLUMN_RATIO_TOLERANCE x the larger value, the field's rounding unit). The units allow
+# for labels that round each column on its own (whole kcal or 5 kcal, sodium to 10 mg, grams
+# to whole numbers or "0" under 0.5 g), so small values are only checked loosely.
+COLUMN_RATIO_TOLERANCE = 0.10
+COLUMN_ROUNDING_UNITS: dict[str, float] = {"energy_kcal": 5.0, "sodium_mg": 10.0, "default": 0.5}
 # Ruling R10: an unreadable ingredient list or allergen line caps confidence here, below
 # the engine's min_extraction_confidence (a test keeps it below), so allergens are unknown.
 UNREADABLE_ALLERGEN_CONFIDENCE_CAP = 0.69
@@ -477,6 +489,37 @@ def _consistency_warnings(
     return warnings
 
 
+def _column_ratio_mismatches(
+    per_100: Mapping[str, float | None],
+    per_serving: Mapping[str, float | None],
+    serving: float,
+    *,
+    skip: set[str],
+) -> list[str]:
+    """Engine fields (engine order) printed on both columns that disagree once the serving
+    size is applied (label accuracy v2 item 2). `skip`: fields not comparable (an upper bound
+    on either column, a unit-less sodium)."""
+    out: list[str] = []
+    for f in ENGINE_FIELDS:
+        a, b = _finite(per_100.get(f)), _finite(per_serving.get(f))
+        if f in skip or a is None or b is None:
+            continue
+        expected = a * serving / 100
+        unit = COLUMN_ROUNDING_UNITS.get(f, COLUMN_ROUNDING_UNITS["default"])
+        if abs(b - expected) > max(COLUMN_RATIO_TOLERANCE * max(abs(b), abs(expected)), unit):
+            out.append(f)
+    return out
+
+
+def _ratio_skip(
+    e: NutritionExtraction, per_100_col: NutrientsIn | None, per_serving_col: NutrientsIn | None
+) -> set[str]:
+    bounds = {p.split(".", 1)[1] for p in e.upper_bound_fields if "." in p}
+    if _sodium_unit_unconfirmed(per_100_col) or _sodium_unit_unconfirmed(per_serving_col):
+        bounds.add("sodium_mg")
+    return bounds
+
+
 def _confidence(e: NutritionExtraction) -> float:
     """Clamped to [0, 1] (NaN/inf -> 0), then capped when allergen-relevant text is unreadable."""
     confidence = _clamp_confidence(e.confidence)
@@ -576,6 +619,14 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
     warnings += _consistency_warnings(
         values, source, path, sodium_unit_unconfirmed=_sodium_unit_unconfirmed(source)
     )
+    # Both printed columns and a plausible serving: they must agree (never on a derived draft,
+    # whose per-100 g column was computed from the per-serving one).
+    if path == "per_100g" and serving_ok and serving is not None:
+        skip = _ratio_skip(e, per_100_col, per_serving_col)
+        warnings += [
+            f"column_mismatch:{f}"
+            for f in _column_ratio_mismatches(per_100, per_serving, serving, skip=skip)
+        ]
     # Each printed column with a unit-less sodium (both can be saved, R17).
     for column, col in (("per_100g", per_100_col), ("per_serving", per_serving_col)):
         if _sodium_unit_unconfirmed(col):

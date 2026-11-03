@@ -2258,6 +2258,10 @@ class AppLocalizationsMr extends AppLocalizations {
       'हे कोणत्या प्रकारचे उत्पादन आहे हे आम्हाला समजले नाही. एक निवडा.';
 
   @override
+  String get warningColumnMismatch =>
+      'या पोषक घटकाची प्रति 100 ग्रॅम आणि प्रति सर्व्हिंग मूल्ये सर्व्हिंग आकाराशी जुळत नाहीत. दोन्ही पॅकवर तपासा.';
+
+  @override
   String get warningDecimalShift =>
       'या मूल्यातील दशांश चिन्ह कदाचित चुकीचे वाचले गेले आहे. ते पॅकवर तपासा.';
 

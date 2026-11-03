@@ -1236,6 +1236,7 @@
   "warningBasisMismatch": "We couldn't tell whether these values are per 100 g or per serving. Choose which one the pack shows.",
   "warningCategoryCheck": "Check that the product type is right, because it changes how the values are read.",
   "warningCategoryUnknown": "We couldn't tell what type of product this is. Choose one.",
+  "warningColumnMismatch": "The per 100 g and per-serving values for this nutrient don't match the serving size. Check both on the pack.",
   "warningDecimalShift": "The decimal point in this value may have been misread. Check it on the pack.",
   "warningDerivedFromServing": "This value was worked out from the per-serving amount. Check it against the pack.",
   "warningEnergyMismatch": "The energy doesn't match the other values. Check it on the pack.",

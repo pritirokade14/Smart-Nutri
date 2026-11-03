@@ -227,3 +227,4 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 ## Label accuracy v2
 - [ ] **hi/mr `warning.fat_parts_mismatch`**: machine drafts. Shown when saturated plus trans fat is more than total fat; the user must tick the fat values. "संतृप्त"/"संपृक्त" should match `nutrient.sat_fat`.
 - [ ] **hi/mr `warning.decimal_shift`**: machine drafts. "The decimal point may have been misread" (for example 50 instead of 5.0). Check that "दशमलव बिंदु" (hi) and "दशांश चिन्ह" (mr) are understood.
+- [ ] **hi/mr `warning.column_mismatch`**: machine drafts. Shown next to one nutrient when its per 100 g and per-serving values disagree once the serving size is applied. Check "सर्विंग साइज़" (hi) and "सर्व्हिंग आकार" (mr) against `confirm.serving_size`.

@@ -277,6 +277,17 @@ CASES: dict[str, Case] = {
         _ex(per_100g=_n(_V, salt_g=5.0)),
         [{"tick": ["salt_g", "sodium_mg"]}, {"edit": {"salt_g": 0.5}, "tick": ["sodium_mg"]}, {}],
     ),
+    "column_mismatch": Case(
+        "Per-serving sugars 6 g where 30 g of a 10 g/100 g food gives 3 g: the columns "
+        "disagree, so sugars is withheld whichever column is saved (label v2).",
+        _ex(basis_detected="both", per_serving=_n(_S, sugars_g=6.0), serving_size_g=30),
+        [
+            {"tick": ["sugars_g", "serving_size_g"]},
+            {"pick_basis": "per_serving", "tick": ["sugars_g", "serving_size_g"]},
+            {"pick_basis": "per_serving", **_TICK_SERVING},
+            {},
+        ],
+    ),
     "devanagari": Case(
         "Hindi ingredient and allergen text: kept in its script, nothing extra to ask.",
         _ex(

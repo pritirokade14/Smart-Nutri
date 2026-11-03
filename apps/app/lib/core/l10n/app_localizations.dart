@@ -3928,6 +3928,12 @@ abstract class AppLocalizations {
   /// **'We couldn\'t tell what type of product this is. Choose one.'**
   String get warningCategoryUnknown;
 
+  /// No description provided for @warningColumnMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The per 100 g and per-serving values for this nutrient don\'t match the serving size. Check both on the pack.'**
+  String get warningColumnMismatch;
+
   /// No description provided for @warningDecimalShift.
   ///
   /// In en, this message translates to:

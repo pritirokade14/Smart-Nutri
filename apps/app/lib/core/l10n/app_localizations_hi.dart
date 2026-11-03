@@ -2259,6 +2259,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'हम समझ नहीं पाए कि यह किस तरह का उत्पाद है। एक चुनें।';
 
   @override
+  String get warningColumnMismatch =>
+      'इस पोषक तत्व के प्रति 100 ग्राम और प्रति सर्विंग मान सर्विंग साइज़ से मेल नहीं खा रहे। दोनों पैक पर जाँचें।';
+
+  @override
   String get warningDecimalShift =>
       'इस मान में दशमलव बिंदु शायद गलत पढ़ा गया है। इसे पैक पर जाँचें।';
 

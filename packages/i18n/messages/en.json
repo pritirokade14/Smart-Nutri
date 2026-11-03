@@ -388,7 +388,8 @@
     "upper_bound": "The pack says 'less than' this amount. Confirm it if that's right.",
     "derived_from_serving": "This value was worked out from the per-serving amount. Check it against the pack.",
     "fat_parts_mismatch": "Saturated and trans fat add up to more than the total fat. Check these values on the pack.",
-    "decimal_shift": "The decimal point in this value may have been misread. Check it on the pack."
+    "decimal_shift": "The decimal point in this value may have been misread. Check it on the pack.",
+    "column_mismatch": "The per 100 g and per-serving values for this nutrient don't match the serving size. Check both on the pack."
   },
   "notfound": {
     "go_to_label": "We don't know this product yet — photograph its label"

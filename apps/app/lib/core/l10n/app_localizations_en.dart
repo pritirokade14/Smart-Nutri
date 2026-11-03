@@ -2253,6 +2253,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t tell what type of product this is. Choose one.';
 
   @override
+  String get warningColumnMismatch =>
+      'The per 100 g and per-serving values for this nutrient don\'t match the serving size. Check both on the pack.';
+
+  @override
   String get warningDecimalShift =>
       'The decimal point in this value may have been misread. Check it on the pack.';
 
