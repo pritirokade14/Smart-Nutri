@@ -6,10 +6,12 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../models/alternatives_out.dart';
+import '../models/compare_out.dart';
 import '../models/language.dart';
 import '../models/product_create.dart';
 import '../models/product_out.dart';
 import '../models/public_product_out.dart';
+import '../models/search_hit.dart';
 
 part 'products_client.g.dart';
 
@@ -36,6 +38,36 @@ abstract class ProductsClient {
   Future<AlternativesOut> productsAlternativesByBarcode({
     @Path('code') required String code,
     @Query('member_id') String? memberId,
+  });
+
+  /// Products Compare.
+  ///
+  /// Two products side by side. Each side is exactly one of a product id or a barcode.
+  /// (``invalid_product_ref`` otherwise). ``member_status`` comes from the rules engine.
+  ///
+  /// [a] - Side a: our product id.
+  ///
+  /// [aBarcode] - Side a: barcode.
+  ///
+  /// [b] - Side b: our product id.
+  ///
+  /// [bBarcode] - Side b: barcode.
+  @GET('/v1/products/compare')
+  Future<CompareOut> productsCompare({
+    @Query('a') String? a,
+    @Query('a_barcode') String? aBarcode,
+    @Query('b') String? b,
+    @Query('b_barcode') String? bBarcode,
+    @Query('member_id') String? memberId,
+  });
+
+  /// Products Search.
+  ///
+  /// Our products first (name or brand), then Open Food Facts. ``q``: 2 to 80 characters.
+  @GET('/v1/products/search')
+  Future<List<SearchHit>> productsSearch({
+    @Query('q') required String q,
+    @Query('limit') int? limit = 20,
   });
 
   /// Products Get Public

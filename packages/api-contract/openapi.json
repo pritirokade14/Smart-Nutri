@@ -39,15 +39,7 @@
             "title": "Brand"
           },
           "grade": {
-            "enum": [
-              "A",
-              "B",
-              "C",
-              "D",
-              "E"
-            ],
-            "title": "Grade",
-            "type": "string"
+            "$ref": "#/components/schemas/NutriScoreGrade"
           },
           "high_in": {
             "items": {
@@ -70,20 +62,13 @@
           "member_status": {
             "anyOf": [
               {
-                "enum": [
-                  "ok",
-                  "caution",
-                  "unknown",
-                  "avoid"
-                ],
-                "type": "string"
+                "$ref": "#/components/schemas/MemberStatus"
               },
               {
                 "type": "null"
               }
             ],
-            "description": "The rules engine's verdict for member_id (only when member_id is given)",
-            "title": "Member Status"
+            "description": "The rules engine's verdict for member_id (only when member_id is given)"
           },
           "name": {
             "title": "Name",
@@ -250,6 +235,16 @@
         "title": "AnalyzeRequest",
         "type": "object"
       },
+      "BetterSide": {
+        "enum": [
+          "a",
+          "b",
+          "same",
+          "unknown"
+        ],
+        "title": "BetterSide",
+        "type": "string"
+      },
       "ColumnConfirm": {
         "description": "What to ask when the user saves with this `basis` (`ProductCreate.basis`).",
         "properties": {
@@ -302,6 +297,161 @@
           "serving_required"
         ],
         "title": "ColumnConfirm",
+        "type": "object"
+      },
+      "CompareBetter": {
+        "description": "Which side is better: lower energy, sugars, salt and saturated fat; higher protein and\nfibre; grade A best. ``unknown`` when either side has no value (never a win).",
+        "properties": {
+          "energy_kcal": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
+          "fiber_g": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
+          "protein_g": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
+          "salt_g": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
+          "sat_fat_g": {
+            "$ref": "#/components/schemas/BetterSide"
+          },
+          "sugars_g": {
+            "$ref": "#/components/schemas/BetterSide"
+          }
+        },
+        "required": [
+          "energy_kcal",
+          "sugars_g",
+          "salt_g",
+          "sat_fat_g",
+          "protein_g",
+          "fiber_g",
+          "grade"
+        ],
+        "title": "CompareBetter",
+        "type": "object"
+      },
+      "CompareOut": {
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/CompareSide"
+          },
+          "b": {
+            "$ref": "#/components/schemas/CompareSide"
+          },
+          "better": {
+            "$ref": "#/components/schemas/CompareBetter"
+          }
+        },
+        "required": [
+          "a",
+          "b",
+          "better"
+        ],
+        "title": "CompareOut",
+        "type": "object"
+      },
+      "CompareSide": {
+        "properties": {
+          "attribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attribution"
+          },
+          "barcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NutriScoreGrade"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "high_in": {
+            "items": {
+              "type": "string"
+            },
+            "title": "High In",
+            "type": "array"
+          },
+          "member_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemberStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The rules engine's verdict for member_id (only when member_id is given)"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "per_100g": {
+            "$ref": "#/components/schemas/NutrientsOut"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Our own product; null for Open Food Facts",
+            "title": "Product Id"
+          }
+        },
+        "required": [
+          "product_id",
+          "barcode",
+          "name",
+          "brand",
+          "grade",
+          "per_100g",
+          "high_in",
+          "member_status",
+          "attribution"
+        ],
+        "title": "CompareSide",
         "type": "object"
       },
       "ConfirmColumns": {
@@ -1031,21 +1181,13 @@
           "grade": {
             "anyOf": [
               {
-                "enum": [
-                  "A",
-                  "B",
-                  "C",
-                  "D",
-                  "E"
-                ],
-                "type": "string"
+                "$ref": "#/components/schemas/NutriScoreGrade"
               },
               {
                 "type": "null"
               }
             ],
-            "description": "Nutri-Score calculated by SmartNutri at log time; null if not enough data",
-            "title": "Grade"
+            "description": "Nutri-Score calculated by SmartNutri at log time; null if not enough data"
           },
           "grams": {
             "title": "Grams",
@@ -1575,6 +1717,29 @@
         },
         "title": "MemberPatch",
         "type": "object"
+      },
+      "MemberStatus": {
+        "description": "A member's verdict from the rules engine (never computed by clients).",
+        "enum": [
+          "ok",
+          "caution",
+          "unknown",
+          "avoid"
+        ],
+        "title": "MemberStatus",
+        "type": "string"
+      },
+      "NutriScoreGrade": {
+        "description": "Nutri-Score grade, calculated by SmartNutri (never an FSSAI rating).",
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "title": "NutriScoreGrade",
+        "type": "string"
       },
       "NutrientBand": {
         "description": "Where a total stands against a limit. Never shown green unless ``ok``; ``unknown`` is\nnever green on any client.",
@@ -2537,6 +2702,91 @@
           "prompt_version"
         ],
         "title": "ScanDraftOut",
+        "type": "object"
+      },
+      "SearchHit": {
+        "description": "Our own products first (``product_id``), then Open Food Facts (``barcode`` only: open\nwith ``products_get_by_barcode``).",
+        "properties": {
+          "attribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "\"attribution.off\" for Open Food Facts hits",
+            "title": "Attribution"
+          },
+          "barcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NutriScoreGrade"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nutri-Score calculated by SmartNutri; null if unknown"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "source": {
+            "enum": [
+              "ours",
+              "off"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "barcode",
+          "name",
+          "brand",
+          "grade",
+          "source",
+          "attribution"
+        ],
+        "title": "SearchHit",
         "type": "object"
       },
       "Summary": {
@@ -4488,6 +4738,294 @@
           }
         ],
         "summary": "Products Alternatives By Barcode",
+        "tags": [
+          "products"
+        ]
+      }
+    },
+    "/v1/products/compare": {
+      "get": {
+        "description": "Two products side by side. Each side is exactly one of a product id or a barcode\n(``invalid_product_ref`` otherwise). ``member_status`` comes from the rules engine.",
+        "operationId": "products_compare",
+        "parameters": [
+          {
+            "description": "Side a: our product id",
+            "in": "query",
+            "name": "a",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Side a: our product id",
+              "title": "A"
+            }
+          },
+          {
+            "description": "Side a: barcode",
+            "in": "query",
+            "name": "a_barcode",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Side a: barcode",
+              "title": "A Barcode"
+            }
+          },
+          {
+            "description": "Side b: our product id",
+            "in": "query",
+            "name": "b",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Side b: our product id",
+              "title": "B"
+            }
+          },
+          {
+            "description": "Side b: barcode",
+            "in": "query",
+            "name": "b_barcode",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Side b: barcode",
+              "title": "B Barcode"
+            }
+          },
+          {
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Products Compare",
+        "tags": [
+          "products"
+        ]
+      }
+    },
+    "/v1/products/search": {
+      "get": {
+        "description": "Our products first (name or brand), then Open Food Facts. ``q``: 2 to 80 characters.",
+        "operationId": "products_search",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "maxLength": 80,
+              "minLength": 2,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SearchHit"
+                  },
+                  "title": "Response Products Search",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Products Search",
         "tags": [
           "products"
         ]

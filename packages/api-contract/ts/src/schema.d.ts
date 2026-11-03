@@ -256,6 +256,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products Compare
+         * @description Two products side by side. Each side is exactly one of a product id or a barcode
+         *     (``invalid_product_ref`` otherwise). ``member_status`` comes from the rules engine.
+         */
+        get: operations["products_compare"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products Search
+         * @description Our products first (name or brand), then Open Food Facts. ``q``: 2 to 80 characters.
+         */
+        get: operations["products_search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/{barcode}/public": {
         parameters: {
             query?: never;
@@ -358,20 +399,13 @@ export interface components {
             barcode: string | null;
             /** Brand */
             brand: string | null;
-            /**
-             * Grade
-             * @enum {string}
-             */
-            grade: "A" | "B" | "C" | "D" | "E";
+            grade: components["schemas"]["NutriScoreGrade"];
             /** High In */
             high_in: string[];
             /** Image Url */
             image_url: string | null;
-            /**
-             * Member Status
-             * @description The rules engine's verdict for member_id (only when member_id is given)
-             */
-            member_status: ("ok" | "caution" | "unknown" | "avoid") | null;
+            /** @description The rules engine's verdict for member_id (only when member_id is given) */
+            member_status: components["schemas"]["MemberStatus"] | null;
             /** Name */
             name: string;
             /** Product Id */
@@ -432,6 +466,11 @@ export interface components {
             product_id?: string | null;
         };
         /**
+         * BetterSide
+         * @enum {string}
+         */
+        BetterSide: "a" | "b" | "same" | "unknown";
+        /**
          * ColumnConfirm
          * @description What to ask when the user saves with this `basis` (`ProductCreate.basis`).
          */
@@ -461,6 +500,48 @@ export interface components {
              * @description Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`.
              */
             sodium_unit_required: boolean;
+        };
+        /**
+         * CompareBetter
+         * @description Which side is better: lower energy, sugars, salt and saturated fat; higher protein and
+         *     fibre; grade A best. ``unknown`` when either side has no value (never a win).
+         */
+        CompareBetter: {
+            energy_kcal: components["schemas"]["BetterSide"];
+            fiber_g: components["schemas"]["BetterSide"];
+            grade: components["schemas"]["BetterSide"];
+            protein_g: components["schemas"]["BetterSide"];
+            salt_g: components["schemas"]["BetterSide"];
+            sat_fat_g: components["schemas"]["BetterSide"];
+            sugars_g: components["schemas"]["BetterSide"];
+        };
+        /** CompareOut */
+        CompareOut: {
+            a: components["schemas"]["CompareSide"];
+            b: components["schemas"]["CompareSide"];
+            better: components["schemas"]["CompareBetter"];
+        };
+        /** CompareSide */
+        CompareSide: {
+            /** Attribution */
+            attribution: string | null;
+            /** Barcode */
+            barcode: string | null;
+            /** Brand */
+            brand: string | null;
+            grade: components["schemas"]["NutriScoreGrade"] | null;
+            /** High In */
+            high_in: string[];
+            /** @description The rules engine's verdict for member_id (only when member_id is given) */
+            member_status: components["schemas"]["MemberStatus"] | null;
+            /** Name */
+            name: string;
+            per_100g: components["schemas"]["NutrientsOut"];
+            /**
+             * Product Id
+             * @description Our own product; null for Open Food Facts
+             */
+            product_id: string | null;
         };
         /**
          * ConfirmColumns
@@ -743,11 +824,8 @@ export interface components {
              * Format: date-time
              */
             eaten_at: string;
-            /**
-             * Grade
-             * @description Nutri-Score calculated by SmartNutri at log time; null if not enough data
-             */
-            grade: ("A" | "B" | "C" | "D" | "E") | null;
+            /** @description Nutri-Score calculated by SmartNutri at log time; null if not enough data */
+            grade: components["schemas"]["NutriScoreGrade"] | null;
             /** Grams */
             grams: number;
             /**
@@ -883,6 +961,18 @@ export interface components {
             /** Weight Kg */
             weight_kg?: number | null;
         };
+        /**
+         * MemberStatus
+         * @description A member's verdict from the rules engine (never computed by clients).
+         * @enum {string}
+         */
+        MemberStatus: "ok" | "caution" | "unknown" | "avoid";
+        /**
+         * NutriScoreGrade
+         * @description Nutri-Score grade, calculated by SmartNutri (never an FSSAI rating).
+         * @enum {string}
+         */
+        NutriScoreGrade: "A" | "B" | "C" | "D" | "E";
         /**
          * NutrientBand
          * @description Where a total stands against a limit. Never shown green unless ``ok``; ``unknown`` is
@@ -1225,6 +1315,33 @@ export interface components {
              * Format: uuid
              */
             scan_id: string;
+        };
+        /**
+         * SearchHit
+         * @description Our own products first (``product_id``), then Open Food Facts (``barcode`` only: open
+         *     with ``products_get_by_barcode``).
+         */
+        SearchHit: {
+            /**
+             * Attribution
+             * @description "attribution.off" for Open Food Facts hits
+             */
+            attribution: string | null;
+            /** Barcode */
+            barcode: string | null;
+            /** Brand */
+            brand: string | null;
+            /** @description Nutri-Score calculated by SmartNutri; null if unknown */
+            grade: components["schemas"]["NutriScoreGrade"] | null;
+            /** Name */
+            name: string;
+            /** Product Id */
+            product_id: string | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "ours" | "off";
         };
         /** Summary */
         Summary: {
@@ -2651,6 +2768,158 @@ export interface operations {
             };
             /** @description Open Food Facts unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_compare: {
+        parameters: {
+            query?: {
+                /** @description Side a: our product id */
+                a?: string | null;
+                /** @description Side a: barcode */
+                a_barcode?: string | null;
+                /** @description Side b: our product id */
+                b?: string | null;
+                /** @description Side b: barcode */
+                b_barcode?: string | null;
+                member_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompareOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_search: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchHit"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };

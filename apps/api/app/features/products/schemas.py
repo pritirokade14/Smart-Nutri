@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import Annotated, Any, Literal, get_args
 from uuid import UUID
 
@@ -232,8 +233,24 @@ class ProductCreate(BaseModel):
 
 # --- alternatives, search and compare (Plan 6 T5/T6) ---------------------------------------
 
-Grade = Literal["A", "B", "C", "D", "E"]
-MemberStatus = Literal["ok", "caution", "unknown", "avoid"]
+
+class NutriScoreGrade(StrEnum):
+    """Nutri-Score grade, calculated by SmartNutri (never an FSSAI rating)."""
+
+    A = "A"
+    B = "B"
+    C = "C"
+    D = "D"
+    E = "E"
+
+
+class MemberStatus(StrEnum):
+    """A member's verdict from the rules engine (never computed by clients)."""
+
+    OK = "ok"
+    CAUTION = "caution"
+    UNKNOWN = "unknown"
+    AVOID = "avoid"
 
 
 class AlternativeOut(BaseModel):
@@ -245,7 +262,7 @@ class AlternativeOut(BaseModel):
     name: str
     brand: str | None
     image_url: str | None
-    grade: Grade
+    grade: NutriScoreGrade
     sugars_g: float | None = Field(description="Per 100 g/ml; null if not on the label")
     high_in: list[str]
     member_status: MemberStatus | None = Field(
@@ -259,3 +276,58 @@ class AlternativesOut(BaseModel):
         description="At most 5: best grade first, then less sugar, then name"
     )
     reason: Literal["ok", "no_category", "no_better_found", "source_ungraded"]
+
+
+class SearchHit(BaseModel):
+    """Our own products first (``product_id``), then Open Food Facts (``barcode`` only: open
+    with ``products_get_by_barcode``)."""
+
+    product_id: UUID | None
+    barcode: str | None
+    name: str
+    brand: str | None
+    grade: NutriScoreGrade | None = Field(
+        description="Nutri-Score calculated by SmartNutri; null if unknown"
+    )
+    source: Literal["ours", "off"]
+    attribution: str | None = Field(description='"attribution.off" for Open Food Facts hits')
+
+
+class BetterSide(StrEnum):
+    A = "a"
+    B = "b"
+    SAME = "same"
+    UNKNOWN = "unknown"
+
+
+class CompareSide(BaseModel):
+    product_id: UUID | None = Field(description="Our own product; null for Open Food Facts")
+    barcode: str | None
+    name: str
+    brand: str | None
+    grade: NutriScoreGrade | None
+    per_100g: NutrientsOut
+    high_in: list[str]
+    member_status: MemberStatus | None = Field(
+        description="The rules engine's verdict for member_id (only when member_id is given)"
+    )
+    attribution: str | None
+
+
+class CompareBetter(BaseModel):
+    """Which side is better: lower energy, sugars, salt and saturated fat; higher protein and
+    fibre; grade A best. ``unknown`` when either side has no value (never a win)."""
+
+    energy_kcal: BetterSide
+    sugars_g: BetterSide
+    salt_g: BetterSide
+    sat_fat_g: BetterSide
+    protein_g: BetterSide
+    fiber_g: BetterSide
+    grade: BetterSide
+
+
+class CompareOut(BaseModel):
+    a: CompareSide
+    b: CompareSide
+    better: CompareBetter

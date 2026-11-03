@@ -13,7 +13,7 @@ MealOut _$MealOutFromJson(Map<String, dynamic> json) => MealOut(
   eatenAt: DateTime.parse(json['eaten_at'] as String),
   grade: json['grade'] == null
       ? null
-      : MealOutGrade.fromJson(json['grade'] as String),
+      : NutriScoreGrade.fromJson(json['grade'] as String),
   grams: json['grams'] as num,
   id: json['id'] as String,
   memberId: json['member_id'] as String,
@@ -29,7 +29,7 @@ Map<String, dynamic> _$MealOutToJson(MealOut instance) => <String, dynamic>{
   'barcode': instance.barcode,
   'client_id': instance.clientId,
   'eaten_at': instance.eatenAt.toIso8601String(),
-  'grade': _$MealOutGradeEnumMap[instance.grade],
+  'grade': _$NutriScoreGradeEnumMap[instance.grade],
   'grams': instance.grams,
   'id': instance.id,
   'member_id': instance.memberId,
@@ -38,11 +38,11 @@ Map<String, dynamic> _$MealOutToJson(MealOut instance) => <String, dynamic>{
   'product_name': instance.productName,
 };
 
-const _$MealOutGradeEnumMap = {
-  MealOutGrade.a: 'A',
-  MealOutGrade.b: 'B',
-  MealOutGrade.c: 'C',
-  MealOutGrade.d: 'D',
-  MealOutGrade.e: 'E',
-  MealOutGrade.$unknown: r'$unknown',
+const _$NutriScoreGradeEnumMap = {
+  NutriScoreGrade.a: 'A',
+  NutriScoreGrade.b: 'B',
+  NutriScoreGrade.c: 'C',
+  NutriScoreGrade.d: 'D',
+  NutriScoreGrade.e: 'E',
+  NutriScoreGrade.$unknown: r'$unknown',
 };

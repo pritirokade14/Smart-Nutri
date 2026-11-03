@@ -6,6 +6,7 @@ from uuid import UUID
 from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
 from app.core.errors import ApiError
+from app.features.products.schemas import NutriScoreGrade
 
 MAX_GRAMS = 5000.0  # meal_logs check: 0 < grams <= 5000
 MAX_SERVINGS = 200.0
@@ -61,7 +62,7 @@ class MealOut(BaseModel):
     product_id: UUID | None = Field(description="Our own product; null for Open Food Facts")
     barcode: str | None = Field(description="Open Food Facts barcode; null for our products")
     product_name: str
-    grade: Literal["A", "B", "C", "D", "E"] | None = Field(
+    grade: NutriScoreGrade | None = Field(
         description="Nutri-Score calculated by SmartNutri at log time; null if not enough data"
     )
     grams: float

@@ -12,12 +12,14 @@ from app.core.time import today_ist
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
 from app.features.members import service as members_service
-from app.features.products import alternatives, service
+from app.features.products import alternatives, compare, search, service
 from app.features.products.schemas import (
     AlternativesOut,
+    CompareOut,
     ProductCreate,
     ProductOut,
     PublicProductOut,
+    SearchHit,
 )
 from app.integrations.openfoodfacts import (
     InvalidBarcode,
@@ -149,6 +151,69 @@ async def products_alternatives_by_barcode(
     member_id: Annotated[UUID | None, Query()] = None,
 ) -> AlternativesOut:
     return await _alternatives(session, off, settings, current.account.id, member_id, barcode=code)
+
+
+@router.get(
+    "/search",
+    operation_id="products_search",
+    response_model=list[SearchHit],
+    dependencies=[Depends(limit("search"))],  # first: it commits the session
+)
+async def products_search(
+    ctx: Annotated[AccountContext, Depends(current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    off: Annotated[OffClient, Depends(get_off_client)],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    q: Annotated[str, Query(min_length=search.MIN_QUERY, max_length=search.MAX_QUERY)],
+    limit_: Annotated[int, Query(alias="limit", ge=1, le=50)] = 20,
+) -> list[SearchHit]:
+    """Our products first (name or brand), then Open Food Facts. ``q``: 2 to 80 characters."""
+    if len(search.normalise_query(q)) < search.MIN_QUERY:
+        raise ApiError("validation_error", 422, details={"fields": ["query.q"]})
+    hits = await search.search_products(
+        session, off, q, limit_, account_id=ctx.account_id, settings=settings
+    )
+    await session.commit()  # the OFF search cache write
+    return hits
+
+
+@router.get(
+    "/compare",
+    operation_id="products_compare",
+    response_model=CompareOut,
+    responses=_RESPONSES,
+    dependencies=[Depends(limit("product_lookups"))],  # first: it commits the session
+)
+async def products_compare(
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    off: Annotated[OffClient, Depends(get_off_client)],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    a: Annotated[UUID | None, Query(description="Side a: our product id")] = None,
+    a_barcode: Annotated[str | None, Query(max_length=64, description="Side a: barcode")] = None,
+    b: Annotated[UUID | None, Query(description="Side b: our product id")] = None,
+    b_barcode: Annotated[str | None, Query(max_length=64, description="Side b: barcode")] = None,
+    member_id: Annotated[UUID | None, Query()] = None,
+) -> CompareOut:
+    """Two products side by side. Each side is exactly one of a product id or a barcode
+    (``invalid_product_ref`` otherwise). ``member_status`` comes from the rules engine."""
+    account_id = current.account.id
+    for ref_id, ref_code in ((a, a_barcode), (b, b_barcode)):
+        if (ref_id is None) == (ref_code is None):
+            raise ApiError("invalid_product_ref", 422)
+    member = (
+        await members_service.get_member(session, account_id, member_id)
+        if member_id is not None
+        else None
+    )
+    sides = [
+        await service.resolve_ref(
+            session, off, product_id=pid, barcode=code, settings=settings, account_id=account_id
+        )
+        for pid, code in ((a, a_barcode), (b, b_barcode))
+    ]
+    await session.commit()  # OFF cache writes
+    return compare.compare_products(sides[0], sides[1], member=member, today=today_ist())
 
 
 @router.post(

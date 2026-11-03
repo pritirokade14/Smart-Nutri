@@ -4,7 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'meal_out_grade.dart';
+import 'nutri_score_grade.dart';
 import 'nutrient_snapshot.dart';
 
 part 'meal_out.g.dart';
@@ -39,7 +39,7 @@ class MealOut {
   final DateTime eatenAt;
 
   /// Nutri-Score calculated by SmartNutri at log time; null if not enough data
-  final MealOutGrade? grade;
+  final NutriScoreGrade? grade;
   final num grams;
   final String id;
   @JsonKey(name: 'member_id')

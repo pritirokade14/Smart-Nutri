@@ -4,24 +4,23 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-/// The rules engine's verdict for member_id (only when member_id is given)
 @JsonEnum()
-enum AlternativeOutMemberStatus {
-  @JsonValue('ok')
-  ok('ok'),
-  @JsonValue('caution')
-  caution('caution'),
+enum BetterSide {
+  @JsonValue('a')
+  a('a'),
+  @JsonValue('b')
+  b('b'),
+  @JsonValue('same')
+  same('same'),
   @JsonValue('unknown')
   unknown('unknown'),
-  @JsonValue('avoid')
-  avoid('avoid'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
-  const AlternativeOutMemberStatus(this.json);
+  const BetterSide(this.json);
 
-  factory AlternativeOutMemberStatus.fromJson(String json) =>
+  factory BetterSide.fromJson(String json) =>
       values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
@@ -30,6 +29,6 @@ enum AlternativeOutMemberStatus {
   String toString() => json?.toString() ?? super.toString();
 
   /// Returns all defined enum values excluding the $unknown value.
-  static List<AlternativeOutMemberStatus> get $valuesDefined =>
+  static List<BetterSide> get $valuesDefined =>
       values.where((value) => value != $unknown).toList();
 }

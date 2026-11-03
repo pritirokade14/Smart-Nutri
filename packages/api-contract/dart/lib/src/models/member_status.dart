@@ -4,26 +4,24 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-/// Nutri-Score calculated by SmartNutri at log time; null if not enough data
+/// A member's verdict from the rules engine (never computed by clients).
 @JsonEnum()
-enum MealOutGrade {
-  @JsonValue('A')
-  a('A'),
-  @JsonValue('B')
-  b('B'),
-  @JsonValue('C')
-  c('C'),
-  @JsonValue('D')
-  d('D'),
-  @JsonValue('E')
-  e('E'),
+enum MemberStatus {
+  @JsonValue('ok')
+  ok('ok'),
+  @JsonValue('caution')
+  caution('caution'),
+  @JsonValue('unknown')
+  unknown('unknown'),
+  @JsonValue('avoid')
+  avoid('avoid'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
-  const MealOutGrade(this.json);
+  const MemberStatus(this.json);
 
-  factory MealOutGrade.fromJson(String json) =>
+  factory MemberStatus.fromJson(String json) =>
       values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
@@ -32,6 +30,6 @@ enum MealOutGrade {
   String toString() => json?.toString() ?? super.toString();
 
   /// Returns all defined enum values excluding the $unknown value.
-  static List<MealOutGrade> get $valuesDefined =>
+  static List<MemberStatus> get $valuesDefined =>
       values.where((value) => value != $unknown).toList();
 }

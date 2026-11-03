@@ -4,8 +4,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'alternative_out_grade.dart';
-import 'alternative_out_member_status.dart';
+import 'member_status.dart';
+import 'nutri_score_grade.dart';
 
 part 'alternative_out.g.dart';
 
@@ -33,7 +33,7 @@ class AlternativeOut {
   final String? attribution;
   final String? barcode;
   final String? brand;
-  final AlternativeOutGrade grade;
+  final NutriScoreGrade grade;
   @JsonKey(name: 'high_in')
   final List<String> highIn;
   @JsonKey(name: 'image_url')
@@ -41,7 +41,7 @@ class AlternativeOut {
 
   /// The rules engine's verdict for member_id (only when member_id is given)
   @JsonKey(name: 'member_status')
-  final AlternativeOutMemberStatus? memberStatus;
+  final MemberStatus? memberStatus;
   final String name;
   @JsonKey(name: 'product_id')
   final String? productId;

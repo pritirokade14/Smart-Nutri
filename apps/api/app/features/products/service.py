@@ -139,6 +139,11 @@ def _visible_to(account_id: UUID | None) -> ColumnElement[bool]:
     return or_(verified, own_pending)
 
 
+def visible_to(account_id: UUID | None) -> ColumnElement[bool]:
+    """Public twin of ``_visible_to`` for other modules (search)."""
+    return _visible_to(account_id)
+
+
 def _is_visible(record: Product, account_id: UUID | None) -> bool:
     """Python twin of ``_visible_to`` for a loaded row."""
     if record.verification_status == "verified":

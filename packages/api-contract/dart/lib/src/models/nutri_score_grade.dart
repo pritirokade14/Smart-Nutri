@@ -4,8 +4,9 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+/// Nutri-Score grade, calculated by SmartNutri (never an FSSAI rating).
 @JsonEnum()
-enum AlternativeOutGrade {
+enum NutriScoreGrade {
   @JsonValue('A')
   a('A'),
   @JsonValue('B')
@@ -20,9 +21,9 @@ enum AlternativeOutGrade {
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
-  const AlternativeOutGrade(this.json);
+  const NutriScoreGrade(this.json);
 
-  factory AlternativeOutGrade.fromJson(String json) =>
+  factory NutriScoreGrade.fromJson(String json) =>
       values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
@@ -31,6 +32,6 @@ enum AlternativeOutGrade {
   String toString() => json?.toString() ?? super.toString();
 
   /// Returns all defined enum values excluding the $unknown value.
-  static List<AlternativeOutGrade> get $valuesDefined =>
+  static List<NutriScoreGrade> get $valuesDefined =>
       values.where((value) => value != $unknown).toList();
 }
