@@ -142,7 +142,7 @@ describe("askVoice", () => {
     const form = await sent?.formData();
     expect(form?.get("barcode")).toBe("8901063201089");
     expect(form?.get("product_id")).toBeNull();
-    expect((form?.get("audio") as File).name).toBe("question.m4a");
+    expect((form?.get("audio") as File | undefined)?.name).toBe("question.m4a");
   });
 
   it("maps API errors to voice messages", () => {
