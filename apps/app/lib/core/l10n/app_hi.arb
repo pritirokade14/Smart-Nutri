@@ -246,6 +246,7 @@
   "errorNetwork": "इंटरनेट कनेक्शन नहीं है।",
   "errorNotFound": "नहीं मिला।",
   "errorOffUnavailable": "उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।",
+  "errorPhoneOtpDisabled": "फ़ोन से साइन-इन अभी उपलब्ध नहीं है। कृपया ईमेल या Google से साइन इन करें।",
   "errorPortionRequired": "कितना खाया, चुनें: सर्विंग या ग्राम।",
   "errorPrimaryMember": "आपकी अपनी प्रोफ़ाइल हटाई नहीं जा सकती।",
   "errorProductExists": "यह उत्पाद पहले से सहेजा गया है।",

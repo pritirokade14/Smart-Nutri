@@ -1204,6 +1204,12 @@ abstract class AppLocalizations {
   /// **'The product database is busy right now. Please try again in a moment.'**
   String get errorOffUnavailable;
 
+  /// No description provided for @errorPhoneOtpDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone sign-in is not available yet. Please sign in with email or Google.'**
+  String get errorPhoneOtpDisabled;
+
   /// No description provided for @errorPortionRequired.
   ///
   /// In en, this message translates to:

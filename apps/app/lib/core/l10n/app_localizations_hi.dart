@@ -611,6 +611,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
 
   @override
+  String get errorPhoneOtpDisabled =>
+      'फ़ोन से साइन-इन अभी उपलब्ध नहीं है। कृपया ईमेल या Google से साइन इन करें।';
+
+  @override
   String get errorPortionRequired => 'कितना खाया, चुनें: सर्विंग या ग्राम।';
 
   @override

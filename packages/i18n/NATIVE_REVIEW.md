@@ -148,3 +148,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 8 Task 2 (account deletion)
 - [ ] **hi/mr `error.deletion_incomplete`**: machine drafts. It must read as a calm "deletion did not finish, please try again" and make clear that what was already deleted stays deleted (no hint that data was restored). Check "खाता" (hi) / "खाते" (mr) for account.
+
+## Plan 8 Task 5 (phone OTP hook)
+- [ ] **hi/mr `error.phone_otp_disabled`**: machine drafts. Calm "phone sign-in is not available yet, use email or Google"; keep "Google" in Latin script.

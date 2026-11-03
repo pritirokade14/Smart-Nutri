@@ -58,6 +58,13 @@ class Settings(BaseSettings):
     trusted_proxy_hops: int = Field(default=0, ge=0)
     sentry_dsn: str | None = None
     posthog_api_key: str | None = None
+    # Phone OTP via the Supabase Send-SMS hook -> CallMissed WhatsApp (Plan 8 Task 5). Stays
+    # false until Meta approves the AUTHENTICATION template (Plan 8 Task 14).
+    phone_otp_enabled: bool = False
+    # "v1,whsec_<base64>" from Supabase -> Auth -> Hooks. SECRET.
+    supabase_send_sms_hook_secret: SecretStr | None = None
+    callmissed_whatsapp_otp_template: str = "smartnutri_otp"
+    callmissed_whatsapp_phone_number_id: str = ""
 
     @field_validator("log_level", mode="before")
     @classmethod

@@ -246,6 +246,7 @@
   "errorNetwork": "No internet connection.",
   "errorNotFound": "Not found.",
   "errorOffUnavailable": "The product database is busy right now. Please try again in a moment.",
+  "errorPhoneOtpDisabled": "Phone sign-in is not available yet. Please sign in with email or Google.",
   "errorPortionRequired": "Choose how much was eaten: servings or grams.",
   "errorPrimaryMember": "Your own profile can't be removed.",
   "errorProductExists": "This product is already saved.",
