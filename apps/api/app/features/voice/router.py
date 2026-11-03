@@ -47,8 +47,9 @@ def require_voice_enabled(settings: Annotated[Settings, Depends(get_app_settings
     operation_id="voice_ask",
     response_model=VoiceAnswer,
     responses=_RESPONSES,
-    # limit first: it commits the session (and must sit right after the consent gate).
-    dependencies=[Depends(limit("voice")), Depends(require_voice_enabled)],
+    # The VOICE_ENABLED check first: it touches no session and refuses without counting, so a
+    # disabled server never uses quota (cleanup c4). Then limit, which commits the session.
+    dependencies=[Depends(require_voice_enabled), Depends(limit("voice"))],
 )
 async def voice_ask(
     # format: binary so both generated clients send a file part (OpenAPI 3.1 alone gives

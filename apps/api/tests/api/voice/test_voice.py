@@ -267,6 +267,31 @@ async def test_voice_disabled_is_503_before_any_paid_call(
     assert fakes.speech.synth_calls == [] and fakes.storage.uploads == []
 
 
+async def test_voice_disabled_wins_over_the_rate_limit(
+    client, app, seeded_member, seeded_biscuit, wav3s
+):
+    """Cleanup c4: the VOICE_ENABLED check runs before limit("voice"). A disabled server
+    answers 503 (not 429) even with no quota left."""
+    app.state.settings.voice_enabled = False
+    app.state.settings.rate_limit_voice_per_day = 0
+    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+    assert (r.status_code, r.json()["error"]["code"]) == (503, "ai_unavailable")
+
+
+async def test_disabled_calls_do_not_use_voice_quota(
+    client, app, seeded_member, seeded_biscuit, wav3s
+):
+    """Cleanup c4: calls refused while voice is off are not counted against the daily quota."""
+    app.state.settings.rate_limit_voice_per_day = 1
+    app.state.settings.voice_enabled = False
+    for _ in range(3):
+        r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+        assert r.status_code == 503
+    app.state.settings.voice_enabled = True
+    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+    assert r.status_code == 200
+
+
 async def test_voice_disabled_wins_over_a_bad_body(client, app, fakes):
     app.state.settings.voice_enabled = False
     r = await client.post("/v1/voice/ask", data={"language": "en"})
