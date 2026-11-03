@@ -111,6 +111,8 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'ai_unavailable' => l10n.errorAiUnavailable,
     'deletion_incomplete' => l10n.errorDeletionIncomplete,
     'phone_otp_disabled' => l10n.errorPhoneOtpDisabled,
+    'payload_too_large' => l10n.errorPayloadTooLarge,
+    'search_query_too_short' => l10n.errorSearchQueryTooShort,
     'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };
