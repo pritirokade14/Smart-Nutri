@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { capture, init, register } = vi.hoisted(() => ({
@@ -8,7 +10,7 @@ const { capture, init, register } = vi.hoisted(() => ({
 vi.mock("posthog-js", () => ({ default: { capture, init, register } }));
 
 import {
-  ALLOWED_EVENT_PROPS,
+  ALLOWED_EVENTS,
   beforeSend,
   filterProps,
   initAnalytics,
@@ -17,40 +19,103 @@ import {
 import { scrubSentryEvent } from "@/lib/sentry-scrub";
 import { sanitizeUrl } from "@/lib/url-sanitize";
 
+// Mirrors ALLOWED_EVENTS in apps/api/app/integrations/posthog.py exactly.
+const API_ALLOWED_EVENTS = {
+  app_opened: [],
+  scan_started: ["method"],
+  scan_completed: ["found", "method"],
+  verdicts_shown: ["member_count"],
+  meal_logged: [],
+  voice_asked: ["language"],
+  report_submitted: ["reason"],
+  share_clicked: ["kind"],
+  account_deleted: [],
+};
+
 describe("analytics allow-list", () => {
   beforeEach(() => {
     capture.mockClear();
     init.mockClear();
   });
 
-  it("has the shared allow-list", () => {
-    expect([...ALLOWED_EVENT_PROPS].sort()).toEqual(
-      ["locale", "platform", "screen", "source", "status_code"].sort(),
-    );
+  it("mirrors the API's ALLOWED_EVENTS exactly", () => {
+    expect(
+      Object.fromEntries(
+        Object.entries(ALLOWED_EVENTS).map(([e, p]) => [e, [...p].sort()]),
+      ),
+    ).toEqual(API_ALLOWED_EVENTS);
   });
 
-  it("drops non-allowed keys and keeps allowed ones", () => {
-    expect(filterProps({ conditions: ["diabetes"] })).toEqual({});
-    expect(filterProps({ screen: "home", allergies: ["x"] })).toEqual({
-      screen: "home",
+  it("the API file still lists the same events (drift guard)", () => {
+    const py = readFileSync(
+      join(process.cwd(), "../api/app/integrations/posthog.py"),
+      "utf8",
+    );
+    const block = py.slice(py.indexOf("ALLOWED_EVENTS"), py.indexOf("_ENUMS"));
+    const events = [...block.matchAll(/"([a-z_]+)":/g)].map((m) => m[1]);
+    expect(events.sort()).toEqual(Object.keys(API_ALLOWED_EVENTS).sort());
+  });
+
+  it("track drops unknown props", () => {
+    expect(
+      filterProps("scan_completed", {
+        method: "barcode",
+        found: true,
+        reason: "allergen_contains",
+        conditions: ["diabetes"],
+      }),
+    ).toEqual({ method: "barcode", found: true });
+    expect(filterProps("app_opened", { screen: "home" })).toEqual({});
+  });
+
+  it("constrains values: enums, a bool, a bounded count", () => {
+    expect(filterProps("scan_started", { method: "label" })).toEqual({
+      method: "label",
+    });
+    expect(filterProps("scan_started", { method: "camera" })).toEqual({});
+    expect(filterProps("voice_asked", { language: "fr" })).toEqual({});
+    expect(filterProps("report_submitted", { reason: "wrong_values" })).toEqual(
+      { reason: "wrong_values" },
+    );
+    expect(
+      filterProps("report_submitted", { reason: "Sugar is wrong" }),
+    ).toEqual({});
+    expect(filterProps("scan_completed", { found: "yes" })).toEqual({});
+    expect(filterProps("verdicts_shown", { member_count: 3 })).toEqual({
+      member_count: 3,
+    });
+    for (const bad of [true, -1, 1001, 2.5, "3"])
+      expect(filterProps("verdicts_shown", { member_count: bad })).toEqual({});
+    expect(filterProps("share_clicked", { kind: "whatsapp" })).toEqual({
+      kind: "whatsapp",
     });
   });
 
   it("track is a no-op without a key", () => {
-    track("viewed", { screen: "home" });
+    track("app_opened");
     expect(capture).not.toHaveBeenCalled();
     expect(initAnalytics(undefined)).toBe(false);
     expect(init).not.toHaveBeenCalled();
   });
 
-  it("track forwards only allowed props once initialised", () => {
+  it("track ignores unknown events and forwards only allowed props once initialised", () => {
     expect(initAnalytics("phc_test")).toBe(true);
-    track("viewed", { conditions: ["diabetes"], screen: "home" });
-    expect(capture).toHaveBeenCalledWith("viewed", { screen: "home" });
+    track("label_scan_started");
+    track("viewed", { screen: "home" });
+    expect(capture).not.toHaveBeenCalled();
+    track("scan_completed", {
+      method: "barcode",
+      found: true,
+      allergen: "egg",
+    });
+    expect(capture).toHaveBeenCalledWith("scan_completed", {
+      method: "barcode",
+      found: true,
+    });
     const cfg = init.mock.calls[0][1];
     expect(cfg.autocapture).toBe(false);
+    expect(cfg.capture_pageview).toBe(false);
     expect(cfg.person_profiles).toBe("identified_only");
-    expect(cfg.capture_pageview).toBe(true);
     expect(cfg.disable_session_recording).toBe(true);
     expect(cfg.disable_surveys).toBe(true);
     expect(cfg.mask_personal_data_properties).toBe(true);
@@ -64,34 +129,26 @@ describe("analytics allow-list", () => {
   });
 });
 
-describe("allow-listed values are constrained", () => {
-  it("accepts valid values", () => {
-    const ok = {
-      locale: "hi",
-      platform: "web",
-      screen: "scan_page",
-      source: "nav",
-      status_code: 404,
-    };
-    expect(filterProps(ok)).toEqual(ok);
-  });
-  it("drops invalid values", () => {
-    expect(
-      filterProps({
-        locale: "fr",
-        platform: "ios",
-        screen: "Diabetes Home",
-        source: "a".repeat(41),
-        status_code: "200",
-      }),
-    ).toEqual({});
-  });
-});
-
 describe("posthog beforeSend", () => {
-  it("sanitizes url-like props, $set and drops titles", () => {
+  it("drops any event the allow-list doesn't name (pageviews, autocapture)", () => {
+    expect(beforeSend({ event: "$pageview", properties: {} })).toBeNull();
+    expect(beforeSend({ event: "$autocapture", properties: {} })).toBeNull();
+    expect(
+      beforeSend({ event: "label_scan_started", properties: {} }),
+    ).toBeNull();
+  });
+
+  it("drops non-allowed custom props that reach it", () => {
     const out = beforeSend({
-      event: "$pageview",
+      event: "scan_completed",
+      properties: { method: "label", found: true, conditions: ["diabetes"] },
+    });
+    expect(out?.properties).toEqual({ method: "label", found: true });
+  });
+
+  it("sanitizes PostHog's url props and $set, drops titles and other custom props", () => {
+    const out = beforeSend({
+      event: "app_opened",
       properties: {
         $current_url: "https://x.in/en/a?next=1#h",
         $referrer: "https://g.com/?q=diabetes",
@@ -105,7 +162,6 @@ describe("posthog beforeSend", () => {
     expect(out?.properties).toEqual({
       $current_url: "https://x.in/en/a",
       $referrer: "https://g.com/",
-      some_url: "https://x.in/b",
       $set: { $initial_referrer: "https://g.com/" },
       $set_once: { $initial_current_url: "https://x.in/" },
     });

@@ -115,7 +115,9 @@ describe("ConfirmScreen", () => {
     expect(req.method).toBe("POST");
     expect(req.body.scan_id).toBe(scan?.scan_id);
     expect(req.body.barcode).toBe(BARCODE);
-    expect(track.mock.calls).toEqual([["label_scan_saved"]]);
+    expect(track.mock.calls).toEqual([
+      ["scan_completed", { method: "label", found: true }],
+    ]);
     // The draft is dropped once saved.
     expect(
       client.getQueryCache().findAll({ queryKey: ["scan-draft"] }),
@@ -215,6 +217,8 @@ describe("ConfirmScreen", () => {
     const req = await lastRequest();
     expect("scan_id" in req.body).toBe(false);
     expect(req.body.barcode).toBe(BARCODE);
-    expect(track.mock.calls).toEqual([["manual_product_saved"]]);
+    expect(track.mock.calls).toEqual([
+      ["scan_completed", { method: "manual", found: true }],
+    ]);
   });
 });

@@ -172,6 +172,16 @@ describe("Report a problem on the result", () => {
     ).toBeTruthy();
   });
 
+  it("tracks verdicts_shown with only the member count", async () => {
+    const body = analyzeResponse("cola");
+    api.on("POST", "/v1/analyze", body);
+    wrap(<ResultView productId={body.product.product_id as string} />);
+    await screen.findByRole("button", { name: en.report.button });
+    expect(track).toHaveBeenCalledWith("verdicts_shown", {
+      member_count: body.verdicts.length,
+    });
+  });
+
   it("is not offered for an Open Food Facts product (nothing to report against)", async () => {
     const body = analyzeResponse("cola");
     api.on("POST", "/v1/analyze", {

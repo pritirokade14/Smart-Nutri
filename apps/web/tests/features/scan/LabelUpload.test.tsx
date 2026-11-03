@@ -205,22 +205,22 @@ describe("LabelUpload", () => {
     expect(seen).toHaveLength(0);
   });
 
-  it("analytics: label_scan_started on success, with no properties", async () => {
+  it("analytics: scan_started (method label) on success, no label content", async () => {
     respond(okHandlers());
     view();
     await userEvent.upload(screen.getByLabelText(l.take_photo), photo());
     await waitFor(() => expect(router.push).toHaveBeenCalled());
-    expect(track.mock.calls).toEqual([["label_scan_started"]]);
+    expect(track.mock.calls).toEqual([["scan_started", { method: "label" }]]);
   });
 
-  it("analytics: label_scan_failed on an error, with no properties", async () => {
+  it("analytics: scan_completed with found false on an error", async () => {
     respond(okHandlers(502, envelope("extraction_failed")));
     view();
     await userEvent.upload(screen.getByLabelText(l.take_photo), photo());
     await screen.findByText(messages.error.extraction_failed);
     expect(track.mock.calls).toEqual([
-      ["label_scan_started"],
-      ["label_scan_failed"],
+      ["scan_started", { method: "label" }],
+      ["scan_completed", { method: "label", found: false }],
     ]);
   });
 

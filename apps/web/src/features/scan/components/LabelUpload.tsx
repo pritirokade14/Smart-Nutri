@@ -36,13 +36,13 @@ export function LabelUpload({ barcode }: { barcode: string | null }) {
   const start = (file: File | undefined) => {
     if (!file || upload.isPending) return;
     // Event names only, no properties: no label content or health data.
-    track("label_scan_started");
+    track("scan_started", { method: "label" });
     upload.mutate(barcode ? { file, barcode } : { file }, {
       onSuccess: (scan) => {
         setScanDraft(client, scan, barcode);
         router.push(`/${locale}/scan/confirm/${scan.scan_id}`);
       },
-      onError: () => track("label_scan_failed"),
+      onError: () => track("scan_completed", { method: "label", found: false }),
     });
   };
 

@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { initAnalytics } from "./lib/analytics";
+import { initAnalytics, track } from "./lib/analytics";
 import { SENTRY_DATA_COLLECTION, scrubSentryEvent } from "./lib/sentry-scrub";
 
 // NEXT_PUBLIC_SENTRY_DSN is not secret (a DSN only allows sending events).
@@ -17,6 +17,6 @@ if (dsn) {
   });
 }
 
-initAnalytics(process.env.NEXT_PUBLIC_POSTHOG_KEY);
+if (initAnalytics(process.env.NEXT_PUBLIC_POSTHOG_KEY)) track("app_opened");
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

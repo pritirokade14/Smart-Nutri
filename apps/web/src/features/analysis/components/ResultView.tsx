@@ -20,6 +20,7 @@ import { normalizeBarcode } from "@/features/scan/lib/barcode";
 import { ResultShare } from "@/features/share/ResultShare";
 import { isVoiceEnabled, VoiceAsk } from "@/features/voice/components/VoiceAsk";
 import { routing } from "@/i18n/routing";
+import { track } from "@/lib/analytics";
 import {
   type AnalyzeOut,
   analyzeErrorView,
@@ -58,6 +59,11 @@ function Analysis({
   const t = useTranslations();
   const { product } = data;
   const { grade, highIn } = readReport(data.report);
+  // Only how many cards were shown: never statuses, reasons or names.
+  const memberCount = data.verdicts.length;
+  useEffect(() => {
+    track("verdicts_shown", { member_count: memberCount });
+  }, [memberCount]);
   const offBarcode = product.barcode ?? barcode;
   // Logging needs exactly one product reference: our id, else the barcode.
   const logProduct: LogMealProduct | null =
