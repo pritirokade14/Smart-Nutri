@@ -1392,7 +1392,7 @@ export interface components {
              * Goal Choice
              * @description Goal conflict (weight loss and gym 'build muscle'): no goal change is in `changes`; the user picks one of these or neither
              */
-            goal_choice: ("healthy_eating" | "weight_loss" | "weight_gain")[] | null;
+            goal_choice: ("healthy_eating" | "weight_loss" | "weight_gain" | "build_muscle")[] | null;
             /**
              * Member Id
              * Format: uuid

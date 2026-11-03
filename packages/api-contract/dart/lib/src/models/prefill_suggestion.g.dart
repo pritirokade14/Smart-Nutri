@@ -32,5 +32,6 @@ const _$PrefillSuggestionGoalChoiceEnumMap = {
   PrefillSuggestionGoalChoice.healthyEating: 'healthy_eating',
   PrefillSuggestionGoalChoice.weightLoss: 'weight_loss',
   PrefillSuggestionGoalChoice.weightGain: 'weight_gain',
+  PrefillSuggestionGoalChoice.buildMuscle: 'build_muscle',
   PrefillSuggestionGoalChoice.$unknown: r'$unknown',
 };

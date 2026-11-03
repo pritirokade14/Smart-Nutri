@@ -2536,7 +2536,8 @@
                   "enum": [
                     "healthy_eating",
                     "weight_loss",
-                    "weight_gain"
+                    "weight_gain",
+                    "build_muscle"
                   ],
                   "type": "string"
                 },
