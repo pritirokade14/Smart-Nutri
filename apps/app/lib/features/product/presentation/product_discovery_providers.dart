@@ -10,7 +10,7 @@ typedef AlternativesQuery = ({ProductRef product, String? memberId});
 typedef CompareQuery = ({ProductRef a, ProductRef b, String? memberId});
 
 /// The shortest and longest search the API accepts (after trimming).
-const searchMinLength = 2;
+const searchMinLength = 3;
 const searchMaxLength = 80;
 
 /// No automatic retry anywhere here: screens show the failure and the user

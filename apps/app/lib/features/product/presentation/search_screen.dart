@@ -28,7 +28,7 @@ class SearchScreen extends ConsumerStatefulWidget {
   final ProductRef? compareWith;
   final String? memberId;
 
-  static const debounce = Duration(milliseconds: 400);
+  static const debounce = Duration(milliseconds: 600);
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();

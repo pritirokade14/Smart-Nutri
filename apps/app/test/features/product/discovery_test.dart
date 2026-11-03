@@ -203,13 +203,27 @@ void main() {
   });
 
   group('SearchScreen', () {
-    testWidgets('asks for 2+ letters before searching', (t) async {
+    testWidgets('asks for 3+ letters before searching', (t) async {
       final api = FakeProductsClient();
       await _pump(t, api, const SearchScreen());
-      await t.enterText(find.byType(TextField), 'a');
-      await t.pump(const Duration(milliseconds: 600));
+      await t.enterText(find.byType(TextField), 'ab');
+      await t.pump(const Duration(milliseconds: 700));
       expect(find.text(en.searchTooShort), findsOneWidget);
       expect(api.searches, isEmpty);
+      await t.testTextInput.receiveAction(TextInputAction.search);
+      await t.pump();
+      expect(api.searches, isEmpty);
+    });
+
+    testWidgets('waits 600 ms after typing before searching', (t) async {
+      final api = FakeProductsClient();
+      await _pump(t, api, const SearchScreen());
+      await t.enterText(find.byType(TextField), 'oats');
+      await t.pump(const Duration(milliseconds: 500));
+      expect(api.searches, isEmpty);
+      await t.pump(const Duration(milliseconds: 150));
+      await t.pumpAndSettle();
+      expect(api.searches, ['oats']);
     });
 
     testWidgets('lists hits with their source; OFF hits are credited; a tap '
