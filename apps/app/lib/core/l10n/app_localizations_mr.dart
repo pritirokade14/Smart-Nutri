@@ -1669,6 +1669,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get scanTitle => 'बारकोड स्कॅन करा';
 
   @override
+  String get searchHint =>
+      'नाव किंवा ब्रँडने उत्पादन शोधा, मग ते उघडा किंवा तुलना करा.';
+
+  @override
   String get searchNoResults => 'कोणतेही उत्पादन सापडले नाही.';
 
   @override
@@ -1696,6 +1700,12 @@ class AppLocalizationsMr extends AppLocalizations {
   String get shareCopyLink => 'लिंक कॉपी करा';
 
   @override
+  String get shareInclude => 'संदेशात समाविष्ट करा';
+
+  @override
+  String get sharePreview => 'संदेशाचे पूर्वावलोकन';
+
+  @override
   String get sharePrivacyNote =>
       'फक्त उत्पादन, त्याचा ग्रेड आणि प्रत्येकाचा निकाल शेअर होतो. आरोग्याची माहिती खासगी राहते.';
 
@@ -1717,6 +1727,16 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String shareResultMember(String status, String who) {
     return '$who: $status';
+  }
+
+  @override
+  String shareResultProductOnly(String grade, String product, String url) {
+    return '$product — न्यूट्री-स्कोअर $grade (गणना SmartNutri ने केली आहे). SmartNutri ने तपासले: $url';
+  }
+
+  @override
+  String shareResultProductOnlyUngraded(String product, String url) {
+    return '$product — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. SmartNutri ने तपासले: $url';
   }
 
   @override

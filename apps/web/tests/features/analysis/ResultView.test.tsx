@@ -74,8 +74,12 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+// The last analyze call (the page also asks for alternatives afterwards).
 async function lastBody() {
-  const req = fetchMock.mock.calls.at(-1)?.[0] as Request;
+  const req = fetchMock.mock.calls
+    .map((c) => c[0] as Request)
+    .filter((r) => new URL(r.url).pathname === "/v1/analyze")
+    .at(-1) as Request;
   return { url: req.url, method: req.method, body: await req.clone().json() };
 }
 

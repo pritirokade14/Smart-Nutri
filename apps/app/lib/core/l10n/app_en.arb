@@ -894,6 +894,7 @@
   "scanSubmit": "Check this product",
   "scanSubtitle": "Point your camera at the barcode, or type the number below.",
   "scanTitle": "Scan a barcode",
+  "searchHint": "Find a product by name or brand, then open it or compare it.",
   "searchNoResults": "No products found.",
   "searchPlaceholder": "Search by name or brand",
   "searchSourceOff": "Open Food Facts",
@@ -903,6 +904,8 @@
   "shareButton": "Share",
   "shareCopied": "Link copied",
   "shareCopyLink": "Copy link",
+  "shareInclude": "Include in the message",
+  "sharePreview": "Message preview",
   "sharePrivacyNote": "Only the product, its grade and each person's result are shared. Health details stay private.",
   "shareRelationChild": "Child",
   "shareRelationOther": "Family member",
@@ -916,6 +919,31 @@
         "type": "String"
       },
       "who": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultProductOnly": "{product} — Nutri-Score {grade} (calculated by SmartNutri). Checked with SmartNutri: {url}",
+  "@shareResultProductOnly": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultProductOnlyUngraded": "{product} — not enough label data for a Nutri-Score. Checked with SmartNutri: {url}",
+  "@shareResultProductOnlyUngraded": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      },
+      "url": {
         "type": "String"
       }
     }

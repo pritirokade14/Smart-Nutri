@@ -13,7 +13,10 @@ import { CameraIcon, ScanIcon } from "@/components/ui/icons";
 import { LoadingState } from "@/components/ui/Skeleton";
 import { LogMealButton } from "@/features/meals/components/LogMealButton";
 import type { LogMealProduct } from "@/features/meals/components/LogMealDialog";
+import type { ProductRef } from "@/features/product/api/products";
+import { Alternatives } from "@/features/product/components/Alternatives";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
+import { ResultShare } from "@/features/share/ResultShare";
 import { routing } from "@/i18n/routing";
 import {
   type AnalyzeOut,
@@ -63,6 +66,11 @@ function Analysis({
           name: product.name ?? offBarcode ?? "",
           servingSizeG: product.serving_size_g,
         }
+      : null;
+  const altRef: ProductRef | null = product.product_id
+    ? { productId: product.product_id }
+    : offBarcode
+      ? { barcode: offBarcode }
       : null;
   const members = data.verdicts.map((v) => ({
     id: v.member_id,
@@ -128,6 +136,13 @@ function Analysis({
         ))}
       </section>
 
+      <ResultShare
+        productName={product.name ?? offBarcode ?? ""}
+        grade={grade}
+        barcode={offBarcode}
+        verdicts={data.verdicts}
+      />
+
       <ExplanationCard
         explanation={data.explanation}
         verdicts={data.verdicts}
@@ -136,6 +151,8 @@ function Analysis({
       <NutritionTable per100g={product.per_100g} />
 
       <ClaimsSection checks={readClaims(data.report)} />
+
+      {altRef ? <Alternatives productRef={altRef} members={members} /> : null}
 
       {product.attribution != null && offBarcode ? (
         <OffAttribution barcode={offBarcode} />

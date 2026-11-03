@@ -145,6 +145,13 @@ export const GlobeIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const SearchIcon = (p: IconProps) => (
+  <Icon name="search" {...p}>
+    <circle cx="10.5" cy="10.5" r="6.5" />
+    <path d="M15.5 15.5L20 20" />
+  </Icon>
+);
+
 export const SearchOffIcon = (p: IconProps) => (
   <Icon name="search-off" {...p}>
     <circle cx="10.5" cy="10.5" r="6.5" />

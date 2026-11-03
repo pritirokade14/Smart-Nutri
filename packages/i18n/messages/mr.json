@@ -605,7 +605,8 @@
     "source": {
       "ours": "SmartNutri",
       "off": "Open Food Facts"
-    }
+    },
+    "hint": "नाव किंवा ब्रँडने उत्पादन शोधा, मग ते उघडा किंवा तुलना करा."
   },
   "compare": {
     "title": "तुलना करा",
@@ -637,7 +638,9 @@
     "result": {
       "text": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). {members}. SmartNutri ने तपासले: {url}",
       "ungraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. {members}. SmartNutri ने तपासले: {url}",
-      "member": "{who}: {status}"
+      "member": "{who}: {status}",
+      "product_only": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). SmartNutri ने तपासले: {url}",
+      "product_only_ungraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. SmartNutri ने तपासले: {url}"
     },
     "weekly": "SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: {scans}, नोंदवलेल्या गोष्टी: {logged}. {url}",
     "relation": {
@@ -646,7 +649,9 @@
       "parent": "आई/वडील",
       "spouse": "जोडीदार",
       "other": "कुटुंबातील सदस्य"
-    }
+    },
+    "include": "संदेशात समाविष्ट करा",
+    "preview": "संदेशाचे पूर्वावलोकन"
   },
   "voice": {
     "word_safe": "सुरक्षित",

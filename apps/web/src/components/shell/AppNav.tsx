@@ -13,8 +13,12 @@ import { cn } from "@/lib/cn";
 
 const TABS = [
   { key: "home", Icon: HomeIcon, also: [] },
-  // Results and saved products are reached by scanning.
-  { key: "scan", Icon: ScanIcon, also: ["result", "product"] },
+  // Results, saved products, search and compare are reached from Scan.
+  {
+    key: "scan",
+    Icon: ScanIcon,
+    also: ["result", "product", "search", "compare"],
+  },
   { key: "history", Icon: HistoryIcon, also: [] },
   // Adding and editing members happens under /members.
   { key: "family", Icon: FamilyIcon, also: ["members"] },

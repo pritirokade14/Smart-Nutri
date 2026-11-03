@@ -1666,6 +1666,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanTitle => 'Scan a barcode';
 
   @override
+  String get searchHint =>
+      'Find a product by name or brand, then open it or compare it.';
+
+  @override
   String get searchNoResults => 'No products found.';
 
   @override
@@ -1693,6 +1697,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareCopyLink => 'Copy link';
 
   @override
+  String get shareInclude => 'Include in the message';
+
+  @override
+  String get sharePreview => 'Message preview';
+
+  @override
   String get sharePrivacyNote =>
       'Only the product, its grade and each person\'s result are shared. Health details stay private.';
 
@@ -1714,6 +1724,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String shareResultMember(String status, String who) {
     return '$who: $status';
+  }
+
+  @override
+  String shareResultProductOnly(String grade, String product, String url) {
+    return '$product — Nutri-Score $grade (calculated by SmartNutri). Checked with SmartNutri: $url';
+  }
+
+  @override
+  String shareResultProductOnlyUngraded(String product, String url) {
+    return '$product — not enough label data for a Nutri-Score. Checked with SmartNutri: $url';
   }
 
   @override

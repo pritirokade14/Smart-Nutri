@@ -605,7 +605,8 @@
     "source": {
       "ours": "SmartNutri",
       "off": "Open Food Facts"
-    }
+    },
+    "hint": "Find a product by name or brand, then open it or compare it."
   },
   "compare": {
     "title": "Compare",
@@ -637,7 +638,9 @@
     "result": {
       "text": "{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}. Checked with SmartNutri: {url}",
       "ungraded": "{product} — not enough label data for a Nutri-Score. {members}. Checked with SmartNutri: {url}",
-      "member": "{who}: {status}"
+      "member": "{who}: {status}",
+      "product_only": "{product} — Nutri-Score {grade} (calculated by SmartNutri). Checked with SmartNutri: {url}",
+      "product_only_ungraded": "{product} — not enough label data for a Nutri-Score. Checked with SmartNutri: {url}"
     },
     "weekly": "Our week on SmartNutri — products checked: {scans}, items logged: {logged}. {url}",
     "relation": {
@@ -646,7 +649,9 @@
       "parent": "Parent",
       "spouse": "Spouse",
       "other": "Family member"
-    }
+    },
+    "include": "Include in the message",
+    "preview": "Message preview"
   },
   "voice": {
     "word_safe": "safe",

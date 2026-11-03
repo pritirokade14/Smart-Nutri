@@ -2956,6 +2956,12 @@ abstract class AppLocalizations {
   /// **'Scan a barcode'**
   String get scanTitle;
 
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a product by name or brand, then open it or compare it.'**
+  String get searchHint;
+
   /// No description provided for @searchNoResults.
   ///
   /// In en, this message translates to:
@@ -3010,6 +3016,18 @@ abstract class AppLocalizations {
   /// **'Copy link'**
   String get shareCopyLink;
 
+  /// No description provided for @shareInclude.
+  ///
+  /// In en, this message translates to:
+  /// **'Include in the message'**
+  String get shareInclude;
+
+  /// No description provided for @sharePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Message preview'**
+  String get sharePreview;
+
   /// No description provided for @sharePrivacyNote.
   ///
   /// In en, this message translates to:
@@ -3051,6 +3069,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{who}: {status}'**
   String shareResultMember(String status, String who);
+
+  /// No description provided for @shareResultProductOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} — Nutri-Score {grade} (calculated by SmartNutri). Checked with SmartNutri: {url}'**
+  String shareResultProductOnly(String grade, String product, String url);
+
+  /// No description provided for @shareResultProductOnlyUngraded.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} — not enough label data for a Nutri-Score. Checked with SmartNutri: {url}'**
+  String shareResultProductOnlyUngraded(String product, String url);
 
   /// No description provided for @shareResultText.
   ///

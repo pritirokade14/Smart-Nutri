@@ -894,6 +894,7 @@
   "scanSubmit": "हे उत्पादन तपासा",
   "scanSubtitle": "कॅमेरा बारकोडकडे धरा, किंवा खाली क्रमांक टाइप करा.",
   "scanTitle": "बारकोड स्कॅन करा",
+  "searchHint": "नाव किंवा ब्रँडने उत्पादन शोधा, मग ते उघडा किंवा तुलना करा.",
   "searchNoResults": "कोणतेही उत्पादन सापडले नाही.",
   "searchPlaceholder": "नाव किंवा ब्रँडने शोधा",
   "searchSourceOff": "Open Food Facts",
@@ -903,6 +904,8 @@
   "shareButton": "शेअर करा",
   "shareCopied": "लिंक कॉपी झाली",
   "shareCopyLink": "लिंक कॉपी करा",
+  "shareInclude": "संदेशात समाविष्ट करा",
+  "sharePreview": "संदेशाचे पूर्वावलोकन",
   "sharePrivacyNote": "फक्त उत्पादन, त्याचा ग्रेड आणि प्रत्येकाचा निकाल शेअर होतो. आरोग्याची माहिती खासगी राहते.",
   "shareRelationChild": "मूल",
   "shareRelationOther": "कुटुंबातील सदस्य",
@@ -916,6 +919,31 @@
         "type": "String"
       },
       "who": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultProductOnly": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). SmartNutri ने तपासले: {url}",
+  "@shareResultProductOnly": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultProductOnlyUngraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. SmartNutri ने तपासले: {url}",
+  "@shareResultProductOnlyUngraded": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      },
+      "url": {
         "type": "String"
       }
     }

@@ -118,4 +118,22 @@ describe("result page: I ate this", () => {
       expect(sent).not.toHaveProperty("product_id");
     }
   });
+
+  it("the result also offers Share and healthier options for the first member", async () => {
+    const body = analyzeResponse("sf_biscuit");
+    const id = body.product.product_id as string;
+    const api = view(body).on("GET", `/v1/products/${id}/alternatives`, {
+      items: [],
+      reason: "no_category",
+    });
+    expect(
+      await screen.findByText(en.alternatives.reason.no_category),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: en.share.button })).toBeTruthy();
+    expect(
+      api
+        .callsTo("GET", `/v1/products/${id}/alternatives`)[0]
+        .query.get("member_id"),
+    ).toBe(body.verdicts[0].member_id);
+  });
 });

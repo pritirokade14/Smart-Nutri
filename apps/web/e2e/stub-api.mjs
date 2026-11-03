@@ -342,6 +342,12 @@ createServer((req, res) => {
     res.writeHead(204).end();
     return;
   }
+  if (/^\/v1\/products\/.*\/alternatives(\?|$)/.test(req.url ?? "")) {
+    // Canned: the stub never ranks products.
+    res.writeHead(200, { ...CORS, "content-type": "application/json" });
+    res.end(JSON.stringify({ items: [], reason: "no_category" }));
+    return;
+  }
   if (req.url?.startsWith("/v1/products/")) {
     const ok = req.url.startsWith("/v1/products/8901063201089/public");
     res.writeHead(ok ? 200 : 404, { "content-type": "application/json" });

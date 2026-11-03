@@ -108,3 +108,46 @@ test("History: earlier days, and the holder's own empty day", async ({
   await expect(page.getByTestId("day-title")).not.toHaveText("Today");
   await expect(page.getByRole("button", { name: "Next day" })).toBeEnabled();
 });
+
+test("Share falls back to copy link and WhatsApp without the Web Share API", async ({
+  page,
+  request,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", {
+      value: undefined,
+      configurable: true,
+    });
+  });
+  await addMember(request, {
+    name: "Ravi Patil",
+    relation: "parent",
+    birth_year: 1960,
+  });
+  await page.goto(`/en/product/${SF_BISCUIT}`);
+  await expect(page.getByTestId("member-result")).toHaveCount(2);
+  await expect(
+    page.getByText("We cannot suggest options for this product yet."),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Share", exact: true }).click();
+  const dialog = page.getByTestId("share-dialog");
+  await expect(dialog).toBeVisible();
+  const preview = dialog.getByTestId("share-preview");
+  await expect(preview).toContainText("Sugar Free Biscuit — Nutri-Score");
+  await expect(preview).toContainText("Ravi: ");
+  await expect(preview).not.toContainText("Patil");
+  await expect(
+    dialog.getByText(
+      "Only the product, its grade and each person's result are shared. Health details stay private.",
+    ),
+  ).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Copy link" })).toBeVisible();
+  const wa = dialog.getByRole("link", { name: "Share on WhatsApp" });
+  await expect(wa).toHaveAttribute("href", /^https:\/\/wa\.me\/\?text=/);
+
+  // Leave Ravi out: his part disappears from the message and the link.
+  await dialog.getByRole("checkbox", { name: /^Ravi: / }).uncheck();
+  await expect(preview).not.toContainText("Ravi");
+  const href = (await wa.getAttribute("href")) ?? "";
+  expect(decodeURIComponent(href)).not.toContain("Ravi");
+});

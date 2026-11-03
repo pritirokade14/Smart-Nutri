@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { clearAnalyzeCache } from "@/features/analysis/api/useAnalyzeBarcode";
 import { clearMealsCache } from "@/features/meals/api/meals";
 import { clearMembersCache } from "@/features/members/api/members";
+import { clearProductsCache } from "@/features/product/api/products";
 import { clearScanDrafts } from "@/features/scan/api/draftCache";
 import { setUnauthorizedHandler } from "@/lib/api/client";
 import { handleUnauthorized } from "@/lib/api/unauthorized";
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           clearScanDrafts(client);
           clearMembersCache(client);
           clearMealsCache(client);
+          clearProductsCache(client);
         }
       },
     );
@@ -45,6 +47,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             clearScanDrafts(client);
             clearMembersCache(client);
             clearMealsCache(client);
+            clearProductsCache(client);
           },
           signOut: () => createSupabaseBrowserClient().auth.signOut(),
           currentPath: () => window.location.pathname + window.location.search,
