@@ -325,7 +325,8 @@ export interface paths {
          * @description Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.
          *
          *     Open Food Facts search calls are capped for the whole server; over the cap a cached
-         *     result is served, else 503 ``off_unavailable`` with Retry-After.
+         *     result is served, else our own hits come back with ``off_degraded`` true, and
+         *     only with no local hits either 503 ``off_unavailable`` with Retry-After.
          */
         get: operations["products_search"];
         put?: never;
@@ -1552,6 +1553,12 @@ export interface components {
             grade: components["schemas"]["NutriScoreGrade"] | null;
             /** Name */
             name: string;
+            /**
+             * Off Degraded
+             * @description true when the Open Food Facts search budget was spent and only our own catalogue is returned; clients show a small 'more results later' note
+             * @default false
+             */
+            off_degraded: boolean;
             /** Product Id */
             product_id: string | null;
             /**
@@ -3413,7 +3420,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description off_unavailable: the Open Food Facts search budget is used up and nothing is cached for this query; retry after Retry-After seconds */
+            /** @description off_unavailable: the Open Food Facts search budget is used up, nothing is cached for this query and we have no local hits; retry after Retry-After seconds */
             503: {
                 headers: {
                     [name: string]: unknown;

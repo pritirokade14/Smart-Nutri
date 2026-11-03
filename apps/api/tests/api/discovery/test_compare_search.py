@@ -154,6 +154,7 @@ async def test_search_merges_dedups_and_marks_sources(
         "grade": None,  # not enough data for a grade
         "source": "ours",
         "attribution": None,
+        "off_degraded": False,
     }
     barcodes = [h["barcode"] for h in hits]
     assert len(barcodes) == len(set(barcodes))
@@ -262,7 +263,7 @@ async def throttled(db_session):
     await app.state.off_http.aclose()
 
 
-async def test_off_search_over_the_throttle_is_503_off_unavailable(throttled):
+async def test_off_search_over_the_throttle_without_local_hits_is_503(throttled):
     client, off_requests = throttled
     assert (await client.get("/v1/products/search?q=namkeen")).status_code == 200
     assert (await client.get("/v1/products/search?q=chana")).status_code == 200
@@ -271,6 +272,26 @@ async def test_off_search_over_the_throttle_is_503_off_unavailable(throttled):
     assert r.json()["error"]["code"] == "off_unavailable"
     assert 1 <= int(r.headers["retry-after"]) <= 30
     assert len(off_requests) == 2  # the third search never reached OFF
+
+
+async def test_throttled_search_with_local_hits_is_200_off_degraded(
+    throttled, sf_biscuit_product_id
+):
+    client, off_requests = throttled
+    await client.get("/v1/products/search?q=namkeen")
+    await client.get("/v1/products/search?q=chana")
+    r = await client.get("/v1/products/search?q=biscuit")  # budget spent, nothing cached
+    assert r.status_code == 200
+    hits = r.json()
+    assert [h["source"] for h in hits] == ["ours"]
+    assert all(h["off_degraded"] is True for h in hits)
+    assert len(off_requests) == 2
+
+
+async def test_search_off_degraded_is_false_normally(client, login, fake_off_search):
+    login(off=fake_off_search)
+    hits = (await client.get("/v1/products/search?q=namkeen")).json()
+    assert hits and all(h["off_degraded"] is False for h in hits)
 
 
 async def test_throttled_search_still_serves_the_cache(throttled):

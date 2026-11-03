@@ -66,7 +66,8 @@ abstract class ProductsClient {
   /// Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.
   ///
   /// Open Food Facts search calls are capped for the whole server; over the cap a cached.
-  /// result is served, else 503 ``off_unavailable`` with Retry-After.
+  /// result is served, else our own hits come back with ``off_degraded`` true, and.
+  /// only with no local hits either 503 ``off_unavailable`` with Retry-After.
   ///
   /// [q] - 3 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short.
   @GET('/v1/products/search')

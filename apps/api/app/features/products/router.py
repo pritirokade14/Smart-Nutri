@@ -193,8 +193,9 @@ def search_query(
         503: {
             "model": ErrorEnvelope,
             "description": (
-                "off_unavailable: the Open Food Facts search budget is used up and nothing is "
-                "cached for this query; retry after Retry-After seconds"
+                "off_unavailable: the Open Food Facts search budget is used up, nothing is "
+                "cached for this query and we have no local hits; retry after Retry-After "
+                "seconds"
             ),
         },
     },
@@ -212,7 +213,8 @@ async def products_search(
     """Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.
 
     Open Food Facts search calls are capped for the whole server; over the cap a cached
-    result is served, else 503 ``off_unavailable`` with Retry-After.
+    result is served, else our own hits come back with ``off_degraded`` true, and
+    only with no local hits either 503 ``off_unavailable`` with Retry-After.
     """
     hits = await search.search_products(
         session, off, q, limit_, account_id=ctx.account_id, settings=settings

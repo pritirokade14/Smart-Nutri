@@ -297,6 +297,13 @@ class SearchHit(BaseModel):
     )
     source: Literal["ours", "off"]
     attribution: str | None = Field(description='"attribution.off" for Open Food Facts hits')
+    off_degraded: bool = Field(
+        default=False,
+        description=(
+            "true when the Open Food Facts search budget was spent and only our own "
+            "catalogue is returned; clients show a small 'more results later' note"
+        ),
+    )
 
 
 class BetterSide(StrEnum):

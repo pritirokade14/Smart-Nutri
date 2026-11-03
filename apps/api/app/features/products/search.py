@@ -5,7 +5,8 @@ account's pending or any rejected product) match on name or brand. OFF hits are 
 by barcode (ours win) and the OFF result is cached 24 h per normalised query. Grades come from
 the rules engine. OFF being down is not an error: our hits are returned alone. Over the
 process-wide OFF search budget (I4, `off_search_per_minute`), a cached result (even a stale
-one) is served; with none, 503 `off_unavailable` with Retry-After.
+one) is served; with none, our own hits are returned with `off_degraded=true`, and only
+with no hits of ours either is it 503 `off_unavailable` with Retry-After.
 """
 
 import unicodedata
@@ -97,8 +98,11 @@ async def search_products(
             session, f"text:{query}", lambda: off.search_text(query, page_size=OFF_PAGE_SIZE)
         )
     except OffThrottled as exc:
-        # I4: over the process-wide OFF search budget with nothing cached. Not an empty
-        # result: the client should say "busy, try again" and may retry after Retry-After.
+        # I4: over the process-wide OFF search budget with nothing cached. Our own hits
+        # are still useful: return them flagged. With none, it is not an empty result:
+        # 503, so the client says "busy, try again" (Retry-After).
+        if hits:
+            return [h.model_copy(update={"off_degraded": True}) for h in hits]
         raise ApiError(
             "off_unavailable", 503, headers={"Retry-After": str(exc.retry_after)}
         ) from None

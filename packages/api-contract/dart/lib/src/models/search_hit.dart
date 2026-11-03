@@ -21,6 +21,7 @@ class SearchHit {
     required this.name,
     required this.productId,
     required this.source,
+    this.offDegraded = false,
   });
 
   factory SearchHit.fromJson(Map<String, Object?> json) =>
@@ -34,6 +35,10 @@ class SearchHit {
   /// Nutri-Score calculated by SmartNutri; null if unknown
   final NutriScoreGrade? grade;
   final String name;
+
+  /// true when the Open Food Facts search budget was spent and only our own catalogue is returned; clients show a small 'more results later' note
+  @JsonKey(name: 'off_degraded')
+  final bool offDegraded;
   @JsonKey(name: 'product_id')
   final String? productId;
   final SearchHitSource source;

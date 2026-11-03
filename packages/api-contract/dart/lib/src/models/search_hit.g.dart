@@ -16,6 +16,7 @@ SearchHit _$SearchHitFromJson(Map<String, dynamic> json) => SearchHit(
   name: json['name'] as String,
   productId: json['product_id'] as String?,
   source: SearchHitSource.fromJson(json['source'] as String),
+  offDegraded: json['off_degraded'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$SearchHitToJson(SearchHit instance) => <String, dynamic>{
@@ -24,6 +25,7 @@ Map<String, dynamic> _$SearchHitToJson(SearchHit instance) => <String, dynamic>{
   'brand': instance.brand,
   'grade': _$NutriScoreGradeEnumMap[instance.grade],
   'name': instance.name,
+  'off_degraded': instance.offDegraded,
   'product_id': instance.productId,
   'source': _$SearchHitSourceEnumMap[instance.source]!,
 };

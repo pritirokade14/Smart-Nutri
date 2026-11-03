@@ -3028,6 +3028,12 @@
             "title": "Name",
             "type": "string"
           },
+          "off_degraded": {
+            "default": false,
+            "description": "true when the Open Food Facts search budget was spent and only our own catalogue is returned; clients show a small 'more results later' note",
+            "title": "Off Degraded",
+            "type": "boolean"
+          },
           "product_id": {
             "anyOf": [
               {
@@ -5542,7 +5548,7 @@
     },
     "/v1/products/search": {
       "get": {
-        "description": "Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.\n\nOpen Food Facts search calls are capped for the whole server; over the cap a cached\nresult is served, else 503 ``off_unavailable`` with Retry-After.",
+        "description": "Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.\n\nOpen Food Facts search calls are capped for the whole server; over the cap a cached\nresult is served, else our own hits come back with ``off_degraded`` true, and\nonly with no local hits either 503 ``off_unavailable`` with Retry-After.",
         "operationId": "products_search",
         "parameters": [
           {
@@ -5643,7 +5649,7 @@
                 }
               }
             },
-            "description": "off_unavailable: the Open Food Facts search budget is used up and nothing is cached for this query; retry after Retry-After seconds"
+            "description": "off_unavailable: the Open Food Facts search budget is used up, nothing is cached for this query and we have no local hits; retry after Retry-After seconds"
           }
         },
         "security": [
