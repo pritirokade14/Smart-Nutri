@@ -900,7 +900,11 @@
     }
   },
   "reportButton": "समस्या बताएँ",
+  "reportCancel": "रद्द करें",
+  "reportClose": "बंद करें",
+  "reportNoteHint": "कृपया निजी या स्वास्थ्य से जुड़ी जानकारी न लिखें।",
   "reportNoteLabel": "और बताएँ (वैकल्पिक)",
+  "reportReasonLabel": "क्या गलत है?",
   "reportReasonOther": "कुछ और",
   "reportReasonWrongIngredients": "सामग्री गलत है",
   "reportReasonWrongProduct": "यह कोई दूसरा उत्पाद है",
@@ -1179,18 +1183,38 @@
   "verdictStatusOk": "ठीक है",
   "verdictStatusUnknown": "लेबल स्पष्ट नहीं",
   "voiceAiUnavailable": "आवाज़ वाले जवाब अभी उपलब्ध नहीं हैं। कृपया बाद में फिर कोशिश करें।",
+  "voiceAnswerTitle": "जवाब",
   "voiceButtonHold": "पूछने के लिए दबाकर रखें",
   "voiceClose": "बंद करें",
+  "voiceElapsed": "30 में से {seconds} सेकंड",
+  "@voiceElapsed": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceHint": "बटन दबाकर रखें, इस उत्पाद के बारे में पूछें, फिर छोड़ दें। शुरू करने के लिए Space दबाएँ और भेजने के लिए फिर से दबाएँ।",
   "voiceMicDenied": "माइक्रोफ़ोन की अनुमति बंद है। आवाज़ से पूछने के लिए सेटिंग्स में इसे चालू करें।",
+  "voiceNoMic": "इस डिवाइस पर माइक्रोफ़ोन नहीं मिला।",
   "voiceNotUnderstood": "हमें कोई सवाल सुनाई नहीं दिया। बटन दबाए रखें और साफ़ बोलें।",
   "voicePlaying": "जवाब सुनाया जा रहा है",
   "voiceRateLimited": "आज के आवाज़ वाले सवालों की सीमा पूरी हो गई है।",
   "voiceRecording": "सुन रहे हैं… भेजने के लिए छोड़ें",
   "voiceReplay": "फिर से सुनें",
   "voiceThinking": "आपका जवाब तैयार हो रहा है…",
+  "voiceTitle": "सवाल पूछें",
   "voiceTooLong": "कृपया अपना सवाल 30 सेकंड से छोटा रखें।",
   "voiceUnsupportedBrowser": "इस ब्राउज़र में आवाज़ से सवाल नहीं पूछे जा सकते। Chrome, Edge या Firefox का नया संस्करण आज़माएँ।",
   "voiceWordSafe": "सुरक्षित",
+  "voiceYouAsked": "आपने पूछा: {question}",
+  "@voiceYouAsked": {
+    "placeholders": {
+      "question": {
+        "type": "String"
+      }
+    }
+  },
   "warningBasisMismatch": "हम समझ नहीं पाए कि ये मान प्रति 100 g हैं या प्रति सर्विंग। पैक पर जो दिखे, वह चुनें।",
   "warningCategoryCheck": "जाँचें कि उत्पाद का प्रकार सही है, क्योंकि इससे मानों को पढ़ने का तरीका बदलता है।",
   "warningCategoryUnknown": "हम समझ नहीं पाए कि यह किस तरह का उत्पाद है। एक चुनें।",

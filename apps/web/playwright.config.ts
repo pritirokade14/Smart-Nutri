@@ -37,6 +37,7 @@ export default defineConfig({
         NEXT_PUBLIC_SITE_URL: baseURL,
         NEXT_PUBLIC_FEATURE_PHONE_OTP: "false",
         NEXT_PUBLIC_FEATURE_EMAIL_OTP: "true",
+        NEXT_PUBLIC_FEATURE_VOICE: "false",
       },
       reuseExistingServer: false,
       timeout: 120_000,

@@ -35,4 +35,12 @@ describe("securityHeaders", () => {
       "img-src 'self' data: blob: https://images.openfoodfacts.org",
     );
   });
+
+  it("lets voice answers play from Supabase Storage only (media-src)", () => {
+    const csp = securityHeaders("n")["Content-Security-Policy"];
+    expect(csp).toContain("media-src 'self' blob: http://127.0.0.1:54321");
+    expect(securityHeaders("n")["Permissions-Policy"]).toContain(
+      "microphone=(self)",
+    );
+  });
 });

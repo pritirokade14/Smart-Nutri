@@ -187,3 +187,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 7 Task 11 (web: Report a problem)
 - [ ] **hi/mr `report.{reason_label,note_hint,cancel,close}`**: machine drafts. `note_hint` must clearly ask people not to type personal or health details into the free-text note.
+
+## Plan 7 Task 10 (web: push-to-talk voice)
+- [ ] **hi/mr `voice.{title,hint,elapsed,no_mic,you_asked,answer_title}`**: machine drafts. `hint` names the Space key (keep "Space" in Latin script). `you_asked` shows the transcript back; check it reads naturally with a quoted question.

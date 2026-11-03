@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useId, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 import { ReasonList } from "@/components/ui/ReasonList";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { toneOf } from "@/components/ui/verdict-tone";
@@ -23,7 +23,14 @@ import { ReasonLine } from "./ReasonLine";
  * the visible reasons; avoid, unknown and allergen_* reasons are always
  * visible (R22); only the remaining caution/ok reasons sit behind the toggle.
  */
-export function VerdictCard({ verdict }: { verdict: VerdictOut }) {
+export function VerdictCard({
+  verdict,
+  footer,
+}: {
+  verdict: VerdictOut;
+  /** Extra actions for this member (e.g. push-to-talk); never changes the verdict. */
+  footer?: ReactNode;
+}) {
   const t = useTranslations();
   const listId = useId();
   const [open, setOpen] = useState(false);
@@ -90,6 +97,7 @@ export function VerdictCard({ verdict }: { verdict: VerdictOut }) {
             />
           </div>
         ) : null}
+        {footer}
       </div>
     </article>
   );

@@ -2992,11 +2992,35 @@ abstract class AppLocalizations {
   /// **'Report a problem'**
   String get reportButton;
 
+  /// No description provided for @reportCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get reportCancel;
+
+  /// No description provided for @reportClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get reportClose;
+
+  /// No description provided for @reportNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please don\'t include personal or health details.'**
+  String get reportNoteHint;
+
   /// No description provided for @reportNoteLabel.
   ///
   /// In en, this message translates to:
   /// **'Tell us more (optional)'**
   String get reportNoteLabel;
+
+  /// No description provided for @reportReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s wrong?'**
+  String get reportReasonLabel;
 
   /// No description provided for @reportReasonOther.
   ///
@@ -3705,6 +3729,12 @@ abstract class AppLocalizations {
   /// **'Voice answers are unavailable right now. Please try again later.'**
   String get voiceAiUnavailable;
 
+  /// No description provided for @voiceAnswerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer'**
+  String get voiceAnswerTitle;
+
   /// No description provided for @voiceButtonHold.
   ///
   /// In en, this message translates to:
@@ -3717,11 +3747,29 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get voiceClose;
 
+  /// No description provided for @voiceElapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s of 30 s'**
+  String voiceElapsed(String seconds);
+
+  /// No description provided for @voiceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the button, ask about this product, then let go. Press Space to start and again to send.'**
+  String get voiceHint;
+
   /// No description provided for @voiceMicDenied.
   ///
   /// In en, this message translates to:
   /// **'Microphone access is off. Allow it in your settings to ask by voice.'**
   String get voiceMicDenied;
+
+  /// No description provided for @voiceNoMic.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find a microphone on this device.'**
+  String get voiceNoMic;
 
   /// No description provided for @voiceNotUnderstood.
   ///
@@ -3759,6 +3807,12 @@ abstract class AppLocalizations {
   /// **'Getting your answer…'**
   String get voiceThinking;
 
+  /// No description provided for @voiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question'**
+  String get voiceTitle;
+
   /// No description provided for @voiceTooLong.
   ///
   /// In en, this message translates to:
@@ -3776,6 +3830,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'safe'**
   String get voiceWordSafe;
+
+  /// No description provided for @voiceYouAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'You asked: {question}'**
+  String voiceYouAsked(String question);
 
   /// No description provided for @warningBasisMismatch.
   ///

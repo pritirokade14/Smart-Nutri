@@ -1696,7 +1696,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportButton => 'Report a problem';
 
   @override
+  String get reportCancel => 'Cancel';
+
+  @override
+  String get reportClose => 'Close';
+
+  @override
+  String get reportNoteHint =>
+      'Please don\'t include personal or health details.';
+
+  @override
   String get reportNoteLabel => 'Tell us more (optional)';
+
+  @override
+  String get reportReasonLabel => 'What\'s wrong?';
 
   @override
   String get reportReasonOther => 'Something else';
@@ -2114,14 +2127,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'Voice answers are unavailable right now. Please try again later.';
 
   @override
+  String get voiceAnswerTitle => 'Answer';
+
+  @override
   String get voiceButtonHold => 'Hold to ask';
 
   @override
   String get voiceClose => 'Close';
 
   @override
+  String voiceElapsed(String seconds) {
+    return '$seconds s of 30 s';
+  }
+
+  @override
+  String get voiceHint =>
+      'Hold the button, ask about this product, then let go. Press Space to start and again to send.';
+
+  @override
   String get voiceMicDenied =>
       'Microphone access is off. Allow it in your settings to ask by voice.';
+
+  @override
+  String get voiceNoMic => 'We couldn\'t find a microphone on this device.';
 
   @override
   String get voiceNotUnderstood =>
@@ -2144,6 +2172,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceThinking => 'Getting your answer…';
 
   @override
+  String get voiceTitle => 'Ask a question';
+
+  @override
   String get voiceTooLong => 'Please keep your question under 30 seconds.';
 
   @override
@@ -2152,6 +2183,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voiceWordSafe => 'safe';
+
+  @override
+  String voiceYouAsked(String question) {
+    return 'You asked: $question';
+  }
 
   @override
   String get warningBasisMismatch =>

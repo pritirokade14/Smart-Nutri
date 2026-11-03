@@ -25,6 +25,8 @@ export function securityHeaders(nonce: string): Record<string, string> {
     `style-src 'self' 'nonce-${nonce}'`,
     `connect-src ${connect.join(" ")}`,
     "img-src 'self' data: blob: https://images.openfoodfacts.org",
+    // Voice answers (F10) are signed mp3 URLs on Supabase Storage.
+    `media-src ${["'self'", "blob:", origin(process.env.NEXT_PUBLIC_SUPABASE_URL)].filter(Boolean).join(" ")}`,
     "font-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",

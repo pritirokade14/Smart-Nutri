@@ -18,6 +18,7 @@ import { Alternatives } from "@/features/product/components/Alternatives";
 import { ReportButton } from "@/features/reports/components/ReportDialog";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
 import { ResultShare } from "@/features/share/ResultShare";
+import { isVoiceEnabled, VoiceAsk } from "@/features/voice/components/VoiceAsk";
 import { routing } from "@/i18n/routing";
 import {
   type AnalyzeOut,
@@ -68,7 +69,10 @@ function Analysis({
           servingSizeG: product.serving_size_g,
         }
       : null;
-  const altRef: ProductRef | null = product.product_id
+  // F10, behind NEXT_PUBLIC_FEATURE_VOICE: a saved product by id, otherwise
+  // the barcode (Open Food Facts products have no product_id).
+  const voice = isVoiceEnabled();
+  const voiceProduct = product.product_id
     ? { productId: product.product_id }
     : offBarcode
       ? { barcode: offBarcode }
@@ -79,6 +83,8 @@ function Analysis({
     isPrimary: v.is_primary,
     relation: v.relation,
   }));
+  // Alternatives use the same product reference as voice.
+  const altRef: ProductRef | null = voiceProduct;
   return (
     <>
       <Card as="section" className="space-y-4">
@@ -125,7 +131,14 @@ function Analysis({
             data-testid="member-result"
             className="space-y-2"
           >
-            <VerdictCard verdict={v} />
+            <VerdictCard
+              verdict={v}
+              footer={
+                voice && voiceProduct ? (
+                  <VoiceAsk memberId={v.member_id} product={voiceProduct} />
+                ) : null
+              }
+            />
             {logProduct ? (
               <LogMealButton
                 product={logProduct}

@@ -900,7 +900,11 @@
     }
   },
   "reportButton": "समस्या कळवा",
+  "reportCancel": "रद्द करा",
+  "reportClose": "बंद करा",
+  "reportNoteHint": "कृपया वैयक्तिक किंवा आरोग्याविषयी माहिती लिहू नका.",
   "reportNoteLabel": "अधिक सांगा (ऐच्छिक)",
+  "reportReasonLabel": "काय चुकीचे आहे?",
   "reportReasonOther": "दुसरे काही",
   "reportReasonWrongIngredients": "घटक चुकीचे आहेत",
   "reportReasonWrongProduct": "हे दुसरेच उत्पादन आहे",
@@ -1179,18 +1183,38 @@
   "verdictStatusOk": "ठीक आहे",
   "verdictStatusUnknown": "लेबल स्पष्ट नाही",
   "voiceAiUnavailable": "आवाजातील उत्तरे सध्या उपलब्ध नाहीत. कृपया नंतर पुन्हा प्रयत्न करा.",
+  "voiceAnswerTitle": "उत्तर",
   "voiceButtonHold": "विचारण्यासाठी दाबून ठेवा",
   "voiceClose": "बंद करा",
+  "voiceElapsed": "30 पैकी {seconds} सेकंद",
+  "@voiceElapsed": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceHint": "बटण दाबून ठेवा, या उत्पादनाबद्दल विचारा, मग सोडा. सुरू करण्यासाठी Space दाबा आणि पाठवण्यासाठी पुन्हा दाबा.",
   "voiceMicDenied": "मायक्रोफोनची परवानगी बंद आहे. आवाजाने विचारण्यासाठी सेटिंग्जमध्ये ती सुरू करा.",
+  "voiceNoMic": "या डिव्हाइसवर मायक्रोफोन सापडला नाही.",
   "voiceNotUnderstood": "आम्हाला प्रश्न ऐकू आला नाही. बटण दाबून ठेवा आणि स्पष्ट बोला.",
   "voicePlaying": "उत्तर ऐकवले जात आहे",
   "voiceRateLimited": "आजच्या आवाजातील प्रश्नांची मर्यादा पूर्ण झाली आहे.",
   "voiceRecording": "ऐकत आहोत… पाठवण्यासाठी सोडा",
   "voiceReplay": "पुन्हा ऐका",
   "voiceThinking": "तुमचे उत्तर तयार होत आहे…",
+  "voiceTitle": "प्रश्न विचारा",
   "voiceTooLong": "कृपया तुमचा प्रश्न 30 सेकंदांपेक्षा लहान ठेवा.",
   "voiceUnsupportedBrowser": "या ब्राउझरमध्ये आवाजाने प्रश्न विचारता येत नाहीत. Chrome, Edge किंवा Firefox ची नवी आवृत्ती वापरून पाहा.",
   "voiceWordSafe": "सुरक्षित",
+  "voiceYouAsked": "तुम्ही विचारले: {question}",
+  "@voiceYouAsked": {
+    "placeholders": {
+      "question": {
+        "type": "String"
+      }
+    }
+  },
   "warningBasisMismatch": "ही मूल्ये प्रति 100 g आहेत की प्रति सर्व्हिंग हे आम्हाला समजले नाही. पॅकवर जे दिसते ते निवडा.",
   "warningCategoryCheck": "उत्पादनाचा प्रकार बरोबर आहे का ते तपासा, कारण त्यामुळे मूल्ये वाचण्याची पद्धत बदलते.",
   "warningCategoryUnknown": "हे कोणत्या प्रकारचे उत्पादन आहे हे आम्हाला समजले नाही. एक निवडा.",

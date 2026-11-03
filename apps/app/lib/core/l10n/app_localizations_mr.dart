@@ -1700,7 +1700,20 @@ class AppLocalizationsMr extends AppLocalizations {
   String get reportButton => 'समस्या कळवा';
 
   @override
+  String get reportCancel => 'रद्द करा';
+
+  @override
+  String get reportClose => 'बंद करा';
+
+  @override
+  String get reportNoteHint =>
+      'कृपया वैयक्तिक किंवा आरोग्याविषयी माहिती लिहू नका.';
+
+  @override
   String get reportNoteLabel => 'अधिक सांगा (ऐच्छिक)';
+
+  @override
+  String get reportReasonLabel => 'काय चुकीचे आहे?';
 
   @override
   String get reportReasonOther => 'दुसरे काही';
@@ -2119,14 +2132,29 @@ class AppLocalizationsMr extends AppLocalizations {
       'आवाजातील उत्तरे सध्या उपलब्ध नाहीत. कृपया नंतर पुन्हा प्रयत्न करा.';
 
   @override
+  String get voiceAnswerTitle => 'उत्तर';
+
+  @override
   String get voiceButtonHold => 'विचारण्यासाठी दाबून ठेवा';
 
   @override
   String get voiceClose => 'बंद करा';
 
   @override
+  String voiceElapsed(String seconds) {
+    return '30 पैकी $seconds सेकंद';
+  }
+
+  @override
+  String get voiceHint =>
+      'बटण दाबून ठेवा, या उत्पादनाबद्दल विचारा, मग सोडा. सुरू करण्यासाठी Space दाबा आणि पाठवण्यासाठी पुन्हा दाबा.';
+
+  @override
   String get voiceMicDenied =>
       'मायक्रोफोनची परवानगी बंद आहे. आवाजाने विचारण्यासाठी सेटिंग्जमध्ये ती सुरू करा.';
+
+  @override
+  String get voiceNoMic => 'या डिव्हाइसवर मायक्रोफोन सापडला नाही.';
 
   @override
   String get voiceNotUnderstood =>
@@ -2149,6 +2177,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get voiceThinking => 'तुमचे उत्तर तयार होत आहे…';
 
   @override
+  String get voiceTitle => 'प्रश्न विचारा';
+
+  @override
   String get voiceTooLong => 'कृपया तुमचा प्रश्न 30 सेकंदांपेक्षा लहान ठेवा.';
 
   @override
@@ -2157,6 +2188,11 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get voiceWordSafe => 'सुरक्षित';
+
+  @override
+  String voiceYouAsked(String question) {
+    return 'तुम्ही विचारले: $question';
+  }
 
   @override
   String get warningBasisMismatch =>

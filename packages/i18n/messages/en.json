@@ -689,6 +689,12 @@
     "not_understood": "We couldn't hear a question. Hold the button and speak clearly.",
     "rate_limited": "You've reached today's voice-question limit.",
     "ai_unavailable": "Voice answers are unavailable right now. Please try again later.",
+    "title": "Ask a question",
+    "hint": "Hold the button, ask about this product, then let go. Press Space to start and again to send.",
+    "elapsed": "{seconds} s of 30 s",
+    "no_mic": "We couldn't find a microphone on this device.",
+    "you_asked": "You asked: {question}",
+    "answer_title": "Answer",
     "close": "Close",
     "replay": "Play again"
   },
