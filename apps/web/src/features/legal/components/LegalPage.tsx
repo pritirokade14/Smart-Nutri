@@ -23,6 +23,8 @@ export async function legalMetadata(
     title: t(`legal.${kind}_title`),
     description: t(`legal.${kind}_description`),
     alternates: localeAlternates(locale, (l) => `/${l}/${kind}`),
+    // Drafts: not indexed until a lawyer signs them off (final-fix I6).
+    robots: { index: false, follow: true },
   };
 }
 

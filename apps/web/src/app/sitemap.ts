@@ -4,7 +4,9 @@ import { metadataBase } from "@/lib/seo";
 
 // The fixed public pages, in every locale with hreflang alternates. Product
 // pages (/p/<barcode>) are not listed: there is no public product index yet.
-const PAGES = ["", "/how-we-score", "/privacy", "/terms"] as const;
+// /privacy and /terms are left out (and noindex) until a lawyer signs the
+// drafts off.
+const PAGES = ["", "/how-we-score"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = metadataBase();

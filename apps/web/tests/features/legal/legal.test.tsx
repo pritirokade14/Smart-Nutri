@@ -10,6 +10,7 @@ import PrivacyPage, {
   generateMetadata as privacyMetadata,
 } from "@/app/[locale]/(public)/privacy/page";
 import TermsPage from "@/app/[locale]/(public)/terms/page";
+import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { AppShell } from "@/components/shell/AppShell";
 import { SiteFooter } from "@/components/shell/SiteFooter";
@@ -166,6 +167,8 @@ describe("privacy and terms pages", () => {
       params: Promise.resolve({ locale: "hi" }),
     });
     expect(meta.title).toBe(hi.legal.privacy_title);
+    // I6: noindex until a lawyer signs the drafts off.
+    expect(meta.robots).toEqual({ index: false, follow: true });
     expect(meta.alternates?.languages).toEqual({
       en: "/en/privacy",
       hi: "/hi/privacy",
@@ -206,16 +209,33 @@ describe("sitemap", () => {
   it("lists the public pages in every locale with hreflang alternates", () => {
     const urls = sitemap().map((e) => e.url);
     for (const l of ["en", "hi", "mr"])
-      for (const p of ["", "/how-we-score", "/privacy", "/terms"])
+      for (const p of ["", "/how-we-score"])
         expect(urls).toContain(`http://localhost:3000/${l}${p}`);
     expect(urls.some((u) => /home|profile|sign-in|\/p\//.test(u))).toBe(false);
-    const privacy = sitemap().find(
-      (e) => e.url === "http://localhost:3000/en/privacy",
+    const how = sitemap().find(
+      (e) => e.url === "http://localhost:3000/en/how-we-score",
     );
-    expect(privacy?.alternates?.languages).toEqual({
-      en: "http://localhost:3000/en/privacy",
-      hi: "http://localhost:3000/hi/privacy",
-      mr: "http://localhost:3000/mr/privacy",
+    expect(how?.alternates?.languages).toEqual({
+      en: "http://localhost:3000/en/how-we-score",
+      hi: "http://localhost:3000/hi/how-we-score",
+      mr: "http://localhost:3000/mr/how-we-score",
     });
+  });
+
+  it("leaves the draft legal pages out until lawyer sign-off (I6)", () => {
+    const urls = sitemap().map((e) => e.url);
+    expect(urls.some((u) => /\/(privacy|terms)$/.test(u))).toBe(false);
+  });
+});
+
+describe("robots.txt", () => {
+  it("allows the public pages and disallows the app routes", () => {
+    const r = robots();
+    const rule = Array.isArray(r.rules) ? r.rules[0] : r.rules;
+    expect(rule.allow).toEqual(expect.arrayContaining(["/"]));
+    const dis = ([] as string[]).concat(rule.disallow ?? []);
+    for (const p of ["/api/", "/auth/", "/*/home", "/*/scan", "/*/history"])
+      expect(dis).toContain(p);
+    expect(r.sitemap).toBe("http://localhost:3000/sitemap.xml");
   });
 });

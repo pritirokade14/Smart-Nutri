@@ -14,7 +14,7 @@ export async function generateMetadata({
   return legalMetadata("privacy", (await params).locale);
 }
 
-// Public and indexable (proxy PUBLIC): the policy text only.
+// Public but noindex until lawyer sign-off (proxy PUBLIC): the policy text only.
 export default async function PrivacyPage({ params }: { params: Params }) {
   return <LegalPage kind="privacy" locale={(await params).locale} />;
 }
