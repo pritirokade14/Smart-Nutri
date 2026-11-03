@@ -34,7 +34,8 @@ api:
 web:
     pnpm --filter @smartnutri/web dev
 
-# Flutter app on a connected Android device/emulator
+# Flutter app on a connected Android device/emulator. env/dev.json (git-ignored) holds the
+# public dart-defines listed in apps/app/env/example.json, incl. SITE_URL and FEATURE_VOICE
 android:
     cd apps/app && flutter run -d android --dart-define-from-file=env/dev.json
 
@@ -79,6 +80,7 @@ docker-web:
         --build-arg NEXT_PUBLIC_SENTRY_DSN="${NEXT_PUBLIC_SENTRY_DSN:-}" \
         --build-arg NEXT_PUBLIC_FEATURE_PHONE_OTP="${NEXT_PUBLIC_FEATURE_PHONE_OTP:-false}" \
         --build-arg NEXT_PUBLIC_FEATURE_EMAIL_OTP="${NEXT_PUBLIC_FEATURE_EMAIL_OTP:-false}" \
+        --build-arg NEXT_PUBLIC_FEATURE_VOICE="${NEXT_PUBLIC_FEATURE_VOICE:-false}" \
         .
 
 # ---------- generated code (never hand-edit the outputs) ----------
