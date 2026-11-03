@@ -1,13 +1,30 @@
+import logging
 from collections.abc import Sequence
 from uuid import UUID
 
-from sqlalchemy import func, select, text, update
+from sqlalchemy import any_, case, func, select, text, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.errors import ApiError
 from app.core.security import AccountContext, auth_invalid_error
-from app.features.me.models import Account, DeletedAccount
+from app.features.consents import service as consents_service
+from app.features.me.models import Account, AccountUserTypes, DeletedAccount
+from app.features.me.schemas import (
+    DEFAULT_TYPE,
+    FOLLOW_UP_TYPE,
+    HEALTH_FOLLOW_UPS,
+    HEALTH_REVEALING_TYPES,
+    USER_TYPE_PRIORITY,
+    FollowUps,
+    PrefillSuggestion,
+    UserType,
+    UserTypesIn,
+    UserTypesOut,
+)
 from app.integrations.storage import StorageClient
+
+logger = logging.getLogger(__name__)
 
 
 def _default_display_name(email: str | None) -> str | None:
@@ -69,6 +86,7 @@ ACCOUNT_OWNED_TABLES: tuple[str, ...] = (
     "members",
     "scans",
     "product_reports",
+    "account_user_types",  # Plan 9 (P9-R1)
     "consents",
 )
 
@@ -147,3 +165,132 @@ async def mark_auth_deleted(session: AsyncSession, account_ids: Sequence[UUID]) 
         .where(DeletedAccount.id.in_(list(account_ids)))
         .values(auth_deleted_at=func.now())
     )
+
+
+# --- user types (Plan 9 Task 1, rulings P9-R1..R4, P9-R8) ------------------------------------
+#
+# Presentation only: nothing here reads or writes a member, and nothing is sent to analytics.
+# Logs carry the count only, never the types or the follow-ups.
+
+
+def resolve_active_type(types: Sequence[str], stored: str | None) -> UserType:
+    """The stored mode if it is still selected, else the chosen type with the highest
+    safety-first priority (P9-R4), else `eat_better` (P9-R3)."""
+    if stored is not None and stored in types:
+        return stored  # type: ignore[return-value]
+    for candidate in USER_TYPE_PRIORITY:
+        if candidate in types:
+            return candidate
+    return DEFAULT_TYPE
+
+
+def user_types_out(
+    row: AccountUserTypes | None, prefill: PrefillSuggestion | None = None
+) -> UserTypesOut:
+    if row is None:
+        return UserTypesOut(
+            types=[],
+            follow_ups=FollowUps(),
+            active_type=DEFAULT_TYPE,
+            answered=False,
+            answered_at=None,
+            prefill=None,
+        )
+    return UserTypesOut(
+        types=list(row.types),  # type: ignore[arg-type]
+        follow_ups=FollowUps.model_validate(row.follow_ups or {}),
+        active_type=resolve_active_type(row.types, row.active_type),
+        answered=True,
+        answered_at=row.answered_at,
+        prefill=prefill,
+    )
+
+
+async def get_user_types(session: AsyncSession, account_id: UUID) -> AccountUserTypes | None:
+    """The account's row, or None if the user has not answered yet. Read-only."""
+    return await session.scalar(
+        select(AccountUserTypes)
+        .where(AccountUserTypes.account_id == account_id)
+        .execution_options(populate_existing=True)
+    )
+
+
+def _needs_health_consent(body: UserTypesIn) -> bool:
+    return any(t in HEALTH_REVEALING_TYPES for t in body.types) or any(
+        f in HEALTH_FOLLOW_UPS for f in body.follow_ups.given()
+    )
+
+
+async def put_user_types(
+    session: AsyncSession, account_id: UUID, body: UserTypesIn
+) -> AccountUserTypes:
+    """Save the types and follow-ups (an upsert; never commits). Nothing is written on error.
+
+    - 403 `consent_required` (`details.purposes = ["health_data"]`) for a health-revealing
+      type or a health follow-up without an active `health_data` consent.
+    - 422 `follow_up_without_type` for a follow-up whose type is not chosen.
+
+    `active_type` is kept only while it is still one of the new types; otherwise it becomes
+    null and is resolved on read. Member data is never touched (removing a type clears
+    nothing).
+    """
+    if _needs_health_consent(body) and not await consents_service.has_active_consent(
+        session, account_id, "health_data"
+    ):
+        raise ApiError("consent_required", 403, details={"purposes": ["health_data"]})
+    if any(FOLLOW_UP_TYPE[f] not in body.types for f in body.follow_ups.given()):
+        raise ApiError("follow_up_without_type", 422)
+
+    types = list(body.types)
+    follow_ups = body.follow_ups.model_dump(mode="json", exclude_none=True)
+    stmt = insert(AccountUserTypes).values(
+        account_id=account_id, types=types, follow_ups=follow_ups
+    )
+    stmt = stmt.on_conflict_do_update(
+        index_elements=[AccountUserTypes.account_id],
+        set_={
+            "types": stmt.excluded.types,
+            "follow_ups": stmt.excluded.follow_ups,
+            "active_type": case(
+                (
+                    AccountUserTypes.active_type == any_(stmt.excluded.types),
+                    AccountUserTypes.active_type,
+                ),
+                else_=None,
+            ),
+            "updated_at": func.now(),
+        },
+    ).returning(AccountUserTypes)
+    row = await session.scalar(stmt, execution_options={"populate_existing": True})
+    await session.flush()
+    logger.info("user_types status=saved count=%d", len(types))
+    return row  # type: ignore[return-value]
+
+
+async def set_active_type(
+    session: AsyncSession, account_id: UUID, active_type: UserType
+) -> AccountUserTypes:
+    """Switch the focused mode (never commits). Needs no consent: it reveals nothing new, and
+    after a withdrawal the stored types still drive the layout (ADR 0018).
+
+    404 `user_types_not_found` without a row; 422 `user_type_not_selected` unless the mode is
+    one of the stored types (or `eat_better` when the user skipped).
+    """
+    row = await session.scalar(
+        select(AccountUserTypes)
+        .where(AccountUserTypes.account_id == account_id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    if row is None:
+        raise ApiError("user_types_not_found", 404)
+    if active_type in row.types:
+        row.active_type = active_type
+    elif not row.types and active_type == DEFAULT_TYPE:
+        row.active_type = None  # the check constraint needs one of `types`; null resolves here
+    else:
+        raise ApiError("user_type_not_selected", 422)
+    row.updated_at = func.now()
+    await session.flush()
+    await session.refresh(row)
+    return row

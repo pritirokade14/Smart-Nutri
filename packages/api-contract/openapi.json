@@ -1,6 +1,27 @@
 {
   "components": {
     "schemas": {
+      "ActiveTypeIn": {
+        "properties": {
+          "active_type": {
+            "enum": [
+              "health_condition",
+              "family",
+              "weight_loss",
+              "gym",
+              "allergy_diet",
+              "eat_better"
+            ],
+            "title": "Active Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "active_type"
+        ],
+        "title": "ActiveTypeIn",
+        "type": "object"
+      },
       "AlternativeOut": {
         "description": "A product in the same Open Food Facts category with a strictly better Nutri-Score\n(calculated by SmartNutri). Open it with ``products_get_by_barcode``.",
         "properties": {
@@ -961,6 +982,140 @@
           "member_refs"
         ],
         "title": "ExplanationOut",
+        "type": "object"
+      },
+      "FollowUps": {
+        "additionalProperties": false,
+        "description": "At most one short follow-up per type (decision 4). `weight_loss` has none.\n\nThese are the user's answers, stored as given. They never change a member: pre-fill only\nsuggests member changes, which the user confirms (Task 2).",
+        "properties": {
+          "alerts": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "palm_oil",
+                    "maida",
+                    "added_sugar",
+                    "artificial_sweetener",
+                    "msg"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alerts"
+          },
+          "allergens": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "milk",
+                    "peanut",
+                    "gluten",
+                    "soy",
+                    "egg",
+                    "tree_nut",
+                    "sesame",
+                    "fish",
+                    "crustacean",
+                    "mustard",
+                    "sulphite"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 11,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allergens"
+          },
+          "conditions": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "diabetes",
+                    "prediabetes",
+                    "pcos",
+                    "hypertension"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conditions"
+          },
+          "diet": {
+            "anyOf": [
+              {
+                "enum": [
+                  "veg",
+                  "eggetarian",
+                  "vegan",
+                  "jain",
+                  "non_veg"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diet"
+          },
+          "family_with": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "children",
+                    "parents",
+                    "partner",
+                    "others"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family With"
+          },
+          "gym_goal": {
+            "anyOf": [
+              {
+                "enum": [
+                  "build_muscle",
+                  "lose_fat",
+                  "stay_fit"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gym Goal"
+          }
+        },
+        "title": "FollowUps",
         "type": "object"
       },
       "HealthOut": {
@@ -2180,6 +2335,137 @@
         "title": "NutrientsOut",
         "type": "object"
       },
+      "PrefillChange": {
+        "description": "One suggested change to the primary member. Never applied by the API: the client sends\n`value` in `PATCH /v1/members/{member_id}` only if the user confirms it.",
+        "properties": {
+          "added": {
+            "description": "List fields: what is new (display); [] for diet/goal",
+            "items": {
+              "type": "string"
+            },
+            "title": "Added",
+            "type": "array"
+          },
+          "current": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The primary member's value now",
+            "title": "Current"
+          },
+          "field": {
+            "enum": [
+              "conditions",
+              "allergens",
+              "diet",
+              "goal",
+              "custom_alerts"
+            ],
+            "title": "Field",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Which type suggested it (display only)",
+            "enum": [
+              "health_condition",
+              "family",
+              "weight_loss",
+              "gym",
+              "allergy_diet",
+              "eat_better"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "The FULL new value to send in MemberPatch if confirmed (never a removal)",
+            "title": "Value"
+          }
+        },
+        "required": [
+          "field",
+          "current",
+          "value",
+          "added",
+          "reason"
+        ],
+        "title": "PrefillChange",
+        "type": "object"
+      },
+      "PrefillSuggestion": {
+        "description": "Suggestions for the account holder's own member, recomputed from the member on every\nread, so it is empty once the user has confirmed (Task 2, P9-R9).",
+        "properties": {
+          "changes": {
+            "description": "[] means nothing to confirm: the client skips the review screen",
+            "items": {
+              "$ref": "#/components/schemas/PrefillChange"
+            },
+            "title": "Changes",
+            "type": "array"
+          },
+          "goal_choice": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "healthy_eating",
+                    "weight_loss",
+                    "weight_gain"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Goal conflict (weight loss and gym 'build muscle'): no goal change is in `changes`; the user picks one of these or neither",
+            "title": "Goal Choice"
+          },
+          "member_id": {
+            "description": "Always the primary member (relation self)",
+            "format": "uuid",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "needs_health_consent": {
+            "description": "A change touches a health field and `health_data` is not active",
+            "title": "Needs Health Consent",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "member_id",
+          "changes",
+          "goal_choice",
+          "needs_health_consent"
+        ],
+        "title": "PrefillSuggestion",
+        "type": "object"
+      },
       "PrintedNutrients": {
         "description": "One nutrition-table column exactly as the pack prints it (see `ProductCreate.basis`).\n\nNumbers only, no arithmetic: the server converts the basis and the sodium unit. A value\nnot printed (or blanked by the user) is null, never 0. The nine engine fields are\nrequired (send null when not printed); `added_sugars_g` and `trans_fat_g` are optional\nand shown only, never engine inputs.",
         "properties": {
@@ -3233,6 +3519,109 @@
         "title": "UploadUrlOut",
         "type": "object"
       },
+      "UserTypesIn": {
+        "description": "`types == []` is \"Skip for now\" (P9-R3). The order is the user's tap order.",
+        "properties": {
+          "follow_ups": {
+            "$ref": "#/components/schemas/FollowUps"
+          },
+          "types": {
+            "items": {
+              "enum": [
+                "health_condition",
+                "family",
+                "weight_loss",
+                "gym",
+                "allergy_diet",
+                "eat_better"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "types"
+        ],
+        "title": "UserTypesIn",
+        "type": "object"
+      },
+      "UserTypesOut": {
+        "properties": {
+          "active_type": {
+            "description": "Resolved: the stored value if still selected, else the highest-priority chosen type, else eat_better",
+            "enum": [
+              "health_condition",
+              "family",
+              "weight_loss",
+              "gym",
+              "allergy_diet",
+              "eat_better"
+            ],
+            "title": "Active Type",
+            "type": "string"
+          },
+          "answered": {
+            "description": "False until the first PUT: clients show the picker",
+            "title": "Answered",
+            "type": "boolean"
+          },
+          "answered_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answered At"
+          },
+          "follow_ups": {
+            "$ref": "#/components/schemas/FollowUps"
+          },
+          "prefill": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PrefillSuggestion"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Suggested changes to the primary member (null until answered)"
+          },
+          "types": {
+            "description": "The user's tap order",
+            "items": {
+              "enum": [
+                "health_condition",
+                "family",
+                "weight_loss",
+                "gym",
+                "allergy_diet",
+                "eat_better"
+              ],
+              "type": "string"
+            },
+            "title": "Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "types",
+          "follow_ups",
+          "active_type",
+          "answered",
+          "answered_at",
+          "prefill"
+        ],
+        "title": "UserTypesOut",
+        "type": "object"
+      },
       "VerdictOut": {
         "properties": {
           "is_primary": {
@@ -3911,6 +4300,265 @@
           }
         ],
         "summary": "Me Get",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/user-types": {
+      "get": {
+        "description": "The account's user types. Without an answer yet: `answered=false`, `types=[]` and the\n`eat_better` mode (clients then show the picker).",
+        "operationId": "me_user_types_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTypesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Me User Types Get",
+        "tags": [
+          "me"
+        ]
+      },
+      "put": {
+        "description": "Save up to 3 types (tap order) and their follow-ups; `types=[]` is \"Skip for now\".\n\nPresentation only: it never changes a member or a verdict. 422 `validation_error` for more\nthan 3 types or duplicates; 422 `follow_up_without_type` for a follow-up whose type is not\nchosen.",
+        "operationId": "me_user_types_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserTypesIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTypesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required (details.purposes = ['health_data']): a health-revealing type (health_condition, weight_loss, allergy_diet) or a health follow-up (conditions, allergens, diet) needs the health_data consent. Nothing is saved."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Me User Types Put",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/v1/me/user-types/active": {
+      "patch": {
+        "description": "Switch the focused mode. Needs no consent. 404 `user_types_not_found` before the first\nPUT; 422 `user_type_not_selected` unless it is one of the chosen types (or `eat_better`\nafter \"Skip for now\").",
+        "operationId": "me_user_types_set_active",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveTypeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTypesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Me User Types Set Active",
         "tags": [
           "me"
         ]

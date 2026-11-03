@@ -1,6 +1,8 @@
+import pytest
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.pool import NullPool
 
 from alembic import command
@@ -14,10 +16,82 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert (
-            MigrationContext.configure(conn).get_current_revision() == "0005_plan8_tombstone_auth"
-        )
+        assert MigrationContext.configure(conn).get_current_revision() == "0006_plan9_user_types"
     engine.dispose()
+
+
+def test_user_types_downgrades_cleanly(migrated):
+    """Plan 9 (P9-R1): account_user_types comes and goes with 0006, with forced RLS, its
+    owner policy, SELECT-only for users and its check constraints."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0005_plan8_tombstone_auth")
+        with engine.connect() as conn:
+            assert "account_user_types" not in inspect(conn).get_table_names()
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    "select relrowsecurity, relforcerowsecurity from pg_class "
+                    "where oid = 'public.account_user_types'::regclass"
+                )
+            ).one()
+            assert tuple(row) == (True, True)
+            policies = conn.execute(
+                text(
+                    "select policyname, cmd from pg_policies where tablename = 'account_user_types'"
+                )
+            ).all()
+            assert [tuple(p) for p in policies] == [("account_user_types_owner", "ALL")]
+            checks = {c["name"] for c in inspect(conn).get_check_constraints("account_user_types")}
+            assert checks == {
+                "ck_account_user_types_user_types",
+                "ck_account_user_types_active_type",
+            }
+            for role, expected in (("anon", False), ("authenticated", True)):
+                granted = conn.execute(
+                    text("select has_table_privilege(:r, 'public.account_user_types', 'SELECT')"),
+                    {"r": role},
+                ).scalar()
+                assert granted is expected, role
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
+def test_user_types_check_constraints(migrated):
+    """The table refuses more than 3 types, unknown types and an unselected active type."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    bad = (
+        "'{gym,family,weight_loss,eat_better}', null",
+        "'{yoga}', null",
+        "'{gym}', 'family'",
+        "'{}', 'eat_better'",
+    )
+    try:
+        with engine.connect() as conn:
+            acc = conn.execute(
+                text("insert into accounts (id) values (gen_random_uuid()) returning id")
+            ).scalar_one()
+            for values in bad:
+                with pytest.raises(IntegrityError), conn.begin_nested():
+                    conn.execute(
+                        text(
+                            "insert into account_user_types (account_id, types, active_type) "
+                            f"values (:a, {values})"
+                        ),
+                        {"a": acc},
+                    )
+            conn.execute(
+                text(
+                    "insert into account_user_types (account_id, types, active_type) "
+                    "values (:a, '{gym,family}', 'family')"
+                ),
+                {"a": acc},
+            )
+            conn.rollback()
+    finally:
+        engine.dispose()
 
 
 def test_tombstone_auth_deleted_column_downgrades_cleanly(migrated):
@@ -153,7 +227,7 @@ def test_models_match_migration(migrated):
 
 def test_orm_class_names():
     from app.features.consents.models import Consent
-    from app.features.me.models import Account, DeletedAccount
+    from app.features.me.models import Account, AccountUserTypes, DeletedAccount
     from app.features.meals.models import MealLog
     from app.features.members.models import Member
     from app.features.products.models import OffProductCache, Product
@@ -165,6 +239,7 @@ def test_orm_class_names():
         c.__tablename__
         for c in (
             Account,
+            AccountUserTypes,
             DeletedAccount,
             Member,
             Consent,

@@ -211,3 +211,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Search degraded note (follow-up a)
 - [ ] **hi/mr `search.off_degraded`**: machine drafts. A small note under search results when the product-database search budget is spent and only SmartNutri products are shown ("more results will be added later"). Neutral, no blame.
+
+## Plan 9 Tasks 1-2 (API errors: user types)
+- [ ] **hi/mr `error.user_type_not_selected`, `error.follow_up_without_type`, `error.user_types_not_found`**: machine drafts. Neutral, no blame; they must not name a health type or condition.

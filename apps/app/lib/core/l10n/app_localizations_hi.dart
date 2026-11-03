@@ -627,6 +627,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'लेबल पढ़ने की सुविधा अभी उपलब्ध नहीं है। बाद में फिर कोशिश करें या जानकारी खुद भरें।';
 
   @override
+  String get errorFollowUpWithoutType =>
+      'कृपया अपने जवाब जाँचें और फिर से कोशिश करें।';
+
+  @override
   String get errorForbidden => 'आपके पास इसकी पहुँच नहीं है।';
 
   @override
@@ -728,6 +732,14 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get errorUnsupportedImage =>
       'कृपया JPEG, PNG या WebP फ़ोटो इस्तेमाल करें।';
+
+  @override
+  String get errorUserTypeNotSelected =>
+      'अपने लिए चुने गए विकल्पों में से एक चुनें।';
+
+  @override
+  String get errorUserTypesNotFound =>
+      'पहले बताइए कि आप SmartNutri क्यों इस्तेमाल कर रहे हैं।';
 
   @override
   String get errorValidationError => 'कृपया चिह्नित फ़ील्ड जाँचें।';

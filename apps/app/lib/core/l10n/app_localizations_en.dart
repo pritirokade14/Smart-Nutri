@@ -622,6 +622,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Label reading is unavailable right now. Try again later or enter the details manually.';
 
   @override
+  String get errorFollowUpWithoutType =>
+      'Please check your answers and try again.';
+
+  @override
   String get errorForbidden => 'You don\'t have access to this.';
 
   @override
@@ -723,6 +727,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnsupportedImage => 'Please use a JPEG, PNG or WebP photo.';
+
+  @override
+  String get errorUserTypeNotSelected =>
+      'Pick one of the options you chose for yourself.';
+
+  @override
+  String get errorUserTypesNotFound =>
+      'Tell us what brings you to SmartNutri first.';
 
   @override
   String get errorValidationError => 'Please check the highlighted fields.';

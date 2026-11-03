@@ -116,6 +116,12 @@ async def seed(session, account_id: UUID, storage: FakeStorage) -> dict[str, UUI
         "values (:k, 'analyze', now(), 3)",
         k=f"acct:{account_id}",
     )
+    await _exec(
+        session,
+        "insert into account_user_types (account_id, types, active_type) "
+        "values (:a, '{health_condition,gym}', 'gym')",
+        a=account_id,
+    )
     await session.flush()
     return {"product": product, "member": member}
 
@@ -156,6 +162,25 @@ async def test_delete_me_removes_all_rows(client, login, db_session, storage):
     r = await client.delete("/v1/me")
     assert r.status_code == 204 and r.content == b""
     assert set((await counts(db_session, A)).values()) == {0}
+
+
+async def test_delete_me_erases_user_types(client, login, db_session, storage):
+    """Plan 9 (P9-R1): the user types (health-revealing) go with the account."""
+    await seed(db_session, A, storage)
+    await seed(db_session, B, storage)
+    assert "account_user_types" in ACCOUNT_OWNED_TABLES
+    # Erased before consents (the list is erased in order).
+    order = list(ACCOUNT_OWNED_TABLES)
+    assert order.index("account_user_types") < order.index("consents")
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    left = await _exec(
+        db_session,
+        "select account_id from account_user_types where account_id in (:a, :b)",
+        a=A,
+        b=B,
+    )
+    assert left.scalars().all() == [B]
 
 
 async def test_delete_me_removes_storage_and_is_idempotent(

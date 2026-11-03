@@ -240,7 +240,10 @@
     "deletion_incomplete": "We could not finish deleting your account. Please try again; nothing you deleted will come back.",
     "phone_otp_disabled": "Phone sign-in is not available yet. Please sign in with email or Google.",
     "payload_too_large": "That request is too large. Please try again with less.",
-    "search_query_too_short": "Type at least 3 letters to search."
+    "search_query_too_short": "Type at least 3 letters to search.",
+    "user_type_not_selected": "Pick one of the options you chose for yourself.",
+    "follow_up_without_type": "Please check your answers and try again.",
+    "user_types_not_found": "Tell us what brings you to SmartNutri first."
   },
   "scan": {
     "title": "Scan a barcode",

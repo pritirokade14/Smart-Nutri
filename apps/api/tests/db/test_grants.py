@@ -19,6 +19,7 @@ SELECT_ONLY_FOR_USERS = {
     "meal_logs",
     "product_reports",
     "products",
+    "account_user_types",
 }
 ALL_PRIVILEGES = {
     "SELECT",

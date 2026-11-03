@@ -1228,6 +1228,12 @@ abstract class AppLocalizations {
   /// **'Label reading is unavailable right now. Try again later or enter the details manually.'**
   String get errorExtractionUnavailable;
 
+  /// No description provided for @errorFollowUpWithoutType.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your answers and try again.'**
+  String get errorFollowUpWithoutType;
+
   /// No description provided for @errorForbidden.
   ///
   /// In en, this message translates to:
@@ -1407,6 +1413,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please use a JPEG, PNG or WebP photo.'**
   String get errorUnsupportedImage;
+
+  /// No description provided for @errorUserTypeNotSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one of the options you chose for yourself.'**
+  String get errorUserTypeNotSelected;
+
+  /// No description provided for @errorUserTypesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what brings you to SmartNutri first.'**
+  String get errorUserTypesNotFound;
 
   /// No description provided for @errorValidationError.
   ///

@@ -85,6 +85,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/me/user-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Me User Types Get
+         * @description The account's user types. Without an answer yet: `answered=false`, `types=[]` and the
+         *     `eat_better` mode (clients then show the picker).
+         */
+        get: operations["me_user_types_get"];
+        /**
+         * Me User Types Put
+         * @description Save up to 3 types (tap order) and their follow-ups; `types=[]` is "Skip for now".
+         *
+         *     Presentation only: it never changes a member or a verdict. 422 `validation_error` for more
+         *     than 3 types or duplicates; 422 `follow_up_without_type` for a follow-up whose type is not
+         *     chosen.
+         */
+        put: operations["me_user_types_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/user-types/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Me User Types Set Active
+         * @description Switch the focused mode. Needs no consent. 404 `user_types_not_found` before the first
+         *     PUT; 422 `user_type_not_selected` unless it is one of the chosen types (or `eat_better`
+         *     after "Skip for now").
+         */
+        patch: operations["me_user_types_set_active"];
+        trace?: never;
+    };
     "/v1/meals": {
         parameters: {
             query?: never;
@@ -474,6 +525,14 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActiveTypeIn */
+        ActiveTypeIn: {
+            /**
+             * Active Type
+             * @enum {string}
+             */
+            active_type: "health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better";
+        };
         /**
          * AlternativeOut
          * @description A product in the same Open Food Facts category with a strictly better Nutri-Score
@@ -826,6 +885,27 @@ export interface components {
             text: string | null;
             /** Tips */
             tips: string[];
+        };
+        /**
+         * FollowUps
+         * @description At most one short follow-up per type (decision 4). `weight_loss` has none.
+         *
+         *     These are the user's answers, stored as given. They never change a member: pre-fill only
+         *     suggests member changes, which the user confirms (Task 2).
+         */
+        FollowUps: {
+            /** Alerts */
+            alerts?: ("palm_oil" | "maida" | "added_sugar" | "artificial_sweetener" | "msg")[] | null;
+            /** Allergens */
+            allergens?: ("milk" | "peanut" | "gluten" | "soy" | "egg" | "tree_nut" | "sesame" | "fish" | "crustacean" | "mustard" | "sulphite")[] | null;
+            /** Conditions */
+            conditions?: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[] | null;
+            /** Diet */
+            diet?: ("veg" | "eggetarian" | "vegan" | "jain" | "non_veg") | null;
+            /** Family With */
+            family_with?: ("children" | "parents" | "partner" | "others")[] | null;
+            /** Gym Goal */
+            gym_goal?: ("build_muscle" | "lose_fat" | "stay_fit") | null;
         };
         /**
          * HealthOut
@@ -1214,6 +1294,67 @@ export interface components {
             sodium_mg: number | null;
             /** Sugars G */
             sugars_g: number | null;
+        };
+        /**
+         * PrefillChange
+         * @description One suggested change to the primary member. Never applied by the API: the client sends
+         *     `value` in `PATCH /v1/members/{member_id}` only if the user confirms it.
+         */
+        PrefillChange: {
+            /**
+             * Added
+             * @description List fields: what is new (display); [] for diet/goal
+             */
+            added: string[];
+            /**
+             * Current
+             * @description The primary member's value now
+             */
+            current: string[] | string | null;
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "conditions" | "allergens" | "diet" | "goal" | "custom_alerts";
+            /**
+             * Reason
+             * @description Which type suggested it (display only)
+             * @enum {string}
+             */
+            reason: "health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better";
+            /**
+             * Value
+             * @description The FULL new value to send in MemberPatch if confirmed (never a removal)
+             */
+            value: string[] | string;
+        };
+        /**
+         * PrefillSuggestion
+         * @description Suggestions for the account holder's own member, recomputed from the member on every
+         *     read, so it is empty once the user has confirmed (Task 2, P9-R9).
+         */
+        PrefillSuggestion: {
+            /**
+             * Changes
+             * @description [] means nothing to confirm: the client skips the review screen
+             */
+            changes: components["schemas"]["PrefillChange"][];
+            /**
+             * Goal Choice
+             * @description Goal conflict (weight loss and gym 'build muscle'): no goal change is in `changes`; the user picks one of these or neither
+             */
+            goal_choice: ("healthy_eating" | "weight_loss" | "weight_gain")[] | null;
+            /**
+             * Member Id
+             * Format: uuid
+             * @description Always the primary member (relation self)
+             */
+            member_id: string;
+            /**
+             * Needs Health Consent
+             * @description A change touches a health field and `health_data` is not active
+             */
+            needs_health_consent: boolean;
         };
         /**
          * PrintedNutrients
@@ -1636,6 +1777,39 @@ export interface components {
             path: string;
             /** Upload Url */
             upload_url: string;
+        };
+        /**
+         * UserTypesIn
+         * @description `types == []` is "Skip for now" (P9-R3). The order is the user's tap order.
+         */
+        UserTypesIn: {
+            follow_ups?: components["schemas"]["FollowUps"];
+            /** Types */
+            types: ("health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better")[];
+        };
+        /** UserTypesOut */
+        UserTypesOut: {
+            /**
+             * Active Type
+             * @description Resolved: the stored value if still selected, else the highest-priority chosen type, else eat_better
+             * @enum {string}
+             */
+            active_type: "health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better";
+            /**
+             * Answered
+             * @description False until the first PUT: clients show the picker
+             */
+            answered: boolean;
+            /** Answered At */
+            answered_at: string | null;
+            follow_ups: components["schemas"]["FollowUps"];
+            /** @description Suggested changes to the primary member (null until answered) */
+            prefill: components["schemas"]["PrefillSuggestion"] | null;
+            /**
+             * Types
+             * @description The user's tap order
+             */
+            types: ("health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better")[];
         };
         /** VerdictOut */
         VerdictOut: {
@@ -2175,6 +2349,218 @@ export interface operations {
             };
             /** @description deletion_incomplete: storage or sign-in removal failed; retry */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    me_user_types_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTypesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    me_user_types_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserTypesIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTypesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required (details.purposes = ['health_data']): a health-revealing type (health_condition, weight_loss, allergy_diet) or a health follow-up (conditions, allergens, diet) needs the health_data consent. Nothing is saved. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    me_user_types_set_active: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActiveTypeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTypesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };
