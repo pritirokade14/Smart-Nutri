@@ -12,7 +12,8 @@ import '../../../shared/widgets/verdict_badge.dart';
 /// The spoken answer on screen: the engine's status as a badge (verdict
 /// tokens; `unknown` is never green), the answer text exactly as the API sent
 /// it (it starts with the engine's verdict sentence), and "Information, not
-/// medical advice". The transcript of the question is not shown.
+/// medical advice". The question is shown back (never stored); a rules-only
+/// (`fallback`) answer carries the "AI explanation isn't available" note.
 class VoiceAnswerSheet extends StatelessWidget {
   const VoiceAnswerSheet({
     super.key,
@@ -55,7 +56,22 @@ class VoiceAnswerSheet extends StatelessWidget {
             large: true,
           ),
           const SizedBox(height: SnTokens.space3),
+          // The transcript is shown back, never stored.
+          Text(
+            l10n.voiceYouAsked(answer.question),
+            style: theme.textTheme.bodySmall?.copyWith(color: c.textSecondary),
+          ),
+          const SizedBox(height: SnTokens.space2),
           Text(answer.answer, style: theme.textTheme.bodyLarge),
+          if (answer.source == VoiceAnswerSource.fallback) ...[
+            const SizedBox(height: SnTokens.space2),
+            Text(
+              l10n.explanationSourceFallbackNote,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: c.textSecondary,
+              ),
+            ),
+          ],
           const SizedBox(height: SnTokens.space3),
           Row(
             children: [

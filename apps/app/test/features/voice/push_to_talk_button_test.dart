@@ -67,8 +67,27 @@ void main() {
     );
     final colors = SnColors.of(t.element(find.byType(VoiceAnswerSheet)));
     expect((surface.decoration! as BoxDecoration).color, colors.verdictAvoid);
-    // The transcript is not shown or kept.
-    expect(find.text(answer.question), findsNothing);
+    // The question is shown back (never stored), and an LLM answer carries
+    // no fallback note.
+    expect(find.text(_l.voiceYouAsked(answer.question)), findsOneWidget);
+    expect(find.text(_l.explanationSourceFallbackNote), findsNothing);
+  });
+
+  testWidgets('a rules-only (fallback) answer says so', (t) async {
+    final answer = voiceAnswerFixture('answer_avoid_fallback');
+    expect(answer.source, VoiceAnswerSource.fallback);
+    await t.pumpWidget(
+      _wrap(
+        Scaffold(
+          body: VoiceAnswerSheet(answer: answer, onReplay: () {}),
+        ),
+        [],
+      ),
+    );
+    await t.pumpAndSettle();
+    expect(find.text(_l.explanationSourceFallbackNote), findsOneWidget);
+    expect(find.text(_l.voiceYouAsked(answer.question)), findsOneWidget);
+    expect(find.text(_l.commonDisclaimer), findsOneWidget);
   });
 
   test('an unknown status from a newer API never shows as ok', () {
