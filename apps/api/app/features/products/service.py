@@ -271,6 +271,7 @@ MANUAL_ENTRY_CONFIDENCE = 1.0  # a person typed every value
 
 
 _UPPER_BOUND_WITHHELD = ("protein_g", "fiber_g")  # an upper bound is no evidence of protein
+_PRINTED_COLUMNS = ("per_100g", "per_serving")
 BARCODE_CONSTRAINT = "uq_products_barcode"
 
 
@@ -278,33 +279,36 @@ def _validation_error(field: str) -> ApiError:
     return ApiError("validation_error", 422, details={"fields": [f"body.{field}"]})
 
 
-def _sodium_unit_unconfirmed(draft: ProductDraft, body: ProductCreate) -> bool:
-    """The chosen column's sodium was printed without a unit (the user must pick one)."""
-    return f"unit_unconfirmed:{body.basis}.sodium_mg" in draft.warnings
+def _sodium_unit_unconfirmed(draft: ProductDraft) -> bool:
+    """Sodium was printed without a unit on ANY column (R19): the user must pick the unit,
+    whichever column they transcribe (a misread basis can put that number on either)."""
+    return any(f"unit_unconfirmed:{col}.sodium_mg" in draft.warnings for col in _PRINTED_COLUMNS)
 
 
-def _withheld(draft: ProductDraft, body: ProductCreate) -> set[str]:
-    """Engine fields held back from storage until the user confirms them (R13/R14/R17).
+def _withheld(draft: ProductDraft) -> set[str]:
+    """Engine fields held back from storage until the user confirms them (R13/R14/R17/R19).
 
     The draft's own list, except that on a basis mismatch the explicit `basis` answers the
-    basis doubt; per-field doubts on the chosen column (an upper-bound protein/fibre, a
-    unit-less sodium) still apply.
+    basis doubt. Per-field doubts on ANY printed column (an upper-bound protein/fibre, a
+    unit-less sodium) still apply (R19), since the user may have transcribed either column.
     """
     withheld = set() if "basis_mismatch" in draft.warnings else set(draft.engine_withheld)
     withheld |= {
-        f for f in _UPPER_BOUND_WITHHELD if f"upper_bound:{body.basis}.{f}" in draft.warnings
+        f
+        for f in _UPPER_BOUND_WITHHELD
+        for col in _PRINTED_COLUMNS
+        if f"upper_bound:{col}.{f}" in draft.warnings
     }
-    if _sodium_unit_unconfirmed(draft, body):
+    if _sodium_unit_unconfirmed(draft):
         withheld.add("sodium_mg")
     return withheld
 
 
 def _needs_serving_confirmation(draft: ProductDraft, body: ProductCreate) -> bool:
     """Per-100 g values that depend on the serving size (sent per serving, or derived from it
-    by the normaliser) are trusted only when the user confirmed the serving size."""
-    if body.basis == "per_serving":
-        return True
-    return draft.derived_from_serving and "basis_mismatch" not in draft.warnings
+    by the normaliser, with or without a basis mismatch: R19) are trusted only when the user
+    confirmed the serving size."""
+    return body.basis == "per_serving" or draft.derived_from_serving
 
 
 def _draft_confidence(draft: ProductDraft) -> float:
@@ -342,23 +346,37 @@ def _per_100g(body: ProductCreate, label: scans_service.LabelScan | None) -> dic
     """The per-100 g values to store: the server's conversion of what the pack prints.
 
     Sodium unit, then basis (the normaliser's own helpers), then what the user did not
-    confirm is set to None. Raises 422 for a missing or implausible serving size on a
-    per-serving basis, or a sodium unit the user had to pick and did not.
+    confirm is set to None. Raises 422 for a missing serving size on a per-serving basis,
+    an implausible serving size that will be used for conversion (R19), or a sodium unit
+    the user had to pick and did not (R19: any unit-less sodium on the draft, either
+    column; confirming sodium never stands in for the unit).
     """
     values: dict[str, float | None] = body.nutrients.model_dump()
     if (
         label is not None
         and values["sodium_mg"] is not None
-        and _sodium_unit_unconfirmed(label.draft, body)
+        and _sodium_unit_unconfirmed(label.draft)
         and body.sodium_unit is None
     ):
         raise _validation_error("sodium_unit")
     values["sodium_mg"] = sodium_to_mg(values["sodium_mg"], body.sodium_unit)
 
-    if body.basis == "per_serving":
-        serving = body.serving_size_g
-        if serving is None:
-            raise _validation_error("serving_size_g")
+    serving = body.serving_size_g
+    if body.basis == "per_serving" and serving is None:
+        raise _validation_error("serving_size_g")
+
+    confirmed = set(body.confirmed_fields)
+    if body.sodium_unit is not None:
+        confirmed.add("sodium_mg")  # picking the unit is confirming sodium (R17)
+    if (
+        label is not None
+        and _needs_serving_confirmation(label.draft, body)
+        and "serving_size_g" not in confirmed
+    ):
+        # Nothing is stored, so the (unconfirmed) serving is neither used nor checked (R19).
+        return dict.fromkeys(values)
+
+    if body.basis == "per_serving" and serving is not None:  # None was rejected above
         if implausible_fields({}, serving_size_g=serving):
             raise ApiError(
                 "implausible_value",
@@ -368,12 +386,7 @@ def _per_100g(body: ProductCreate, label: scans_service.LabelScan | None) -> dic
         values = {k: per_100g_from_serving(v, serving) for k, v in values.items()}
 
     if label is not None:
-        confirmed = set(body.confirmed_fields)
-        if body.sodium_unit is not None:
-            confirmed.add("sodium_mg")  # picking the unit is confirming sodium (R17)
-        if _needs_serving_confirmation(label.draft, body) and "serving_size_g" not in confirmed:
-            return dict.fromkeys(values)
-        for field in _withheld(label.draft, body) - confirmed:
+        for field in _withheld(label.draft) - confirmed:
             values[field] = None
     return values
 

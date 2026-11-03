@@ -89,7 +89,12 @@ async def get_label_scan(
     session: AsyncSession, account_id: UUID, scan_id: UUID
 ) -> LabelScan | None:
     """The caller's label scan with its draft, locked for update; None if it is unknown,
-    another account's, or not a label scan (unknown and foreign look the same)."""
+    another account's, or not a label scan (unknown and foreign look the same).
+
+    The draft is re-normalised from the stored raw extraction (``to_draft``) when there is
+    one (R19), so a save always applies the current normaliser's safety rules; scans stored
+    without a raw extraction (before R16) fall back to their stored draft.
+    """
     scan = await session.scalar(
         select(Scan)
         .where(Scan.id == scan_id, Scan.account_id == account_id)
@@ -99,6 +104,12 @@ async def get_label_scan(
     analysis = scan.analysis if scan is not None else None
     if not isinstance(analysis, dict) or not isinstance(analysis.get("draft"), dict):
         return None
+    if "extraction" in analysis:
+        extraction = _extraction_of(analysis, str(analysis.get("prompt_version")))
+        if extraction is not None:
+            return LabelScan(
+                scan_id=scan.id, product_id=scan.product_id, draft=to_draft(extraction)
+            )
     try:
         draft = ProductDraft.model_validate(analysis["draft"])
     except ValidationError:

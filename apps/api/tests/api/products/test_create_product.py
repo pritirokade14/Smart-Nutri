@@ -1262,3 +1262,298 @@ async def test_manual_entry_serving_is_stored_without_confirmation(auth_client, 
     assert r.status_code == 201, r.text
     rec = await _product(db_session, r.json()["product_id"])
     assert rec.serving_size_g == 30
+
+
+# --- Ruling R19: sodium unit and serving confirmation apply across columns -----------------
+
+
+def _column_body(draft, column: str, **kw) -> dict:
+    """What a client sends when the user transcribes one printed draft column."""
+    values = getattr(draft, column)
+    return draft_body(draft) | {"nutrients": {f: getattr(values, f) for f in NUTRIENT_FIELDS}} | kw
+
+
+def _validation_fields(r) -> list[str]:
+    err = r.json()["error"]
+    assert err["code"] == "validation_error", r.text
+    return err["details"]["fields"]
+
+
+_ROW = {
+    "energy_kcal": 500,
+    "carbs_g": 50,
+    "sugars_g": 2,
+    "fat_g": 30,
+    "sat_fat_g": 10,
+    "protein_g": 10,
+    "fiber_g": 3,
+}
+_SMALL_ROW = {
+    "energy_kcal": 150,
+    "carbs_g": 15,
+    "sugars_g": 1,
+    "fat_g": 9,
+    "sat_fat_g": 3,
+    "protein_g": 3,
+    "fiber_g": 1,
+}
+
+
+async def test_r19_unitless_sodium_on_the_other_column_needs_a_unit(
+    auth_client, db_session, hypertensive_member
+):
+    # The model said "per 100 g" but filled only the per-serving column; sodium has no unit.
+    draft = to_draft(
+        extraction(
+            basis_detected="per_100g",
+            per_100g=None,
+            per_serving=n_in(**_ROW, sodium_mg=0.4),
+        )
+    )
+    assert "basis_mismatch" in draft.warnings
+    assert "unit_unconfirmed:per_serving.sodium_mg" in draft.warnings
+    assert "unit_unconfirmed:per_100g.sodium_mg" not in draft.warnings
+    scan = await _scan(db_session, A, draft)
+    payload = _column_body(draft, "per_serving", scan_id=str(scan.id), sodium_unit=None)
+    assert payload["basis"] == "per_100g" and payload["nutrients"]["sodium_mg"] == 0.4
+    before = await _count_products(db_session)
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 422, r.text
+    assert _validation_fields(r) == ["body.sodium_unit"]
+    assert await _count_products(db_session) == before
+
+    r = await auth_client.post(URL, json=payload | {"sodium_unit": "g"})
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sodium_mg"] == 400
+    v = await analyze(auth_client, r.json()["product_id"], hypertensive_member)
+    assert _verdict(v) == "caution"
+
+
+async def test_r19_unitless_sodium_in_per_100g_column_saved_per_serving_needs_a_unit(
+    auth_client, db_session
+):
+    draft = to_draft(
+        extraction(
+            basis_detected="unknown",
+            per_100g=n_in(**_SMALL_ROW, sodium_mg=0.12),
+            serving_size_g=30,
+        )
+    )
+    assert "basis_mismatch" in draft.warnings
+    assert "unit_unconfirmed:per_100g.sodium_mg" in draft.warnings
+    scan = await _scan(db_session, A, draft)
+    payload = _column_body(
+        draft,
+        "per_100g",
+        scan_id=str(scan.id),
+        basis="per_serving",
+        serving_size_g=30,
+        confirmed_fields=["serving_size_g"],
+    )
+    assert "sodium_unit" not in payload
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 422, r.text
+    assert _validation_fields(r) == ["body.sodium_unit"]
+
+
+async def test_r19_confirming_sodium_never_stands_in_for_the_unit(
+    auth_client, db_session, hypertensive_member
+):
+    draft = to_draft(
+        extraction(
+            basis_detected="per_serving",
+            per_100g=None,
+            per_serving=n_in(**_SMALL_ROW, sodium_mg=0.12),
+            serving_size_g=30,
+        )
+    )
+    assert draft.derived_from_serving and "basis_mismatch" not in draft.warnings
+    assert "unit_unconfirmed:per_serving.sodium_mg" in draft.warnings
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {
+        "scan_id": str(scan.id),
+        "serving_size_g": 30,
+        "confirmed_fields": ["serving_size_g", "sodium_mg"],
+    }
+    assert payload["basis"] == "per_100g" and payload["nutrients"]["sodium_mg"] is not None
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 422, r.text
+    assert _validation_fields(r) == ["body.sodium_unit"]
+
+    # Control: with the unit picked the server converts it (0.4 g per 100 g = 400 mg).
+    r = await auth_client.post(URL, json=payload | {"sodium_unit": "g"})
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sodium_mg"] == pytest.approx(400)
+    v = await analyze(auth_client, r.json()["product_id"], hypertensive_member)
+    assert _verdict(v) == "caution"
+
+
+async def test_r19_derived_mismatch_draft_needs_serving_confirmation(
+    auth_client, db_session, diabetic_member
+):
+    # Real label: 30 g serving, so 30 g sugars per 100 g (diabetic avoid). The serving was
+    # misread as 300 g, and the model said "per 100 g" for a per-serving-only column.
+    draft = to_draft(
+        extraction(
+            basis_detected="per_100g",
+            per_100g=None,
+            per_serving=n_in(
+                energy_kcal=150,
+                protein_g=2,
+                carbs_g=20,
+                sugars_g=9,
+                fat_g=7,
+                sat_fat_g=3,
+                fiber_g=1,
+                salt_g=0.3,
+            ),
+            serving_size_g=300,
+        )
+    )
+    assert draft.derived_from_serving and "basis_mismatch" in draft.warnings
+    assert draft.per_100g.sugars_g == 3
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id)}
+    assert payload["basis"] == "per_100g" and "confirmed_fields" not in payload
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert _engine_values(rec) == nutrients()
+    assert rec.serving_size_g is None
+    v = await analyze(auth_client, r.json()["product_id"], diabetic_member)
+    assert _verdict(v) == "unknown"
+
+
+async def test_r19_upper_bound_protein_on_the_other_column_is_withheld(auth_client, db_session):
+    draft = to_draft(
+        extraction(
+            basis_detected="per_100g",
+            per_100g=None,
+            per_serving=n_in(
+                energy_kcal=400,
+                carbs_g=60,
+                sugars_g=5,
+                fat_g=15,
+                sat_fat_g=2,
+                protein_g=0.5,
+                fiber_g=0.5,
+                salt_g=0.1,
+            ),
+            upper_bound_fields=["per_serving.protein_g"],
+        )
+    )
+    assert "basis_mismatch" in draft.warnings and not draft.derived_from_serving
+    scan = await _scan(db_session, A, draft)
+    payload = _column_body(draft, "per_serving", scan_id=str(scan.id))
+    assert payload["basis"] == "per_100g"
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["protein_g"] is None
+    assert rec.per_100g["sugars_g"] == 5 and rec.per_100g["fiber_g"] == 0.5
+
+    # Control: confirmed, the upper-bound protein is stored.
+    scan2 = await _scan(db_session, A, draft)
+    r = await auth_client.post(
+        URL, json=payload | {"scan_id": str(scan2.id), "confirmed_fields": ["protein_g"]}
+    )
+    assert r.status_code == 201, r.text
+    assert (await _product(db_session, r.json()["product_id"])).per_100g["protein_g"] == 0.5
+
+
+async def _scan_with_extraction(db_session, account_id: UUID, ext: NutritionExtraction) -> Scan:
+    """A label scan as Task 4 stores it after R16: the draft plus the raw extraction."""
+    from app.features.scans.service import label_scan_analysis
+
+    await _account(db_session, account_id)
+    return await _add(
+        db_session,
+        Scan(
+            account_id=account_id,
+            image_path=f"{account_id}/{uuid4()}.jpg",
+            image_sha256=uuid4().hex,
+            analysis=label_scan_analysis(
+                to_draft(ext), extraction=ext, prompt_version="extraction_v1", model="test-vision"
+            ),
+        ),
+    )
+
+
+def _withhold_sugars(monkeypatch):
+    """A 'newer normaliser' that withholds sugars (stands in for a future safety fix)."""
+    from app.features.scans import service as scans_service
+
+    real = scans_service.to_draft
+
+    def newer(e):
+        draft = real(e)
+        return draft.model_copy(update={"engine_withheld": [*draft.engine_withheld, "sugars_g"]})
+
+    monkeypatch.setattr(scans_service, "to_draft", newer)
+
+
+_PLAIN = {"energy_kcal": 400, "carbs_g": 60, "sugars_g": 12, "fat_g": 10, "protein_g": 8}
+
+
+async def test_r19_save_re_normalises_the_raw_extraction(auth_client, db_session, monkeypatch):
+    ext = extraction(per_100g=n_in(**_PLAIN))
+    scan = await _scan_with_extraction(db_session, A, ext)
+    stored = to_draft(ext)
+    assert stored.engine_withheld == []
+    _withhold_sugars(monkeypatch)
+    r = await auth_client.post(URL, json=draft_body(stored) | {"scan_id": str(scan.id)})
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sugars_g"] is None and rec.per_100g["carbs_g"] == 60
+
+
+async def test_r19_save_without_raw_extraction_uses_the_stored_draft(
+    auth_client, db_session, monkeypatch
+):
+    draft = to_draft(extraction(per_100g=n_in(**_PLAIN)))
+    scan = await _scan(db_session, A, draft)  # stored before R16: no raw extraction
+    _withhold_sugars(monkeypatch)
+    r = await auth_client.post(URL, json=draft_body(draft) | {"scan_id": str(scan.id)})
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.per_100g["sugars_g"] == 12
+
+
+# The engine's serving bound is 0 < s <= 5000 g, so 0.01 g is plausible; 0 and 6000 are not.
+@pytest.mark.parametrize("serving", [0, 6000])
+async def test_r19_unconfirmed_implausible_serving_is_not_rejected(
+    auth_client, db_session, serving
+):
+    draft = to_draft(extraction(per_100g=n_in(**_PLAIN), serving_size_g=serving))
+    assert "implausible_value:serving_size_g" in draft.warnings
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id)}
+    assert payload["serving_size_g"] == serving
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    assert r.json()["serving_size_g"] is None
+    rec = await _product(db_session, r.json()["product_id"])
+    assert rec.serving_size_g is None and rec.per_100g["sugars_g"] == 12
+
+    # Confirmed, the same serving would be stored, so it is rejected.
+    scan2 = await _scan(db_session, A, draft)
+    r = await auth_client.post(
+        URL, json=payload | {"scan_id": str(scan2.id), "confirmed_fields": ["serving_size_g"]}
+    )
+    assert r.status_code == 422, r.text
+    assert r.json()["error"]["details"]["fields"] == ["serving_size_g"]
+
+
+async def test_r19_unconfirmed_implausible_serving_on_a_per_serving_save_stores_nothing(
+    auth_client, db_session
+):
+    # The serving is neither stored nor used (nothing is converted without confirmation).
+    draft = to_draft(extraction(per_100g=n_in(**_PLAIN), serving_size_g=0))
+    scan = await _scan(db_session, A, draft)
+    payload = draft_body(draft) | {"scan_id": str(scan.id), "basis": "per_serving"}
+    r = await auth_client.post(URL, json=payload)
+    assert r.status_code == 201, r.text
+    rec = await _product(db_session, r.json()["product_id"])
+    assert _engine_values(rec) == nutrients() and rec.serving_size_g is None
