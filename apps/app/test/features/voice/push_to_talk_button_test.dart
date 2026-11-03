@@ -15,6 +15,8 @@ import 'package:smartnutri_ai/features/voice/presentation/voice_answer_sheet.dar
 import 'package:smartnutri_ai/shared/widgets/verdict_badge.dart';
 import 'package:smartnutri_api/src/export.dart';
 
+import 'package:smartnutri_ai/core/platform/app_settings.dart';
+import '../../support/fake_app_settings.dart';
 import '../../support/fixtures.dart';
 import '../analysis/result_screen_test.dart' show FakeAnalysisRepository;
 import 'voice_fakes.dart';
@@ -234,5 +236,48 @@ void main() {
     await t.longPress(find.byType(PushToTalkButton));
     await t.pumpAndSettle();
     expect(find.text(_l.voiceMicDenied), findsOneWidget);
+    expect(find.text(_l.commonOpenSettings), findsNothing);
   });
+
+  for (final permanent in [true, false]) {
+    testWidgets('mic denied: Open settings only when permanent ($permanent)', (
+      t,
+    ) async {
+      final settings = FakeAppSettings(permanent: permanent);
+      await t.pumpWidget(
+        _wrap(
+          const Scaffold(
+            body: Center(
+              child: PushToTalkButton(
+                target: VoiceTarget(
+                  memberId: 'm1',
+                  productId: 'p1',
+                  language: 'en',
+                ),
+              ),
+            ),
+          ),
+          [
+            appSettingsProvider.overrideWithValue(settings),
+            micPermissionProvider.overrideWithValue(FakeMic(granted: false)),
+            voiceRecorderProvider.overrideWith((ref) => FakeRecorder()),
+            voicePlayerProvider.overrideWith((ref) => FakePlayer()),
+            voiceRepositoryProvider.overrideWithValue(
+              FakeVoiceRepository(() => voiceAnswerFixture('answer_avoid')),
+            ),
+            recordingPathProvider.overrideWithValue(tempRecordingPath),
+          ],
+        ),
+      );
+      await t.longPress(find.byType(PushToTalkButton));
+      await t.pumpAndSettle();
+      expect(settings.denied, [microphonePermission]);
+      if (permanent) {
+        await t.tap(find.text(_l.commonOpenSettings));
+        expect(settings.opened, 1);
+      } else {
+        expect(find.text(_l.commonOpenSettings), findsNothing);
+      }
+    });
+  }
 }

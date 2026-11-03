@@ -11,6 +11,8 @@ import 'package:smartnutri_ai/features/scan/data/barcode_source.dart';
 import 'package:smartnutri_ai/features/scan/presentation/manual_barcode_field.dart';
 import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
 import 'package:smartnutri_api/src/export.dart';
+import 'package:smartnutri_ai/core/platform/app_settings.dart';
+import '../../support/fake_app_settings.dart';
 import '../../support/fake_meals.dart';
 
 class FakeBarcodeSource implements BarcodeSource {
@@ -45,7 +47,11 @@ class _PendingRepo implements AnalysisRepository {
   }) => Completer<AnalyzeOut>().future;
 }
 
-Widget _app(FakeBarcodeSource src, List<String> visited) {
+Widget _app(
+  FakeBarcodeSource src,
+  List<String> visited, {
+  AppSettings? settings,
+}) {
   final router = GoRouter(
     initialLocation: '/scan',
     routes: [
@@ -62,6 +68,7 @@ Widget _app(FakeBarcodeSource src, List<String> visited) {
   return ProviderScope(
     overrides: [
       ...mealTestOverrides(),
+      if (settings != null) appSettingsProvider.overrideWithValue(settings),
       barcodeSourceFactoryProvider.overrideWithValue(() => src),
       analysisRepositoryProvider.overrideWithValue(_PendingRepo()),
     ],
@@ -111,6 +118,30 @@ void main() {
     expect(find.byType(ManualBarcodeField), findsOneWidget);
     expect(find.byKey(const Key('preview')), findsNothing);
   });
+
+  testWidgets('permanently denied camera offers Open settings', (tester) async {
+    final settings = FakeAppSettings();
+    final src = FakeBarcodeSource(BarcodeSourceStatus.permissionDenied);
+    await tester.pumpWidget(_app(src, [], settings: settings));
+    await tester.pumpAndSettle();
+    final l10n = AppLocalizations.of(tester.element(find.byType(ScanScreen)));
+    expect(settings.denied, [cameraPermission]);
+    await tester.tap(find.text(l10n.commonOpenSettings));
+    expect(settings.opened, 1);
+  });
+
+  testWidgets(
+    'a camera denial that can be asked again has no settings button',
+    (tester) async {
+      final src = FakeBarcodeSource(BarcodeSourceStatus.permissionDenied);
+      await tester.pumpWidget(
+        _app(src, [], settings: FakeAppSettings(permanent: false)),
+      );
+      await tester.pumpAndSettle();
+      final l10n = AppLocalizations.of(tester.element(find.byType(ScanScreen)));
+      expect(find.text(l10n.commonOpenSettings), findsNothing);
+    },
+  );
 
   testWidgets('no camera shows unavailable message', (tester) async {
     final src = FakeBarcodeSource(BarcodeSourceStatus.unavailable);

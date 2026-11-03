@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/platform/app_settings.dart';
 import '../../../core/theme/sn_colors.dart';
+import '../../../shared/widgets/open_settings_button.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../data/barcode_source.dart';
 import '../domain/barcode.dart';
@@ -23,14 +25,22 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   StreamSubscription<String>? _sub;
   BarcodeSourceStatus? _status;
   bool _handled = false;
+  bool _permanentlyDenied = false;
 
   @override
   void initState() {
     super.initState();
     _source = ref.read(barcodeSourceFactoryProvider)();
     _sub = _source.codes.listen(_onRaw);
-    _source.start().then((s) {
-      if (mounted) setState(() => _status = s);
+    _source.start().then((s) async {
+      if (!mounted) return;
+      setState(() => _status = s);
+      if (s == BarcodeSourceStatus.permissionDenied) {
+        final permanent = await ref
+            .read(appSettingsProvider)
+            .noteDenied(cameraPermission);
+        if (mounted) setState(() => _permanentlyDenied = permanent);
+      }
     });
   }
 
@@ -92,6 +102,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       BarcodeSourceStatus.permissionDenied => _CameraMessage(
         icon: Icons.no_photography_outlined,
         text: l10n.scanCameraDenied,
+        action: _permanentlyDenied ? const OpenSettingsButton() : null,
       ),
       BarcodeSourceStatus.unavailable => _CameraMessage(
         icon: Icons.videocam_off_outlined,
@@ -200,10 +211,11 @@ class _ScanFramePainter extends CustomPainter {
 }
 
 class _CameraMessage extends StatelessWidget {
-  const _CameraMessage({required this.icon, required this.text});
+  const _CameraMessage({required this.icon, required this.text, this.action});
 
   final IconData icon;
   final String text;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -221,6 +233,10 @@ class _CameraMessage extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
+            if (action != null) ...[
+              const SizedBox(height: SnTokens.space3),
+              action!,
+            ],
           ],
         ),
       ),

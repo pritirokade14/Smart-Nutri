@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/platform/app_settings.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/open_settings_button.dart';
 import '../domain/voice_state.dart';
 import 'voice_answer_sheet.dart';
 import 'voice_controller.dart';
@@ -41,6 +43,7 @@ class PushToTalkButton extends ConsumerStatefulWidget {
 
 class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
   bool _cancelled = false;
+  bool _micPermanentlyDenied = false;
 
   VoiceController get _controller =>
       ref.read(voiceControllerProvider(widget.target.memberId).notifier);
@@ -68,6 +71,13 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
     final provider = voiceControllerProvider(widget.target.memberId);
     ref.listen(provider, (previous, next) {
       if (next is VoicePlaying && previous is! VoicePlaying) _showAnswer(next);
+      if (next case VoiceError(messageKey: 'voice.mic_denied')) {
+        ref.read(appSettingsProvider).noteDenied(microphonePermission).then((
+          permanent,
+        ) {
+          if (mounted) setState(() => _micPermanentlyDenied = permanent);
+        });
+      }
     });
     final state = ref.watch(provider);
     final recording = state is VoiceRecording;
@@ -158,7 +168,7 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
             ),
           ),
         ),
-        if (state case final VoiceError error)
+        if (state case final VoiceError error) ...[
           Padding(
             padding: const EdgeInsets.only(top: SnTokens.space2),
             child: Text(
@@ -168,6 +178,12 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
               ),
             ),
           ),
+          if (error.messageKey == 'voice.mic_denied' && _micPermanentlyDenied)
+            const Padding(
+              padding: EdgeInsets.only(top: SnTokens.space2),
+              child: OpenSettingsButton(),
+            ),
+        ],
       ],
     );
   }

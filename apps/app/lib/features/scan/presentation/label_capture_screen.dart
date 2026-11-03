@@ -5,9 +5,11 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/platform/app_settings.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/buttons.dart';
+import '../../../shared/widgets/open_settings_button.dart';
 import '../../../shared/widgets/states.dart';
 import '../data/label_repository.dart';
 import '../domain/barcode.dart';
@@ -27,6 +29,8 @@ class LabelCaptureScreen extends ConsumerStatefulWidget {
 }
 
 class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
+  bool _permanentlyDenied = false;
+
   String? get _code {
     final code = widget.barcode;
     return code == null ? null : normalizeBarcode(code);
@@ -58,6 +62,12 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     ref.listen(labelScanControllerProvider, (_, next) {
+      if (next is LabelScanFailed &&
+          next.failure.code == cameraPermissionDenied) {
+        ref.read(appSettingsProvider).noteDenied(cameraPermission).then((p) {
+          if (mounted) setState(() => _permanentlyDenied = p);
+        });
+      }
       if (next is LabelScanDrafted) {
         context.pushReplacement(
           '/scan/confirm',
@@ -103,6 +113,8 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
             ? Icons.no_photography_outlined
             : Icons.error_outline_rounded,
         actions: [
+          if (failure.code == cameraPermissionDenied && _permanentlyDenied)
+            const OpenSettingsButton(),
           PrimaryButton(
             label: l10n.labelRetake,
             icon: Icons.photo_camera_outlined,
