@@ -25,6 +25,15 @@ router = APIRouter(prefix="/v1/scans", tags=["scans"])
 _STORAGE_503 = {503: {"model": ErrorEnvelope, "description": "Storage unavailable"}}
 _LABEL_RESPONSES = {
     **ERROR_RESPONSES,
+    422: {
+        "model": ErrorEnvelope,
+        "description": (
+            "Validation error, or `image_quality_low`: the photo is clearly unreadable and no "
+            "extraction was attempted (not counted toward the scan limit). "
+            "`details.reasons` lists `blur`, `glare` and/or `too_small`; show "
+            "`image_quality.<reason>` and ask for a retake."
+        ),
+    },
     413: {"model": ErrorEnvelope, "description": "Image larger than 8 MB"},
     415: {"model": ErrorEnvelope, "description": "Not a JPEG, PNG or WebP image"},
     502: {"model": ErrorEnvelope, "description": "Extraction failed (no draft)"},

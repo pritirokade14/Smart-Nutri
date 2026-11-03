@@ -35,9 +35,15 @@ _PATH_RE = re.compile(r"^(?P<acct>[0-9a-f-]{36})/(?P<id>[0-9a-f-]{36})\.(?P<ext>
 # --- image helpers --------------------------------------------------------------------
 
 
-def make_image(fmt: str = "JPEG", size=(64, 48), color=(200, 30, 30), exif=None) -> bytes:
+def make_image(fmt: str = "JPEG", size=(640, 480), color=(200, 30, 30), exif=None) -> bytes:
+    """A small label-like photo (lines of text on `color`) that passes the quality gate."""
+    from PIL import ImageDraw
+
     buf = io.BytesIO()
     img = Image.new("RGB", size, color)
+    draw = ImageDraw.Draw(img)
+    for i, y in enumerate(range(8, size[1] - 8, max(12, size[1] // 12))):
+        draw.text((10, y), f"Sugars (g) {i}.5   Energy (kcal) 45{i}", fill=(255, 255, 255))
     kwargs = {"exif": exif} if exif is not None else {}
     img.save(buf, format=fmt, **kwargs)
     return buf.getvalue()
@@ -156,7 +162,7 @@ def fake_storage_unique_jpegs(scan_app):
     def _unique(_path: str) -> bytes:
         i = next(counter)
         # PNG: lossless, so neighbouring colours never encode to identical bytes.
-        return make_image("PNG", size=(16, 16), color=(i % 256, (i // 256) % 256, 7))
+        return make_image("PNG", size=(480, 360), color=(i % 256, (i // 256) % 256, 7))
 
     return _use_storage(scan_app, FakeStorage(default=_unique))
 
@@ -1054,6 +1060,71 @@ async def test_switching_prompt_version_is_a_cache_miss(
     assert r.json()["cached"] is False and llm_v1.calls == 1
     assert r.json()["prompt_version"] == "extraction_v1"
     assert llm_v1.last_kwargs["schema"] is NutritionExtraction
+
+
+# --- label accuracy v2: image-quality gate before the paid call ------------------------
+
+
+def _flat_image(size=(640, 480), color=(180, 180, 180)) -> bytes:
+    buf = io.BytesIO()
+    Image.new("RGB", size, color).save(buf, format="JPEG", quality=90)
+    return buf.getvalue()
+
+
+@pytest.mark.parametrize(
+    ("image", "reasons"),
+    [
+        (_flat_image(), ["blur"]),  # nothing readable at all
+        (make_image(size=(300, 200)), ["too_small"]),
+        (_flat_image(color=(255, 255, 255)), ["blur", "glare"]),  # washed out
+    ],
+)
+async def test_bad_photo_is_rejected_before_any_paid_call(
+    scan_app, auth_client, fake_llm_ok, scan_limit_used, db_session, image, reasons
+):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: image}))
+    r = await post_label(auth_client, path)
+    assert r.status_code == 422, r.text
+    error = r.json()["error"]
+    assert error["code"] == "image_quality_low"
+    assert error["message_key"] == "error.image_quality_low"
+    assert error["details"] == {"reasons": reasons}
+    assert fake_llm_ok.calls == 0  # no paid call
+    assert await scan_limit_used(auth_client) == 0  # refunded: nothing was paid for
+    assert await scans_for(db_session, A) == []
+    assert storage.deleted == [path]  # the rejected upload (and its EXIF) is not kept
+
+
+async def test_quality_report_is_stored_with_the_scan(
+    auth_client, fake_storage_jpeg, fake_llm_ok, db_session
+):
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    [scan] = await scans_for(db_session, A)
+    quality = scan.analysis["quality"]
+    assert quality["reasons"] == [] and quality["width"] == 640
+    assert {"sharpness", "blown_center", "soft"} <= set(quality)
+
+
+async def test_cache_hit_skips_the_gate(scan_app, auth_client, fake_llm_ok, db_session):
+    """A stored extraction of the same bytes is reused for free; no new paid call to save."""
+    image = _flat_image()
+    _use_storage(scan_app, FakeStorage(default=image))
+    await _seed_scan(
+        db_session,
+        B,
+        _sha(image),
+        {
+            "draft": _stale_draft(),
+            "extraction": extraction().model_dump(mode="json"),
+            "prompt_version": "extraction_v1",
+            "model": scan_app.state.settings.callmissed_extraction_model,
+        },
+    )
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    assert r.json()["cached"] is True and fake_llm_ok.calls == 0
 
 
 async def test_v2_wrong_schema_from_the_provider_is_extraction_failed(

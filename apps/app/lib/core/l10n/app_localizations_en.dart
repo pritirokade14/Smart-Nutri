@@ -674,6 +674,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorHttpError => 'Something went wrong. Please try again.';
 
   @override
+  String get errorImageQualityLow =>
+      'This photo is hard to read. Please take it again.';
+
+  @override
   String get errorImageTooLarge =>
       'This photo is too large. Please use a photo under 8 MB.';
 
@@ -944,6 +948,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeNoName => 'Hello';
+
+  @override
+  String get imageQualityBlur =>
+      'The photo is blurred. Hold the phone steady and tap the label to focus.';
+
+  @override
+  String get imageQualityGlare =>
+      'The photo is washed out by light. Turn off the flash or tilt the pack away from the light.';
+
+  @override
+  String get imageQualityTooSmall =>
+      'The photo is too small. Take it closer, with the label filling the frame.';
 
   @override
   String get labelCameraPermissionDenied =>

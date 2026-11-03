@@ -254,7 +254,8 @@
     "search_query_too_short": "Type at least 3 letters to search.",
     "user_type_not_selected": "Pick one of the options you chose for yourself.",
     "follow_up_without_type": "Please check your answers and try again.",
-    "user_types_not_found": "Tell us what brings you to SmartNutri first."
+    "user_types_not_found": "Tell us what brings you to SmartNutri first.",
+    "image_quality_low": "This photo is hard to read. Please take it again."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -836,5 +837,10 @@
     "body": "Your account and its data have been deleted, and you have been signed out. Thank you for trying SmartNutri.",
     "meta_title": "Account deleted",
     "action": "Back to sign in"
+  },
+  "image_quality": {
+    "blur": "The photo is blurred. Hold the phone steady and tap the label to focus.",
+    "glare": "The photo is washed out by light. Turn off the flash or tilt the pack away from the light.",
+    "too_small": "The photo is too small. Take it closer, with the label filling the frame."
   }
 }

@@ -24,7 +24,7 @@ from app.core.errors import ApiError
 from app.core.ratelimit import consume, refund
 from app.features.scans.api_schemas import LabelScanIn, ScanDraftOut
 from app.features.scans.cells import extraction_schema, to_extraction
-from app.features.scans.images import InvalidImage, prepare_for_extraction, sniff_image_mime
+from app.features.scans.images import InvalidImage, prepare_with_quality, sniff_image_mime
 from app.features.scans.models import SCAN_PATH_INDEX, Scan
 from app.features.scans.normalize import ProductDraft, to_draft
 from app.features.scans.schemas import NutritionExtraction
@@ -330,10 +330,18 @@ async def create_label_scan(
         await consume(session, settings, account_id=account_id, bucket="label_scans")
     # Decoded on a cache hit too: the stored photo is replaced either way (D1/S4).
     try:
-        prepared = await anyio.to_thread.run_sync(prepare_for_extraction, data)
+        image = await anyio.to_thread.run_sync(prepare_with_quality, data)
     except InvalidImage:
         await _discard_upload(storage, body.path)
         raise ApiError("unsupported_image", 415) from None
+    if extraction is None and not image.quality.ok:
+        # Label v2 quality gate: a clearly unreadable photo goes back for a retake BEFORE the
+        # paid call. Nothing was paid for, so the scan is given back; nothing is staged.
+        await refund(session, settings, account_id=account_id, bucket="label_scans")
+        await _discard_upload(storage, body.path)
+        logger.info("label_extraction quality_low reasons=%s", ",".join(image.quality.reasons))
+        raise ApiError("image_quality_low", 422, details={"reasons": list(image.quality.reasons)})
+    prepared = image.jpeg
     await session.commit()  # release the DB connection before the storage call
     await _replace_stored_photo(storage, body.path, prepared)
 
@@ -378,6 +386,8 @@ async def create_label_scan(
             ),
             "cached": cached,
             "barcode": barcode,
+            # Label v2: the photo's quality signals (no image content), for calibration.
+            "quality": image.quality.as_dict(),
         },
     )
     try:

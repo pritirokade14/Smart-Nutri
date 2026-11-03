@@ -4218,7 +4218,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Validation error */
+            /** @description Validation error, or `image_quality_low`: the photo is clearly unreadable and no extraction was attempted (not counted toward the scan limit). `details.reasons` lists `blur`, `glare` and/or `too_small`; show `image_quality.<reason>` and ask for a retake. */
             422: {
                 headers: {
                     [name: string]: unknown;

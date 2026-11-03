@@ -678,6 +678,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorHttpError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
 
   @override
+  String get errorImageQualityLow =>
+      'यह फ़ोटो साफ़ नहीं पढ़ी जा रही। कृपया फिर से फ़ोटो लें।';
+
+  @override
   String get errorImageTooLarge =>
       'यह फ़ोटो बहुत बड़ी है। कृपया 8 MB से छोटी फ़ोटो इस्तेमाल करें।';
 
@@ -948,6 +952,18 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get homeWelcomeNoName => 'नमस्ते';
+
+  @override
+  String get imageQualityBlur =>
+      'फ़ोटो धुंधली है। फ़ोन को स्थिर रखें और फ़ोकस के लिए लेबल पर टैप करें।';
+
+  @override
+  String get imageQualityGlare =>
+      'रोशनी से फ़ोटो धुल गई है। फ़्लैश बंद करें या पैक को रोशनी से थोड़ा हटाकर झुकाएँ।';
+
+  @override
+  String get imageQualityTooSmall =>
+      'फ़ोटो बहुत छोटी है। पास से फ़ोटो लें, ताकि लेबल पूरी फ़्रेम में आए।';
 
   @override
   String get labelCameraPermissionDenied =>

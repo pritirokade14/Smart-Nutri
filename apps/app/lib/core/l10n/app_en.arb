@@ -283,6 +283,7 @@
   "errorFollowUpWithoutType": "Please check your answers and try again.",
   "errorForbidden": "You don't have access to this.",
   "errorHttpError": "Something went wrong. Please try again.",
+  "errorImageQualityLow": "This photo is hard to read. Please take it again.",
   "errorImageTooLarge": "This photo is too large. Please use a photo under 8 MB.",
   "errorImplausibleValue": "Some values don't look right. Please check the highlighted fields, or leave them blank.",
   "errorInternalError": "Something went wrong. Please try again.",
@@ -383,6 +384,9 @@
     }
   },
   "homeWelcomeNoName": "Hello",
+  "imageQualityBlur": "The photo is blurred. Hold the phone steady and tap the label to focus.",
+  "imageQualityGlare": "The photo is washed out by light. Turn off the flash or tilt the pack away from the light.",
+  "imageQualityTooSmall": "The photo is too small. Take it closer, with the label filling the frame.",
   "labelCameraPermissionDenied": "Camera access is off. Allow it in Settings to photograph the label, or choose a photo or enter the details manually.",
   "labelChooseFile": "Choose a file",
   "labelDropHere": "Drop a photo here",

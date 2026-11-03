@@ -1306,6 +1306,12 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get errorHttpError;
 
+  /// No description provided for @errorImageQualityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is hard to read. Please take it again.'**
+  String get errorImageQualityLow;
+
   /// No description provided for @errorImageTooLarge.
   ///
   /// In en, this message translates to:
@@ -1779,6 +1785,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hello'**
   String get homeWelcomeNoName;
+
+  /// No description provided for @imageQualityBlur.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is blurred. Hold the phone steady and tap the label to focus.'**
+  String get imageQualityBlur;
+
+  /// No description provided for @imageQualityGlare.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is washed out by light. Turn off the flash or tilt the pack away from the light.'**
+  String get imageQualityGlare;
+
+  /// No description provided for @imageQualityTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is too small. Take it closer, with the label filling the frame.'**
+  String get imageQualityTooSmall;
 
   /// No description provided for @labelCameraPermissionDenied.
   ///
