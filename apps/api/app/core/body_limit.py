@@ -10,8 +10,8 @@ huge upload. This ASGI middleware:
 
 Both answer 413 with the error envelope, code `payload_too_large`.
 
-Caps: `/v1/voice/ask` takes up to 6 MB (5 MB of audio plus the multipart form). Everything
-else, including `/v1/scans/*` (label photos go straight to storage, never through the API)
+Caps: `/v1/voice/ask` takes up to 6 MB (5 MB of audio plus the multipart form), and
+`POST /v1/products` up to 3 MB (a full label's ingredient list). Everything else, including `/v1/scans/*` (label photos go straight to storage, never through the API)
 and the Supabase auth hook, takes up to 64 KB.
 """
 
@@ -24,11 +24,16 @@ KB = 1024
 MB = 1024 * 1024
 DEFAULT_MAX_BODY_BYTES = 64 * KB
 VOICE_MAX_BODY_BYTES = 6 * MB
+# POST /v1/products accepts a whole printed label: up to 400 ingredients of 1000 characters
+# and two 4000-character statements (products/schemas.py), about 408k characters. 3 MB fits
+# that even as \u-escaped Devanagari (6 bytes a character) with room for the other fields.
+PRODUCT_CREATE_MAX_BODY_BYTES = 3 * MB
 
 # (path, cap): an entry ending in "/" covers every path under it; otherwise the path must
 # match exactly. The first match wins; anything unmatched gets DEFAULT_MAX_BODY_BYTES.
 BODY_CAPS: tuple[tuple[str, int], ...] = (
     ("/v1/voice/ask", VOICE_MAX_BODY_BYTES),
+    ("/v1/products", PRODUCT_CREATE_MAX_BODY_BYTES),
     ("/v1/scans/", 64 * KB),
     ("/v1/auth/hooks/", 64 * KB),
 )

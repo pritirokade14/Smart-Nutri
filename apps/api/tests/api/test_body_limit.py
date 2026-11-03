@@ -48,7 +48,28 @@ def test_caps():
     # Exact match only: nothing else under /v1/voice inherits the 6 MB cap.
     assert cap_for("/v1/voice/ask/extra") == 64 * KB
     assert cap_for("/v1/voice") == 64 * KB
+    # A whole label's ingredients; exact match, so /v1/products/{id}/... stays at 64 KB.
+    assert cap_for("/v1/products") == 3 * MB
+    assert cap_for("/v1/products/compare") == 64 * KB
     assert all(cap <= 6 * MB for _, cap in BODY_CAPS)
+
+
+def test_product_create_cap_fits_the_largest_valid_label():
+    from app.features.products.schemas import MAX_INGREDIENT_ITEMS
+
+    # 400 ingredients of 1000 characters plus two 4000-character statements, every character
+    # Devanagari sent \u-escaped (6 bytes): still under the cap.
+    worst = (MAX_INGREDIENT_ITEMS * 1000 + 2 * 4000) * 6
+    assert worst < cap_for("/v1/products")
+
+
+async def test_product_create_over_3mb_is_refused(client):
+    r = await client.post(
+        "/v1/products",
+        content=b"x" * (3 * MB + 1),
+        headers={"content-type": "application/json"},
+    )
+    assert r.status_code == 413 and r.json() == TOO_LARGE
 
 
 # --- the real app: refused before routing, so no auth, consent or DB is reached --------------
