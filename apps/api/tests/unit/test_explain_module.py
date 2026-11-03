@@ -188,9 +188,9 @@ async def test_prompt_has_no_member_names(family_result, family_rows, settings):
         assert forbidden not in sent, forbidden
     call = fake.chat_calls[0]
     assert call["model"] == "expl-model"
-    assert call["prompt_version"] == "explanation_v1"
+    assert call["prompt_version"] == "explanation_v2"
     assert call["schema"] is ExplanationLLM
-    assert call["system"] == load_prompt("explanation_v1")[0]
+    assert call["system"] == load_prompt("explanation_v2")[0]
     assert call["timeout_s"] == EXPLANATION_BUDGET_S == 8.0
     assert json.loads(call["user"])["language"] == "hi"
 
@@ -305,7 +305,7 @@ async def test_valid_explanation_passes_through(family_result, family_rows, sett
         text="member_2 को दूध से बचना है।",
         tips=["Check the sugar line first."],
         language="hi",
-        prompt_version="explanation_v1",
+        prompt_version="explanation_v2",
         member_refs={"member_1": str(DAD_ID), "member_2": str(RIYA_ID)},
     )
 
@@ -329,12 +329,12 @@ async def test_explanation_never_changes_verdict(family_result, family_rows, set
 def test_guard_drops_any_status_mismatch(family_result, family_rows, wrong):
     out = _llm_out(family_result, member_2=wrong)
     assert guard(out, family_result, _names(family_rows), [], language="en",
-                 prompt_version="explanation_v1") is None  # fmt: skip
+                 prompt_version="explanation_v2") is None  # fmt: skip
 
 
 def _guard(out, result, rows, emails=()):
     return guard(out, result, _names(rows), list(emails), language="en",
-                 prompt_version="explanation_v1")  # fmt: skip
+                 prompt_version="explanation_v2")  # fmt: skip
 
 
 def test_guard_drops_missing_member(family_result, family_rows):
@@ -552,8 +552,8 @@ def test_llm_schema_rejects_extra_fields_and_limits(family_result):
 
 
 def test_prompt_file_rules():
-    text, version = load_prompt("explanation_v1")
-    assert version == "explanation_v1"
+    text, version = load_prompt("explanation_v2")
+    assert version == "explanation_v2"
     assert "Information, not medical advice" in text
     for needle in ("member_N", "en", "hi", "mr", "never change", "members"):
         assert needle in text, needle
@@ -562,7 +562,7 @@ def test_prompt_file_rules():
 
 
 def test_prompt_caution_wording_and_forbidden_words_ruling_p7():
-    text, _ = load_prompt("explanation_v1")
+    text, _ = load_prompt("explanation_v2")
     assert "fine now and then" not in text and "small portion" not in text
     assert "there is something to watch; see the reasons" in text
     for word in ("safe", "healthy", "सुरक्षित", "सेहतमंद", "हेल्दी", "सुरक्षित आहे"):
@@ -572,7 +572,7 @@ def test_prompt_caution_wording_and_forbidden_words_ruling_p7():
 
 def test_prompt_lists_every_denied_word():
     """The model is told about every word the guard drops (so it can avoid them)."""
-    text, _ = load_prompt("explanation_v1")
+    text, _ = load_prompt("explanation_v2")
     for word in (
         *explain_mod.DENY_WORDS,
         *explain_mod.DENY_WORDS_NOT_ALL_OK,
@@ -599,11 +599,11 @@ def test_no_duplicate_today_ist():
 
 def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, product):
     data = build_explanation_input(family_result, family_rows, "hi", today=TODAY)
-    key = explain_mod.cache_key(data, "explanation_v1", "expl-model", "PROMPT")
+    key = explain_mod.cache_key(data, "explanation_v2", "expl-model", "PROMPT")
     assert len(key) == 64 and int(key, 16) >= 0
     assert key == explain_mod.cache_key(
         build_explanation_input(family_result, family_rows, "hi", today=TODAY),
-        "explanation_v1",
+        "explanation_v2",
         "expl-model",
         "PROMPT",
     )
@@ -618,7 +618,7 @@ def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, produc
     assert (
         explain_mod.cache_key(
             build_explanation_input(other, renamed, "hi", today=TODAY),
-            "explanation_v1",
+            "explanation_v2",
             "expl-model",
             "PROMPT",
         )
@@ -627,14 +627,14 @@ def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, produc
     # Language, prompt version and model each change it.
     assert key != explain_mod.cache_key(
         build_explanation_input(family_result, family_rows, "en", today=TODAY),
-        "explanation_v1",
+        "explanation_v2",
         "expl-model",
         "PROMPT",
     )
-    assert key != explain_mod.cache_key(data, "explanation_v2", "expl-model", "PROMPT")
-    assert key != explain_mod.cache_key(data, "explanation_v1", "other-model", "PROMPT")
+    assert key != explain_mod.cache_key(data, "explanation_v1", "expl-model", "PROMPT")
+    assert key != explain_mod.cache_key(data, "explanation_v2", "other-model", "PROMPT")
     # An in-place prompt edit (same version label) changes the key.
-    assert key != explain_mod.cache_key(data, "explanation_v1", "expl-model", "PROMPT edited")
+    assert key != explain_mod.cache_key(data, "explanation_v2", "expl-model", "PROMPT edited")
 
 
 # Plan 9 Task 7 reason codes that the released explanation_v1 cannot list (released prompts
@@ -645,7 +645,7 @@ NOT_IN_RELEASED_PROMPT = {"supplement_child", "supplement_infant"}
 
 
 def test_prompt_lists_every_engine_reason_code():
-    text, _ = load_prompt("explanation_v1")
+    text, _ = load_prompt("explanation_v2")
     for code in ("carbs_per_serving_high", "good_protein_density", "custom_alert_unknown"):
         assert f"`{code}`" in text, code
     en = json.loads(
@@ -738,3 +738,92 @@ def test_guard_drops_disease_control_claims_for_every_status(family_result, fami
     assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
     ok_result, ok_rows = all_ok
     assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is None
+
+
+# --- Plan 9 T5: protein-guide guard rules (prompt v2) --------------------------------------
+
+
+def test_explanation_uses_v2():
+    from app.prompts import EXPLANATION_PROMPT_VERSION
+
+    assert EXPLANATION_PROMPT_VERSION == "explanation_v2"
+    text, version = load_prompt(EXPLANATION_PROMPT_VERSION)
+    assert version == "explanation_v2"
+    assert "Never recommend a supplement, a brand or a product to buy" in text
+    assert "You may repeat protein numbers that are in the input" in text
+
+
+_ADVICE_TEXTS = [
+    "member_1 could try creatine.",
+    "Some people take steroids for this.",
+    "Skip steroid use.",
+    "A fat burner will not help member_1.",
+    "Try a protein supplement.",
+    "Buy this brand instead.",
+    "Take a pre-workout first.",
+    "Have 2 scoops a day.",
+    "member_1 needs 60 g of protein.",
+    "You should eat 40 grams daily.",
+    "The dose depends on weight.",
+    "member_1 को क्रिएटिन लेना चाहिए।",
+    "स्टेरॉयड से बचें।",
+    "प्रोटीन सप्लिमेंट लें।",
+    "ब्रांड बदलें।",
+    "आपको 60 ग्राम प्रोटीन चाहिए।",
+    "दिन में 2 स्कूप लें।",
+    "member_1 ला क्रिएटिन घ्या.",
+    "तुम्हाला ६० ग्रॅम प्रोटीन लागेल.",
+    "ब्रँड बदला.",
+    "फॅट बर्नर घेऊ नका.",
+]
+
+
+@pytest.mark.parametrize("text", _ADVICE_TEXTS)
+def test_guard_drops_supplement_dose_and_creatine_advice_for_every_status(
+    family_result, family_rows, all_ok, text
+):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+    ok_result, ok_rows = all_ok
+    assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is None
+
+
+def test_guard_drops_advice_in_tips(family_result, family_rows):
+    out = _llm_out(family_result)
+    out.tips = ["Add creatine."]
+    assert _guard(out, family_result, family_rows) is None
+
+
+def test_guard_keeps_protein_numbers_from_the_input(all_ok):
+    ok_result, ok_rows = all_ok
+    text = "member_1: this has 12 g protein per 100 g, so compare labels."
+    assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is not None
+
+
+def test_advice_deny_list_contents():
+    assert {
+        "creatine", "steroid", "steroids", "fat burner", "supplement", "brand", "scoop",
+        "क्रिएटिन", "स्टेरॉयड",
+    } <= set(explain_mod.DENY_WORDS_ADVICE)  # fmt: skip
+
+
+def test_explanation_prompt_lists_every_advice_word():
+    text, _ = load_prompt("explanation_v2")
+    for word in explain_mod.DENY_WORDS_ADVICE:
+        assert f'"{word}"' in text, word
+
+
+def test_context_has_no_user_types(family_result, family_rows):
+    data = explain_mod.build_explanation_input(family_result, family_rows, "en", today=TODAY)
+    keys: set[str] = set()
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k, x in v.items():
+                keys.add(k)
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+
+    walk(json.loads(data.model_dump_json()))
+    assert not keys & {"user_type", "types", "active_type"}

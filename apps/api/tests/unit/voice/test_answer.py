@@ -387,3 +387,80 @@ async def test_answer_naming_another_family_member_is_rejected(avoid_case):
         today=REFERENCE_DATE,
     )
     assert a.source == "fallback"
+
+
+# --- Plan 9 T5: protein-guide guard rules (prompt v2) --------------------------------------
+
+
+def test_voice_uses_v2():
+    from app.prompts import load_prompt
+
+    assert VOICE_PROMPT_VERSION == "voice_v2"
+    text, version = load_prompt(VOICE_PROMPT_VERSION)
+    assert version == "voice_v2"
+    assert "Never recommend a supplement, a brand or a product to buy" in text
+
+
+async def test_voice_answer_reports_v2(avoid_case):
+    got = await _ask(avoid_case, _llm("avoid", "It has a lot of sugar, so compare labels."))
+    assert got.source == "llm" and got.prompt_version == "voice_v2"
+
+
+_ADVICE_ANSWERS = [
+    ("en", "Some people add creatine."),
+    ("en", "Steroids are not the answer."),
+    ("en", "A fat burner will not help."),
+    ("en", "Try a protein supplement."),
+    ("en", "Buy another brand."),
+    ("en", "Have 2 scoops a day."),
+    ("en", "You need 60 g of protein."),
+    ("hi", "क्रिएटिन लें।"),
+    ("hi", "स्टेरॉयड से बचें।"),
+    ("hi", "आपको 60 ग्राम प्रोटीन चाहिए।"),
+    ("mr", "क्रिएटिन घ्या."),
+    ("mr", "तुम्हाला ६० ग्रॅम प्रोटीन लागेल."),
+]
+
+
+@pytest.mark.parametrize(("language", "answer"), _ADVICE_ANSWERS)
+async def test_voice_advice_answers_are_rejected_for_every_status(
+    avoid_case, ok_case, language, answer
+):
+    got = await _ask(avoid_case, _llm("avoid", answer), language=language)
+    assert got.source == "fallback"
+    got = await _ask(ok_case, _llm("ok", answer), language=language)
+    assert got.source == "fallback"
+
+
+async def test_voice_keeps_protein_numbers_from_the_input(ok_case):
+    got = await _ask(ok_case, _llm("ok", "It has 12 g protein per 100 g."))
+    assert got.source == "llm"
+
+
+def test_voice_prompt_lists_every_advice_word():
+    from app.features.analyze import explain as explain_mod
+    from app.prompts import load_prompt
+
+    text, _ = load_prompt(VOICE_PROMPT_VERSION)
+    for word in explain_mod.DENY_WORDS_ADVICE:
+        assert f'"{word}"' in text, word
+
+
+async def test_voice_context_has_no_user_types(avoid_case):
+    llm = _llm("avoid", "It has a lot of sugar.")
+    await _ask(avoid_case, llm)
+    user = llm.chat_calls[0]["user"]
+    payload = json.loads(user.split("\n\n<user_question>")[0])
+    keys: set[str] = set()
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k, x in v.items():
+                keys.add(k)
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+
+    walk(payload)
+    assert not keys & {"user_type", "types", "active_type"}

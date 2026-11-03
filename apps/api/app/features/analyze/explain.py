@@ -127,6 +127,58 @@ DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = (
     "खाऊ शकते",
     "हरकत नाही",
 )
+# Protein-guide guard (Plan 9 T5), denied for every status: no supplement, brand, creatine,
+# steroid, pre-workout, fat-burner or dose advice. "supplement" etc. also match as whole Latin
+# words only; Devanagari forms match as word prefixes. Protein numbers from the input may
+# still be repeated, so "protein" and "gram" are not denied; amounts someone "needs" are
+# caught by `DENY_PATTERNS`.
+DENY_WORDS_ADVICE: tuple[str, ...] = (
+    "creatine",
+    "steroid",
+    "steroids",
+    "fat burner",
+    "fat burners",
+    "pre-workout",
+    "pre-workouts",
+    "supplement",
+    "supplements",
+    "brand",
+    "brands",
+    "scoop",
+    "scoops",
+    "dose",
+    "dosage",
+    "क्रिएटिन",
+    "स्टेरॉयड",
+    "स्टेरॉइड",
+    "सप्लिमेंट",
+    "सप्लिमेंट्स",
+    "ब्रांड",
+    "ब्रँड",
+    "स्कूप",
+    "खुराक",
+    "डोस",
+    "फैट बर्नर",
+    "फॅट बर्नर",
+)
+_UNIT = r"(?:g|gm|gms|grams?|ग्राम|ग्रॅम)"
+_NUM = r"\d+(?:[.,]\d+)?"
+# "you need 50 g", "should eat 2 servings", "आपको 60 ग्राम प्रोटीन चाहिए", "६० ग्रॅम ... लागेल",
+# "2 scoops a day". Applied to the normalised, whitespace-collapsed text.
+DENY_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(
+        rf"\b(?:need|needs|needed|require|requires|should|must|aim for)\b[^.!?\n]{{0,40}}?{_NUM}\s*{_UNIT}(?![a-z])"
+    ),
+    re.compile(
+        rf"\b(?:need|needs|needed|require|requires|should|must|aim for)\b[^.!?\n]{{0,40}}?{_NUM}\s*(?:servings?|portions?|scoops?)\b"
+    ),
+    re.compile(
+        rf"{_NUM}\s*(?:scoops?|servings?)\b[^.!?\n]{{0,20}}?(?:a|per|each|every)\s+(?:day|meal|week)\b"
+    ),
+    re.compile(rf"{_NUM}\s*{_UNIT}[^.!?।\n]{{0,40}}?(?:चाहिए|चाहिये|आवश्यक|लाग|गरज)"),
+    re.compile(rf"(?:चाहिए|चाहिये|आवश्यक|लाग|गरज)[^.!?।\n]{{0,40}}?{_NUM}\s*{_UNIT}"),
+    re.compile(rf"{_NUM}\s*(?:स्कूप|सर्विंग)"),
+)
 _SPACES_RE = re.compile(r"\s+")
 
 
@@ -394,11 +446,13 @@ def _drop_reason(
             return "unknown_member_token"
     # Runs of whitespace become one space, so "go   ahead" still matches "go ahead".
     haystack = _SPACES_RE.sub(" ", _normalise(combined))
-    deny = (*DENY_WORDS, *DENY_WORDS_CLAIMS)
+    deny = (*DENY_WORDS, *DENY_WORDS_CLAIMS, *DENY_WORDS_ADVICE)
     if any(v.status is not scoring.Status.OK for v in result.verdicts):
         deny = (*deny, *DENY_WORDS_NOT_ALL_OK)
     if any(_contains_word(haystack, _normalise(w)) for w in deny):
         return "denied_word"
+    if any(p.search(haystack) for p in DENY_PATTERNS):
+        return "dose_advice"
     if any(_contains_word(haystack, n) for n in _name_needles(member_names)):
         return "member_name"
     for email in emails:
