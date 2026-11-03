@@ -1170,6 +1170,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get methodologySectionCustomAlertsTitle => 'आपके सामग्री अलर्ट';
 
   @override
+  String get methodologySectionDailyLimitsDescription =>
+      'फ़ूड लॉग में हम हर सदस्य के लिए एक दिन में दर्ज चीनी और नमक जोड़ते हैं और कुल मात्रा को उनकी उम्र की दैनिक सीमा से मिलाते हैं। प्रोटीन को दैनिक लक्ष्य की ओर प्रगति के रूप में दिखाया जाता है। लेबल पर कुल चीनी लिखी होती है, सिर्फ़ ऊपर से डाली गई चीनी नहीं, इसलिए यह ज़रूरत से ज़्यादा चेतावनी दे सकता है।';
+
+  @override
+  String get methodologySectionDailyLimitsTitle => 'दैनिक सीमाएँ';
+
+  @override
   String get methodologySectionDietDescription =>
       'हम ऐसी सामग्री ढूँढ़ते हैं जो सदस्य के आहार (शाकाहारी, अंडाहारी, वीगन या जैन) से मेल न खाए, और पैक पर हरा या भूरा निशान देखते हैं।';
 

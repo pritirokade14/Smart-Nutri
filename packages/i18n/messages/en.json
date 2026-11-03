@@ -700,6 +700,10 @@
       "custom_alerts": {
         "title": "Your ingredient alerts",
         "description": "Ingredients a member asked to be told about, such as palm oil or maida. These are preferences, so there is no source to cite."
+      },
+      "daily_limits": {
+        "title": "Daily limits",
+        "description": "In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed."
       }
     }
   },

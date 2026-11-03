@@ -499,6 +499,8 @@
   "methodologySectionClaimsTitle": "Front-of-pack claims",
   "methodologySectionCustomAlertsDescription": "Ingredients a member asked to be told about, such as palm oil or maida. These are preferences, so there is no source to cite.",
   "methodologySectionCustomAlertsTitle": "Your ingredient alerts",
+  "methodologySectionDailyLimitsDescription": "In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed.",
+  "methodologySectionDailyLimitsTitle": "Daily limits",
   "methodologySectionDietDescription": "We look for ingredients that don't fit a member's diet (vegetarian, eggetarian, vegan or Jain) and check the green or brown mark on the pack.",
   "methodologySectionDietTitle": "Diet",
   "methodologySectionHighInDescription": "A product is marked high in a nutrient when its amount per 100 g or 100 ml is at or above these limits.",

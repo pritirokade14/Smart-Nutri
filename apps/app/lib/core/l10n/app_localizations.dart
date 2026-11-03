@@ -2182,6 +2182,18 @@ abstract class AppLocalizations {
   /// **'Your ingredient alerts'**
   String get methodologySectionCustomAlertsTitle;
 
+  /// No description provided for @methodologySectionDailyLimitsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed.'**
+  String get methodologySectionDailyLimitsDescription;
+
+  /// No description provided for @methodologySectionDailyLimitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limits'**
+  String get methodologySectionDailyLimitsTitle;
+
   /// No description provided for @methodologySectionDietDescription.
   ///
   /// In en, this message translates to:

@@ -1165,6 +1165,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodologySectionCustomAlertsTitle => 'Your ingredient alerts';
 
   @override
+  String get methodologySectionDailyLimitsDescription =>
+      'In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed.';
+
+  @override
+  String get methodologySectionDailyLimitsTitle => 'Daily limits';
+
+  @override
   String get methodologySectionDietDescription =>
       'We look for ingredients that don\'t fit a member\'s diet (vegetarian, eggetarian, vegan or Jain) and check the green or brown mark on the pack.';
 

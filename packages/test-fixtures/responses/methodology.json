@@ -522,12 +522,14 @@
     {
       "id": "blood_sugar",
       "rationale_sources": [
-        "icmr_nin_2024"
+        "icmr_nin_2024",
+        "ada_standards_of_care"
       ],
       "threshold_sources": [
         "uk_fsa_front_of_pack",
         "fssai_claims_2018",
-        "uk_sdil"
+        "uk_sdil",
+        "smartnutri_working_values"
       ],
       "thresholds": {
         "applies_to": [
@@ -757,6 +759,45 @@
           ]
         }
       }
+    },
+    {
+      "id": "daily_limits",
+      "rationale_sources": [
+        "who_infant"
+      ],
+      "threshold_sources": [
+        "who_free_sugars",
+        "who_sodium",
+        "who_protein_2007",
+        "nhs_child_sugar",
+        "nhs_child_salt",
+        "smartnutri_working_values"
+      ],
+      "thresholds": {
+        "adult": {
+          "protein_g_per_kg": 0.83,
+          "salt_g": 5,
+          "sugar_g": 25
+        },
+        "child_max_age": 13,
+        "child_salt_g_by_min_age": {
+          "11": 6,
+          "2": 2,
+          "4": 3,
+          "7": 5
+        },
+        "child_sugar_g_by_min_age": {
+          "11": 30,
+          "2": 19,
+          "7": 24
+        },
+        "infant": {
+          "salt_g": 0,
+          "sugar_g": 0
+        },
+        "infant_max_age": 2,
+        "near_pct": 80
+      }
     }
   ],
   "sources": [
@@ -809,11 +850,41 @@
       "url_verified": false
     },
     {
+      "id": "ada_standards_of_care",
+      "title": "American Diabetes Association: Standards of Care in Diabetes, Section 5",
+      "url": "https://diabetesjournals.org/care/issue/48/Supplement_1",
+      "url_verified": false
+    },
+    {
+      "id": "who_free_sugars",
+      "title": "WHO guideline: sugars intake for adults and children",
+      "url": "https://www.who.int/publications/i/item/9789241549028",
+      "url_verified": false
+    },
+    {
+      "id": "who_sodium",
+      "title": "WHO guideline: sodium intake for adults and children",
+      "url": "https://www.who.int/publications/i/item/9789241504836",
+      "url_verified": false
+    },
+    {
+      "id": "who_protein_2007",
+      "title": "WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)",
+      "url": "https://www.who.int/publications/i/item/9789241209359",
+      "url_verified": false
+    },
+    {
+      "id": "nhs_child_salt",
+      "title": "NHS: salt limits for children",
+      "url": "https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/",
+      "url_verified": false
+    },
+    {
       "id": "smartnutri_working_values",
       "title": "SmartNutri working values, pending clinician review",
       "url": null,
       "url_verified": false
     }
   ],
-  "version": "b3b3e5e11d94"
+  "version": "fea34dec335d"
 }

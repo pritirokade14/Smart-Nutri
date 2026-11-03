@@ -1169,6 +1169,13 @@ class AppLocalizationsMr extends AppLocalizations {
   String get methodologySectionCustomAlertsTitle => 'तुमचे घटक अलर्ट';
 
   @override
+  String get methodologySectionDailyLimitsDescription =>
+      'फूड लॉगमध्ये आम्ही प्रत्येक सदस्यासाठी एका दिवसात नोंदवलेली साखर आणि मीठ एकत्र करतो आणि एकूण प्रमाणाची त्यांच्या वयाच्या दैनिक मर्यादेशी तुलना करतो. प्रथिने दैनिक लक्ष्याकडे प्रगती म्हणून दाखवली जातात. लेबलवर एकूण साखर दिलेली असते, फक्त वरून घातलेली साखर नाही, त्यामुळे हे गरजेपेक्षा जास्त इशारा देऊ शकते.';
+
+  @override
+  String get methodologySectionDailyLimitsTitle => 'दैनिक मर्यादा';
+
+  @override
   String get methodologySectionDietDescription =>
       'सदस्याच्या आहाराशी (शाकाहारी, अंडाहारी, व्हीगन किंवा जैन) न जुळणारे घटक आम्ही शोधतो आणि पॅकवरील हिरवी किंवा तपकिरी खूण तपासतो.';
 
