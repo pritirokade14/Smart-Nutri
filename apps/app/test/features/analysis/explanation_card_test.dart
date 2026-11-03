@@ -135,4 +135,21 @@ void main() {
     );
     expect(find.text('Fine for ${en.resultYou}.'), findsOneWidget);
   });
+
+  testWidgets('the account holder is "you" even with a name (as web)', (
+    t,
+  ) async {
+    await t.pumpWidget(
+      wrap(
+        ExplanationCard(
+          explanation: explanation(
+            text: 'Fine for member_1 and member_2.',
+            refs: {'member_1': 'p', 'member_2': 'c'},
+          ),
+          verdicts: [verdict('p', 'Ravi', primary: true), verdict('c', 'Asha')],
+        ),
+      ),
+    );
+    expect(find.text('Fine for ${en.resultYou} and Asha.'), findsOneWidget);
+  });
 }

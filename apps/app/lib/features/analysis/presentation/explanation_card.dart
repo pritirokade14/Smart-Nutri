@@ -35,9 +35,12 @@ class ExplanationCard extends StatelessWidget {
     if (e.source != ExplanationOutSource.llm) return null;
     final raw = e.text;
     if (raw == null || raw.trim().isEmpty) return null;
+    // The account holder (or a member with no name) is "You", as on web.
     final names = {
       for (final v in verdicts)
-        v.memberId: v.memberName.isEmpty ? l10n.resultYou : v.memberName,
+        v.memberId: v.isPrimary || v.memberName.isEmpty
+            ? l10n.resultYou
+            : v.memberName,
     };
     final text = substituteMemberTokens(raw, e.memberRefs, names);
     if (text == null) return null;
