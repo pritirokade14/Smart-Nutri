@@ -97,14 +97,14 @@ async def test_voice_body_over_6mb_is_refused(client):
 
 
 async def test_voice_body_under_6mb_passes_the_cap(client):
-    # 1 MB of audio: over the default cap, under the voice cap. It reaches the app, which
-    # refuses it for having no token.
+    # 1 MB of audio: over the default cap, under the voice cap. It reaches the app, whose
+    # first check (m1: the voice switch, off by default) refuses it.
     r = await client.post(
         "/v1/voice/ask",
         files={"audio": ("q.m4a", b"x" * MB, "audio/mp4")},
         data={"member_id": "11111111-1111-1111-1111-111111111111", "language": "en"},
     )
-    assert r.status_code == 401
+    assert (r.status_code, r.json()["error"]["code"]) == (503, "ai_unavailable")
 
 
 async def test_streamed_body_over_the_cap_is_cut_off(client):
