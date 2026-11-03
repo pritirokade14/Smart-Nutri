@@ -24,3 +24,17 @@ class Account(Base):
     language: Mapped[str] = mapped_column(Text, server_default="en")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DeletedAccount(Base):
+    """Tombstone of an erased account (ruling D1/B1, migration 0004).
+
+    Written in the erasure transaction of `DELETE /v1/me`. While it exists, a still-valid
+    access token for this id gets 401 `auth_invalid` and never re-creates the account.
+    Server-only (no client grant). The retention job purges it after 7 days.
+    """
+
+    __tablename__ = "deleted_accounts"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

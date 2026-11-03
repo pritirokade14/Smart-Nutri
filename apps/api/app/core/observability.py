@@ -54,7 +54,7 @@ def scrub_event(event: dict, hint: dict) -> dict | None:
     - the request env (client IP);
     - credential headers;
     - user email, IP and username;
-    - stack-frame local variables, `extra`, log messages and breadcrumbs;
+    - stack-frame local variables, `extra`, log messages, the event `message` and breadcrumbs;
     - exception messages, which can embed SQL parameters or input values.
 
     The user id becomes sha256(account_id).
@@ -66,6 +66,10 @@ def scrub_event(event: dict, hint: dict) -> dict | None:
             exc["value"] = REDACTED
     # Log messages are often pre-formatted with data, so drop them entirely.
     event.pop("logentry", None)
+    # capture_message() text and some integrations' free text (ruling D1/S3). Alerts stay
+    # identifiable through tags, which hold fixed values only.
+    if "message" in event:
+        event["message"] = REDACTED
     event.pop("breadcrumbs", None)
     for exc in (event.get("exception") or {}).get("values") or []:
         for frame in (exc.get("stacktrace") or {}).get("frames") or []:

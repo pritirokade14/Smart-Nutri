@@ -73,10 +73,11 @@ export interface paths {
          *
          *     Order: storage objects (label photos, and voice answers in their own bucket), then every
          *     account-owned row in one transaction (contributed products stay with no owner), then the
-         *     Supabase auth user.
-         *     Idempotent: calling it again returns 204. On 503 `deletion_incomplete`, retry: completed
-         *     steps are skipped. Depends on `current_account` (not `current_account_row`) so a repeat
-         *     call never re-creates the account row.
+         *     Supabase auth user. The row erasure also writes a tombstone (ruling D1/B1): until it is
+         *     purged (7 days), the caller's still-valid token gets 401 `auth_invalid` everywhere else.
+         *     Idempotent: calling it again returns 204 (at most 5 calls a day, then 429). On 503
+         *     `deletion_incomplete`, retry: completed steps are skipped. Depends on `current_account`
+         *     (not `current_account_row`) so a repeat call never re-creates the account row.
          */
         delete: operations["me_delete"];
         options?: never;

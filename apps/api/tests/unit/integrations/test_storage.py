@@ -150,6 +150,18 @@ async def test_upload_request():
     assert req.content == b"ID3data"
 
 
+async def test_upsert_upload_overwrites():
+    """D1/S4: the server replaces a label photo with its EXIF-free re-encode."""
+    path = "11111111-1111-1111-1111-111111111111/5b0a5e8e-8a5e-4d0e-9a39-0f9a2f6b8c11.png"
+    storage, seen = make(lambda r: httpx.Response(200, json={"Key": f"label-photos/{path}"}))
+    await storage.upload(path, b"\xff\xd8\xffjpeg", "image/jpeg", upsert=True)
+    [req] = seen
+    assert req.method == "POST"
+    assert str(req.url) == f"{URL}/storage/v1/object/label-photos/{path}"
+    assert req.headers["x-upsert"] == "true"
+    assert req.headers["content-type"] == "image/jpeg"
+
+
 async def test_signed_download_url_is_absolute_and_expires():
     storage, seen = make(
         lambda r: httpx.Response(

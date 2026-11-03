@@ -59,6 +59,9 @@ class Settings(BaseSettings):
     # One shared bucket for every authenticated route that may call Open Food Facts on a
     # cache miss: barcode lookup (Plan 8 Task 6), alternatives and compare (Plan 6).
     rate_limit_product_lookups_per_hour: int = 300
+    # Ruling D1/S5: POST /v1/consents and DELETE /v1/me (each account, per UTC day).
+    rate_limit_consents_per_day: int = 60
+    rate_limit_account_deletes_per_day: int = 5
     # Trusted reverse-proxy hops in front of the API (see .env.example). 0 = use socket peer.
     trusted_proxy_hops: int = Field(default=0, ge=0)
     sentry_dsn: str | None = None

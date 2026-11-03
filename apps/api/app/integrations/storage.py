@@ -50,8 +50,11 @@ class StorageClient(Protocol):
         """Return the object's bytes. Raises StorageNotFound."""
         ...
 
-    async def upload(self, path: str, data: bytes, content_type: str) -> None:
-        """Store `data` at `path` (never overwriting). Raises StorageUnavailable."""
+    async def upload(
+        self, path: str, data: bytes, content_type: str, *, upsert: bool = False
+    ) -> None:
+        """Store `data` at `path`. Never overwrites unless `upsert` (used only to replace a
+        label photo with its EXIF-free re-encode). Raises StorageUnavailable."""
         ...
 
     async def create_signed_url(self, path: str, expires_in: int) -> str:
@@ -154,9 +157,13 @@ class SupabaseStorage:
             logger.warning("storage_download status=network_error")
             raise StorageUnavailable("network error") from None
 
-    async def upload(self, path: str, data: bytes, content_type: str) -> None:
+    async def upload(
+        self, path: str, data: bytes, content_type: str, *, upsert: bool = False
+    ) -> None:
         url = f"{self._base}/object/{self._object(path)}"
         headers = {**self._headers(), "Content-Type": content_type}
+        if upsert:
+            headers["x-upsert"] = "true"
         try:
             response = await self._http.post(url, headers=headers, content=data)
         except httpx.HTTPError:
@@ -270,7 +277,9 @@ class _UnconfiguredStorage:
     async def download(self, path: str) -> bytes:
         raise StorageUnavailable("not configured")
 
-    async def upload(self, path: str, data: bytes, content_type: str) -> None:
+    async def upload(
+        self, path: str, data: bytes, content_type: str, *, upsert: bool = False
+    ) -> None:
         raise StorageUnavailable("not configured")
 
     async def list_prefix(self, prefix: str, *, older_than: datetime | None = None) -> list[str]:

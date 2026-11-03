@@ -14,8 +14,37 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert MigrationContext.configure(conn).get_current_revision() == "0003_plan6_meal_logs_off"
+        assert (
+            MigrationContext.configure(conn).get_current_revision() == "0004_plan8_deleted_accounts"
+        )
     engine.dispose()
+
+
+def test_deleted_accounts_downgrades_cleanly(migrated):
+    """D1/B1: the tombstone table comes and goes with 0004, with forced RLS and no user grant."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0003_plan6_meal_logs_off")
+        with engine.connect() as conn:
+            assert "deleted_accounts" not in inspect(conn).get_table_names()
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    "select relrowsecurity, relforcerowsecurity from pg_class "
+                    "where oid = 'public.deleted_accounts'::regclass"
+                )
+            ).one()
+            assert tuple(row) == (True, True)
+            for role in ("anon", "authenticated"):
+                granted = conn.execute(
+                    text("select has_table_privilege(:r, 'public.deleted_accounts', 'SELECT')"),
+                    {"r": role},
+                ).scalar()
+                assert granted is False, role
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
 
 
 def test_meal_logs_off_columns_downgrade_cleanly(migrated):
@@ -105,7 +134,7 @@ def test_models_match_migration(migrated):
 
 def test_orm_class_names():
     from app.features.consents.models import Consent
-    from app.features.me.models import Account
+    from app.features.me.models import Account, DeletedAccount
     from app.features.meals.models import MealLog
     from app.features.members.models import Member
     from app.features.products.models import OffProductCache, Product
@@ -117,6 +146,7 @@ def test_orm_class_names():
         c.__tablename__
         for c in (
             Account,
+            DeletedAccount,
             Member,
             Consent,
             Product,

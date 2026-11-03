@@ -1,4 +1,5 @@
-"""Retention job: label photos after 30 days, voice answers after 24 hours (Plan 8 Task 3).
+"""Retention job: label photos after 30 days, voice answers after 24 hours (Plan 8 Task 3),
+deletion tombstones after 7 days (ruling D1/B1).
 
 Run as a Cloud Run Job, daily at 02:30 IST (Plan 8 Task 10):
 
@@ -12,6 +13,9 @@ What it does:
   else in the label-photo bucket.
 - Sets `scans.image_path = NULL` on scans older than `photo_days`, and on any scan whose photo
   it just deleted. Scans whose object is already gone are nulled too.
+- Deletes `deleted_accounts` tombstones written more than 7 days ago, with the erased account's
+  leftover `account_deletes` rate-limit counter. Seven days is far longer than any access token
+  of the erased account stays valid (Supabase JWT expiry, 1 hour by default).
 
 Storage is changed first, then the rows in one transaction. If storage fails, no row changes
 and the job exits 1. Running it again is safe: there is nothing left to delete. Logs carry
@@ -41,6 +45,7 @@ logger = logging.getLogger("app.jobs.retention")
 VOICE_PREFIX = "voice"
 PHOTO_DAYS = 30
 VOICE_HOURS = 24
+TOMBSTONE_DAYS = 7
 
 
 @dataclass(frozen=True)
@@ -48,6 +53,7 @@ class RetentionResult:
     photos_deleted: int
     voice_deleted: int
     scans_nulled: int
+    tombstones_purged: int = 0
 
 
 _NULL_FILTER = (
@@ -84,10 +90,19 @@ async def run_retention(
             params,
         )
     )
+    tombstone_cutoff = now - timedelta(days=TOMBSTONE_DAYS)
+    old_tombstones = list(
+        await session.scalars(
+            text("select id from deleted_accounts where deleted_at < :cutoff"),
+            {"cutoff": tombstone_cutoff},
+        )
+    )
     await session.commit()  # release the connection during the storage calls
 
     if dry_run:
-        return RetentionResult(len(old_photos), len(old_voice), len(scan_paths))
+        return RetentionResult(
+            len(old_photos), len(old_voice), len(scan_paths), len(old_tombstones)
+        )
 
     if voice_store is storage:
         await storage.delete_paths(sorted(set(old_photos) | set(scan_paths) | set(old_voice)))
@@ -98,8 +113,19 @@ async def run_retention(
         text(f"update scans set image_path = null where {_NULL_FILTER}"),
         params,
     )
+    purged = list(
+        await session.scalars(
+            text("delete from deleted_accounts where deleted_at < :cutoff returning id"),
+            {"cutoff": tombstone_cutoff},
+        )
+    )
+    # The erased account's account_deletes counter was kept with its tombstone.
+    await session.execute(
+        text("delete from rate_limit_counters where key = any(cast(:keys as text[]))"),
+        {"keys": [f"acct:{account_id}" for account_id in purged]},
+    )
     await session.commit()
-    return RetentionResult(len(old_photos), len(old_voice), result.rowcount)
+    return RetentionResult(len(old_photos), len(old_voice), result.rowcount, len(purged))
 
 
 async def _run_from_settings(
@@ -163,10 +189,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         logger.error("retention status=failed error=%s", type(exc).__name__)
         return 1
     logger.info(
-        "retention photos_deleted=%d voice_deleted=%d scans_nulled=%d dry_run=%s",
+        "retention photos_deleted=%d voice_deleted=%d scans_nulled=%d tombstones_purged=%d "
+        "dry_run=%s",
         result.photos_deleted,
         result.voice_deleted,
         result.scans_nulled,
+        result.tombstones_purged,
         args.dry_run,
     )
     return 0

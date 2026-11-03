@@ -39,6 +39,7 @@ TABLES = {
     "product_reports",
     "rate_limit_counters",
     "explanation_cache",
+    "deleted_accounts",
 }
 
 _ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")
@@ -324,6 +325,8 @@ async def two_accounts(db: AsyncConnection) -> TwoAccounts:
         ),
         {"p": product},
     )
+    # A tombstone of some earlier, erased account (D1/B1).
+    await db.execute(text("insert into deleted_accounts (id) values (:id)"), {"id": uuid.uuid4()})
     seed_a = await _seed(db, "A", product)
     seed_b = await _seed(db, "B", product)
     return TwoAccounts(

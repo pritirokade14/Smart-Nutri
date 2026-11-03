@@ -3758,7 +3758,7 @@
     },
     "/v1/me": {
       "delete": {
-        "description": "Permanently erase the caller's account (DPDP erasure, F11).\n\nOrder: storage objects (label photos, and voice answers in their own bucket), then every\naccount-owned row in one transaction (contributed products stay with no owner), then the\nSupabase auth user.\nIdempotent: calling it again returns 204. On 503 `deletion_incomplete`, retry: completed\nsteps are skipped. Depends on `current_account` (not `current_account_row`) so a repeat\ncall never re-creates the account row.",
+        "description": "Permanently erase the caller's account (DPDP erasure, F11).\n\nOrder: storage objects (label photos, and voice answers in their own bucket), then every\naccount-owned row in one transaction (contributed products stay with no owner), then the\nSupabase auth user. The row erasure also writes a tombstone (ruling D1/B1): until it is\npurged (7 days), the caller's still-valid token gets 401 `auth_invalid` everywhere else.\nIdempotent: calling it again returns 204 (at most 5 calls a day, then 429). On 503\n`deletion_incomplete`, retry: completed steps are skipped. Depends on `current_account`\n(not `current_account_row`) so a repeat call never re-creates the account row.",
         "operationId": "me_delete",
         "responses": {
           "204": {

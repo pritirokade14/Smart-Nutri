@@ -19,9 +19,10 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError, ErrorEnvelope
-from app.core.security import AccountContext, current_account
+from app.core.security import AccountContext, auth_invalid_error, current_account
 from app.db.session import get_session
 from app.features.consents import service as consents_service
+from app.features.me import service as me_service
 
 Purpose = Literal["terms", "health_data", "ai_processing"]
 
@@ -62,6 +63,9 @@ def require_consents(*purposes: Purpose) -> Callable[..., Awaitable[None]]:
         ctx: Annotated[AccountContext, Depends(current_account)],
         session: Annotated[AsyncSession, Depends(get_session)],
     ) -> None:
+        # An erased account's token is refused as invalid, not sent to the consent screen.
+        if await me_service.is_deleted(session, ctx.account_id):
+            raise auth_invalid_error()
         missing = await _missing(session, ctx.account_id, purposes)
         if missing:
             raise ApiError("consent_required", 403, details={"purposes": missing})

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
+from app.core.ratelimit import limit
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.me import service
@@ -49,6 +50,8 @@ async def me_get(current: Annotated[CurrentAccount, Depends(current_account_row)
             "description": "deletion_incomplete: storage or sign-in removal failed; retry",
         },
     },
+    # First: it commits the session. allow_deleted: a retry after a 503 must get through.
+    dependencies=[Depends(limit("account_deletes", allow_deleted=True))],
 )
 async def me_delete(
     ctx: Annotated[AccountContext, Depends(current_account)],
@@ -61,10 +64,11 @@ async def me_delete(
 
     Order: storage objects (label photos, and voice answers in their own bucket), then every
     account-owned row in one transaction (contributed products stay with no owner), then the
-    Supabase auth user.
-    Idempotent: calling it again returns 204. On 503 `deletion_incomplete`, retry: completed
-    steps are skipped. Depends on `current_account` (not `current_account_row`) so a repeat
-    call never re-creates the account row.
+    Supabase auth user. The row erasure also writes a tombstone (ruling D1/B1): until it is
+    purged (7 days), the caller's still-valid token gets 401 `auth_invalid` everywhere else.
+    Idempotent: calling it again returns 204 (at most 5 calls a day, then 429). On 503
+    `deletion_incomplete`, retry: completed steps are skipped. Depends on `current_account`
+    (not `current_account_row`) so a repeat call never re-creates the account row.
     """
     account_id = ctx.account_id
     try:

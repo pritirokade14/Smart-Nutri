@@ -38,6 +38,14 @@ The Plan 8 branch gated analyze and meals on `terms` + `health_data`, and scans 
 
 So withdrawing `health_data` stops new health-field saves, but analyze keeps reading the stored allergies and conditions. Ignoring them would show `ok` to an allergic member, which the rules forbid. `tests/api/test_consent_gate.py` asserts both the scope and this allergy case.
 
+What each consent covers under G1 (safety ruling D1/S2; the privacy notice says the same):
+
+- **`terms` (the core service).** Verdicts, scans, meal logs, product contributions, and **reading label photos**. A label photo goes to the vision model to read the printed values. It carries no member data, and the server strips its EXIF/GPS before the call and in storage (D1/S4). Reading a label is the service the user asked for, so it does not need `ai_processing`.
+- **`health_data`.** Saving member health fields (allergies, conditions, goal, height, weight). Verdicts do not need it. They use whatever is stored, so that a saved allergy is never ignored.
+- **`ai_processing`.** Sending member context (names and IDs removed) to an AI model: the written explanation of a verdict and voice questions and answers.
+
+**For the lawyer:** confirm that (1) reading a label photo with an AI model can rest on `terms` as part of the core service, and (2) verdicts may keep using stored health data after `health_data` is withdrawn (see DPDP s. 8(7) under Consequences).
+
 ## Consequences
 
 - **The 403 can come from any gated route.** Clients must handle `consent_required` on every gated route and send the user to the consent screen with `details.purposes`. Until the Android and web consent screens ship, accounts without consent rows cannot analyze or scan.

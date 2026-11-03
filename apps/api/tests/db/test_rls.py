@@ -14,7 +14,12 @@ from sqlalchemy.exc import DBAPIError
 from tests.db.conftest import TABLES, as_anon, as_user
 
 OWNED = ("members", "consents", "scans", "meal_logs", "product_reports")
-SERVER_ONLY = ("off_product_cache", "rate_limit_counters", "explanation_cache")
+SERVER_ONLY = (
+    "off_product_cache",
+    "rate_limit_counters",
+    "explanation_cache",
+    "deleted_accounts",
+)
 INSUFFICIENT_PRIVILEGE = "42501"
 
 
@@ -233,6 +238,12 @@ async def test_server_only_tables_reject_user_writes(db, two_accounts):
             {"p": two_accounts.product},
         )
         await _expect_denied(db, "update rate_limit_counters set count = 0")
+        # Deletion tombstones (D1/B1): a user can neither lift one nor plant one.
+        await _expect_denied(
+            db, "insert into deleted_accounts (id) values (:id)", {"id": two_accounts.a}
+        )
+        await _expect_denied(db, "delete from deleted_accounts")
+        await _expect_denied(db, "update deleted_accounts set deleted_at = now()")
 
 
 async def test_user_without_jwt_sub_sees_nothing(db, two_accounts):

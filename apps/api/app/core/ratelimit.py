@@ -17,8 +17,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_app_settings
 from app.core.errors import ApiError
-from app.core.security import AccountContext, current_account
+from app.core.security import AccountContext, auth_invalid_error, current_account
 from app.db.session import get_session
+from app.features.me import service as me_service
 
 # bucket -> (window, settings attribute holding the limit)
 BUCKETS: dict[str, tuple[str, str]] = {
@@ -33,6 +34,9 @@ BUCKETS: dict[str, tuple[str, str]] = {
     "public": ("minute", "rate_limit_public_per_minute"),
     "meal_logs": ("day", "rate_limit_meal_logs_per_day"),
     "search": ("minute", "rate_limit_search_per_minute"),
+    # Ruling D1/S5: consent writes and account deletion.
+    "consents": ("day", "rate_limit_consents_per_day"),
+    "account_deletes": ("day", "rate_limit_account_deletes_per_day"),
 }
 ERROR_CODES = {"label_scans": "rate_limited_scans", "voice": "rate_limited_voice"}
 _DEFAULT_CODE = "rate_limited"
@@ -129,8 +133,13 @@ def _check_account_bucket(session: AsyncSession, bucket: str, caller: str) -> No
         raise RuntimeError(f"{caller}() would commit staged writes; call it before staging them")
 
 
-def limit(bucket: str) -> Callable[..., Awaitable[None]]:
-    """FastAPI dependency enforcing ``bucket``. ``public`` is keyed by client IP, no auth."""
+def limit(bucket: str, *, allow_deleted: bool = False) -> Callable[..., Awaitable[None]]:
+    """FastAPI dependency enforcing ``bucket``. ``public`` is keyed by client IP, no auth.
+
+    An erased account (tombstoned, ruling D1/B1) gets 401 `auth_invalid` before anything is
+    counted, so its leftover token re-creates no counter row. Only `DELETE /v1/me` passes
+    ``allow_deleted=True``: a retry after a partial failure must still reach it.
+    """
     if bucket not in BUCKETS:
         raise KeyError(f"unknown rate-limit bucket: {bucket}")
 
@@ -151,6 +160,8 @@ def limit(bucket: str) -> Callable[..., Awaitable[None]]:
         session: Annotated[AsyncSession, Depends(get_session)],
         settings: Annotated[Settings, Depends(get_app_settings)],
     ) -> None:
+        if not allow_deleted and await me_service.is_deleted(session, account.account_id):
+            raise auth_invalid_error()
         await _hit(session, settings, f"acct:{account.account_id}", bucket)
 
     return _by_account

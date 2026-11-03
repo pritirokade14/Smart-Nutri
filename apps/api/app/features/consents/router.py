@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.ratelimit import limit
 from app.db.session import get_session
 from app.features.consents import service
 from app.features.consents.schemas import ConsentIn, ConsentState
@@ -11,7 +12,12 @@ from app.features.me.dependencies import CurrentAccount, current_account_row
 router = APIRouter(prefix="/v1/consents", tags=["consents"])
 
 
-@router.post("", operation_id="consents_record", response_model=list[ConsentState])
+@router.post(
+    "",
+    operation_id="consents_record",
+    response_model=list[ConsentState],
+    dependencies=[Depends(limit("consents"))],  # first: it commits the session
+)
 async def consents_record(
     body: ConsentIn,
     current: Annotated[CurrentAccount, Depends(current_account_row)],

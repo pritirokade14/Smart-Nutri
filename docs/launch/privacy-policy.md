@@ -30,11 +30,11 @@ We never collect a member's full date of birth, and we do not collect identity d
 
 We ask for separate consents, and you can withdraw each one at any time:
 
-- **`terms`:** to use the service under our Terms.
-- **`health_data`:** to store and use your family's health data to calculate verdicts.
-- **`ai_processing`:** to send label photos, product data, and member profiles with names and IDs removed to AI models, which read labels and write explanations and voice answers.
+- **`terms`:** to use the service under our Terms. This covers the core service: verdicts, scans, meal logs and **reading the label photos you take**. To read a label, we send the photo to an AI model. The photo holds no family or health data, and we remove its location and other hidden details (EXIF) first.
+- **`health_data`:** to save your family's health data (allergies, conditions, goal, height, weight). Verdicts use the health data you have saved; without it, they cannot take a member's allergies or conditions into account.
+- **`ai_processing`:** to send product data and member profiles, with names and IDs removed, to AI models that write explanations of a verdict and answer voice questions.
 
-Verdicts (`ok`, `caution`, `unknown`, `avoid`) are calculated by our own rules, never by an AI model. AI only explains the result.
+Verdicts (`ok`, `caution`, `unknown`, `avoid`) are calculated by our own rules, never by an AI model. AI only reads labels and explains the result. [Lawyer: confirm that label reading can rest on `terms` as part of the core service, see ADR 0018 ruling G1.]
 
 ## 3. Where your data is processed
 
@@ -47,10 +47,11 @@ Verdicts (`ok`, `caution`, `unknown`, `avoid`) are calculated by our own rules, 
 
 | Data | Kept for |
 |---|---|
-| Label photos | **30 days**, then deleted automatically. The values you confirmed stay with the product. |
+| Label photos | **30 days**, then deleted automatically. We keep them without location or other hidden details (EXIF). [Before launch: confirm both apps strip EXIF before upload; the server strips it only from photos it reads.] The values you confirmed stay with the product. |
 | Voice recordings | Your recording is never stored. Our spoken answers are deleted after **24 hours**. Transcripts are never stored. |
 | Account, family profiles, health data, meal logs | Until you delete them or delete your account |
 | Consent records | For as long as we need to show what you agreed to and when |
+| Record that an account was deleted | **7 days** after deletion: only the account's internal ID and the time, so that a sign-in from before the deletion cannot bring the account back |
 | Crash reports | Up to 90 days, in the provider's retention settings |
 
 ## 5. Your rights

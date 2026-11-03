@@ -1,11 +1,11 @@
 from uuid import UUID
 
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import AccountContext
-from app.features.me.models import Account
+from app.core.security import AccountContext, auth_invalid_error
+from app.features.me.models import Account, DeletedAccount
 from app.integrations.storage import StorageClient
 
 
@@ -16,8 +16,33 @@ def _default_display_name(email: str | None) -> str | None:
     return local or None
 
 
+async def _lock_account_id(session: AsyncSession, account_id: UUID) -> None:
+    """Serialise account creation and erasure for one id until the transaction ends.
+
+    Without it, a request racing `DELETE /v1/me` could pass the tombstone check before the
+    erasure commits and then re-insert the account row right after it.
+    """
+    await session.execute(
+        text("select pg_advisory_xact_lock(hashtextextended('account:' || :a, 0))"),
+        {"a": str(account_id)},
+    )
+
+
+async def is_deleted(session: AsyncSession, account_id: UUID) -> bool:
+    """True if this account id was erased and its tombstone has not been purged yet."""
+    found = await session.scalar(select(DeletedAccount.id).where(DeletedAccount.id == account_id))
+    return found is not None
+
+
 async def ensure_account(session: AsyncSession, ctx: AccountContext) -> Account:
-    """Create the account row on first login (idempotent), then return it."""
+    """Create the account row on first login (idempotent), then return it.
+
+    Raises 401 `auth_invalid` for an erased account (ruling D1/B1): its access token may
+    still be valid, but it must never bring the account back.
+    """
+    await _lock_account_id(session, ctx.account_id)
+    if await is_deleted(session, ctx.account_id):
+        raise auth_invalid_error()  # the lock goes when the request's session closes
     await session.execute(
         insert(Account)
         .values(id=ctx.account_id, display_name=_default_display_name(ctx.email))
@@ -76,12 +101,21 @@ async def account_storage_paths(
     return sorted(paths)
 
 
+# Kept after an erasure, so the DELETE /v1/me limit still holds for the rest of the day. It
+# goes with the tombstone (app/jobs/retention.py).
+ACCOUNT_DELETES_BUCKET = "account_deletes"
+
+
 async def erase_account_rows(session: AsyncSession, account_id: UUID) -> None:
-    """Delete every account-owned row in one transaction (the caller commits).
+    """Delete every account-owned row and write the tombstone, in one transaction (the
+    caller commits).
 
     Contributed products stay, without an owner. Rate-limit counters keyed by the account go
-    too. Idempotent: a second run deletes nothing.
+    too, except the `account_deletes` one. The tombstone (ruling D1/B1) is written (or its
+    time refreshed) in the same transaction, so there is never an erased account without
+    one. Idempotent: a second run deletes nothing.
     """
+    await _lock_account_id(session, account_id)
     params = {"a": account_id}
     for table in ACCOUNT_OWNED_TABLES:  # fixed literals, never user input
         await session.execute(text(f"delete from {table} where account_id = :a"), params)
@@ -89,6 +123,14 @@ async def erase_account_rows(session: AsyncSession, account_id: UUID) -> None:
         text("update products set created_by = null where created_by = :a"), params
     )
     await session.execute(
-        text("delete from rate_limit_counters where key = :k"), {"k": f"acct:{account_id}"}
+        text("delete from rate_limit_counters where key = :k and bucket <> :keep"),
+        {"k": f"acct:{account_id}", "keep": ACCOUNT_DELETES_BUCKET},
     )
     await session.execute(text("delete from accounts where id = :a"), params)
+    # A retry restarts the 7-day window: until the auth user is removed, the sign-in could
+    # still mint new access tokens.
+    await session.execute(
+        insert(DeletedAccount)
+        .values(id=account_id)
+        .on_conflict_do_update(index_elements=[DeletedAccount.id], set_={"deleted_at": func.now()})
+    )

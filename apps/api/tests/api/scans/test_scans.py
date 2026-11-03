@@ -351,6 +351,91 @@ async def test_image_downscaled_and_metadata_stripped(scan_app, auth_client, fak
     assert "exif" not in img.info
 
 
+def assert_no_metadata(data: bytes) -> None:
+    img = Image.open(io.BytesIO(data))
+    assert img.format == "JPEG"
+    assert not img.getexif()
+    assert "exif" not in img.info and "xmp" not in img.info
+    assert b"PhoneMaker" not in data  # the EXIF Make tag is nowhere in the bytes
+
+
+# --- D1/S4: the stored photo itself carries no EXIF/GPS ---------------------------------
+
+
+@pytest.mark.parametrize("fmt", ["JPEG", "PNG", "WEBP"])
+async def test_stored_photo_is_overwritten_without_exif(scan_app, auth_client, fake_llm_ok, fmt):
+    ext = {"JPEG": "jpg", "PNG": "png", "WEBP": "webp"}[fmt]
+    path = new_path(auth_client, ext)
+    original = make_image(fmt, size=(3200, 2400), exif=gps_exif())
+    assert Image.open(io.BytesIO(original)).getexif()  # the upload carries EXIF/GPS
+    storage = _use_storage(scan_app, FakeStorage({path: original}))
+    r = await post_label(auth_client, path)
+    assert r.status_code == 200, r.text
+    stored = storage.objects[path]
+    assert stored != original
+    assert_no_metadata(stored)
+    # The same re-encode the model got (EXIF orientation applied, long edge 1600 px).
+    assert stored == fake_llm_ok.last_kwargs["image"]
+    assert storage.uploads == [(path, "image/jpeg")] and storage.upserts == [path]
+
+
+async def test_stored_photo_is_stripped_on_a_cache_hit(
+    scan_app, auth_client, other_client, fake_llm_ok
+):
+    original = make_image(exif=gps_exif())
+    storage = _use_storage(scan_app, FakeStorage(default=original))
+    first, second = new_path(auth_client), new_path(other_client)
+    assert (await post_label(auth_client, first)).status_code == 200
+    r = await post_label(other_client, second)
+    assert r.status_code == 200 and r.json()["cached"] is True and fake_llm_ok.calls == 1
+    assert_no_metadata(storage.objects[first])
+    assert_no_metadata(storage.objects[second])
+
+
+async def test_stored_photo_strip_failure_does_not_fail_the_scan(
+    scan_app, auth_client, fake_llm_ok, caplog
+):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: make_image(exif=gps_exif())}))
+    storage.fail_uploads = True
+    caplog.set_level(logging.WARNING, logger="app.features.scans.service")
+    r = await post_label(auth_client, path)
+    assert r.status_code == 200
+    assert "label_photo_strip status=unavailable" in caplog.text
+    assert path not in caplog.text
+
+
+async def test_rejected_upload_is_deleted(scan_app, auth_client, fake_llm_ok):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: b"%PDF-1.7\n" + b"\0" * 100}))
+    r = await post_label(auth_client, path)
+    assert r.status_code == 415
+    assert path not in storage.objects and storage.deleted == [path]
+
+
+async def test_undecodable_upload_is_deleted(scan_app, auth_client, fake_llm_ok):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: b"\xff\xd8\xff\xe0" + b"junk" * 50}))
+    assert (await post_label(auth_client, path)).status_code == 415
+    assert path not in storage.objects
+
+
+async def test_too_large_upload_is_deleted(scan_app, auth_client, fake_llm_ok):
+    path = new_path(auth_client)
+    big = b"\xff\xd8\xff" + b"\0" * (9 * 1024 * 1024)
+    storage = _use_storage(scan_app, FakeStorage({path: big}))
+    assert (await post_label(auth_client, path)).status_code == 413
+    assert path not in storage.objects
+
+
+async def test_rejected_upload_delete_failure_keeps_the_error(scan_app, auth_client, fake_llm_ok):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: b"%PDF-1.7\n"}))
+    storage.unavailable = True
+    r = await post_label(auth_client, path)
+    assert r.status_code == 415 and r.json()["error"]["code"] == "unsupported_image"
+
+
 @pytest.mark.parametrize("fmt", ["PNG", "WEBP"])
 async def test_png_and_webp_accepted(scan_app, auth_client, fake_llm_ok, fmt):
     _use_storage(scan_app, FakeStorage(default=make_image(fmt)))
@@ -558,6 +643,8 @@ async def test_out_of_credits_is_503(
     assert r.json()["error"]["code"] == "extraction_unavailable"
     assert len(captured) == 1
     assert "insufficient_credits" in str(captured[0])
+    # The message is redacted by scrub_event (D1/S3); the tag keeps the alert identifiable.
+    assert captured[0][1]["tags"] == {"alert": "callmissed_insufficient_credits"}
     assert await scans_for(db_session, A) == []
 
 

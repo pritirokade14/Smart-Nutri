@@ -236,6 +236,29 @@ async def _extract(
     return extraction
 
 
+async def _replace_stored_photo(storage: StorageClient, path: str, prepared: bytes) -> None:
+    """Overwrite the uploaded photo with its re-encode (ruling D1/S4).
+
+    The re-encode is the JPEG the model gets: EXIF orientation applied, long edge at most
+    1600 px, and no metadata (EXIF, GPS, XMP), so a phone's location is not kept for the 30
+    days of photo retention. Best effort: if storage fails, the scan still succeeds (failing
+    it would not remove the original) and the retention job deletes the photo on schedule.
+    """
+    try:
+        await storage.upload(path, prepared, EXTRACTION_MIME, upsert=True)
+    except StorageUnavailable:
+        logger.warning("label_photo_strip status=unavailable")
+
+
+async def _discard_upload(storage: StorageClient, path: str) -> None:
+    """Delete an upload that was rejected (too large, not an image, undecodable): no scan
+    refers to it, and it may carry EXIF/GPS. Best effort; the error response is unchanged."""
+    try:
+        await storage.delete_paths([path])
+    except StorageUnavailable:
+        logger.warning("label_photo_discard status=unavailable")
+
+
 async def create_label_scan(
     session: AsyncSession,
     *,
@@ -276,8 +299,10 @@ async def create_label_scan(
     except StorageUnavailable:
         raise ApiError("storage_unavailable", 503) from None
     if len(data) > MAX_IMAGE_BYTES:
+        await _discard_upload(storage, body.path)
         raise ApiError("image_too_large", 413)
     if sniff_image_mime(data) is None:
+        await _discard_upload(storage, body.path)
         raise ApiError("unsupported_image", 415)
 
     image_sha256 = hashlib.sha256(data).hexdigest()
@@ -290,10 +315,16 @@ async def create_label_scan(
         # Count before decode (R15): undecodable uploads cost a scan too. Nothing is staged
         # yet, so the limiter's commit only persists the counter.
         await consume(session, settings, account_id=account_id, bucket="label_scans")
-        try:
-            prepared = await anyio.to_thread.run_sync(prepare_for_extraction, data)
-        except InvalidImage:
-            raise ApiError("unsupported_image", 415) from None
+    # Decoded on a cache hit too: the stored photo is replaced either way (D1/S4).
+    try:
+        prepared = await anyio.to_thread.run_sync(prepare_for_extraction, data)
+    except InvalidImage:
+        await _discard_upload(storage, body.path)
+        raise ApiError("unsupported_image", 415) from None
+    await session.commit()  # release the DB connection before the storage call
+    await _replace_stored_photo(storage, body.path, prepared)
+
+    if extraction is None:
         logger.info(
             "label_extraction cached=false prompt_version=%s model=%s", prompt_version, model
         )
@@ -307,7 +338,12 @@ async def create_label_scan(
             logger.error("label_extraction unavailable reason=%s", exc.reason)
             if exc.reason == "insufficient_credits":
                 # Ops alert. No image, label content or account data in the event.
-                sentry_sdk.capture_message("callmissed insufficient_credits", level="error")
+                # The message is redacted by scrub_event (D1/S3): the tag names the alert.
+                sentry_sdk.capture_message(
+                    "callmissed insufficient_credits",
+                    level="error",
+                    tags={"alert": "callmissed_insufficient_credits"},
+                )
             raise ApiError("extraction_unavailable", 503) from None
     else:
         logger.info("label_extraction cached=true prompt_version=%s", prompt_version)

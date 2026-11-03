@@ -23,6 +23,7 @@ class FakeStorage:
         self.signed: list[tuple[str, int]] = []
         self.downloads: list[str] = []
         self.uploads: list[tuple[str, str]] = []  # (path, content_type)
+        self.upserts: list[str] = []  # paths written with upsert=True
         self.signed_urls: list[tuple[str, int]] = []
         self.fail_uploads = False
         # Object creation times for list_prefix(older_than=...); missing means "just now".
@@ -30,12 +31,16 @@ class FakeStorage:
         self.deleted: list[str] = []
         self.unavailable = False  # True: list_prefix/delete_paths raise StorageUnavailable
 
-    async def upload(self, path: str, data: bytes, content_type: str) -> None:
+    async def upload(
+        self, path: str, data: bytes, content_type: str, *, upsert: bool = False
+    ) -> None:
         if self.fail_uploads:
-            from app.integrations.storage import StorageUnavailable
-
             raise StorageUnavailable("fake")
+        if path in self.objects and not upsert:
+            raise StorageUnavailable("fake: object exists")  # Supabase answers 400/409
         self.uploads.append((path, content_type))
+        if upsert:
+            self.upserts.append(path)
         self.objects[path] = data
 
     async def create_signed_url(self, path: str, expires_in: int) -> str:

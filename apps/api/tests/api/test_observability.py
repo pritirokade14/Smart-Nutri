@@ -62,7 +62,21 @@ def test_init_passes_pii_safe_sentry_options(monkeypatch):
 
 
 def test_scrub_event_without_request_or_user():
-    assert scrub_event({"message": "x"}, {}) == {"message": "x"}
+    assert scrub_event({"level": "error"}, {}) == {"level": "error"}
+
+
+def test_scrub_event_redacts_the_top_level_message():
+    """D1/S3: capture_message() and some integrations put free text in event["message"]."""
+    event = {"message": "member Asha has diabetes, allergic to peanut", "level": "error"}
+    out = scrub_event(event, {})
+    assert out == {"message": "<redacted>", "level": "error"}
+
+
+def test_scrub_event_redacts_a_structured_message():
+    event = {"message": {"message": "bad %s", "params": ["diabetes"], "formatted": "bad diabetes"}}
+    out = scrub_event(event, {})
+    assert out["message"] == "<redacted>"
+    assert "diabetes" not in str(out)
 
 
 def test_init_without_keys_is_noop():
@@ -107,3 +121,9 @@ async def test_lifespan_shuts_down_posthog(monkeypatch, app):
     async with app.router.lifespan_context(app):
         pass
     fake.shutdown.assert_called_once()
+
+
+def test_scrub_event_keeps_tags_so_redacted_alerts_stay_identifiable():
+    event = {"message": "callmissed insufficient_credits", "tags": {"alert": "x"}}
+    out = scrub_event(event, {})
+    assert out["message"] == "<redacted>" and out["tags"] == {"alert": "x"}

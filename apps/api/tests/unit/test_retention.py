@@ -182,12 +182,12 @@ async def test_storage_outage_changes_no_rows(session):
 def test_main_logs_counts_only(monkeypatch, capsys):
     async def fake_run(*, dry_run, photo_days, voice_hours):
         assert (dry_run, photo_days, voice_hours) == (True, 30, 24)
-        return RetentionResult(2, 3, 1)
+        return RetentionResult(2, 3, 1, tombstones_purged=4)
 
     monkeypatch.setattr(retention, "_run_from_settings", fake_run)
     assert retention.main(["--dry-run"]) == 0
     out = capsys.readouterr().out  # configure_logging writes JSON lines to stdout
-    assert "photos_deleted=2 voice_deleted=3 scans_nulled=1 dry_run=True" in out
+    assert "photos_deleted=2 voice_deleted=3 scans_nulled=1 tombstones_purged=4 dry_run=True" in out
 
 
 def test_main_failure_exits_1_without_details(monkeypatch, capsys):
@@ -198,3 +198,62 @@ def test_main_failure_exits_1_without_details(monkeypatch, capsys):
     assert retention.main([]) == 1
     out = capsys.readouterr().out
     assert "secret" not in out and "error=RuntimeError" in out
+
+
+# --- D1/B1: deletion tombstones are kept 7 days, then purged ---------------------------------
+
+
+async def add_tombstone(session: AsyncSession, account_id: UUID, age: timedelta) -> None:
+    await session.execute(
+        text("insert into deleted_accounts (id, deleted_at) values (:a, :d)"),
+        {"a": account_id, "d": NOW - age},
+    )
+    # The account_deletes counter is kept with the tombstone (D1/S5) and goes with it.
+    await session.execute(
+        text(
+            "insert into rate_limit_counters (key, bucket, window_start, count) "
+            "values (:k, 'account_deletes', :d, 1)"
+        ),
+        {"k": f"acct:{account_id}", "d": NOW - age},
+    )
+
+
+async def tombstone_ids(session: AsyncSession) -> set[UUID]:
+    return set(await session.scalars(text("select id from deleted_accounts")))
+
+
+async def counter_keys(session: AsyncSession) -> set[str]:
+    return set(await session.scalars(text("select key from rate_limit_counters")))
+
+
+async def test_tombstones_older_than_7_days_are_purged_with_their_counter(session):
+    old, young = uuid4(), uuid4()
+    await add_tombstone(session, old, timedelta(days=7, minutes=1))
+    await add_tombstone(session, young, timedelta(days=6, hours=23))
+    result = await run_retention(NOW, session, FakeStorage())
+    assert result == RetentionResult(0, 0, 0, tombstones_purged=1)
+    assert await tombstone_ids(session) == {young}
+    assert await counter_keys(session) == {f"acct:{young}"}
+
+
+async def test_dry_run_counts_tombstones_but_keeps_them(session):
+    old = uuid4()
+    await add_tombstone(session, old, timedelta(days=10))
+    result = await run_retention(NOW, session, FakeStorage(), dry_run=True)
+    assert result.tombstones_purged == 1
+    assert await tombstone_ids(session) == {old}
+
+
+async def test_storage_outage_purges_no_tombstone(session):
+    old = uuid4()
+    await add_tombstone(session, old, timedelta(days=10))
+    storage = FakeStorage()
+    storage.unavailable = True
+    with pytest.raises(Exception):  # noqa: B017 - StorageUnavailable surfaces; the job exits 1
+        await run_retention(NOW, session, storage)
+    assert await tombstone_ids(session) == {old}
+
+
+def test_tombstone_window_is_7_days():
+    # Ruling D1: well past the access-token lifetime (Supabase JWT expiry, 1 h by default).
+    assert retention.TOMBSTONE_DAYS == 7

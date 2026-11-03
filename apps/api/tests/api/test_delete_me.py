@@ -6,9 +6,10 @@ from uuid import UUID, uuid4
 import pytest
 from sqlalchemy import text
 
+from app.core.errors import ApiError
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
-from app.features.me.service import ACCOUNT_OWNED_TABLES, ensure_account
+from app.features.me.service import ACCOUNT_OWNED_TABLES, ensure_account, erase_account_rows
 from app.integrations import posthog
 from app.integrations.storage import get_storage, get_voice_storage
 from app.integrations.supabase_admin import AdminUnavailable, get_supabase_admin
@@ -143,14 +144,23 @@ async def counts(session, account_id: UUID) -> dict[str, int]:
     out["accounts"] = (
         await _exec(session, "select count(*) from accounts where id = :a", a=account_id)
     ).scalar_one()
+    # The account_deletes counter is kept on purpose until the tombstone is purged (D1/S5),
+    # so that the DELETE limit still holds after an erasure.
     out["rate_limit_counters"] = (
         await _exec(
             session,
-            "select count(*) from rate_limit_counters where key = :k",
+            "select count(*) from rate_limit_counters "
+            "where key = :k and bucket <> 'account_deletes'",
             k=f"acct:{account_id}",
         )
     ).scalar_one()
     return out
+
+
+async def tombstoned(session, account_id: UUID) -> bool:
+    return (
+        await _exec(session, "select count(*) from deleted_accounts where id = :a", a=account_id)
+    ).scalar_one() == 1
 
 
 async def test_delete_me_removes_all_rows(client, login, db_session, storage):
@@ -297,3 +307,135 @@ async def test_deletion_sends_only_the_allow_listed_event(client, login, monkeyp
     fake.capture.assert_called_once_with(
         "account_deleted", distinct_id=posthog.hashed_id(A), properties={}
     )
+
+
+# --- D1/B1: the deletion tombstone ---------------------------------------------------------
+
+_AUTH_INVALID = {"code": "auth_invalid", "message_key": "error.auth_invalid", "details": {}}
+
+
+async def test_deleted_account_is_locked_out_and_nothing_is_recreated(
+    client, login, db_session, storage
+):
+    """A still-valid access token of an erased account gets 401 everywhere, and no row comes
+    back: not the account (with its email-derived name), not a member, not a counter."""
+    await seed(db_session, A, storage)
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    assert await tombstoned(db_session, A)
+
+    for method, url, body in (
+        ("GET", "/v1/me", None),
+        ("GET", "/v1/members", None),
+        ("POST", "/v1/members", {"name": "Asha", "relation": "child", "birth_year": 2018}),
+        ("GET", "/v1/consents", None),
+        ("POST", "/v1/consents", {"purpose": "terms", "version": "2026-11-01", "granted": True}),
+        ("POST", "/v1/analyze", {}),  # consent-gated and rate-limited
+        ("GET", "/v1/products/barcode/8901234567890", None),  # rate-limited only
+    ):
+        r = await client.request(method, url, json=body)
+        assert r.status_code == 401, (method, url, r.text)
+        assert r.json()["error"] == _AUTH_INVALID, (method, url)
+        assert r.headers["www-authenticate"] == 'Bearer error="invalid_token"'
+
+    assert set((await counts(db_session, A)).values()) == {0}
+
+
+async def test_ensure_account_refuses_a_tombstoned_id(db_session):
+    await ensure_account(db_session, AccountContext(A, "priya@example.com"))
+    await erase_account_rows(db_session, A)
+    await db_session.commit()
+    with pytest.raises(ApiError) as exc_info:
+        await ensure_account(db_session, AccountContext(A, "priya@example.com"))
+    assert (exc_info.value.code, exc_info.value.status) == ("auth_invalid", 401)
+    assert (await counts(db_session, A))["accounts"] == 0
+
+
+async def test_tombstone_is_written_in_the_erasure_transaction(db_session, storage):
+    await seed(db_session, A, storage)
+    await db_session.commit()
+    await erase_account_rows(db_session, A)
+    assert await tombstoned(db_session, A)  # staged with the erasure, before the commit
+    await db_session.rollback()
+    # Rolled back together: the rows are back and there is no tombstone.
+    assert not await tombstoned(db_session, A)
+    assert (await counts(db_session, A))["members"] == 1
+
+
+async def test_storage_failure_writes_no_tombstone(client, login, db_session, storage):
+    await seed(db_session, A, storage)
+    storage.unavailable = True
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 503
+    assert not await tombstoned(db_session, A)
+    assert (await client.get("/v1/me")).status_code == 200  # the account still works
+
+
+async def test_retry_after_auth_failure_still_erases_and_refreshes_the_tombstone(
+    client, login, db_session, storage, admin
+):
+    await seed(db_session, A, storage)
+    admin.failures = 1
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 503
+    assert await tombstoned(db_session, A)  # rows are gone, so the tombstone is in place
+    await _exec(
+        db_session,
+        "update deleted_accounts set deleted_at = now() - interval '3 days' where id = :a",
+        a=A,
+    )
+    # The retry is allowed (the auth user is still there) and restarts the 7-day window:
+    # the sign-in could still mint tokens until the auth user was removed.
+    assert (await client.delete("/v1/me")).status_code == 204
+    assert admin.deleted == [A]
+    fresh = (
+        await _exec(
+            db_session,
+            "select deleted_at > now() - interval '1 minute' from deleted_accounts where id = :a",
+            a=A,
+        )
+    ).scalar_one()
+    assert fresh is True
+
+
+async def test_other_account_is_not_locked_out(client, login, db_session, storage):
+    await seed(db_session, A, storage)
+    await seed(db_session, B, storage)
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    login(B)
+    assert (await client.get("/v1/me")).status_code == 200
+    assert (await client.get("/v1/members")).status_code == 200
+
+
+# --- D1/S5: rate limits on deletion and consents ----------------------------------------------
+
+
+async def test_delete_me_is_rate_limited_per_day(app, client, login, db_session):
+    app.state.settings.rate_limit_account_deletes_per_day = 2
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    assert (await client.delete("/v1/me")).status_code == 204
+    r = await client.delete("/v1/me")
+    assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
+    assert int(r.headers["retry-after"]) >= 1
+
+
+def test_default_deletion_and_consent_limits():
+    from app.core.config import Settings
+
+    settings = Settings(_env_file=None)
+    assert settings.rate_limit_account_deletes_per_day == 5
+    assert settings.rate_limit_consents_per_day == 60
+
+
+async def test_consents_record_is_rate_limited_per_day(app, client, login, db_session):
+    app.state.settings.rate_limit_consents_per_day = 2
+    login(A)
+    body = {"purpose": "terms", "version": "2026-11-01", "granted": True}
+    assert (await client.post("/v1/consents", json=body)).status_code == 200
+    assert (await client.post("/v1/consents", json=body)).status_code == 200
+    r = await client.post("/v1/consents", json=body)
+    assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
+    # Reading consent state is not limited.
+    assert (await client.get("/v1/consents")).status_code == 200
