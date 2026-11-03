@@ -184,3 +184,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 7 Task 11 (web: How we score page)
 - [ ] **hi/mr `methodology.{meta_description,values,based_on,unavailable}`**: machine drafts. `meta_description` is the search-result snippet: it must keep "information, not medical advice" and make no health claim.
+
+## Plan 7 Task 11 (web: Report a problem)
+- [ ] **hi/mr `report.{reason_label,note_hint,cancel,close}`**: machine drafts. `note_hint` must clearly ask people not to type personal or health details into the free-text note.

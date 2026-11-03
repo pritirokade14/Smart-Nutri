@@ -767,7 +767,11 @@
     },
     "note_label": "Tell us more (optional)",
     "submit": "Send report",
-    "thanks": "Thanks. We'll review this product's data."
+    "thanks": "Thanks. We'll review this product's data.",
+    "reason_label": "What's wrong?",
+    "note_hint": "Please don't include personal or health details.",
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "legal": {
     "privacy_title": "Privacy notice",

@@ -15,6 +15,7 @@ import { LogMealButton } from "@/features/meals/components/LogMealButton";
 import type { LogMealProduct } from "@/features/meals/components/LogMealDialog";
 import type { ProductRef } from "@/features/product/api/products";
 import { Alternatives } from "@/features/product/components/Alternatives";
+import { ReportButton } from "@/features/reports/components/ReportDialog";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
 import { ResultShare } from "@/features/share/ResultShare";
 import { routing } from "@/i18n/routing";
@@ -156,6 +157,14 @@ function Analysis({
 
       {product.attribution != null && offBarcode ? (
         <OffAttribution barcode={offBarcode} />
+      ) : null}
+
+      {/* F14: only our own catalogue can be reported (reports reference
+          products.id; an Open Food Facts product has no product_id). */}
+      {product.product_id ? (
+        <div>
+          <ReportButton productId={product.product_id} />
+        </div>
       ) : null}
     </>
   );
