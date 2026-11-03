@@ -13,3 +13,28 @@ async def db_session(db: AsyncConnection) -> AsyncIterator[AsyncSession]:  # noq
         bind=db, expire_on_commit=False, join_transaction_mode="create_savepoint"
     ) as session:
         yield session
+
+
+@pytest.fixture
+def consents_granted(monkeypatch):
+    """Bypass the consent route gate (Plan 8 Task 1) for tests about something else, in
+    every app the test builds. Only the gate: the members health-data check still runs.
+
+    The gate itself is tested in tests/api/test_consent_gate.py against real consent rows.
+    """
+    from app.core import consent
+
+    async def _none_missing(*_args) -> list[str]:
+        return []
+
+    monkeypatch.setattr(consent, "_missing", _none_missing)
+
+
+# Test folders whose routes are gated but whose tests are about something else.
+_GATE_BYPASS_DIRS = ("analyze", "scans", "products")
+
+
+@pytest.fixture(autouse=True)
+def _bypass_consent_gate_outside_gate_tests(request):
+    if request.node.path.parent.name in _GATE_BYPASS_DIRS:
+        request.getfixturevalue("consents_granted")

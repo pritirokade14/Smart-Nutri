@@ -3,10 +3,11 @@ from contextlib import asynccontextmanager
 from importlib.metadata import PackageNotFoundError, version
 
 import httpx
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import Settings, get_settings
+from app.core.consent import CONSENT_RESPONSES, gate_for
 from app.core.errors import ERROR_RESPONSES, CatchAllMiddleware, install_error_handlers
 from app.core.logging import configure_logging
 from app.core.observability import init_observability, shutdown_observability
@@ -37,6 +38,28 @@ ROUTERS: list[APIRouter] = [
     methodology_router,
     reports_router,
 ]
+
+# Router prefix -> feature in app.core.consent.REQUIRED. Every route of these routers gets the
+# consent gate (Plan 8 Task 1). Plans 6 and 7 mount /v1/meals and /v1/voice: listing them here
+# now means they are gated as soon as their routers join ROUTERS.
+CONSENT_GATES: dict[str, str] = {
+    "/v1/analyze": "analyze",
+    "/v1/scans": "scans",
+    "/v1/voice": "voice",
+    "/v1/meals": "meals",
+}
+
+
+def _include(app: FastAPI, router: APIRouter) -> None:
+    feature = CONSENT_GATES.get(router.prefix)
+    if feature is None:
+        app.include_router(router)
+        return
+    # Router-level dependencies run before the route's own (e.g. limit()), so a refused call
+    # costs no quota.
+    app.include_router(
+        router, dependencies=[Depends(gate_for(feature))], responses=CONSENT_RESPONSES
+    )
 
 
 def _version() -> str:
@@ -88,5 +111,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     install_error_handlers(app)
     for router in ROUTERS:
-        app.include_router(router)
+        _include(app, router)
     return app

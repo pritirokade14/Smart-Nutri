@@ -41,10 +41,15 @@ async def test_withdraw_deactivates_and_keeps_history(app, client, db_session):
     assert await has_active_consent(db_session, ACC_A, ["health_data"]) is False
     rows = (
         await db_session.execute(
-            text("select withdrawn_at from consents where account_id = :a"), {"a": ACC_A}
+            text(
+                "select withdrawn_at from consents where account_id = :a "
+                "order by withdrawn_at nulls first"
+            ),
+            {"a": ACC_A},
         )
     ).all()
-    assert len(rows) == 1 and rows[0][0] is not None  # history kept, not deleted
+    # Append-only (Plan 8 Task 1): the grant row is kept as is; the withdrawal is a new row.
+    assert len(rows) == 2 and rows[0][0] is None and rows[1][0] is not None
 
 
 async def test_regrant_after_withdrawal_adds_new_row(app, client, db_session):
@@ -54,7 +59,7 @@ async def test_regrant_after_withdrawal_adds_new_row(app, client, db_session):
     await client.post("/v1/consents", json=_body("health_data", True))
     assert await has_active_consent(db_session, ACC_A, "health_data") is True
     count = (await db_session.execute(text("select count(*) from consents"))).scalar_one()
-    assert count == 2
+    assert count == 3  # grant, withdrawal, grant
 
 
 async def test_grant_is_idempotent(app, client, db_session):

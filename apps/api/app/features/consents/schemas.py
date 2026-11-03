@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ConsentIn(BaseModel):
@@ -14,3 +14,9 @@ class ConsentState(BaseModel):
     version: str | None
     granted: bool
     current_version: str
+    needs_update: bool = Field(
+        description=(
+            "True when the latest grant is unwithdrawn but at an older version: the client "
+            "shows the updated text and asks again. False when never granted or withdrawn."
+        )
+    )

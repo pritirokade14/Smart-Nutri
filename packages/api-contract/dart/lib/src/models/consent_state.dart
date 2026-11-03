@@ -11,6 +11,7 @@ class ConsentState {
   const ConsentState({
     required this.currentVersion,
     required this.granted,
+    required this.needsUpdate,
     required this.purpose,
     required this.version,
   });
@@ -21,6 +22,10 @@ class ConsentState {
   @JsonKey(name: 'current_version')
   final String currentVersion;
   final bool granted;
+
+  /// True when the latest grant is unwithdrawn but at an older version: the client shows the updated text and asks again. False when never granted or withdrawn.
+  @JsonKey(name: 'needs_update')
+  final bool needsUpdate;
   final String purpose;
   final String? version;
 

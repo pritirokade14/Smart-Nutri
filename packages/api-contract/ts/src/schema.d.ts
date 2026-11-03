@@ -658,6 +658,11 @@ export interface components {
             current_version: string;
             /** Granted */
             granted: boolean;
+            /**
+             * Needs Update
+             * @description True when the latest grant is unwithdrawn but at an older version: the client shows the updated text and asks again. False when never granted or withdrawn.
+             */
+            needs_update: boolean;
             /** Purpose */
             purpose: string;
             /** Version */
@@ -1741,6 +1746,15 @@ export interface operations {
             };
             /** @description Missing or invalid access token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3500,6 +3514,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
             /** @description Not found */
             404: {
                 headers: {
@@ -3598,6 +3621,15 @@ export interface operations {
             };
             /** @description Missing or invalid access token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

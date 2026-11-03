@@ -572,6 +572,11 @@
             "title": "Granted",
             "type": "boolean"
           },
+          "needs_update": {
+            "description": "True when the latest grant is unwithdrawn but at an older version: the client shows the updated text and asks again. False when never granted or withdrawn.",
+            "title": "Needs Update",
+            "type": "boolean"
+          },
           "purpose": {
             "title": "Purpose",
             "type": "string"
@@ -592,7 +597,8 @@
           "purpose",
           "version",
           "granted",
-          "current_version"
+          "current_version",
+          "needs_update"
         ],
         "title": "ConsentState",
         "type": "object"
@@ -3400,6 +3406,16 @@
             },
             "description": "Missing or invalid access token"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -5810,6 +5826,16 @@
             },
             "description": "Missing or invalid access token"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -5936,6 +5962,16 @@
               }
             },
             "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
           },
           "404": {
             "content": {
