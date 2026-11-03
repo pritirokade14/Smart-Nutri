@@ -2,12 +2,21 @@
 
 Health-critical rules:
 - Never invent a value. A value not printed stays None. The only derivations are
-  kJ -> kcal (only when kcal is not printed) and, when the label prints ONLY per-serving
-  values AND a plausible serving size, per_100g = value x 100 / serving_size_g
-  (`derived_from_serving = True`). Never assume a 100 g serving. Columns are never mixed.
+  kJ -> kcal (only when kcal is not printed) and, when the per-100 column has no engine
+  value AND the label prints per-serving values AND a plausible serving size,
+  per_100g = value x 100 / serving_size_g (`derived_from_serving = True`). Never assume a
+  100 g serving. Columns are never mixed. Derived values are NOT rounded (clients round
+  for display only; the engine and the save path get the exact quotient).
+- "Has values" (for derivation, `per_100g_missing` and the basis check) means at least one
+  ENGINE field (`ENGINE_FIELDS`). A lone display-only value (trans fat 0, added sugars 0)
+  never counts.
+- An unreadable nutrient (any `per_100g.*` / `per_serving.*` path in `unreadable_fields`)
+  is never trusted: it is cleared to None before anything else (unit conversion, kJ ->
+  kcal, derivation), so a per-serving path is cleared BEFORE derivation. An unreadable
+  `serving_size_g` is cleared too, so nothing is derived from it.
 - Printed units are converted in code (the model never converts): sodium printed in g
   -> mg (x 1000); trans fat printed in mg -> g (/ 1000). A sodium value with no printed
-  unit is kept as mg but flagged `unit_unconfirmed:<path>` so the user confirms it.
+  unit is kept as mg for display but flagged `unit_unconfirmed:<path>` and withheld.
 - Implausible values are KEPT so the user can see and fix them, and flagged as
   `implausible_value:<field>`. Plausibility is the engine's own (`Product.sanitized()`),
   so a flagged draft field is exactly what the save endpoint rejects. Only non-finite
@@ -15,47 +24,86 @@ Health-critical rules:
 - Salt and sodium are both kept (the engine uses the higher of the two).
 - `added_sugars_g` and `trans_fat_g` are kept for display only; they are not engine inputs.
 - A per-100 ml column or an ml serving means a drink: the category becomes beverage
-  unless the model said water (the stricter per-100 ml drink thresholds apply).
-- "<X" values are kept as X (an upper bound) and flagged `upper_bound:<path>`. An
-  upper-bound protein or fibre is NOT evidence for a positive reason (e.g. "<0.1 g
-  protein, <1 kcal" must not give good_protein_density): it is listed in
-  `positive_suppressed`, and `engine_nutrients()` passes it to the engine as None.
+  unless the model said water or beverage, or fat or cheese (an oil printed per 100 ml
+  stays "fat"); every case except beverage/water adds `category_check`.
+- "<X" values are kept as X (an upper bound) and flagged `upper_bound:<path>`.
 - An unreadable ingredient list or allergen line caps confidence below the engine's
   min_extraction_confidence, so allergic members get `unknown`, never `ok`.
 - Ingredients keep their script (Devanagari stays Devanagari); only whitespace is trimmed.
 
+`engine_withheld` (ruling R13): engine fields shown on the confirm screen that the engine
+must not see until the user confirms them on the confirm screen (save:
+`ProductCreate.confirmed_fields`, ruling R14). `engine_nutrients()` passes them as None.
+Listed in `ENGINE_FIELDS` order, without duplicates:
+- every engine field, when `basis_mismatch` (the printed basis is in doubt);
+- `protein_g` / `fiber_g` printed as "<X" on the column used (an upper bound is never
+  evidence for a positive reason such as good_protein_density);
+- `sodium_mg`, when `unit_unconfirmed` (sodium printed without a unit on the column used).
+`positive_suppressed` is a DEPRECATED alias: `engine_withheld` restricted to protein/fibre.
+
 Warning codes, always in this order:
   implausible_value:<field>   draft fields outside the engine's bounds: engine nutrient
                               fields (engine order), added_sugars_g, trans_fat_g, serving_size_g
-  per_100g_missing            no per-100 g value at all (and nothing derivable)
+  per_100g_missing            no per-100 g engine value at all (and nothing derivable)
+  basis_mismatch              basis_detected disagrees with the columns filled: per_serving
+                              but only per_100g has values, per_100g but only per_serving
+                              has values, or unknown with any values. All engine fields
+                              are withheld until the user picks the basis.
+  per_serving_ignored         per-serving values were printed but not used (the per-100 g
+                              column was used and lacks those fields, or nothing could be
+                              derived); the columns are never mixed
   energy_mismatch             kcal disagrees with 4p + 4c + 9f
   kcal_kj_mismatch            printed kcal disagrees with printed kJ / 4.184 (kcal is used)
   salt_sodium_mismatch        salt disagrees with sodium x 2.5 / 1000
-  unit_unconfirmed:<path>     sodium printed without a unit on the column used; taken as mg
+  unit_unconfirmed:<path>     sodium printed without a unit on the column used; shown as mg,
+                              withheld from the engine
   low_confidence              (capped) confidence below min_extraction_confidence
   category_unknown            no category and no ml signal; "general" was used
-  category_check              ml printed, so beverage replaced a non-drink or missing guess
-  unreadable_field:<path>     printed but illegible (extraction field path, input order)
+  category_check              ml printed and the guess was not beverage/water (beverage was
+                              used, or the fat/cheese guess was kept)
+  unreadable_field:<path>     printed but illegible (extraction field path, input order);
+                              a nutrient or serving-size value there is cleared to None
   upper_bound:<path>          printed as "<X"; X is kept (extraction field path, input order)
 """
 
 from __future__ import annotations
 
 import math
-from typing import Literal
+from typing import Literal, get_args
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 from app.features.products.schemas import NutrientsOut
-from app.features.scans.schemas import NutrientsIn, NutritionExtraction
+from app.features.scans.schemas import NUTRIENT_FIELDS, NutrientsIn, NutritionExtraction
 from app.scoring import Nutrients, Product, load_config
 from app.scoring.models import CROSS_FIELD_TOLERANCE_G, MAX_GRAMS_PER_100
 
-__all__ = ["DraftNutrients", "ProductDraft", "engine_nutrients", "to_draft"]
+__all__ = [
+    "ENGINE_FIELDS",
+    "DraftNutrients",
+    "EngineField",
+    "ProductDraft",
+    "engine_nutrients",
+    "to_draft",
+]
 
 _CategoryName = Literal["general", "beverage", "water", "cheese", "fat"]
 _CATEGORIES: tuple[_CategoryName, ...] = ("general", "beverage", "water", "cheese", "fat")
 _Suppressible = Literal["protein_g", "fiber_g"]
+# The draft fields the engine reads (`Nutrients` fields that the draft has), in engine
+# order. A test keeps this equal to the engine's own field list.
+EngineField = Literal[
+    "energy_kcal",
+    "protein_g",
+    "carbs_g",
+    "sugars_g",
+    "fat_g",
+    "sat_fat_g",
+    "fiber_g",
+    "salt_g",
+    "sodium_mg",
+]
+ENGINE_FIELDS: tuple[EngineField, ...] = get_args(EngineField)
 
 
 class DraftNutrients(NutrientsOut):
@@ -85,9 +133,21 @@ class ProductDraft(BaseModel):
     veg_mark: Literal["veg", "non_veg"] | None
     confidence: float  # clamped to [0, 1]; capped when allergen text is unreadable
     derived_from_serving: bool
-    # Draft fields printed as "<X": shown, but never evidence for a positive reason.
+    # Shown, but the engine must not see them until the user confirms them on the confirm
+    # screen (save: ProductCreate.confirmed_fields, ruling R14). ENGINE_FIELDS order.
+    engine_withheld: list[EngineField]
+    # DEPRECATED alias of `engine_withheld` restricted to protein_g/fiber_g. Kept so
+    # existing callers don't break; either list withholds a field from the engine.
     positive_suppressed: list[_Suppressible]
     warnings: list[str]  # codes, some as "<code>:<field or path>"
+
+    @model_validator(mode="after")
+    def _withheld_consistent(self) -> ProductDraft:
+        """Union of both lists, deduplicated, in engine order; the alias is its restriction."""
+        withheld = set(self.engine_withheld) | set(self.positive_suppressed)
+        self.engine_withheld = [f for f in ENGINE_FIELDS if f in withheld]
+        self.positive_suppressed = [f for f in _SUPPRESSIBLE if f in withheld]
+        return self
 
 
 _KJ_PER_KCAL = 4.184  # unit conversion, as in products/off_mapping.py
@@ -99,12 +159,9 @@ SALT_MISMATCH_RATIO = 0.2
 # the engine's min_extraction_confidence (a test keeps it below), so allergens are unknown.
 UNREADABLE_ALLERGEN_CONFIDENCE_CAP = 0.69
 _ALLERGEN_PATHS = frozenset({"ingredients", "allergen_statement", "may_contain_statement"})
-_DRINKS = frozenset({"beverage", "water"})
 _SUPPRESSIBLE: tuple[_Suppressible, ...] = ("protein_g", "fiber_g")
+_Column = Literal["per_100g", "per_serving"]
 
-_ENGINE_FIELDS = tuple(
-    f for f in Nutrients.__dataclass_fields__ if f in DraftNutrients.model_fields
-)
 # Display-only fields: (field, the engine field it is part of).
 _DISPLAY_ONLY = (("added_sugars_g", "sugars_g"), ("trans_fat_g", "fat_g"))
 
@@ -119,6 +176,14 @@ def _text(value: str | None) -> str | None:
 
 def _texts(values: list[str]) -> list[str]:
     return [s for v in values if (s := v.strip())]
+
+
+def _readable(col: NutrientsIn | None, path: _Column, unreadable: set[str]) -> NutrientsIn | None:
+    """The printed column with every unreadable nutrient cleared to None (input untouched)."""
+    if col is None:
+        return None
+    cleared = {f: None for f in NUTRIENT_FIELDS if f"{path}.{f}" in unreadable}
+    return col.model_copy(update=cleared) if cleared else col
 
 
 def _column(col: NutrientsIn | None) -> dict[str, float | None]:
@@ -139,8 +204,8 @@ def _column(col: NutrientsIn | None) -> dict[str, float | None]:
     return values
 
 
-def _has_values(values: dict[str, float | None]) -> bool:
-    return any(_finite(v) is not None for v in values.values())
+def _has_engine_values(values: dict[str, float | None]) -> bool:
+    return any(_finite(values[f]) is not None for f in ENGINE_FIELDS)
 
 
 def _serving_plausible(serving: float | None) -> bool:
@@ -158,21 +223,43 @@ def _energy_tolerance(kcal: float) -> float:
 
 
 def _per_100g(
-    e: NutritionExtraction, serving_ok: bool
-) -> tuple[dict[str, float | None], bool, Literal["per_100g", "per_serving"]]:
+    per_100: dict[str, float | None],
+    per_serving: dict[str, float | None],
+    serving: float | None,
+    serving_ok: bool,
+) -> tuple[dict[str, float | None], bool, _Column]:
     """(per-100 g values, derived_from_serving, the printed column used).
 
-    The ONLY derivation is the per-serving one; the two columns are never mixed.
+    The ONLY derivation is the per-serving one; the two columns are never mixed. Derived
+    values are exact quotients (not rounded).
     """
-    values = _column(e.per_100g)
-    if _has_values(values) or not serving_ok or e.serving_size_g is None:
-        return values, False, "per_100g"
-    per_serving = _column(e.per_serving)
-    if not _has_values(per_serving):
-        return values, False, "per_100g"
-    size = e.serving_size_g
-    derived = {k: None if v is None else v * 100 / size for k, v in per_serving.items()}
+    if _has_engine_values(per_100) or not serving_ok or serving is None:
+        return per_100, False, "per_100g"
+    if not _has_engine_values(per_serving):
+        return per_100, False, "per_100g"
+    derived = {k: None if v is None else v * 100 / serving for k, v in per_serving.items()}
     return derived, True, "per_serving"
+
+
+def _basis_mismatch(
+    basis: str, per_100: dict[str, float | None], per_serving: dict[str, float | None]
+) -> bool:
+    """The detected basis disagrees with the columns that hold engine values."""
+    p100, ps = _has_engine_values(per_100), _has_engine_values(per_serving)
+    return (
+        (basis == "per_serving" and p100 and not ps)
+        or (basis == "per_100g" and ps and not p100)
+        or (basis == "unknown" and (p100 or ps))
+    )
+
+
+def _per_serving_ignored(
+    values: dict[str, float | None], per_serving: dict[str, float | None], path: _Column
+) -> bool:
+    """Per-serving values printed but absent from the draft (columns are never mixed)."""
+    return path == "per_100g" and any(
+        _finite(v) is not None and values[k] is None for k, v in per_serving.items()
+    )
 
 
 def _implausible_fields(
@@ -182,7 +269,7 @@ def _implausible_fields(
     implausible = set(non_finite)
     # Engine plausibility (per field and cross-field), on the engine fields only.
     _, dropped = Product(
-        name="", per_100g=Nutrients(**{f: values[f] for f in _ENGINE_FIELDS})
+        name="", per_100g=Nutrients(**{f: values[f] for f in ENGINE_FIELDS})
     ).sanitized()
     implausible |= set(dropped)
     for field, whole in _DISPLAY_ONLY:
@@ -193,12 +280,16 @@ def _implausible_fields(
             implausible.add(field)
     if serving_bad:
         implausible.add("serving_size_g")
-    order = (*_ENGINE_FIELDS, *(f for f, _ in _DISPLAY_ONLY), "serving_size_g")
+    order = (*ENGINE_FIELDS, *(f for f, _ in _DISPLAY_ONLY), "serving_size_g")
     return [f for f in order if f in implausible]
 
 
+def _sodium_unit_unconfirmed(col: NutrientsIn | None) -> bool:
+    return col is not None and col.sodium_mg is not None and col.sodium_unit is None
+
+
 def _consistency_warnings(
-    values: dict[str, float | None], col: NutrientsIn | None, path: str
+    values: dict[str, float | None], col: NutrientsIn | None, path: _Column
 ) -> list[str]:
     warnings: list[str] = []
     kcal, p, c, f = (values[k] for k in ("energy_kcal", "protein_g", "carbs_g", "fat_g"))
@@ -229,7 +320,7 @@ def _consistency_warnings(
         ):
             warnings.append("salt_sodium_mismatch")
 
-    if col is not None and col.sodium_mg is not None and col.sodium_unit is None:
+    if _sodium_unit_unconfirmed(col):
         warnings.append(f"unit_unconfirmed:{path}.sodium_mg")
     return warnings
 
@@ -247,18 +338,32 @@ def _category(e: NutritionExtraction) -> tuple[_CategoryName, list[str]]:
     if "ml" in (e.per_100_unit, e.serving_size_unit):
         if guess == "beverage" or guess == "water":
             return guess, []
+        if guess == "fat" or guess == "cheese":  # e.g. an oil printed per 100 ml
+            return guess, ["category_check"]
         return "beverage", ["category_check"]
     if guess is None:
         return "general", ["category_unknown"]
     return guess, []
 
 
-def _positive_suppressed(
-    e: NutritionExtraction, values: dict[str, float | None], path: str
-) -> list[_Suppressible]:
-    """Upper-bound protein/fibre on the column used: never evidence for a positive reason."""
+def _engine_withheld(
+    e: NutritionExtraction,
+    values: dict[str, float | None],
+    source: NutrientsIn | None,
+    path: _Column,
+    *,
+    basis_mismatch: bool,
+) -> list[EngineField]:
+    """Engine fields the engine must not see until the user confirms them (ENGINE_FIELDS order)."""
+    if basis_mismatch:
+        return list(ENGINE_FIELDS)
+    withheld: set[str] = set()
     bounds = set(e.upper_bound_fields)
-    return [f for f in _SUPPRESSIBLE if f"{path}.{f}" in bounds and values[f] is not None]
+    # An upper-bound protein/fibre on the column used is never evidence for a positive reason.
+    withheld |= {f for f in _SUPPRESSIBLE if f"{path}.{f}" in bounds and values[f] is not None}
+    if _sodium_unit_unconfirmed(source):
+        withheld.add("sodium_mg")
+    return [f for f in ENGINE_FIELDS if f in withheld]
 
 
 def _path_warnings(code: str, paths: list[str]) -> list[str]:
@@ -268,21 +373,28 @@ def _path_warnings(code: str, paths: list[str]) -> list[str]:
 def engine_nutrients(draft: ProductDraft) -> Nutrients:
     """The engine-facing per-100 g values of a draft.
 
-    Fields in `positive_suppressed` (an upper-bound protein or fibre, printed "<X") are
-    passed as None, so they can never support a positive reason such as
-    good_protein_density. Display-only fields (added sugars, trans fat) are not passed.
+    Fields in `engine_withheld` (or its deprecated alias `positive_suppressed`) are passed
+    as None: the engine must not see them until the user confirms them. Display-only
+    fields (added sugars, trans fat) are not passed.
     """
-    values = {f: getattr(draft.per_100g, f) for f in _ENGINE_FIELDS}
-    for field in draft.positive_suppressed:
-        values[field] = None
-    return Nutrients(**values)
+    withheld = set(draft.engine_withheld) | set(draft.positive_suppressed)
+    return Nutrients(
+        **{f: None if f in withheld else getattr(draft.per_100g, f) for f in ENGINE_FIELDS}
+    )
 
 
 def to_draft(e: NutritionExtraction) -> ProductDraft:
-    serving = e.serving_size_g
+    unreadable = set(e.unreadable_fields)
+    serving = None if "serving_size_g" in unreadable else e.serving_size_g
     serving_ok = serving is not None and _serving_plausible(serving)
-    values, derived, path = _per_100g(e, serving_ok)
-    source = e.per_serving if path == "per_serving" else e.per_100g
+
+    # Unreadable nutrients are cleared first, so nothing below (units, kJ, derivation,
+    # basis and consistency checks) ever sees them.
+    per_100_col = _readable(e.per_100g, "per_100g", unreadable)
+    per_serving_col = _readable(e.per_serving, "per_serving", unreadable)
+    per_100, per_serving = _column(per_100_col), _column(per_serving_col)
+    values, derived, path = _per_100g(per_100, per_serving, serving, serving_ok)
+    source = per_serving_col if path == "per_serving" else per_100_col
 
     # Non-finite numbers can't be shown or fixed in a form: blank them and flag them.
     non_finite = {k for k, v in values.items() if v is not None and _finite(v) is None}
@@ -294,8 +406,13 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
             values, non_finite=non_finite, serving_bad=serving is not None and not serving_ok
         )
     ]
-    if not _has_values(values):
+    if not _has_engine_values(values):
         warnings.append("per_100g_missing")
+    basis_mismatch = _basis_mismatch(e.basis_detected, per_100, per_serving)
+    if basis_mismatch:
+        warnings.append("basis_mismatch")
+    if _per_serving_ignored(values, per_serving, path):
+        warnings.append("per_serving_ignored")
     warnings += _consistency_warnings(values, source, path)
 
     confidence = _confidence(e)
@@ -307,6 +424,7 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
     warnings += _path_warnings("unreadable_field", e.unreadable_fields)
     warnings += _path_warnings("upper_bound", e.upper_bound_fields)
 
+    withheld = _engine_withheld(e, values, source, path, basis_mismatch=basis_mismatch)
     return ProductDraft(
         name=_text(e.product_name),
         brand=_text(e.brand),
@@ -320,6 +438,7 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
         veg_mark=e.veg_mark if e.veg_mark in ("veg", "non_veg") else None,
         confidence=confidence,
         derived_from_serving=derived,
-        positive_suppressed=_positive_suppressed(e, values, path),
+        engine_withheld=withheld,
+        positive_suppressed=[f for f in _SUPPRESSIBLE if f in withheld],
         warnings=warnings,
     )
