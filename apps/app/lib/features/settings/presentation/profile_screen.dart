@@ -10,6 +10,9 @@ import '../../../shared/widgets/buttons.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../consent/presentation/policy_links.dart';
+import '../../user_types/domain/user_types.dart';
+import '../../user_types/presentation/user_type_labels.dart';
+import '../../user_types/presentation/user_types_providers.dart';
 import 'consents_section.dart';
 import 'delete_account_dialog.dart';
 import 'settings_providers.dart';
@@ -25,6 +28,7 @@ class ProfileScreen extends ConsumerWidget {
   static const termsKey = Key('profile-terms');
   static const deleteKey = Key('profile-delete-account');
   static const methodologyKey = Key('profile-how-we-score');
+  static const userTypesKey = Key('profile-user-types');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,6 +40,8 @@ class ProfileScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(SnTokens.space4),
         children: [
+          const _UserTypesSection(),
+          const SizedBox(height: SnTokens.space4),
           const _LanguageSection(),
           const SizedBox(height: SnTokens.space4),
           const ConsentsSection(),
@@ -97,6 +103,31 @@ class ProfileScreen extends ConsumerWidget {
             onPressed: () => showDeleteAccountDialog(context),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// "Change your focus": the user types (the same screens as onboarding,
+/// prefilled). Editing them never changes a member by itself.
+class _UserTypesSection extends ConsumerWidget {
+  const _UserTypesSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final out = ref.watch(userTypesProvider).value;
+    final names = out == null
+        ? ''
+        : [for (final t in chosenTypes(out)) modeName(l10n, t)].join(', ');
+    return Card(
+      child: ListTile(
+        key: ProfileScreen.userTypesKey,
+        leading: const Icon(Icons.tune_rounded),
+        title: Text(l10n.userTypesEdit),
+        subtitle: names.isEmpty ? null : Text(names),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: () => context.push('/welcome?edit=1'),
       ),
     );
   }

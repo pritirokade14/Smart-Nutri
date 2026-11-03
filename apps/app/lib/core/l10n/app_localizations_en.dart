@@ -2471,6 +2471,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'You picked weight loss and gym. Choose one goal for your profile.';
 
   @override
+  String get userTypesPrefillGoalNeither => 'Neither: keep my goal as it is';
+
+  @override
   String userTypesPrefillLineAllergens(String values) {
     return 'Allergies: $values';
   }

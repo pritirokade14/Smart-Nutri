@@ -1317,6 +1317,7 @@
   "userTypesPrefillApply": "प्रोफ़ाइल में जोड़ें",
   "userTypesPrefillBody": "आपकी पुष्टि के बिना कुछ नहीं जोड़ा जाता। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
   "userTypesPrefillGoalConflict": "आपने वज़न घटाना और जिम दोनों चुने हैं। प्रोफ़ाइल के लिए एक लक्ष्य चुनें।",
+  "userTypesPrefillGoalNeither": "कोई नहीं: मेरा लक्ष्य जैसा है वैसा रखें",
   "userTypesPrefillLineAllergens": "एलर्जी: {values}",
   "@userTypesPrefillLineAllergens": {
     "placeholders": {

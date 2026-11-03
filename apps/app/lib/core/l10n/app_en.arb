@@ -1317,6 +1317,7 @@
   "userTypesPrefillApply": "Add to profile",
   "userTypesPrefillBody": "Nothing is added unless you confirm. Information, not medical advice.",
   "userTypesPrefillGoalConflict": "You picked weight loss and gym. Choose one goal for your profile.",
+  "userTypesPrefillGoalNeither": "Neither: keep my goal as it is",
   "userTypesPrefillLineAllergens": "Allergies: {values}",
   "@userTypesPrefillLineAllergens": {
     "placeholders": {

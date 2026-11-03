@@ -4336,6 +4336,12 @@ abstract class AppLocalizations {
   /// **'You picked weight loss and gym. Choose one goal for your profile.'**
   String get userTypesPrefillGoalConflict;
 
+  /// No description provided for @userTypesPrefillGoalNeither.
+  ///
+  /// In en, this message translates to:
+  /// **'Neither: keep my goal as it is'**
+  String get userTypesPrefillGoalNeither;
+
   /// No description provided for @userTypesPrefillLineAllergens.
   ///
   /// In en, this message translates to:

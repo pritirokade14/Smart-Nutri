@@ -2478,6 +2478,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'आपने वज़न घटाना और जिम दोनों चुने हैं। प्रोफ़ाइल के लिए एक लक्ष्य चुनें।';
 
   @override
+  String get userTypesPrefillGoalNeither =>
+      'कोई नहीं: मेरा लक्ष्य जैसा है वैसा रखें';
+
+  @override
   String userTypesPrefillLineAllergens(String values) {
     return 'एलर्जी: $values';
   }

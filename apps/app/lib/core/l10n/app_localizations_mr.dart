@@ -2475,6 +2475,10 @@ class AppLocalizationsMr extends AppLocalizations {
       'तुम्ही वजन कमी करणे आणि जिम दोन्ही निवडले आहे. प्रोफाइलसाठी एक ध्येय निवडा.';
 
   @override
+  String get userTypesPrefillGoalNeither =>
+      'दोन्हीपैकी नाही: माझे ध्येय आहे तसे ठेवा';
+
+  @override
   String userTypesPrefillLineAllergens(String values) {
     return 'अॅलर्जी: $values';
   }

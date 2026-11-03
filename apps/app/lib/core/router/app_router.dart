@@ -26,6 +26,11 @@ import '../../features/scan/presentation/label_capture_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
 import '../../features/settings/presentation/goodbye_screen.dart';
 import '../../features/settings/presentation/profile_screen.dart';
+import '../../features/user_types/domain/user_types.dart';
+import '../../features/user_types/presentation/follow_up_screen.dart';
+import '../../features/user_types/presentation/prefill_review_screen.dart';
+import '../../features/user_types/presentation/type_picker_screen.dart';
+import '../../features/user_types/presentation/user_types_providers.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../config/app_config.dart';
 
@@ -45,12 +50,25 @@ class _AuthRefresh extends ChangeNotifier {
   }
 }
 
+/// Routes the unanswered type picker never blocks: consents, Profile, the
+/// goodbye page, and adding a family member from the family follow-up.
+const _typesExempt = {
+  '/profile',
+  '/terms',
+  '/consent',
+  '/goodbye',
+  '/family/new',
+};
+
+bool _edit(GoRouterState state) => state.uri.queryParameters['edit'] == '1';
+
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authRepositoryProvider);
   final config = ref.watch(appConfigProvider);
   final refresh = _AuthRefresh(auth.authStateChanges());
   ref.onDispose(refresh.dispose);
   ref.listen(termsStatusProvider, (_, _) => refresh.ping());
+  ref.listen(userTypesStatusProvider, (_, _) => refresh.ping());
 
   final router = GoRouter(
     initialLocation: '/home',
@@ -69,7 +87,29 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (ref.read(termsStatusProvider) == TermsStatus.required) {
         return onTerms ? null : '/terms';
       }
-      if (onSignIn || onTerms || onGoodbye) return '/home';
+      // Plan 9: "What brings you here?" right after the terms, until it is
+      // answered (or skipped). While the answer loads or failed to load the
+      // app goes on, as for the terms.
+      final types = ref.read(userTypesStatusProvider);
+      final onWelcome =
+          location == '/welcome' || location.startsWith('/welcome/');
+      final editing = state.uri.queryParameters['edit'] == '1';
+      if (types == UserTypesStatus.unanswered &&
+          !onWelcome &&
+          !_typesExempt.contains(location)) {
+        return '/welcome';
+      }
+      // Once answered, the picker and follow-up open only from Profile
+      // (`?edit=1`). The review comes right after the save, so it stays open.
+      if (onWelcome &&
+          types == UserTypesStatus.answered &&
+          !editing &&
+          location != '/welcome/review') {
+        return '/home';
+      }
+      if (onSignIn || onTerms || onGoodbye) {
+        return types == UserTypesStatus.unanswered ? '/welcome' : '/home';
+      }
       return null;
     },
     routes: [
@@ -132,6 +172,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/goodbye', builder: (_, _) => const GoodbyeScreen()),
+      GoRoute(
+        path: '/welcome',
+        builder: (_, state) => TypePickerScreen(edit: _edit(state)),
+        routes: [
+          GoRoute(
+            path: 'follow-up',
+            builder: (_, state) => FollowUpScreen(edit: _edit(state)),
+          ),
+          GoRoute(
+            path: 'review',
+            builder: (_, state) => PrefillReviewScreen(edit: _edit(state)),
+          ),
+        ],
+      ),
       GoRoute(
         path: '/terms',
         builder: (_, _) =>

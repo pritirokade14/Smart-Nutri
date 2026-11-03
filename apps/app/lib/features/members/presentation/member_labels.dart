@@ -25,6 +25,7 @@ String goalLabel(AppLocalizations l, String code) => switch (code) {
   'healthy_eating' => l.membersGoalHealthyEating,
   'weight_loss' => l.membersGoalWeightLoss,
   'weight_gain' => l.membersGoalWeightGain,
+  'build_muscle' => l.membersGoalBuildMuscle,
   _ => code,
 };
 
