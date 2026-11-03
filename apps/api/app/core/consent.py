@@ -15,7 +15,7 @@ from functools import cache
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
-from fastapi import Depends
+from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError, ErrorEnvelope
@@ -80,3 +80,20 @@ def require_consents(*purposes: Purpose) -> Callable[..., Awaitable[None]]:
 def gate_for(feature: str) -> Callable[..., Awaitable[None]]:
     """The (single, cached) gate dependency for a feature in `REQUIRED`."""
     return require_consents(*REQUIRED[feature])
+
+
+@cache
+def member_gate_for(feature: str) -> Callable[..., Awaitable[None]]:
+    """Like `gate_for`, but only when the request carries a `member_id` query parameter (a
+    route that returns member statuses only then, and is open otherwise)."""
+    gate = gate_for(feature)
+
+    async def _member_gate(
+        ctx: Annotated[AccountContext, Depends(current_account)],
+        session: Annotated[AsyncSession, Depends(get_session)],
+        member_id: Annotated[UUID | None, Query()] = None,
+    ) -> None:
+        if member_id is not None:
+            await gate(ctx, session)
+
+    return _member_gate

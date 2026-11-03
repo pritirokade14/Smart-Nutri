@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_app_settings
-from app.core.consent import CONSENT_RESPONSES, gate_for
+from app.core.consent import CONSENT_RESPONSES, gate_for, member_gate_for
 from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
 from app.core.ratelimit import limit
 from app.core.security import AccountContext, current_account
@@ -224,11 +224,12 @@ def search_query(
         },
         **CONSENT_RESPONSES,
     },
-    # The consent gate first (Plan 9: hits carry rules-engine statuses for a member, like
-    # alternatives and compare: `terms`), then the query check (no quota for a too-short
-    # query), then limit(), which commits.
+    # The consent gate first, only when member_id is given (hits then carry rules-engine
+    # statuses for that member, like alternatives and compare: `terms`; plain search stays
+    # open), then the query check (no quota for a too-short query), then limit(), which
+    # commits.
     dependencies=[
-        Depends(gate_for("product_verdicts")),
+        Depends(member_gate_for("product_verdicts")),
         Depends(search_query),
         Depends(limit("search")),
     ],

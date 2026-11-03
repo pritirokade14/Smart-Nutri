@@ -23,8 +23,6 @@ def test_head_is_latest(migrated):
     engine.dispose()
 
 
-
-
 def test_single_alembic_head():
     """Plan 9: 0006 and 0007 are chained, so there is exactly one head, 0007."""
     from alembic.config import Config

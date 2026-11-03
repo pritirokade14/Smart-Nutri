@@ -14,7 +14,7 @@ import pytest
 from pydantic import BaseModel
 from sqlalchemy import text
 
-from app.core.consent import REQUIRED, gate_for
+from app.core.consent import REQUIRED, gate_for, member_gate_for
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.consents.models import Consent
@@ -276,9 +276,10 @@ PRODUCT_GATES = {
     ("/v1/products/{product_id}/alternatives", "GET"): "product_verdicts",
     ("/v1/products/barcode/{code}/alternatives", "GET"): "product_verdicts",
     ("/v1/products/compare", "GET"): "product_verdicts",
-    # Plan 9 Task 6: search takes member_id and returns member statuses (sort=protein).
-    ("/v1/products/search", "GET"): "product_verdicts",
 }
+# Search is gated only when member_id is given (Plan 9 integration): plain search returns no
+# member statuses and stays open to anyone signed in.
+PRODUCT_MEMBER_GATES = {("/v1/products/search", "GET"): "product_verdicts"}
 
 
 def test_product_routes_gated_exactly_as_listed(app):
@@ -295,6 +296,36 @@ def test_product_routes_gated_exactly_as_listed(app):
             # First, so it runs before limit() and costs no quota.
             assert route.top_level_calls()[0] is gate_for(found[0]), route.path
     assert gated == PRODUCT_GATES
+
+
+def test_search_gate_applies_only_with_member_id(app):
+    member_gates = {member_gate_for(f): f for f in REQUIRED}
+    found = {}
+    for route in api_routes(app):
+        hit = [member_gates[c] for c in route.calls() if c in member_gates]
+        if hit:
+            for method in route.methods:
+                found[(route.path, method)] = hit[0]
+            assert not {gate_for(f) for f in REQUIRED} & route.calls(), route.path
+            assert route.top_level_calls()[0] is member_gate_for(hit[0]), route.path
+    assert found == PRODUCT_MEMBER_GATES
+
+
+async def test_search_without_member_id_needs_no_consent(client, login, grant):
+    await grant([])
+    login()
+    r = await client.get("/v1/products/search?q=biscuit")
+    assert r.status_code != 403, r.text
+
+
+async def test_search_with_member_id_needs_terms(client, login, grant):
+    await grant([])
+    login()
+    r = await client.get(f"/v1/products/search?q=biscuit&member_id={uuid4()}")
+    assert _consent_error(r) == ["terms"]
+    await grant(["terms"])
+    r = await client.get(f"/v1/products/search?q=biscuit&member_id={uuid4()}")
+    assert r.status_code == 404, r.text  # past the gate: the member does not exist
 
 
 @pytest.mark.parametrize(
@@ -355,7 +386,7 @@ def test_gated_operations_document_403(app):
     for path in ("/v1/analyze", "/v1/scans/upload-url", "/v1/scans/label", "/v1/products"):
         op = paths[path]["post"]
         assert "403" in op["responses"], path
-    for path, _ in PRODUCT_GATES:
+    for path, _ in {**PRODUCT_GATES, **PRODUCT_MEMBER_GATES}:
         for op in paths[path].values():
             assert "403" in op["responses"], path
 
@@ -412,7 +443,10 @@ def test_every_route_taking_a_member_id_is_consent_gated(app):
             with_member.add(key)
             if key in MEMBER_ROUTES_WITHOUT_GATE:
                 continue
-            assert gates & route.calls(), f"{method} {route.path} takes a member id, no gate"
+            member_gates = {member_gate_for(f) for f in REQUIRED}
+            assert (gates | member_gates) & route.calls(), (
+                f"{method} {route.path} takes a member id, no gate"
+            )
     # The scan sees the routes it should (analyze body, voice form, meals and product queries).
     assert {
         ("/v1/analyze", "POST"),
@@ -420,5 +454,6 @@ def test_every_route_taking_a_member_id_is_consent_gated(app):
         ("/v1/meals", "GET"),
         ("/v1/products/compare", "GET"),
         ("/v1/products/{product_id}/alternatives", "GET"),
+        ("/v1/products/search", "GET"),
     } <= with_member
     assert MEMBER_ROUTES_WITHOUT_GATE <= with_member  # no stale exemptions
