@@ -83,6 +83,10 @@ export function DayTotals({ summary }: { summary: Summary }) {
                 <BandBadge
                   band={shownBand(readBand(summary.bands, n.band), total)}
                 />
+              ) : total === null ? (
+                // Android parity: an unknown protein or kcal total gets the
+                // grey "Not enough data" chip too.
+                <BandBadge band="unknown" />
               ) : null}
             </div>
             {incomplete ? (

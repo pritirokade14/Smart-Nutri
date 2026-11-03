@@ -244,6 +244,23 @@ describe("HistoryView", () => {
     expect(track).toHaveBeenCalledWith("meal_removed");
   });
 
+  it("grades: the 'calculated by SmartNutri' credit shows once per list (F3)", async () => {
+    stub().on("GET", "/v1/meals", [
+      meal(),
+      meal({ id: "c0000000-0000-4000-8000-000000000002", grade: "B" }),
+    ]);
+    view();
+    await screen.findAllByTestId("meal-row");
+    expect(screen.getAllByText(en.nutriscore.calculated_by)).toHaveLength(1);
+  });
+
+  it("no graded item: no credit line", async () => {
+    stub().on("GET", "/v1/meals", [meal({ grade: null })]);
+    view();
+    await screen.findAllByTestId("meal-row");
+    expect(screen.queryByText(en.nutriscore.calculated_by)).toBeNull();
+  });
+
   it("an empty day list says nothing was logged", async () => {
     stub().on("GET", "/v1/meals", []);
     view();
@@ -298,6 +315,9 @@ describe("DayTotals", () => {
     expect(badge("sugars_g")?.getAttribute("data-band")).toBe("unknown");
     expect(value("protein_g")).toBe(en.summary.band.unknown);
     expect(value("energy_kcal")).toBe(en.summary.band.unknown);
+    // S3 (Android parity): a null protein or kcal total carries the grey chip.
+    for (const k of ["protein_g", "energy_kcal"])
+      expect(badge(k)?.getAttribute("data-band")).toBe("unknown");
     expect(screen.getByTestId("day-totals").textContent).not.toMatch(/\b0 g/);
   });
 

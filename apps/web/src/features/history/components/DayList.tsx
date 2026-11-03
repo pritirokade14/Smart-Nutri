@@ -59,6 +59,7 @@ export function DayList({
       </p>
     );
   }
+  const anyGrade = meals.data.some((m) => m.grade);
   const fromOff = meals.data.some((m) => m.attribution != null);
   return (
     <div className="space-y-2">
@@ -99,6 +100,11 @@ export function DayList({
       {remove.isError ? (
         <p role="alert" className="text-md text-text-primary">
           {errorText(remove.error)}
+        </p>
+      ) : null}
+      {anyGrade ? (
+        <p className="text-sm text-text-secondary">
+          {t("nutriscore.calculated_by")}
         </p>
       ) : null}
       {fromOff ? <OffAttribution barcode={null} /> : null}
