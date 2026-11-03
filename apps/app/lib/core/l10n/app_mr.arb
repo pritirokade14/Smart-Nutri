@@ -74,6 +74,7 @@
       }
     }
   },
+  "claimReasonBasisUnknown": "हा दावा प्रति 100 ग्रॅम आहे की प्रति सर्व्हिंग हे स्पष्ट लिहिलेले नाही, त्यामुळे तो तक्त्याशी तपासता येत नाही.",
   "claimReasonBelowClaimed": "पोषण तक्त्यात {basis, select, per_serving {प्रति सर्व्हिंग} other {प्रति 100 ग्रॅम}} {value} ग्रॅम प्रथिने आहेत, जी दावा केलेल्या {claimed} ग्रॅमपेक्षा कमी आहेत.",
   "@claimReasonBelowClaimed": {
     "placeholders": {

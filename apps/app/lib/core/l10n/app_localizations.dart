@@ -418,6 +418,12 @@ abstract class AppLocalizations {
   /// **'The ingredients include added sugar: {ingredients}.'**
   String claimReasonAddedSugarIngredient(String ingredients);
 
+  /// No description provided for @claimReasonBasisUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The claim doesn\'t clearly say per 100 g or per serving, so it can\'t be checked against the table.'**
+  String get claimReasonBasisUnknown;
+
   /// No description provided for @claimReasonBelowClaimed.
   ///
   /// In en, this message translates to:

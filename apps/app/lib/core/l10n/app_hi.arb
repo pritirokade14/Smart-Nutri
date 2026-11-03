@@ -74,6 +74,7 @@
       }
     }
   },
+  "claimReasonBasisUnknown": "दावे में साफ़ नहीं लिखा है कि यह प्रति 100 ग्राम है या प्रति सर्विंग, इसलिए इसे तालिका से जाँचा नहीं जा सकता।",
   "claimReasonBelowClaimed": "पोषण तालिका में {basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम}} {value} ग्राम प्रोटीन है, जो दावा किए गए {claimed} ग्राम से कम है।",
   "@claimReasonBelowClaimed": {
     "placeholders": {

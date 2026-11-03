@@ -91,6 +91,12 @@ _PROTEIN_AMOUNT = (
     re.compile(rf"(?<![a-z])protein\s*[:\-]?\s*{_NUM}\s*{_GRAMS}(?![a-z])"),
 )
 _PER_SERVING = re.compile(r"(?<![a-z])(?:serving|servings|scoop|scoops|serve|serves)(?![a-z])")
+# A package unit (P9 safety S2) is read per serving too, but the serving may be only part of a
+# bar or pack, so a shortfall there is `basis_unknown` (unverifiable), never a contradiction.
+_PER_UNIT = re.compile(
+    r"(?<![a-z])(?:bars?|packs?|packets?|sachets?|bottles?|pieces?|pcs|cups?)(?![a-z])"
+)
+_PER_100 = re.compile(r"(?:per|/|every|each|in)\s*100\s*(?:g|gm|gms|grams?|ml)(?![a-z])")
 
 
 def _claim_text(claim: str) -> str:
@@ -197,23 +203,43 @@ def _no_refined_sugar(product: Product, cfg: ScoringConfig) -> ClaimCheck:
 
 
 def _protein_amount_check(claim: str, product: Product, cfg: ScoringConfig) -> ClaimCheck:
-    """Per serving when the claim says serving/scoop/serve, else per 100 g.
+    """The claimed grams vs the table, on the basis the claim names (P9 safety S2):
 
-    Contradicted when the table is more than `protein_amount_shortfall_pct` % below the claim.
+    - serving / scoop / serve: per serving; contradicted when short.
+    - "per 100 g" (or "/100g", "in 100 g"): per 100 g; contradicted when short.
+    - a package unit (bar, pack, sachet, bottle, piece, cup): per serving, but the serving
+      may be part of the unit, so a shortfall is unverifiable (`basis_unknown`).
+    - no basis: supported when the per-100 g or the per-serving value meets the claim, else
+      unverifiable (`basis_unknown`). Never contradicted.
+
+    "Short" means more than `protein_amount_shortfall_pct` % below the claim.
     """
     key = "protein_amount"
     claimed = _protein_amount(claim)
     protein = product.per_100g.protein_g
     if claimed is None or protein is None:
         return _missing(key, "protein_g")
-    value, basis = protein, "per_100g"
-    if _PER_SERVING.search(_claim_text(claim)):
-        if product.serving_size_g is None:
-            return _missing(key, "serving_size_g")
-        value, basis = protein * product.serving_size_g / 100, "per_serving"
+    text = _claim_text(claim)
     floor = claimed * (1 - cfg.thresholds["claims"]["protein_amount_shortfall_pct"] / 100)
-    if value >= floor:
-        return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
+    serving = product.serving_size_g
+    per_serving = None if serving is None else protein * serving / 100
+    unclear = ClaimCheck(key, ClaimVerdict.UNVERIFIABLE, "basis_unknown")
+    if _PER_SERVING.search(text) or _PER_UNIT.search(text):
+        if per_serving is None:
+            return _missing(key, "serving_size_g")
+        if per_serving >= floor:
+            return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
+        if not _PER_SERVING.search(text):
+            return unclear
+        value, basis = per_serving, "per_serving"
+    elif _PER_100.search(text):
+        if protein >= floor:
+            return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
+        value, basis = protein, "per_100g"
+    else:
+        if protein >= floor or (per_serving is not None and per_serving >= floor):
+            return ClaimCheck(key, ClaimVerdict.SUPPORTED, "ok")
+        return unclear
     return ClaimCheck(
         key,
         ClaimVerdict.CONTRADICTED,

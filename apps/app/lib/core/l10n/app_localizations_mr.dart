@@ -182,6 +182,10 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String get claimReasonBasisUnknown =>
+      'हा दावा प्रति 100 ग्रॅम आहे की प्रति सर्व्हिंग हे स्पष्ट लिहिलेले नाही, त्यामुळे तो तक्त्याशी तपासता येत नाही.';
+
+  @override
   String claimReasonBelowClaimed(String basis, String claimed, String value) {
     String _temp0 = intl.Intl.selectLogic(basis, {
       'per_serving': 'प्रति सर्व्हिंग',

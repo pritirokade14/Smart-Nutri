@@ -242,3 +242,5 @@ All hi/mr strings below are machine drafts and need a native reader. Safe words 
 ## Engine fixes EF1-EF3 (real-data experiments)
 - [ ] **hi/mr `confirm.category_option.fat`**: machine drafts, now "Oil, fat, nuts or seeds" (the Nutri-Score 2023 fats, oils, nuts and seeds group: oils, ghee, butter, cream, nuts, peanut butter, oilseeds). "नट्स" is a transliteration (not "मेवे", which also means dried fruit); check it is understood. "बीज" / "बिया" must read as oilseeds (sunflower, pumpkin, flax), not grains or pulses.
 - [ ] **hi/mr `warning.sodium_unit_suspect`**: machine drafts. Shown when a label prints sodium only (no salt) and the value read as mg is implausibly low for the product, most likely a "g" value (0.4 g read as 0.4 mg). The user then picks mg or g. It must read as "check the unit on the pack", never as "this food is low in sodium". Units mg and g stay as written.
+## P9 safety review fixes
+- [ ] **hi/mr `claim_reason.basis_unknown`**: machine drafts. Shown when a protein-amount claim does not say per 100 g or per serving (or names a bar or pack that may hold more than one serving). Neutral: the claim cannot be checked, never "wrong".

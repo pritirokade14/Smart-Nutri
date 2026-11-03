@@ -62,12 +62,62 @@ def test_protein_amount_below_claimed(cfg):
     assert c.params == {"value": 24.0, "claimed": 30.0, "basis": "per_serving"}
 
 
-def test_protein_amount_per_100g_when_no_serving_word(cfg):
-    ok = _one(_whey(claims=("80g protein",)), cfg)
-    assert ok.verdict == ClaimVerdict.SUPPORTED
-    short = _one(_whey(claims=("90 g protein",)), cfg)
+@pytest.mark.parametrize(
+    "claim", ["90 g protein per 100 g", "90g protein/100g", "Protein: 90 g per 100g"]
+)
+def test_protein_amount_per_100g_when_stated(cfg, claim):
+    short = _one(_whey(claims=(claim,)), cfg)
     assert short.verdict == ClaimVerdict.CONTRADICTED
     assert short.params == {"value": 80.0, "claimed": 90.0, "basis": "per_100g"}
+    assert _one(_whey(claims=("80g protein per 100 g",)), cfg).verdict == ClaimVerdict.SUPPORTED
+
+
+def test_protein_amount_without_basis_never_contradicted(cfg):
+    """P9 safety S2: a claim that names no basis may mean per pack, per bar or per serving:
+    supported when either the per-100 g or the per-serving value meets it, else
+    unverifiable (`basis_unknown`), never contradicted."""
+    assert _one(_whey(claims=("80g protein",)), cfg).verdict == ClaimVerdict.SUPPORTED
+    short = _one(_whey(claims=("90 g protein",)), cfg)
+    assert (short.verdict, short.reason_code, short.params) == (
+        ClaimVerdict.UNVERIFIABLE,
+        "basis_unknown",
+        {},
+    )
+
+
+def test_thirty_g_per_bar_on_a_200_g_bar_is_not_contradicted(cfg):
+    """The reviewer's probe: 15 g protein per 100 g, a 200 g bar, "30g protein per bar"."""
+    p = _whey(
+        per_100g=Nutrients(energy_kcal=400, protein_g=15), serving_size_g=200,
+        claims=("30g protein per bar",),
+    )  # fmt: skip
+    c = _one(p, cfg)
+    assert c.claim == "protein_amount"
+    assert c.verdict in (ClaimVerdict.SUPPORTED, ClaimVerdict.UNVERIFIABLE)
+    assert c.verdict == ClaimVerdict.SUPPORTED
+
+
+@pytest.mark.parametrize("unit", ["bar", "pack", "sachet", "bottle", "piece", "cup", "bars"])
+def test_package_units_are_per_serving(cfg, unit):
+    # 80 g per 100 g, 30 g serving -> 24 g per serving.
+    ok = _one(_whey(claims=(f"24g protein per {unit}",)), cfg)
+    assert ok.verdict == ClaimVerdict.SUPPORTED
+
+
+@pytest.mark.parametrize("unit", ["bar", "pack", "sachet", "bottle", "piece", "cup"])
+def test_package_unit_short_of_the_serving_is_unverifiable(cfg, unit):
+    """The serving may be part of a bar or pack, so a shortfall is never a contradiction."""
+    c = _one(_whey(claims=(f"40g protein per {unit}",)), cfg)
+    assert (c.verdict, c.reason_code) == (ClaimVerdict.UNVERIFIABLE, "basis_unknown")
+
+
+def test_package_unit_without_serving_size_unverifiable(cfg):
+    c = _one(_whey(serving_size_g=None, claims=("24g protein per bar",)), cfg)
+    assert (c.verdict, c.reason_code, c.params) == (
+        ClaimVerdict.UNVERIFIABLE,
+        "nutrient_missing",
+        {"nutrient": "serving_size_g"},
+    )
 
 
 def test_protein_amount_decimal_claim(cfg):

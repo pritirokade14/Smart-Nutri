@@ -181,6 +181,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get claimReasonBasisUnknown =>
+      'The claim doesn\'t clearly say per 100 g or per serving, so it can\'t be checked against the table.';
+
+  @override
   String claimReasonBelowClaimed(String basis, String claimed, String value) {
     String _temp0 = intl.Intl.selectLogic(basis, {
       'per_serving': 'per serving',

@@ -74,6 +74,7 @@
       }
     }
   },
+  "claimReasonBasisUnknown": "The claim doesn't clearly say per 100 g or per serving, so it can't be checked against the table.",
   "claimReasonBelowClaimed": "The nutrition table shows {value} g protein {basis, select, per_serving {per serving} other {per 100 g}}, below the {claimed} g claimed.",
   "@claimReasonBelowClaimed": {
     "placeholders": {

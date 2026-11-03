@@ -182,6 +182,10 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get claimReasonBasisUnknown =>
+      'दावे में साफ़ नहीं लिखा है कि यह प्रति 100 ग्राम है या प्रति सर्विंग, इसलिए इसे तालिका से जाँचा नहीं जा सकता।';
+
+  @override
   String claimReasonBelowClaimed(String basis, String claimed, String value) {
     String _temp0 = intl.Intl.selectLogic(basis, {
       'per_serving': 'प्रति सर्विंग',
