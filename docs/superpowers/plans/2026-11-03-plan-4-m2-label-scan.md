@@ -380,6 +380,8 @@ async def test_devanagari_ingredients_reach_engine(auth_client, peanut_allergic_
 
 ### Task 6: Label-eval harness
 
+> **As built (2026-11-03):** the harness is `apps/api/scripts/label_eval.py` + `label_eval_core.py`, with `tests/evals/labels/manifest.json`, `reports/` and a git-ignored `raw/`. There is no `--dry-run`: the command exits 2 without `--yes-spend` and refuses to run in CI. `.claude/skills/label-eval/SKILL.md` and `label_eval_core.GATES` are the source of truth; the file names below are the original design. The model decision goes in ADR 0016 (or a later ADR), not 0013, which was already taken.
+
 **Files:**
 - Create:
   - `apps/api/tests/evals/labels/{metrics.py,run_eval.py,manifest.csv,expected/.gitkeep,results/.gitkeep,README.md}`
@@ -423,7 +425,7 @@ def test_summary_fails_on_any_allergen_miss(): assert summarize([row(allergen=(0
 - [ ] **Step 6 (needs the product owner):** collect at least 50 real label photos into the git-ignored `images/`, plus the committed `expected/*.json`.
   - Run every spec §3 candidate with `--limit 10`, then on the full set.
   - **Confirm the estimated cost with the user before each full run**, because it spends CallMissed credits.
-  - Record the results files, set `CALLMISSED_EXTRACTION_MODEL` in `.env.example` to the winner (the best model passing all gates, preferring India-processed models on ties), and add `docs/adr/0013-label-extraction-model.md`.
+  - Record the results files, set `CALLMISSED_EXTRACTION_MODEL` in `.env.example` to the winner (the best model passing all gates, preferring India-processed models on ties), and record the decision in ADR 0016 (or a new ADR; 0013 was taken).
   - If no model passes the allergen gate, M2 does **not** close. Record that in the ADR and iterate the prompt as `extraction_v2.md`.
 
 ---
