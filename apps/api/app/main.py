@@ -1,6 +1,7 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from importlib.metadata import PackageNotFoundError, version
+from typing import Any
 
 import httpx
 from fastapi import APIRouter, Depends, FastAPI
@@ -26,6 +27,7 @@ from app.features.methodology.router import router as methodology_router
 from app.features.products.router import router as products_router
 from app.features.reports.router import router as reports_router
 from app.features.scans.router import router as scans_router
+from app.features.voice.router import require_voice_enabled
 from app.features.voice.router import router as voice_router
 from app.integrations.openfoodfacts import SearchThrottle
 
@@ -55,15 +57,26 @@ CONSENT_GATES: dict[str, str] = {
 }
 
 
+# Router prefix -> checks that run before its consent gate. They touch no session and refuse
+# without counting. m1: a switched-off voice server answers 503 ai_unavailable, not 403
+# consent_required (nobody is sent to a consent screen for a feature that is off).
+PRE_GATE_DEPENDENCIES: dict[str, tuple[Callable[..., Any], ...]] = {
+    "/v1/voice": (require_voice_enabled,),
+}
+
+
 def _include(app: FastAPI, router: APIRouter) -> None:
     feature = CONSENT_GATES.get(router.prefix)
     if feature is None:
         app.include_router(router)
         return
     # Router-level dependencies run before the route's own (e.g. limit()), so a refused call
-    # costs no quota.
+    # costs no quota. A check listed here and on the route runs once (dependency cache).
+    pre = [Depends(check) for check in PRE_GATE_DEPENDENCIES.get(router.prefix, ())]
     app.include_router(
-        router, dependencies=[Depends(gate_for(feature))], responses=CONSENT_RESPONSES
+        router,
+        dependencies=[*pre, Depends(gate_for(feature))],
+        responses=CONSENT_RESPONSES,
     )
 
 

@@ -21,7 +21,7 @@ from app.features.consents.models import Consent
 from app.features.consents.policy import CURRENT_VERSIONS
 from app.features.me.service import ensure_account
 from app.features.members.models import Member
-from app.main import CONSENT_GATES
+from app.main import CONSENT_GATES, PRE_GATE_DEPENDENCIES
 from scripts.export_fixture_responses import fixture_product_record
 from tests.api.routes import api_routes
 
@@ -96,11 +96,24 @@ async def test_meals_need_only_terms(client, login, grant):
     assert r.status_code == 422, r.text  # past the gate: the body is invalid
 
 
-async def test_voice_needs_terms_and_ai_processing(client, login, grant):
+async def test_voice_needs_terms_and_ai_processing(app, client, login, grant):
+    app.state.settings.voice_enabled = True
     login()
     assert _consent_error(await client.post("/v1/voice/ask")) == ["terms", "ai_processing"]
     await grant(["terms", "health_data"])
     assert _consent_error(await client.post("/v1/voice/ask")) == ["ai_processing"]
+
+
+async def test_voice_disabled_wins_over_the_consent_gate(app, client, login, db_session):
+    """m1: with VOICE_ENABLED off, voice answers 503 ai_unavailable before the consent gate,
+    so nobody is sent to a consent screen for a feature that is switched off."""
+    app.state.settings.voice_enabled = False
+    login()  # no consents at all
+    r = await client.post("/v1/voice/ask")
+    assert (r.status_code, r.json()["error"]["code"]) == (503, "ai_unavailable")
+    # The gate never ran: it would have created no rows either, but it reads the session.
+    count = await db_session.scalar(text("select count(*) from rate_limit_counters"))
+    assert count == 0
 
 
 async def test_products_create_needs_terms(client, login, grant):
@@ -313,10 +326,26 @@ def test_every_route_under_a_gated_prefix_has_the_gate(app):
     for route in api_routes(app):
         for prefix, feature in CONSENT_GATES.items():
             if route.path == prefix or route.path.startswith(prefix + "/"):
-                # First, so it runs before limit() and costs no quota.
-                assert route.top_level_calls()[0] is gate_for(feature), route.path
+                # Right after the session-free pre-gate checks (m1: the voice switch), so it
+                # runs before limit() and costs no quota.
+                pre = list(PRE_GATE_DEPENDENCIES.get(prefix, ()))
+                calls = route.top_level_calls()
+                assert calls[: len(pre)] == pre, route.path
+                assert calls[len(pre)] is gate_for(feature), route.path
                 gated += 1
     assert gated >= 3  # analyze_create, scans upload-url and label (voice/meals when added)
+
+
+def test_voice_switch_runs_before_the_consent_gate(app):
+    from app.features.voice.router import require_voice_enabled
+
+    assert PRE_GATE_DEPENDENCIES == {"/v1/voice": (require_voice_enabled,)}
+    (route,) = [r for r in api_routes(app) if r.path == "/v1/voice/ask"]
+    calls = route.top_level_calls()
+    assert calls[0] is require_voice_enabled and calls[1] is gate_for("voice")
+    # Listed once more on the route itself (for the contract and for routers mounted
+    # without the gate); FastAPI's per-request dependency cache runs it only once.
+    assert calls.count(require_voice_enabled) == 2
 
 
 def test_gated_operations_document_403(app):
