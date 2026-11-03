@@ -87,6 +87,8 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'audio_unsupported' => l10n.errorAudioUnsupported,
     'voice_not_understood' => l10n.errorVoiceNotUnderstood,
     'ai_unavailable' => l10n.errorAiUnavailable,
+    'deletion_incomplete' => l10n.errorDeletionIncomplete,
+    'phone_otp_disabled' => l10n.errorPhoneOtpDisabled,
     'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };

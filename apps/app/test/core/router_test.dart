@@ -24,6 +24,8 @@ class _FakeMe implements MeClient {
   final Future<MeOut> Function() result;
   @override
   Future<MeOut> meGet() => result();
+  @override
+  Future<void> meDelete() => throw UnimplementedError();
 }
 
 class _FakeApi implements SmartNutriApiClient {
