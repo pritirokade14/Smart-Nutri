@@ -43,6 +43,15 @@ ALLOWED_EVENTS: Mapping[str, set[str]] = MappingProxyType(
         "report_submitted": {"reason"},
         "share_clicked": {"kind"},
         "account_deleted": set(),
+        # F6: events the clients send; names only, never properties.
+        "meal_queued": set(),
+        "meal_log_undone": set(),
+        "meal_removed": set(),
+        "share_result": set(),
+        "share_weekly": set(),
+        "compare_opened": set(),
+        "compare_viewed": set(),
+        "product_search": set(),  # never the query text
     }
 )
 

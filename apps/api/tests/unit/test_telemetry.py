@@ -213,7 +213,36 @@ def test_allowed_events_match_the_plan():
         "report_submitted": {"reason"},
         "share_clicked": {"kind"},
         "account_deleted": set(),
+        # F6: client events, names only (no properties).
+        "meal_queued": set(),
+        "meal_log_undone": set(),
+        "meal_removed": set(),
+        "share_result": set(),
+        "share_weekly": set(),
+        "compare_opened": set(),
+        "compare_viewed": set(),
+        "product_search": set(),
     }
+
+
+@pytest.mark.parametrize(
+    "event",
+    [
+        "meal_logged",
+        "meal_queued",
+        "meal_log_undone",
+        "meal_removed",
+        "share_result",
+        "share_weekly",
+        "compare_opened",
+        "compare_viewed",
+        "product_search",
+    ],
+)
+def test_f6_events_are_sent_without_any_property(fake_posthog, event):
+    track(ACC, event, {"query": "biscuit", "member_id": "x", "grams": 30})
+    fake_posthog.capture.assert_called_once()
+    assert fake_posthog.capture.call_args.kwargs["properties"] == {}
 
 
 def test_no_health_words_in_the_allow_list():
