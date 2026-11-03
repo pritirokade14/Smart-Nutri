@@ -13,12 +13,6 @@ from app.features.me.prefill import MemberSnapshot, suggest_prefill
 from app.features.me.schemas import FollowUps
 from app.features.members.schemas import GoalIn
 
-BUILD_MUSCLE_SAVEABLE = "build_muscle" in get_args(GoalIn)
-needs_build_muscle = pytest.mark.skipif(
-    not BUILD_MUSCLE_SAVEABLE,
-    reason="Plan 9 Task 3 adds build_muscle to GoalIn; until then it is never suggested",
-)
-
 EMPTY = MemberSnapshot()
 
 
@@ -73,7 +67,7 @@ def test_weight_loss_when_goal_already_weight_loss_suggests_nothing():
 @pytest.mark.parametrize(
     ("gym_goal", "goal"),
     [
-        pytest.param("build_muscle", "build_muscle", marks=needs_build_muscle),
+        ("build_muscle", "build_muscle"),
         ("lose_fat", "weight_loss"),
         ("stay_fit", "healthy_eating"),
     ],
@@ -99,7 +93,6 @@ def test_gym_without_follow_up_suggests_nothing():
     assert suggest_prefill(["gym"], FollowUps(), EMPTY) == ([], None)
 
 
-@needs_build_muscle
 def test_goal_conflict_offers_choice():
     changes, choice = suggest_prefill(
         ["weight_loss", "gym"], FollowUps(gym_goal="build_muscle"), EMPTY
@@ -108,7 +101,6 @@ def test_goal_conflict_offers_choice():
     assert choice == ["weight_loss", "build_muscle"]
 
 
-@needs_build_muscle
 @pytest.mark.parametrize("current", ["weight_loss", "build_muscle"])
 def test_goal_conflict_already_resolved_offers_nothing(current):
     # The user already holds one of the two goals (e.g. picked it on the review screen):
