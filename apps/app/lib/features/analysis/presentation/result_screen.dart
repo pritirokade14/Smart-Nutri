@@ -22,6 +22,7 @@ import '../../meals/presentation/log_meal_sheet.dart';
 import '../../product/data/product_discovery_repository.dart';
 import '../../product/presentation/alternatives_section.dart';
 import '../../product/presentation/discovery_routes.dart';
+import '../../reports/presentation/report_dialog.dart';
 import '../../scan/domain/barcode.dart';
 import '../../scan/domain/number_text.dart';
 import '../data/analysis_repository.dart';
@@ -41,6 +42,9 @@ class ResultScreen extends ConsumerWidget {
 
   /// Set for a product saved from the confirm screen (`/result?product_id=`).
   final String? productId;
+
+  static const reportKey = Key('result-report-problem');
+  static const methodologyKey = Key('result-how-we-score');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -232,6 +236,28 @@ class _ResultView extends StatelessWidget {
           // disclaimer, which covers both. Hidden when unavailable.
           ExplanationCard(explanation: out.explanation, verdicts: out.verdicts),
           const DisclaimerFooter(),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: SnTokens.space2,
+            children: [
+              TextButton.icon(
+                key: ResultScreen.methodologyKey,
+                icon: const Icon(Icons.rule_rounded),
+                label: Text(l10n.methodologyTitle),
+                onPressed: () =>
+                    GoRouter.maybeOf(context)?.push('/methodology'),
+              ),
+              // F14: only our own catalogue products can be reported (Open
+              // Food Facts products have no product_id).
+              if (product.productId case final id?)
+                TextButton.icon(
+                  key: ResultScreen.reportKey,
+                  icon: const Icon(Icons.flag_outlined),
+                  label: Text(l10n.reportButton),
+                  onPressed: () => showReportDialog(context, productId: id),
+                ),
+            ],
+          ),
           const SizedBox(height: SnTokens.space3),
           SectionHeader(
             title: l10n.resultNutritionTitle,

@@ -17,6 +17,7 @@ import '../../features/meals/presentation/meals_providers.dart';
 import '../../features/members/presentation/member_form_screen.dart';
 import '../../features/members/presentation/members_list_screen.dart';
 import '../../features/members/presentation/members_providers.dart';
+import '../../features/methodology/presentation/methodology_screen.dart';
 import '../../features/product/presentation/compare_screen.dart';
 import '../../features/product/presentation/discovery_routes.dart';
 import '../../features/product/presentation/search_screen.dart';
@@ -142,6 +143,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             state.uri.queryParameters['purposes'],
           ),
         ),
+      ),
+      GoRoute(
+        path: '/methodology',
+        builder: (_, _) => const MethodologyScreen(),
       ),
       GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
       GoRoute(

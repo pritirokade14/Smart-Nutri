@@ -536,11 +536,20 @@
   "methodologySectionInfantTitle": "शिशु और छोटे बच्चे",
   "methodologySectionNutriscore2023Description": "हम लेबल से न्यूट्री-स्कोर ग्रेड निकालते हैं, इस तरीके के 2023 के अपडेट के अनुसार। इसकी गणना SmartNutri करता है; यह FSSAI रेटिंग नहीं है।",
   "methodologySectionNutriscore2023Title": "न्यूट्री-स्कोर (SmartNutri द्वारा गणना)",
+  "methodologySectionSources": "आधार: {sources}",
+  "@methodologySectionSources": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      }
+    }
+  },
   "methodologySectionWeightLossDescription": "वज़न घटा रहे सदस्यों के लिए हम ज़्यादा कैलोरी वाले उत्पाद और कम न्यूट्री-स्कोर ग्रेड बताते हैं, और कैलोरी के हिसाब से अच्छे प्रोटीन वाले उत्पाद भी बताते हैं।",
   "methodologySectionWeightLossTitle": "वज़न घटाना",
   "methodologySourcesTitle": "स्रोत",
   "methodologyTitle": "हम कैसे जाँचते हैं",
   "methodologyUrlUnverified": "लिंक की अभी जाँच नहीं हुई है",
+  "methodologyValuesTitle": "इस्तेमाल किए गए मान",
   "methodologyVersion": "नियम संस्करण {version}",
   "@methodologyVersion": {
     "placeholders": {

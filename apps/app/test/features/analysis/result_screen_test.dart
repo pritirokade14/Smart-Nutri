@@ -9,6 +9,7 @@ import 'package:smartnutri_ai/features/analysis/data/analysis_repository.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/result_screen.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/verdict_card.dart';
 import 'package:smartnutri_ai/features/product/data/product_discovery_repository.dart';
+import 'package:smartnutri_ai/features/reports/presentation/report_dialog.dart';
 import 'package:smartnutri_ai/shared/share/share_sheet.dart';
 import 'package:smartnutri_ai/shared/widgets/off_attribution.dart';
 import 'package:smartnutri_ai/shared/widgets/states.dart';
@@ -213,6 +214,37 @@ void main() {
     expect(opened, [
       Uri.parse('https://world.openfoodfacts.org/product/8901063201089'),
     ]);
+  });
+
+  testWidgets('report a problem opens the dialog for our own products', (
+    t,
+  ) async {
+    await t.pumpWidget(
+      _app(FakeAnalysisRepository([() => analyzeFixture('namkeen')])),
+    );
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(ResultScreen.reportKey));
+    await t.tap(find.byKey(ResultScreen.reportKey));
+    await t.pumpAndSettle();
+    final dialog = t.widget<ReportDialog>(find.byType(ReportDialog));
+    expect(dialog.productId, analyzeFixture('namkeen').product.productId);
+  });
+
+  testWidgets('no report button for Open Food Facts products (no product_id)', (
+    t,
+  ) async {
+    await t.pumpWidget(_app(FakeAnalysisRepository([_offProduct])));
+    await t.pumpAndSettle();
+    expect(find.byKey(ResultScreen.reportKey), findsNothing);
+  });
+
+  testWidgets('how we score link is on the result', (t) async {
+    await t.pumpWidget(
+      _app(FakeAnalysisRepository([() => analyzeFixture('water')])),
+    );
+    await t.pumpAndSettle();
+    expect(find.byKey(ResultScreen.methodologyKey), findsOneWidget);
+    expect(find.text(en.methodologyTitle), findsOneWidget);
   });
 
   testWidgets('no grade shows insufficient-data text', (t) async {

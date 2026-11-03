@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -22,6 +23,7 @@ class ProfileScreen extends ConsumerWidget {
   static const privacyKey = Key('profile-privacy');
   static const termsKey = Key('profile-terms');
   static const deleteKey = Key('profile-delete-account');
+  static const methodologyKey = Key('profile-how-we-score');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,6 +46,13 @@ class ProfileScreen extends ConsumerWidget {
           Card(
             child: Column(
               children: [
+                ListTile(
+                  key: methodologyKey,
+                  leading: const Icon(Icons.rule_rounded),
+                  title: Text(l10n.methodologyTitle),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/methodology'),
+                ),
                 if (hasSite) ...[
                   ListTile(
                     key: privacyKey,

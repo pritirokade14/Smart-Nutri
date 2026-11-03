@@ -536,11 +536,20 @@
   "methodologySectionInfantTitle": "बाळे आणि लहान मुले",
   "methodologySectionNutriscore2023Description": "आम्ही लेबलवरून न्यूट्री-स्कोर ग्रेड काढतो, या पद्धतीच्या 2023 च्या अद्यतनानुसार. तो SmartNutri मोजते; ते FSSAI रेटिंग नाही.",
   "methodologySectionNutriscore2023Title": "न्यूट्री-स्कोर (SmartNutri ने मोजलेला)",
+  "methodologySectionSources": "आधार: {sources}",
+  "@methodologySectionSources": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      }
+    }
+  },
   "methodologySectionWeightLossDescription": "वजन कमी करणाऱ्या सदस्यांसाठी आम्ही जास्त कॅलरी असलेली उत्पादने आणि कमी न्यूट्री-स्कोर ग्रेड दाखवतो, आणि कॅलरीच्या मानाने चांगले प्रथिन असलेली उत्पादनेही सांगतो.",
   "methodologySectionWeightLossTitle": "वजन कमी करणे",
   "methodologySourcesTitle": "स्रोत",
   "methodologyTitle": "आम्ही कसे तपासतो",
   "methodologyUrlUnverified": "लिंक अजून तपासलेली नाही",
+  "methodologyValuesTitle": "वापरलेली मूल्ये",
   "methodologyVersion": "नियम आवृत्ती {version}",
   "@methodologyVersion": {
     "placeholders": {

@@ -2362,6 +2362,12 @@ abstract class AppLocalizations {
   /// **'Nutri-Score (calculated by SmartNutri)'**
   String get methodologySectionNutriscore2023Title;
 
+  /// No description provided for @methodologySectionSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on: {sources}'**
+  String methodologySectionSources(String sources);
+
   /// No description provided for @methodologySectionWeightLossDescription.
   ///
   /// In en, this message translates to:
@@ -2391,6 +2397,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Link not yet checked'**
   String get methodologyUrlUnverified;
+
+  /// No description provided for @methodologyValuesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Values used'**
+  String get methodologyValuesTitle;
 
   /// No description provided for @methodologyVersion.
   ///

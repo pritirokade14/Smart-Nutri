@@ -536,11 +536,20 @@
   "methodologySectionInfantTitle": "Babies and toddlers",
   "methodologySectionNutriscore2023Description": "We calculate a Nutri-Score grade from the label, using the 2023 update of the method. It is calculated by SmartNutri; it is not an FSSAI rating.",
   "methodologySectionNutriscore2023Title": "Nutri-Score (calculated by SmartNutri)",
+  "methodologySectionSources": "Based on: {sources}",
+  "@methodologySectionSources": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      }
+    }
+  },
   "methodologySectionWeightLossDescription": "For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.",
   "methodologySectionWeightLossTitle": "Weight loss",
   "methodologySourcesTitle": "Sources",
   "methodologyTitle": "How we score",
   "methodologyUrlUnverified": "Link not yet checked",
+  "methodologyValuesTitle": "Values used",
   "methodologyVersion": "Rules version {version}",
   "@methodologyVersion": {
     "placeholders": {

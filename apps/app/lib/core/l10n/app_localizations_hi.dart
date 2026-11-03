@@ -1277,6 +1277,11 @@ class AppLocalizationsHi extends AppLocalizations {
       'न्यूट्री-स्कोर (SmartNutri द्वारा गणना)';
 
   @override
+  String methodologySectionSources(String sources) {
+    return 'आधार: $sources';
+  }
+
+  @override
   String get methodologySectionWeightLossDescription =>
       'वज़न घटा रहे सदस्यों के लिए हम ज़्यादा कैलोरी वाले उत्पाद और कम न्यूट्री-स्कोर ग्रेड बताते हैं, और कैलोरी के हिसाब से अच्छे प्रोटीन वाले उत्पाद भी बताते हैं।';
 
@@ -1291,6 +1296,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get methodologyUrlUnverified => 'लिंक की अभी जाँच नहीं हुई है';
+
+  @override
+  String get methodologyValuesTitle => 'इस्तेमाल किए गए मान';
 
   @override
   String methodologyVersion(String version) {

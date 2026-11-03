@@ -7,6 +7,7 @@ import 'package:smartnutri_ai/core/network/api_client.dart';
 import 'package:smartnutri_ai/core/observability/analytics.dart';
 import 'package:smartnutri_ai/features/auth/data/auth_repository.dart';
 import 'package:smartnutri_ai/features/auth/presentation/sign_in_screen.dart';
+import 'package:smartnutri_ai/features/methodology/presentation/methodology_screen.dart';
 import 'package:smartnutri_ai/features/settings/data/locale_store.dart';
 import 'package:smartnutri_ai/features/settings/presentation/delete_account_dialog.dart';
 import 'package:smartnutri_ai/features/settings/presentation/goodbye_screen.dart';
@@ -195,6 +196,13 @@ void main() {
     await t.pumpAndSettle();
     expect(h.me.deleteCalls, 2);
     expect(find.byType(GoodbyeScreen), findsOneWidget);
+  });
+
+  testWidgets('how we score opens from the profile', (t) async {
+    await _openProfile(t);
+    await t.tap(find.byKey(ProfileScreen.methodologyKey));
+    await t.pumpAndSettle();
+    expect(find.byType(MethodologyScreen), findsOneWidget);
   });
 
   test('prefs locale store keeps the choice', () async {

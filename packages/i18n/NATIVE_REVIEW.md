@@ -165,3 +165,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 8 Task 2 (Android: profile tab and account deletion)
 - [ ] **hi/mr `settings.*`** (`language_system`, `about_title`, `account_title`, `delete_button`, `delete_title`, `delete_body`, `delete_confirm_label`, `delete_confirm`, `goodbye_title`, `goodbye_body`, `goodbye_action`): machine drafts. `delete_body` must list plainly what is erased and say it cannot be undone. **`settings.delete_confirm_word` is "DELETE" in all three languages on purpose** (easy to type on any keyboard); the app compares it ignoring case and spaces. If a reviewer localizes it, keep it a single word that is easy to type.
+
+## Plan 7 Task 9 (Android: how we score)
+- [ ] **hi/mr `methodology.{values_title,section_sources}`**: machine drafts. `section_sources` introduces source document titles (kept in their original language); it must read as "based on", not as an endorsement.

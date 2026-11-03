@@ -730,7 +730,9 @@
         "title": "Daily limits",
         "description": "In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed."
       }
-    }
+    },
+    "values_title": "Values used",
+    "section_sources": "Based on: {sources}"
   },
   "report": {
     "button": "Report a problem",

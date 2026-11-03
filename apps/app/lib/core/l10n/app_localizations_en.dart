@@ -1272,6 +1272,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nutri-Score (calculated by SmartNutri)';
 
   @override
+  String methodologySectionSources(String sources) {
+    return 'Based on: $sources';
+  }
+
+  @override
   String get methodologySectionWeightLossDescription =>
       'For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.';
 
@@ -1286,6 +1291,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodologyUrlUnverified => 'Link not yet checked';
+
+  @override
+  String get methodologyValuesTitle => 'Values used';
 
   @override
   String methodologyVersion(String version) {
