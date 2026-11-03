@@ -1,9 +1,56 @@
 {
-  "description": "Share text for the sf_biscuit result for three members (Plan 6 F17).",
+  "cases": [
+    {
+      "id": "default",
+      "link": true,
+      "member_ids": []
+    },
+    {
+      "id": "one_member",
+      "link": true,
+      "member_ids": [
+        "834da0b9-324c-51a2-b07a-719afc7d08f0"
+      ]
+    },
+    {
+      "id": "all_members",
+      "link": true,
+      "member_ids": [
+        "03205f4c-4228-5936-93f2-d182aeb2743b",
+        "834da0b9-324c-51a2-b07a-719afc7d08f0",
+        "1e329317-586f-5b80-aaee-d07fd72fc6d6",
+        "d4a4c7e7-01cc-521a-a16d-3b3002846e7c"
+      ]
+    },
+    {
+      "id": "no_link",
+      "link": false,
+      "member_ids": []
+    }
+  ],
+  "default_case": "default",
+  "description": "Share text for the sf_biscuit result (Plan 6 F17, Ruling SH1): product and grade by default, members only when ticked, the link only with a configured site URL.",
   "expected": {
-    "en": "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Ravi: Avoid, Riya: Avoid, Me: Caution, Sushila: Label unclear. Checked with SmartNutri: https://smartnutri.app/en",
-    "hi": "Sugar Free Biscuit — न्यूट्री-स्कोर D (गणना SmartNutri ने की है)। Ravi: बचें, Riya: बचें, मैं: सावधानी, Sushila: लेबल स्पष्ट नहीं। SmartNutri से जाँचा गया: https://smartnutri.app/hi",
-    "mr": "Sugar Free Biscuit — न्यूट्री-स्कोअर D (गणना SmartNutri ने केली आहे). Ravi: टाळा, Riya: टाळा, मी: सावधगिरी, Sushila: लेबल स्पष्ट नाही. SmartNutri ने तपासले: https://smartnutri.app/mr"
+    "all_members": {
+      "en": "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Ravi: Avoid, Riya: Avoid, Me: Caution, Sushila: Label unclear. Checked with SmartNutri: https://site.example/en",
+      "hi": "Sugar Free Biscuit — न्यूट्री-स्कोर D (गणना SmartNutri ने की है)। Ravi: बचें, Riya: बचें, मैं: सावधानी, Sushila: लेबल स्पष्ट नहीं। SmartNutri से जाँचा गया: https://site.example/hi",
+      "mr": "Sugar Free Biscuit — न्यूट्री-स्कोअर D (गणना SmartNutri ने केली आहे). Ravi: टाळा, Riya: टाळा, मी: सावधगिरी, Sushila: लेबल स्पष्ट नाही. SmartNutri ने तपासले: https://site.example/mr"
+    },
+    "default": {
+      "en": "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Checked with SmartNutri: https://site.example/en",
+      "hi": "Sugar Free Biscuit — न्यूट्री-स्कोर D (गणना SmartNutri ने की है)। SmartNutri से जाँचा गया: https://site.example/hi",
+      "mr": "Sugar Free Biscuit — न्यूट्री-स्कोअर D (गणना SmartNutri ने केली आहे). SmartNutri ने तपासले: https://site.example/mr"
+    },
+    "no_link": {
+      "en": "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri).",
+      "hi": "Sugar Free Biscuit — न्यूट्री-स्कोर D (गणना SmartNutri ने की है)।",
+      "mr": "Sugar Free Biscuit — न्यूट्री-स्कोअर D (गणना SmartNutri ने केली आहे)."
+    },
+    "one_member": {
+      "en": "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Riya: Avoid. Checked with SmartNutri: https://site.example/en",
+      "hi": "Sugar Free Biscuit — न्यूट्री-स्कोर D (गणना SmartNutri ने की है)। Riya: बचें। SmartNutri से जाँचा गया: https://site.example/hi",
+      "mr": "Sugar Free Biscuit — न्यूट्री-स्कोअर D (गणना SmartNutri ने केली आहे). Riya: टाळा. SmartNutri ने तपासले: https://site.example/mr"
+    }
   },
   "forbidden_substrings": {
     "en": [
@@ -80,14 +127,14 @@
       "सोया"
     ]
   },
-  "format_version": 1,
+  "format_version": 2,
   "input": {
     "grade": "D",
     "product": "Sugar Free Biscuit",
     "urls": {
-      "en": "https://smartnutri.app/en",
-      "hi": "https://smartnutri.app/hi",
-      "mr": "https://smartnutri.app/mr"
+      "en": "https://site.example/en",
+      "hi": "https://site.example/hi",
+      "mr": "https://site.example/mr"
     },
     "verdicts": [
       {
@@ -121,11 +168,14 @@
     ]
   },
   "rules": [
-    "key = share.result.text, or share.result.ungraded when grade is null",
+    "Ruling SH1: the default share (every member checkbox unticked) names the product and its grade only; each ticked member is added, in response order",
+    "no member ticked: key = share.result.product_only, or share.result.product_only_ungraded when grade is null",
+    "one or more ticked: key = share.result.text, or share.result.ungraded when grade is null",
     "for each verdict in response order: who = first whitespace-separated word of the member's name; if the name is blank, share.relation.<relation>",
     "status = verdict.status.<status>; one member = share.result.member(who, status)",
     "members = the member strings joined with ', ' (comma + space) in every locale",
-    "product = the product name as returned; grade = the letter; url as given",
+    "product = the product name as returned; grade = the letter",
+    "link: only when SITE_URL / NEXT_PUBLIC_SITE_URL is set, append ' ' + share.link(url); url = <site>/<locale>[/p/<barcode>]; never a hard-coded domain",
     "never interpolate conditions, allergens, reason codes or nutrient totals"
   ]
 }

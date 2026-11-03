@@ -45,11 +45,41 @@ AnalyzeOut _response(Map<String, Object?> input) {
 void main() {
   final result = _share('share_result.sf_biscuit');
   final input = result['input']! as Map<String, Object?>;
-  final expected = (result['expected']! as Map).cast<String, String>();
+  final expected = (result['expected']! as Map).map(
+    (k, v) => MapEntry(k as String, (v as Map).cast<String, String>()),
+  );
+  final cases = (result['cases']! as List).cast<Map<String, Object?>>();
   final forbidden = (result['forbidden_substrings']! as Map).map(
     (k, v) => MapEntry(k as String, (v as List).cast<String>()),
   );
   final urls = (input['urls']! as Map).cast<String, String>();
+
+  for (final c in cases) {
+    for (final locale in ['en', 'hi', 'mr']) {
+      test('share text matches fixture case ${c['id']} ($locale)', () {
+        final l = lookupAppLocalizations(Locale(locale));
+        final r = _response(input);
+        final text = shareResultText(
+          l,
+          r,
+          input['product']! as String,
+          c['link']! as bool ? urls[locale]! : null,
+          memberIds: (c['member_ids']! as List).cast<String>().toSet(),
+        );
+        expect(text, expected[c['id']]![locale]);
+      });
+    }
+  }
+
+  test('the default case shares no member (ruling SH1)', () {
+    expect(result['default_case'], 'default');
+    final l = lookupAppLocalizations(const Locale('en'));
+    final r = _response(input);
+    expect(
+      shareResultText(l, r, input['product']! as String, urls['en']),
+      expected['default']!['en'],
+    );
+  });
 
   for (final locale in ['en', 'hi', 'mr']) {
     test('share text has no conditions ($locale)', () {
@@ -60,8 +90,9 @@ void main() {
         r,
         input['product']! as String,
         urls[locale]!,
+        memberIds: {for (final v in r.verdicts) v.memberId},
       );
-      expect(text, expected[locale]);
+      expect(text, expected['all_members']![locale]);
 
       final lower = text.toLowerCase();
       for (final word in forbidden[locale]!) {
@@ -107,7 +138,9 @@ void main() {
 
   final weekly = _share('share_weekly.week_family');
   final wInput = weekly['input']! as Map<String, Object?>;
-  final wExpected = (weekly['expected']! as Map).cast<String, String>();
+  final wExpected = (weekly['expected']! as Map).map(
+    (k, v) => MapEntry(k as String, (v as Map).cast<String, String>()),
+  );
   for (final locale in ['en', 'hi', 'mr']) {
     test('weekly share matches fixture ($locale)', () {
       final l = lookupAppLocalizations(Locale(locale));
@@ -118,19 +151,30 @@ void main() {
           wInput['logged']! as int,
           (wInput['urls']! as Map)[locale]! as String,
         ),
-        wExpected[locale],
+        wExpected['with_link']![locale],
+      );
+      expect(
+        shareWeeklyText(
+          l,
+          wInput['scans']! as int,
+          wInput['logged']! as int,
+          null,
+        ),
+        wExpected['no_link']![locale],
       );
     });
   }
 
   test('share URL: public product page for a barcode, else the home page', () {
     expect(
-      shareUrl('https://smartnutri.app', 'hi', barcode: '8901063201089'),
-      'https://smartnutri.app/hi/p/8901063201089',
+      shareUrl('https://site.example', 'hi', barcode: '8901063201089'),
+      'https://site.example/hi/p/8901063201089',
     );
-    expect(
-      shareUrl('https://smartnutri.app/', 'en'),
-      'https://smartnutri.app/en',
-    );
+    expect(shareUrl('https://site.example/', 'en'), 'https://site.example/en');
+  });
+
+  test('share URL: none without SITE_URL (ruling SH1)', () {
+    expect(shareUrl('', 'en', barcode: '8901063201089'), isNull);
+    expect(shareUrl('  ', 'en'), isNull);
   });
 }

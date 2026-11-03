@@ -195,3 +195,7 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 - [ ] **hi/mr `consent.needs_update`**: Android and web drafted different hi/mr text for the same key; the web drafts were kept ("अपडेट हुआ है, कृपया देखें" / "अपडेट झाले आहे, कृपया पाहा").
 - [ ] **hi/mr `settings.delete_title`, `settings.delete_body`, mr `settings.delete_confirm_label`**: both clients drafted these; the web drafts were kept. `delete_title` is now the section heading ("Delete account"); the Android dialog uses `settings.delete_dialog_title`.
 - Keys removed as duplicates (callers moved): `consent.{screen_title,screen_intro,review,withdraw_terms_confirm}`, `settings.{goodbye_title,goodbye_body,delete_cancel}`, `methodology.{values_title,section_sources}`, `policy.{privacy,terms}`, `report.{cancel,close}`, `voice.close`. `settings.goodbye_action` moved to `goodbye.action` (text unchanged).
+
+## Integration wave 3: SH1 (share defaults to product and grade)
+- [ ] **hi/mr `share.privacy_note`, `share.include`**: new machine drafts. `privacy_note` must say only the product and its grade are shared, plus the result of anyone the user ticks; `include` must read as optional ("add a person's result").
+- [ ] **hi/mr `share.result.*`, `share.weekly`, `share.link`**: the old texts with the trailing "Checked with SmartNutri: {url}" sentence moved into the new `share.link` key (text unchanged), and a full stop (। in hi) added where the sentence now ends. Check the punctuation reads naturally.

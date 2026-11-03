@@ -654,15 +654,16 @@
     "copy_link": "लिंक कॉपी करा",
     "copied": "लिंक कॉपी झाली",
     "whatsapp": "WhatsApp वर शेअर करा",
-    "privacy_note": "फक्त उत्पादन, त्याचा ग्रेड आणि प्रत्येकाचा निकाल शेअर होतो. आरोग्याची माहिती खासगी राहते.",
+    "privacy_note": "फक्त उत्पादन आणि त्याचा ग्रेड शेअर होतो, आणि तुम्ही निवडलेल्या व्यक्तींचा निकाल. आरोग्याची माहिती खासगी राहते.",
     "result": {
-      "text": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). {members}. SmartNutri ने तपासले: {url}",
-      "ungraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. {members}. SmartNutri ने तपासले: {url}",
+      "text": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). {members}.",
+      "ungraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. {members}.",
       "member": "{who}: {status}",
-      "product_only": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). SmartNutri ने तपासले: {url}",
-      "product_only_ungraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. SmartNutri ने तपासले: {url}"
+      "product_only": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे).",
+      "product_only_ungraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही."
     },
-    "weekly": "SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: {scans}, नोंदवलेल्या गोष्टी: {logged}. {url}",
+    "weekly": "SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: {scans}, नोंदवलेल्या गोष्टी: {logged}.",
+    "link": "SmartNutri ने तपासले: {url}",
     "relation": {
       "self": "मी",
       "child": "मूल",
@@ -670,7 +671,7 @@
       "spouse": "जोडीदार",
       "other": "कुटुंबातील सदस्य"
     },
-    "include": "संदेशात समाविष्ट करा",
+    "include": "एखाद्या व्यक्तीचा निकाल जोडा (ऐच्छिक)",
     "preview": "संदेशाचे पूर्वावलोकन"
   },
   "voice": {

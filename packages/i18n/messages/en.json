@@ -654,15 +654,16 @@
     "copy_link": "Copy link",
     "copied": "Link copied",
     "whatsapp": "Share on WhatsApp",
-    "privacy_note": "Only the product, its grade and each person's result are shared. Health details stay private.",
+    "privacy_note": "Only the product and its grade are shared, plus the result of anyone you tick. Health details stay private.",
     "result": {
-      "text": "{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}. Checked with SmartNutri: {url}",
-      "ungraded": "{product} — not enough label data for a Nutri-Score. {members}. Checked with SmartNutri: {url}",
+      "text": "{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}.",
+      "ungraded": "{product} — not enough label data for a Nutri-Score. {members}.",
       "member": "{who}: {status}",
-      "product_only": "{product} — Nutri-Score {grade} (calculated by SmartNutri). Checked with SmartNutri: {url}",
-      "product_only_ungraded": "{product} — not enough label data for a Nutri-Score. Checked with SmartNutri: {url}"
+      "product_only": "{product} — Nutri-Score {grade} (calculated by SmartNutri).",
+      "product_only_ungraded": "{product} — not enough label data for a Nutri-Score."
     },
-    "weekly": "Our week on SmartNutri — products checked: {scans}, items logged: {logged}. {url}",
+    "weekly": "Our week on SmartNutri — products checked: {scans}, items logged: {logged}.",
+    "link": "Checked with SmartNutri: {url}",
     "relation": {
       "self": "Me",
       "child": "Child",
@@ -670,7 +671,7 @@
       "spouse": "Spouse",
       "other": "Family member"
     },
-    "include": "Include in the message",
+    "include": "Add a person's result (optional)",
     "preview": "Message preview"
   },
   "voice": {

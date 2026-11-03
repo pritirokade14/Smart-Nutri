@@ -3301,8 +3301,14 @@ abstract class AppLocalizations {
   /// No description provided for @shareInclude.
   ///
   /// In en, this message translates to:
-  /// **'Include in the message'**
+  /// **'Add a person\'s result (optional)'**
   String get shareInclude;
+
+  /// No description provided for @shareLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked with SmartNutri: {url}'**
+  String shareLink(String url);
 
   /// No description provided for @sharePreview.
   ///
@@ -3313,7 +3319,7 @@ abstract class AppLocalizations {
   /// No description provided for @sharePrivacyNote.
   ///
   /// In en, this message translates to:
-  /// **'Only the product, its grade and each person\'s result are shared. Health details stay private.'**
+  /// **'Only the product and its grade are shared, plus the result of anyone you tick. Health details stay private.'**
   String get sharePrivacyNote;
 
   /// No description provided for @shareRelationChild.
@@ -3355,37 +3361,32 @@ abstract class AppLocalizations {
   /// No description provided for @shareResultProductOnly.
   ///
   /// In en, this message translates to:
-  /// **'{product} — Nutri-Score {grade} (calculated by SmartNutri). Checked with SmartNutri: {url}'**
-  String shareResultProductOnly(String grade, String product, String url);
+  /// **'{product} — Nutri-Score {grade} (calculated by SmartNutri).'**
+  String shareResultProductOnly(String grade, String product);
 
   /// No description provided for @shareResultProductOnlyUngraded.
   ///
   /// In en, this message translates to:
-  /// **'{product} — not enough label data for a Nutri-Score. Checked with SmartNutri: {url}'**
-  String shareResultProductOnlyUngraded(String product, String url);
+  /// **'{product} — not enough label data for a Nutri-Score.'**
+  String shareResultProductOnlyUngraded(String product);
 
   /// No description provided for @shareResultText.
   ///
   /// In en, this message translates to:
-  /// **'{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}. Checked with SmartNutri: {url}'**
-  String shareResultText(
-    String grade,
-    String members,
-    String product,
-    String url,
-  );
+  /// **'{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}.'**
+  String shareResultText(String grade, String members, String product);
 
   /// No description provided for @shareResultUngraded.
   ///
   /// In en, this message translates to:
-  /// **'{product} — not enough label data for a Nutri-Score. {members}. Checked with SmartNutri: {url}'**
-  String shareResultUngraded(String members, String product, String url);
+  /// **'{product} — not enough label data for a Nutri-Score. {members}.'**
+  String shareResultUngraded(String members, String product);
 
   /// No description provided for @shareWeekly.
   ///
   /// In en, this message translates to:
-  /// **'Our week on SmartNutri — products checked: {scans}, items logged: {logged}. {url}'**
-  String shareWeekly(String logged, String scans, String url);
+  /// **'Our week on SmartNutri — products checked: {scans}, items logged: {logged}.'**
+  String shareWeekly(String logged, String scans);
 
   /// No description provided for @shareWeeklyButton.
   ///

@@ -11,8 +11,9 @@ import {
 } from "./shareText";
 
 /**
- * Share a result. Every member is listed with exactly what would be shared
- * about them ("Ravi: Avoid"); the user unticks anyone to leave them out.
+ * Share a result. By default only the product and its grade are shared
+ * (ruling SH1). Every member is listed, unticked, with exactly what would be
+ * shared about them ("Ravi: Avoid"); the user ticks anyone to add them.
  * Needs the `verdict` namespace (the result page provides it).
  */
 export function ResultShare({
@@ -28,8 +29,8 @@ export function ResultShare({
 }) {
   const t = useTranslations();
   const locale = useLocale();
-  const [left, setLeft] = useState<ReadonlySet<number>>(new Set());
-  const chosen = verdicts.filter((_, i) => !left.has(i));
+  const [picked, setPicked] = useState<ReadonlySet<number>>(new Set());
+  const chosen = verdicts.filter((_, i) => picked.has(i));
   const url = shareUrl(locale, barcode);
   const text = shareResultText(
     t,
@@ -38,7 +39,7 @@ export function ResultShare({
     url,
   );
   const toggle = (i: number) =>
-    setLeft((s) => {
+    setPicked((s) => {
       const next = new Set(s);
       if (next.has(i)) next.delete(i);
       else next.add(i);
@@ -66,7 +67,7 @@ export function ResultShare({
               <input
                 type="checkbox"
                 className="size-5"
-                checked={!left.has(i)}
+                checked={picked.has(i)}
                 onChange={() => toggle(i)}
               />
               <span>{shareMemberText(t, v)}</span>

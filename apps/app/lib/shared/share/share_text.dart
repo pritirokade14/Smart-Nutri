@@ -40,36 +40,57 @@ String shareWho(AppLocalizations l, VerdictOut v) {
   return first.isEmpty ? shareRelation(l, v.relation.json) : first;
 }
 
-/// The result share text. [memberIds] limits it to the members the user
-/// picked (default: all), in API order.
+/// Ruling SH1: `share.link` is appended only when there is a [url] (a
+/// configured `SITE_URL`); otherwise the text carries no link at all.
+String _withLink(AppLocalizations l, String body, String? url) =>
+    url == null || url.isEmpty ? body : '$body ${l.shareLink(url)}';
+
+/// The result share text: the product and its grade, plus the members the
+/// user ticked ([memberIds], none by default: ruling SH1), in API order.
+/// [url] is null when no `SITE_URL` is configured.
 String shareResultText(
   AppLocalizations l,
   AnalyzeOut r,
   String productName,
-  String url, {
-  Set<String>? memberIds,
+  String? url, {
+  Set<String> memberIds = const {},
 }) {
   final members = [
     for (final v in r.verdicts)
-      if (memberIds == null || memberIds.contains(v.memberId))
+      if (memberIds.contains(v.memberId))
         l.shareResultMember(_status(l, v.status), shareWho(l, v)),
   ].join(', ');
   final grade = nutriscoreGrade(r.report);
-  return grade == null
-      ? l.shareResultUngraded(members, productName, url)
-      : l.shareResultText(grade, members, productName, url);
+  final String body;
+  if (members.isEmpty) {
+    body = grade == null
+        ? l.shareResultProductOnlyUngraded(productName)
+        : l.shareResultProductOnly(grade, productName);
+  } else {
+    body = grade == null
+        ? l.shareResultUngraded(members, productName)
+        : l.shareResultText(grade, members, productName);
+  }
+  return _withLink(l, body, url);
 }
 
 /// The weekly family share text: counts only, as plain Latin digits.
-String shareWeeklyText(AppLocalizations l, int scans, int logged, String url) =>
-    l.shareWeekly(logged.toString(), scans.toString(), url);
+String shareWeeklyText(
+  AppLocalizations l,
+  int scans,
+  int logged,
+  String? url,
+) => _withLink(l, l.shareWeekly(logged.toString(), scans.toString()), url);
 
 /// The public product page for a barcode (`/<locale>/p/<barcode>`), else the
-/// site's home page for [locale].
-String shareUrl(String siteUrl, String locale, {String? barcode}) {
-  final base = siteUrl.endsWith('/')
-      ? siteUrl.substring(0, siteUrl.length - 1)
-      : siteUrl;
+/// site's home page for [locale]; null when [siteUrl] (`SITE_URL`) is empty
+/// (ruling SH1: never a hard-coded domain).
+String? shareUrl(String siteUrl, String locale, {String? barcode}) {
+  var base = siteUrl.trim();
+  if (base.isEmpty) return null;
+  while (base.endsWith('/')) {
+    base = base.substring(0, base.length - 1);
+  }
   return barcode == null || barcode.isEmpty
       ? '$base/$locale'
       : '$base/$locale/p/$barcode';

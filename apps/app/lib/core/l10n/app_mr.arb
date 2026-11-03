@@ -965,9 +965,17 @@
   "shareButton": "शेअर करा",
   "shareCopied": "लिंक कॉपी झाली",
   "shareCopyLink": "लिंक कॉपी करा",
-  "shareInclude": "संदेशात समाविष्ट करा",
+  "shareInclude": "एखाद्या व्यक्तीचा निकाल जोडा (ऐच्छिक)",
+  "shareLink": "SmartNutri ने तपासले: {url}",
+  "@shareLink": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
   "sharePreview": "संदेशाचे पूर्वावलोकन",
-  "sharePrivacyNote": "फक्त उत्पादन, त्याचा ग्रेड आणि प्रत्येकाचा निकाल शेअर होतो. आरोग्याची माहिती खासगी राहते.",
+  "sharePrivacyNote": "फक्त उत्पादन आणि त्याचा ग्रेड शेअर होतो, आणि तुम्ही निवडलेल्या व्यक्तींचा निकाल. आरोग्याची माहिती खासगी राहते.",
   "shareRelationChild": "मूल",
   "shareRelationOther": "कुटुंबातील सदस्य",
   "shareRelationParent": "आई/वडील",
@@ -984,7 +992,7 @@
       }
     }
   },
-  "shareResultProductOnly": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). SmartNutri ने तपासले: {url}",
+  "shareResultProductOnly": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे).",
   "@shareResultProductOnly": {
     "placeholders": {
       "grade": {
@@ -992,24 +1000,18 @@
       },
       "product": {
         "type": "String"
-      },
-      "url": {
-        "type": "String"
       }
     }
   },
-  "shareResultProductOnlyUngraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. SmartNutri ने तपासले: {url}",
+  "shareResultProductOnlyUngraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही.",
   "@shareResultProductOnlyUngraded": {
     "placeholders": {
       "product": {
         "type": "String"
-      },
-      "url": {
-        "type": "String"
       }
     }
   },
-  "shareResultText": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). {members}. SmartNutri ने तपासले: {url}",
+  "shareResultText": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). {members}.",
   "@shareResultText": {
     "placeholders": {
       "grade": {
@@ -1020,13 +1022,10 @@
       },
       "product": {
         "type": "String"
-      },
-      "url": {
-        "type": "String"
       }
     }
   },
-  "shareResultUngraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. {members}. SmartNutri ने तपासले: {url}",
+  "shareResultUngraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. {members}.",
   "@shareResultUngraded": {
     "placeholders": {
       "members": {
@@ -1034,22 +1033,16 @@
       },
       "product": {
         "type": "String"
-      },
-      "url": {
-        "type": "String"
       }
     }
   },
-  "shareWeekly": "SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: {scans}, नोंदवलेल्या गोष्टी: {logged}. {url}",
+  "shareWeekly": "SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: {scans}, नोंदवलेल्या गोष्टी: {logged}.",
   "@shareWeekly": {
     "placeholders": {
       "logged": {
         "type": "String"
       },
       "scans": {
-        "type": "String"
-      },
-      "url": {
         "type": "String"
       }
     }

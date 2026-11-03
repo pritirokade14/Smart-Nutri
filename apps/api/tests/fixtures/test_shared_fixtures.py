@@ -30,18 +30,56 @@ def test_share_texts_never_leak_health_data():
 
     data = json.loads((FIXTURES / "share" / "share_result.sf_biscuit.json").read_text("utf-8"))
     messages = FIXTURES.parent / "i18n" / "messages"
-    for locale, text in data["expected"].items():
-        assert data["forbidden_substrings"][locale]
-        # Ruling M1 S6: custom alert labels (alert.*) are health data too.
-        alerts = json.loads((messages / f"{locale}.json").read_text("utf-8"))["alert"]
-        assert {a.casefold() for a in alerts.values()} <= set(data["forbidden_substrings"][locale])
-        assert not [w for w in data["forbidden_substrings"][locale] if w in text.casefold()]
+    for case in data["cases"]:
+        for locale, text in data["expected"][case["id"]].items():
+            assert data["forbidden_substrings"][locale]
+            # Ruling M1 S6: custom alert labels (alert.*) are health data too.
+            alerts = json.loads((messages / f"{locale}.json").read_text("utf-8"))["alert"]
+            forbidden = set(data["forbidden_substrings"][locale])
+            assert {a.casefold() for a in alerts.values()} <= forbidden
+            assert not [w for w in forbidden if w in text.casefold()]
     # The verdict statuses in the share input are the engine's, as in expected/.
     for v in data["input"]["verdicts"]:
         expected = json.loads(
             (FIXTURES / "expected" / f"sf_biscuit.{v['fixture_member']}.json").read_text("utf-8")
         )
         assert v["status"] == expected["status"]
+
+
+def _share(name: str) -> dict:
+    import json
+
+    return json.loads((FIXTURES / "share" / name).read_text("utf-8"))
+
+
+def test_share_default_is_product_and_grade_only():
+    """Ruling SH1: the default share names the product and its Nutri-Score only; member
+    statuses are opted in per share (every box unticked by default)."""
+    data = _share("share_result.sf_biscuit.json")
+    cases = {c["id"]: c for c in data["cases"]}
+    assert data["default_case"] == "default"
+    assert cases["default"]["member_ids"] == [] and cases["default"]["link"] is True
+    names = [v["name"].split()[0] for v in data["input"]["verdicts"] if v["name"]]
+    for locale, text in data["expected"]["default"].items():
+        assert data["input"]["product"] in text
+        assert not [n for n in names if n in text], locale
+        assert data["input"]["urls"][locale] in text
+    # Opting one member in adds exactly that member.
+    riya = data["expected"]["one_member"]["en"]
+    assert "Riya:" in riya and "Ravi" not in riya
+
+
+def test_share_link_only_with_a_site_url():
+    """Ruling SH1: no hard-coded domain; without SITE_URL / NEXT_PUBLIC_SITE_URL the text has
+    no link at all."""
+    result = _share("share_result.sf_biscuit.json")
+    weekly = _share("share_weekly.week_family.json")
+    for data in (result, weekly):
+        no_link = data["expected"]["no_link"]
+        for locale, text in no_link.items():
+            assert "http" not in text and data["input"]["urls"][locale] not in text
+        for url in data["input"]["urls"].values():
+            assert "smartnutri.app" not in url
 
 
 @pytest.mark.parametrize(

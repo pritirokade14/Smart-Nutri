@@ -1864,14 +1864,19 @@ class AppLocalizationsMr extends AppLocalizations {
   String get shareCopyLink => 'लिंक कॉपी करा';
 
   @override
-  String get shareInclude => 'संदेशात समाविष्ट करा';
+  String get shareInclude => 'एखाद्या व्यक्तीचा निकाल जोडा (ऐच्छिक)';
+
+  @override
+  String shareLink(String url) {
+    return 'SmartNutri ने तपासले: $url';
+  }
 
   @override
   String get sharePreview => 'संदेशाचे पूर्वावलोकन';
 
   @override
   String get sharePrivacyNote =>
-      'फक्त उत्पादन, त्याचा ग्रेड आणि प्रत्येकाचा निकाल शेअर होतो. आरोग्याची माहिती खासगी राहते.';
+      'फक्त उत्पादन आणि त्याचा ग्रेड शेअर होतो, आणि तुम्ही निवडलेल्या व्यक्तींचा निकाल. आरोग्याची माहिती खासगी राहते.';
 
   @override
   String get shareRelationChild => 'मूल';
@@ -1894,33 +1899,28 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
-  String shareResultProductOnly(String grade, String product, String url) {
-    return '$product — न्यूट्री-स्कोअर $grade (गणना SmartNutri ने केली आहे). SmartNutri ने तपासले: $url';
+  String shareResultProductOnly(String grade, String product) {
+    return '$product — न्यूट्री-स्कोअर $grade (गणना SmartNutri ने केली आहे).';
   }
 
   @override
-  String shareResultProductOnlyUngraded(String product, String url) {
-    return '$product — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. SmartNutri ने तपासले: $url';
+  String shareResultProductOnlyUngraded(String product) {
+    return '$product — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही.';
   }
 
   @override
-  String shareResultText(
-    String grade,
-    String members,
-    String product,
-    String url,
-  ) {
-    return '$product — न्यूट्री-स्कोअर $grade (गणना SmartNutri ने केली आहे). $members. SmartNutri ने तपासले: $url';
+  String shareResultText(String grade, String members, String product) {
+    return '$product — न्यूट्री-स्कोअर $grade (गणना SmartNutri ने केली आहे). $members.';
   }
 
   @override
-  String shareResultUngraded(String members, String product, String url) {
-    return '$product — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. $members. SmartNutri ने तपासले: $url';
+  String shareResultUngraded(String members, String product) {
+    return '$product — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. $members.';
   }
 
   @override
-  String shareWeekly(String logged, String scans, String url) {
-    return 'SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: $scans, नोंदवलेल्या गोष्टी: $logged. $url';
+  String shareWeekly(String logged, String scans) {
+    return 'SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: $scans, नोंदवलेल्या गोष्टी: $logged.';
   }
 
   @override

@@ -49,9 +49,11 @@ MEALS = FIXTURES / "meals"
 SHARE = FIXTURES / "share"
 MESSAGES = FIXTURES.parents[0] / "i18n" / "messages"
 LOCALES = ("en", "hi", "mr")
-FORMAT_VERSION = 1
+FORMAT_VERSION = 2  # 2: SH1 cases (product-only default, opt-in members, no link)
 WEEK_FAMILY_ACCOUNT = fixture_id("account", "week_family")
-SITE_URL = "https://smartnutri.app"
+# A stand-in for the configured SITE_URL / NEXT_PUBLIC_SITE_URL (Ruling SH1: no hard-coded
+# domain; clients add the link only when the origin is configured).
+SITE_URL = "https://site.example"
 
 
 # --- week_family: rows built exactly as the API stores them ------------------------------
@@ -176,14 +178,28 @@ def who(name: str, relation: str, messages: dict[str, Any]) -> str:
     return parts[0] if parts else _msg(messages, f"share.relation.{relation}")
 
 
+def with_link(messages: dict[str, Any], body: str, url: str | None) -> str:
+    """Ruling SH1: `body`, then a space and `share.link` only when a site URL is configured."""
+    if not url:
+        return body
+    return f"{body} {_fill(_msg(messages, 'share.link'), url=url)}"
+
+
 def share_result_text(
     messages: dict[str, Any],
     *,
     product: str,
     grade: str | None,
     verdicts: list[dict[str, str]],
-    url: str,
+    url: str | None,
 ) -> str:
+    """Product and grade; plus the members the user ticked (none by default, Ruling SH1)."""
+    if not verdicts:
+        if grade is None:
+            body = _fill(_msg(messages, "share.result.product_only_ungraded"), product=product)
+        else:
+            body = _fill(_msg(messages, "share.result.product_only"), product=product, grade=grade)
+        return with_link(messages, body, url)
     joined = ", ".join(
         _fill(
             _msg(messages, "share.result.member"),
@@ -193,16 +209,17 @@ def share_result_text(
         for v in verdicts
     )
     if grade is None:
-        return _fill(
-            _msg(messages, "share.result.ungraded"), product=product, members=joined, url=url
+        body = _fill(_msg(messages, "share.result.ungraded"), product=product, members=joined)
+    else:
+        body = _fill(
+            _msg(messages, "share.result.text"), product=product, grade=grade, members=joined
         )
-    return _fill(
-        _msg(messages, "share.result.text"), product=product, grade=grade, members=joined, url=url
-    )
+    return with_link(messages, body, url)
 
 
-def share_weekly_text(messages: dict[str, Any], *, scans: int, logged: int, url: str) -> str:
-    return _fill(_msg(messages, "share.weekly"), scans=str(scans), logged=str(logged), url=url)
+def share_weekly_text(messages: dict[str, Any], *, scans: int, logged: int, url: str | None) -> str:
+    body = _fill(_msg(messages, "share.weekly"), scans=str(scans), logged=str(logged))
+    return with_link(messages, body, url)
 
 
 def _forbidden(messages: dict[str, Any], locale: str) -> list[str]:
@@ -224,14 +241,26 @@ SHARE_RESULT_MEMBERS = (
     ("no_age", "Sushila Devi", "other"),
 )
 SHARE_RULES = [
-    "key = share.result.text, or share.result.ungraded when grade is null",
+    (
+        "Ruling SH1: the default share (every member checkbox unticked) names the product and "
+        "its grade only; each ticked member is added, in response order"
+    ),
+    (
+        "no member ticked: key = share.result.product_only, or "
+        "share.result.product_only_ungraded when grade is null"
+    ),
+    ("one or more ticked: key = share.result.text, or share.result.ungraded when grade is null"),
     (
         "for each verdict in response order: who = first whitespace-separated word of the "
         "member's name; if the name is blank, share.relation.<relation>"
     ),
     "status = verdict.status.<status>; one member = share.result.member(who, status)",
     "members = the member strings joined with ', ' (comma + space) in every locale",
-    "product = the product name as returned; grade = the letter; url as given",
+    "product = the product name as returned; grade = the letter",
+    (
+        "link: only when SITE_URL / NEXT_PUBLIC_SITE_URL is set, append ' ' + "
+        "share.link(url); url = <site>/<locale>[/p/<barcode>]; never a hard-coded domain"
+    ),
     "never interpolate conditions, allergens, reason codes or nutrient totals",
 ]
 
@@ -252,26 +281,42 @@ def share_result_fixture() -> dict[str, Any]:
             }
         )
     grade = scoring.analyze(product, []).report.nutriscore.grade
-    expected, forbidden = {}, {}
+    ids = [v["member_id"] for v in verdicts]
+    cases = [
+        {"id": "default", "member_ids": [], "link": True},
+        {"id": "one_member", "member_ids": [index["members"]["milk_allergic_child"]], "link": True},
+        {"id": "all_members", "member_ids": ids, "link": True},
+        {"id": "no_link", "member_ids": [], "link": False},
+    ]
+    expected: dict[str, dict[str, str]] = {c["id"]: {} for c in cases}
+    forbidden = {}
     for locale in LOCALES:
         msgs = _messages(locale)
-        url = f"{SITE_URL}/{locale}"
-        expected[locale] = share_result_text(
-            msgs, product=product.name, grade=grade, verdicts=verdicts, url=url
-        )
         forbidden[locale] = _forbidden(msgs, locale)
-        hits = [w for w in forbidden[locale] if w in expected[locale].casefold()]
-        if hits:
-            raise ValueError(f"share text leaks {hits} ({locale})")
+        for case in cases:
+            picked = [v for v in verdicts if v["member_id"] in case["member_ids"]]
+            url = f"{SITE_URL}/{locale}" if case["link"] else None
+            text = share_result_text(
+                msgs, product=product.name, grade=grade, verdicts=picked, url=url
+            )
+            hits = [w for w in forbidden[locale] if w in text.casefold()]
+            if hits:
+                raise ValueError(f"share text leaks {hits} ({locale}, {case['id']})")
+            expected[case["id"]][locale] = text
     return {
         "format_version": FORMAT_VERSION,
-        "description": "Share text for the sf_biscuit result for three members (Plan 6 F17).",
+        "description": (
+            "Share text for the sf_biscuit result (Plan 6 F17, Ruling SH1): product and grade "
+            "by default, members only when ticked, the link only with a configured site URL."
+        ),
         "input": {
             "product": product.name,
             "grade": grade,
             "urls": {loc: f"{SITE_URL}/{loc}" for loc in LOCALES},
             "verdicts": verdicts,
         },
+        "default_case": "default",
+        "cases": cases,
         "rules": SHARE_RULES,
         "expected": expected,
         "forbidden_substrings": forbidden,
@@ -281,10 +326,16 @@ def share_result_fixture() -> dict[str, Any]:
 def share_weekly_fixture(family: WeekFamily) -> dict[str, Any]:
     logged = logged_in_week(family)
     expected = {
-        loc: share_weekly_text(
-            _messages(loc), scans=family.scans, logged=logged, url=f"{SITE_URL}/{loc}"
-        )
-        for loc in LOCALES
+        "with_link": {
+            loc: share_weekly_text(
+                _messages(loc), scans=family.scans, logged=logged, url=f"{SITE_URL}/{loc}"
+            )
+            for loc in LOCALES
+        },
+        "no_link": {
+            loc: share_weekly_text(_messages(loc), scans=family.scans, logged=logged, url=None)
+            for loc in LOCALES
+        },
     }
     return {
         "format_version": FORMAT_VERSION,
@@ -297,6 +348,10 @@ def share_weekly_fixture(family: WeekFamily) -> dict[str, Any]:
         "rules": [
             "key = share.weekly; scans and logged come from GET /v1/meals/week_counts",
             "pass the counts as plain decimal strings (Latin digits), not locale-formatted",
+            (
+                "link: only when SITE_URL / NEXT_PUBLIC_SITE_URL is set, append ' ' + "
+                "share.link(<site>/<locale>) (Ruling SH1); otherwise expected.no_link"
+            ),
         ],
         "expected": expected,
     }

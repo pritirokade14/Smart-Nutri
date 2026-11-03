@@ -17,6 +17,7 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_meals.dart';
 import '../../support/fake_products.dart';
+import '../../support/test_config.dart';
 import '../../support/fixtures.dart';
 
 class FakeAnalysisRepository implements AnalysisRepository {
@@ -55,8 +56,10 @@ Widget _app(
   FakeMealsClient? meals,
   FakeProductsClient? products,
   List<String>? shared,
+  String siteUrl = testSiteUrl,
 }) => ProviderScope(
   overrides: [
+    testConfigOverride(siteUrl: siteUrl),
     shareLauncherProvider.overrideWithValue((text) async => shared?.add(text)),
     ...mealTestOverrides(client: meals ?? FakeMealsClient()),
     productDiscoveryRepositoryProvider.overrideWithValue(
@@ -424,7 +427,59 @@ void main() {
     expect(meals.logged.single.productId, isNull);
   });
 
-  testWidgets('share: privacy note, the members the user keeps, no health '
+  testWidgets('share: product and grade by default, every member unticked '
+      '(ruling SH1)', (t) async {
+    final body = analyzeFixture('sf_biscuit');
+    final shared = <String>[];
+    await t.pumpWidget(
+      _app(FakeAnalysisRepository([() => body]), shared: shared),
+    );
+    await t.pumpAndSettle();
+    final button = find.widgetWithText(OutlinedButton, en.shareButton);
+    await t.ensureVisible(button);
+    await t.pumpAndSettle();
+    await t.tap(button);
+    await t.pumpAndSettle();
+    final tiles = t
+        .widgetList<CheckboxListTile>(find.byType(CheckboxListTile))
+        .toList();
+    expect(tiles, hasLength(body.verdicts.length));
+    expect(tiles.every((c) => c.value == false), isTrue);
+    final send = find.byKey(ShareSheet.shareKey);
+    await t.ensureVisible(send);
+    await t.tap(send);
+    await t.pumpAndSettle();
+    expect(shared, [
+      'Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). '
+          'Checked with SmartNutri: https://site.example/en',
+    ]);
+  });
+
+  testWidgets('share without SITE_URL: no link and no Copy link (ruling SH1)', (
+    t,
+  ) async {
+    final body = analyzeFixture('sf_biscuit');
+    final shared = <String>[];
+    await t.pumpWidget(
+      _app(FakeAnalysisRepository([() => body]), shared: shared, siteUrl: ''),
+    );
+    await t.pumpAndSettle();
+    final button = find.widgetWithText(OutlinedButton, en.shareButton);
+    await t.ensureVisible(button);
+    await t.pumpAndSettle();
+    await t.tap(button);
+    await t.pumpAndSettle();
+    expect(find.text(en.shareCopyLink), findsNothing);
+    final send = find.byKey(ShareSheet.shareKey);
+    await t.ensureVisible(send);
+    await t.tap(send);
+    await t.pumpAndSettle();
+    expect(shared, [
+      'Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri).',
+    ]);
+  });
+
+  testWidgets('share: privacy note, the members the user ticks, no health '
       'data', (t) async {
     final body = analyzeFixture('sf_biscuit');
     final shared = <String>[];
@@ -440,12 +495,10 @@ void main() {
     expect(find.text(en.sharePrivacyNote), findsOneWidget);
     expect(find.byType(CheckboxListTile), findsNWidgets(body.verdicts.length));
 
-    // Keep only the first member.
-    for (final tile
-        in find.byType(CheckboxListTile).evaluate().skip(1).toList()) {
-      await t.ensureVisible(find.byWidget(tile.widget));
-      await t.tap(find.byWidget(tile.widget));
-    }
+    // Tick only the first member.
+    final firstTile = find.byType(CheckboxListTile).first;
+    await t.ensureVisible(firstTile);
+    await t.tap(firstTile);
     await t.pumpAndSettle();
     final send = find.byKey(ShareSheet.shareKey);
     await t.ensureVisible(send);
@@ -455,7 +508,7 @@ void main() {
     expect(shared, [
       'Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). '
           '${first.memberName.split(' ').first}: ${en.verdictStatusCaution}. '
-          'Checked with SmartNutri: https://smartnutri.app/en',
+          'Checked with SmartNutri: https://site.example/en',
     ]);
     expect(first.status, VerdictOutStatus.caution);
   });

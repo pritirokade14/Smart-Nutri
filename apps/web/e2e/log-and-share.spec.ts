@@ -134,18 +134,28 @@ test("Share falls back to copy link and WhatsApp without the Web Share API", asy
   await expect(dialog).toBeVisible();
   const preview = dialog.getByTestId("share-preview");
   await expect(preview).toContainText("Sugar Free Biscuit — Nutri-Score");
-  await expect(preview).toContainText("Ravi: ");
-  await expect(preview).not.toContainText("Patil");
+  // Ruling SH1: nobody's result is shared unless the user ticks them.
+  await expect(preview).not.toContainText("Ravi");
+  for (const box of await dialog.getByRole("checkbox").all())
+    await expect(box).not.toBeChecked();
   await expect(
     dialog.getByText(
-      "Only the product, its grade and each person's result are shared. Health details stay private.",
+      "Only the product and its grade are shared, plus the result of anyone you tick. Health details stay private.",
     ),
   ).toBeVisible();
   await expect(dialog.getByRole("button", { name: "Copy link" })).toBeVisible();
   const wa = dialog.getByRole("link", { name: "Share on WhatsApp" });
   await expect(wa).toHaveAttribute("href", /^https:\/\/wa\.me\/\?text=/);
 
-  // Leave Ravi out: his part disappears from the message and the link.
+  // Opt Ravi in: his first name and status only.
+  await dialog.getByRole("checkbox", { name: /^Ravi: / }).check();
+  await expect(preview).toContainText("Ravi: ");
+  await expect(preview).not.toContainText("Patil");
+  expect(decodeURIComponent((await wa.getAttribute("href")) ?? "")).toContain(
+    "Ravi: ",
+  );
+
+  // And out again: his part disappears from the message and the link.
   await dialog.getByRole("checkbox", { name: /^Ravi: / }).uncheck();
   await expect(preview).not.toContainText("Ravi");
   const href = (await wa.getAttribute("href")) ?? "";

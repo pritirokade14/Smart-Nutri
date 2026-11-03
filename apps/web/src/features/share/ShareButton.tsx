@@ -10,9 +10,10 @@ import { track } from "@/lib/analytics";
 /**
  * Share: opens a sheet with the user's choices (children), a preview of the
  * exact text and the privacy note. With the Web Share API it hands the text
- * to the system share sheet (the text already ends with the link, so only
- * `text` is passed); without it, "Copy link" and a WhatsApp link. Analytics
- * get the event name only, never the text.
+ * to the system share sheet (the text already ends with any link, so only
+ * `text` is passed); without it, "Copy link" (only when there is a link,
+ * ruling SH1) and a WhatsApp link. Analytics get the event name only, never
+ * the text.
  */
 export function ShareButton({
   label,
@@ -24,7 +25,8 @@ export function ShareButton({
 }: {
   label: string;
   text: string;
-  url: string;
+  /** The link in the text; null when no site URL is configured. */
+  url: string | null;
   /** Analytics event name (no properties). */
   event: string;
   /** What the user may include (e.g. one checkbox per member). */
@@ -54,6 +56,7 @@ export function ShareButton({
   }
 
   async function copyLink() {
+    if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -83,9 +86,11 @@ export function ShareButton({
               </>
             ) : (
               <>
-                <Button variant="outline" onClick={copyLink}>
-                  {t("share.copy_link")}
-                </Button>
+                {url ? (
+                  <Button variant="outline" onClick={copyLink}>
+                    {t("share.copy_link")}
+                  </Button>
+                ) : null}
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(text)}`}
                   target="_blank"

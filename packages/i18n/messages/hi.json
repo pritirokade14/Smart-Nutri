@@ -654,15 +654,16 @@
     "copy_link": "लिंक कॉपी करें",
     "copied": "लिंक कॉपी हो गया",
     "whatsapp": "WhatsApp पर शेयर करें",
-    "privacy_note": "केवल उत्पाद, उसका ग्रेड और हर व्यक्ति का नतीजा शेयर होता है। स्वास्थ्य की जानकारी निजी रहती है।",
+    "privacy_note": "केवल उत्पाद और उसका ग्रेड शेयर होता है, और जिन लोगों को आप चुनें उनका नतीजा। स्वास्थ्य की जानकारी निजी रहती है।",
     "result": {
-      "text": "{product} — न्यूट्री-स्कोर {grade} (गणना SmartNutri ने की है)। {members}। SmartNutri से जाँचा गया: {url}",
-      "ungraded": "{product} — न्यूट्री-स्कोर के लिए लेबल पर पर्याप्त जानकारी नहीं। {members}। SmartNutri से जाँचा गया: {url}",
+      "text": "{product} — न्यूट्री-स्कोर {grade} (गणना SmartNutri ने की है)। {members}।",
+      "ungraded": "{product} — न्यूट्री-स्कोर के लिए लेबल पर पर्याप्त जानकारी नहीं। {members}।",
       "member": "{who}: {status}",
-      "product_only": "{product} — न्यूट्री-स्कोर {grade} (गणना SmartNutri ने की है)। SmartNutri से जाँचा गया: {url}",
-      "product_only_ungraded": "{product} — न्यूट्री-स्कोर के लिए लेबल पर पर्याप्त जानकारी नहीं। SmartNutri से जाँचा गया: {url}"
+      "product_only": "{product} — न्यूट्री-स्कोर {grade} (गणना SmartNutri ने की है)।",
+      "product_only_ungraded": "{product} — न्यूट्री-स्कोर के लिए लेबल पर पर्याप्त जानकारी नहीं।"
     },
-    "weekly": "SmartNutri पर हमारा हफ़्ता — जाँचे गए उत्पाद: {scans}, दर्ज की गई चीज़ें: {logged}। {url}",
+    "weekly": "SmartNutri पर हमारा हफ़्ता — जाँचे गए उत्पाद: {scans}, दर्ज की गई चीज़ें: {logged}।",
+    "link": "SmartNutri से जाँचा गया: {url}",
     "relation": {
       "self": "मैं",
       "child": "बच्चा",
@@ -670,7 +671,7 @@
       "spouse": "जीवनसाथी",
       "other": "परिवार का सदस्य"
     },
-    "include": "संदेश में शामिल करें",
+    "include": "किसी व्यक्ति का नतीजा जोड़ें (वैकल्पिक)",
     "preview": "संदेश का पूर्वावलोकन"
   },
   "voice": {

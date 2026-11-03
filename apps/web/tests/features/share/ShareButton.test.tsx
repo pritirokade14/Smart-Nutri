@@ -144,7 +144,7 @@ describe("ResultShare", () => {
     { member_name: "", relation: "self", status: "caution" },
   ];
 
-  it("includes only the members the user leaves ticked", async () => {
+  it("defaults to product and grade only; members are opt-in (ruling SH1)", async () => {
     intl(
       <ResultShare
         productName="Sugar Free Biscuit"
@@ -157,18 +157,54 @@ describe("ResultShare", () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: en.share.button }));
     const preview = () => screen.getByTestId("share-preview").textContent;
+    const boxes = screen.getAllByRole("checkbox") as HTMLInputElement[];
+    expect(boxes).toHaveLength(2);
+    expect(boxes.every((b) => !b.checked)).toBe(true);
+    expect(preview()).toBe(
+      "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Checked with SmartNutri: http://localhost:3000/en/p/8901063201089",
+    );
+    expect(screen.getByText(en.share.include)).toBeTruthy();
+    await user.click(screen.getByRole("checkbox", { name: "Me: Caution" }));
+    expect(preview()).toBe(
+      "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Me: Caution. Checked with SmartNutri: http://localhost:3000/en/p/8901063201089",
+    );
+    await user.click(screen.getByRole("checkbox", { name: "Ravi: Avoid" }));
     expect(preview()).toBe(
       "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Ravi: Avoid, Me: Caution. Checked with SmartNutri: http://localhost:3000/en/p/8901063201089",
     );
-    expect(screen.getByText(en.share.include)).toBeTruthy();
     await user.click(screen.getByRole("checkbox", { name: "Ravi: Avoid" }));
     expect(preview()).toBe(
       "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Me: Caution. Checked with SmartNutri: http://localhost:3000/en/p/8901063201089",
     );
-    await user.click(screen.getByRole("checkbox", { name: "Me: Caution" }));
-    expect(preview()).toBe(
-      "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Checked with SmartNutri: http://localhost:3000/en/p/8901063201089",
-    );
+  });
+
+  it("without NEXT_PUBLIC_SITE_URL: no link in the text and no Copy link", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
+    try {
+      intl(
+        <ResultShare
+          productName="Sugar Free Biscuit"
+          grade="D"
+          barcode="8901063201089"
+          verdicts={verdicts}
+        />,
+        resultMessages(en),
+      );
+      const user = userEvent.setup();
+      await user.click(screen.getByRole("button", { name: en.share.button }));
+      const dialog = screen.getByRole("dialog");
+      expect(within(dialog).getByTestId("share-preview").textContent).toBe(
+        "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri).",
+      );
+      expect(
+        within(dialog).queryByRole("button", { name: en.share.copy_link }),
+      ).toBeNull();
+      expect(
+        within(dialog).getByRole("link", { name: en.share.whatsapp }),
+      ).toBeTruthy();
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("a product without a barcode links to the site root", async () => {
@@ -204,7 +240,7 @@ describe("WeeklyShare", () => {
       await screen.findByRole("button", { name: en.share.weekly_button }),
     );
     expect(screen.getByTestId("share-preview").textContent).toBe(
-      "Our week on SmartNutri — products checked: 12, items logged: 10. http://localhost:3000/en",
+      "Our week on SmartNutri — products checked: 12, items logged: 10. Checked with SmartNutri: http://localhost:3000/en",
     );
     expect(screen.getByText(en.share.privacy_note)).toBeTruthy();
     expect(

@@ -18,6 +18,7 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_meals.dart';
 import '../../support/fake_members.dart';
+import '../../support/test_config.dart';
 
 final en = lookupAppLocalizations(const Locale('en'));
 
@@ -89,6 +90,7 @@ Future<_H> _pump(
   await t.pumpWidget(
     ProviderScope(
       overrides: [
+        testConfigOverride(),
         ...mealTestOverrides(queue: h.queue, client: h.meals),
         membersRepositoryProvider.overrideWithValue(
           MembersRepository(
@@ -230,7 +232,7 @@ void main() {
     await t.pumpAndSettle();
     expect(h.shared, [
       'Our week on SmartNutri — products checked: 12, items logged: 10. '
-          'https://smartnutri.app/en',
+          'Checked with SmartNutri: https://site.example/en',
     ]);
   });
 }

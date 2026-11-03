@@ -23,18 +23,20 @@ final shareLauncherProvider = Provider<Future<void> Function(String text)>(
   },
 );
 
-/// The share URL for this locale (`SITE_URL`, then `/<locale>[/p/<barcode>]`).
-String shareUrlFor(WidgetRef ref, String locale, {String? barcode}) =>
+/// The share URL for this locale (`SITE_URL`, then `/<locale>[/p/<barcode>]`),
+/// or null without `SITE_URL`.
+String? shareUrlFor(WidgetRef ref, String locale, {String? barcode}) =>
     shareUrl(ref.read(appConfigProvider).siteUrl, locale, barcode: barcode);
 
-/// Share a scan result. The user picks which members' results go in (all
-/// by default: a first name and a status word only, never a condition, an
-/// allergen, a reason or a number).
+/// Share a scan result. By default only the product and its grade go in
+/// (ruling SH1); the user ticks members to add their result (a first name
+/// and a status word only, never a condition, an allergen, a reason or a
+/// number). Every box starts unticked.
 Future<void> showResultShareSheet(
   BuildContext context, {
   required AnalyzeOut out,
   required String productName,
-  required String url,
+  required String? url,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -48,7 +50,7 @@ Future<void> showWeeklyShareSheet(
   BuildContext context, {
   required int scans,
   required int logged,
-  required String url,
+  required String? url,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -77,7 +79,9 @@ class ShareSheet extends ConsumerStatefulWidget {
   final String? productName;
   final int? scans;
   final int? logged;
-  final String url;
+
+  /// The link in the text; null without `SITE_URL` (no link, no Copy link).
+  final String? url;
 
   static const previewKey = Key('share-preview');
   static const shareKey = Key('share-send');
@@ -87,16 +91,14 @@ class ShareSheet extends ConsumerStatefulWidget {
 }
 
 class _ShareSheetState extends ConsumerState<ShareSheet> {
-  late final Set<String> _picked = {
-    for (final v in widget.out?.verdicts ?? const <VerdictOut>[]) v.memberId,
-  };
+  // Ruling SH1: nobody's result is shared unless the user ticks them.
+  final Set<String> _picked = {};
 
-  String? _text(AppLocalizations l10n) {
+  String _text(AppLocalizations l10n) {
     final out = widget.out;
     if (out == null) {
       return shareWeeklyText(l10n, widget.scans!, widget.logged!, widget.url);
     }
-    if (_picked.isEmpty) return null;
     return shareResultText(
       l10n,
       out,
@@ -152,16 +154,15 @@ class _ShareSheetState extends ConsumerState<ShareSheet> {
                     }
                   }),
                 ),
-            if (text != null)
-              Container(
-                key: ShareSheet.previewKey,
-                padding: const EdgeInsets.all(SnTokens.space3),
-                decoration: BoxDecoration(
-                  color: c.muted,
-                  borderRadius: BorderRadius.circular(SnTokens.radiusMd),
-                ),
-                child: Text(text, style: theme.textTheme.bodyMedium),
+            Container(
+              key: ShareSheet.previewKey,
+              padding: const EdgeInsets.all(SnTokens.space3),
+              decoration: BoxDecoration(
+                color: c.muted,
+                borderRadius: BorderRadius.circular(SnTokens.radiusMd),
               ),
+              child: Text(text, style: theme.textTheme.bodyMedium),
+            ),
             const SizedBox(height: SnTokens.space3),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,36 +188,33 @@ class _ShareSheetState extends ConsumerState<ShareSheet> {
               buttonKey: ShareSheet.shareKey,
               label: l10n.shareButton,
               icon: Icons.share_rounded,
-              onPressed: text == null ? null : () => _share(text),
+              onPressed: () => _share(text),
             ),
             const SizedBox(height: SnTokens.space2),
             SecondaryButton(
               label: l10n.shareWhatsapp,
               icon: Icons.chat_rounded,
-              onPressed: text == null
-                  ? null
-                  : () async {
-                      await ref
-                          .read(analyticsProvider)
-                          .track(out == null ? 'share_weekly' : 'share_result');
-                      await ref.read(openExternalUrlProvider)(
-                        Uri.parse(
-                          'https://wa.me/?text=${Uri.encodeComponent(text)}',
-                        ),
-                      );
-                    },
-            ),
-            TextButton.icon(
-              icon: const Icon(Icons.link_rounded),
-              label: Text(l10n.shareCopyLink),
               onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                await Clipboard.setData(ClipboardData(text: widget.url));
-                messenger.showSnackBar(
-                  SnackBar(content: Text(l10n.shareCopied)),
+                await ref
+                    .read(analyticsProvider)
+                    .track(out == null ? 'share_weekly' : 'share_result');
+                await ref.read(openExternalUrlProvider)(
+                  Uri.parse('https://wa.me/?text=${Uri.encodeComponent(text)}'),
                 );
               },
             ),
+            if (widget.url case final url?)
+              TextButton.icon(
+                icon: const Icon(Icons.link_rounded),
+                label: Text(l10n.shareCopyLink),
+                onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  await Clipboard.setData(ClipboardData(text: url));
+                  messenger.showSnackBar(
+                    SnackBar(content: Text(l10n.shareCopied)),
+                  );
+                },
+              ),
           ],
         ),
       ),

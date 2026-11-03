@@ -1860,14 +1860,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareCopyLink => 'Copy link';
 
   @override
-  String get shareInclude => 'Include in the message';
+  String get shareInclude => 'Add a person\'s result (optional)';
+
+  @override
+  String shareLink(String url) {
+    return 'Checked with SmartNutri: $url';
+  }
 
   @override
   String get sharePreview => 'Message preview';
 
   @override
   String get sharePrivacyNote =>
-      'Only the product, its grade and each person\'s result are shared. Health details stay private.';
+      'Only the product and its grade are shared, plus the result of anyone you tick. Health details stay private.';
 
   @override
   String get shareRelationChild => 'Child';
@@ -1890,33 +1895,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String shareResultProductOnly(String grade, String product, String url) {
-    return '$product — Nutri-Score $grade (calculated by SmartNutri). Checked with SmartNutri: $url';
+  String shareResultProductOnly(String grade, String product) {
+    return '$product — Nutri-Score $grade (calculated by SmartNutri).';
   }
 
   @override
-  String shareResultProductOnlyUngraded(String product, String url) {
-    return '$product — not enough label data for a Nutri-Score. Checked with SmartNutri: $url';
+  String shareResultProductOnlyUngraded(String product) {
+    return '$product — not enough label data for a Nutri-Score.';
   }
 
   @override
-  String shareResultText(
-    String grade,
-    String members,
-    String product,
-    String url,
-  ) {
-    return '$product — Nutri-Score $grade (calculated by SmartNutri). $members. Checked with SmartNutri: $url';
+  String shareResultText(String grade, String members, String product) {
+    return '$product — Nutri-Score $grade (calculated by SmartNutri). $members.';
   }
 
   @override
-  String shareResultUngraded(String members, String product, String url) {
-    return '$product — not enough label data for a Nutri-Score. $members. Checked with SmartNutri: $url';
+  String shareResultUngraded(String members, String product) {
+    return '$product — not enough label data for a Nutri-Score. $members.';
   }
 
   @override
-  String shareWeekly(String logged, String scans, String url) {
-    return 'Our week on SmartNutri — products checked: $scans, items logged: $logged. $url';
+  String shareWeekly(String logged, String scans) {
+    return 'Our week on SmartNutri — products checked: $scans, items logged: $logged.';
   }
 
   @override
