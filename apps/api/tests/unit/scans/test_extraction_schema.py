@@ -267,3 +267,19 @@ def test_prompt_allergen_declaration_and_join_rules():
     assert "Allergen information" in text
     assert "different statements and different languages" in text
     assert "whatever its unit" in text
+
+
+def test_extraction_default_stays_v1_until_the_eval_shows_v2_is_better():
+    """Ruling: v2 stays selectable (setting and label_eval --prompt), but the default, in code
+    and in .env.example, is v1."""
+    from app.core.config import Settings
+    from scripts.label_eval import parse_args
+
+    assert Settings.model_fields["extraction_prompt_version"].default == "extraction_v1"
+    env = (PROMPTS.parents[1] / ".env.example").read_text(encoding="utf-8")
+    assert "EXTRACTION_PROMPT_VERSION=extraction_v1" in env
+    assert Settings(extraction_prompt_version="extraction_v2").extraction_prompt_version == (
+        "extraction_v2"
+    )
+    assert parse_args(["--models", "m"]).prompt == "extraction_v1"
+    assert parse_args(["--models", "m", "--prompt", "extraction_v2"]).prompt == "extraction_v2"

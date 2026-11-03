@@ -996,10 +996,10 @@ def v2(scan_app):
     return scan_app
 
 
-def test_v2_is_the_default_prompt():
+def test_v1_is_the_default_prompt():
     from app.core.config import Settings
 
-    assert Settings(_env_file=None).extraction_prompt_version == "extraction_v2"
+    assert Settings(_env_file=None).extraction_prompt_version == "extraction_v1"
 
 
 async def test_v2_extraction_is_parsed_in_code(v2, auth_client, fake_storage_jpeg, db_session):
