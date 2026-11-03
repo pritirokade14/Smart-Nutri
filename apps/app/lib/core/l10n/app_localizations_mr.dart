@@ -57,6 +57,38 @@ class AppLocalizationsMr extends AppLocalizations {
   String get allergenTreeNut => 'ट्री नट्स (बदाम, काजू, अक्रोड इ.)';
 
   @override
+  String get alternativesCompare => 'तुलना करा';
+
+  @override
+  String alternativesForMember(String name) {
+    return '$name साठी';
+  }
+
+  @override
+  String get alternativesReasonNoBetterFound =>
+      'या प्रकारात अधिक चांगल्या न्यूट्री-स्कोअरचे उत्पादन सापडले नाही.';
+
+  @override
+  String get alternativesReasonNoCategory =>
+      'या उत्पादनासाठी आम्ही अजून पर्याय सुचवू शकत नाही.';
+
+  @override
+  String get alternativesReasonSourceUngraded =>
+      'तुलनेसाठी या उत्पादनाच्या लेबलवर पुरेशी माहिती नाही.';
+
+  @override
+  String get alternativesSubtitle =>
+      'त्याच प्रकारचे उत्पादन, अधिक चांगल्या न्यूट्री-स्कोअरसह (गणना SmartNutri ने केली आहे)';
+
+  @override
+  String alternativesSugars(String value) {
+    return 'साखर: $value ग्रॅम प्रति 100 ग्रॅम/मि.ली.';
+  }
+
+  @override
+  String get alternativesTitle => 'अधिक चांगले पर्याय';
+
+  @override
   String get appName => 'SmartNutri AI';
 
   @override
@@ -206,6 +238,49 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get commonSkipToContent => 'थेट मुख्य मजकुराकडे जा';
+
+  @override
+  String get compareBetterA => 'इथे पहिले उत्पादन अधिक चांगले आहे';
+
+  @override
+  String get compareBetterB => 'इथे दुसरे उत्पादन अधिक चांगले आहे';
+
+  @override
+  String get compareBetterChip => 'अधिक चांगले';
+
+  @override
+  String get compareBetterSame => 'जवळपास सारखे';
+
+  @override
+  String get compareBetterUnknown =>
+      'तुलना करता येत नाही: एखाद्या लेबलवर हे मूल्य नाही';
+
+  @override
+  String get comparePickSecond => 'तुलनेसाठी एक उत्पादन निवडा';
+
+  @override
+  String get compareRowEnergyKcal => 'कॅलरी (प्रति 100 ग्रॅम/मि.ली.)';
+
+  @override
+  String get compareRowFiberG => 'तंतू (प्रति 100 ग्रॅम/मि.ली.)';
+
+  @override
+  String get compareRowGrade => 'न्यूट्री-स्कोअर (गणना SmartNutri ने केली आहे)';
+
+  @override
+  String get compareRowProteinG => 'प्रथिने (प्रति 100 ग्रॅम/मि.ली.)';
+
+  @override
+  String get compareRowSaltG => 'मीठ (प्रति 100 ग्रॅम/मि.ली.)';
+
+  @override
+  String get compareRowSatFatG => 'संपृक्त चरबी (प्रति 100 ग्रॅम/मि.ली.)';
+
+  @override
+  String get compareRowSugarsG => 'साखर (प्रति 100 ग्रॅम/मि.ली.)';
+
+  @override
+  String get compareTitle => 'तुलना करा';
 
   @override
   String get conditionDiabetes => 'मधुमेह (डायबेटिस)';
@@ -620,7 +695,30 @@ class AppLocalizationsMr extends AppLocalizations {
   String get historyComingSoonTitle => 'तुमचा इतिहास लवकरच येत आहे';
 
   @override
+  String get historyEmpty => 'अजून काहीही नोंदवलेले नाही.';
+
+  @override
+  String historyItemAmount(String grams) {
+    return '$grams ग्रॅम';
+  }
+
+  @override
+  String get historyMember => 'कुटुंबातील सदस्य';
+
+  @override
+  String get historyRemove => 'काढा';
+
+  @override
+  String get historyRemoveConfirm => 'हे नोंदीतून काढायचे?';
+
+  @override
+  String get historyThisWeek => 'या आठवड्यात';
+
+  @override
   String get historyTitle => 'इतिहास';
+
+  @override
+  String get historyToday => 'आज';
 
   @override
   String get homeLabelBody =>
@@ -744,6 +842,67 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get languageMr => 'मराठी';
+
+  @override
+  String get mealsLogAmountGrams => 'प्रमाण ग्रॅममध्ये';
+
+  @override
+  String get mealsLogAmountServings => 'सर्व्हिंगची संख्या';
+
+  @override
+  String get mealsLogCta => 'मी हे खाल्ले';
+
+  @override
+  String get mealsLogEatenAt => 'केव्हा';
+
+  @override
+  String get mealsLogGrams => 'ग्रॅम';
+
+  @override
+  String get mealsLogMember => 'कोणी खाल्ले?';
+
+  @override
+  String get mealsLogNow => 'आता';
+
+  @override
+  String get mealsLogSave => 'जतन करा';
+
+  @override
+  String mealsLogSaved(String who) {
+    return '$who साठी नोंदवले';
+  }
+
+  @override
+  String mealsLogServingSize(String grams) {
+    return '1 सर्व्हिंग = $grams ग्रॅम';
+  }
+
+  @override
+  String get mealsLogServings => 'सर्व्हिंग';
+
+  @override
+  String get mealsLogTitle => 'काय खाल्ले ते नोंदवा';
+
+  @override
+  String get mealsLogUndo => 'पूर्ववत करा';
+
+  @override
+  String get mealsLogUndone => 'नोंदीतून काढले';
+
+  @override
+  String get mealsOnlineOnly =>
+      'वेबवर नोंद करण्यासाठी इंटरनेट लागते. ऑफलाइन काहीही जतन होत नाही.';
+
+  @override
+  String get mealsQueuedOffline =>
+      'या फोनवर जतन केले. ऑनलाइन आल्यावर ते नोंदीत जोडले जाईल.';
+
+  @override
+  String get mealsSyncFailed =>
+      'काही गोष्टी नोंदीत जोडता आल्या नाहीत. कृपया त्या पुन्हा नोंदवा.';
+
+  @override
+  String get mealsSyncing => 'नोंदवलेल्या गोष्टी सिंक होत आहेत…';
 
   @override
   String get membersAdd => 'कुटुंबातील सदस्य जोडा';
@@ -1304,6 +1463,83 @@ class AppLocalizationsMr extends AppLocalizations {
   String get scanTitle => 'बारकोड स्कॅन करा';
 
   @override
+  String get searchNoResults => 'कोणतेही उत्पादन सापडले नाही.';
+
+  @override
+  String get searchPlaceholder => 'नाव किंवा ब्रँडने शोधा';
+
+  @override
+  String get searchSourceOff => 'Open Food Facts';
+
+  @override
+  String get searchSourceOurs => 'SmartNutri';
+
+  @override
+  String get searchTitle => 'उत्पादने शोधा';
+
+  @override
+  String get searchTooShort => 'किमान 2 अक्षरे लिहा.';
+
+  @override
+  String get shareButton => 'शेअर करा';
+
+  @override
+  String get shareCopied => 'लिंक कॉपी झाली';
+
+  @override
+  String get shareCopyLink => 'लिंक कॉपी करा';
+
+  @override
+  String get sharePrivacyNote =>
+      'फक्त उत्पादन, त्याचा ग्रेड आणि प्रत्येकाचा निकाल शेअर होतो. आरोग्याची माहिती खासगी राहते.';
+
+  @override
+  String get shareRelationChild => 'मूल';
+
+  @override
+  String get shareRelationOther => 'कुटुंबातील सदस्य';
+
+  @override
+  String get shareRelationParent => 'आई/वडील';
+
+  @override
+  String get shareRelationSelf => 'मी';
+
+  @override
+  String get shareRelationSpouse => 'जोडीदार';
+
+  @override
+  String shareResultMember(String status, String who) {
+    return '$who: $status';
+  }
+
+  @override
+  String shareResultText(
+    String grade,
+    String members,
+    String product,
+    String url,
+  ) {
+    return '$product — न्यूट्री-स्कोअर $grade (गणना SmartNutri ने केली आहे). $members. SmartNutri ने तपासले: $url';
+  }
+
+  @override
+  String shareResultUngraded(String members, String product, String url) {
+    return '$product — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. $members. SmartNutri ने तपासले: $url';
+  }
+
+  @override
+  String shareWeekly(String logged, String scans, String url) {
+    return 'SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: $scans, नोंदवलेल्या गोष्टी: $logged. $url';
+  }
+
+  @override
+  String get shareWeeklyButton => 'आमचा आठवडा शेअर करा';
+
+  @override
+  String get shareWhatsapp => 'WhatsApp वर शेअर करा';
+
+  @override
   String get statusAvoid => 'टाळा';
 
   @override
@@ -1314,6 +1550,74 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get statusUnknown => 'लेबल स्पष्ट नाही';
+
+  @override
+  String get summaryBandNear => 'मर्यादेच्या जवळ';
+
+  @override
+  String get summaryBandOk => 'मर्यादेत';
+
+  @override
+  String get summaryBandOver => 'मर्यादेपेक्षा जास्त';
+
+  @override
+  String get summaryBandUnknown => 'पुरेशी माहिती नाही';
+
+  @override
+  String get summaryIncomplete =>
+      'काही नोंदवलेल्या गोष्टींच्या लेबलवर हे मूल्य नाही, त्यामुळे खरी एकूण रक्कम यापेक्षा जास्त असू शकते.';
+
+  @override
+  String get summaryKcalInfo =>
+      'कॅलरी फक्त माहितीसाठी दाखवल्या आहेत. अजून कोणतेही वैयक्तिक कॅलरी लक्ष्य नाही.';
+
+  @override
+  String summaryKcalTotal(String total) {
+    return '$total kcal';
+  }
+
+  @override
+  String get summaryLimitsNote =>
+      'मर्यादा अजून डॉक्टरांच्या पुनरावलोकनात आहेत.';
+
+  @override
+  String get summaryNoProteinTarget =>
+      'प्रथिनांचे लक्ष्य पाहण्यासाठी प्रोफाइलमध्ये वजन जोडा.';
+
+  @override
+  String get summaryNothingLogged => 'या दिवशी काहीही नोंदवलेले नाही.';
+
+  @override
+  String get summaryNutrientEnergyKcal => 'कॅलरी';
+
+  @override
+  String get summaryNutrientProteinG => 'प्रथिने';
+
+  @override
+  String get summaryNutrientSaltG => 'मीठ';
+
+  @override
+  String get summaryNutrientSugarsG => 'साखर';
+
+  @override
+  String summaryProteinOfTarget(String target, String total) {
+    return '$target ग्रॅमच्या लक्ष्यापैकी $total ग्रॅम';
+  }
+
+  @override
+  String get summarySugarNote =>
+      'लेबलवर एकूण साखर असते, त्यात नैसर्गिक साखरही असते, त्यामुळे ही एकूण साखर फक्त जोडलेल्या साखरेपेक्षा जास्त असू शकते.';
+
+  @override
+  String get summaryTitleDay => 'आज';
+
+  @override
+  String get summaryTitleWeek => 'मागील 7 दिवस';
+
+  @override
+  String summaryTotalOfLimit(String limit, String total) {
+    return '$limit ग्रॅमपैकी $total ग्रॅम';
+  }
 
   @override
   String verdictConfidenceNote(String reason) {

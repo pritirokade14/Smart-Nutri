@@ -16,6 +16,28 @@
   "allergenSoy": "सोया",
   "allergenSulphite": "सल्फाइट",
   "allergenTreeNut": "ट्री नट्स (बदाम, काजू, अक्रोड इ.)",
+  "alternativesCompare": "तुलना करा",
+  "alternativesForMember": "{name} साठी",
+  "@alternativesForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "alternativesReasonNoBetterFound": "या प्रकारात अधिक चांगल्या न्यूट्री-स्कोअरचे उत्पादन सापडले नाही.",
+  "alternativesReasonNoCategory": "या उत्पादनासाठी आम्ही अजून पर्याय सुचवू शकत नाही.",
+  "alternativesReasonSourceUngraded": "तुलनेसाठी या उत्पादनाच्या लेबलवर पुरेशी माहिती नाही.",
+  "alternativesSubtitle": "त्याच प्रकारचे उत्पादन, अधिक चांगल्या न्यूट्री-स्कोअरसह (गणना SmartNutri ने केली आहे)",
+  "alternativesSugars": "साखर: {value} ग्रॅम प्रति 100 ग्रॅम/मि.ली.",
+  "@alternativesSugars": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "alternativesTitle": "अधिक चांगले पर्याय",
   "appName": "SmartNutri AI",
   "attributionOff": "डेटा: Open Food Facts (ODbL)",
   "authChange": "बदला",
@@ -102,6 +124,20 @@
   "commonNotFoundBody": "तुम्ही शोधत असलेले पान अस्तित्वात नाही किंवा दुसरीकडे हलवले आहे.",
   "commonRetry": "पुन्हा प्रयत्न करा",
   "commonSkipToContent": "थेट मुख्य मजकुराकडे जा",
+  "compareBetterA": "इथे पहिले उत्पादन अधिक चांगले आहे",
+  "compareBetterB": "इथे दुसरे उत्पादन अधिक चांगले आहे",
+  "compareBetterChip": "अधिक चांगले",
+  "compareBetterSame": "जवळपास सारखे",
+  "compareBetterUnknown": "तुलना करता येत नाही: एखाद्या लेबलवर हे मूल्य नाही",
+  "comparePickSecond": "तुलनेसाठी एक उत्पादन निवडा",
+  "compareRowEnergyKcal": "कॅलरी (प्रति 100 ग्रॅम/मि.ली.)",
+  "compareRowFiberG": "तंतू (प्रति 100 ग्रॅम/मि.ली.)",
+  "compareRowGrade": "न्यूट्री-स्कोअर (गणना SmartNutri ने केली आहे)",
+  "compareRowProteinG": "प्रथिने (प्रति 100 ग्रॅम/मि.ली.)",
+  "compareRowSaltG": "मीठ (प्रति 100 ग्रॅम/मि.ली.)",
+  "compareRowSatFatG": "संपृक्त चरबी (प्रति 100 ग्रॅम/मि.ली.)",
+  "compareRowSugarsG": "साखर (प्रति 100 ग्रॅम/मि.ली.)",
+  "compareTitle": "तुलना करा",
   "conditionDiabetes": "मधुमेह (डायबेटिस)",
   "conditionHypertension": "उच्च रक्तदाब",
   "conditionPcos": "पीसीओएस",
@@ -242,7 +278,21 @@
   "historyBody": "तुम्ही तपासलेली उत्पादने इथे दिसतील, म्हणजे ती पुन्हा शोधता येतील.",
   "historyComingSoonBody": "तुम्ही तपासलेली सर्व उत्पादने इथे दिसतील.",
   "historyComingSoonTitle": "तुमचा इतिहास लवकरच येत आहे",
+  "historyEmpty": "अजून काहीही नोंदवलेले नाही.",
+  "historyItemAmount": "{grams} ग्रॅम",
+  "@historyItemAmount": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "historyMember": "कुटुंबातील सदस्य",
+  "historyRemove": "काढा",
+  "historyRemoveConfirm": "हे नोंदीतून काढायचे?",
+  "historyThisWeek": "या आठवड्यात",
   "historyTitle": "इतिहास",
+  "historyToday": "आज",
   "homeLabelBody": "बारकोड नाही, किंवा उत्पादन आम्हाला अजून माहीत नाही? लेबलचा फोटो घ्या.",
   "homeLabelTitle": "लेबलचा फोटो घ्या",
   "homeManualBody": "पाकिटावरील पोषण माहिती स्वतः टाइप करा.",
@@ -287,6 +337,38 @@
   "languageHi": "हिन्दी",
   "languageLabel": "भाषा",
   "languageMr": "मराठी",
+  "mealsLogAmountGrams": "प्रमाण ग्रॅममध्ये",
+  "mealsLogAmountServings": "सर्व्हिंगची संख्या",
+  "mealsLogCta": "मी हे खाल्ले",
+  "mealsLogEatenAt": "केव्हा",
+  "mealsLogGrams": "ग्रॅम",
+  "mealsLogMember": "कोणी खाल्ले?",
+  "mealsLogNow": "आता",
+  "mealsLogSave": "जतन करा",
+  "mealsLogSaved": "{who} साठी नोंदवले",
+  "@mealsLogSaved": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLogServingSize": "1 सर्व्हिंग = {grams} ग्रॅम",
+  "@mealsLogServingSize": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLogServings": "सर्व्हिंग",
+  "mealsLogTitle": "काय खाल्ले ते नोंदवा",
+  "mealsLogUndo": "पूर्ववत करा",
+  "mealsLogUndone": "नोंदीतून काढले",
+  "mealsOnlineOnly": "वेबवर नोंद करण्यासाठी इंटरनेट लागते. ऑफलाइन काहीही जतन होत नाही.",
+  "mealsQueuedOffline": "या फोनवर जतन केले. ऑनलाइन आल्यावर ते नोंदीत जोडले जाईल.",
+  "mealsSyncFailed": "काही गोष्टी नोंदीत जोडता आल्या नाहीत. कृपया त्या पुन्हा नोंदवा.",
+  "mealsSyncing": "नोंदवलेल्या गोष्टी सिंक होत आहेत…",
   "membersAdd": "कुटुंबातील सदस्य जोडा",
   "membersBorn": "जन्म वर्ष {year}",
   "@membersBorn": {
@@ -740,10 +822,129 @@
   "scanSubmit": "हे उत्पादन तपासा",
   "scanSubtitle": "कॅमेरा बारकोडकडे धरा, किंवा खाली क्रमांक टाइप करा.",
   "scanTitle": "बारकोड स्कॅन करा",
+  "searchNoResults": "कोणतेही उत्पादन सापडले नाही.",
+  "searchPlaceholder": "नाव किंवा ब्रँडने शोधा",
+  "searchSourceOff": "Open Food Facts",
+  "searchSourceOurs": "SmartNutri",
+  "searchTitle": "उत्पादने शोधा",
+  "searchTooShort": "किमान 2 अक्षरे लिहा.",
+  "shareButton": "शेअर करा",
+  "shareCopied": "लिंक कॉपी झाली",
+  "shareCopyLink": "लिंक कॉपी करा",
+  "sharePrivacyNote": "फक्त उत्पादन, त्याचा ग्रेड आणि प्रत्येकाचा निकाल शेअर होतो. आरोग्याची माहिती खासगी राहते.",
+  "shareRelationChild": "मूल",
+  "shareRelationOther": "कुटुंबातील सदस्य",
+  "shareRelationParent": "आई/वडील",
+  "shareRelationSelf": "मी",
+  "shareRelationSpouse": "जोडीदार",
+  "shareResultMember": "{who}: {status}",
+  "@shareResultMember": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultText": "{product} — न्यूट्री-स्कोअर {grade} (गणना SmartNutri ने केली आहे). {members}. SmartNutri ने तपासले: {url}",
+  "@shareResultText": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      },
+      "members": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultUngraded": "{product} — न्यूट्री-स्कोअरसाठी लेबलवर पुरेशी माहिती नाही. {members}. SmartNutri ने तपासले: {url}",
+  "@shareResultUngraded": {
+    "placeholders": {
+      "members": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareWeekly": "SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: {scans}, नोंदवलेल्या गोष्टी: {logged}. {url}",
+  "@shareWeekly": {
+    "placeholders": {
+      "logged": {
+        "type": "String"
+      },
+      "scans": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareWeeklyButton": "आमचा आठवडा शेअर करा",
+  "shareWhatsapp": "WhatsApp वर शेअर करा",
   "statusAvoid": "टाळा",
   "statusCaution": "सावधगिरी",
   "statusOk": "ठीक आहे",
   "statusUnknown": "लेबल स्पष्ट नाही",
+  "summaryBandNear": "मर्यादेच्या जवळ",
+  "summaryBandOk": "मर्यादेत",
+  "summaryBandOver": "मर्यादेपेक्षा जास्त",
+  "summaryBandUnknown": "पुरेशी माहिती नाही",
+  "summaryIncomplete": "काही नोंदवलेल्या गोष्टींच्या लेबलवर हे मूल्य नाही, त्यामुळे खरी एकूण रक्कम यापेक्षा जास्त असू शकते.",
+  "summaryKcalInfo": "कॅलरी फक्त माहितीसाठी दाखवल्या आहेत. अजून कोणतेही वैयक्तिक कॅलरी लक्ष्य नाही.",
+  "summaryKcalTotal": "{total} kcal",
+  "@summaryKcalTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryLimitsNote": "मर्यादा अजून डॉक्टरांच्या पुनरावलोकनात आहेत.",
+  "summaryNoProteinTarget": "प्रथिनांचे लक्ष्य पाहण्यासाठी प्रोफाइलमध्ये वजन जोडा.",
+  "summaryNothingLogged": "या दिवशी काहीही नोंदवलेले नाही.",
+  "summaryNutrientEnergyKcal": "कॅलरी",
+  "summaryNutrientProteinG": "प्रथिने",
+  "summaryNutrientSaltG": "मीठ",
+  "summaryNutrientSugarsG": "साखर",
+  "summaryProteinOfTarget": "{target} ग्रॅमच्या लक्ष्यापैकी {total} ग्रॅम",
+  "@summaryProteinOfTarget": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "summarySugarNote": "लेबलवर एकूण साखर असते, त्यात नैसर्गिक साखरही असते, त्यामुळे ही एकूण साखर फक्त जोडलेल्या साखरेपेक्षा जास्त असू शकते.",
+  "summaryTitleDay": "आज",
+  "summaryTitleWeek": "मागील 7 दिवस",
+  "summaryTotalOfLimit": "{limit} ग्रॅमपैकी {total} ग्रॅम",
+  "@summaryTotalOfLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "verdictConfidenceNote": "{reason, select, low_confidence {लेबल वाचणे कठीण होते, त्यामुळे हा निकाल कमी निश्चित आहे.} other {काही माहिती अनिश्चित आहे.}}",
   "@verdictConfidenceNote": {
     "placeholders": {

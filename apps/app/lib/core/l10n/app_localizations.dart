@@ -196,6 +196,54 @@ abstract class AppLocalizations {
   /// **'Tree nuts'**
   String get allergenTreeNut;
 
+  /// No description provided for @alternativesCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get alternativesCompare;
+
+  /// No description provided for @alternativesForMember.
+  ///
+  /// In en, this message translates to:
+  /// **'For {name}'**
+  String alternativesForMember(String name);
+
+  /// No description provided for @alternativesReasonNoBetterFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We did not find a product with a better Nutri-Score of this kind.'**
+  String get alternativesReasonNoBetterFound;
+
+  /// No description provided for @alternativesReasonNoCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'We cannot suggest options for this product yet.'**
+  String get alternativesReasonNoCategory;
+
+  /// No description provided for @alternativesReasonSourceUngraded.
+  ///
+  /// In en, this message translates to:
+  /// **'This product does not have enough label data to compare.'**
+  String get alternativesReasonSourceUngraded;
+
+  /// No description provided for @alternativesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Same kind of product with a better Nutri-Score (calculated by SmartNutri)'**
+  String get alternativesSubtitle;
+
+  /// No description provided for @alternativesSugars.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugars: {value} g per 100 g/ml'**
+  String alternativesSugars(String value);
+
+  /// No description provided for @alternativesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthier options'**
+  String get alternativesTitle;
+
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
@@ -465,6 +513,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skip to content'**
   String get commonSkipToContent;
+
+  /// No description provided for @compareBetterA.
+  ///
+  /// In en, this message translates to:
+  /// **'The first product is better here'**
+  String get compareBetterA;
+
+  /// No description provided for @compareBetterB.
+  ///
+  /// In en, this message translates to:
+  /// **'The second product is better here'**
+  String get compareBetterB;
+
+  /// No description provided for @compareBetterChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Better'**
+  String get compareBetterChip;
+
+  /// No description provided for @compareBetterSame.
+  ///
+  /// In en, this message translates to:
+  /// **'About the same'**
+  String get compareBetterSame;
+
+  /// No description provided for @compareBetterUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot compare: missing on a label'**
+  String get compareBetterUnknown;
+
+  /// No description provided for @comparePickSecond.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a product to compare with'**
+  String get comparePickSecond;
+
+  /// No description provided for @compareRowEnergyKcal.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories (per 100 g/ml)'**
+  String get compareRowEnergyKcal;
+
+  /// No description provided for @compareRowFiberG.
+  ///
+  /// In en, this message translates to:
+  /// **'Fibre (per 100 g/ml)'**
+  String get compareRowFiberG;
+
+  /// No description provided for @compareRowGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutri-Score (calculated by SmartNutri)'**
+  String get compareRowGrade;
+
+  /// No description provided for @compareRowProteinG.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein (per 100 g/ml)'**
+  String get compareRowProteinG;
+
+  /// No description provided for @compareRowSaltG.
+  ///
+  /// In en, this message translates to:
+  /// **'Salt (per 100 g/ml)'**
+  String get compareRowSaltG;
+
+  /// No description provided for @compareRowSatFatG.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturated fat (per 100 g/ml)'**
+  String get compareRowSatFatG;
+
+  /// No description provided for @compareRowSugarsG.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugars (per 100 g/ml)'**
+  String get compareRowSugarsG;
+
+  /// No description provided for @compareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get compareTitle;
 
   /// No description provided for @conditionDiabetes.
   ///
@@ -1222,11 +1354,53 @@ abstract class AppLocalizations {
   /// **'Your history is coming soon'**
   String get historyComingSoonTitle;
 
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged yet.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyItemAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{grams} g'**
+  String historyItemAmount(String grams);
+
+  /// No description provided for @historyMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Family member'**
+  String get historyMember;
+
+  /// No description provided for @historyRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get historyRemove;
+
+  /// No description provided for @historyRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this item from the log?'**
+  String get historyRemoveConfirm;
+
+  /// No description provided for @historyThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get historyThisWeek;
+
   /// No description provided for @historyTitle.
   ///
   /// In en, this message translates to:
   /// **'History'**
   String get historyTitle;
+
+  /// No description provided for @historyToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get historyToday;
 
   /// No description provided for @homeLabelBody.
   ///
@@ -1449,6 +1623,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'मराठी'**
   String get languageMr;
+
+  /// No description provided for @mealsLogAmountGrams.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount in grams'**
+  String get mealsLogAmountGrams;
+
+  /// No description provided for @mealsLogAmountServings.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of servings'**
+  String get mealsLogAmountServings;
+
+  /// No description provided for @mealsLogCta.
+  ///
+  /// In en, this message translates to:
+  /// **'I ate this'**
+  String get mealsLogCta;
+
+  /// No description provided for @mealsLogEatenAt.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get mealsLogEatenAt;
+
+  /// No description provided for @mealsLogGrams.
+  ///
+  /// In en, this message translates to:
+  /// **'Grams'**
+  String get mealsLogGrams;
+
+  /// No description provided for @mealsLogMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Who ate it?'**
+  String get mealsLogMember;
+
+  /// No description provided for @mealsLogNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get mealsLogNow;
+
+  /// No description provided for @mealsLogSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get mealsLogSave;
+
+  /// No description provided for @mealsLogSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged for {who}'**
+  String mealsLogSaved(String who);
+
+  /// No description provided for @mealsLogServingSize.
+  ///
+  /// In en, this message translates to:
+  /// **'1 serving = {grams} g'**
+  String mealsLogServingSize(String grams);
+
+  /// No description provided for @mealsLogServings.
+  ///
+  /// In en, this message translates to:
+  /// **'Servings'**
+  String get mealsLogServings;
+
+  /// No description provided for @mealsLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log what was eaten'**
+  String get mealsLogTitle;
+
+  /// No description provided for @mealsLogUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get mealsLogUndo;
+
+  /// No description provided for @mealsLogUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from the log'**
+  String get mealsLogUndone;
+
+  /// No description provided for @mealsOnlineOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'On the web, logging needs an internet connection. Items are not saved offline.'**
+  String get mealsOnlineOnly;
+
+  /// No description provided for @mealsQueuedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this phone. It will be added to the log when you are back online.'**
+  String get mealsQueuedOffline;
+
+  /// No description provided for @mealsSyncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items could not be added to the log. Please log them again.'**
+  String get mealsSyncFailed;
+
+  /// No description provided for @mealsSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing logged items…'**
+  String get mealsSyncing;
 
   /// No description provided for @membersAdd.
   ///
@@ -2326,6 +2608,137 @@ abstract class AppLocalizations {
   /// **'Scan a barcode'**
   String get scanTitle;
 
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No products found.'**
+  String get searchNoResults;
+
+  /// No description provided for @searchPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or brand'**
+  String get searchPlaceholder;
+
+  /// No description provided for @searchSourceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Food Facts'**
+  String get searchSourceOff;
+
+  /// No description provided for @searchSourceOurs.
+  ///
+  /// In en, this message translates to:
+  /// **'SmartNutri'**
+  String get searchSourceOurs;
+
+  /// No description provided for @searchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search products'**
+  String get searchTitle;
+
+  /// No description provided for @searchTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 2 letters.'**
+  String get searchTooShort;
+
+  /// No description provided for @shareButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareButton;
+
+  /// No description provided for @shareCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get shareCopied;
+
+  /// No description provided for @shareCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get shareCopyLink;
+
+  /// No description provided for @sharePrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the product, its grade and each person\'s result are shared. Health details stay private.'**
+  String get sharePrivacyNote;
+
+  /// No description provided for @shareRelationChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Child'**
+  String get shareRelationChild;
+
+  /// No description provided for @shareRelationOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Family member'**
+  String get shareRelationOther;
+
+  /// No description provided for @shareRelationParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get shareRelationParent;
+
+  /// No description provided for @shareRelationSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get shareRelationSelf;
+
+  /// No description provided for @shareRelationSpouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Spouse'**
+  String get shareRelationSpouse;
+
+  /// No description provided for @shareResultMember.
+  ///
+  /// In en, this message translates to:
+  /// **'{who}: {status}'**
+  String shareResultMember(String status, String who);
+
+  /// No description provided for @shareResultText.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}. Checked with SmartNutri: {url}'**
+  String shareResultText(
+    String grade,
+    String members,
+    String product,
+    String url,
+  );
+
+  /// No description provided for @shareResultUngraded.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} — not enough label data for a Nutri-Score. {members}. Checked with SmartNutri: {url}'**
+  String shareResultUngraded(String members, String product, String url);
+
+  /// No description provided for @shareWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Our week on SmartNutri — products checked: {scans}, items logged: {logged}. {url}'**
+  String shareWeekly(String logged, String scans, String url);
+
+  /// No description provided for @shareWeeklyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Share our week'**
+  String get shareWeeklyButton;
+
+  /// No description provided for @shareWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Share on WhatsApp'**
+  String get shareWhatsapp;
+
   /// No description provided for @statusAvoid.
   ///
   /// In en, this message translates to:
@@ -2349,6 +2762,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Label unclear'**
   String get statusUnknown;
+
+  /// No description provided for @summaryBandNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Close to limit'**
+  String get summaryBandNear;
+
+  /// No description provided for @summaryBandOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Within limit'**
+  String get summaryBandOk;
+
+  /// No description provided for @summaryBandOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over limit'**
+  String get summaryBandOver;
+
+  /// No description provided for @summaryBandUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data'**
+  String get summaryBandUnknown;
+
+  /// No description provided for @summaryIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Some logged items do not show this value on the label, so the real total may be higher.'**
+  String get summaryIncomplete;
+
+  /// No description provided for @summaryKcalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories are shown for information. There is no personal calorie target yet.'**
+  String get summaryKcalInfo;
+
+  /// No description provided for @summaryKcalTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} kcal'**
+  String summaryKcalTotal(String total);
+
+  /// No description provided for @summaryLimitsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Limits pending clinician review.'**
+  String get summaryLimitsNote;
+
+  /// No description provided for @summaryNoProteinTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Add weight to the profile to see a protein target.'**
+  String get summaryNoProteinTarget;
+
+  /// No description provided for @summaryNothingLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged on this day.'**
+  String get summaryNothingLogged;
+
+  /// No description provided for @summaryNutrientEnergyKcal.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get summaryNutrientEnergyKcal;
+
+  /// No description provided for @summaryNutrientProteinG.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get summaryNutrientProteinG;
+
+  /// No description provided for @summaryNutrientSaltG.
+  ///
+  /// In en, this message translates to:
+  /// **'Salt'**
+  String get summaryNutrientSaltG;
+
+  /// No description provided for @summaryNutrientSugarsG.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugars'**
+  String get summaryNutrientSugarsG;
+
+  /// No description provided for @summaryProteinOfTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} g of a {target} g target'**
+  String summaryProteinOfTarget(String target, String total);
+
+  /// No description provided for @summarySugarNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels show total sugars, including natural sugars, so this total may be higher than added sugar alone.'**
+  String get summarySugarNote;
+
+  /// No description provided for @summaryTitleDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get summaryTitleDay;
+
+  /// No description provided for @summaryTitleWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get summaryTitleWeek;
+
+  /// No description provided for @summaryTotalOfLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} g of {limit} g'**
+  String summaryTotalOfLimit(String limit, String total);
 
   /// No description provided for @verdictConfidenceNote.
   ///

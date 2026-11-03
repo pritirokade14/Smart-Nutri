@@ -116,6 +116,25 @@ Golden reasons (every param type: allergen, diet with and without ingredients, s
 - Rules baked in: lists joined with `", "`, numbers with Latin digits and at most 3 decimals, code params mapped through their namespaces (see `packages/i18n/README.md`).
 - Files use sorted keys, 2-space indent and a trailing newline. The web test `apps/web/tests/features/analysis/reason-text.test.ts` asserts them; regenerate with `UPDATE_REASON_TEXT=1 pnpm test reason-text` (from `apps/web`) and review the diff. A change needs `nutrition-safety-reviewer`.
 
+## Meal summaries and share texts (Plan 6: `meals/`, `share/`)
+
+```
+meals/week_family.json                          # hand-written input: members, meals over 7 IST days (+2 outside), one OFF product with no sugars
+meals/expected/week_family.dad_diabetic.json    # generated: GET /v1/meals/summary?member_id=<dad>&period=week&date=<end_date>
+share/share_result.sf_biscuit.json              # generated: result share text per locale + the forbidden words
+share/share_weekly.week_family.json             # generated: weekly share text per locale
+```
+
+They live outside `expected/`, which holds only `<product>.<member>` verdicts (the expectations script removes anything else there). Regenerate from `apps/api`, never by hand:
+
+```
+uv run python scripts/export_meal_fixtures.py          # --check (default): diff, exit 1 if stale
+uv run python scripts/export_meal_fixtures.py --write  # write only the files that differ
+```
+
+- **Summary:** built with the endpoint's own functions (nutrient snapshot at log time, engine daily limits, `summarise`) on rows with fixed UUIDs (`uuid5(NAMESPACE_URL, ".../member/week_family/<key>")`). `tests/api/meals/test_week_family_fixture.py` inserts the same rows and checks the endpoint returns this file exactly. It covers an over-limit sugar day (2026-10-31), an incomplete day (2026-11-01: an Open Food Facts product with no sugars), the IST boundary (a meal at 18:00 UTC = 23:30 IST counts on 3 Nov) and empty days (bands `unknown`). Clients render bands and the incomplete and limits notes from it; they never compute a band.
+- **Share texts:** each file has `input`, `rules` (the algorithm both clients implement), `expected` (the exact string per locale) and, for the result, `forbidden_substrings` per locale (condition and allergen labels and their English words). A share text never includes conditions, allergens, reason codes or nutrient totals. `who` is the first word of the member's name, or `share.relation.<relation>` when the name is blank. Counts are passed as plain Latin-digit strings. Statuses in the result input are the engine's (`expected/sf_biscuit.<member>.json`, checked by `tests/fixtures/test_shared_fixtures.py`).
+
 ## How each project uses them
 
 | Project | Test |

@@ -484,7 +484,14 @@
     "title": "History",
     "body": "Products you check will be listed here, so you can find them again.",
     "coming_soon_title": "Your history is coming soon",
-    "coming_soon_body": "You'll see every product you've checked here."
+    "coming_soon_body": "You'll see every product you've checked here.",
+    "member": "Family member",
+    "today": "Today",
+    "this_week": "This week",
+    "empty": "Nothing logged yet.",
+    "item_amount": "{grams} g",
+    "remove": "Remove",
+    "remove_confirm": "Remove this item from the log?"
   },
   "family": {
     "title": "Family",
@@ -499,5 +506,117 @@
     "coming_soon_body": "Language, privacy and account settings will appear here.",
     "privacy_title": "Privacy and consent",
     "give_consent": "Agree"
+  },
+  "meals": {
+    "log": {
+      "cta": "I ate this",
+      "title": "Log what was eaten",
+      "member": "Who ate it?",
+      "servings": "Servings",
+      "grams": "Grams",
+      "serving_size": "1 serving = {grams} g",
+      "amount_servings": "Number of servings",
+      "amount_grams": "Amount in grams",
+      "eaten_at": "When",
+      "now": "Now",
+      "save": "Save",
+      "saved": "Logged for {who}",
+      "undo": "Undo",
+      "undone": "Removed from the log"
+    },
+    "online_only": "On the web, logging needs an internet connection. Items are not saved offline.",
+    "queued_offline": "Saved on this phone. It will be added to the log when you are back online.",
+    "syncing": "Syncing logged items…",
+    "sync_failed": "Some items could not be added to the log. Please log them again."
+  },
+  "summary": {
+    "title": {
+      "day": "Today",
+      "week": "Last 7 days"
+    },
+    "nutrient": {
+      "energy_kcal": "Calories",
+      "sugars_g": "Sugars",
+      "salt_g": "Salt",
+      "protein_g": "Protein"
+    },
+    "band": {
+      "ok": "Within limit",
+      "near": "Close to limit",
+      "over": "Over limit",
+      "unknown": "Not enough data"
+    },
+    "total_of_limit": "{total} g of {limit} g",
+    "protein_of_target": "{total} g of a {target} g target",
+    "kcal_total": "{total} kcal",
+    "kcal_info": "Calories are shown for information. There is no personal calorie target yet.",
+    "no_protein_target": "Add weight to the profile to see a protein target.",
+    "nothing_logged": "Nothing logged on this day.",
+    "incomplete": "Some logged items do not show this value on the label, so the real total may be higher.",
+    "limits_note": "Limits pending clinician review.",
+    "sugar_note": "Labels show total sugars, including natural sugars, so this total may be higher than added sugar alone."
+  },
+  "alternatives": {
+    "title": "Healthier options",
+    "subtitle": "Same kind of product with a better Nutri-Score (calculated by SmartNutri)",
+    "sugars": "Sugars: {value} g per 100 g/ml",
+    "for_member": "For {name}",
+    "compare": "Compare",
+    "reason": {
+      "no_category": "We cannot suggest options for this product yet.",
+      "no_better_found": "We did not find a product with a better Nutri-Score of this kind.",
+      "source_ungraded": "This product does not have enough label data to compare."
+    }
+  },
+  "search": {
+    "title": "Search products",
+    "placeholder": "Search by name or brand",
+    "too_short": "Type at least 2 letters.",
+    "no_results": "No products found.",
+    "source": {
+      "ours": "SmartNutri",
+      "off": "Open Food Facts"
+    }
+  },
+  "compare": {
+    "title": "Compare",
+    "pick_second": "Choose a product to compare with",
+    "better_chip": "Better",
+    "better": {
+      "a": "The first product is better here",
+      "b": "The second product is better here",
+      "same": "About the same",
+      "unknown": "Cannot compare: missing on a label"
+    },
+    "row": {
+      "grade": "Nutri-Score (calculated by SmartNutri)",
+      "energy_kcal": "Calories (per 100 g/ml)",
+      "sugars_g": "Sugars (per 100 g/ml)",
+      "salt_g": "Salt (per 100 g/ml)",
+      "sat_fat_g": "Saturated fat (per 100 g/ml)",
+      "protein_g": "Protein (per 100 g/ml)",
+      "fiber_g": "Fibre (per 100 g/ml)"
+    }
+  },
+  "share": {
+    "button": "Share",
+    "weekly_button": "Share our week",
+    "copy_link": "Copy link",
+    "copied": "Link copied",
+    "whatsapp": "Share on WhatsApp",
+    "privacy_note": "Only the product, its grade and each person's result are shared. Health details stay private.",
+    "result": {
+      "text": "{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}. Checked with SmartNutri: {url}",
+      "ungraded": "{product} — not enough label data for a Nutri-Score. {members}. Checked with SmartNutri: {url}",
+      "member": "{who}: {status}"
+    },
+    "weekly": "Our week on SmartNutri — products checked: {scans}, items logged: {logged}. {url}",
+    "relation": {
+      "self": "Me",
+      "child": "Child",
+      "parent": "Parent",
+      "spouse": "Spouse",
+      "other": "Family member"
+    }
   }
 }

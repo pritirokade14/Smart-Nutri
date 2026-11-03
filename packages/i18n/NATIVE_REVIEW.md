@@ -128,3 +128,9 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Plan 6 Task 3 (meal logging API)
 - [ ] **hi/mr `error.{portion_required,serving_size_unknown,eaten_at_out_of_range,meal_not_found}`**: machine drafts. Check "सर्विंग" / "सर्व्हिंग" and "ग्राम" / "ग्रॅम", and that "खाने की एंट्री" / "खाण्याची नोंद" reads naturally for "food log".
+
+## Plan 6 Task 7 (log, history, summaries, alternatives, search, compare, share)
+- [ ] **hi/mr `meals.*`, `history.*`**: machine drafts. Check "दर्ज करें" / "नोंदवा" for "log", that `meals.online_only` clearly says web logging needs the internet and nothing is saved offline, and that `meals.queued_offline` reads as reassurance, not an error.
+- [ ] **hi/mr `summary.*`**: machine drafts. `summary.incomplete` must say the real total may be HIGHER (some labels lack the value), never that the total is fine. `summary.limits_note` must read as "pending a clinician's review" ("चिकित्सक की समीक्षा" / "डॉक्टरांच्या पुनरावलोकनात"). `summary.sugar_note` must explain that label sugars include natural sugars. Check "शर्करा" vs "चीनी" (hi) and "साखर" (mr) against the open added-sugar item above.
+- [ ] **hi/mr `alternatives.*`, `search.*`, `compare.*`**: machine drafts. "न्यूट्री-स्कोर" / "न्यूट्री-स्कोअर" must stay consistent with `result.grade`; "calculated by SmartNutri" must never read as an official or FSSAI rating. Check "संतृप्त वसा" / "संपृक्त चरबी" and "फ़ाइबर" / "तंतू".
+- [ ] **hi/mr `share.*`**: machine drafts, and the exact strings in `packages/test-fixtures/share/` are generated from them (regenerate with `scripts/export_meal_fixtures.py --write` after any change). Check that `share.result.text` and `share.weekly` read naturally as a WhatsApp message, the end punctuation ("।" in hi, "." in mr) after `{members}`, and the relation labels used when a member has no name (`मैं`/`मी`, `माता/पिता`/`आई/वडील`, `जीवनसाथी`/`जोडीदार`). They must never mention health.

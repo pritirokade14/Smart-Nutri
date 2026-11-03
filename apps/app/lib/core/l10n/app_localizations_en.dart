@@ -57,6 +57,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allergenTreeNut => 'Tree nuts';
 
   @override
+  String get alternativesCompare => 'Compare';
+
+  @override
+  String alternativesForMember(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String get alternativesReasonNoBetterFound =>
+      'We did not find a product with a better Nutri-Score of this kind.';
+
+  @override
+  String get alternativesReasonNoCategory =>
+      'We cannot suggest options for this product yet.';
+
+  @override
+  String get alternativesReasonSourceUngraded =>
+      'This product does not have enough label data to compare.';
+
+  @override
+  String get alternativesSubtitle =>
+      'Same kind of product with a better Nutri-Score (calculated by SmartNutri)';
+
+  @override
+  String alternativesSugars(String value) {
+    return 'Sugars: $value g per 100 g/ml';
+  }
+
+  @override
+  String get alternativesTitle => 'Healthier options';
+
+  @override
   String get appName => 'SmartNutri AI';
 
   @override
@@ -204,6 +236,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonSkipToContent => 'Skip to content';
+
+  @override
+  String get compareBetterA => 'The first product is better here';
+
+  @override
+  String get compareBetterB => 'The second product is better here';
+
+  @override
+  String get compareBetterChip => 'Better';
+
+  @override
+  String get compareBetterSame => 'About the same';
+
+  @override
+  String get compareBetterUnknown => 'Cannot compare: missing on a label';
+
+  @override
+  String get comparePickSecond => 'Choose a product to compare with';
+
+  @override
+  String get compareRowEnergyKcal => 'Calories (per 100 g/ml)';
+
+  @override
+  String get compareRowFiberG => 'Fibre (per 100 g/ml)';
+
+  @override
+  String get compareRowGrade => 'Nutri-Score (calculated by SmartNutri)';
+
+  @override
+  String get compareRowProteinG => 'Protein (per 100 g/ml)';
+
+  @override
+  String get compareRowSaltG => 'Salt (per 100 g/ml)';
+
+  @override
+  String get compareRowSatFatG => 'Saturated fat (per 100 g/ml)';
+
+  @override
+  String get compareRowSugarsG => 'Sugars (per 100 g/ml)';
+
+  @override
+  String get compareTitle => 'Compare';
 
   @override
   String get conditionDiabetes => 'Diabetes';
@@ -616,7 +690,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyComingSoonTitle => 'Your history is coming soon';
 
   @override
+  String get historyEmpty => 'Nothing logged yet.';
+
+  @override
+  String historyItemAmount(String grams) {
+    return '$grams g';
+  }
+
+  @override
+  String get historyMember => 'Family member';
+
+  @override
+  String get historyRemove => 'Remove';
+
+  @override
+  String get historyRemoveConfirm => 'Remove this item from the log?';
+
+  @override
+  String get historyThisWeek => 'This week';
+
+  @override
   String get historyTitle => 'History';
+
+  @override
+  String get historyToday => 'Today';
 
   @override
   String get homeLabelBody =>
@@ -741,6 +838,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageMr => 'मराठी';
+
+  @override
+  String get mealsLogAmountGrams => 'Amount in grams';
+
+  @override
+  String get mealsLogAmountServings => 'Number of servings';
+
+  @override
+  String get mealsLogCta => 'I ate this';
+
+  @override
+  String get mealsLogEatenAt => 'When';
+
+  @override
+  String get mealsLogGrams => 'Grams';
+
+  @override
+  String get mealsLogMember => 'Who ate it?';
+
+  @override
+  String get mealsLogNow => 'Now';
+
+  @override
+  String get mealsLogSave => 'Save';
+
+  @override
+  String mealsLogSaved(String who) {
+    return 'Logged for $who';
+  }
+
+  @override
+  String mealsLogServingSize(String grams) {
+    return '1 serving = $grams g';
+  }
+
+  @override
+  String get mealsLogServings => 'Servings';
+
+  @override
+  String get mealsLogTitle => 'Log what was eaten';
+
+  @override
+  String get mealsLogUndo => 'Undo';
+
+  @override
+  String get mealsLogUndone => 'Removed from the log';
+
+  @override
+  String get mealsOnlineOnly =>
+      'On the web, logging needs an internet connection. Items are not saved offline.';
+
+  @override
+  String get mealsQueuedOffline =>
+      'Saved on this phone. It will be added to the log when you are back online.';
+
+  @override
+  String get mealsSyncFailed =>
+      'Some items could not be added to the log. Please log them again.';
+
+  @override
+  String get mealsSyncing => 'Syncing logged items…';
 
   @override
   String get membersAdd => 'Add a family member';
@@ -1303,6 +1461,83 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanTitle => 'Scan a barcode';
 
   @override
+  String get searchNoResults => 'No products found.';
+
+  @override
+  String get searchPlaceholder => 'Search by name or brand';
+
+  @override
+  String get searchSourceOff => 'Open Food Facts';
+
+  @override
+  String get searchSourceOurs => 'SmartNutri';
+
+  @override
+  String get searchTitle => 'Search products';
+
+  @override
+  String get searchTooShort => 'Type at least 2 letters.';
+
+  @override
+  String get shareButton => 'Share';
+
+  @override
+  String get shareCopied => 'Link copied';
+
+  @override
+  String get shareCopyLink => 'Copy link';
+
+  @override
+  String get sharePrivacyNote =>
+      'Only the product, its grade and each person\'s result are shared. Health details stay private.';
+
+  @override
+  String get shareRelationChild => 'Child';
+
+  @override
+  String get shareRelationOther => 'Family member';
+
+  @override
+  String get shareRelationParent => 'Parent';
+
+  @override
+  String get shareRelationSelf => 'Me';
+
+  @override
+  String get shareRelationSpouse => 'Spouse';
+
+  @override
+  String shareResultMember(String status, String who) {
+    return '$who: $status';
+  }
+
+  @override
+  String shareResultText(
+    String grade,
+    String members,
+    String product,
+    String url,
+  ) {
+    return '$product — Nutri-Score $grade (calculated by SmartNutri). $members. Checked with SmartNutri: $url';
+  }
+
+  @override
+  String shareResultUngraded(String members, String product, String url) {
+    return '$product — not enough label data for a Nutri-Score. $members. Checked with SmartNutri: $url';
+  }
+
+  @override
+  String shareWeekly(String logged, String scans, String url) {
+    return 'Our week on SmartNutri — products checked: $scans, items logged: $logged. $url';
+  }
+
+  @override
+  String get shareWeeklyButton => 'Share our week';
+
+  @override
+  String get shareWhatsapp => 'Share on WhatsApp';
+
+  @override
   String get statusAvoid => 'Avoid';
 
   @override
@@ -1313,6 +1548,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusUnknown => 'Label unclear';
+
+  @override
+  String get summaryBandNear => 'Close to limit';
+
+  @override
+  String get summaryBandOk => 'Within limit';
+
+  @override
+  String get summaryBandOver => 'Over limit';
+
+  @override
+  String get summaryBandUnknown => 'Not enough data';
+
+  @override
+  String get summaryIncomplete =>
+      'Some logged items do not show this value on the label, so the real total may be higher.';
+
+  @override
+  String get summaryKcalInfo =>
+      'Calories are shown for information. There is no personal calorie target yet.';
+
+  @override
+  String summaryKcalTotal(String total) {
+    return '$total kcal';
+  }
+
+  @override
+  String get summaryLimitsNote => 'Limits pending clinician review.';
+
+  @override
+  String get summaryNoProteinTarget =>
+      'Add weight to the profile to see a protein target.';
+
+  @override
+  String get summaryNothingLogged => 'Nothing logged on this day.';
+
+  @override
+  String get summaryNutrientEnergyKcal => 'Calories';
+
+  @override
+  String get summaryNutrientProteinG => 'Protein';
+
+  @override
+  String get summaryNutrientSaltG => 'Salt';
+
+  @override
+  String get summaryNutrientSugarsG => 'Sugars';
+
+  @override
+  String summaryProteinOfTarget(String target, String total) {
+    return '$total g of a $target g target';
+  }
+
+  @override
+  String get summarySugarNote =>
+      'Labels show total sugars, including natural sugars, so this total may be higher than added sugar alone.';
+
+  @override
+  String get summaryTitleDay => 'Today';
+
+  @override
+  String get summaryTitleWeek => 'Last 7 days';
+
+  @override
+  String summaryTotalOfLimit(String limit, String total) {
+    return '$total g of $limit g';
+  }
 
   @override
   String verdictConfidenceNote(String reason) {

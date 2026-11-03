@@ -1,0 +1,116 @@
+{
+  "description": "Share text for the sf_biscuit result for three members (Plan 6 F17).",
+  "expected": {
+    "en": "Sugar Free Biscuit — Nutri-Score D (calculated by SmartNutri). Ravi: Avoid, Riya: Avoid, Me: Caution, Sushila: Label unclear. Checked with SmartNutri: https://smartnutri.app/en",
+    "hi": "Sugar Free Biscuit — न्यूट्री-स्कोर D (गणना SmartNutri ने की है)। Ravi: बचें, Riya: बचें, मैं: सावधानी, Sushila: लेबल स्पष्ट नहीं। SmartNutri से जाँचा गया: https://smartnutri.app/hi",
+    "mr": "Sugar Free Biscuit — न्यूट्री-स्कोअर D (गणना SmartNutri ने केली आहे). Ravi: टाळा, Riya: टाळा, मी: सावधगिरी, Sushila: लेबल स्पष्ट नाही. SmartNutri ने तपासले: https://smartnutri.app/mr"
+  },
+  "forbidden_substrings": {
+    "en": [
+      "allergen",
+      "allergic",
+      "allergy",
+      "diabetes",
+      "diabetic",
+      "egg",
+      "fish",
+      "gluten",
+      "high blood pressure",
+      "milk",
+      "mustard",
+      "pcos",
+      "peanut",
+      "prediabetes",
+      "sesame",
+      "shellfish (crustaceans)",
+      "soy",
+      "sulphites",
+      "tree nuts",
+      "weight loss"
+    ],
+    "hi": [
+      "अंडा",
+      "उच्च रक्तचाप",
+      "ग्लूटेन",
+      "ट्री नट्स (बादाम, काजू, अखरोट आदि)",
+      "तिल",
+      "दूध",
+      "पीसीओएस",
+      "प्रीडायबिटीज़",
+      "मछली",
+      "मधुमेह (डायबिटीज़)",
+      "मूँगफली",
+      "वज़न घटाना",
+      "शेलफ़िश (झींगा, केकड़ा आदि)",
+      "सरसों",
+      "सल्फ़ाइट",
+      "सोया"
+    ],
+    "mr": [
+      "अंडे",
+      "उच्च रक्तदाब",
+      "ग्लूटेन",
+      "ट्री नट्स (बदाम, काजू, अक्रोड इ.)",
+      "तीळ",
+      "दूध",
+      "पीसीओएस",
+      "प्रीडायबेटिस",
+      "मधुमेह (डायबेटिस)",
+      "मासे",
+      "मोहरी",
+      "वजन कमी करणे",
+      "शेंगदाणे",
+      "शेलफिश (कोळंबी, खेकडा इ.)",
+      "सल्फाइट",
+      "सोया"
+    ]
+  },
+  "format_version": 1,
+  "input": {
+    "grade": "D",
+    "product": "Sugar Free Biscuit",
+    "urls": {
+      "en": "https://smartnutri.app/en",
+      "hi": "https://smartnutri.app/hi",
+      "mr": "https://smartnutri.app/mr"
+    },
+    "verdicts": [
+      {
+        "fixture_member": "diabetic_adult",
+        "member_id": "03205f4c-4228-5936-93f2-d182aeb2743b",
+        "name": "Ravi Patil",
+        "relation": "parent",
+        "status": "avoid"
+      },
+      {
+        "fixture_member": "milk_allergic_child",
+        "member_id": "834da0b9-324c-51a2-b07a-719afc7d08f0",
+        "name": "Riya",
+        "relation": "child",
+        "status": "avoid"
+      },
+      {
+        "fixture_member": "bp_parent",
+        "member_id": "1e329317-586f-5b80-aaee-d07fd72fc6d6",
+        "name": "",
+        "relation": "self",
+        "status": "caution"
+      },
+      {
+        "fixture_member": "no_age",
+        "member_id": "d4a4c7e7-01cc-521a-a16d-3b3002846e7c",
+        "name": "Sushila Devi",
+        "relation": "other",
+        "status": "unknown"
+      }
+    ]
+  },
+  "rules": [
+    "key = share.result.text, or share.result.ungraded when grade is null",
+    "for each verdict in response order: who = first whitespace-separated word of the member's name; if the name is blank, share.relation.<relation>",
+    "status = verdict.status.<status>; one member = share.result.member(who, status)",
+    "members = the member strings joined with ', ' (comma + space) in every locale",
+    "product = the product name as returned; grade = the letter; url as given",
+    "never interpolate conditions, allergens, reason codes or nutrient totals"
+  ]
+}

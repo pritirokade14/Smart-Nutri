@@ -16,6 +16,30 @@ def test_every_product_and_member_has_expectations():
     assert {(p, m) for p, m, _ in CASES} == {(p, m) for p in products for m in members}
 
 
+def test_meal_and_share_fixtures_are_current():
+    """Plan 6: meals/expected/ and share/ are generated; regenerate with
+    `uv run python scripts/export_meal_fixtures.py --write` and review the diff."""
+    from scripts.export_meal_fixtures import changes
+
+    stale = sorted(p.name for p in changes())
+    assert stale == [], f"stale meal/share fixtures (run export_meal_fixtures.py --write): {stale}"
+
+
+def test_share_texts_never_leak_health_data():
+    import json
+
+    data = json.loads((FIXTURES / "share" / "share_result.sf_biscuit.json").read_text("utf-8"))
+    for locale, text in data["expected"].items():
+        assert data["forbidden_substrings"][locale]
+        assert not [w for w in data["forbidden_substrings"][locale] if w in text.casefold()]
+    # The verdict statuses in the share input are the engine's, as in expected/.
+    for v in data["input"]["verdicts"]:
+        expected = json.loads(
+            (FIXTURES / "expected" / f"sf_biscuit.{v['fixture_member']}.json").read_text("utf-8")
+        )
+        assert v["status"] == expected["status"]
+
+
 @pytest.mark.parametrize(
     ("product", "member", "expected"), CASES, ids=[f"{p}.{m}" for p, m, _ in CASES]
 )

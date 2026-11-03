@@ -16,6 +16,28 @@
   "allergenSoy": "Soy",
   "allergenSulphite": "Sulphites",
   "allergenTreeNut": "Tree nuts",
+  "alternativesCompare": "Compare",
+  "alternativesForMember": "For {name}",
+  "@alternativesForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "alternativesReasonNoBetterFound": "We did not find a product with a better Nutri-Score of this kind.",
+  "alternativesReasonNoCategory": "We cannot suggest options for this product yet.",
+  "alternativesReasonSourceUngraded": "This product does not have enough label data to compare.",
+  "alternativesSubtitle": "Same kind of product with a better Nutri-Score (calculated by SmartNutri)",
+  "alternativesSugars": "Sugars: {value} g per 100 g/ml",
+  "@alternativesSugars": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "alternativesTitle": "Healthier options",
   "appName": "SmartNutri AI",
   "attributionOff": "Data from Open Food Facts (ODbL)",
   "authChange": "Change",
@@ -102,6 +124,20 @@
   "commonNotFoundBody": "The page you're looking for doesn't exist or has moved.",
   "commonRetry": "Try again",
   "commonSkipToContent": "Skip to content",
+  "compareBetterA": "The first product is better here",
+  "compareBetterB": "The second product is better here",
+  "compareBetterChip": "Better",
+  "compareBetterSame": "About the same",
+  "compareBetterUnknown": "Cannot compare: missing on a label",
+  "comparePickSecond": "Choose a product to compare with",
+  "compareRowEnergyKcal": "Calories (per 100 g/ml)",
+  "compareRowFiberG": "Fibre (per 100 g/ml)",
+  "compareRowGrade": "Nutri-Score (calculated by SmartNutri)",
+  "compareRowProteinG": "Protein (per 100 g/ml)",
+  "compareRowSaltG": "Salt (per 100 g/ml)",
+  "compareRowSatFatG": "Saturated fat (per 100 g/ml)",
+  "compareRowSugarsG": "Sugars (per 100 g/ml)",
+  "compareTitle": "Compare",
   "conditionDiabetes": "Diabetes",
   "conditionHypertension": "High blood pressure",
   "conditionPcos": "PCOS",
@@ -242,7 +278,21 @@
   "historyBody": "Products you check will be listed here, so you can find them again.",
   "historyComingSoonBody": "You'll see every product you've checked here.",
   "historyComingSoonTitle": "Your history is coming soon",
+  "historyEmpty": "Nothing logged yet.",
+  "historyItemAmount": "{grams} g",
+  "@historyItemAmount": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "historyMember": "Family member",
+  "historyRemove": "Remove",
+  "historyRemoveConfirm": "Remove this item from the log?",
+  "historyThisWeek": "This week",
   "historyTitle": "History",
+  "historyToday": "Today",
   "homeLabelBody": "No barcode, or a product we don't know yet? Photograph the label.",
   "homeLabelTitle": "Photograph a label",
   "homeManualBody": "Type the nutrition facts from the pack yourself.",
@@ -287,6 +337,38 @@
   "languageHi": "हिन्दी",
   "languageLabel": "Language",
   "languageMr": "मराठी",
+  "mealsLogAmountGrams": "Amount in grams",
+  "mealsLogAmountServings": "Number of servings",
+  "mealsLogCta": "I ate this",
+  "mealsLogEatenAt": "When",
+  "mealsLogGrams": "Grams",
+  "mealsLogMember": "Who ate it?",
+  "mealsLogNow": "Now",
+  "mealsLogSave": "Save",
+  "mealsLogSaved": "Logged for {who}",
+  "@mealsLogSaved": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLogServingSize": "1 serving = {grams} g",
+  "@mealsLogServingSize": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLogServings": "Servings",
+  "mealsLogTitle": "Log what was eaten",
+  "mealsLogUndo": "Undo",
+  "mealsLogUndone": "Removed from the log",
+  "mealsOnlineOnly": "On the web, logging needs an internet connection. Items are not saved offline.",
+  "mealsQueuedOffline": "Saved on this phone. It will be added to the log when you are back online.",
+  "mealsSyncFailed": "Some items could not be added to the log. Please log them again.",
+  "mealsSyncing": "Syncing logged items…",
   "membersAdd": "Add a family member",
   "membersBorn": "Born {year}",
   "@membersBorn": {
@@ -740,10 +822,129 @@
   "scanSubmit": "Check this product",
   "scanSubtitle": "Point your camera at the barcode, or type the number below.",
   "scanTitle": "Scan a barcode",
+  "searchNoResults": "No products found.",
+  "searchPlaceholder": "Search by name or brand",
+  "searchSourceOff": "Open Food Facts",
+  "searchSourceOurs": "SmartNutri",
+  "searchTitle": "Search products",
+  "searchTooShort": "Type at least 2 letters.",
+  "shareButton": "Share",
+  "shareCopied": "Link copied",
+  "shareCopyLink": "Copy link",
+  "sharePrivacyNote": "Only the product, its grade and each person's result are shared. Health details stay private.",
+  "shareRelationChild": "Child",
+  "shareRelationOther": "Family member",
+  "shareRelationParent": "Parent",
+  "shareRelationSelf": "Me",
+  "shareRelationSpouse": "Spouse",
+  "shareResultMember": "{who}: {status}",
+  "@shareResultMember": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultText": "{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}. Checked with SmartNutri: {url}",
+  "@shareResultText": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      },
+      "members": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultUngraded": "{product} — not enough label data for a Nutri-Score. {members}. Checked with SmartNutri: {url}",
+  "@shareResultUngraded": {
+    "placeholders": {
+      "members": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareWeekly": "Our week on SmartNutri — products checked: {scans}, items logged: {logged}. {url}",
+  "@shareWeekly": {
+    "placeholders": {
+      "logged": {
+        "type": "String"
+      },
+      "scans": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shareWeeklyButton": "Share our week",
+  "shareWhatsapp": "Share on WhatsApp",
   "statusAvoid": "Avoid",
   "statusCaution": "Caution",
   "statusOk": "OK",
   "statusUnknown": "Label unclear",
+  "summaryBandNear": "Close to limit",
+  "summaryBandOk": "Within limit",
+  "summaryBandOver": "Over limit",
+  "summaryBandUnknown": "Not enough data",
+  "summaryIncomplete": "Some logged items do not show this value on the label, so the real total may be higher.",
+  "summaryKcalInfo": "Calories are shown for information. There is no personal calorie target yet.",
+  "summaryKcalTotal": "{total} kcal",
+  "@summaryKcalTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryLimitsNote": "Limits pending clinician review.",
+  "summaryNoProteinTarget": "Add weight to the profile to see a protein target.",
+  "summaryNothingLogged": "Nothing logged on this day.",
+  "summaryNutrientEnergyKcal": "Calories",
+  "summaryNutrientProteinG": "Protein",
+  "summaryNutrientSaltG": "Salt",
+  "summaryNutrientSugarsG": "Sugars",
+  "summaryProteinOfTarget": "{total} g of a {target} g target",
+  "@summaryProteinOfTarget": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "summarySugarNote": "Labels show total sugars, including natural sugars, so this total may be higher than added sugar alone.",
+  "summaryTitleDay": "Today",
+  "summaryTitleWeek": "Last 7 days",
+  "summaryTotalOfLimit": "{total} g of {limit} g",
+  "@summaryTotalOfLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "verdictConfidenceNote": "{reason, select, low_confidence {The label was hard to read, so this result is less certain.} other {Some data is uncertain.}}",
   "@verdictConfidenceNote": {
     "placeholders": {

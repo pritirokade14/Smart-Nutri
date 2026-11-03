@@ -1,0 +1,22 @@
+{
+  "description": "Weekly share text for meals/week_family.json (counts only, Plan 6 F17).",
+  "expected": {
+    "en": "Our week on SmartNutri — products checked: 12, items logged: 10. https://smartnutri.app/en",
+    "hi": "SmartNutri पर हमारा हफ़्ता — जाँचे गए उत्पाद: 12, दर्ज की गई चीज़ें: 10। https://smartnutri.app/hi",
+    "mr": "SmartNutri वर आमचा आठवडा — तपासलेली उत्पादने: 12, नोंदवलेल्या गोष्टी: 10. https://smartnutri.app/mr"
+  },
+  "format_version": 1,
+  "input": {
+    "logged": 10,
+    "scans": 12,
+    "urls": {
+      "en": "https://smartnutri.app/en",
+      "hi": "https://smartnutri.app/hi",
+      "mr": "https://smartnutri.app/mr"
+    }
+  },
+  "rules": [
+    "key = share.weekly; scans and logged come from GET /v1/meals/week_counts",
+    "pass the counts as plain decimal strings (Latin digits), not locale-formatted"
+  ]
+}
