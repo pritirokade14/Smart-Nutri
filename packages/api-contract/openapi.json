@@ -5542,20 +5542,9 @@
     },
     "/v1/products/search": {
       "get": {
-        "description": "Our products first (name or brand), then Open Food Facts. ``q``: 2 to 80 characters.",
+        "description": "Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.\n\nOpen Food Facts search calls are capped for the whole server; over the cap a cached\nresult is served, else 503 ``off_unavailable`` with Retry-After.",
         "operationId": "products_search",
         "parameters": [
-          {
-            "in": "query",
-            "name": "q",
-            "required": true,
-            "schema": {
-              "maxLength": 80,
-              "minLength": 2,
-              "title": "Q",
-              "type": "string"
-            }
-          },
           {
             "in": "query",
             "name": "limit",
@@ -5566,6 +5555,18 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "3 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "description": "3 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short",
+              "maxLength": 80,
+              "title": "Q",
+              "type": "string"
             }
           }
         ],
@@ -5633,6 +5634,16 @@
               }
             },
             "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "off_unavailable: the Open Food Facts search budget is used up and nothing is cached for this query; retry after Retry-After seconds"
           }
         },
         "security": [

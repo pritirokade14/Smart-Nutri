@@ -322,7 +322,10 @@ export interface paths {
         };
         /**
          * Products Search
-         * @description Our products first (name or brand), then Open Food Facts. ``q``: 2 to 80 characters.
+         * @description Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.
+         *
+         *     Open Food Facts search calls are capped for the whole server; over the cap a cached
+         *     result is served, else 503 ``off_unavailable`` with Retry-After.
          */
         get: operations["products_search"];
         put?: never;
@@ -3346,8 +3349,9 @@ export interface operations {
     products_search: {
         parameters: {
             query: {
-                q: string;
                 limit?: number;
+                /** @description 3 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short */
+                q: string;
             };
             header?: never;
             path?: never;
@@ -3402,6 +3406,15 @@ export interface operations {
             };
             /** @description Internal error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description off_unavailable: the Open Food Facts search budget is used up and nothing is cached for this query; retry after Retry-After seconds */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

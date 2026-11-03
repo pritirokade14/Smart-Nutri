@@ -714,6 +714,9 @@ class AppLocalizationsMr extends AppLocalizations {
       'हा लेबल स्कॅन सापडला नाही. कृपया लेबल पुन्हा स्कॅन करा.';
 
   @override
+  String get errorSearchQueryTooShort => 'शोधण्यासाठी किमान 3 अक्षरे लिहा.';
+
+  @override
   String get errorServingSizeUnknown =>
       'या पॅकवर सर्व्हिंगचा आकार दिलेला नाही. प्रमाण ग्रॅममध्ये भरा.';
 

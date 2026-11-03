@@ -239,7 +239,8 @@
     "ai_unavailable": "Voice answers are unavailable right now. Please try again later.",
     "deletion_incomplete": "We could not finish deleting your account. Please try again; nothing you deleted will come back.",
     "phone_otp_disabled": "Phone sign-in is not available yet. Please sign in with email or Google.",
-    "payload_too_large": "That request is too large. Please try again with less."
+    "payload_too_large": "That request is too large. Please try again with less.",
+    "search_query_too_short": "Type at least 3 letters to search."
   },
   "scan": {
     "title": "Scan a barcode",

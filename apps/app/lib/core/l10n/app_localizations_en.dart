@@ -708,6 +708,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t find that label scan. Please scan the label again.';
 
   @override
+  String get errorSearchQueryTooShort => 'Type at least 3 letters to search.';
+
+  @override
   String get errorServingSizeUnknown =>
       'This pack doesn\'t show a serving size. Enter the amount in grams.';
 

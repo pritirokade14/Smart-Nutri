@@ -161,23 +161,59 @@ async def products_alternatives_by_barcode(
     return await _alternatives(session, off, settings, current.account.id, member_id, barcode=code)
 
 
+def search_query(
+    q: Annotated[
+        str,
+        Query(
+            max_length=search.MAX_QUERY,
+            description=(
+                f"{search.MIN_QUERY} to {search.MAX_QUERY} characters after trimming and "
+                "collapsing spaces; shorter is 422 search_query_too_short"
+            ),
+        ),
+    ],
+) -> str:
+    """The search text, refused when shorter than MIN_QUERY once normalised (I4). Runs
+    before limit(), so a too-short query costs no quota and touches no database."""
+    if len(search.normalise_query(q)) < search.MIN_QUERY:
+        raise ApiError(
+            "search_query_too_short",
+            422,
+            details={"fields": ["query.q"], "min_length": search.MIN_QUERY},
+        )
+    return q
+
+
 @router.get(
     "/search",
     operation_id="products_search",
     response_model=list[SearchHit],
-    dependencies=[Depends(limit("search"))],  # first: it commits the session
+    responses={
+        **ERROR_RESPONSES,
+        503: {
+            "model": ErrorEnvelope,
+            "description": (
+                "off_unavailable: the Open Food Facts search budget is used up and nothing is "
+                "cached for this query; retry after Retry-After seconds"
+            ),
+        },
+    },
+    # The query check first (no quota for a too-short query), then limit(), which commits.
+    dependencies=[Depends(search_query), Depends(limit("search"))],
 )
 async def products_search(
     ctx: Annotated[AccountContext, Depends(current_account)],
     session: Annotated[AsyncSession, Depends(get_session)],
     off: Annotated[OffClient, Depends(get_off_client)],
     settings: Annotated[Settings, Depends(get_app_settings)],
-    q: Annotated[str, Query(min_length=search.MIN_QUERY, max_length=search.MAX_QUERY)],
+    q: Annotated[str, Depends(search_query)],
     limit_: Annotated[int, Query(alias="limit", ge=1, le=50)] = 20,
 ) -> list[SearchHit]:
-    """Our products first (name or brand), then Open Food Facts. ``q``: 2 to 80 characters."""
-    if len(search.normalise_query(q)) < search.MIN_QUERY:
-        raise ApiError("validation_error", 422, details={"fields": ["query.q"]})
+    """Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.
+
+    Open Food Facts search calls are capped for the whole server; over the cap a cached
+    result is served, else 503 ``off_unavailable`` with Retry-After.
+    """
     hits = await search.search_products(
         session, off, q, limit_, account_id=ctx.account_id, settings=settings
     )

@@ -202,6 +202,7 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Final fix batch (API errors)
 - [ ] **hi/mr `error.payload_too_large`**: machine drafts. Shown when a request body is over the server cap (I2); generic, no blame.
+- [ ] **hi/mr `error.search_query_too_short`**: machine drafts (I4, server minimum 3 letters). Keep the wording close to `search.too_short`.
 
 ## Final fix batch (I4 search, m7 permissions)
 - [ ] **hi/mr `search.too_short`**: the minimum went from 2 to 3 letters (I4); only the number changed in the drafts.

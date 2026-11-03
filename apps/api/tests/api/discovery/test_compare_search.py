@@ -40,8 +40,31 @@ async def test_search_ours_first(client, login, sf_biscuit_product_id, fake_off_
     assert hits[0]["source"] == "ours"
 
 
-async def test_search_query_too_short_422(client):
-    assert (await client.get("/v1/products/search?q=a")).status_code == 422
+@pytest.mark.parametrize("q", ["a", "ab", "%20%20ab%20%20", "a%20%20%20", ""])
+async def test_search_query_too_short_422(client, q):
+    # I4: at least 3 characters after trimming and collapsing spaces.
+    r = await client.get(f"/v1/products/search?q={q}")
+    assert r.status_code == 422
+    assert r.json()["error"] == {
+        "code": "search_query_too_short",
+        "message_key": "error.search_query_too_short",
+        "details": {"fields": ["query.q"], "min_length": 3},
+    }
+
+
+async def test_too_short_query_costs_no_quota(client, db_session):
+    from sqlalchemy import text
+
+    await client.get("/v1/products/search?q=ab")
+    count = await db_session.scalar(
+        text("select count(*) from rate_limit_counters where bucket = 'search'")
+    )
+    assert count == 0
+
+
+async def test_search_three_characters_is_enough(client, login, fake_off_search):
+    login(off=fake_off_search)
+    assert (await client.get("/v1/products/search?q=dal")).status_code == 200
 
 
 # --- compare ------------------------------------------------------------------------------
@@ -164,8 +187,8 @@ async def test_search_hides_other_accounts_pending_products(
 
 async def test_search_escapes_like_wildcards(client, login, sf_biscuit_product_id):
     login(off=FakeOff())
-    assert (await client.get("/v1/products/search?q=%25%25")).json() == []
-    assert (await client.get("/v1/products/search?q=__")).json() == []
+    assert (await client.get("/v1/products/search?q=%25%25%25")).json() == []
+    assert (await client.get("/v1/products/search?q=___")).json() == []
 
 
 async def test_search_off_down_returns_ours(client, login, sf_biscuit_product_id):
@@ -210,3 +233,73 @@ async def test_search_is_rate_limited(db_session, login, family):
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://t") as c:
         codes = [(await c.get("/v1/products/search?q=oats")).status_code for _ in range(3)]
     assert codes == [200, 200, 429]
+
+
+# --- I4: the process-wide OFF search throttle, through the real OffClient ------------------
+
+
+@pytest.fixture
+async def throttled(db_session):
+    """An app whose real OffClient talks to a fake OFF and may search twice a minute."""
+    import httpx
+
+    from app.core.security import AccountContext, current_account
+    from app.db.session import get_session
+
+    off_requests: list[httpx.Request] = []
+
+    def off(request: httpx.Request) -> httpx.Response:
+        off_requests.append(request)
+        return httpx.Response(200, json={"products": NAMKEEN["products"]})
+
+    app = create_app(Settings(_env_file=None, environment="test", off_search_per_minute=2))
+    await app.state.off_http.aclose()
+    app.state.off_http = httpx.AsyncClient(transport=httpx.MockTransport(off))
+    app.dependency_overrides[get_session] = lambda: db_session
+    app.dependency_overrides[current_account] = lambda: AccountContext(ACC_A, None)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://t") as c:
+        yield c, off_requests
+    await app.state.off_http.aclose()
+
+
+async def test_off_search_over_the_throttle_is_503_off_unavailable(throttled):
+    client, off_requests = throttled
+    assert (await client.get("/v1/products/search?q=namkeen")).status_code == 200
+    assert (await client.get("/v1/products/search?q=chana")).status_code == 200
+    r = await client.get("/v1/products/search?q=bhujia")
+    assert r.status_code == 503
+    assert r.json()["error"]["code"] == "off_unavailable"
+    assert 1 <= int(r.headers["retry-after"]) <= 30
+    assert len(off_requests) == 2  # the third search never reached OFF
+
+
+async def test_throttled_search_still_serves_the_cache(throttled):
+    client, off_requests = throttled
+    first = (await client.get("/v1/products/search?q=namkeen")).json()
+    await client.get("/v1/products/search?q=chana")
+    # Same query, normalised: served from the cache, no token needed.
+    again = await client.get("/v1/products/search?q=%20NAMKEEN%20")
+    assert again.status_code == 200 and again.json() == first
+    assert len(off_requests) == 2
+
+
+async def test_throttled_search_serves_a_stale_cache(throttled, db_session):
+    client, off_requests = throttled
+    first = (await client.get("/v1/products/search?q=namkeen")).json()
+    row = await db_session.scalar(
+        select(OffProductCache).where(OffProductCache.barcode == "search:text:namkeen")
+    )
+    row.fetched_at = datetime.now(UTC) - timedelta(hours=25)
+    await db_session.flush()
+    await client.get("/v1/products/search?q=chana")  # uses the last token
+    r = await client.get("/v1/products/search?q=namkeen")
+    assert r.status_code == 200 and r.json() == first
+    assert len(off_requests) == 2
+
+
+async def test_search_cache_key_is_unicode_normalised(client, login, fake_off_search):
+    login(off=fake_off_search)
+    await client.get("/v1/products/search?q=namkeen")
+    # Full-width letters (some Indic keyboards) are the same query.
+    await client.get("/v1/products/search?q=ＮＡＭＫＥＥＮ")
+    assert fake_off_search.search_calls == [("text", "namkeen")]

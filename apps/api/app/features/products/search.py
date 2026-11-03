@@ -3,9 +3,12 @@
 Our products the caller may see (verified, plus their own pending ones; never another
 account's pending or any rejected product) match on name or brand. OFF hits are de-duplicated
 by barcode (ours win) and the OFF result is cached 24 h per normalised query. Grades come from
-the rules engine. OFF being down is not an error: our hits are returned alone.
+the rules engine. OFF being down is not an error: our hits are returned alone. Over the
+process-wide OFF search budget (I4, `off_search_per_minute`), a cached result (even a stale
+one) is served; with none, 503 `off_unavailable` with Retry-After.
 """
 
+import unicodedata
 from uuid import UUID
 
 from sqlalchemy import or_, select
@@ -13,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import scoring
 from app.core.config import Settings
+from app.core.errors import ApiError
 from app.features.products import service
 from app.features.products.models import Product
 from app.features.products.off_mapping import off_to_info, off_to_product
@@ -20,17 +24,21 @@ from app.features.products.schemas import SearchHit
 from app.integrations.openfoodfacts import (
     InvalidBarcode,
     OffClient,
+    OffThrottled,
     OffUnavailable,
     normalize_barcode,
 )
 
-MIN_QUERY, MAX_QUERY = 2, 80
+# I4: at least 3 characters after normalising (clients search on submit, or from 3
+# characters after a 600 ms pause).
+MIN_QUERY, MAX_QUERY = 3, 80
 OFF_PAGE_SIZE = 24
 
 
 def normalise_query(q: str) -> str:
-    """Collapse whitespace and casefold (also the cache key)."""
-    return " ".join(q.split()).casefold()
+    """NFKC, collapse whitespace and casefold (also the OFF cache key), so that case,
+    spacing and full-width or compatibility forms of the same query share one cache entry."""
+    return " ".join(unicodedata.normalize("NFKC", q).split()).casefold()
 
 
 def _like(q: str) -> str:
@@ -88,6 +96,12 @@ async def search_products(
         payloads = await service.cached_off_search(
             session, f"text:{query}", lambda: off.search_text(query, page_size=OFF_PAGE_SIZE)
         )
+    except OffThrottled as exc:
+        # I4: over the process-wide OFF search budget with nothing cached. Not an empty
+        # result: the client should say "busy, try again" and may retry after Retry-After.
+        raise ApiError(
+            "off_unavailable", 503, headers={"Retry-After": str(exc.retry_after)}
+        ) from None
     except OffUnavailable:
         return hits
     for payload in payloads:

@@ -27,6 +27,7 @@ from app.features.products.router import router as products_router
 from app.features.reports.router import router as reports_router
 from app.features.scans.router import router as scans_router
 from app.features.voice.router import router as voice_router
+from app.integrations.openfoodfacts import SearchThrottle
 
 ROUTERS: list[APIRouter] = [
     health_router,
@@ -103,6 +104,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.engine = engine
     app.state.off_http = httpx.AsyncClient()  # shared by get_off_client; closed in lifespan
+    # One OFF search budget for the whole process (I4), shared by every request.
+    app.state.off_search_throttle = SearchThrottle(settings.off_search_per_minute)
     app.state.sessionmaker = build_sessionmaker(engine)
     app.state.jwks_cache = JwksCache(settings.supabase_jwks_url)
     app.add_middleware(CatchAllMiddleware)  # innermost

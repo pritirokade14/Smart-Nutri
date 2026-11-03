@@ -10,8 +10,10 @@ Logs carry outcome and latency only, never the barcode.
 """
 
 import logging
+import math
 import re
 import time
+from collections.abc import Callable
 
 import httpx
 from fastapi import Request
@@ -40,6 +42,49 @@ class OffUnavailable(Exception):
     """Network error, timeout, 5xx, or malformed body."""
 
 
+class OffThrottled(OffUnavailable):
+    """Our own OFF search budget is used up (I4); OFF was not called. `retry_after` is the
+    number of seconds until the next search is allowed."""
+
+    def __init__(self, retry_after: int) -> None:
+        super().__init__("off search throttled")
+        self.retry_after = retry_after
+
+
+class SearchThrottle:
+    """A token bucket for OFF search calls, shared by the whole process (one per app, kept on
+    `app.state`). Holds at most a minute's worth of tokens and refills continuously.
+
+    Single event loop, no await inside: safe without a lock.
+    """
+
+    def __init__(self, per_minute: int, *, clock: Callable[[], float] = time.monotonic) -> None:
+        if per_minute < 1:
+            raise ValueError("per_minute must be at least 1")
+        self._capacity = float(per_minute)
+        self._rate = per_minute / 60.0  # tokens per second
+        self._clock = clock
+        self._tokens = self._capacity
+        self._updated = clock()
+
+    def _refill(self) -> None:
+        now = self._clock()
+        self._tokens = min(self._capacity, self._tokens + (now - self._updated) * self._rate)
+        self._updated = now
+
+    def try_acquire(self) -> bool:
+        self._refill()
+        if self._tokens >= 1.0:
+            self._tokens -= 1.0
+            return True
+        return False
+
+    def retry_after(self) -> int:
+        """Whole seconds until a token is available (at least 1)."""
+        self._refill()
+        return max(1, math.ceil((1.0 - self._tokens) / self._rate))
+
+
 # EAN-8, UPC-A, EAN-13, GTIN-14 (Plan 3 global constraint; same rule on Android and web).
 VALID_LENGTHS = frozenset({8, 12, 13, 14})
 
@@ -58,12 +103,21 @@ def get_off_client(request: Request) -> "OffClient":
         request.app.state.off_http,
         base_url=settings.off_base_url,
         user_agent=settings.off_user_agent,
+        search_throttle=request.app.state.off_search_throttle,
     )
 
 
 class OffClient:
-    def __init__(self, http: httpx.AsyncClient, *, base_url: str, user_agent: str) -> None:
+    def __init__(
+        self,
+        http: httpx.AsyncClient,
+        *,
+        base_url: str,
+        user_agent: str,
+        search_throttle: SearchThrottle | None = None,
+    ) -> None:
         self._http = http
+        self._search_throttle = search_throttle
         self._base_url = base_url.rstrip("/")
         ua = (user_agent or "").strip()
         self._user_agent = DEFAULT_USER_AGENT if not ua or "your-team-email@" in ua else ua
@@ -148,7 +202,11 @@ class OffClient:
 
     async def _search(self, path: str, params: dict[str, str], *, kind: str) -> list[dict]:
         """GET a search endpoint; the ``products`` list (objects only). Logs never carry the
-        query, only the outcome, count and latency."""
+        query, only the outcome, count and latency. Raises OffThrottled, without calling OFF,
+        when the process-wide search budget is used up (I4)."""
+        if self._search_throttle is not None and not self._search_throttle.try_acquire():
+            logger.info("off_search kind=%s outcome=throttled", kind)
+            raise OffThrottled(self._search_throttle.retry_after())
         start = time.monotonic()
         outcome = "unavailable"
         try:

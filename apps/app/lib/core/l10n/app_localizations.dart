@@ -1378,6 +1378,12 @@ abstract class AppLocalizations {
   /// **'We couldn\'t find that label scan. Please scan the label again.'**
   String get errorScanNotFound;
 
+  /// No description provided for @errorSearchQueryTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 3 letters to search.'**
+  String get errorSearchQueryTooShort;
+
   /// No description provided for @errorServingSizeUnknown.
   ///
   /// In en, this message translates to:

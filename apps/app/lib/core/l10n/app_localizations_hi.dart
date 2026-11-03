@@ -712,6 +712,9 @@ class AppLocalizationsHi extends AppLocalizations {
       'यह लेबल स्कैन नहीं मिला। कृपया लेबल फिर से स्कैन करें।';
 
   @override
+  String get errorSearchQueryTooShort => 'खोजने के लिए कम से कम 3 अक्षर लिखें।';
+
+  @override
   String get errorServingSizeUnknown =>
       'इस पैक पर सर्विंग का आकार नहीं लिखा है। मात्रा ग्राम में भरें।';
 

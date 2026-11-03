@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     off_cache_ttl_hours: int = 168
     # Confidence passed to the engine for OFF data (crowd-sourced; < 1.0, >= 0.7 so allergen rules still run).
     off_data_confidence: float = 0.9
+    # Process-wide cap on Open Food Facts search calls (text and category), a token bucket
+    # (I4). OFF allows about 10 search requests a minute per client; cache hits are free.
+    off_search_per_minute: int = Field(default=8, ge=1)
     rate_limit_label_scans_per_day: int = 30
     rate_limit_voice_per_day: int = 20
     rate_limit_reports_per_day: int = 10

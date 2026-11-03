@@ -275,6 +275,7 @@
   "errorRateLimitedVoice": "You've reached today's voice-question limit.",
   "errorScanImageNotFound": "We couldn't find that photo. Please take or upload it again.",
   "errorScanNotFound": "We couldn't find that label scan. Please scan the label again.",
+  "errorSearchQueryTooShort": "Type at least 3 letters to search.",
   "errorServingSizeUnknown": "This pack doesn't show a serving size. Enter the amount in grams.",
   "errorStorageUnavailable": "We couldn't handle the photo right now. Please try again in a moment.",
   "errorUnauthorized": "Please sign in.",
