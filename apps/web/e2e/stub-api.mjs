@@ -60,6 +60,8 @@ function reset(params = new URLSearchParams()) {
     meals: [],
     deleteFails: Number(params.get("delete_fails") ?? 0),
     deleted: false,
+    // What the browser PUT to "storage": only facts about the bytes.
+    upload: null,
     consents: {
       ...Object.fromEntries(PURPOSES.map((p) => [p, null])),
       terms:
@@ -322,6 +324,31 @@ function route(method, path, b, q = new URLSearchParams()) {
       return [200, m];
     }
   }
+  if (method === "POST" && path === "/v1/scans/upload-url") {
+    if (termsMissing())
+      return [403, envelope("consent_required", { purposes: ["terms"] })];
+    return [
+      200,
+      {
+        upload_url: `http://127.0.0.1:${authPort}/storage/v1/object/upload/sign/label-photos/${E2E_USER_ID}/label.jpg?token=e2e`,
+        path: `${E2E_USER_ID}/label.jpg`,
+        expires_in: 7200,
+      },
+    ];
+  }
+  if (method === "POST" && path === "/v1/scans/label") {
+    if (termsMissing())
+      return [403, envelope("consent_required", { purposes: ["terms"] })];
+    return [
+      200,
+      {
+        scan_id: "0b6c1f8e-3c1a-4f0e-9a51-1d2e3f4a5b6c",
+        cached: false,
+        prompt_version: "label-extract-v3",
+        draft: read("drafts/clean.json"),
+      },
+    ];
+  }
   if (method === "POST" && path === "/v1/analyze") {
     if (termsMissing())
       return [403, envelope("consent_required", { purposes: ["terms"] })];
@@ -426,7 +453,43 @@ createServer((req, res) => {
 
 // Supabase Auth stand-in: the e2e session uses an HS256 token, so
 // getClaims() verifies it by calling GET /auth/v1/user.
+// The signed upload URL's target (Supabase Storage): records whether the
+// uploaded photo still carries metadata (EXIF, GPS, comments).
+function inspectUpload(bytes) {
+  const text = bytes.toString("latin1");
+  return {
+    size: bytes.length,
+    jpeg: bytes[0] === 0xff && bytes[1] === 0xd8,
+    exif: text.includes("Exif"),
+    gps: text.includes("GPS"),
+    comment: text.includes("shot at home"),
+  };
+}
+
+const STORAGE_CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-headers": "content-type, x-upsert",
+  "access-control-allow-methods": "PUT, OPTIONS",
+};
+
 createServer((req, res) => {
+  if (req.url?.startsWith("/storage/v1/object/upload/sign/")) {
+    if (req.method === "OPTIONS") {
+      res.writeHead(204, STORAGE_CORS).end();
+      return;
+    }
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => {
+      state.upload = inspectUpload(Buffer.concat(chunks));
+      res.writeHead(200, {
+        ...STORAGE_CORS,
+        "content-type": "application/json",
+      });
+      res.end(JSON.stringify({ Key: "label-photos/label.jpg" }));
+    });
+    return;
+  }
   if (req.method === "POST" && req.url?.startsWith("/auth/v1/logout")) {
     res.writeHead(204).end();
     return;

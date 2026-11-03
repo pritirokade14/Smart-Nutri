@@ -1,4 +1,5 @@
 import { ApiError } from "@/lib/api/errors";
+import { stripJpegMetadata } from "./stripMetadata";
 
 /** The API's upload limit (413 image_too_large above it). */
 export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
@@ -73,7 +74,8 @@ async function decode(file: File, maxSide: number): Promise<ImageBitmap> {
 
 /**
  * Re-encodes a label photo in the browser: JPEG, longest side ≤ `maxSide`,
- * at most 8 MB, EXIF orientation applied. Throws ApiError `unsupported_image`
+ * at most 8 MB, EXIF orientation applied, then every metadata segment
+ * (EXIF/GPS, XMP, IPTC, comments) removed. Throws ApiError `unsupported_image`
  * for HEIC or a file that can't be decoded (before anything is uploaded),
  * `image_too_large` if it can't be brought under the limit.
  */
@@ -98,7 +100,8 @@ export async function resizeImage(file: File, maxSide = 2000): Promise<Blob> {
       for (const q of QUALITIES) {
         const blob = await toJpeg(canvas, q);
         if (blob && blob.type === "image/jpeg" && blob.size <= MAX_UPLOAD_BYTES)
-          return blob;
+          // No location or camera metadata leaves the device (S4).
+          return stripJpegMetadata(blob);
       }
       scale *= 0.75;
     }
