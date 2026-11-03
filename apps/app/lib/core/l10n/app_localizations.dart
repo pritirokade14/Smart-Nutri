@@ -460,6 +460,18 @@ abstract class AppLocalizations {
   /// **'Please sign in.'**
   String get errorAuthRequired;
 
+  /// No description provided for @errorExtractionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read this label. Try another photo or enter the details manually.'**
+  String get errorExtractionFailed;
+
+  /// No description provided for @errorExtractionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Label reading is unavailable right now. Try again later or enter the details manually.'**
+  String get errorExtractionUnavailable;
+
   /// No description provided for @errorForbidden.
   ///
   /// In en, this message translates to:
@@ -471,6 +483,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get errorHttpError;
+
+  /// No description provided for @errorImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is too large. Please use a photo under 8 MB.'**
+  String get errorImageTooLarge;
 
   /// No description provided for @errorImplausibleValue.
   ///
@@ -556,17 +574,35 @@ abstract class AppLocalizations {
   /// **'You\'ve reached today\'s voice-question limit.'**
   String get errorRateLimitedVoice;
 
+  /// No description provided for @errorScanImageNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that photo. Please take or upload it again.'**
+  String get errorScanImageNotFound;
+
   /// No description provided for @errorScanNotFound.
   ///
   /// In en, this message translates to:
   /// **'We couldn\'t find that label scan. Please scan the label again.'**
   String get errorScanNotFound;
 
+  /// No description provided for @errorStorageUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t handle the photo right now. Please try again in a moment.'**
+  String get errorStorageUnavailable;
+
   /// No description provided for @errorUnauthorized.
   ///
   /// In en, this message translates to:
   /// **'Please sign in.'**
   String get errorUnauthorized;
+
+  /// No description provided for @errorUnsupportedImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please use a JPEG, PNG or WebP photo.'**
+  String get errorUnsupportedImage;
 
   /// No description provided for @errorValidationError.
   ///

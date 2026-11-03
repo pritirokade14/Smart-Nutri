@@ -12,14 +12,17 @@ import logging
 import math
 import random
 import time
-from collections.abc import Callable
+from collections.abc import AsyncIterator, Callable
+from typing import Annotated, Any
 
 import httpx
 import openai
+from fastapi import Depends
 from pydantic import BaseModel, SecretStr, ValidationError
 
+from app.core.config import Settings, get_app_settings
 from app.features.scans.schemas import NutritionExtraction, extraction_json_schema
-from app.integrations.providers import ExtractionFailed, ProviderUnavailable
+from app.integrations.providers import ExtractionFailed, LLMProvider, ProviderUnavailable
 
 logger = logging.getLogger(__name__)
 
@@ -189,3 +192,42 @@ def _backoff(attempt: int, response: httpx.Response | None) -> float:
             except ValueError:
                 pass
     return min(2.0**attempt, _MAX_BACKOFF_S) * random.uniform(0.5, 1.0)
+
+
+class LazyCallMissed:
+    """An `LLMProvider` that builds the CallMissedClient on first use (ruling R12).
+
+    A request served from the extraction cache never needs a key or a connection; a missing
+    key surfaces as ProviderUnavailable("not_configured") only when a paid call is attempted.
+    """
+
+    def __init__(self, *, api_key: SecretStr | None, base_url: str) -> None:
+        self._api_key = api_key
+        self._base_url = base_url
+        self._client: CallMissedClient | None = None
+
+    def __repr__(self) -> str:
+        return "LazyCallMissed()"
+
+    async def extract_label(self, **kwargs: Any) -> BaseModel:
+        if self._client is None:
+            self._client = CallMissedClient(api_key=self._api_key, base_url=self._base_url)
+        return await self._client.extract_label(**kwargs)
+
+    async def aclose(self) -> None:
+        if self._client is not None:
+            await self._client.aclose()
+            self._client = None
+
+
+async def get_llm_provider(
+    settings: Annotated[Settings, Depends(get_app_settings)],
+) -> AsyncIterator[LLMProvider]:
+    """FastAPI dependency: a per-request, lazily built CallMissed provider, closed afterwards."""
+    provider = LazyCallMissed(
+        api_key=settings.callmissed_api_key, base_url=settings.callmissed_base_url
+    )
+    try:
+        yield provider
+    finally:
+        await provider.aclose()

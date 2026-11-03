@@ -109,6 +109,147 @@
         "title": "AnalyzeRequest",
         "type": "object"
       },
+      "DraftNutrients": {
+        "description": "Per 100 g / 100 ml for the confirm screen. None = not printed (never invented).\n\nThe engine fields are M1's `NutrientsOut`. `added_sugars_g` and `trans_fat_g` are\nshown for the user to confirm but are NOT engine inputs (the engine's `Nutrients`\nhas no such fields), so `ProductCreate.per_100g` (a `NutrientsOut`) drops them on save.",
+        "properties": {
+          "added_sugars_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Added Sugars G"
+          },
+          "carbs_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carbs G"
+          },
+          "energy_kcal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Kcal"
+          },
+          "fat_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fat G"
+          },
+          "fiber_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiber G"
+          },
+          "protein_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protein G"
+          },
+          "salt_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salt G"
+          },
+          "sat_fat_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sat Fat G"
+          },
+          "sodium_mg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sodium Mg"
+          },
+          "sugars_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sugars G"
+          },
+          "trans_fat_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trans Fat G"
+          }
+        },
+        "required": [
+          "energy_kcal",
+          "protein_g",
+          "carbs_g",
+          "sugars_g",
+          "fat_g",
+          "sat_fat_g",
+          "fiber_g",
+          "salt_g",
+          "sodium_mg",
+          "added_sugars_g",
+          "trans_fat_g"
+        ],
+        "title": "DraftNutrients",
+        "type": "object"
+      },
       "ErrorBody": {
         "description": "A stable `code`; clients localise `message_key` (always `error.<code>`).",
         "properties": {
@@ -174,6 +315,32 @@
           "database"
         ],
         "title": "HealthOut",
+        "type": "object"
+      },
+      "LabelScanIn": {
+        "properties": {
+          "barcode": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "path": {
+            "maxLength": 200,
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "title": "LabelScanIn",
         "type": "object"
       },
       "MeOut": {
@@ -504,6 +671,153 @@
         "title": "ProductCreate",
         "type": "object"
       },
+      "ProductDraft": {
+        "description": "A normalised extraction awaiting user confirmation. Never saved as-is.",
+        "properties": {
+          "allergen_statement": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allergen Statement"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "category": {
+            "enum": [
+              "general",
+              "beverage",
+              "water",
+              "cheese",
+              "fat"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "claims": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "derived_from_serving": {
+            "title": "Derived From Serving",
+            "type": "boolean"
+          },
+          "ingredients": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ingredients",
+            "type": "array"
+          },
+          "may_contain_statement": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "May Contain Statement"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "per_100g": {
+            "$ref": "#/components/schemas/DraftNutrients"
+          },
+          "positive_suppressed": {
+            "items": {
+              "enum": [
+                "protein_g",
+                "fiber_g"
+              ],
+              "type": "string"
+            },
+            "title": "Positive Suppressed",
+            "type": "array"
+          },
+          "serving_size_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serving Size G"
+          },
+          "veg_mark": {
+            "anyOf": [
+              {
+                "enum": [
+                  "veg",
+                  "non_veg"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Veg Mark"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "brand",
+          "category",
+          "per_100g",
+          "serving_size_g",
+          "ingredients",
+          "allergen_statement",
+          "may_contain_statement",
+          "claims",
+          "veg_mark",
+          "confidence",
+          "derived_from_serving",
+          "positive_suppressed",
+          "warnings"
+        ],
+        "title": "ProductDraft",
+        "type": "object"
+      },
       "ProductOut": {
         "properties": {
           "attribution": {
@@ -683,6 +997,75 @@
           "params"
         ],
         "title": "ReasonOut",
+        "type": "object"
+      },
+      "ScanDraftOut": {
+        "properties": {
+          "cached": {
+            "title": "Cached",
+            "type": "boolean"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/ProductDraft"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "scan_id": {
+            "format": "uuid",
+            "title": "Scan Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scan_id",
+          "draft",
+          "cached",
+          "prompt_version"
+        ],
+        "title": "ScanDraftOut",
+        "type": "object"
+      },
+      "UploadUrlIn": {
+        "properties": {
+          "ext": {
+            "enum": [
+              "jpg",
+              "png",
+              "webp"
+            ],
+            "title": "Ext",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ext"
+        ],
+        "title": "UploadUrlIn",
+        "type": "object"
+      },
+      "UploadUrlOut": {
+        "properties": {
+          "expires_in": {
+            "title": "Expires In",
+            "type": "integer"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "upload_url": {
+            "title": "Upload Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "upload_url",
+          "path",
+          "expires_in"
+        ],
+        "title": "UploadUrlOut",
         "type": "object"
       },
       "VerdictOut": {
@@ -1294,6 +1677,230 @@
         "summary": "Products Get Public",
         "tags": [
           "products"
+        ]
+      }
+    },
+    "/v1/scans/label": {
+      "post": {
+        "description": "Extract an unconfirmed draft from an uploaded label photo.\n\nRate-limited per account (`rate_limited_scans`), counting only paid extractions: the\nsame image bytes again (from any account) reuse the stored draft for free.",
+        "operationId": "scans_create_label",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabelScanIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanDraftOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Image larger than 8 MB"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not a JPEG, PNG or WebP image"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Extraction failed (no draft)"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Extraction or storage unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Scans Create Label",
+        "tags": [
+          "scans"
+        ]
+      }
+    },
+    "/v1/scans/upload-url": {
+      "post": {
+        "description": "A signed URL to PUT one label photo into the caller's private folder (no DB write).",
+        "operationId": "scans_create_upload_url",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadUrlIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadUrlOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Storage unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Scans Create Upload Url",
+        "tags": [
+          "scans"
         ]
       }
     }

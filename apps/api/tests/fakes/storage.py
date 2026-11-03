@@ -1,0 +1,36 @@
+"""FakeStorage: a StorageClient for tests. Never calls Supabase."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+
+from app.integrations.storage import StorageNotFound
+
+
+class FakeStorage:
+    """Serves `objects[path]`, else `default` (bytes, or a callable of the path), else 404."""
+
+    def __init__(
+        self,
+        objects: dict[str, bytes] | None = None,
+        *,
+        default: bytes | Callable[[str], bytes] | None = None,
+    ) -> None:
+        self.objects = dict(objects or {})
+        self.default = default
+        self.signed: list[tuple[str, int]] = []
+        self.downloads: list[str] = []
+
+    async def create_signed_upload(self, path: str, expires_in: int) -> str:
+        self.signed.append((path, expires_in))
+        return f"https://storage.test/upload/{path}?token=fake"
+
+    async def download(self, path: str) -> bytes:
+        self.downloads.append(path)
+        if path in self.objects:
+            return self.objects[path]
+        if callable(self.default):
+            return self.default(path)
+        if self.default is not None:
+            return self.default
+        raise StorageNotFound(path)

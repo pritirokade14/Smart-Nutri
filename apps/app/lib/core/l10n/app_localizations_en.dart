@@ -201,10 +201,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthRequired => 'Please sign in.';
 
   @override
+  String get errorExtractionFailed =>
+      'We couldn\'t read this label. Try another photo or enter the details manually.';
+
+  @override
+  String get errorExtractionUnavailable =>
+      'Label reading is unavailable right now. Try again later or enter the details manually.';
+
+  @override
   String get errorForbidden => 'You don\'t have access to this.';
 
   @override
   String get errorHttpError => 'Something went wrong. Please try again.';
+
+  @override
+  String get errorImageTooLarge =>
+      'This photo is too large. Please use a photo under 8 MB.';
 
   @override
   String get errorImplausibleValue =>
@@ -254,11 +266,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ve reached today\'s voice-question limit.';
 
   @override
+  String get errorScanImageNotFound =>
+      'We couldn\'t find that photo. Please take or upload it again.';
+
+  @override
   String get errorScanNotFound =>
       'We couldn\'t find that label scan. Please scan the label again.';
 
   @override
+  String get errorStorageUnavailable =>
+      'We couldn\'t handle the photo right now. Please try again in a moment.';
+
+  @override
   String get errorUnauthorized => 'Please sign in.';
+
+  @override
+  String get errorUnsupportedImage => 'Please use a JPEG, PNG or WebP photo.';
 
   @override
   String get errorValidationError => 'Please check the highlighted fields.';

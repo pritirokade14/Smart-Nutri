@@ -203,10 +203,22 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करा.';
 
   @override
+  String get errorExtractionFailed =>
+      'आम्हाला हे लेबल वाचता आले नाही. दुसरा फोटो वापरून पाहा किंवा माहिती स्वतः भरा.';
+
+  @override
+  String get errorExtractionUnavailable =>
+      'लेबल वाचण्याची सुविधा सध्या उपलब्ध नाही. नंतर पुन्हा प्रयत्न करा किंवा माहिती स्वतः भरा.';
+
+  @override
   String get errorForbidden => 'तुम्हाला याचा प्रवेश नाही.';
 
   @override
   String get errorHttpError => 'काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.';
+
+  @override
+  String get errorImageTooLarge =>
+      'हा फोटो खूप मोठा आहे. कृपया 8 MB पेक्षा लहान फोटो वापरा.';
 
   @override
   String get errorImplausibleValue =>
@@ -256,11 +268,22 @@ class AppLocalizationsMr extends AppLocalizations {
       'तुम्ही आजच्या आवाजाद्वारे प्रश्न विचारण्याच्या मर्यादेपर्यंत पोहोचला आहात.';
 
   @override
+  String get errorScanImageNotFound =>
+      'तो फोटो आम्हाला सापडला नाही. कृपया फोटो पुन्हा काढा किंवा अपलोड करा.';
+
+  @override
   String get errorScanNotFound =>
       'हा लेबल स्कॅन सापडला नाही. कृपया लेबल पुन्हा स्कॅन करा.';
 
   @override
+  String get errorStorageUnavailable =>
+      'आम्ही सध्या फोटो हाताळू शकलो नाही. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.';
+
+  @override
   String get errorUnauthorized => 'कृपया साइन इन करा.';
+
+  @override
+  String get errorUnsupportedImage => 'कृपया JPEG, PNG किंवा WebP फोटो वापरा.';
 
   @override
   String get errorValidationError => 'कृपया अधोरेखित केलेली फील्ड तपासा.';

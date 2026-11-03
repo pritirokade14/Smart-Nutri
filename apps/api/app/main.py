@@ -16,8 +16,15 @@ from app.features.analyze.router import router as analyze_router
 from app.features.health.router import router as health_router
 from app.features.me.router import router as me_router
 from app.features.products.router import router as products_router
+from app.features.scans.router import router as scans_router
 
-ROUTERS: list[APIRouter] = [health_router, me_router, products_router, analyze_router]
+ROUTERS: list[APIRouter] = [
+    health_router,
+    me_router,
+    products_router,
+    analyze_router,
+    scans_router,
+]
 
 
 def _version() -> str:

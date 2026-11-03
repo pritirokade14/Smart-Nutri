@@ -111,6 +111,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/scans/label": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Scans Create Label
+         * @description Extract an unconfirmed draft from an uploaded label photo.
+         *
+         *     Rate-limited per account (`rate_limited_scans`), counting only paid extractions: the
+         *     same image bytes again (from any account) reuse the stored draft for free.
+         */
+        post: operations["scans_create_label"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scans/upload-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Scans Create Upload Url
+         * @description A signed URL to PUT one label photo into the caller's private folder (no DB write).
+         */
+        post: operations["scans_create_upload_url"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -157,6 +200,38 @@ export interface components {
             product_id?: string | null;
         };
         /**
+         * DraftNutrients
+         * @description Per 100 g / 100 ml for the confirm screen. None = not printed (never invented).
+         *
+         *     The engine fields are M1's `NutrientsOut`. `added_sugars_g` and `trans_fat_g` are
+         *     shown for the user to confirm but are NOT engine inputs (the engine's `Nutrients`
+         *     has no such fields), so `ProductCreate.per_100g` (a `NutrientsOut`) drops them on save.
+         */
+        DraftNutrients: {
+            /** Added Sugars G */
+            added_sugars_g: number | null;
+            /** Carbs G */
+            carbs_g: number | null;
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            /** Fat G */
+            fat_g: number | null;
+            /** Fiber G */
+            fiber_g: number | null;
+            /** Protein G */
+            protein_g: number | null;
+            /** Salt G */
+            salt_g: number | null;
+            /** Sat Fat G */
+            sat_fat_g: number | null;
+            /** Sodium Mg */
+            sodium_mg: number | null;
+            /** Sugars G */
+            sugars_g: number | null;
+            /** Trans Fat G */
+            trans_fat_g: number | null;
+        };
+        /**
          * ErrorBody
          * @description A stable `code`; clients localise `message_key` (always `error.<code>`).
          */
@@ -193,6 +268,13 @@ export interface components {
              * @enum {string}
              */
             status: "ok" | "degraded" | "unavailable";
+        };
+        /** LabelScanIn */
+        LabelScanIn: {
+            /** Barcode */
+            barcode?: string | null;
+            /** Path */
+            path: string;
         };
         /** MeOut */
         MeOut: {
@@ -286,6 +368,42 @@ export interface components {
             /** Veg Mark */
             veg_mark?: ("veg" | "non_veg") | null;
         };
+        /**
+         * ProductDraft
+         * @description A normalised extraction awaiting user confirmation. Never saved as-is.
+         */
+        ProductDraft: {
+            /** Allergen Statement */
+            allergen_statement: string | null;
+            /** Brand */
+            brand: string | null;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "general" | "beverage" | "water" | "cheese" | "fat";
+            /** Claims */
+            claims: string[];
+            /** Confidence */
+            confidence: number;
+            /** Derived From Serving */
+            derived_from_serving: boolean;
+            /** Ingredients */
+            ingredients: string[];
+            /** May Contain Statement */
+            may_contain_statement: string | null;
+            /** Name */
+            name: string | null;
+            per_100g: components["schemas"]["DraftNutrients"];
+            /** Positive Suppressed */
+            positive_suppressed: ("protein_g" | "fiber_g")[];
+            /** Serving Size G */
+            serving_size_g: number | null;
+            /** Veg Mark */
+            veg_mark: ("veg" | "non_veg") | null;
+            /** Warnings */
+            warnings: string[];
+        };
         /** ProductOut */
         ProductOut: {
             /** Attribution */
@@ -341,6 +459,36 @@ export interface components {
              * @enum {string}
              */
             severity: "ok" | "caution" | "unknown" | "avoid";
+        };
+        /** ScanDraftOut */
+        ScanDraftOut: {
+            /** Cached */
+            cached: boolean;
+            draft: components["schemas"]["ProductDraft"];
+            /** Prompt Version */
+            prompt_version: string;
+            /**
+             * Scan Id
+             * Format: uuid
+             */
+            scan_id: string;
+        };
+        /** UploadUrlIn */
+        UploadUrlIn: {
+            /**
+             * Ext
+             * @enum {string}
+             */
+            ext: "jpg" | "png" | "webp";
+        };
+        /** UploadUrlOut */
+        UploadUrlOut: {
+            /** Expires In */
+            expires_in: number;
+            /** Path */
+            path: string;
+            /** Upload Url */
+            upload_url: string;
         };
         /** VerdictOut */
         VerdictOut: {
@@ -812,6 +960,189 @@ export interface operations {
                 };
             };
             /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    scans_create_label: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabelScanIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScanDraftOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Image larger than 8 MB */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not a JPEG, PNG or WebP image */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Extraction failed (no draft) */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Extraction or storage unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    scans_create_upload_url: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadUrlIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadUrlOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Storage unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;

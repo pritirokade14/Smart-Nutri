@@ -56,3 +56,6 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ## Added for Plan 4 (M2 label scan, Task 5: saving a product)
 - [ ] **hi/mr `error.{scan_not_found,implausible_value,product_exists}`**: machine drafts. Check that `implausible_value` reads as "please check these numbers", not as blaming the user, and that "सहेजा गया" (hi) and "जतन केले" (mr) are natural for "saved".
+
+## Added for Plan 4 Task 4 (label photo upload and extraction)
+- [ ] **hi/mr `error.{scan_image_not_found,image_too_large,unsupported_image,extraction_failed,extraction_unavailable,storage_unavailable}`**: machine drafts. Check the tone (no blame), that "जानकारी खुद भरें" / "माहिती स्वतः भरा" reads as the "enter manually" path, and that "8 MB" and the format names (JPEG, PNG, WebP) stay as written.

@@ -8,6 +8,7 @@ immediately, so rejected requests still count and a failed route does not refund
 
 from collections.abc import Awaitable, Callable
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends, Request
 from sqlalchemy import text
@@ -74,6 +75,23 @@ async def _hit(session: AsyncSession, settings: Settings, key: str, bucket: str)
             details={"retry_after": retry_after},
             headers={"Retry-After": str(retry_after)},
         )
+
+
+async def consume(
+    session: AsyncSession, settings: Settings, *, account_id: UUID, bucket: str
+) -> None:
+    """Count one use of an account bucket from inside a service (not as a dependency).
+
+    For routes where only some requests may count (e.g. paid label extractions, not cache
+    hits). Like `limit()`, it COMMITS `session` so the count survives a later failure; to
+    keep that from committing the caller's work by surprise, it refuses to run while ORM
+    writes are staged. Call it before staging any write.
+    """
+    if bucket not in BUCKETS or bucket == "public":
+        raise KeyError(f"unknown account rate-limit bucket: {bucket}")
+    if session.new or session.dirty or session.deleted:
+        raise RuntimeError("consume() would commit staged writes; call it before staging them")
+    await _hit(session, settings, f"acct:{account_id}", bucket)
 
 
 def limit(bucket: str) -> Callable[..., Awaitable[None]]:
