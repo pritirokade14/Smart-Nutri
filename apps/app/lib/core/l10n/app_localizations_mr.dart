@@ -196,6 +196,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get confirmBasisOptionPerServing => 'प्रति सर्व्हिंग';
 
   @override
+  String get confirmBrand => 'ब्रँड';
+
+  @override
   String get confirmCategory => 'उत्पादनाचा प्रकार';
 
   @override
@@ -218,6 +221,10 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get confirmClaims => 'पॅकवरील दावे';
+
+  @override
+  String get confirmClearStatementConfirm =>
+      'मी पॅक तपासला आहे: हे विधान त्यावर छापलेले नाही';
 
   @override
   String get confirmConfirmValue => 'पॅकशी जुळते';
@@ -270,13 +277,25 @@ class AppLocalizationsMr extends AppLocalizations {
   String get confirmMayContainStatement => '\"असू शकते\" हे विधान';
 
   @override
+  String get confirmName => 'उत्पादनाचे नाव';
+
+  @override
   String get confirmNotMedicalAdvice => 'ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get confirmOpenExisting => 'जतन केलेले उत्पादन उघडा';
+
+  @override
+  String get confirmRemoveIngredient => 'हा घटक काढा';
 
   @override
   String get confirmSave => 'खात्री करा आणि जतन करा';
 
   @override
   String get confirmServingSize => 'सर्व्हिंग साइज (g)';
+
+  @override
+  String get confirmSodium => 'सोडियम';
 
   @override
   String get confirmSodiumUnit => 'पॅकवरील सोडियमचे एकक';
@@ -299,6 +318,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get confirmVegMarkNone => 'पॅकवर कोणतीही खूण नाही';
+
+  @override
+  String get confirmVegMarkTitle => 'शाकाहारी किंवा मांसाहारी खूण';
 
   @override
   String get confirmVegMarkVeg => 'शाकाहारी (हिरवी खूण)';

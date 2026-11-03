@@ -5,14 +5,16 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../data/analysis_repository.dart';
 
-typedef AnalyzeQuery = ({String barcode, String language});
+/// Exactly one of [barcode] and [productId] is set.
+typedef AnalyzeQuery = ({String? barcode, String? productId, String language});
 
-/// The analysis for one scanned barcode. No automatic retry: the screen shows
-/// the failure and the user retries explicitly.
+/// The analysis for one scanned barcode or one saved product. No automatic
+/// retry: the screen shows the failure and the user retries explicitly.
 final analyzeResultProvider = FutureProvider.autoDispose
-    .family<AnalyzeOut, AnalyzeQuery>(
-      (ref, q) => ref
-          .watch(analysisRepositoryProvider)
-          .analyzeBarcode(q.barcode, language: q.language),
-      retry: (_, _) => null,
-    );
+    .family<AnalyzeOut, AnalyzeQuery>((ref, q) {
+      final repo = ref.watch(analysisRepositoryProvider);
+      final id = q.productId;
+      return id != null
+          ? repo.analyzeProduct(id, language: q.language)
+          : repo.analyzeBarcode(q.barcode ?? '', language: q.language);
+    }, retry: (_, _) => null);

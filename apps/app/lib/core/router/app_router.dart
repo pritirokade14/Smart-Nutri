@@ -10,6 +10,8 @@ import '../../features/auth/presentation/email_otp_screen.dart';
 import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/scan/presentation/confirm_screen.dart';
+import '../../features/scan/presentation/label_capture_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
 import '../config/app_config.dart';
 
@@ -55,9 +57,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
       GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
       GoRoute(
-        path: '/result',
+        path: '/scan/label',
         builder: (_, state) =>
-            ResultScreen(barcode: state.uri.queryParameters['barcode'] ?? ''),
+            LabelCaptureScreen(barcode: state.uri.queryParameters['barcode']),
+      ),
+      GoRoute(
+        path: '/scan/confirm',
+        // The draft travels in memory only; a deep link opens an empty
+        // manual-entry form.
+        builder: (_, state) => ConfirmScreen(
+          args: state.extra is ConfirmArgs ? state.extra! as ConfirmArgs : null,
+        ),
+      ),
+      GoRoute(
+        path: '/result',
+        builder: (_, state) => ResultScreen(
+          barcode: state.uri.queryParameters['barcode'],
+          productId: state.uri.queryParameters['product_id'],
+        ),
       ),
     ],
   );

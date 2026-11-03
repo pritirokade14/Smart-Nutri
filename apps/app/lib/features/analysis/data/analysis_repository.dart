@@ -36,27 +36,34 @@ class AnalysisApiFailure extends AnalysisFailure {
   final Object cause;
 }
 
-/// Wraps `POST /v1/analyze`. Returns the API body unchanged: verdicts, their
+/// Wraps `POST /v1/analyze` (by barcode or by product_id). Returns the API body unchanged: verdicts, their
 /// order and their reasons come only from the rules engine.
 class AnalysisRepository {
   AnalysisRepository(this._client);
 
   final AnalyzeClient _client;
 
-  Future<AnalyzeOut> analyzeBarcode(
-    String barcode, {
+  Future<AnalyzeOut> analyzeBarcode(String barcode, {String language = 'en'}) =>
+      _analyze(AnalyzeRequest(barcode: barcode, language: _language(language)));
+
+  /// Analyses one of our own products (e.g. one just saved from a label).
+  Future<AnalyzeOut> analyzeProduct(
+    String productId, {
     String language = 'en',
-  }) async {
+  }) => _analyze(
+    AnalyzeRequest(productId: productId, language: _language(language)),
+  );
+
+  static AnalyzeRequestLanguage _language(String language) {
     final lang = AnalyzeRequestLanguage.fromJson(language);
+    return lang == AnalyzeRequestLanguage.$unknown
+        ? AnalyzeRequestLanguage.en
+        : lang;
+  }
+
+  Future<AnalyzeOut> _analyze(AnalyzeRequest body) async {
     try {
-      return await _client.analyzeCreate(
-        body: AnalyzeRequest(
-          barcode: barcode,
-          language: lang == AnalyzeRequestLanguage.$unknown
-              ? AnalyzeRequestLanguage.en
-              : lang,
-        ),
-      );
+      return await _client.analyzeCreate(body: body);
     } on Object catch (e) {
       throw switch (apiErrorCode(e)) {
         'product_not_found' => const AnalysisNotFound(),

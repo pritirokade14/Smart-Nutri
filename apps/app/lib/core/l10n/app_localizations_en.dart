@@ -195,6 +195,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmBasisOptionPerServing => 'Per serving';
 
   @override
+  String get confirmBrand => 'Brand';
+
+  @override
   String get confirmCategory => 'Product type';
 
   @override
@@ -217,6 +220,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmClaims => 'Claims on the pack';
+
+  @override
+  String get confirmClearStatementConfirm =>
+      'I checked the pack: this statement isn\'t printed';
 
   @override
   String get confirmConfirmValue => 'Matches the pack';
@@ -269,13 +276,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmMayContainStatement => 'May-contain statement';
 
   @override
+  String get confirmName => 'Product name';
+
+  @override
   String get confirmNotMedicalAdvice => 'Information, not medical advice.';
+
+  @override
+  String get confirmOpenExisting => 'Open the saved product';
+
+  @override
+  String get confirmRemoveIngredient => 'Remove this ingredient';
 
   @override
   String get confirmSave => 'Confirm and save';
 
   @override
   String get confirmServingSize => 'Serving size (g)';
+
+  @override
+  String get confirmSodium => 'Sodium';
 
   @override
   String get confirmSodiumUnit => 'Sodium unit on the pack';
@@ -298,6 +317,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmVegMarkNone => 'No mark on the pack';
+
+  @override
+  String get confirmVegMarkTitle => 'Veg or non-veg mark';
 
   @override
   String get confirmVegMarkVeg => 'Vegetarian (green mark)';

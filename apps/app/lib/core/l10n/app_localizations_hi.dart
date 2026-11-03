@@ -197,6 +197,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get confirmBasisOptionPerServing => 'प्रति सर्विंग';
 
   @override
+  String get confirmBrand => 'ब्रांड';
+
+  @override
   String get confirmCategory => 'उत्पाद का प्रकार';
 
   @override
@@ -219,6 +222,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get confirmClaims => 'पैक पर किए गए दावे';
+
+  @override
+  String get confirmClearStatementConfirm =>
+      'मैंने पैक देख लिया है: यह कथन उस पर छपा नहीं है';
 
   @override
   String get confirmConfirmValue => 'पैक से मेल खाता है';
@@ -271,13 +278,25 @@ class AppLocalizationsHi extends AppLocalizations {
   String get confirmMayContainStatement => '\"हो सकता है\" वाला कथन';
 
   @override
+  String get confirmName => 'उत्पाद का नाम';
+
+  @override
   String get confirmNotMedicalAdvice => 'यह जानकारी है, चिकित्सकीय सलाह नहीं।';
+
+  @override
+  String get confirmOpenExisting => 'सहेजा गया उत्पाद खोलें';
+
+  @override
+  String get confirmRemoveIngredient => 'यह सामग्री हटाएँ';
 
   @override
   String get confirmSave => 'पुष्टि करें और सहेजें';
 
   @override
   String get confirmServingSize => 'सर्विंग साइज़ (g)';
+
+  @override
+  String get confirmSodium => 'सोडियम';
 
   @override
   String get confirmSodiumUnit => 'पैक पर सोडियम की इकाई';
@@ -300,6 +319,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get confirmVegMarkNone => 'पैक पर कोई निशान नहीं';
+
+  @override
+  String get confirmVegMarkTitle => 'शाकाहारी या मांसाहारी निशान';
 
   @override
   String get confirmVegMarkVeg => 'शाकाहारी (हरा निशान)';

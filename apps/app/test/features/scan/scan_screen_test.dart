@@ -36,6 +36,12 @@ class _PendingRepo implements AnalysisRepository {
   @override
   Future<AnalyzeOut> analyzeBarcode(String barcode, {String language = 'en'}) =>
       Completer<AnalyzeOut>().future;
+
+  @override
+  Future<AnalyzeOut> analyzeProduct(
+    String productId, {
+    String language = 'en',
+  }) => Completer<AnalyzeOut>().future;
 }
 
 Widget _app(FakeBarcodeSource src, List<String> visited) {

@@ -448,6 +448,12 @@ abstract class AppLocalizations {
   /// **'Per serving'**
   String get confirmBasisOptionPerServing;
 
+  /// No description provided for @confirmBrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get confirmBrand;
+
   /// No description provided for @confirmCategory.
   ///
   /// In en, this message translates to:
@@ -495,6 +501,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Claims on the pack'**
   String get confirmClaims;
+
+  /// No description provided for @confirmClearStatementConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'I checked the pack: this statement isn\'t printed'**
+  String get confirmClearStatementConfirm;
 
   /// No description provided for @confirmConfirmValue.
   ///
@@ -592,11 +604,29 @@ abstract class AppLocalizations {
   /// **'May-contain statement'**
   String get confirmMayContainStatement;
 
+  /// No description provided for @confirmName.
+  ///
+  /// In en, this message translates to:
+  /// **'Product name'**
+  String get confirmName;
+
   /// No description provided for @confirmNotMedicalAdvice.
   ///
   /// In en, this message translates to:
   /// **'Information, not medical advice.'**
   String get confirmNotMedicalAdvice;
+
+  /// No description provided for @confirmOpenExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the saved product'**
+  String get confirmOpenExisting;
+
+  /// No description provided for @confirmRemoveIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this ingredient'**
+  String get confirmRemoveIngredient;
 
   /// No description provided for @confirmSave.
   ///
@@ -609,6 +639,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Serving size (g)'**
   String get confirmServingSize;
+
+  /// No description provided for @confirmSodium.
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium'**
+  String get confirmSodium;
 
   /// No description provided for @confirmSodiumUnit.
   ///
@@ -651,6 +687,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No mark on the pack'**
   String get confirmVegMarkNone;
+
+  /// No description provided for @confirmVegMarkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Veg or non-veg mark'**
+  String get confirmVegMarkTitle;
 
   /// No description provided for @confirmVegMarkVeg.
   ///

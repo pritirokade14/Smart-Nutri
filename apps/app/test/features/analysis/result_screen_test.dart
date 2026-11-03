@@ -29,6 +29,16 @@ class FakeAnalysisRepository implements AnalysisRepository {
     final i = calls.length - 1;
     return responses[i < responses.length ? i : responses.length - 1]();
   }
+
+  @override
+  Future<AnalyzeOut> analyzeProduct(
+    String productId, {
+    String language = 'en',
+  }) async {
+    calls.add(('product:$productId', language));
+    final i = calls.length - 1;
+    return responses[i < responses.length ? i : responses.length - 1]();
+  }
 }
 
 Widget _app(

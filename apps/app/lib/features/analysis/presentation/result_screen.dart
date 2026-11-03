@@ -15,27 +15,37 @@ import '../domain/report.dart';
 import 'analysis_providers.dart';
 import 'verdict_card.dart';
 
-/// Result of a barcode scan: the product, its Nutri-Score (calculated by
-/// SmartNutri), "high in" flags and one verdict card per member, all exactly
-/// as the API returned them.
+/// Result of a barcode scan or of a product saved from a label: the product,
+/// its Nutri-Score (calculated by SmartNutri), "high in" flags and one verdict
+/// card per member, all exactly as the API returned them.
 class ResultScreen extends ConsumerWidget {
-  const ResultScreen({super.key, required this.barcode});
+  const ResultScreen({super.key, this.barcode, this.productId});
 
-  final String barcode;
+  final String? barcode;
+
+  /// Set for a product saved from the confirm screen (`/result?product_id=`).
+  final String? productId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    // S8: same normalisation as the API; an invalid deep-link barcode never
-    // reaches it.
-    final code = normalizeBarcode(barcode);
-    if (code == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(l10n.resultTitle)),
-        body: _ErrorView(message: l10n.errorInvalidBarcode),
-      );
+    final productId = this.productId;
+    final AnalyzeQuery query;
+    String? code;
+    if (productId != null && productId.isNotEmpty) {
+      query = (barcode: null, productId: productId, language: l10n.localeName);
+    } else {
+      // S8: same normalisation as the API; an invalid deep-link barcode never
+      // reaches it.
+      code = normalizeBarcode(barcode ?? '');
+      if (code == null) {
+        return Scaffold(
+          appBar: AppBar(title: Text(l10n.resultTitle)),
+          body: _ErrorView(message: l10n.errorInvalidBarcode),
+        );
+      }
+      query = (barcode: code, productId: null, language: l10n.localeName);
     }
-    final query = (barcode: code, language: l10n.localeName);
     final result = ref.watch(analyzeResultProvider(query));
     return Scaffold(
       appBar: AppBar(title: Text(l10n.resultTitle)),
@@ -48,6 +58,9 @@ class ResultScreen extends ConsumerWidget {
           onRetry: error is AnalysisInvalidBarcode
               ? null
               : () => ref.invalidate(analyzeResultProvider(query)),
+          // F15: an unknown barcode leads to the label photo flow, carrying
+          // the barcode through to the scan and the saved product.
+          labelBarcode: error is AnalysisNotFound ? code : null,
         ),
         data: (out) => _ResultView(out: out, barcode: code),
       ),
@@ -66,10 +79,13 @@ class ResultScreen extends ConsumerWidget {
 }
 
 class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message, this.onRetry});
+  const _ErrorView({required this.message, this.onRetry, this.labelBarcode});
 
   final String message;
   final VoidCallback? onRetry;
+
+  /// When set, offers to photograph the label of this unknown barcode.
+  final String? labelBarcode;
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +98,17 @@ class _ErrorView extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: SnTokens.space4),
+            if (labelBarcode case final code?) ...[
+              FilledButton(
+                onPressed: () =>
+                    context.pushReplacement('/scan/label?barcode=$code'),
+                child: Text(
+                  l10n.notfoundGoToLabel,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: SnTokens.space2),
+            ],
             if (onRetry != null) ...[
               FilledButton(onPressed: onRetry, child: Text(l10n.scanRetry)),
               const SizedBox(height: SnTokens.space2),
@@ -101,7 +128,7 @@ class _ResultView extends StatelessWidget {
   const _ResultView({required this.out, required this.barcode});
 
   final AnalyzeOut out;
-  final String barcode;
+  final String? barcode;
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +144,7 @@ class _ResultView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            product.name ?? product.barcode ?? barcode,
+            product.name ?? product.barcode ?? barcode ?? '',
             style: theme.textTheme.headlineSmall,
           ),
           if (product.brand case final brand?)
@@ -140,7 +167,8 @@ class _ResultView extends StatelessWidget {
           const SizedBox(height: SnTokens.space3),
           Text(l10n.commonDisclaimer, style: theme.textTheme.bodySmall),
           if (product.attribution != null)
-            OffAttribution(barcode: product.barcode ?? barcode),
+            if (product.barcode ?? barcode case final code?)
+              OffAttribution(barcode: code),
           const SizedBox(height: SnTokens.space3),
           OutlinedButton(
             onPressed: () => context.pushReplacement('/scan'),
