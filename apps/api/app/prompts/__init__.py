@@ -7,6 +7,7 @@ from pathlib import Path
 PROMPTS_DIR = Path(__file__).parent
 EXTRACTION_PROMPT_VERSION = "extraction_v1"
 EXPLANATION_PROMPT_VERSION = "explanation_v1"
+VOICE_PROMPT_VERSION = "voice_v1"
 
 
 def load_prompt(name: str) -> tuple[str, str]:

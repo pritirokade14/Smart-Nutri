@@ -1,9 +1,12 @@
 from functools import cache
+from pathlib import Path
 from typing import Annotated, Any, Literal
 
 from fastapi import Request
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+from app.core.i18n import repo_messages_dir
 
 
 class Settings(BaseSettings):
@@ -21,6 +24,8 @@ class Settings(BaseSettings):
     callmissed_tts_model: str = "bulbul:v3"
     # TTS speaker id (unverified until scripts/probe_stt_formats.py runs with --yes-spend).
     callmissed_tts_voice: str = "anushka"
+    # packages/i18n/messages (spoken fallback answers). /app/i18n in the Docker image.
+    i18n_messages_dir: Path = Field(default_factory=repo_messages_dir)
     supabase_url: str = ""
     supabase_project_ref: str = ""
     supabase_jwks_url: str = ""
