@@ -80,9 +80,10 @@ class _ConfirmScreenState extends ConsumerState<ConfirmScreen> {
         return;
       }
       unawaited(
-        analytics.track(
-          body.scanId == null ? 'manual_product_saved' : 'label_scan_saved',
-        ),
+        analytics.track('scan_completed', {
+          'method': body.scanId == null ? 'manual' : 'label',
+          'found': true,
+        }),
       );
       _openProduct(id);
     } on LabelFailure catch (f) {

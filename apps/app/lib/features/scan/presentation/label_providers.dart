@@ -129,7 +129,7 @@ class LabelScanController extends Notifier<LabelScanState> {
     bool recovered = false,
   }) async {
     final analytics = ref.read(analyticsProvider);
-    unawaited(analytics.track('label_scan_started'));
+    unawaited(analytics.track('scan_started', {'method': 'label'}));
     state = const LabelScanBusy(LabelPhase.uploading);
     try {
       final out = await ref
@@ -145,11 +145,9 @@ class LabelScanController extends Notifier<LabelScanState> {
       state = LabelScanDrafted(out, recovered: recovered);
     } on LabelFailure catch (f) {
       if (!ref.mounted) return;
-      unawaited(analytics.track('label_scan_failed'));
       state = LabelScanFailed(f);
     } on Object {
       if (!ref.mounted) return;
-      unawaited(analytics.track('label_scan_failed'));
       state = const LabelScanFailed(LabelFailure('internal_error'));
     }
   }

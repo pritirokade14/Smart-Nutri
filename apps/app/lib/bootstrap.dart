@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +20,7 @@ Future<void> bootstrap() async {
 
 Future<void> _start(AppConfig config) async {
   final analytics = await initAnalytics(config);
+  unawaited(analytics.track('app_opened'));
   final prefs = await SharedPreferences.getInstance();
   if (config.missingRequired().isEmpty) {
     await Supabase.initialize(

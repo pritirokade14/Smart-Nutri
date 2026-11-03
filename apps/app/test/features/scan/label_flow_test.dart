@@ -152,8 +152,13 @@ Future<_Visits> _pumpFlow(
         labelLostPhotoProvider.overrideWithValue(lostPhoto ?? () async => null),
         analyticsProvider.overrideWithValue(
           Analytics((event, props) async {
-            events?.add(event);
-            expect(props, isEmpty, reason: 'no values in label events');
+            // Recorded as `event:method`; only allow-listed, valueless props.
+            events?.add('$event:${props['method']}');
+            expect(
+              props.keys.toSet().difference({'method', 'found'}),
+              isEmpty,
+              reason: 'no values in label events',
+            );
           }),
         ),
       ],
@@ -198,7 +203,7 @@ void main() {
       expect(labels.scanBarcodes.single, '8901063201089');
       expect(find.byType(ConfirmScreen), findsOneWidget);
       expect(_fieldText(t, 'name'), 'Marie Biscuit');
-      expect(events, contains('label_scan_started'));
+      expect(events, contains('scan_started:label'));
     });
 
     testWidgets('extraction_failed shows retake + enter manually; no form '
@@ -215,7 +220,7 @@ void main() {
       );
       await t.tap(find.text(en.labelChooseFile));
       await t.pumpAndSettle();
-      expect(events, ['label_scan_started', 'label_scan_failed']);
+      expect(events, ['scan_started:label']);
       expect(find.text(en.errorExtractionFailed), findsOneWidget);
       expect(find.text(en.labelRetake), findsOneWidget);
       expect(find.text(en.labelEnterManually), findsOneWidget);
@@ -302,7 +307,7 @@ void main() {
       // R24: a recovered photo can be of another product; no barcode.
       expect(labels.scanBarcodes, [null]);
       expect(find.byType(ConfirmScreen), findsOneWidget);
-      expect(events, contains('label_scan_started'));
+      expect(events, contains('scan_started:label'));
     });
 
     testWidgets('R24: opened with ?barcode=B, a recovered photo is saved with '
@@ -375,7 +380,7 @@ void main() {
       expect(find.byType(ResultScreen), findsOneWidget);
       expect(find.byType(VerdictCard), findsNWidgets(body.verdicts.length));
       expect(find.text(en.commonDisclaimer), findsOneWidget);
-      expect(events, contains('label_scan_saved'));
+      expect(events, contains('scan_completed:label'));
     });
 
     testWidgets('low_confidence offers retake and saves with the scan_id', (
@@ -430,7 +435,7 @@ void main() {
       await t.pumpAndSettle();
       expect(labels.saved.single.scanId, isNull);
       expect(labels.saved.single.barcode, '12345670');
-      expect(events, ['manual_product_saved']);
+      expect(events, ['scan_completed:manual']);
       expect(labels.saved.single.nutrients.energyKcal, isNull);
     });
 
