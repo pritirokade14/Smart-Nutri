@@ -63,7 +63,7 @@ drafts/<case>.json     # ProductDraft exactly as POST /v1/scans/label returns it
 drafts/expected.json   # {"format_version": 1, "cases": {"<case>": {...}}}
 ```
 
-Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `per_serving_only_no_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`.
+Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `per_serving_only_no_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_and_basis`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`.
 
 **`draft.confirm`** (the hints):
 
@@ -83,8 +83,14 @@ Column = {"printed": bool,            # the draft column of this name holds prin
 **`expected.json` case:** `{"description", "draft": "<case>.json", "extraction": <raw NutritionExtraction>, "saves": [{"actions", "body", "result"}]}`.
 
 - `actions` (all optional): `pick_basis` (`per_100g`/`per_serving`), `pick_category`, `tick` (list of confirm fields), `sodium_unit` (`mg`/`g`), `edit` (`{field: number|null}` on the shown column, or `serving_size_g`). `{}` means the user changed nothing and pressed save: every case keeps one, the "unconfirmed -> stored null" control.
-- **Edit = confirm (R23).** The client adds a field to `confirmed_fields` when the user ticks its box OR edits its value. Editing a field in the chosen column's `confirm_fields`, or ANY edit of `serving_size_g` (typing it when unreadable, or changing it), confirms it with no tick. Editing a field the column does not ask about confirms nothing.
-- **`client_blocks`.** A save carries `"client_blocks": true` when the chosen column has `serving_required` and `serving_size_g` is not in `confirmed_fields`. The client keeps save disabled and must never send it; the recorded `result` is only what the server would do if it did (nulls, or 422 `body.serving_size_g`). The key is absent otherwise. A save with no basis chosen is not marked (the missing basis is the block).
+- **Confirmed (R23, R24).** A field is in `confirmed_fields` when the user ticks its box OR edits its value to something DIFFERENT from the value the draft shows. An edit back to the draft's value (or an edit that types the same number) confirms nothing; a clean "edit then revert" is unconfirmed (conservative). For `serving_size_g` the comparison is against the draft's serving (typing a serving when it was unreadable differs from `null`, so it confirms). Editing a field the chosen column does not ask about confirms nothing. Clients show no confirm boxes until a basis is chosen.
+- **`client_blocks` (R24).** A save carries `"client_blocks": true` when the client must refuse to send it (keeps save disabled). Clients decide blocked vs sent ONLY by this marker. It is set when ANY of these hold; otherwise the key is absent:
+  1. no basis is chosen (`body` has no `basis`);
+  2. no category is chosen (`body` has no `category`; category is required on every save);
+  3. the chosen column has `sodium_unit_required`, sodium is not blank, and no `sodium_unit` is picked;
+  4. the chosen column has `serving_required` and `serving_size_g` is not in `confirmed_fields`.
+
+  The recorded `result` is only what the server would do if the client sent it anyway (the 422 details, or nulls for unconfirmed values).
 - `body` is the `POST /v1/products` body **without `scan_id`** (the client adds it; `barcode` is not sent). Built by this algorithm, which both clients implement:
   1. `basis` = `pick_basis`; else, when `basis_required` is false, the only non-null column; else omitted.
   2. `nutrients` (the nine engine fields plus `added_sugars_g`, `trans_fat_g`) = the draft column named by `basis` if that column is `printed`, else the `shared` column, else all null (with no basis: the shared column, else the first printed one); then `edit`.

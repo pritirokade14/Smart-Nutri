@@ -10,8 +10,8 @@ normaliser (`to_draft`):
                         `draft` (including the server-computed `confirm` hints)
   drafts/expected.json  per case, scripted user actions -> the exact `ProductCreate` body a
                         client must send -> the server's result (stored values or the 422).
-                        An edit counts as a confirmation (R23). `"client_blocks": true` marks a
-                        save the client must refuse to send (serving_required, serving unconfirmed)
+                        An edit to a different value counts as a confirmation (R24).
+                        `"client_blocks": true` marks every save a client must refuse to send
 
 Results come from `products.service.stored_values`, the function `POST /v1/products` runs;
 tests/api/products/test_draft_fixture_saves.py posts every body end to end and checks the
@@ -178,13 +178,19 @@ CASES: dict[str, Case] = {
         [
             {"sodium_unit": "mg", **_TICK_SERVING},
             {"sodium_unit": "g", **_TICK_SERVING},
+            {"pick_basis": "per_serving", "sodium_unit": "g", **_TICK_SERVING},
             {},
         ],
     ),
     "upper_bound_protein_per_100g": Case(
         'Protein printed as "<0.5 g": stored only when ticked.',
         _ex(per_100g=_n(_V, protein_g=0.5), upper_bound_fields=["per_100g.protein_g"]),
-        [{"tick": ["protein_g"]}, {"edit": {"protein_g": 0.4}}, {}],
+        [
+            {"tick": ["protein_g"]},
+            {"edit": {"protein_g": 0.4}},
+            {"edit": {"protein_g": 0.5}},  # back to the draft value: confirms nothing (R24)
+            {},
+        ],
     ),
     "upper_bound_protein_per_serving": Case(
         'Protein "<0.5 g" on the per-serving column: asked whichever column is saved (R19).',
@@ -193,7 +199,13 @@ CASES: dict[str, Case] = {
             serving_size_g=30,
             upper_bound_fields=["per_serving.protein_g"],
         ),
-        [{"tick": ["protein_g", "serving_size_g"]}, _TICK_SERVING, {}],
+        [
+            {"tick": ["protein_g", "serving_size_g"]},
+            _TICK_SERVING,
+            {"pick_basis": "per_serving", "tick": ["protein_g", "serving_size_g"]},
+            {"pick_basis": "per_serving", **_TICK_SERVING},
+            {},
+        ],
     ),
     "category_check": Case(
         "Printed per 100 ml but the guess was not a drink: the user must pick the category.",
@@ -214,6 +226,27 @@ CASES: dict[str, Case] = {
             may_contain_statement=None,
         ),
         [{"pick_category": "beverage"}, {}],
+    ),
+    "category_and_basis": Case(
+        "Basis unreadable and a per-100 ml drink the guess did not call a drink: the user must "
+        "pick BOTH the basis and the category before a save is sent.",
+        _ex(
+            product_name="Lemon Drink",
+            basis_detected="unknown",
+            per_100_unit="ml",
+            per_serving=_n(_S),
+            serving_size_g=30,
+            ingredients=["water", "sugar", "lemon juice"],
+            allergen_statement=None,
+            may_contain_statement=None,
+        ),
+        [
+            {},
+            {"pick_basis": "per_100g"},
+            {"pick_category": "beverage"},
+            {"pick_basis": "per_100g", "pick_category": "beverage"},
+            {"pick_basis": "per_serving", "pick_category": "beverage", **_TICK_SERVING},
+        ],
     ),
     "category_unknown": Case(
         "No category guess: the user must pick the category.",
@@ -271,14 +304,18 @@ def _column(draft: ProductDraft, basis: str | None) -> Any:
 
 
 def client_blocks(draft: ProductDraft, body: dict[str, Any]) -> bool:
-    """R23(b): the client keeps save disabled while the chosen column's `serving_required`
-    is true and the serving size is not confirmed (ticked or edited)."""
-    column = _column(draft, body.get("basis"))
-    return bool(
-        column is not None
-        and column.serving_required
-        and "serving_size_g" not in body["confirmed_fields"]
-    )
+    """R24(4): the save a client must refuse to send (it keeps save disabled). True when no
+    basis is chosen, no category is chosen, the chosen column needs a sodium unit (sodium not
+    blank) and none is picked, or the column is `serving_required` and the serving size is not
+    confirmed (ticked, or edited to a different value)."""
+    if "basis" not in body or "category" not in body:
+        return True
+    column = _column(draft, body["basis"])
+    if column.sodium_unit_required and (
+        body["nutrients"]["sodium_mg"] is not None and body["sodium_unit"] is None
+    ):
+        return True
+    return bool(column.serving_required and "serving_size_g" not in body["confirmed_fields"])
 
 
 def build_body(draft: ProductDraft, actions: dict[str, Any]) -> dict[str, Any]:
@@ -306,7 +343,13 @@ def build_body(draft: ProductDraft, actions: dict[str, Any]) -> dict[str, Any]:
     # R23(a): an edit is a confirmation. Editing a field the chosen column asks to confirm, or
     # typing/editing the serving size at all, confirms it without a tick.
     asked = set(column_hints.confirm_fields) if (column_hints := _column(draft, basis)) else set()
-    edited_user_fields = {f for f in actions.get("edit", {}) if f in asked | {"serving_size_g"}}
+    # R24(5): only an edit to a value DIFFERENT from the draft's confirms (edit back = nothing).
+    shown = source_column(draft, basis) | {"serving_size_g": draft.serving_size_g}
+    edited_user_fields = {
+        f
+        for f, v in actions.get("edit", {}).items()
+        if f in asked | {"serving_size_g"} and v != shown[f]
+    }
     confirmed = tick | edited_user_fields
     body: dict[str, Any] = {
         "name": draft.name,

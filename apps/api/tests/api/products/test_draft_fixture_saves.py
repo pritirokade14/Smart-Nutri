@@ -246,4 +246,38 @@ async def test_no_category_on_a_category_warning_is_a_422(auth_client, db_sessio
     assert "category" not in body
     r, rec = await _post(auth_client, db_session, name, body)
     assert r.status_code == 422 and rec is None
-    assert r.json()["error"]["details"]["fields"] == ["body.category"]
+    fields = r.json()["error"]["details"]["fields"]
+    assert fields == (
+        ["body.category", "body.basis"] if draft.confirm.basis_required else ["body.category"]
+    )
+
+
+BLOCKED = [
+    pytest.param(name, i, id=f"{name}-{i}")
+    for name, case in EXPECTED.items()
+    for i, save in enumerate(case["saves"])
+    if save.get("client_blocks")
+]
+
+
+@pytest.mark.parametrize(("name", "index"), BLOCKED)
+async def test_a_client_blocked_save_sent_anyway_never_stores_an_unconfirmed_value(
+    auth_client, db_session, name, index
+):
+    """R24(4): `client_blocks` saves are refused client-side; if sent anyway the server answers
+    422 or stores nothing for what the user never confirmed."""
+    draft = _draft(name)
+    body = EXPECTED[name]["saves"][index]["body"]
+    r, rec = await _post(auth_client, db_session, name, body)
+    if r.status_code == 422:
+        assert rec is None
+        return
+    assert r.status_code == 201, r.text
+    column = getattr(draft.confirm.columns, body["basis"])
+    confirmed = set(body["confirmed_fields"])
+    if column.serving_required and "serving_size_g" not in confirmed:
+        assert all(v is None for v in rec.per_100g.values())
+        assert rec.serving_size_g is None
+    for field in column.confirm_fields:
+        if field != "serving_size_g" and field not in confirmed:
+            assert rec.per_100g[field] is None

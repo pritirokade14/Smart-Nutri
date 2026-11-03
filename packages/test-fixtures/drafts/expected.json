@@ -334,6 +334,7 @@
             "sodium_unit": null,
             "veg_mark": "veg"
           },
+          "client_blocks": true,
           "result": {
             "error": {
               "code": "validation_error",
@@ -607,6 +608,7 @@
             "sodium_unit": null,
             "veg_mark": "veg"
           },
+          "client_blocks": true,
           "result": {
             "error": {
               "code": "validation_error",
@@ -615,6 +617,319 @@
               ]
             },
             "status": 422
+          }
+        }
+      ]
+    },
+    "category_and_basis": {
+      "description": "Basis unreadable and a per-100 ml drink the guess did not call a drink: the user must pick BOTH the basis and the category before a save is sent.",
+      "draft": "category_and_basis.json",
+      "extraction": {
+        "allergen_statement": null,
+        "basis_detected": "unknown",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "water",
+          "sugar",
+          "lemon juice"
+        ],
+        "may_contain_statement": null,
+        "per_100_unit": "ml",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": {
+          "added_sugars_g": 1.2,
+          "carbs_g": 6.0,
+          "energy_kcal": 45.0,
+          "energy_kj": null,
+          "fat_g": 1.5,
+          "fiber_g": 0.3,
+          "protein_g": 0.9,
+          "salt_g": 0.15,
+          "sat_fat_g": 0.6,
+          "sodium_mg": 60.0,
+          "sodium_unit": "mg",
+          "sugars_g": 3.0,
+          "trans_fat_g": 0.03,
+          "trans_fat_unit": null
+        },
+        "product_name": "Lemon Drink",
+        "serving_size_g": 30.0,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": null,
+            "brand": "Acme Foods",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.category",
+                "body.basis"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_100g"
+          },
+          "body": {
+            "allergen_statement": null,
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.category"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {
+            "pick_category": "beverage"
+          },
+          "body": {
+            "allergen_statement": null,
+            "brand": "Acme Foods",
+            "category": "beverage",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.basis"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_100g",
+            "pick_category": "beverage"
+          },
+          "body": {
+            "allergen_statement": null,
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "beverage",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "beverage",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "pick_category": "beverage",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": null,
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "beverage",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "beverage",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
           }
         }
       ]
@@ -750,6 +1065,7 @@
             "sodium_unit": null,
             "veg_mark": "veg"
           },
+          "client_blocks": true,
           "result": {
             "error": {
               "code": "validation_error",
@@ -896,6 +1212,7 @@
             "sodium_unit": null,
             "veg_mark": "veg"
           },
+          "client_blocks": true,
           "result": {
             "error": {
               "code": "validation_error",
@@ -1270,6 +1587,7 @@
             "sodium_unit": null,
             "veg_mark": "veg"
           },
+          "client_blocks": true,
           "result": {
             "error": {
               "code": "validation_error",
@@ -2256,6 +2574,7 @@
             "sodium_unit": null,
             "veg_mark": "veg"
           },
+          "client_blocks": true,
           "result": {
             "error": {
               "code": "validation_error",
@@ -2441,6 +2760,70 @@
           }
         },
         {
+          "actions": {
+            "pick_basis": "per_serving",
+            "sodium_unit": "g",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 0.06,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": "g",
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
           "actions": {},
           "body": {
             "allergen_statement": "Contains wheat",
@@ -2474,6 +2857,7 @@
             "sodium_unit": null,
             "veg_mark": "veg"
           },
+          "client_blocks": true,
           "result": {
             "error": {
               "code": "validation_error",
@@ -2645,6 +3029,66 @@
                 "fat_g": 5.0,
                 "fiber_g": 1.0,
                 "protein_g": 0.4,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {
+            "edit": {
+              "protein_g": 0.5
+            }
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 0.5,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": null,
                 "salt_g": 0.5,
                 "sat_fat_g": 2.0,
                 "sodium_mg": 200.0,
@@ -2872,6 +3316,134 @@
               "sodium_mg": 200.0,
               "sugars_g": 10.0,
               "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": null,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "tick": [
+              "protein_g",
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "protein_g",
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.5,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 1.6666666666666667,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.5,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
             },
             "serving_size_g": 30.0,
             "sodium_unit": null,
