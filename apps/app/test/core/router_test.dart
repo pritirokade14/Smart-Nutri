@@ -8,6 +8,7 @@ import 'package:smartnutri_ai/core/l10n/app_localizations.dart';
 import 'package:smartnutri_ai/core/network/api_client.dart';
 import 'package:smartnutri_ai/core/router/app_router.dart';
 import 'package:smartnutri_ai/features/auth/data/auth_repository.dart';
+import 'package:smartnutri_ai/features/auth/presentation/email_otp_screen.dart';
 import 'package:smartnutri_ai/features/auth/presentation/phone_otp_screen.dart';
 import 'package:smartnutri_ai/features/auth/presentation/sign_in_screen.dart';
 import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
@@ -32,7 +33,7 @@ class _FakeApi implements SmartNutriApiClient {
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
 
-AppConfig _cfg(bool phone) => AppConfig(
+AppConfig _cfg(bool phone, bool email) => AppConfig(
   environment: 'test',
   apiBaseUrl: 'http://x',
   supabaseUrl: 'http://s',
@@ -41,23 +42,28 @@ AppConfig _cfg(bool phone) => AppConfig(
   sentryDsn: '',
   posthogKey: '',
   featurePhoneOtp: phone,
+  featureEmailOtp: email,
 );
 
-Widget _app(FakeAuthRepository repo, MeClient me, {bool phone = false}) =>
-    ProviderScope(
-      overrides: [
-        appConfigProvider.overrideWithValue(_cfg(phone)),
-        authRepositoryProvider.overrideWithValue(repo),
-        apiClientProvider.overrideWithValue(_FakeApi(me)),
-      ],
-      child: Consumer(
-        builder: (context, ref, _) => MaterialApp.router(
-          routerConfig: ref.watch(routerProvider),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-        ),
-      ),
-    );
+Widget _app(
+  FakeAuthRepository repo,
+  MeClient me, {
+  bool phone = false,
+  bool email = false,
+}) => ProviderScope(
+  overrides: [
+    appConfigProvider.overrideWithValue(_cfg(phone, email)),
+    authRepositoryProvider.overrideWithValue(repo),
+    apiClientProvider.overrideWithValue(_FakeApi(me)),
+  ],
+  child: Consumer(
+    builder: (context, ref, _) => MaterialApp.router(
+      routerConfig: ref.watch(routerProvider),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+    ),
+  ),
+);
 
 MeOut _me() => MeOut(
   createdAt: DateTime(2026),
@@ -132,6 +138,27 @@ void main() {
     await tester.tap(find.text(l10n.authSignOut));
     await tester.pumpAndSettle();
     expect(find.byType(SignInScreen), findsOneWidget);
+  });
+
+  testWidgets('email route absent when flag off', (tester) async {
+    await tester.pumpWidget(
+      _app(FakeAuthRepository(), _FakeMe(() async => _me())),
+    );
+    await tester.pumpAndSettle();
+    GoRouter.of(tester.element(find.byType(SignInScreen))).go('/sign-in/email');
+    await tester.pumpAndSettle();
+    expect(find.byType(EmailOtpScreen), findsNothing);
+    expect(find.byType(HomeScreen), findsNothing);
+  });
+
+  testWidgets('email route present when flag on', (tester) async {
+    await tester.pumpWidget(
+      _app(FakeAuthRepository(), _FakeMe(() async => _me()), email: true),
+    );
+    await tester.pumpAndSettle();
+    GoRouter.of(tester.element(find.byType(SignInScreen))).go('/sign-in/email');
+    await tester.pumpAndSettle();
+    expect(find.byType(EmailOtpScreen), findsOneWidget);
   });
 
   testWidgets('phone route absent when flag off', (tester) async {

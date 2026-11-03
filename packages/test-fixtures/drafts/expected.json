@@ -1,0 +1,3534 @@
+{
+  "cases": {
+    "basis_mismatch_both_columns": {
+      "description": "Basis unreadable, both columns printed: the user picks the basis; each column is shown on its own.",
+      "draft": "basis_mismatch_both_columns.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "unknown",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": {
+          "added_sugars_g": 1.2,
+          "carbs_g": 6.0,
+          "energy_kcal": 45.0,
+          "energy_kj": null,
+          "fat_g": 1.5,
+          "fiber_g": 0.3,
+          "protein_g": 0.9,
+          "salt_g": 0.15,
+          "sat_fat_g": 0.6,
+          "sodium_mg": 60.0,
+          "sodium_unit": "mg",
+          "sugars_g": 3.0,
+          "trans_fat_g": 0.03,
+          "trans_fat_unit": null
+        },
+        "product_name": "Masala Crunch",
+        "serving_size_g": 30.0,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "pick_basis": "per_100g",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_100g"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": null,
+                "carbs_g": null,
+                "energy_kcal": null,
+                "fat_g": null,
+                "fiber_g": null,
+                "protein_g": null,
+                "salt_g": null,
+                "sat_fat_g": null,
+                "sodium_mg": null,
+                "sugars_g": null,
+                "trans_fat_g": null
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.basis"
+              ]
+            },
+            "status": 422
+          }
+        }
+      ]
+    },
+    "basis_mismatch_one_column": {
+      "description": "Label says per serving but only the per-100 g object has values: one shared column, its basis is the doubt.",
+      "draft": "basis_mismatch_one_column.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_serving",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "Masala Crunch",
+        "serving_size_g": 30.0,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "pick_basis": "per_100g",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 13.333333333333334,
+                "carbs_g": 66.66666666666667,
+                "energy_kcal": 500.0,
+                "fat_g": 16.666666666666668,
+                "fiber_g": 3.3333333333333335,
+                "protein_g": 10.0,
+                "salt_g": 1.6666666666666667,
+                "sat_fat_g": 6.666666666666667,
+                "sodium_mg": 666.6666666666666,
+                "sugars_g": 33.333333333333336,
+                "trans_fat_g": 0.3333333333333333
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": null,
+                "carbs_g": null,
+                "energy_kcal": null,
+                "fat_g": null,
+                "fiber_g": null,
+                "protein_g": null,
+                "salt_g": null,
+                "sat_fat_g": null,
+                "sodium_mg": null,
+                "sugars_g": null,
+                "trans_fat_g": null
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.basis"
+              ]
+            },
+            "status": 422
+          }
+        }
+      ]
+    },
+    "category_and_basis": {
+      "description": "Basis unreadable and a per-100 ml drink the guess did not call a drink: the user must pick BOTH the basis and the category before a save is sent.",
+      "draft": "category_and_basis.json",
+      "extraction": {
+        "allergen_statement": null,
+        "basis_detected": "unknown",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "water",
+          "sugar",
+          "lemon juice"
+        ],
+        "may_contain_statement": null,
+        "per_100_unit": "ml",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": {
+          "added_sugars_g": 1.2,
+          "carbs_g": 6.0,
+          "energy_kcal": 45.0,
+          "energy_kj": null,
+          "fat_g": 1.5,
+          "fiber_g": 0.3,
+          "protein_g": 0.9,
+          "salt_g": 0.15,
+          "sat_fat_g": 0.6,
+          "sodium_mg": 60.0,
+          "sodium_unit": "mg",
+          "sugars_g": 3.0,
+          "trans_fat_g": 0.03,
+          "trans_fat_unit": null
+        },
+        "product_name": "Lemon Drink",
+        "serving_size_g": 30.0,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": null,
+            "brand": "Acme Foods",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.category",
+                "body.basis"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_100g"
+          },
+          "body": {
+            "allergen_statement": null,
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.category"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {
+            "pick_category": "beverage"
+          },
+          "body": {
+            "allergen_statement": null,
+            "brand": "Acme Foods",
+            "category": "beverage",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.basis"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_100g",
+            "pick_category": "beverage"
+          },
+          "body": {
+            "allergen_statement": null,
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "beverage",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "beverage",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "pick_category": "beverage",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": null,
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "beverage",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "beverage",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        }
+      ]
+    },
+    "category_check": {
+      "description": "Printed per 100 ml but the guess was not a drink: the user must pick the category.",
+      "draft": "category_check.json",
+      "extraction": {
+        "allergen_statement": null,
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "water",
+          "sugar",
+          "lemon juice"
+        ],
+        "may_contain_statement": null,
+        "per_100_unit": "ml",
+        "per_100g": {
+          "added_sugars_g": null,
+          "carbs_g": 10.6,
+          "energy_kcal": 44.0,
+          "energy_kj": null,
+          "fat_g": 0.0,
+          "fiber_g": null,
+          "protein_g": 0.0,
+          "salt_g": null,
+          "sat_fat_g": null,
+          "sodium_mg": 10.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.6,
+          "trans_fat_g": null,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "Lemon Drink",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "pick_category": "beverage"
+          },
+          "body": {
+            "allergen_statement": null,
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "beverage",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": null,
+              "carbs_g": 10.6,
+              "energy_kcal": 44.0,
+              "fat_g": 0.0,
+              "fiber_g": null,
+              "protein_g": 0.0,
+              "salt_g": null,
+              "sat_fat_g": null,
+              "sodium_mg": 10.0,
+              "sugars_g": 10.6,
+              "trans_fat_g": null
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "beverage",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": null,
+                "carbs_g": 10.6,
+                "energy_kcal": 44.0,
+                "fat_g": 0.0,
+                "fiber_g": null,
+                "protein_g": 0.0,
+                "salt_g": null,
+                "sat_fat_g": null,
+                "sodium_mg": 10.0,
+                "sugars_g": 10.6,
+                "trans_fat_g": null
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": null,
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "water",
+              "sugar",
+              "lemon juice"
+            ],
+            "may_contain_statement": null,
+            "name": "Lemon Drink",
+            "nutrients": {
+              "added_sugars_g": null,
+              "carbs_g": 10.6,
+              "energy_kcal": 44.0,
+              "fat_g": 0.0,
+              "fiber_g": null,
+              "protein_g": 0.0,
+              "salt_g": null,
+              "sat_fat_g": null,
+              "sodium_mg": 10.0,
+              "sugars_g": 10.6,
+              "trans_fat_g": null
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.category"
+              ]
+            },
+            "status": 422
+          }
+        }
+      ]
+    },
+    "category_unknown": {
+      "description": "No category guess: the user must pick the category.",
+      "draft": "category_unknown.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": null,
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "Masala Crunch",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "pick_category": "general"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.category"
+              ]
+            },
+            "status": 422
+          }
+        }
+      ]
+    },
+    "clean": {
+      "description": "Per-100 g label, every unit printed: nothing to ask.",
+      "draft": "clean.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "Masala Crunch",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        }
+      ]
+    },
+    "derived_basis_mismatch": {
+      "description": "Label says per 100 g but only per-serving values: derived and in doubt; the per-serving column is shared.",
+      "draft": "derived_basis_mismatch.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": null,
+        "per_serving": {
+          "added_sugars_g": 1.2,
+          "carbs_g": 6.0,
+          "energy_kcal": 45.0,
+          "energy_kj": null,
+          "fat_g": 1.5,
+          "fiber_g": 0.3,
+          "protein_g": 0.9,
+          "salt_g": 0.15,
+          "sat_fat_g": 0.6,
+          "sodium_mg": 60.0,
+          "sodium_unit": "mg",
+          "sugars_g": 3.0,
+          "trans_fat_g": 0.03,
+          "trans_fat_unit": null
+        },
+        "product_name": "Masala Crunch",
+        "serving_size_g": 30.0,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_100g",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 1.2,
+                "carbs_g": 6.0,
+                "energy_kcal": 45.0,
+                "fat_g": 1.5,
+                "fiber_g": 0.3,
+                "protein_g": 0.9,
+                "salt_g": 0.15,
+                "sat_fat_g": 0.6,
+                "sodium_mg": 60.0,
+                "sugars_g": 3.0,
+                "trans_fat_g": 0.03
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_100g"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": null,
+                "carbs_g": null,
+                "energy_kcal": null,
+                "fat_g": null,
+                "fiber_g": null,
+                "protein_g": null,
+                "salt_g": null,
+                "sat_fat_g": null,
+                "sodium_mg": null,
+                "sugars_g": null,
+                "trans_fat_g": null
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.basis"
+              ]
+            },
+            "status": 422
+          }
+        }
+      ]
+    },
+    "derived_from_serving": {
+      "description": "Only a per-serving column with a readable serving: per 100 g is derived, so the serving size must be ticked for anything to be stored.",
+      "draft": "derived_from_serving.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_serving",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": null,
+        "per_serving": {
+          "added_sugars_g": 1.2,
+          "carbs_g": 6.0,
+          "energy_kcal": 45.0,
+          "energy_kj": null,
+          "fat_g": 1.5,
+          "fiber_g": 0.3,
+          "protein_g": 0.9,
+          "salt_g": 0.15,
+          "sat_fat_g": 0.6,
+          "sodium_mg": 60.0,
+          "sodium_unit": "mg",
+          "sugars_g": 3.0,
+          "trans_fat_g": 0.03,
+          "trans_fat_unit": null
+        },
+        "product_name": "Masala Crunch",
+        "serving_size_g": 30.0,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": null,
+                "carbs_g": null,
+                "energy_kcal": null,
+                "fat_g": null,
+                "fiber_g": null,
+                "protein_g": null,
+                "salt_g": null,
+                "sat_fat_g": null,
+                "sodium_mg": null,
+                "sugars_g": null,
+                "trans_fat_g": null
+              },
+              "serving_size_g": null
+            }
+          }
+        }
+      ]
+    },
+    "devanagari": {
+      "description": "Hindi ingredient and allergen text: kept in its script, nothing extra to ask.",
+      "draft": "devanagari.json",
+      "extraction": {
+        "allergen_statement": "इसमें मूंगफली है",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "बेसन",
+          "मूंगफली",
+          "नमक"
+        ],
+        "may_contain_statement": null,
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "नमकीन मिक्सचर",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "इसमें मूंगफली है",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "बेसन",
+              "मूंगफली",
+              "नमक"
+            ],
+            "may_contain_statement": null,
+            "name": "नमकीन मिक्सचर",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        }
+      ]
+    },
+    "implausible_value": {
+      "description": "More sugar than carbohydrate: the save is rejected until the user fixes it.",
+      "draft": "implausible_value.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 40.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "Masala Crunch",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 40.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "error": {
+              "code": "implausible_value",
+              "fields": [
+                "carbs_g",
+                "sugars_g"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {
+            "edit": {
+              "sugars_g": 10.0
+            }
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        }
+      ]
+    },
+    "low_confidence": {
+      "description": "Low extraction confidence: no extra question; the stored confidence stays low.",
+      "draft": "low_confidence.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.5,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "Masala Crunch",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.5,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        }
+      ]
+    },
+    "per_serving_only_no_serving": {
+      "description": "Only per-serving values and no readable serving size: only the per-serving column is offered, never an empty per-100 g one; the user types the serving size and ticks it.",
+      "draft": "per_serving_only_no_serving.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_serving",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": null,
+        "per_serving": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 9.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "product_name": "Masala Crunch",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "edit": {
+              "serving_size_g": 30.0,
+              "sugars_g": 9.0
+            },
+            "pick_basis": "per_serving",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 9.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 13.333333333333334,
+                "carbs_g": 66.66666666666667,
+                "energy_kcal": 500.0,
+                "fat_g": 16.666666666666668,
+                "fiber_g": 3.3333333333333335,
+                "protein_g": 10.0,
+                "salt_g": 1.6666666666666667,
+                "sat_fat_g": 6.666666666666667,
+                "sodium_mg": 666.6666666666666,
+                "sugars_g": 30.0,
+                "trans_fat_g": 0.3333333333333333
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "edit": {
+              "serving_size_g": 30.0
+            },
+            "pick_basis": "per_serving"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 9.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 13.333333333333334,
+                "carbs_g": 66.66666666666667,
+                "energy_kcal": 500.0,
+                "fat_g": 16.666666666666668,
+                "fiber_g": 3.3333333333333335,
+                "protein_g": 10.0,
+                "salt_g": 1.6666666666666667,
+                "sat_fat_g": 6.666666666666667,
+                "sodium_mg": 666.6666666666666,
+                "sugars_g": 30.0,
+                "trans_fat_g": 0.3333333333333333
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 9.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.serving_size_g"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 9.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.serving_size_g"
+              ]
+            },
+            "status": 422
+          }
+        }
+      ]
+    },
+    "unit_unconfirmed_sodium_per_100g": {
+      "description": "Sodium printed as \"0.4\" with no unit: the user picks mg or g (no tick).",
+      "draft": "unit_unconfirmed_sodium_per_100g.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 1.0,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 0.4,
+          "sodium_unit": null,
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "Masala Crunch",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "sodium_unit": "g"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 1.0,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 0.4,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": "g",
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 1.0,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 400.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {
+            "sodium_unit": "mg"
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 1.0,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 0.4,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": "mg",
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 1.0,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 0.4,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 1.0,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 0.4,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.sodium_unit"
+              ]
+            },
+            "status": 422
+          }
+        }
+      ]
+    },
+    "unit_unconfirmed_sodium_per_serving": {
+      "description": "Unit-less sodium on the per-serving column only: the unit is still required when saving the per-100 g column (R19).",
+      "draft": "unit_unconfirmed_sodium_per_serving.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": {
+          "added_sugars_g": 1.2,
+          "carbs_g": 6.0,
+          "energy_kcal": 45.0,
+          "energy_kj": null,
+          "fat_g": 1.5,
+          "fiber_g": 0.3,
+          "protein_g": 0.9,
+          "salt_g": 0.15,
+          "sat_fat_g": 0.6,
+          "sodium_mg": 0.06,
+          "sodium_unit": null,
+          "sugars_g": 3.0,
+          "trans_fat_g": 0.03,
+          "trans_fat_unit": null
+        },
+        "product_name": "Masala Crunch",
+        "serving_size_g": 30.0,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "sodium_unit": "mg",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": "mg",
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "sodium_unit": "g",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": "g",
+            "veg_mark": "veg"
+          },
+          "result": {
+            "error": {
+              "code": "implausible_value",
+              "fields": [
+                "sodium_mg"
+              ]
+            },
+            "status": 422
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "sodium_unit": "g",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.9,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 0.06,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": "g",
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "client_blocks": true,
+          "result": {
+            "error": {
+              "code": "validation_error",
+              "fields": [
+                "body.sodium_unit"
+              ]
+            },
+            "status": 422
+          }
+        }
+      ]
+    },
+    "upper_bound_protein_per_100g": {
+      "description": "Protein printed as \"<0.5 g\": stored only when ticked.",
+      "draft": "upper_bound_protein_per_100g.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 0.5,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": null,
+        "product_name": "Masala Crunch",
+        "serving_size_g": null,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [
+          "per_100g.protein_g"
+        ],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "tick": [
+              "protein_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "protein_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 0.5,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 0.5,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {
+            "edit": {
+              "protein_g": 0.4
+            }
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "protein_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 0.4,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 0.4,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {
+            "edit": {
+              "protein_g": 0.5
+            }
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 0.5,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": null,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 0.5,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": null,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": null,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        }
+      ]
+    },
+    "upper_bound_protein_per_serving": {
+      "description": "Protein \"<0.5 g\" on the per-serving column: asked whichever column is saved (R19).",
+      "draft": "upper_bound_protein_per_serving.json",
+      "extraction": {
+        "allergen_statement": "Contains wheat",
+        "basis_detected": "per_100g",
+        "brand": "Acme Foods",
+        "category_guess": "general",
+        "claims": [],
+        "confidence": 0.9,
+        "ingredients": [
+          "wheat flour",
+          "edible vegetable oil (palm)",
+          "sugar",
+          "salt"
+        ],
+        "may_contain_statement": "May contain milk",
+        "per_100_unit": "g",
+        "per_100g": {
+          "added_sugars_g": 4.0,
+          "carbs_g": 20.0,
+          "energy_kcal": 150.0,
+          "energy_kj": null,
+          "fat_g": 5.0,
+          "fiber_g": 1.0,
+          "protein_g": 3.0,
+          "salt_g": 0.5,
+          "sat_fat_g": 2.0,
+          "sodium_mg": 200.0,
+          "sodium_unit": "mg",
+          "sugars_g": 10.0,
+          "trans_fat_g": 0.1,
+          "trans_fat_unit": null
+        },
+        "per_serving": {
+          "added_sugars_g": 1.2,
+          "carbs_g": 6.0,
+          "energy_kcal": 45.0,
+          "energy_kj": null,
+          "fat_g": 1.5,
+          "fiber_g": 0.3,
+          "protein_g": 0.5,
+          "salt_g": 0.15,
+          "sat_fat_g": 0.6,
+          "sodium_mg": 60.0,
+          "sodium_unit": "mg",
+          "sugars_g": 3.0,
+          "trans_fat_g": 0.03,
+          "trans_fat_unit": null
+        },
+        "product_name": "Masala Crunch",
+        "serving_size_g": 30.0,
+        "serving_size_unit": null,
+        "unreadable_fields": [],
+        "upper_bound_fields": [
+          "per_serving.protein_g"
+        ],
+        "veg_mark": "veg"
+      },
+      "saves": [
+        {
+          "actions": {
+            "tick": [
+              "protein_g",
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "protein_g",
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 3.0,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": null,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "tick": [
+              "protein_g",
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "protein_g",
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.5,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": 1.6666666666666667,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {
+            "pick_basis": "per_serving",
+            "tick": [
+              "serving_size_g"
+            ]
+          },
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_serving",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [
+              "serving_size_g"
+            ],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 1.2,
+              "carbs_g": 6.0,
+              "energy_kcal": 45.0,
+              "fat_g": 1.5,
+              "fiber_g": 0.3,
+              "protein_g": 0.5,
+              "salt_g": 0.15,
+              "sat_fat_g": 0.6,
+              "sodium_mg": 60.0,
+              "sugars_g": 3.0,
+              "trans_fat_g": 0.03
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": null,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": 30.0
+            }
+          }
+        },
+        {
+          "actions": {},
+          "body": {
+            "allergen_statement": "Contains wheat",
+            "basis": "per_100g",
+            "brand": "Acme Foods",
+            "category": "general",
+            "claims": [],
+            "confirmed_fields": [],
+            "ingredients": [
+              "wheat flour",
+              "edible vegetable oil (palm)",
+              "sugar",
+              "salt"
+            ],
+            "may_contain_statement": "May contain milk",
+            "name": "Masala Crunch",
+            "nutrients": {
+              "added_sugars_g": 4.0,
+              "carbs_g": 20.0,
+              "energy_kcal": 150.0,
+              "fat_g": 5.0,
+              "fiber_g": 1.0,
+              "protein_g": 3.0,
+              "salt_g": 0.5,
+              "sat_fat_g": 2.0,
+              "sodium_mg": 200.0,
+              "sugars_g": 10.0,
+              "trans_fat_g": 0.1
+            },
+            "serving_size_g": 30.0,
+            "sodium_unit": null,
+            "veg_mark": "veg"
+          },
+          "result": {
+            "status": 201,
+            "stored": {
+              "category": "general",
+              "extraction_confidence": 0.9,
+              "per_100g": {
+                "added_sugars_g": 4.0,
+                "carbs_g": 20.0,
+                "energy_kcal": 150.0,
+                "fat_g": 5.0,
+                "fiber_g": 1.0,
+                "protein_g": null,
+                "salt_g": 0.5,
+                "sat_fat_g": 2.0,
+                "sodium_mg": 200.0,
+                "sugars_g": 10.0,
+                "trans_fat_g": 0.1
+              },
+              "serving_size_g": null
+            }
+          }
+        }
+      ]
+    }
+  },
+  "format_version": 1
+}

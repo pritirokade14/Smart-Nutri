@@ -51,7 +51,14 @@ The Android ID can never change after the first Play Store upload. The prototype
    - Redirect URLs: add `http://localhost:3000/**` and `com.smartnutri.app://login-callback`
 6. **Authentication → Providers → Email:** enabled. Allow OTP / magic link.
 7. **Authentication → Providers → Google:** enable it after step 3.5, and paste in the Google client ID and secret.
-8. Create the production project, `smartnutri-prod` (Mumbai, **Pro plan**), only at launch (day 13–15).
+8. **Label photo storage** (Storage → New bucket):
+   - Name: `label-photos`. Private (not public). File size limit: **8 MiB**. Allowed MIME types: `image/jpeg`, `image/png`, `image/webp`.
+   - Add **no storage policies**. The API uses the secret key server-side to make signed upload URLs and to read the photo.
+   - Dev: created in the dashboard on 2026-11-03.
+   - Prod: create it the same way at launch (Plan 8).
+   - Local: the bucket comes from `supabase/config.toml`.
+   - Deleting photos after 30 days is planned for Plan 8 (a retention job). It is **not done yet**.
+9. Create the production project, `smartnutri-prod` (Mumbai, **Pro plan**), only at launch (day 13–15).
 
 ---
 
@@ -160,6 +167,25 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
   1. Call it from a machine with a known egress IP, with `-H 'X-Forwarded-For: 203.0.113.9'`.
   2. Inspect the new key in `rate_limit_counters`.
   3. Your own egress IP: correct. `203.0.113.9`: the header is spoofable, lower the hops. A Google or `169.254.*` address: everyone shares one bucket, raise the hops.
+
+## Email sign-in codes (Google Workspace SMTP — after the domain)
+
+Email sign-in is hidden (`NEXT_PUBLIC_FEATURE_EMAIL_OTP=false` on web, `FEATURE_EMAIL_OTP=false` on Android) because the built-in Supabase email sender cannot send the 6-digit code the app expects: editing the template needs custom SMTP. Until then the built-in sender only delivers to Supabase project team members and sends links, not codes. Use Google or phone sign-in meanwhile.
+
+Once you own a domain:
+
+1. Buy the domain.
+2. Create Google Workspace Business Starter with a `no-reply@<domain>` user (or an alias on an existing user).
+3. Turn on 2-Step Verification for that user, then create an App Password for it.
+4. Supabase → Authentication → Emails → SMTP Settings → Set up SMTP:
+   - Host `smtp.gmail.com`, port `465`.
+   - Username: the Workspace address. Password: the App Password.
+   - Sender email `no-reply@<domain>`, sender name `SmartNutri`.
+5. Supabase → Authentication → Emails → Templates → "Magic link or OTP": paste `supabase/templates/magic_link.html` and set the subject to `Your SmartNutri sign-in code`.
+6. GitHub repo → Settings → Secrets and variables → Actions → Variables: set `NEXT_PUBLIC_FEATURE_EMAIL_OTP=true`. For Android, build with `FEATURE_EMAIL_OTP=true`.
+7. Redeploy (`just deploy-dev`) and ship a new Android build.
+
+Note: Google Workspace limits sending to about 2,000 emails per day per user. That is fine for launch; move to a transactional provider (for example Resend or SES) if sign-in volume grows.
 
 ## Schema changes: migrate, then merge
 

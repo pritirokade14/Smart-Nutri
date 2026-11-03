@@ -12,6 +12,7 @@ class AppConfig {
     required this.sentryDsn,
     required this.posthogKey,
     required this.featurePhoneOtp,
+    this.featureEmailOtp = false,
   });
 
   const AppConfig.fromEnvironment()
@@ -27,7 +28,11 @@ class AppConfig {
       googleWebClientId = const String.fromEnvironment('GOOGLE_WEB_CLIENT_ID'),
       sentryDsn = const String.fromEnvironment('SENTRY_DSN'),
       posthogKey = const String.fromEnvironment('POSTHOG_KEY'),
-      featurePhoneOtp = const bool.fromEnvironment('FEATURE_PHONE_OTP');
+      featurePhoneOtp = const bool.fromEnvironment('FEATURE_PHONE_OTP'),
+      featureEmailOtp = const bool.fromEnvironment(
+        'FEATURE_EMAIL_OTP',
+        defaultValue: false,
+      );
 
   final String environment;
   final String apiBaseUrl;
@@ -37,6 +42,7 @@ class AppConfig {
   final String sentryDsn;
   final String posthogKey;
   final bool featurePhoneOtp;
+  final bool featureEmailOtp;
 
   /// Names of required keys that are empty.
   List<String> missingRequired() => [

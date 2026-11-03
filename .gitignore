@@ -64,3 +64,6 @@ Thumbs.db
 
 # google-github-actions/auth credential files
 gha-creds-*.json
+
+# Raw model output from label evals (contains label text)
+apps/api/tests/evals/labels/raw/

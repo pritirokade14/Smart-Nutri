@@ -182,6 +182,155 @@ class AppLocalizationsHi extends AppLocalizations {
   String get conditionWeightLoss => 'वज़न घटाना';
 
   @override
+  String get confirmAddIngredient => 'सामग्री जोड़ें';
+
+  @override
+  String get confirmAllergenStatement => 'एलर्जी संबंधी कथन';
+
+  @override
+  String get confirmBasis => 'पैक पर मान हैं';
+
+  @override
+  String get confirmBasisOptionPer100g => 'प्रति 100 g';
+
+  @override
+  String get confirmBasisOptionPerServing => 'प्रति सर्विंग';
+
+  @override
+  String get confirmBrand => 'ब्रांड';
+
+  @override
+  String get confirmCategory => 'उत्पाद का प्रकार';
+
+  @override
+  String get confirmCategoryOptionBeverage => 'पेय';
+
+  @override
+  String get confirmCategoryOptionCheese => 'चीज़';
+
+  @override
+  String get confirmCategoryOptionFat => 'तेल या वसा';
+
+  @override
+  String get confirmCategoryOptionGeneral => 'खाद्य पदार्थ';
+
+  @override
+  String get confirmCategoryOptionWater => 'पैक्ड पानी';
+
+  @override
+  String get confirmChooseRequired => 'आगे बढ़ने के लिए एक चुनें';
+
+  @override
+  String get confirmClaims => 'पैक पर किए गए दावे';
+
+  @override
+  String get confirmClearStatementConfirm =>
+      'मैंने पैक देख लिया है: यह कथन उस पर छपा नहीं है';
+
+  @override
+  String get confirmConfirmValue => 'पैक से मेल खाता है';
+
+  @override
+  String confirmDerivedPerServing(String serving) {
+    return '$serving g की सर्विंग से निकाला गया';
+  }
+
+  @override
+  String get confirmFieldAddedSugarsG => 'अतिरिक्त शर्करा (g)';
+
+  @override
+  String get confirmFieldCarbsG => 'कार्बोहाइड्रेट (g)';
+
+  @override
+  String get confirmFieldEnergyKcal => 'ऊर्जा (kcal)';
+
+  @override
+  String get confirmFieldFatG => 'कुल वसा (g)';
+
+  @override
+  String get confirmFieldFiberG => 'फाइबर (g)';
+
+  @override
+  String get confirmFieldProteinG => 'प्रोटीन (g)';
+
+  @override
+  String get confirmFieldSaltG => 'नमक (g)';
+
+  @override
+  String get confirmFieldSatFatG => 'संतृप्त वसा (g)';
+
+  @override
+  String get confirmFieldSodiumMg => 'सोडियम (mg)';
+
+  @override
+  String get confirmFieldSugarsG => 'कुल शर्करा (g)';
+
+  @override
+  String get confirmFieldTransFatG => 'ट्रांस वसा (g)';
+
+  @override
+  String get confirmIngredients => 'सामग्री';
+
+  @override
+  String get confirmLeaveBlankHint => 'अगर छपा न हो तो खाली छोड़ें';
+
+  @override
+  String get confirmMayContainStatement => '\"हो सकता है\" वाला कथन';
+
+  @override
+  String get confirmName => 'उत्पाद का नाम';
+
+  @override
+  String get confirmNotMedicalAdvice => 'यह जानकारी है, चिकित्सकीय सलाह नहीं।';
+
+  @override
+  String get confirmOpenExisting => 'सहेजा गया उत्पाद खोलें';
+
+  @override
+  String get confirmRemoveIngredient => 'यह सामग्री हटाएँ';
+
+  @override
+  String get confirmSave => 'पुष्टि करें और सहेजें';
+
+  @override
+  String get confirmServingSize => 'सर्विंग साइज़ (g)';
+
+  @override
+  String get confirmSodium => 'सोडियम';
+
+  @override
+  String get confirmSodiumUnit => 'पैक पर सोडियम की इकाई';
+
+  @override
+  String get confirmSodiumUnitOptionG => 'g';
+
+  @override
+  String get confirmSodiumUnitOptionMg => 'mg';
+
+  @override
+  String get confirmSubtitle =>
+      'हर मान को पैक से मिलाकर जाँचें। जो छपा न हो उसे खाली छोड़ें।';
+
+  @override
+  String get confirmTitle => 'लेबल के मान जाँचें';
+
+  @override
+  String get confirmVegMarkNonVeg => 'मांसाहारी (भूरा निशान)';
+
+  @override
+  String get confirmVegMarkNone => 'पैक पर कोई निशान नहीं';
+
+  @override
+  String get confirmVegMarkTitle => 'शाकाहारी या मांसाहारी निशान';
+
+  @override
+  String get confirmVegMarkVeg => 'शाकाहारी (हरा निशान)';
+
+  @override
+  String get confirmWithheldHint =>
+      'पैक पर यह मान जाँचें, फिर पुष्टि के लिए टिक करें।';
+
+  @override
   String get dietEggetarian => 'अंडाहारी (अंडा खाने वाला शाकाहारी)';
 
   @override
@@ -204,10 +353,26 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करें।';
 
   @override
+  String get errorExtractionFailed =>
+      'हम यह लेबल नहीं पढ़ पाए। दूसरी फ़ोटो आज़माएँ या जानकारी खुद भरें।';
+
+  @override
+  String get errorExtractionUnavailable =>
+      'लेबल पढ़ने की सुविधा अभी उपलब्ध नहीं है। बाद में फिर कोशिश करें या जानकारी खुद भरें।';
+
+  @override
   String get errorForbidden => 'आपके पास इसकी पहुँच नहीं है।';
 
   @override
   String get errorHttpError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get errorImageTooLarge =>
+      'यह फ़ोटो बहुत बड़ी है। कृपया 8 MB से छोटी फ़ोटो इस्तेमाल करें।';
+
+  @override
+  String get errorImplausibleValue =>
+      'कुछ मान सही नहीं लगते। कृपया चिह्नित फ़ील्ड जाँचें, या उन्हें खाली छोड़ दें।';
 
   @override
   String get errorInternalError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
@@ -236,6 +401,9 @@ class AppLocalizationsHi extends AppLocalizations {
       'उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।';
 
   @override
+  String get errorProductExists => 'यह उत्पाद पहले से सहेजा गया है।';
+
+  @override
   String get errorProductNotFound => 'यह उत्पाद अभी हमें नहीं मिला।';
 
   @override
@@ -250,7 +418,23 @@ class AppLocalizationsHi extends AppLocalizations {
       'आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।';
 
   @override
+  String get errorScanImageNotFound =>
+      'वह फ़ोटो हमें नहीं मिली। कृपया फ़ोटो फिर से लें या अपलोड करें।';
+
+  @override
+  String get errorScanNotFound =>
+      'यह लेबल स्कैन नहीं मिला। कृपया लेबल फिर से स्कैन करें।';
+
+  @override
+  String get errorStorageUnavailable =>
+      'हम अभी फ़ोटो संभाल नहीं पाए। कृपया थोड़ी देर बाद फिर कोशिश करें।';
+
+  @override
   String get errorUnauthorized => 'कृपया साइन इन करें।';
+
+  @override
+  String get errorUnsupportedImage =>
+      'कृपया JPEG, PNG या WebP फ़ोटो इस्तेमाल करें।';
 
   @override
   String get errorValidationError => 'कृपया चिह्नित फ़ील्ड जाँचें।';
@@ -279,6 +463,38 @@ class AppLocalizationsHi extends AppLocalizations {
   String homeWelcome(String name) {
     return 'नमस्ते, $name';
   }
+
+  @override
+  String get labelCameraPermissionDenied =>
+      'कैमरा की अनुमति बंद है। लेबल की फ़ोटो लेने के लिए सेटिंग्स में इसे चालू करें, या कोई फ़ोटो चुनें या जानकारी खुद भरें।';
+
+  @override
+  String get labelChooseFile => 'फ़ाइल चुनें';
+
+  @override
+  String get labelDropHere => 'फ़ोटो यहाँ छोड़ें';
+
+  @override
+  String get labelEnterManually => 'जानकारी खुद भरें';
+
+  @override
+  String get labelReading => 'लेबल पढ़ा जा रहा है…';
+
+  @override
+  String get labelRetake => 'दोबारा लें';
+
+  @override
+  String get labelTakePhoto => 'फ़ोटो लें';
+
+  @override
+  String get labelTitle => 'लेबल की फ़ोटो लें';
+
+  @override
+  String get labelUploading => 'फ़ोटो अपलोड हो रही है…';
+
+  @override
+  String get notfoundGoToLabel =>
+      'हम इस उत्पाद को अभी नहीं जानते — इसके लेबल की फ़ोटो लें';
 
   @override
   String get nutrientCarbsG => 'कार्बोहाइड्रेट';
@@ -628,4 +844,60 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get verdictStatusUnknown => 'लेबल स्पष्ट नहीं';
+
+  @override
+  String get warningBasisMismatch =>
+      'हम समझ नहीं पाए कि ये मान प्रति 100 g हैं या प्रति सर्विंग। पैक पर जो दिखे, वह चुनें।';
+
+  @override
+  String get warningCategoryCheck =>
+      'जाँचें कि उत्पाद का प्रकार सही है, क्योंकि इससे मानों को पढ़ने का तरीका बदलता है।';
+
+  @override
+  String get warningCategoryUnknown =>
+      'हम समझ नहीं पाए कि यह किस तरह का उत्पाद है। एक चुनें।';
+
+  @override
+  String get warningDerivedFromServing =>
+      'यह मान प्रति सर्विंग की मात्रा से निकाला गया है। इसे पैक से मिलाकर देखें।';
+
+  @override
+  String get warningEnergyMismatch =>
+      'ऊर्जा का मान बाकी मानों से मेल नहीं खा रहा। इसे पैक पर जाँचें।';
+
+  @override
+  String get warningImplausibleValue =>
+      'यह मान असामान्य लग रहा है। कृपया इसे पैक से मिलाकर देखें।';
+
+  @override
+  String get warningKcalKjMismatch =>
+      'kcal और kJ के मान आपस में मेल नहीं खा रहे। दोनों पैक पर जाँचें।';
+
+  @override
+  String get warningLowConfidence =>
+      'लेबल पढ़ना मुश्किल था। कृपया हर मान को पैक से मिलाकर जाँचें।';
+
+  @override
+  String get warningPer100gMissing =>
+      'पैक पर प्रति 100 g के मान नहीं मिले। संख्याएँ जाँचें या पैक से भरें।';
+
+  @override
+  String get warningPerServingIgnored =>
+      'पैक के प्रति सर्विंग वाले मान इस्तेमाल नहीं किए गए। जाँचें कि प्रति 100 g के मान सही हैं।';
+
+  @override
+  String get warningSaltSodiumMismatch =>
+      'नमक और सोडियम के मान आपस में मेल नहीं खा रहे। दोनों पैक पर जाँचें।';
+
+  @override
+  String get warningUnitUnconfirmed =>
+      'इस मान की इकाई साफ़ नहीं थी। जैसा छपा है, वैसा mg या g चुनें।';
+
+  @override
+  String get warningUnreadableField =>
+      'हम यह मान पढ़ नहीं पाए। इसे पैक से भरें या खाली छोड़ें।';
+
+  @override
+  String get warningUpperBound =>
+      'पैक पर लिखा है कि इतनी मात्रा से \"कम\"। अगर यह सही है तो पुष्टि करें।';
 }

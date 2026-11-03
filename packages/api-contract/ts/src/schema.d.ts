@@ -55,6 +55,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Products Create
+         * @description Save a confirmed label draft (``scan_id``) or a manual entry as a pending product.
+         *
+         *     Then call ``analyze_create`` with the returned ``product_id``.
+         */
+        post: operations["products_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/barcode/{code}": {
         parameters: {
             query?: never;
@@ -83,6 +105,52 @@ export interface paths {
         get: operations["products_get_public"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scans/label": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Scans Create Label
+         * @description Extract an unconfirmed draft from an uploaded label photo.
+         *
+         *     Rate-limited per account (`rate_limited_scans`), counting only paid extractions: the
+         *     same image bytes again (from any account) reuse the stored extraction for free (it is
+         *     normalised afresh), and the same `path` posted again returns the same `scan_id`.
+         */
+        post: operations["scans_create_label"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scans/upload-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Scans Create Upload Url
+         * @description A signed URL to PUT one label photo into the caller's private folder.
+         *
+         *     Creates the caller's account row on first use (the photo is account-owned).
+         */
+        post: operations["scans_create_upload_url"];
         delete?: never;
         options?: never;
         head?: never;
@@ -135,6 +203,95 @@ export interface components {
             product_id?: string | null;
         };
         /**
+         * ColumnConfirm
+         * @description What to ask when the user saves with this `basis` (`ProductCreate.basis`).
+         */
+        ColumnConfirm: {
+            /**
+             * Confirm Fields
+             * @description Fields that need an explicit tick (`ProductCreate.confirmed_fields`) when this basis is saved; an unticked one is stored as null. `serving_size_g`, when listed and unticked on a per-serving or derived save, makes every nutrient null. Sodium is never listed when `sodium_unit_required` (the unit pick confirms it).
+             */
+            confirm_fields: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg" | "serving_size_g")[];
+            /**
+             * Printed
+             * @description The draft column of this name holds printed engine values (`per_100g` of a `derived_from_serving` draft never does: those numbers were calculated).
+             */
+            printed: boolean;
+            /**
+             * Serving Required
+             * @description Saving this basis stores nutrient values only with a confirmed `serving_size_g` (`needs_serving_confirmation`, R19): keep save disabled until the serving size is confirmed (ticked or edited). Server-side, an unconfirmed serving still stores every nutrient as null.
+             */
+            serving_required: boolean;
+            /**
+             * Shared
+             * @description On a `basis_mismatch` draft, this is the only printed column: show its values whichever basis the user picks (its basis is the doubt).
+             */
+            shared: boolean;
+            /**
+             * Sodium Unit Required
+             * @description Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`.
+             */
+            sodium_unit_required: boolean;
+        };
+        /**
+         * ConfirmColumns
+         * @description The bases the user may save with; null = not offered for this draft.
+         */
+        ConfirmColumns: {
+            per_100g: components["schemas"]["ColumnConfirm"] | null;
+            per_serving: components["schemas"]["ColumnConfirm"] | null;
+        };
+        /**
+         * DraftConfirm
+         * @description Server-computed confirm-screen hints (R21). Clients render these; they never
+         *     re-derive the save rules. Computed from the draft itself, so always current.
+         */
+        DraftConfirm: {
+            /**
+             * Basis Required
+             * @description Basis in doubt: offer both columns and never preselect a basis.
+             */
+            basis_required: boolean;
+            /**
+             * Category Required
+             * @description Category in doubt: never preselect; the user must pick a category.
+             */
+            category_required: boolean;
+            columns: components["schemas"]["ConfirmColumns"];
+        };
+        /**
+         * DraftNutrients
+         * @description Per 100 g / 100 ml for the confirm screen. None = not printed (never invented).
+         *
+         *     The engine fields are M1's `NutrientsOut`. `added_sugars_g` and `trans_fat_g` are
+         *     shown for the user to confirm but are NOT engine inputs (the engine's `Nutrients`
+         *     has no such fields), so `ProductCreate.per_100g` (a `NutrientsOut`) drops them on save.
+         */
+        DraftNutrients: {
+            /** Added Sugars G */
+            added_sugars_g: number | null;
+            /** Carbs G */
+            carbs_g: number | null;
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            /** Fat G */
+            fat_g: number | null;
+            /** Fiber G */
+            fiber_g: number | null;
+            /** Protein G */
+            protein_g: number | null;
+            /** Salt G */
+            salt_g: number | null;
+            /** Sat Fat G */
+            sat_fat_g: number | null;
+            /** Sodium Mg */
+            sodium_mg: number | null;
+            /** Sugars G */
+            sugars_g: number | null;
+            /** Trans Fat G */
+            trans_fat_g: number | null;
+        };
+        /**
          * ErrorBody
          * @description A stable `code`; clients localise `message_key` (always `error.<code>`).
          */
@@ -171,6 +328,13 @@ export interface components {
              * @enum {string}
              */
             status: "ok" | "degraded" | "unavailable";
+        };
+        /** LabelScanIn */
+        LabelScanIn: {
+            /** Barcode */
+            barcode?: string | null;
+            /** Path */
+            path: string;
         };
         /** MeOut */
         MeOut: {
@@ -214,6 +378,218 @@ export interface components {
             sodium_mg: number | null;
             /** Sugars G */
             sugars_g: number | null;
+        };
+        /**
+         * PrintedNutrients
+         * @description One nutrition-table column exactly as the pack prints it (see `ProductCreate.basis`).
+         *
+         *     Numbers only, no arithmetic: the server converts the basis and the sodium unit. A value
+         *     not printed (or blanked by the user) is null, never 0. The nine engine fields are
+         *     required (send null when not printed); `added_sugars_g` and `trans_fat_g` are optional
+         *     and shown only, never engine inputs.
+         */
+        PrintedNutrients: {
+            /**
+             * Added Sugars G
+             * @description Added sugars in g.
+             */
+            added_sugars_g?: number | null;
+            /**
+             * Carbs G
+             * @description Total carbohydrate in g.
+             */
+            carbs_g: number | null;
+            /**
+             * Energy Kcal
+             * @description Energy in kcal.
+             */
+            energy_kcal: number | null;
+            /**
+             * Fat G
+             * @description Total fat in g.
+             */
+            fat_g: number | null;
+            /**
+             * Fiber G
+             * @description Dietary fibre in g.
+             */
+            fiber_g: number | null;
+            /**
+             * Protein G
+             * @description Protein in g.
+             */
+            protein_g: number | null;
+            /**
+             * Salt G
+             * @description Salt in g.
+             */
+            salt_g: number | null;
+            /**
+             * Sat Fat G
+             * @description Saturated fat in g.
+             */
+            sat_fat_g: number | null;
+            /**
+             * Sodium Mg
+             * @description Sodium as the number printed, in the unit given by `ProductCreate.sodium_unit` (mg when that is null; the server converts g to mg).
+             */
+            sodium_mg: number | null;
+            /**
+             * Sugars G
+             * @description Total sugars in g.
+             */
+            sugars_g: number | null;
+            /**
+             * Trans Fat G
+             * @description Trans fat in g.
+             */
+            trans_fat_g?: number | null;
+        };
+        /**
+         * ProductCreate
+         * @description A product the user confirmed on the label-confirm screen, or typed by hand.
+         *
+         *     **The server does all nutrient arithmetic; the client only transcribes what the pack
+         *     prints and records the user's explicit choices.** The stored per-100 g values are:
+         *
+         *     1. `nutrients` as sent, with `sodium_mg` multiplied by 1000 when `sodium_unit` is `g`;
+         *     2. then, when `basis` is `per_serving`, every value x 100 / `serving_size_g`;
+         *     3. then, for a scan save, values the draft holds back are set to null unless confirmed
+         *        (`confirmed_fields`, below);
+         *     4. then the engine's plausibility check runs on exactly the values that will be stored
+         *        (422 `implausible_value`), including `serving_size_g` only when it will be stored or
+         *        used for conversion. Values are never rounded.
+         *
+         *     With `scan_id` the values come from that label scan (source `label`, the extraction
+         *     confidence, which user edits never raise); without it the entry is manual (source
+         *     `user`, confidence 1.0, values taken as typed). For a scan save the server re-runs its
+         *     current normaliser on the stored raw extraction (R19), so the warnings it applies can be
+         *     stricter than the draft the client showed; scans without a stored raw extraction use the
+         *     stored draft. Text keeps its script (Devanagari stays Devanagari); only surrounding
+         *     whitespace is trimmed and blank items are dropped.
+         *
+         *     **Clients do not re-derive the rules below: render `ProductDraft.confirm` (R21), which
+         *     the server computes with the same helpers that enforce them.** A body that honours the
+         *     hints is stored in full; one that ignores them is a 422 or stores null for each field it
+         *     did not confirm.
+         *
+         *     Every request counts toward the account's daily `product_creates` limit (429
+         *     `rate_limited`), including requests rejected with 422, so a client should fix the body
+         *     before retrying rather than resend it.
+         *
+         *     Scan-save rules (422 `validation_error` with `details.fields` naming the field):
+         *     - `category` and `basis` are always required (the user must pick them; nothing defaults).
+         *     - (R19) `sodium_unit` must be `mg` or `g` (not null) whenever the draft has ANY
+         *       `unit_unconfirmed:*.sodium_mg` warning (either column, whichever `basis` is chosen) and
+         *       `nutrients.sodium_mg` is not null; else 422 `["body.sodium_unit"]`. Listing `sodium_mg`
+         *       in `confirmed_fields` never stands in for the unit. A non-null unit confirms sodium.
+         *     - (R19) With `basis` `per_serving`, or whenever the draft was `derived_from_serving`
+         *       (with or without `basis_mismatch`), every nutrient is stored only if `confirmed_fields`
+         *       contains `serving_size_g` (the user checked the serving size); otherwise all are
+         *       stored null and the serving size is neither used nor checked.
+         *     - (R18) The stored `serving_size_g` is the sent value only if `confirmed_fields` contains
+         *       `serving_size_g`; otherwise it is stored null (unknown) and the engine falls back to
+         *       per-100 g. A manual entry (no `scan_id`) stores the serving size as typed.
+         *     - On a `basis_mismatch` draft the explicit `basis` confirms the values sent. (R19) An
+         *       upper-bound ("<X") protein or fibre on EITHER printed column is stored only if listed
+         *       in `confirmed_fields`, and a unit-less sodium still needs `sodium_unit`.
+         */
+        ProductCreate: {
+            /** Allergen Statement */
+            allergen_statement?: string | null;
+            /** Barcode */
+            barcode?: string | null;
+            /**
+             * Basis
+             * @description Required: which printed column `nutrients` was transcribed from. `per_100g` means per 100 g or 100 ml; `per_serving` means per `serving_size_g`, and the server converts to per 100 g.
+             * @enum {string}
+             */
+            basis: "per_100g" | "per_serving";
+            /** Brand */
+            brand?: string | null;
+            /**
+             * Category
+             * @description Required: the user's explicit choice (drinks are judged on drink limits).
+             * @enum {string}
+             */
+            category: "general" | "beverage" | "water" | "cheese" | "fat";
+            /**
+             * Claims
+             * @default []
+             */
+            claims: string[];
+            /**
+             * Confirmed Fields
+             * @description Scan saves only: what the user explicitly confirmed. A nutrient the draft lists in `engine_withheld`, or an upper-bound ("<0.1 g") protein or fibre on either printed column (R19), is stored only when listed here, else null. `serving_size_g` confirms the serving size and is required for any value of a per-serving save or a `derived_from_serving` draft to be stored (R19); an unconfirmed scanned serving size is stored as null (R18). Listing `sodium_mg` never replaces `sodium_unit`.
+             * @default []
+             */
+            confirmed_fields: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg" | "serving_size_g")[];
+            /**
+             * Ingredients
+             * @default []
+             */
+            ingredients: string[];
+            /** May Contain Statement */
+            may_contain_statement?: string | null;
+            /** Name */
+            name: string;
+            /** @description The chosen column as printed. The server converts it (see `basis`). */
+            nutrients: components["schemas"]["PrintedNutrients"];
+            /**
+             * Scan Id
+             * @description The label scan this came from; null for manual entry.
+             */
+            scan_id?: string | null;
+            /**
+             * Serving Size G
+             * @description Serving size in g (or ml). Required when `basis` is `per_serving`. For a scan save it is used for conversion and stored only when `confirmed_fields` lists it (R18); otherwise it is stored as null, and is not plausibility-checked because it is neither stored nor used (R19). A manual entry stores it as typed.
+             */
+            serving_size_g?: number | null;
+            /**
+             * Sodium Unit
+             * @description The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this is a manual entry in mg). `g` is converted to mg by the server. Send the user's explicit pick (`mg` or `g`, never null) whenever the scan draft has any `unit_unconfirmed:*.sodium_mg` warning (either column, whatever the basis) and sodium is not null, else 422 `body.sodium_unit` (R19). A non-null unit confirms sodium; `confirmed_fields` never replaces it.
+             */
+            sodium_unit?: ("mg" | "g") | null;
+            /** Veg Mark */
+            veg_mark?: ("veg" | "non_veg") | null;
+        };
+        /**
+         * ProductDraft
+         * @description A normalised extraction awaiting user confirmation. Never saved as-is.
+         */
+        ProductDraft: {
+            /** Allergen Statement */
+            allergen_statement: string | null;
+            /** Brand */
+            brand: string | null;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "general" | "beverage" | "water" | "cheese" | "fat";
+            /** Claims */
+            claims: string[];
+            /** Confidence */
+            confidence: number;
+            confirm: components["schemas"]["DraftConfirm"];
+            /** Derived From Serving */
+            derived_from_serving: boolean;
+            /** Engine Withheld */
+            engine_withheld: ("energy_kcal" | "protein_g" | "carbs_g" | "sugars_g" | "fat_g" | "sat_fat_g" | "fiber_g" | "salt_g" | "sodium_mg")[];
+            /** Ingredients */
+            ingredients: string[];
+            /** May Contain Statement */
+            may_contain_statement: string | null;
+            /** Name */
+            name: string | null;
+            per_100g: components["schemas"]["DraftNutrients"];
+            per_serving: components["schemas"]["DraftNutrients"] | null;
+            /** Serving Size G */
+            serving_size_g: number | null;
+            /** Veg Mark */
+            veg_mark: ("veg" | "non_veg") | null;
+            /** Warnings */
+            warnings: string[];
         };
         /** ProductOut */
         ProductOut: {
@@ -270,6 +646,36 @@ export interface components {
              * @enum {string}
              */
             severity: "ok" | "caution" | "unknown" | "avoid";
+        };
+        /** ScanDraftOut */
+        ScanDraftOut: {
+            /** Cached */
+            cached: boolean;
+            draft: components["schemas"]["ProductDraft"];
+            /** Prompt Version */
+            prompt_version: string;
+            /**
+             * Scan Id
+             * Format: uuid
+             */
+            scan_id: string;
+        };
+        /** UploadUrlIn */
+        UploadUrlIn: {
+            /**
+             * Ext
+             * @enum {string}
+             */
+            ext: "jpg" | "png" | "webp";
+        };
+        /** UploadUrlOut */
+        UploadUrlOut: {
+            /** Expires In */
+            expires_in: number;
+            /** Path */
+            path: string;
+            /** Upload Url */
+            upload_url: string;
         };
         /** VerdictOut */
         VerdictOut: {
@@ -519,6 +925,84 @@ export interface operations {
             };
         };
     };
+    products_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description A product with this barcode exists */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     products_get_by_barcode: {
         parameters: {
             query?: never;
@@ -663,6 +1147,189 @@ export interface operations {
                 };
             };
             /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    scans_create_label: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabelScanIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScanDraftOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Image larger than 8 MB */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not a JPEG, PNG or WebP image */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Extraction failed (no draft) */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Extraction or storage unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    scans_create_upload_url: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadUrlIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadUrlOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Storage unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;

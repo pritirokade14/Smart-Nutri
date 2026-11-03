@@ -27,6 +27,7 @@ export default defineConfig({
         NEXT_PUBLIC_API_BASE_URL: stubURL,
         NEXT_PUBLIC_SITE_URL: baseURL,
         NEXT_PUBLIC_FEATURE_PHONE_OTP: "false",
+        NEXT_PUBLIC_FEATURE_EMAIL_OTP: "true",
       },
       reuseExistingServer: false,
       timeout: 120_000,

@@ -41,8 +41,13 @@ String? apiErrorCode(Object error) {
 
 /// Maps an API error to an `error.<code>` string. Unknown codes fall back to
 /// `error.internal_error`.
-String localizedApiError(AppLocalizations l10n, Object error) {
-  return switch (apiErrorCode(error)) {
+String localizedApiError(AppLocalizations l10n, Object error) =>
+    localizedErrorCode(l10n, apiErrorCode(error));
+
+/// The `error.<code>` string for an API error code (or `network`). Unknown
+/// codes fall back to `error.internal_error`.
+String localizedErrorCode(AppLocalizations l10n, String? code) {
+  return switch (code) {
     'auth_required' => l10n.errorAuthRequired,
     'auth_invalid' => l10n.errorAuthInvalid,
     'unauthorized' => l10n.errorUnauthorized,
@@ -55,6 +60,21 @@ String localizedApiError(AppLocalizations l10n, Object error) {
     'rate_limited_scans' => l10n.errorRateLimitedScans,
     'rate_limited_voice' => l10n.errorRateLimitedVoice,
     'network' => l10n.errorNetwork,
+    'image_too_large' => l10n.errorImageTooLarge,
+    'unsupported_image' => l10n.errorUnsupportedImage,
+    'scan_image_not_found' => l10n.errorScanImageNotFound,
+    'scan_not_found' => l10n.errorScanNotFound,
+    'extraction_failed' => l10n.errorExtractionFailed,
+    'extraction_unavailable' => l10n.errorExtractionUnavailable,
+    'storage_unavailable' => l10n.errorStorageUnavailable,
+    'implausible_value' => l10n.errorImplausibleValue,
+    'product_exists' => l10n.errorProductExists,
+    'product_not_found' => l10n.errorProductNotFound,
+    'invalid_product_ref' => l10n.errorInvalidProductRef,
+    'invalid_barcode' => l10n.errorInvalidBarcode,
+    'off_unavailable' => l10n.errorOffUnavailable,
+    'member_not_found' => l10n.errorMemberNotFound,
+    'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };
 }

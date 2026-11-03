@@ -1,12 +1,16 @@
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 import pytest
 from sqlalchemy import func, select
 
 from app.core.config import Settings
+from app.core.security import AccountContext
+from app.features.me.service import ensure_account
 from app.features.products.models import OffProductCache, Product
 from app.features.products.service import (
     lookup_by_barcode,
+    lookup_by_id,
     record_to_info,
     record_to_product,
 )
@@ -184,3 +188,54 @@ def test_record_to_product_ignores_bad_json_values():
 def test_record_to_info():
     i = record_to_info(_product(brand="Acme"))
     assert (i.barcode, i.name, i.brand, i.image_url) == (BARCODE, "Own Biscuit", "Acme", None)
+
+
+# --- Ruling R6 / CROSS-PLAN 18: who may see an own-catalogue product ----------------------
+
+A = UUID("11111111-1111-1111-1111-111111111111")
+B = UUID("22222222-2222-2222-2222-222222222222")
+
+
+async def _pending_by_a(session) -> Product:
+    for account_id in (A, B):
+        await ensure_account(session, AccountContext(account_id, None))
+    p = _product(verification_status="pending", created_by=A)
+    session.add(p)
+    await session.flush()
+    return p
+
+
+async def test_pending_product_is_served_to_its_creator(db_session, fake_off):
+    p = await _pending_by_a(db_session)
+    r = await lookup_by_barcode(db_session, fake_off, BARCODE, settings=SETTINGS, account_id=A)
+    assert r.source == "smartnutri" and r.product_id == p.id
+    assert fake_off.calls == 0
+
+
+async def test_pending_product_is_hidden_from_other_accounts(db_session, fake_off):
+    await _pending_by_a(db_session)
+    r = await lookup_by_barcode(db_session, fake_off, BARCODE, settings=SETTINGS, account_id=B)
+    assert r.source == "openfoodfacts"
+
+
+async def test_pending_product_is_hidden_without_an_account(db_session, fake_off_empty):
+    await _pending_by_a(db_session)
+    assert await lookup_by_barcode(db_session, fake_off_empty, BARCODE, settings=SETTINGS) is None
+
+
+async def test_verified_product_is_served_to_everyone(db_session, fake_off):
+    p = _product()
+    db_session.add(p)
+    await db_session.flush()
+    for account_id in (None, B):
+        r = await lookup_by_barcode(
+            db_session, fake_off, BARCODE, settings=SETTINGS, account_id=account_id
+        )
+        assert r.product_id == p.id
+
+
+async def test_lookup_by_id_follows_the_same_visibility(db_session):
+    p = await _pending_by_a(db_session)
+    assert (await lookup_by_id(db_session, p.id, account_id=A)).product_id == p.id
+    assert await lookup_by_id(db_session, p.id, account_id=B) is None
+    assert await lookup_by_id(db_session, p.id, account_id=None) is None

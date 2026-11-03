@@ -57,6 +57,14 @@ void main() {
     expect(fake.requests.single.language, AnalyzeRequestLanguage.en);
   });
 
+  test('analyzeProduct sends only the product_id', () async {
+    final fake = _FakeAnalyze(() async => analyzeFixture('water'));
+    await AnalysisRepository(fake).analyzeProduct('p-1', language: 'mr');
+    expect(fake.requests.single.productId, 'p-1');
+    expect(fake.requests.single.barcode, isNull);
+    expect(fake.requests.single.language, AnalyzeRequestLanguage.mr);
+  });
+
   Future<Object?> failureFor(Object error) async {
     final repo = AnalysisRepository(_FakeAnalyze(() => Future.error(error)));
     try {

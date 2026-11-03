@@ -64,3 +64,24 @@ VerdictOut fixtureVerdict(String product, String member) => sharedFixtureCases()
 /// `expected/<product>.<member>.json`: the engine's status and reason codes.
 Map<String, Object?> expectedFixture(String product, String member) =>
     _readJson('expected/$product.$member.json');
+
+/// `drafts/<case>.json`: a `ProductDraft` exactly as the API returns it (R21).
+Map<String, Object?> draftJson(String name) => _readJson('drafts/$name.json');
+
+ProductDraft draftFixture(String name) =>
+    ProductDraft.fromJson(draftJson(name));
+
+/// `drafts/expected.json` (`{"format_version": 1, "cases": {...}}`).
+Map<String, Object?> draftExpectationsFile() =>
+    _readJson('drafts/expected.json');
+
+/// Case names that have a `drafts/<case>.json` file, sorted.
+List<String> draftFixtureNames() =>
+    Directory('$_fixturesRoot/drafts')
+        .listSync()
+        .whereType<File>()
+        .map((f) => f.uri.pathSegments.last)
+        .where((n) => n.endsWith('.json') && n != 'expected.json')
+        .map((n) => n.replaceAll('.json', ''))
+        .toList()
+      ..sort();

@@ -1,5 +1,5 @@
 import messages from "@smartnutri/i18n/messages/en.json";
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SignInPanel } from "@/features/auth/components/SignInPanel";
@@ -19,9 +19,31 @@ const view = () =>
     </NextIntlClientProvider>,
   );
 
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+});
 
 describe("SignInPanel", () => {
+  it("email hidden when flag unset", () => {
+    vi.stubEnv("NEXT_PUBLIC_FEATURE_EMAIL_OTP", "");
+    view();
+    expect(screen.queryByText(messages.auth.email)).toBeNull();
+    expect(screen.getByText(messages.auth.google)).toBeTruthy();
+  });
+
+  it("email hidden when flag false", () => {
+    vi.stubEnv("NEXT_PUBLIC_FEATURE_EMAIL_OTP", "false");
+    view();
+    expect(screen.queryByText(messages.auth.email)).toBeNull();
+  });
+
+  it("email shown when flag true", () => {
+    vi.stubEnv("NEXT_PUBLIC_FEATURE_EMAIL_OTP", "true");
+    view();
+    expect(screen.getByText(messages.auth.email)).toBeTruthy();
+  });
+
   it("phone hidden when flag off", () => {
     vi.stubEnv("NEXT_PUBLIC_FEATURE_PHONE_OTP", "false");
     view();

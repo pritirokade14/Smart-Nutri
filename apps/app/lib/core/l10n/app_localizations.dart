@@ -418,6 +418,294 @@ abstract class AppLocalizations {
   /// **'Weight loss'**
   String get conditionWeightLoss;
 
+  /// No description provided for @confirmAddIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an ingredient'**
+  String get confirmAddIngredient;
+
+  /// No description provided for @confirmAllergenStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergen statement'**
+  String get confirmAllergenStatement;
+
+  /// No description provided for @confirmBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'Values on the pack are'**
+  String get confirmBasis;
+
+  /// No description provided for @confirmBasisOptionPer100g.
+  ///
+  /// In en, this message translates to:
+  /// **'Per 100 g'**
+  String get confirmBasisOptionPer100g;
+
+  /// No description provided for @confirmBasisOptionPerServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Per serving'**
+  String get confirmBasisOptionPerServing;
+
+  /// No description provided for @confirmBrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get confirmBrand;
+
+  /// No description provided for @confirmCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Product type'**
+  String get confirmCategory;
+
+  /// No description provided for @confirmCategoryOptionBeverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink'**
+  String get confirmCategoryOptionBeverage;
+
+  /// No description provided for @confirmCategoryOptionCheese.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheese'**
+  String get confirmCategoryOptionCheese;
+
+  /// No description provided for @confirmCategoryOptionFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Oil or fat'**
+  String get confirmCategoryOptionFat;
+
+  /// No description provided for @confirmCategoryOptionGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get confirmCategoryOptionGeneral;
+
+  /// No description provided for @confirmCategoryOptionWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Packaged water'**
+  String get confirmCategoryOptionWater;
+
+  /// No description provided for @confirmChooseRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one to continue'**
+  String get confirmChooseRequired;
+
+  /// No description provided for @confirmClaims.
+  ///
+  /// In en, this message translates to:
+  /// **'Claims on the pack'**
+  String get confirmClaims;
+
+  /// No description provided for @confirmClearStatementConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'I checked the pack: this statement isn\'t printed'**
+  String get confirmClearStatementConfirm;
+
+  /// No description provided for @confirmConfirmValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches the pack'**
+  String get confirmConfirmValue;
+
+  /// No description provided for @confirmDerivedPerServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from a {serving} g serving'**
+  String confirmDerivedPerServing(String serving);
+
+  /// No description provided for @confirmFieldAddedSugarsG.
+  ///
+  /// In en, this message translates to:
+  /// **'Added sugars (g)'**
+  String get confirmFieldAddedSugarsG;
+
+  /// No description provided for @confirmFieldCarbsG.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbohydrates (g)'**
+  String get confirmFieldCarbsG;
+
+  /// No description provided for @confirmFieldEnergyKcal.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy (kcal)'**
+  String get confirmFieldEnergyKcal;
+
+  /// No description provided for @confirmFieldFatG.
+  ///
+  /// In en, this message translates to:
+  /// **'Total fat (g)'**
+  String get confirmFieldFatG;
+
+  /// No description provided for @confirmFieldFiberG.
+  ///
+  /// In en, this message translates to:
+  /// **'Fibre (g)'**
+  String get confirmFieldFiberG;
+
+  /// No description provided for @confirmFieldProteinG.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein (g)'**
+  String get confirmFieldProteinG;
+
+  /// No description provided for @confirmFieldSaltG.
+  ///
+  /// In en, this message translates to:
+  /// **'Salt (g)'**
+  String get confirmFieldSaltG;
+
+  /// No description provided for @confirmFieldSatFatG.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturated fat (g)'**
+  String get confirmFieldSatFatG;
+
+  /// No description provided for @confirmFieldSodiumMg.
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium (mg)'**
+  String get confirmFieldSodiumMg;
+
+  /// No description provided for @confirmFieldSugarsG.
+  ///
+  /// In en, this message translates to:
+  /// **'Total sugars (g)'**
+  String get confirmFieldSugarsG;
+
+  /// No description provided for @confirmFieldTransFatG.
+  ///
+  /// In en, this message translates to:
+  /// **'Trans fat (g)'**
+  String get confirmFieldTransFatG;
+
+  /// No description provided for @confirmIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get confirmIngredients;
+
+  /// No description provided for @confirmLeaveBlankHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank if it isn\'t printed'**
+  String get confirmLeaveBlankHint;
+
+  /// No description provided for @confirmMayContainStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'May-contain statement'**
+  String get confirmMayContainStatement;
+
+  /// No description provided for @confirmName.
+  ///
+  /// In en, this message translates to:
+  /// **'Product name'**
+  String get confirmName;
+
+  /// No description provided for @confirmNotMedicalAdvice.
+  ///
+  /// In en, this message translates to:
+  /// **'Information, not medical advice.'**
+  String get confirmNotMedicalAdvice;
+
+  /// No description provided for @confirmOpenExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the saved product'**
+  String get confirmOpenExisting;
+
+  /// No description provided for @confirmRemoveIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this ingredient'**
+  String get confirmRemoveIngredient;
+
+  /// No description provided for @confirmSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and save'**
+  String get confirmSave;
+
+  /// No description provided for @confirmServingSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Serving size (g)'**
+  String get confirmServingSize;
+
+  /// No description provided for @confirmSodium.
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium'**
+  String get confirmSodium;
+
+  /// No description provided for @confirmSodiumUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium unit on the pack'**
+  String get confirmSodiumUnit;
+
+  /// No description provided for @confirmSodiumUnitOptionG.
+  ///
+  /// In en, this message translates to:
+  /// **'g'**
+  String get confirmSodiumUnitOptionG;
+
+  /// No description provided for @confirmSodiumUnitOptionMg.
+  ///
+  /// In en, this message translates to:
+  /// **'mg'**
+  String get confirmSodiumUnitOptionMg;
+
+  /// No description provided for @confirmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check every value against the pack. Leave blank if not printed.'**
+  String get confirmSubtitle;
+
+  /// No description provided for @confirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the label values'**
+  String get confirmTitle;
+
+  /// No description provided for @confirmVegMarkNonVeg.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-vegetarian (brown mark)'**
+  String get confirmVegMarkNonVeg;
+
+  /// No description provided for @confirmVegMarkNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No mark on the pack'**
+  String get confirmVegMarkNone;
+
+  /// No description provided for @confirmVegMarkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Veg or non-veg mark'**
+  String get confirmVegMarkTitle;
+
+  /// No description provided for @confirmVegMarkVeg.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetarian (green mark)'**
+  String get confirmVegMarkVeg;
+
+  /// No description provided for @confirmWithheldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this value on the pack, then tick to confirm it.'**
+  String get confirmWithheldHint;
+
   /// No description provided for @dietEggetarian.
   ///
   /// In en, this message translates to:
@@ -460,6 +748,18 @@ abstract class AppLocalizations {
   /// **'Please sign in.'**
   String get errorAuthRequired;
 
+  /// No description provided for @errorExtractionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read this label. Try another photo or enter the details manually.'**
+  String get errorExtractionFailed;
+
+  /// No description provided for @errorExtractionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Label reading is unavailable right now. Try again later or enter the details manually.'**
+  String get errorExtractionUnavailable;
+
   /// No description provided for @errorForbidden.
   ///
   /// In en, this message translates to:
@@ -471,6 +771,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get errorHttpError;
+
+  /// No description provided for @errorImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is too large. Please use a photo under 8 MB.'**
+  String get errorImageTooLarge;
+
+  /// No description provided for @errorImplausibleValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Some values don\'t look right. Please check the highlighted fields, or leave them blank.'**
+  String get errorImplausibleValue;
 
   /// No description provided for @errorInternalError.
   ///
@@ -520,6 +832,12 @@ abstract class AppLocalizations {
   /// **'The product database is busy right now. Please try again in a moment.'**
   String get errorOffUnavailable;
 
+  /// No description provided for @errorProductExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This product is already saved.'**
+  String get errorProductExists;
+
   /// No description provided for @errorProductNotFound.
   ///
   /// In en, this message translates to:
@@ -544,11 +862,35 @@ abstract class AppLocalizations {
   /// **'You\'ve reached today\'s voice-question limit.'**
   String get errorRateLimitedVoice;
 
+  /// No description provided for @errorScanImageNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that photo. Please take or upload it again.'**
+  String get errorScanImageNotFound;
+
+  /// No description provided for @errorScanNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that label scan. Please scan the label again.'**
+  String get errorScanNotFound;
+
+  /// No description provided for @errorStorageUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t handle the photo right now. Please try again in a moment.'**
+  String get errorStorageUnavailable;
+
   /// No description provided for @errorUnauthorized.
   ///
   /// In en, this message translates to:
   /// **'Please sign in.'**
   String get errorUnauthorized;
+
+  /// No description provided for @errorUnsupportedImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please use a JPEG, PNG or WebP photo.'**
+  String get errorUnsupportedImage;
 
   /// No description provided for @errorValidationError.
   ///
@@ -597,6 +939,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hello, {name}'**
   String homeWelcome(String name);
+
+  /// No description provided for @labelCameraPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is off. Allow it in Settings to photograph the label, or choose a photo or enter the details manually.'**
+  String get labelCameraPermissionDenied;
+
+  /// No description provided for @labelChooseFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a file'**
+  String get labelChooseFile;
+
+  /// No description provided for @labelDropHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop a photo here'**
+  String get labelDropHere;
+
+  /// No description provided for @labelEnterManually.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the details manually'**
+  String get labelEnterManually;
+
+  /// No description provided for @labelReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the label…'**
+  String get labelReading;
+
+  /// No description provided for @labelRetake.
+  ///
+  /// In en, this message translates to:
+  /// **'Retake'**
+  String get labelRetake;
+
+  /// No description provided for @labelTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get labelTakePhoto;
+
+  /// No description provided for @labelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photograph the label'**
+  String get labelTitle;
+
+  /// No description provided for @labelUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading the photo…'**
+  String get labelUploading;
+
+  /// No description provided for @notfoundGoToLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'We don\'t know this product yet — photograph its label'**
+  String get notfoundGoToLabel;
 
   /// No description provided for @nutrientCarbsG.
   ///
@@ -1095,6 +1497,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Label unclear'**
   String get verdictStatusUnknown;
+
+  /// No description provided for @warningBasisMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t tell whether these values are per 100 g or per serving. Choose which one the pack shows.'**
+  String get warningBasisMismatch;
+
+  /// No description provided for @warningCategoryCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check that the product type is right, because it changes how the values are read.'**
+  String get warningCategoryCheck;
+
+  /// No description provided for @warningCategoryUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t tell what type of product this is. Choose one.'**
+  String get warningCategoryUnknown;
+
+  /// No description provided for @warningDerivedFromServing.
+  ///
+  /// In en, this message translates to:
+  /// **'This value was worked out from the per-serving amount. Check it against the pack.'**
+  String get warningDerivedFromServing;
+
+  /// No description provided for @warningEnergyMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The energy doesn\'t match the other values. Check it on the pack.'**
+  String get warningEnergyMismatch;
+
+  /// No description provided for @warningImplausibleValue.
+  ///
+  /// In en, this message translates to:
+  /// **'This value looks unusual. Please check it against the pack.'**
+  String get warningImplausibleValue;
+
+  /// No description provided for @warningKcalKjMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The kcal and kJ values don\'t match each other. Check both on the pack.'**
+  String get warningKcalKjMismatch;
+
+  /// No description provided for @warningLowConfidence.
+  ///
+  /// In en, this message translates to:
+  /// **'The label was hard to read. Please check every value against the pack.'**
+  String get warningLowConfidence;
+
+  /// No description provided for @warningPer100gMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The pack\'s per 100 g values weren\'t found. Check the numbers or enter them from the pack.'**
+  String get warningPer100gMissing;
+
+  /// No description provided for @warningPerServingIgnored.
+  ///
+  /// In en, this message translates to:
+  /// **'The per-serving values on the pack weren\'t used. Check that the per 100 g values are right.'**
+  String get warningPerServingIgnored;
+
+  /// No description provided for @warningSaltSodiumMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The salt and sodium values don\'t match each other. Check both on the pack.'**
+  String get warningSaltSodiumMismatch;
+
+  /// No description provided for @warningUnitUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'The unit for this value wasn\'t clear. Choose mg or g as printed.'**
+  String get warningUnitUnconfirmed;
+
+  /// No description provided for @warningUnreadableField.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read this value. Enter it from the pack, or leave it blank.'**
+  String get warningUnreadableField;
+
+  /// No description provided for @warningUpperBound.
+  ///
+  /// In en, this message translates to:
+  /// **'The pack says \'less than\' this amount. Confirm it if that\'s right.'**
+  String get warningUpperBound;
 }
 
 class _AppLocalizationsDelegate

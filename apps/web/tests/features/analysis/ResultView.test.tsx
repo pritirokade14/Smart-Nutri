@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -17,6 +16,8 @@ import {
   type TestLocale,
 } from "../../support/analyze-fixtures";
 
+const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
 // The real getApi() and generated client, over a stubbed fetch.
 vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: () => ({
@@ -40,7 +41,11 @@ const envelope = (code: string) => ({
 
 let lastClient: QueryClient;
 
-function view(barcode = "8901063201089", locale: TestLocale = "en") {
+function view(
+  barcode = "8901063201089",
+  locale: TestLocale = "en",
+  productId?: string,
+) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -51,7 +56,11 @@ function view(barcode = "8901063201089", locale: TestLocale = "en") {
         locale={locale}
         messages={resultMessages(MESSAGES[locale])}
       >
-        <ResultView barcode={barcode} />
+        {productId ? (
+          <ResultView productId={productId} />
+        ) : (
+          <ResultView barcode={barcode} />
+        )}
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
@@ -61,6 +70,7 @@ const en = MESSAGES.en;
 
 beforeEach(() => {
   fetchMock.mockReset();
+  router.replace.mockReset();
 });
 afterEach(cleanup);
 
@@ -184,15 +194,45 @@ describe("ResultView success", () => {
 });
 
 describe("ResultView errors", () => {
-  it("404 product_not_found → not-found with retry (no API retry)", async () => {
+  it("404 on result redirects to label page with barcode (F15)", async () => {
     fetchMock.mockResolvedValue(json(404, envelope("product_not_found")));
-    view();
-    expect(await screen.findByText(en.scan.not_found)).toBeTruthy();
+    view("8901063201089", "hi");
+    const link = await screen.findByRole("link", {
+      name: MESSAGES.hi.notfound.go_to_label,
+    });
+    expect(link.getAttribute("href")).toBe(
+      "/hi/scan/label?barcode=8901063201089",
+    );
+    await waitFor(() =>
+      expect(router.replace).toHaveBeenCalledWith(
+        "/hi/scan/label?barcode=8901063201089",
+      ),
+    );
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(screen.getByText(en.common.disclaimer)).toBeTruthy();
-    fetchMock.mockResolvedValue(json(200, analyzeResponse("water")));
-    await userEvent.click(screen.getByRole("button", { name: en.scan.retry }));
-    expect((await screen.findAllByTestId("verdict-card")).length).toBe(9);
+    expect(screen.getByText(MESSAGES.hi.common.disclaimer)).toBeTruthy();
+  });
+
+  it("a saved product (product_id) is analysed by id; its 404 does not redirect", async () => {
+    const id = "7d1d2f8a-1111-4c3b-9a0e-0123456789ab";
+    fetchMock.mockResolvedValue(json(200, analyzeResponse("sf_biscuit")));
+    view("", "en", id);
+    await screen.findAllByTestId("verdict-card");
+    expect(await lastBody()).toEqual({
+      url: "http://127.0.0.1:8000/v1/analyze",
+      method: "POST",
+      body: { product_id: id, language: "en" },
+    });
+    cleanup();
+    fetchMock.mockResolvedValue(json(404, envelope("product_not_found")));
+    view("", "en", id);
+    expect(await screen.findByText(en.scan.not_found)).toBeTruthy();
+    expect(router.replace).not.toHaveBeenCalled();
+  });
+
+  it("an invalid product id never calls the API", async () => {
+    view("", "en", "not-a-uuid");
+    expect(await screen.findByText(en.error.invalid_product_ref)).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("503 off_unavailable → retried once, then off-unavailable with retry", async () => {

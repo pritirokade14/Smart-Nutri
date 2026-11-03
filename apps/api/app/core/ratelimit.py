@@ -3,11 +3,13 @@
 Each request atomically upserts ``count + 1`` for (key, bucket, window_start) and compares the
 returned count with the configured limit. Windows are UTC-aligned (``date_trunc(..., 'UTC')``)
 and computed in the database, so every API instance agrees. The counter is committed
-immediately, so rejected requests still count and a failed route does not refund the quota.
+immediately, so rejected requests still count and a failed route does not refund the quota
+(the one exception is an explicit ``refund()``, for work that provably never happened).
 """
 
 from collections.abc import Awaitable, Callable
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends, Request
 from sqlalchemy import text
@@ -21,6 +23,9 @@ from app.db.session import get_session
 # bucket -> (window, settings attribute holding the limit)
 BUCKETS: dict[str, tuple[str, str]] = {
     "label_scans": ("day", "rate_limit_label_scans_per_day"),
+    "scan_uploads": ("day", "rate_limit_scan_uploads_per_day"),
+    "label_requests": ("day", "rate_limit_label_requests_per_day"),
+    "product_creates": ("day", "rate_limit_product_creates_per_day"),
     "voice": ("day", "rate_limit_voice_per_day"),
     "analyze": ("hour", "rate_limit_analyze_per_hour"),
     "public": ("minute", "rate_limit_public_per_minute"),
@@ -74,6 +79,50 @@ async def _hit(session: AsyncSession, settings: Settings, key: str, bucket: str)
             details={"retry_after": retry_after},
             headers={"Retry-After": str(retry_after)},
         )
+
+
+async def consume(
+    session: AsyncSession, settings: Settings, *, account_id: UUID, bucket: str
+) -> None:
+    """Count one use of an account bucket from inside a service (not as a dependency).
+
+    For routes where only some requests may count (e.g. paid label extractions, not cache
+    hits). Like `limit()`, it COMMITS `session` so the count survives a later failure; to
+    keep that from committing the caller's work by surprise, it refuses to run while ORM
+    writes are staged. Call it before staging any write.
+    """
+    _check_account_bucket(session, bucket, "consume")
+    await _hit(session, settings, f"acct:{account_id}", bucket)
+
+
+async def refund(
+    session: AsyncSession, settings: Settings, *, account_id: UUID, bucket: str
+) -> None:
+    """Give back one use counted by `consume()` when the work never happened (e.g. the
+    provider refused before any paid call). Floored at 0; a window that has rolled over is
+    left alone. Commits like `consume()` and refuses to run while ORM writes are staged."""
+    _check_account_bucket(session, bucket, "refund")
+    window, _ = BUCKETS[bucket]
+    await session.execute(
+        text(_REFUND.format(window=window)),
+        {"key": f"acct:{account_id}", "bucket": bucket},
+    )
+    await session.commit()
+
+
+# `window` is a fixed literal from BUCKETS (never user input).
+_REFUND = """
+    UPDATE rate_limit_counters SET count = GREATEST(count - 1, 0)
+    WHERE key = :key AND bucket = :bucket
+      AND window_start = date_trunc('{window}', now(), 'UTC')
+"""
+
+
+def _check_account_bucket(session: AsyncSession, bucket: str, caller: str) -> None:
+    if bucket not in BUCKETS or bucket == "public":
+        raise KeyError(f"unknown account rate-limit bucket: {bucket}")
+    if session.new or session.dirty or session.deleted:
+        raise RuntimeError(f"{caller}() would commit staged writes; call it before staging them")
 
 
 def limit(bucket: str) -> Callable[..., Awaitable[None]]:

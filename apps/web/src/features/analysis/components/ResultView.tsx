@@ -1,12 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { hasLocale, useLocale, useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
 import { routing } from "@/i18n/routing";
 import {
   type AnalyzeOut,
   analyzeErrorView,
-  useAnalyzeBarcode,
+  normalizeProductId,
+  useAnalyze,
 } from "../api/useAnalyzeBarcode";
 import { GradeChip } from "./GradeChip";
 import { OffAttribution } from "./OffAttribution";
@@ -26,14 +29,23 @@ function readReport(report: AnalyzeOut["report"]) {
   return { grade, highIn };
 }
 
-function Analysis({ data, barcode }: { data: AnalyzeOut; barcode: string }) {
+function Analysis({
+  data,
+  barcode,
+}: {
+  data: AnalyzeOut;
+  barcode: string | null;
+}) {
   const t = useTranslations();
   const { product } = data;
   const { grade, highIn } = readReport(data.report);
+  const offBarcode = product.barcode ?? barcode;
   return (
     <>
       <header className="space-y-(--spacing-1)">
-        <h1 className="text-(length:--text-xl)">{product.name ?? barcode}</h1>
+        <h1 className="text-(length:--text-xl)">
+          {product.name ?? product.barcode ?? barcode}
+        </h1>
         {product.brand ? (
           <p className="text-(length:--text-md)">{product.brand}</p>
         ) : null}
@@ -66,29 +78,71 @@ function Analysis({ data, barcode }: { data: AnalyzeOut; barcode: string }) {
         ))}
       </section>
 
-      {product.attribution != null ? (
-        <OffAttribution barcode={product.barcode ?? barcode} />
+      {product.attribution != null && offBarcode ? (
+        <OffAttribution barcode={offBarcode} />
       ) : null}
     </>
   );
 }
 
-/** Logged-in result for one barcode: the API's verdicts, rendered as-is. */
-export function ResultView({ barcode }: { barcode: string }) {
+type ResultRef =
+  | { barcode: string; productId?: undefined }
+  | { productId: string; barcode?: undefined };
+
+/**
+ * Logged-in result for one barcode, or for a saved product (by id): the API's
+ * verdicts, rendered as-is. An unknown barcode (404) goes to the label flow.
+ */
+export function ResultView(props: ResultRef) {
   const t = useTranslations();
   const locale = useLocale();
+  const router = useRouter();
   const language = hasLocale(routing.locales, locale)
     ? locale
     : routing.defaultLocale;
-  const code = normalizeBarcode(barcode);
-  const query = useAnalyzeBarcode(barcode, language);
+  const byId = props.productId !== undefined;
+  const code = byId ? null : normalizeBarcode(props.barcode ?? "");
+  const id = byId ? normalizeProductId(props.productId ?? "") : null;
+  const query = useAnalyze(
+    byId
+      ? { productId: props.productId ?? "" }
+      : { barcode: props.barcode ?? "" },
+    language,
+  );
+  const notFound =
+    !byId &&
+    query.isError &&
+    analyzeErrorView(query.error).kind === "not_found";
+  const labelUrl = code
+    ? `/${language}/scan/label?barcode=${encodeURIComponent(code)}`
+    : null;
+
+  // F15: an unknown barcode goes straight to label capture, carrying the code.
+  useEffect(() => {
+    if (notFound && labelUrl) router.replace(labelUrl);
+  }, [notFound, labelUrl, router]);
 
   let body: React.ReactNode;
-  if (code === null) {
+  if (!byId && code === null) {
     body = (
       <p role="alert" className="text-(length:--text-md)">
         {t("error.invalid_barcode")}
       </p>
+    );
+  } else if (byId && id === null) {
+    body = (
+      <p role="alert" className="text-(length:--text-md)">
+        {t("error.invalid_product_ref")}
+      </p>
+    );
+  } else if (notFound && labelUrl) {
+    body = (
+      <a
+        href={labelUrl}
+        className="inline-block rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md) underline"
+      >
+        {t("notfound.go_to_label")}
+      </a>
     );
   } else if (query.isPending) {
     body = (

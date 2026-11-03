@@ -19,6 +19,8 @@ env:
   STUB_API_PORT: "18000"
   NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:18000
   NEXT_PUBLIC_SITE_URL: http://localhost:3000
+  # The e2e CSP/hydration test opens the email form, so the flag must be on at build time.
+  NEXT_PUBLIC_FEATURE_EMAIL_OTP: "true"
 
 jobs:
   test:

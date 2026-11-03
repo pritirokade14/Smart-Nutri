@@ -145,6 +145,7 @@ jobs:
           NEXT_PUBLIC_POSTHOG_KEY: ${{ vars.NEXT_PUBLIC_POSTHOG_KEY }}
           NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
           NEXT_PUBLIC_FEATURE_PHONE_OTP: ${{ vars.NEXT_PUBLIC_FEATURE_PHONE_OTP || 'false' }}
+          NEXT_PUBLIC_FEATURE_EMAIL_OTP: ${{ vars.NEXT_PUBLIC_FEATURE_EMAIL_OTP || 'false' }}
         run: |
           if [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
             echo "Set the repository variable NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Settings > Secrets and variables > Actions > Variables)." >&2
@@ -158,6 +159,7 @@ jobs:
             --build-arg NEXT_PUBLIC_POSTHOG_KEY="$NEXT_PUBLIC_POSTHOG_KEY" \
             --build-arg NEXT_PUBLIC_SENTRY_DSN="$NEXT_PUBLIC_SENTRY_DSN" \
             --build-arg NEXT_PUBLIC_FEATURE_PHONE_OTP="$NEXT_PUBLIC_FEATURE_PHONE_OTP" \
+            --build-arg NEXT_PUBLIC_FEATURE_EMAIL_OTP="$NEXT_PUBLIC_FEATURE_EMAIL_OTP" \
             .
           docker push "$AR_REPO/web:${{ github.sha }}"
           echo "IMAGE=$(docker inspect --format '{{index .RepoDigests 0}}' "$AR_REPO/web:${{ github.sha }}")" >> "$GITHUB_ENV"

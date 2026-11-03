@@ -180,6 +180,155 @@ class AppLocalizationsEn extends AppLocalizations {
   String get conditionWeightLoss => 'Weight loss';
 
   @override
+  String get confirmAddIngredient => 'Add an ingredient';
+
+  @override
+  String get confirmAllergenStatement => 'Allergen statement';
+
+  @override
+  String get confirmBasis => 'Values on the pack are';
+
+  @override
+  String get confirmBasisOptionPer100g => 'Per 100 g';
+
+  @override
+  String get confirmBasisOptionPerServing => 'Per serving';
+
+  @override
+  String get confirmBrand => 'Brand';
+
+  @override
+  String get confirmCategory => 'Product type';
+
+  @override
+  String get confirmCategoryOptionBeverage => 'Drink';
+
+  @override
+  String get confirmCategoryOptionCheese => 'Cheese';
+
+  @override
+  String get confirmCategoryOptionFat => 'Oil or fat';
+
+  @override
+  String get confirmCategoryOptionGeneral => 'Food';
+
+  @override
+  String get confirmCategoryOptionWater => 'Packaged water';
+
+  @override
+  String get confirmChooseRequired => 'Choose one to continue';
+
+  @override
+  String get confirmClaims => 'Claims on the pack';
+
+  @override
+  String get confirmClearStatementConfirm =>
+      'I checked the pack: this statement isn\'t printed';
+
+  @override
+  String get confirmConfirmValue => 'Matches the pack';
+
+  @override
+  String confirmDerivedPerServing(String serving) {
+    return 'Worked out from a $serving g serving';
+  }
+
+  @override
+  String get confirmFieldAddedSugarsG => 'Added sugars (g)';
+
+  @override
+  String get confirmFieldCarbsG => 'Carbohydrates (g)';
+
+  @override
+  String get confirmFieldEnergyKcal => 'Energy (kcal)';
+
+  @override
+  String get confirmFieldFatG => 'Total fat (g)';
+
+  @override
+  String get confirmFieldFiberG => 'Fibre (g)';
+
+  @override
+  String get confirmFieldProteinG => 'Protein (g)';
+
+  @override
+  String get confirmFieldSaltG => 'Salt (g)';
+
+  @override
+  String get confirmFieldSatFatG => 'Saturated fat (g)';
+
+  @override
+  String get confirmFieldSodiumMg => 'Sodium (mg)';
+
+  @override
+  String get confirmFieldSugarsG => 'Total sugars (g)';
+
+  @override
+  String get confirmFieldTransFatG => 'Trans fat (g)';
+
+  @override
+  String get confirmIngredients => 'Ingredients';
+
+  @override
+  String get confirmLeaveBlankHint => 'Leave blank if it isn\'t printed';
+
+  @override
+  String get confirmMayContainStatement => 'May-contain statement';
+
+  @override
+  String get confirmName => 'Product name';
+
+  @override
+  String get confirmNotMedicalAdvice => 'Information, not medical advice.';
+
+  @override
+  String get confirmOpenExisting => 'Open the saved product';
+
+  @override
+  String get confirmRemoveIngredient => 'Remove this ingredient';
+
+  @override
+  String get confirmSave => 'Confirm and save';
+
+  @override
+  String get confirmServingSize => 'Serving size (g)';
+
+  @override
+  String get confirmSodium => 'Sodium';
+
+  @override
+  String get confirmSodiumUnit => 'Sodium unit on the pack';
+
+  @override
+  String get confirmSodiumUnitOptionG => 'g';
+
+  @override
+  String get confirmSodiumUnitOptionMg => 'mg';
+
+  @override
+  String get confirmSubtitle =>
+      'Check every value against the pack. Leave blank if not printed.';
+
+  @override
+  String get confirmTitle => 'Check the label values';
+
+  @override
+  String get confirmVegMarkNonVeg => 'Non-vegetarian (brown mark)';
+
+  @override
+  String get confirmVegMarkNone => 'No mark on the pack';
+
+  @override
+  String get confirmVegMarkTitle => 'Veg or non-veg mark';
+
+  @override
+  String get confirmVegMarkVeg => 'Vegetarian (green mark)';
+
+  @override
+  String get confirmWithheldHint =>
+      'Check this value on the pack, then tick to confirm it.';
+
+  @override
   String get dietEggetarian => 'Eggetarian';
 
   @override
@@ -201,10 +350,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthRequired => 'Please sign in.';
 
   @override
+  String get errorExtractionFailed =>
+      'We couldn\'t read this label. Try another photo or enter the details manually.';
+
+  @override
+  String get errorExtractionUnavailable =>
+      'Label reading is unavailable right now. Try again later or enter the details manually.';
+
+  @override
   String get errorForbidden => 'You don\'t have access to this.';
 
   @override
   String get errorHttpError => 'Something went wrong. Please try again.';
+
+  @override
+  String get errorImageTooLarge =>
+      'This photo is too large. Please use a photo under 8 MB.';
+
+  @override
+  String get errorImplausibleValue =>
+      'Some values don\'t look right. Please check the highlighted fields, or leave them blank.';
 
   @override
   String get errorInternalError => 'Something went wrong. Please try again.';
@@ -233,6 +398,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'The product database is busy right now. Please try again in a moment.';
 
   @override
+  String get errorProductExists => 'This product is already saved.';
+
+  @override
   String get errorProductNotFound => 'We couldn\'t find this product yet.';
 
   @override
@@ -247,7 +415,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ve reached today\'s voice-question limit.';
 
   @override
+  String get errorScanImageNotFound =>
+      'We couldn\'t find that photo. Please take or upload it again.';
+
+  @override
+  String get errorScanNotFound =>
+      'We couldn\'t find that label scan. Please scan the label again.';
+
+  @override
+  String get errorStorageUnavailable =>
+      'We couldn\'t handle the photo right now. Please try again in a moment.';
+
+  @override
   String get errorUnauthorized => 'Please sign in.';
+
+  @override
+  String get errorUnsupportedImage => 'Please use a JPEG, PNG or WebP photo.';
 
   @override
   String get errorValidationError => 'Please check the highlighted fields.';
@@ -276,6 +459,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeWelcome(String name) {
     return 'Hello, $name';
   }
+
+  @override
+  String get labelCameraPermissionDenied =>
+      'Camera access is off. Allow it in Settings to photograph the label, or choose a photo or enter the details manually.';
+
+  @override
+  String get labelChooseFile => 'Choose a file';
+
+  @override
+  String get labelDropHere => 'Drop a photo here';
+
+  @override
+  String get labelEnterManually => 'Enter the details manually';
+
+  @override
+  String get labelReading => 'Reading the label…';
+
+  @override
+  String get labelRetake => 'Retake';
+
+  @override
+  String get labelTakePhoto => 'Take a photo';
+
+  @override
+  String get labelTitle => 'Photograph the label';
+
+  @override
+  String get labelUploading => 'Uploading the photo…';
+
+  @override
+  String get notfoundGoToLabel =>
+      'We don\'t know this product yet — photograph its label';
 
   @override
   String get nutrientCarbsG => 'carbohydrate';
@@ -625,4 +840,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get verdictStatusUnknown => 'Label unclear';
+
+  @override
+  String get warningBasisMismatch =>
+      'We couldn\'t tell whether these values are per 100 g or per serving. Choose which one the pack shows.';
+
+  @override
+  String get warningCategoryCheck =>
+      'Check that the product type is right, because it changes how the values are read.';
+
+  @override
+  String get warningCategoryUnknown =>
+      'We couldn\'t tell what type of product this is. Choose one.';
+
+  @override
+  String get warningDerivedFromServing =>
+      'This value was worked out from the per-serving amount. Check it against the pack.';
+
+  @override
+  String get warningEnergyMismatch =>
+      'The energy doesn\'t match the other values. Check it on the pack.';
+
+  @override
+  String get warningImplausibleValue =>
+      'This value looks unusual. Please check it against the pack.';
+
+  @override
+  String get warningKcalKjMismatch =>
+      'The kcal and kJ values don\'t match each other. Check both on the pack.';
+
+  @override
+  String get warningLowConfidence =>
+      'The label was hard to read. Please check every value against the pack.';
+
+  @override
+  String get warningPer100gMissing =>
+      'The pack\'s per 100 g values weren\'t found. Check the numbers or enter them from the pack.';
+
+  @override
+  String get warningPerServingIgnored =>
+      'The per-serving values on the pack weren\'t used. Check that the per 100 g values are right.';
+
+  @override
+  String get warningSaltSodiumMismatch =>
+      'The salt and sodium values don\'t match each other. Check both on the pack.';
+
+  @override
+  String get warningUnitUnconfirmed =>
+      'The unit for this value wasn\'t clear. Choose mg or g as printed.';
+
+  @override
+  String get warningUnreadableField =>
+      'We couldn\'t read this value. Enter it from the pack, or leave it blank.';
+
+  @override
+  String get warningUpperBound =>
+      'The pack says \'less than\' this amount. Confirm it if that\'s right.';
 }

@@ -11,11 +11,33 @@ def _sync_url(cfg) -> str:
     return cfg.get_main_option("sqlalchemy.url")
 
 
-def test_head_is_baseline(migrated):
+def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert MigrationContext.configure(conn).get_current_revision() == "0001_baseline"
+        assert MigrationContext.configure(conn).get_current_revision() == "0002_scans_path_unique"
     engine.dispose()
+
+
+def test_scans_path_index_downgrades_cleanly(migrated):
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0001_baseline")
+        with engine.connect() as conn:
+            names = {ix["name"] for ix in inspect(conn).get_indexes("scans")}
+            assert "uq_scans_account_id_image_path" not in names
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            [ix] = [
+                ix
+                for ix in inspect(conn).get_indexes("scans")
+                if ix["name"] == "uq_scans_account_id_image_path"
+            ]
+            assert ix["unique"] and ix["column_names"] == ["account_id", "image_path"]
+            where = ix.get("dialect_options", {}).get("postgresql_where")
+            assert where is not None and "image_path IS NOT NULL" in str(where)
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
 
 
 def test_downgrade_then_upgrade_is_clean(migrated):

@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../models/language.dart';
+import '../models/product_create.dart';
 import '../models/product_out.dart';
 import '../models/public_product_out.dart';
 
@@ -14,6 +15,14 @@ part 'products_client.g.dart';
 @RestApi()
 abstract class ProductsClient {
   factory ProductsClient(Dio dio, {String? baseUrl}) = _ProductsClient;
+
+  /// Products Create.
+  ///
+  /// Save a confirmed label draft (``scan_id``) or a manual entry as a pending product.
+  ///
+  /// Then call ``analyze_create`` with the returned ``product_id``.
+  @POST('/v1/products')
+  Future<ProductOut> productsCreate({@Body() required ProductCreate body});
 
   /// Products Get By Barcode
   @GET('/v1/products/barcode/{code}')

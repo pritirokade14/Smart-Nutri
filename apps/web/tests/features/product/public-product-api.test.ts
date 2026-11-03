@@ -63,7 +63,10 @@ describe("clientMessages", () => {
     const scoped = clientMessages(enMessages);
     const json = JSON.stringify(scoped).toLowerCase();
     expect(json).not.toContain("verdict");
-    expect(json).not.toContain("allergen");
+    // The confirm screen's "allergen statement" field label is not health
+    // data; what must stay server-side is the allergen namespace itself.
+    for (const ns of ["allergen", "reason", "status", "diet", "nutrient"])
+      expect(scoped).not.toHaveProperty(ns);
     expect(scoped).toHaveProperty("auth");
     expect(scoped).toHaveProperty("scan");
   });

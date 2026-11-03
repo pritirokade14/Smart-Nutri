@@ -28,3 +28,11 @@ enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 skip_nonce_check = false
+
+# Private label-photo bucket for local `supabase start` (no policies: only the API's
+# service key and signed URLs reach it). Dev and prod buckets are created in the dashboard
+# (see docs/SETUP_ACCOUNTS.md).
+[storage.buckets.label-photos]
+public = false
+file_size_limit = "8MiB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]

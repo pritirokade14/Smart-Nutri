@@ -53,3 +53,20 @@ The following were rewritten or added: all of `reason.*` that mention amounts, t
 
 ### Verdict fallback and profile notes (R20/R21)
 - [ ] **hi/mr `verdict.reason_unavailable`, `verdict.profile_not_set_up`, `verdict.show_all_reasons`, `verdict.hide_reasons`**: machine drafts. Check tone (informational, tentative) and that "profile not set up" reads naturally.
+
+## Added for Plan 4 (M2 label scan, Task 5: saving a product)
+- [ ] **hi/mr `error.{scan_not_found,implausible_value,product_exists}`**: machine drafts. Check that `implausible_value` reads as "please check these numbers", not as blaming the user, and that "सहेजा गया" (hi) and "जतन केले" (mr) are natural for "saved".
+
+## Added for Plan 4 Task 4 (label photo upload and extraction)
+- [ ] **hi/mr `error.{scan_image_not_found,image_too_large,unsupported_image,extraction_failed,extraction_unavailable,storage_unavailable}`**: machine drafts. Check the tone (no blame), that "जानकारी खुद भरें" / "माहिती स्वतः भरा" reads as the "enter manually" path, and that "8 MB" and the format names (JPEG, PNG, WebP) stay as written.
+
+## Plan 4 Task 7 (label capture and confirm screen)
+- [ ] **hi/mr `label.*`, `notfound.go_to_label`**: machine drafts. Check "जानकारी खुद भरें" / "माहिती स्वतः भरा" (enter manually) and that the photo wording reads naturally.
+- [ ] **hi/mr `confirm.*`** (`title`, `subtitle`, `field.*`, `serving_size`, `ingredients`, `add_ingredient`, `claims`, `veg_mark.*`, `save`, `category`, `category_option.*`, `sodium_unit`, `sodium_unit_option.*`, `basis`, `basis_option.*`, `choose_required`, `withheld_hint`, `confirm_value`, `derived_per_serving`, `leave_blank_hint`, `allergen_statement`, `may_contain_statement`, `not_medical_advice`): machine drafts. Units (g, mg, kcal, kJ) and "100 g" stay as written. Check the nutrient names (added sugars, "तंतू" for fibre in mr) and that the may-contain statement reads as the pack's own wording.
+- [ ] **hi/mr `warning.*`** (`implausible_value`, `per_100g_missing`, `basis_mismatch`, `per_serving_ignored`, `energy_mismatch`, `kcal_kj_mismatch`, `salt_sodium_mismatch`, `unit_unconfirmed`, `low_confidence`, `category_unknown`, `category_check`, `unreadable_field`, `upper_bound`, `derived_from_serving`): machine drafts. **Check the tone**: each must be calm, non-blaming and say what to check on the pack. Check that "कम" / "कमी" in `upper_bound` clearly means "less than".
+
+## Plan 4 Task 9 (web confirm screen)
+- [ ] **hi/mr `confirm.{name,brand,sodium,veg_mark_title,remove_ingredient,clear_statement_confirm,open_existing}`**: machine drafts. Check that `clear_statement_confirm` reads as a deliberate "the pack has no such statement" confirmation (it gates removing the allergen or may-contain text), and that `sodium` works as a field label next to the separate mg/g picker.
+
+## Plan 4 round B (Android label capture)
+- [ ] **hi/mr `label.camera_permission_denied`**: machine drafts. Check that "सेटिंग्स" / "सेटिंग्ज" is the word users see on their phone, that the sentence reads as a calm "turn on camera access" instruction (no blame), and that the two fallbacks (choose a photo, enter manually) match the `label.choose_file` and `label.enter_manually` wording.

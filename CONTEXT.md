@@ -32,7 +32,7 @@ _Last updated: 2026-11-03_
 | Hosting | **Cloud Run, asia-south1 (Mumbai)** for API + web; Google Play for Android |
 | Shared | `packages/api-contract` (generated Dart + TS clients), `i18n`, `design-tokens`, `test-fixtures` |
 
-→ [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · decisions in [docs/adr/](docs/adr/) (0001–0012)
+→ [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · decisions in [docs/adr/](docs/adr/) (0001–0016)
 
 ## 3. Repository map
 
@@ -85,7 +85,7 @@ See [AGENTS.md](AGENTS.md). In short:
 | 1. Rules engine | [plan-1](docs/superpowers/plans/2026-11-02-plan-1-rules-engine.md) | 🔄 in progress (subagent-driven, parallel waves) |
 | 2. Foundation (API skeleton, auth, DB/RLS, contract, i18n/tokens, app + web shells, CI, dev deploy) | `docs/superpowers/plans/2026-11-03-plan-2-foundation.md` | ✍️ being written |
 | 3. M1: barcode → verdict (Android + web), public product pages | `…-plan-3-m1-barcode-verdict.md` | ✍️ being written |
-| 4. M2: label photo → AI extraction → confirm | `…-plan-4-m2-label-scan.md` | ✍️ being written |
+| 4. M2: label photo → AI extraction → confirm | [plan-4](docs/superpowers/plans/2026-11-03-plan-4-m2-label-scan.md) | 🔄 code complete; M2 gates open (see Status) |
 | 5. M3: family members, per-member verdicts, claims, custom alerts | `…-plan-5-m3-family-verdicts.md` | ✍️ being written |
 | 6. M4: scan-to-log, weekly summary, alternatives, share | `…-plan-6-m4-log-share.md` | ✍️ being written |
 | 7. M5: voice Q&A, AI explanation, How we score, Report a problem | `…-plan-7-m5-voice-methodology-reports.md` | ✍️ being written |
@@ -104,11 +104,12 @@ See [AGENTS.md](AGENTS.md). In short:
 
 - **Plan 2 (foundation): code complete.** Generated Dart/TS clients, Flutter and web login, CSP/HSTS, Sentry/PostHog with health-data scrubbing, Docker images, CI, and the GitHub Actions dev-deploy workflow (keyless WIF, ADR 0015). What's left is the user's one-time deploy setup in `docs/SETUP_ACCOUNTS.md`.
 - **Plan 3 (M1: barcode → verdict): code complete on API, Android and web.** Barcode lookup (own products → Open Food Facts cache → OFF), safety-reviewed OFF mapping, `POST /v1/analyze`, a public product page, and scan/result screens on both clients. The clients render identical reason text in en/hi/mr, asserted by a shared fixture.
+- **Plan 4 (M2: label scan): code complete on `v1-rebuild`** (API, Android and web). Still open: a final client fix round (R20/R21: the server sends confirm hints, clients render them), the label eval run (needs the photo set and the CallMissed spend) and the manual real-pack check. The extraction model is not chosen yet. See ADR 0016.
 
 **Next:**
 - User: the one-time deploy setup (protect `main`, `push-secrets.sh`, `setup-github-deploy.sh`, the repo variable, `db-migrate`), then push and open the PR to `main`.
 - After the first dev deploy: a manual login check (Google and email OTP) on web and Android, and the M1 real-pack parity check on a phone and in a browser.
-- Then Plan 4 (M2: label scan for products not found by barcode).
+- Finish the M2 gates (client fix round, label eval, manual real-pack check), then Plan 5.
 
 ## 9. Open items that only the user can do
 
@@ -120,7 +121,12 @@ See [AGENTS.md](AGENTS.md). In short:
   - Blood-sugar members: is CAUTION the right level for foods high in saturated fat or salt (UK FSA "high" limits: sat fat > 5 g, salt > 1.5 g per 100 g)? Is the 30 g carbs-per-serving threshold right (oats at 26 g per 40 g serving shows ok)?
   - Child rules compare total sugars with a daily free-sugar limit, and ignore saturated fat.
   - Ages come from birth year only. Should infant rules (under 2) also warn about very high natural sugar (dates, raisins), and should a 13-year-old still get child caffeine warnings?
+  - Serving sizes: the engine accepts any serving above 0 g and up to 5000 g. Should there be a realistic lower bound (e.g. 1 g)? A confirmed serving of 0.0001 g would inflate per-100 g values by about a million times. Post-conversion plausibility catches this, except when every value is 0.
   - Open Food Facts data is crowd-sourced; the engine treats it at confidence 0.9 (allergen rules run, so an incomplete OFF ingredient list could show `ok` for an allergic member). Is that acceptable, or should OFF products be `unknown` for allergic members unless the label is confirmed?
+- [ ] M2 label scan:
+  - (a) Photograph 40–60 label packs for the eval (checklist in `apps/api/tests/evals/labels/README.md`) and approve the CallMissed spend.
+  - (b) Do the manual 3-pack parity check on a phone and in a browser, including one Hindi or bilingual label and one per-serving-only label.
+  - (c) Smoke-test a real photo upload on both clients on dev after the next deploy.
 - [ ] Native Hindi and Marathi speaker review of all UI strings: checklist in `packages/i18n/NATIVE_REVIEW.md`.
 - [ ] Before launch: domain name, privacy policy and terms, Supabase prod (Pro), CallMissed plan check, WhatsApp OTP template approval.
 - [ ] Before Play submission, decide whether to keep the Android package name `com.smartnutri.app` (it is permanent once published).
