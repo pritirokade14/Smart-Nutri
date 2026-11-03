@@ -141,7 +141,7 @@ async def test_response_shape(auth_client, seeded_product):
         "tips": [],
         "language": "hi",
         "source": "unavailable",
-        "prompt_version": "explanation_v2",
+        "prompt_version": "explanation_v3",
         "member_refs": {},
     }
     assert "tips" not in body

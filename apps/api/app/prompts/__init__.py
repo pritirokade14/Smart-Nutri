@@ -9,8 +9,8 @@ EXTRACTION_PROMPT_VERSION = "extraction_v1"
 # Label accuracy v2: raw cell text, parsed in code (app/features/scans/cells.py).
 EXTRACTION_V2_PROMPT_VERSION = "extraction_v2"
 EXTRACTION_PROMPT_VERSIONS = (EXTRACTION_PROMPT_VERSION, EXTRACTION_V2_PROMPT_VERSION)
-EXPLANATION_PROMPT_VERSION = "explanation_v2"
-VOICE_PROMPT_VERSION = "voice_v2"
+EXPLANATION_PROMPT_VERSION = "explanation_v3"
+VOICE_PROMPT_VERSION = "voice_v3"
 
 
 def load_prompt(name: str) -> tuple[str, str]:

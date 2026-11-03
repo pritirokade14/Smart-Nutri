@@ -392,18 +392,18 @@ async def test_answer_naming_another_family_member_is_rejected(avoid_case):
 # --- Plan 9 T5: protein-guide guard rules (prompt v2) --------------------------------------
 
 
-def test_voice_uses_v2():
+def test_voice_uses_v3():
     from app.prompts import load_prompt
 
-    assert VOICE_PROMPT_VERSION == "voice_v2"
+    assert VOICE_PROMPT_VERSION == "voice_v3"
     text, version = load_prompt(VOICE_PROMPT_VERSION)
-    assert version == "voice_v2"
+    assert version == "voice_v3"
     assert "Never recommend a supplement, a brand or a product to buy" in text
 
 
 async def test_voice_answer_reports_v2(avoid_case):
     got = await _ask(avoid_case, _llm("avoid", "It has a lot of sugar, so compare labels."))
-    assert got.source == "llm" and got.prompt_version == "voice_v2"
+    assert got.source == "llm" and got.prompt_version == "voice_v3"
 
 
 _ADVICE_ANSWERS = [

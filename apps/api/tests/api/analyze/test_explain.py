@@ -97,7 +97,7 @@ def _unavailable(body: dict, language: str = "en") -> bool:
         "tips": [],
         "language": language,
         "source": "unavailable",
-        "prompt_version": "explanation_v2",
+        "prompt_version": "explanation_v3",
         "member_refs": {},
     }
 
@@ -119,7 +119,7 @@ async def test_explanation_with_member_refs(
     exp = body["explanation"]
     assert exp["source"] == "llm" and exp["text"] == TEXT  # member_N tokens kept for clients
     assert exp["tips"] == ["Compare the sugar line with similar packs."]
-    assert exp["language"] == "hi" and exp["prompt_version"] == "explanation_v2"
+    assert exp["language"] == "hi" and exp["prompt_version"] == "explanation_v3"
     assert exp["member_refs"] == {
         "member_1": str(seeded_family["Me"].id),
         "member_2": str(seeded_family["Dad"].id),
@@ -140,7 +140,7 @@ async def test_prompt_sent_has_no_names_ids_or_email(
     for member in seeded_family.values():
         assert str(member.id) not in sent
     assert json.loads(call["user"])["language"] == "mr"
-    assert call["prompt_version"] == "explanation_v2"
+    assert call["prompt_version"] == "explanation_v3"
 
 
 # --- never changes a verdict -------------------------------------------------------------------

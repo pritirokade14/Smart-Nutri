@@ -127,57 +127,122 @@ DENY_WORDS_NOT_ALL_OK: tuple[str, ...] = (
     "खाऊ शकते",
     "हरकत नाही",
 )
-# Protein-guide guard (Plan 9 T5), denied for every status: no supplement, brand, creatine,
-# steroid, pre-workout, fat-burner or dose advice. "supplement" etc. also match as whole Latin
-# words only; Devanagari forms match as word prefixes. Protein numbers from the input may
-# still be repeated, so "protein" and "gram" are not denied; amounts someone "needs" are
-# caught by `DENY_PATTERNS`.
+# Protein-guide guard (Plan 9 T5; widened by the P9 safety review B1, prompt v3), denied for
+# every status: no supplement, brand, creatine, steroid, hormone, pre-workout, fat-burner,
+# gainer, protein-powder, BCAA, multivitamin, sports-drink or dose advice. Latin entries match
+# as whole words only; Devanagari forms match as word prefixes, so "सप्लीमेंट" also catches
+# "सप्लीमेंट्स" and "डोज" catches "डोज़" (NFKC splits off the nukta). Protein numbers from the
+# input may still be repeated, so "protein" and "gram" are not denied; amounts someone "needs"
+# or should have daily are caught by `DENY_PATTERNS`.
 DENY_WORDS_ADVICE: tuple[str, ...] = (
     "creatine",
     "steroid",
     "steroids",
+    "anabolic",
+    "testosterone",
     "fat burner",
     "fat burners",
+    "fat-burner",
+    "fat-burners",
     "pre-workout",
     "pre-workouts",
+    "preworkout",
+    "preworkouts",
+    "pre workout",
+    "pre workouts",
     "supplement",
     "supplements",
+    "supplemental",
+    "supplementation",
+    "mass gainer",
+    "mass gainers",
+    "gainer",
+    "gainers",
+    "protein powder",
+    "protein powders",
+    "bcaa",
+    "bcaas",
+    "multivitamin",
+    "multivitamins",
+    "sports drink",
+    "sports drinks",
     "brand",
     "brands",
     "scoop",
     "scoops",
     "dose",
+    "doses",
     "dosage",
+    "dosing",
     "क्रिएटिन",
+    "क्रिएटीन",
     "स्टेरॉयड",
     "स्टेरॉइड",
+    "स्टिरॉइड",
+    "स्टिरॉयड",
+    "टेस्टोस्टेरोन",
+    "टेस्टोस्टेरॉन",
     "सप्लिमेंट",
     "सप्लिमेंट्स",
+    "सप्लीमेंट",
+    "सप्लीमेंट्स",
+    "पूरक आहार",
+    "मल्टीविटामिन",
+    "प्रोटीन पाउडर",
+    "प्रोटीन पावडर",
+    "गेनर",
     "ब्रांड",
     "ब्रँड",
+    "ब्रैंड",
     "स्कूप",
     "खुराक",
     "डोस",
+    "डोज",
+    "प्री-वर्कआउट",
+    "प्री वर्कआउट",
+    "प्रीवर्कआउट",
     "फैट बर्नर",
     "फॅट बर्नर",
 )
 _UNIT = r"(?:g|gm|gms|grams?|ग्राम|ग्रॅम)"
+# `\d` matches Latin and Devanagari digits ("६०").
 _NUM = r"\d+(?:[.,]\d+)?"
-# "you need 50 g", "should eat 2 servings", "आपको 60 ग्राम प्रोटीन चाहिए", "६० ग्रॅम ... लागेल",
-# "2 scoops a day". Applied to the normalised, whitespace-collapsed text.
+_NEED = r"\b(?:need|needs|needed|require|requires|should|must|aim for)\b"
+# Daily-amount words. "रोज" also covers "रोज़" (normalised: the nukta is split off) and "दररोज".
+_DAILY_DEVANAGARI = r"(?:रोज|प्रतिदिन|प्रति दिन|रोजाना|दिन में|दिवसाला)"
+# Hindi and Marathi imperatives ("take", "have", "eat"), as whole words.
+_IMPERATIVE = r"(?:लें|लेँ|लीजिए|लीजिये|लो|खाएं|खाएँ|खाइए|खाइये|खाओ|घ्या|खा)(?![^\s.!?।,;])"
+# Up to three words, never across punctuation.
+_WORDS = r"(?:\s+[^\s.!?।,;]+){0,3}?"
+# Applied to the normalised, whitespace-collapsed text. Examples: "you need 50 g", "should eat
+# 2 servings", "2 scoops a day", "120 g every day", "1.6 g per kg", "आपको 60 ग्राम प्रोटीन
+# चाहिए", "६० ग्रॅम ... लागेल", "रोज़ 60 ग्राम", "60 ग्राम प्रोटीन लें", "take whey".
 DENY_PATTERNS: tuple[re.Pattern[str], ...] = (
-    re.compile(
-        rf"\b(?:need|needs|needed|require|requires|should|must|aim for)\b[^.!?\n]{{0,40}}?{_NUM}\s*{_UNIT}(?![a-z])"
-    ),
-    re.compile(
-        rf"\b(?:need|needs|needed|require|requires|should|must|aim for)\b[^.!?\n]{{0,40}}?{_NUM}\s*(?:servings?|portions?|scoops?)\b"
-    ),
+    re.compile(rf"{_NEED}[^.!?\n]{{0,40}}?{_NUM}\s*{_UNIT}(?![a-z])"),
+    re.compile(rf"{_NEED}[^.!?\n]{{0,40}}?{_NUM}\s*(?:servings?|portions?|scoops?)\b"),
     re.compile(
         rf"{_NUM}\s*(?:scoops?|servings?)\b[^.!?\n]{{0,20}}?(?:a|per|each|every)\s+(?:day|meal|week)\b"
     ),
+    # Grams and a daily word in one sentence: "60 g protein daily", "120 g every day".
+    re.compile(
+        rf"{_NUM}\s*{_UNIT}(?![a-z])[^.!?\n]{{0,40}}?\b(?:daily|every\s*day|a\s+day|per\s+day|each\s+day)\b"
+    ),
+    # Per body weight: "1.6 g per kg", "1.6 g/kg", "grams per kilo", "प्रति किलो".
+    re.compile(r"\bper\s+(?:kg|kilo|kilogram)s?\b|\bg\s*/\s*kg\b|प्रति\s*किलो"),
     re.compile(rf"{_NUM}\s*{_UNIT}[^.!?।\n]{{0,40}}?(?:चाहिए|चाहिये|आवश्यक|लाग|गरज)"),
     re.compile(rf"(?:चाहिए|चाहिये|आवश्यक|लाग|गरज)[^.!?।\n]{{0,40}}?{_NUM}\s*{_UNIT}"),
     re.compile(rf"{_NUM}\s*(?:स्कूप|सर्विंग)"),
+    # "रोज़ 60 ग्राम", "दररोज ६० ग्रॅम", "प्रतिदिन 60 ग्राम", and "60 ग्राम रोज".
+    re.compile(rf"{_DAILY_DEVANAGARI}[^.!?।\n]{{0,20}}?{_NUM}\s*{_UNIT}"),
+    re.compile(rf"{_NUM}\s*{_UNIT}[^.!?।\n]{{0,30}}?{_DAILY_DEVANAGARI}"),
+    # An imperative within a few words of a number and a unit: "60 ग्राम प्रोटीन लें",
+    # "६० ग्रॅम प्रथिने घ्या".
+    re.compile(rf"{_NUM}\s*{_UNIT}{_WORDS}\s+{_IMPERATIVE}"),
+    # "take whey", "try whey protein", "व्हे प्रोटीन लें".
+    re.compile(
+        r"\b(?:take|taking|try|add|use|drink|buy|consume|start|mix)\b(?:\s+[^\s.!?,;:]+){0,2}?\s+whey\b"
+    ),
+    re.compile(rf"व्हे{_WORDS}\s+{_IMPERATIVE}"),
 )
 _SPACES_RE = re.compile(r"\s+")
 
