@@ -1,9 +1,13 @@
 # CallMissed STT: accepted audio formats (Plan 7 Task 1)
 
 **Status: NOT YET PROBED.** The probe makes paid calls (5 STT + 1 TTS), so it needs the
-user's go-ahead. Until it runs, the API transcodes every non-WAV upload to 16 kHz mono WAV
-with ffmpeg before STT (`VOICE_TRANSCODE_MIMES=audio/mp4,audio/webm,audio/ogg,audio/mpeg`).
-That is always correct, just slightly slower (one ffmpeg pass of at most 30 s of audio).
+user's go-ahead.
+
+**Decision (security review, 2026-11-03):** the API always sends STT the 16 kHz mono WAV it
+decoded and measured itself, for every upload type, WAV included. It never forwards the raw
+upload, so the STT service can't parse a file differently from our duration and silence
+checks (a parser differential). So the plan's `VOICE_TRANSCODE_MIMES` setting is gone, and
+only the `wav` row below decides whether voice works. The other rows are for information.
 
 ## How to run
 
@@ -33,9 +37,8 @@ is rejected, set `CALLMISSED_TTS_VOICE` to a voice listed for the model in `GET 
 
 ## After the probe
 
-- Set the default of `voice_transcode_mimes` in `apps/api/app/core/config.py` and
-  `VOICE_TRANSCODE_MIMES` in `apps/api/.env.example` to every **rejected** MIME type. If all
-  are accepted, use `audio/webm,audio/ogg` as the safe choice (Plan 7).
+- If `wav` is rejected, voice cannot work: check the STT model id and the request shape
+  (`app/integrations/callmissed.py::transcribe`) before anything else.
 - Also check that `saaras:v4` returns a transcript in the spoken language (not an English
   translation) for `hi-IN` and `mr-IN`. Some Sarvam "saaras" models translate to English;
   if this one does, the voice answer is still in the requested language (the answer language

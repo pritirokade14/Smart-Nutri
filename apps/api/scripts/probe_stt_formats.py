@@ -9,8 +9,9 @@ mp3, posts each one to `/v1/audio/transcriptions` with CALLMISSED_STT_MODEL, and
 `<format>: <http status>`. Then it makes one TTS call with CALLMISSED_TTS_MODEL and
 CALLMISSED_TTS_VOICE and prints its status, so a wrong default voice shows up here.
 
-Record the table in docs/research/2026-11-03-callmissed-stt-formats.md and set the default of
-VOICE_TRANSCODE_MIMES (app/core/config.py) to every rejected MIME type.
+Record the table in docs/research/2026-11-03-callmissed-stt-formats.md. The API always sends
+STT a 16 kHz mono WAV it decoded itself (security review), so only the `wav` row decides
+whether voice works; the others are for information.
 
 The key is read from settings (apps/api/.env) and never printed. Transcripts and response
 bodies are never printed either: only HTTP status codes.

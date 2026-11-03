@@ -21,11 +21,6 @@ class Settings(BaseSettings):
     callmissed_tts_model: str = "bulbul:v3"
     # TTS speaker id (unverified until scripts/probe_stt_formats.py runs with --yes-spend).
     callmissed_tts_voice: str = "anushka"
-    # Uploads with these (sniffed) types are transcoded to 16 kHz mono WAV before STT. Until
-    # the format probe has run, every non-WAV type is transcoded (WAV is always accepted).
-    voice_transcode_mimes: Annotated[frozenset[str], NoDecode] = frozenset(
-        {"audio/mp4", "audio/webm", "audio/ogg", "audio/mpeg"}
-    )
     supabase_url: str = ""
     supabase_project_ref: str = ""
     supabase_jwks_url: str = ""
@@ -66,13 +61,6 @@ class Settings(BaseSettings):
     def _split_origins(cls, v: Any) -> Any:
         if isinstance(v, str):
             return [o.strip() for o in v.split(",") if o.strip()]
-        return v
-
-    @field_validator("voice_transcode_mimes", mode="before")
-    @classmethod
-    def _split_mimes(cls, v: Any) -> Any:
-        if isinstance(v, str):
-            return frozenset(m.strip().lower() for m in v.split(",") if m.strip())
         return v
 
     @field_validator("allowed_origins")

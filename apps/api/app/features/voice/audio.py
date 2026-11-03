@@ -4,8 +4,16 @@ transcoding to 16 kHz mono WAV with ffmpeg (Plan 7 Task 2).
 The declared content type is never trusted. Every upload is decoded once with ffmpeg (as
 16 kHz mono PCM, capped just past the limit), which gives a duration even for containers
 without one (MediaRecorder WebM) and lets silent or very short recordings be refused before
-STT spends credits. The audio goes to a private temporary file only for the decode (MP4 needs
-a seekable input) and is deleted straight after. Nothing here logs audio or its content.
+STT spends credits. STT always receives that decoded, measured PCM re-wrapped as WAV, never
+the upload itself, so the STT service cannot parse the file differently from us.
+
+ffmpeg is locked down (security review): the demuxer is forced to the one matching the
+sniffed type (`-f`, `-format_whitelist`), so a playlist or concat script disguised behind a
+valid magic prefix is never interpreted as one. Input comes from stdin
+(`-protocol_whitelist pipe`), except MP4: its index may sit at the end of the file, which
+needs a seekable input, so it goes through a private (0600) temporary file with
+`-protocol_whitelist file` and external data references off (`-enable_drefs 0`), deleted
+straight after. Nothing here logs audio or its content.
 """
 
 from __future__ import annotations
@@ -60,6 +68,16 @@ def sniff_audio_mime(data: bytes) -> str | None:
     return None
 
 
+# sniffed type -> the only ffmpeg demuxer allowed to read it
+DEMUXERS: dict[str, str] = {
+    "audio/wav": "wav",
+    "audio/mp4": "mov",
+    "audio/webm": "matroska",
+    "audio/ogg": "ogg",
+    "audio/mpeg": "mp3",
+}
+
+
 def _write_temp(data: bytes) -> str:
     fd, path = tempfile.mkstemp(prefix="voice-", suffix=".bin")  # mode 0600
     with os.fdopen(fd, "wb") as f:
@@ -67,39 +85,53 @@ def _write_temp(data: bytes) -> str:
     return path
 
 
-async def _decode_pcm(data: bytes) -> bytes:
+async def _decode_pcm(data: bytes, mime: str) -> bytes:
     """16 kHz mono s16le PCM of at most _DECODE_CAP_S seconds. AudioRejected on failure."""
+    demuxer = DEMUXERS[mime]
+    output = [
+        "-t",
+        str(_DECODE_CAP_S),
+        "-vn",
+        "-ac",
+        "1",
+        "-ar",
+        str(SAMPLE_RATE),
+        "-f",
+        "s16le",
+        "pipe:1",
+    ]
+    base = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin"]
+    locked = ["-format_whitelist", demuxer, "-f", demuxer]
+    if mime != "audio/mp4":
+        cmd = [*base, "-protocol_whitelist", "pipe", *locked, "-i", "pipe:0", *output]
+        return await _run_ffmpeg(cmd, stdin=data)
     path = await anyio.to_thread.run_sync(_write_temp, data)
     try:
         cmd = [
-            "ffmpeg",
-            "-hide_banner",
-            "-loglevel",
-            "error",
-            "-nostdin",
+            *base,
+            "-protocol_whitelist",
+            "file",
+            "-enable_drefs",
+            "0",
+            *locked,
             "-i",
             path,
-            "-t",
-            str(_DECODE_CAP_S),
-            "-vn",
-            "-ac",
-            "1",
-            "-ar",
-            str(SAMPLE_RATE),
-            "-f",
-            "s16le",
-            "pipe:1",
+            *output,
         ]
-        try:
-            with anyio.fail_after(FFMPEG_TIMEOUT_S):
-                result = await anyio.run_process(cmd, check=False)
-        except TimeoutError:
-            raise AudioRejected("audio_unsupported") from None
-        if result.returncode != 0 or not result.stdout:
-            raise AudioRejected("audio_unsupported")
-        return result.stdout
+        return await _run_ffmpeg(cmd, stdin=None)
     finally:
         await anyio.to_thread.run_sync(_unlink, path)
+
+
+async def _run_ffmpeg(cmd: list[str], *, stdin: bytes | None) -> bytes:
+    try:
+        with anyio.fail_after(FFMPEG_TIMEOUT_S):
+            result = await anyio.run_process(cmd, input=stdin, check=False)
+    except TimeoutError:
+        raise AudioRejected("audio_unsupported") from None
+    if result.returncode != 0 or not result.stdout:
+        raise AudioRejected("audio_unsupported")
+    return result.stdout
 
 
 def _unlink(path: str) -> None:
@@ -127,21 +159,24 @@ def _wav(pcm: bytes) -> bytes:
 
 async def probe_duration_seconds(data: bytes) -> float:
     """Decoded duration in seconds (capped just past MAX_AUDIO_SECONDS)."""
-    return len(await _decode_pcm(data)) / _BYTES_PER_SECOND
+    mime = sniff_audio_mime(data)
+    if mime is None:
+        raise AudioRejected("audio_unsupported")
+    return len(await _decode_pcm(data, mime)) / _BYTES_PER_SECOND
 
 
-async def prepare_for_stt(data: bytes, transcode_mimes: frozenset[str]) -> tuple[bytes, str]:
-    """Validate an upload and return (audio, mime) to send to STT.
+async def prepare_for_stt(data: bytes) -> tuple[bytes, str]:
+    """Validate an upload and return (audio, mime) to send to STT: always the decoded,
+    measured, duration-capped PCM as 16 kHz mono WAV.
 
-    Order: size, sniffed type, decode, duration, silence. Types in `transcode_mimes` are
-    sent as 16 kHz mono WAV; others pass through unchanged.
+    Order: size, sniffed type, decode, duration, silence.
     """
     if len(data) > MAX_AUDIO_BYTES:
         raise AudioRejected("audio_too_large")
     mime = sniff_audio_mime(data)
     if mime is None:
         raise AudioRejected("audio_unsupported")
-    pcm = await _decode_pcm(data)
+    pcm = await _decode_pcm(data, mime)
     seconds = len(pcm) / _BYTES_PER_SECOND
     if seconds > MAX_AUDIO_SECONDS + _DURATION_TOLERANCE_S:
         raise AudioRejected("audio_too_long")
@@ -149,6 +184,4 @@ async def prepare_for_stt(data: bytes, transcode_mimes: frozenset[str]) -> tuple
         raise AudioRejected("voice_not_understood")
     if await anyio.to_thread.run_sync(_peak, pcm) < SILENCE_PEAK:
         raise AudioRejected("voice_not_understood")
-    if mime in transcode_mimes:
-        return _wav(pcm), "audio/wav"
-    return data, mime
+    return _wav(pcm), "audio/wav"
