@@ -14,8 +14,25 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert MigrationContext.configure(conn).get_current_revision() == "0002_scans_path_unique"
+        assert MigrationContext.configure(conn).get_current_revision() == "0003_plan6_meal_logs_off"
     engine.dispose()
+
+
+def test_meal_logs_off_columns_downgrade_cleanly(migrated):
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    new = {"off_barcode", "product_name", "grade"}
+    try:
+        command.downgrade(migrated, "0002_scans_path_unique")
+        with engine.connect() as conn:
+            cols = {c["name"]: c for c in inspect(conn).get_columns("meal_logs")}
+            assert new.isdisjoint(cols) and cols["product_id"]["nullable"] is False
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            cols = {c["name"]: c for c in inspect(conn).get_columns("meal_logs")}
+            assert new <= set(cols) and cols["product_id"]["nullable"] is True
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
 
 
 def test_scans_path_index_downgrades_cleanly(migrated):
