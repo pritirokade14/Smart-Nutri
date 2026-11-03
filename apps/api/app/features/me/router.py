@@ -10,6 +10,7 @@ from app.db.session import get_session
 from app.features.me import service
 from app.features.me.dependencies import CurrentAccount, current_account_row
 from app.features.me.schemas import MeOut
+from app.integrations.posthog import track
 from app.integrations.storage import StorageClient, StorageUnavailable, get_storage
 from app.integrations.supabase_admin import AdminUnavailable, SupabaseAdmin, get_supabase_admin
 
@@ -76,4 +77,5 @@ async def me_delete(
         logger.warning("account_delete step=auth status=unavailable")
         raise ApiError("deletion_incomplete", 503) from None
     logger.info("account_delete status=done objects=%d", len(paths))
+    track(account_id, "account_deleted")  # hashed id, no properties
     return Response(status_code=204)

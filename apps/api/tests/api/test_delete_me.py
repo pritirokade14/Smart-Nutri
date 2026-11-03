@@ -1,5 +1,6 @@
 """Plan 8 Task 2: DELETE /v1/me erases the account, its storage objects and its auth user."""
 
+from unittest.mock import MagicMock
 from uuid import UUID, uuid4
 
 import pytest
@@ -8,6 +9,7 @@ from sqlalchemy import text
 from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.me.service import ACCOUNT_OWNED_TABLES, ensure_account
+from app.integrations import posthog
 from app.integrations.storage import get_storage
 from app.integrations.supabase_admin import AdminUnavailable, get_supabase_admin
 from tests.fakes.storage import FakeStorage
@@ -258,3 +260,13 @@ def test_openapi_documents_me_delete(app):
     op = app.openapi()["paths"]["/v1/me"]["delete"]
     assert op["operationId"] == "me_delete"
     assert "204" in op["responses"] and "503" in op["responses"]
+
+
+async def test_deletion_sends_only_the_allow_listed_event(client, login, monkeypatch):
+    fake = MagicMock()
+    monkeypatch.setattr(posthog, "_client", fake)
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    fake.capture.assert_called_once_with(
+        "account_deleted", distinct_id=posthog.hashed_id(A), properties={}
+    )

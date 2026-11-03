@@ -1,8 +1,10 @@
+import hashlib
 from unittest.mock import MagicMock
 
 from app.core import observability
 from app.core.config import Settings
-from app.core.observability import ALLOWED_EVENT_PROPS, capture, scrub_event
+from app.core.observability import scrub_event
+from app.integrations import posthog
 
 
 def test_scrub_event_removes_pii():
@@ -23,7 +25,7 @@ def test_scrub_event_removes_pii():
     assert out["request"]["headers"]["User-Agent"] == "ua"
     assert "email" not in out["user"]
     assert "ip_address" not in out["user"]
-    assert out["user"]["id"] == "u1"
+    assert out["user"]["id"] == hashlib.sha256(b"u1").hexdigest()
 
 
 def test_scrub_event_removes_frame_vars_extra_and_breadcrumbs():
@@ -52,6 +54,7 @@ def test_init_passes_pii_safe_sentry_options(monkeypatch):
         Settings(_env_file=None, environment="test", sentry_dsn="https://k@o0.ingest.sentry.io/1")
     )
     assert calls["send_default_pii"] is False
+    assert calls["max_request_body_size"] == "never"
     assert calls["include_local_variables"] is False
     assert calls["max_breadcrumbs"] == 0
     assert calls["before_send"] is scrub_event
@@ -62,28 +65,9 @@ def test_scrub_event_without_request_or_user():
     assert scrub_event({"message": "x"}, {}) == {"message": "x"}
 
 
-def test_capture_is_noop_without_key(monkeypatch):
-    monkeypatch.setattr(observability, "_posthog", None)
-    capture("e", "d", {"screen": "home"})  # must not raise
-
-
-def test_capture_filters_properties(monkeypatch):
-    fake = MagicMock()
-    monkeypatch.setattr(observability, "_posthog", fake)
-    capture("e", "d", {"conditions": ["diabetes"], "screen": "home", "source": "api"})
-    fake.capture.assert_called_once()
-    kwargs = fake.capture.call_args.kwargs
-    assert kwargs["properties"] == {"screen": "home", "source": "api"}
-    assert kwargs["distinct_id"] == "d"
-
-
-def test_allow_list():
-    assert ALLOWED_EVENT_PROPS == {"platform", "locale", "screen", "status_code", "source"}
-
-
 def test_init_without_keys_is_noop():
     observability.init_observability(Settings(_env_file=None, environment="test"))
-    assert observability._posthog is None
+    assert posthog._client is None
 
 
 def test_scrub_event_redacts_exception_values_and_logentry():
@@ -109,41 +93,17 @@ def test_scrub_event_redacts_exception_values_and_logentry():
     assert "diabetes" not in str(out)
 
 
-def test_capture_constrains_values(monkeypatch):
-    fake = MagicMock()
-    monkeypatch.setattr(observability, "_posthog", fake)
-    capture(
-        "e",
-        "d",
-        {
-            "locale": "fr",
-            "platform": "ios",
-            "screen": "Diabetes Home",
-            "source": "scan_page",
-            "status_code": "200",
-        },
-    )
-    assert fake.capture.call_args.kwargs["properties"] == {"source": "scan_page"}
-    capture("e", "d", {"locale": "hi", "platform": "api", "screen": "home", "status_code": 404})
-    assert fake.capture.call_args.kwargs["properties"] == {
-        "locale": "hi",
-        "platform": "api",
-        "screen": "home",
-        "status_code": 404,
-    }
-
-
 def test_shutdown_flushes_posthog(monkeypatch):
     fake = MagicMock()
-    monkeypatch.setattr(observability, "_posthog", fake)
+    monkeypatch.setattr(posthog, "_client", fake)
     observability.shutdown_observability()
     fake.shutdown.assert_called_once()
-    assert observability._posthog is None
+    assert posthog._client is None
 
 
 async def test_lifespan_shuts_down_posthog(monkeypatch, app):
     fake = MagicMock()
-    monkeypatch.setattr(observability, "_posthog", fake)
+    monkeypatch.setattr(posthog, "_client", fake)
     async with app.router.lifespan_context(app):
         pass
     fake.shutdown.assert_called_once()
