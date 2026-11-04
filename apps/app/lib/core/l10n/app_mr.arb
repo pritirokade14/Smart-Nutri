@@ -548,7 +548,6 @@
       }
     }
   },
-  "membersFormBuildMuscleAdultOnly": "स्नायू बळकट करणे हे फक्त प्रौढांसाठी (18 वर्षे आणि त्याहून अधिक) आहे. दुसरे ध्येय निवडा.",
   "membersFormCancel": "रद्द करा",
   "membersFormClearAllergiesConfirm": "{name} यांच्या सर्व ॲलर्जी काढायच्या? या ॲलर्जी असलेल्या उत्पादनांवर त्यांच्यासाठी इशारा दिसणार नाही.",
   "@membersFormClearAllergiesConfirm": {

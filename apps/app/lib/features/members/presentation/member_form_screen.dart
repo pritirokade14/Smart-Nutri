@@ -33,6 +33,7 @@ class MemberFormScreen extends ConsumerWidget {
   static const otherAllergenKey = Key('member-form-other-allergen');
   static const addAllergenKey = Key('member-form-add-allergen');
   static const saveKey = Key('member-form-save');
+  static const goalErrorKey = Key('member-form-goal-error');
   static const removeKey = Key('member-form-remove');
 
   @override
@@ -124,6 +125,9 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
   bool _submitted = false;
   bool _busy = false;
   String? _error;
+
+  /// The API refused the goal for this member's age (422 `body.goal`).
+  bool _goalRejected = false;
   String? _otherError;
 
   bool get _isPrimary => widget.member?.isPrimary ?? false;
@@ -171,6 +175,7 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
     setState(() {
       _submitted = true;
       _error = null;
+      _goalRejected = false;
     });
     final valid = _formKey.currentState?.validate() ?? false;
     if (!valid || _relation == null) return;
@@ -210,6 +215,10 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
         if (await showConsentSheet(context)) {
           await _submit(draft, consentRetry: false);
         }
+        return;
+      }
+      if (e.isGoalRejected && _goal == buildMuscleGoal) {
+        setState(() => _goalRejected = true);
         return;
       }
       setState(() => _error = localizedErrorCode(l10n, e.code));
@@ -568,9 +577,23 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
             ],
             _goal,
             (k) => goalLabel(l10n, k),
-            (v) => _goal = v,
+            (v) {
+              _goal = v;
+              _goalRejected = false;
+            },
             optional: true,
           ),
+          if (_goalRejected)
+            Padding(
+              key: MemberFormScreen.goalErrorKey,
+              padding: const EdgeInsets.only(top: SnTokens.space2),
+              child: Text(
+                l10n.membersGoalBuildMuscleAdultsOnly,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ),
           const SizedBox(height: SnTokens.space4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

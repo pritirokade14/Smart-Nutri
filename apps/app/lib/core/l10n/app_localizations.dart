@@ -2416,12 +2416,6 @@ abstract class AppLocalizations {
   /// **'Enter a year from 1900 to {year}.'**
   String membersFormBirthYearInvalid(String year);
 
-  /// No description provided for @membersFormBuildMuscleAdultOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'Build muscle is only for adults (18 and over). Choose another goal.'**
-  String get membersFormBuildMuscleAdultOnly;
-
   /// No description provided for @membersFormCancel.
   ///
   /// In en, this message translates to:

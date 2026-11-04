@@ -38,6 +38,28 @@ export const GOALS: readonly Goal[] = [
  * answers 422 for a minor); the form says so first, by year of birth.
  */
 export const BUILD_MUSCLE_MIN_AGE = 18;
+
+/**
+ * Whether the goal list offers "Build muscle": only when the birth year makes
+ * the member an adult (the API refuses it for a minor, 422 `body.goal`), or
+ * when it is already chosen, so it can be changed. Display only: the API is
+ * the gate.
+ */
+export function offersBuildMuscle(
+  birthYearText: string,
+  goal: string,
+  currentYear: number = new Date().getFullYear(),
+): boolean {
+  if (goal === "build_muscle") return true;
+  const year = Number(birthYearText.trim());
+  return (
+    birthYearText.trim() !== "" &&
+    Number.isInteger(year) &&
+    year >= BIRTH_YEAR_MIN &&
+    year <= currentYear &&
+    currentYear - year >= BUILD_MUSCLE_MIN_AGE
+  );
+}
 export const CONDITIONS: readonly Condition[] = [
   "diabetes",
   "prediabetes",
@@ -215,7 +237,7 @@ export const memberFormSchema = {
       !errors.birth_year &&
       currentYear - birthYear < BUILD_MUSCLE_MIN_AGE
     )
-      errors.goal = "members.form.build_muscle_adult_only";
+      errors.goal = "members.goal.build_muscle_adults_only";
 
     if (Object.keys(errors).length > 0) return { success: false, errors };
     return {

@@ -14,7 +14,11 @@ DioException networkError() => DioException(
 );
 
 /// An API error with the standard envelope.
-DioException apiError(int status, String code) {
+DioException apiError(
+  int status,
+  String code, {
+  Map<String, Object?> details = const {},
+}) {
   final options = RequestOptions(path: '/v1/meals');
   return DioException(
     requestOptions: options,
@@ -26,7 +30,7 @@ DioException apiError(int status, String code) {
         'error': {
           'code': code,
           'message_key': 'error.$code',
-          'details': <String, Object?>{},
+          'details': <String, Object?>{...details},
         },
       },
     ),

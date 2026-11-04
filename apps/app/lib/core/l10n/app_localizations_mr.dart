@@ -1315,10 +1315,6 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
-  String get membersFormBuildMuscleAdultOnly =>
-      'स्नायू बळकट करणे हे फक्त प्रौढांसाठी (18 वर्षे आणि त्याहून अधिक) आहे. दुसरे ध्येय निवडा.';
-
-  @override
   String get membersFormCancel => 'रद्द करा';
 
   @override

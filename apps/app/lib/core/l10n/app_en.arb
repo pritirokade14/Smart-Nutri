@@ -548,7 +548,6 @@
       }
     }
   },
-  "membersFormBuildMuscleAdultOnly": "Build muscle is only for adults (18 and over). Choose another goal.",
   "membersFormCancel": "Cancel",
   "membersFormClearAllergiesConfirm": "Remove every allergy for {name}? Products with these allergens will no longer be flagged for them.",
   "@membersFormClearAllergiesConfirm": {

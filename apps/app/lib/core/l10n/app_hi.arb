@@ -548,7 +548,6 @@
       }
     }
   },
-  "membersFormBuildMuscleAdultOnly": "मांसपेशियाँ बनाना केवल वयस्कों (18 वर्ष और उससे अधिक) के लिए है। कोई दूसरा लक्ष्य चुनें।",
   "membersFormCancel": "रद्द करें",
   "membersFormClearAllergiesConfirm": "{name} की सारी एलर्जी हटाएँ? इन एलर्जी वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।",
   "@membersFormClearAllergiesConfirm": {

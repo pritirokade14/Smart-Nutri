@@ -34,6 +34,7 @@ import {
   memberToForm,
   needsHealthConsent,
   normaliseAllergen,
+  offersBuildMuscle,
   RELATIONS,
   SEXES,
   toPatch,
@@ -162,10 +163,10 @@ export function MemberForm({ member }: { member?: MemberOut }) {
       const err = e as ApiError;
       // The API is the gate: a 403 opens the consent flow, then retries.
       if (err.code === "consent_required") setConsentFor(body);
-      // Build muscle for a minor: the API refuses it (422); say why on the
-      // goal field, whatever the exact error code.
-      else if (err.status === 422 && body.goal === "build_muscle")
-        setErrors({ goal: "members.form.build_muscle_adult_only" });
+      // Build muscle for a minor: the API refuses it with 422
+      // validation_error, details.fields ["body.goal"] (P9 safety S4).
+      else if (isGoalRejected(err) && body.goal === "build_muscle")
+        setErrors({ goal: "members.goal.build_muscle_adults_only" });
       else setSaveError(err);
     }
   }
@@ -430,7 +431,11 @@ export function MemberForm({ member }: { member?: MemberOut }) {
             }
           >
             <option value="">{t("members.form.not_set")}</option>
-            {GOALS.map((g) => (
+            {GOALS.filter(
+              (g) =>
+                g !== "build_muscle" ||
+                offersBuildMuscle(values.birth_year, values.goal),
+            ).map((g) => (
               <option key={g} value={g}>
                 {t(`members.goal.${g}`)}
               </option>
@@ -584,5 +589,16 @@ export function MemberForm({ member }: { member?: MemberOut }) {
         />
       ) : null}
     </form>
+  );
+}
+
+/** 422 `validation_error` naming `body.goal` (an adult-only goal for a minor). */
+function isGoalRejected(err: ApiError): boolean {
+  const fields = err.details?.fields;
+  return (
+    err.status === 422 &&
+    err.code === "validation_error" &&
+    Array.isArray(fields) &&
+    fields.includes("body.goal")
   );
 }

@@ -363,6 +363,33 @@ void main() {
     t,
   ) async {
     final members = FakeMembersClient([_primary()])
+      ..error = apiError(
+        422,
+        'validation_error',
+        details: {
+          'fields': ['body.goal'],
+        },
+      );
+    final h = await _pump(t, members: members);
+    h.router.go('/family/p1');
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.text(en.membersGoalBuildMuscle));
+    await t.tap(find.text(en.membersGoalBuildMuscle));
+    await t.pumpAndSettle();
+    await _tapKey(t, MemberFormScreen.saveKey);
+    // The API's minor rejection (422 body.goal) is shown on the goal field.
+    expect(find.byKey(MemberFormScreen.goalErrorKey), findsOneWidget);
+    expect(find.text(en.membersGoalBuildMuscleAdultsOnly), findsOneWidget);
+    expect(find.text(en.errorValidationError), findsNothing);
+    expect(find.byType(MemberFormScreen), findsOneWidget);
+    // Picking another goal clears it.
+    await t.tap(find.text(en.membersGoalHealthyEating));
+    await t.pumpAndSettle();
+    expect(find.byKey(MemberFormScreen.goalErrorKey), findsNothing);
+  });
+
+  testWidgets('another 422 keeps the generic error', (t) async {
+    final members = FakeMembersClient([_primary()])
       ..error = apiError(422, 'validation_error');
     final h = await _pump(t, members: members);
     h.router.go('/family/p1');
@@ -372,6 +399,6 @@ void main() {
     await t.pumpAndSettle();
     await _tapKey(t, MemberFormScreen.saveKey);
     expect(find.text(en.errorValidationError), findsOneWidget);
-    expect(find.byType(MemberFormScreen), findsOneWidget);
+    expect(find.byKey(MemberFormScreen.goalErrorKey), findsNothing);
   });
 }

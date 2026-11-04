@@ -1312,10 +1312,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get membersFormBuildMuscleAdultOnly =>
-      'Build muscle is only for adults (18 and over). Choose another goal.';
-
-  @override
   String get membersFormCancel => 'Cancel';
 
   @override

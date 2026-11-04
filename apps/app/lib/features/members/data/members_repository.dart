@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // The generated package has no top-level library file, only src/export.dart.
 // ignore: implementation_imports
@@ -18,6 +19,20 @@ class MembersFailure implements Exception {
 
   /// 403 `consent_required`: open the health_data consent sheet, then retry.
   bool get isConsentRequired => code == 'consent_required';
+
+  /// 422 `validation_error` with `details.fields == ["body.goal"]`: the API
+  /// refuses an adult-only goal (build_muscle) for a minor (P9 safety S4).
+  bool get isGoalRejected =>
+      code == 'validation_error' && fields.contains('body.goal');
+
+  /// `details.fields` of the error envelope, or empty.
+  List<String> get fields {
+    final e = cause;
+    if (e is! DioException) return const [];
+    final details = parseErrorEnvelope(e.response?.data)?.error.details;
+    final raw = details is Map ? details['fields'] : null;
+    return raw is List ? raw.whereType<String>().toList() : const [];
+  }
 
   static Future<T> guard<T>(Future<T> Function() call) async {
     try {

@@ -482,46 +482,42 @@ describe("protein guide (T14)", () => {
     ).toBeTruthy();
   });
 
-  it("member form offers build muscle", async () => {
+  it("member form offers build muscle to adults only", async () => {
     api
       .on(
         "GET",
         "/v1/consents",
         consentStates({ terms: true, health_data: true }),
       )
-      .on("POST", "/v1/members", json(422, envelope("validation_error")));
+      .on(
+        "POST",
+        "/v1/members",
+        json(422, envelope("validation_error", { fields: ["body.goal"] })),
+      );
     wrap(<MemberForm />, membersMessages(en));
     const goal = screen.getByLabelText(
       en.members.form.goal,
     ) as HTMLSelectElement;
-    expect([...goal.options].map((o) => o.textContent)).toContain(
-      en.members.goal.build_muscle,
-    );
-    // Adults only: a child's form says so before saving.
+    const offered = () => [...goal.options].map((o) => o.value);
+    // No birth year yet: not offered (adults only, by birth year).
+    expect(offered()).not.toContain("build_muscle");
     await userEvent.type(screen.getByLabelText(en.members.form.name), "Ravi");
     await userEvent.selectOptions(
       screen.getByLabelText(en.members.form.relation),
       "child",
     );
-    const year = String(new Date().getFullYear() - 10);
-    await userEvent.type(
-      screen.getByLabelText(en.members.form.birth_year),
-      year,
+    const birthYear = screen.getByLabelText(en.members.form.birth_year);
+    // A child is never offered the goal.
+    await userEvent.type(birthYear, String(new Date().getFullYear() - 10));
+    expect(offered()).not.toContain("build_muscle");
+    // An adult is; the API's 422 body.goal is shown on the goal field.
+    await userEvent.clear(birthYear);
+    await userEvent.type(birthYear, "1990");
+    expect(offered()).toContain("build_muscle");
+    expect([...goal.options].map((o) => o.textContent)).toContain(
+      en.members.goal.build_muscle,
     );
     await userEvent.selectOptions(goal, "build_muscle");
-    await userEvent.click(
-      screen.getByRole("button", { name: en.members.form.save }),
-    );
-    expect(
-      await screen.findByText(en.members.form.build_muscle_adult_only),
-    ).toBeTruthy();
-    expect(api.callsTo("POST", "/v1/members")).toHaveLength(0);
-    // An adult goes to the API; its 422 is shown on the goal field.
-    await userEvent.clear(screen.getByLabelText(en.members.form.birth_year));
-    await userEvent.type(
-      screen.getByLabelText(en.members.form.birth_year),
-      "1990",
-    );
     await userEvent.click(
       screen.getByRole("button", { name: en.members.form.save }),
     );
@@ -536,9 +532,41 @@ describe("protein guide (T14)", () => {
       )?.goal,
     ).toBe("build_muscle");
     expect(
-      await screen.findByText(en.members.form.build_muscle_adult_only),
+      await screen.findByText(en.members.goal.build_muscle_adults_only),
     ).toBeTruthy();
+    expect(goal.getAttribute("aria-invalid")).toBe("true");
     expect(router.push).not.toHaveBeenCalled();
+  });
+
+  it("a chosen build muscle stays visible and is refused for a minor", async () => {
+    api.on(
+      "GET",
+      "/v1/consents",
+      consentStates({ terms: true, health_data: true }),
+    );
+    wrap(<MemberForm />, membersMessages(en));
+    const goal = screen.getByLabelText(
+      en.members.form.goal,
+    ) as HTMLSelectElement;
+    await userEvent.type(screen.getByLabelText(en.members.form.name), "Ravi");
+    await userEvent.selectOptions(
+      screen.getByLabelText(en.members.form.relation),
+      "child",
+    );
+    const birthYear = screen.getByLabelText(en.members.form.birth_year);
+    await userEvent.type(birthYear, "1990");
+    await userEvent.selectOptions(goal, "build_muscle");
+    await userEvent.clear(birthYear);
+    await userEvent.type(birthYear, String(new Date().getFullYear() - 10));
+    // Kept so it can be changed, but the form refuses it before saving.
+    expect([...goal.options].map((o) => o.value)).toContain("build_muscle");
+    await userEvent.click(
+      screen.getByRole("button", { name: en.members.form.save }),
+    );
+    expect(
+      await screen.findByText(en.members.goal.build_muscle_adults_only),
+    ).toBeTruthy();
+    expect(api.callsTo("POST", "/v1/members")).toHaveLength(0);
   });
 
   it("public page shows protein facts without member data", () => {

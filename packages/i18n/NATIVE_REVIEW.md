@@ -251,4 +251,4 @@ All hi/mr strings below are machine drafts and need a native reader. Safe words 
 ## Plan 9 web (T12 to T14)
 - [ ] **hi/mr `user_types.prefill.goal_neither`**: machine drafts. The third option in the goal-conflict radio list ("Neither (keep my current goal)"); it must read as keeping the goal unchanged, not as removing it.
 - [ ] **hi/mr `search.sort_label`, `search.sort_relevance`**: machine drafts. The sort control on search and alternatives ("Sort": "Best match" / "Higher protein").
-- [ ] **hi/mr `members.form.build_muscle_adult_only`**: machine drafts. Shown on the goal field when "Build muscle" is chosen for someone under 18 (or the API refuses it). Neutral, no health advice: only "choose another goal".
+- Removed at P9 integration: `members.form.build_muscle_adult_only` (both clients use `members.goal.build_muscle_adults_only`).

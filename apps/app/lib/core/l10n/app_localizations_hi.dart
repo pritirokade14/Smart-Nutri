@@ -1317,10 +1317,6 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get membersFormBuildMuscleAdultOnly =>
-      'मांसपेशियाँ बनाना केवल वयस्कों (18 वर्ष और उससे अधिक) के लिए है। कोई दूसरा लक्ष्य चुनें।';
-
-  @override
   String get membersFormCancel => 'रद्द करें';
 
   @override
