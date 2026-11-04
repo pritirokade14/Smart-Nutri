@@ -1,15 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_ai/features/analysis/data/analysis_repository.dart';
-import 'package:smartnutri_ai/features/analysis/presentation/analysis_providers.dart';
 import 'package:smartnutri_ai/features/methodology/data/methodology_repository.dart';
-import 'package:smartnutri_ai/features/methodology/presentation/methodology_providers.dart';
 import 'package:smartnutri_ai/features/modes/mode_layouts.dart';
 import 'package:smartnutri_ai/features/product/data/product_discovery_repository.dart';
-import 'package:smartnutri_ai/features/product/presentation/product_discovery_providers.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../support/fake_members.dart';
