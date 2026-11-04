@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:smartnutri_ai/features/meals/presentation/log_meal_sheet.dart'
+    show memberLabel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_ai/core/l10n/app_localizations.dart';
@@ -405,6 +407,21 @@ void main() {
     await t.tap(find.text(en.mealsLogUndo));
     await t.pumpAndSettle();
     expect(meals.deleted, ['meal-1']);
+  });
+
+  testWidgets('"I ate this" has a per-member semantics label', (t) async {
+    final h = t.ensureSemantics();
+    final body = analyzeFixture('sf_biscuit');
+    await t.pumpWidget(_app(FakeAnalysisRepository([() => body])));
+    await t.pumpAndSettle();
+    for (final v in body.verdicts.take(2)) {
+      final name = memberLabel(en, v);
+      expect(
+        find.bySemanticsLabel(RegExp(RegExp.escape(en.mealsLogCtaFor(name)))),
+        findsOneWidget,
+      );
+    }
+    h.dispose();
   });
 
   testWidgets('an OFF product is logged by barcode', (t) async {

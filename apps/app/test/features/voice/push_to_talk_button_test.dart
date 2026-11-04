@@ -7,6 +7,8 @@ import 'package:smartnutri_ai/core/theme/app_theme.dart';
 import 'package:smartnutri_ai/core/theme/sn_colors.dart';
 import 'package:smartnutri_ai/features/analysis/data/analysis_repository.dart';
 import 'package:smartnutri_ai/features/analysis/presentation/result_screen.dart';
+import 'package:smartnutri_ai/features/meals/presentation/log_meal_sheet.dart'
+    show memberLabel;
 import 'package:smartnutri_ai/features/voice/data/voice_device.dart';
 import 'package:smartnutri_ai/features/voice/data/voice_repository.dart';
 import 'package:smartnutri_ai/features/voice/domain/voice_state.dart';
@@ -158,6 +160,28 @@ void main() {
     );
     await t.pumpAndSettle();
     expect(find.byType(PushToTalkButton), findsNWidgets(body.verdicts.length));
+  });
+
+  testWidgets('voice button has a per-member semantics label', (t) async {
+    final h = t.ensureSemantics();
+    final body = analyzeFixture('sf_biscuit');
+    await t.pumpWidget(
+      _wrap(const ResultScreen(barcode: '8901063201089'), [
+        appConfigProvider.overrideWithValue(_config(voice: true)),
+        analysisRepositoryProvider.overrideWithValue(
+          FakeAnalysisRepository([() => body]),
+        ),
+      ]),
+    );
+    await t.pumpAndSettle();
+    for (final v in body.verdicts.take(2)) {
+      final name = memberLabel(_l, v);
+      expect(
+        find.bySemanticsLabel(_l.voiceButtonHoldFor(name)),
+        findsOneWidget,
+      );
+    }
+    h.dispose();
   });
 
   testWidgets('hold to record shows the timer; release shows the answer', (

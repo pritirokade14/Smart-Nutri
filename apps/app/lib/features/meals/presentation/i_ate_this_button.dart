@@ -18,23 +18,38 @@ class IAteThisButton extends ConsumerWidget {
     required this.product,
     required this.verdicts,
     required this.memberId,
+    this.memberName,
   });
 
   final LogMealProduct product;
   final List<VerdictOut> verdicts;
   final String memberId;
 
+  /// Used only for the accessible label; never logged or sent anywhere.
+  final String? memberName;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final name = memberName?.trim() ?? '';
+    final button = OutlinedButton.icon(
+      key: Key('i-ate-this-$memberId'),
+      icon: const Icon(Icons.restaurant_rounded),
+      label: Text(l10n.mealsLogCta),
+      onPressed: () => _open(context, ref),
+    );
     return Align(
       alignment: AlignmentDirectional.centerStart,
-      child: OutlinedButton.icon(
-        key: Key('i-ate-this-$memberId'),
-        icon: const Icon(Icons.restaurant_rounded),
-        label: Text(l10n.mealsLogCta),
-        onPressed: () => _open(context, ref),
-      ),
+      child: name.isEmpty
+          ? button
+          : Semantics(
+              label: l10n.mealsLogCtaFor(name),
+              excludeSemantics: true,
+              container: true,
+              button: true,
+              onTap: () => _open(context, ref),
+              child: button,
+            ),
     );
   }
 

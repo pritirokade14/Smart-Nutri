@@ -247,6 +247,7 @@ class _ResultView extends StatelessWidget {
                       product: logProduct,
                       verdicts: out.verdicts,
                       memberId: v.memberId,
+                      memberName: memberLabel(l10n, v),
                     ),
             ),
             if (voiceEnabled)
@@ -262,6 +263,7 @@ class _ResultView extends StatelessWidget {
                   child: PushToTalkButton(
                     key: ValueKey('voice-${v.memberId}'),
                     target: target,
+                    memberName: memberLabel(l10n, v),
                   ),
                 ),
           ],
