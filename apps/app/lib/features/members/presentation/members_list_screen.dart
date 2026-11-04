@@ -146,7 +146,10 @@ class _MemberTile extends StatelessWidget {
                             style: theme.textTheme.titleMedium,
                           ),
                         ),
-                        if (m.isPrimary && m.name.isNotEmpty) ...[
+                        if (m.isPrimary &&
+                            m.name.isNotEmpty &&
+                            m.name.trim().toLowerCase() !=
+                                l10n.membersYouBadge.toLowerCase()) ...[
                           const SizedBox(width: SnTokens.space2),
                           _YouBadge(label: l10n.membersYouBadge),
                         ],

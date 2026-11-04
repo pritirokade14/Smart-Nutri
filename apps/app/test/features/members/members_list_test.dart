@@ -84,6 +84,17 @@ void main() {
     expect(find.byKey(MembersListScreen.addKey), findsOneWidget);
   });
 
+  testWidgets('primary member named "You" shows it once', (t) async {
+    final l = l10nFor('en');
+    await pumpMembers(
+      t,
+      const MembersListScreen(),
+      members: FakeMembersClient([primaryMember(name: l.membersYouBadge)]),
+      consents: FakeConsentsClient(),
+    );
+    expect(find.text(l.membersYouBadge), findsOneWidget);
+  });
+
   testWidgets('at the member limit the add button becomes a note', (t) async {
     final l = l10nFor('en');
     await pumpMembers(
