@@ -22,7 +22,8 @@ from app.features.scans.normalize import (
     DECIMAL_PROBE_MIN_GAIN,
     DECIMAL_PROBE_TIGHT_MIN_KCAL,
     DECIMAL_PROBE_TIGHT_RATIO,
-    SODIUM_SALT_FIRST_MAX_MG,
+    SALT_EARLY_INGREDIENTS,
+    SODIUM_SALT_EARLY_MAX_MG,
     SODIUM_SALTY_MAX_MG,
     SODIUM_SUSPECT_MAX_MG,
     WARNING_CODES,
@@ -30,6 +31,9 @@ from app.features.scans.normalize import (
     to_draft,
 )
 from app.features.scans.schemas import NutrientsIn, NutritionExtraction
+from app.scoring import Product, Status, analyze, load_config
+from app.scoring.ingredients import find_terms
+from app.scoring.models import Member
 
 # Sodium-only namkeen label: sodium printed in g (0.4 g = 400 mg), read as 0.4 "mg".
 # 4*10 + 4*50 + 9*30 = 510 kcal (label 510): Atwater-consistent.
@@ -47,6 +51,9 @@ SODIUM_ONLY = {
 }
 
 
+NAMKEEN = ["gram flour", "edible vegetable oil", "spices", "salt"]
+
+
 def n(**kw) -> NutrientsIn:
     return NutrientsIn(**(dict.fromkeys(NutrientsIn.model_fields) | SODIUM_ONLY | kw))
 
@@ -61,7 +68,8 @@ def ex(**kw) -> NutritionExtraction:
         "per_100_unit": "g",
         "serving_size_g": None,
         "serving_size_unit": None,
-        "ingredients": ["gram flour", "salt"],
+        # SF2: salt 4th, as on most namkeen; salt in the first 3 would use the 40 mg limit.
+        "ingredients": NAMKEEN,
         "allergen_statement": None,
         "may_contain_statement": None,
         "claims": [],
@@ -77,13 +85,19 @@ def ex(**kw) -> NutritionExtraction:
 SUSPECT_100 = "sodium_unit_suspect:per_100g.sodium_mg"
 
 
+@pytest.fixture
+def cfg():
+    return load_config()
+
+
 # --- EF2 --------------------------------------------------------------------------------------
 def test_thresholds_are_the_measured_constants():
     # Chosen with the E5 method on Open Food Facts panels (see normalize.py).
     # SF1: the "non-integer below 100 mg" rule is gone (15.2 % false alarms on real panels).
     assert SODIUM_SUSPECT_MAX_MG == {"food": 2.0, "beverage": 0.5}
     assert SODIUM_SALTY_MAX_MG == 10.0
-    assert SODIUM_SALT_FIRST_MAX_MG == 40.0
+    assert SODIUM_SALT_EARLY_MAX_MG == 40.0
+    assert SALT_EARLY_INGREDIENTS == 3  # SF2: salt or a sodium additive in the first 3
     assert "sodium_unit_suspect" in WARNING_CODES
     assert WARNING_CODES.index("sodium_unit_suspect") == WARNING_CODES.index("unit_unconfirmed") + 1
 
@@ -181,7 +195,7 @@ def test_salt_as_the_first_ingredient_is_checked_up_to_40_mg(sodium, suspect):
         (["fruit pulp", "sugar", "pectin", "citric acid", "sodium benzoate"], 11.6),  # jam
         (["split urad dal"], 18.88),
         (["milk", "citric acid"], 9.6),  # paneer
-        (["gram flour", "salt"], 12.5),
+        (NAMKEEN, 12.5),  # salt 4th (SF2: ["gram flour", "salt"] at 12.5 is now suspect)
         (["gram flour", "salt"], 45.5),
         (["gram flour", "salt"], 99.9),
     ],
@@ -281,6 +295,146 @@ def test_per_serving_column_is_checked_per_100g_via_the_serving():
         )
     )
     assert not any(w.startswith("sodium_unit_suspect") for w in ok.warnings)
+
+
+# --- SF2: salty spice mixes, khar and sodium additives ------------------------------------------
+# A spice mix or additive whose sodium is printed in g and read as mg. Salt (or a sodium
+# additive) in the first 3 ingredients means a very salty product: below 40 mg is implausible.
+# Each case's printed value is its real sodium in g (pure salt 39.3 %, MSG 12.3 %, baking soda
+# 27.4 %).
+SF2_FAULTS = [
+    ("Chaat Masala", ["dry mango", "black salt", "salt", "cumin", "coriander"], 13.2),
+    ("Chaat Masala", ["Dry mango, black salt, salt, cumin, coriander"], 13.2),  # one OCR string
+    ("Noodle Tastemaker", ["mixed spices", "sugar", "salt", "starch"], 15.5),
+    (
+        "Noodle Tastemaker",
+        ["mixed spices (onion, coriander, chilli, garlic)", "sugar", "salt", "starch"],
+        15.5,
+    ),
+    ("Pani Puri Masala", ["dry mango", "black salt", "cumin", "mint", "ginger"], 18.0),
+    ("Pani Puri Masala", ["amchur", "kala namak", "jeera", "pudina"], 18.0),
+    ("Ajinomoto", ["monosodium glutamate (ins 621)"], 12.3),
+    ("Ajinomoto", ["Ajinomoto"], 12.3),
+    ("Ajinomoto", ["MSG"], 12.3),
+    ("Baking Soda", ["sodium bicarbonate"], 27.4),
+    ("Baking Soda", ["baking soda"], 27.4),
+    ("Mango Pickle", ["raw mango", "mustard oil", "red chilli"], 2.5),  # list cut off before salt
+    ("Urad Papad", ["urad dal flour", "papad khar", "black pepper"], 2.2),
+    ("Urad Papad", ["urad dal flour", "sajji khar", "black pepper"], 2.2),
+    ("Urad Papad", ["urad dal flour", "khar", "salt"], 2.2),
+    ("Urad Papad", ["urad dal flour", "sodium carbonate", "black pepper"], 2.2),
+    ("Bouillon Cube", ["palm fat", "salt", "flavour enhancer (ins621)", "spices"], 20.0),
+    ("Jaljeera", ["cumin", "rock salt", "mint"], 25.0),
+    ("Jaljeera", ["cumin", "sendha namak", "mint"], 25.0),
+    ("Churan", ["saindhava lavana", "jeera"], 30.0),
+    ("Churan", ["amla", "lavana", "jeera"], 30.0),
+    ("Chaat Masala", ["आमचूर", "काला नमक", "जीरा"], 13.2),
+    ("Jaljeera", ["जीरा", "सेंधा नमक", "पुदीना"], 25.0),
+    ("Papad", ["उड़द दाल", "खार", "काली मिर्च"], 2.2),
+]
+HYPERTENSIVE = Member(id="m", name="x", age=60, conditions=("hypertension",))
+
+
+def _hypertensive_status(e: NutritionExtraction) -> Status:
+    d = to_draft(e)
+    product = Product(
+        name=e.product_name or "",
+        per_100g=engine_nutrients(d),
+        ingredients=tuple(e.ingredients),
+        extraction_confidence=0.95,
+    )
+    return analyze(product, [HYPERTENSIVE]).verdicts[0].status
+
+
+@pytest.mark.parametrize(("name", "ingredients", "sodium"), SF2_FAULTS)
+def test_salty_mixes_and_additives_printed_in_g_are_withheld(name, ingredients, sodium):
+    # A complete, Atwater-consistent panel: only the sodium unit is wrong.
+    e = ex(product_name=name, ingredients=ingredients, per_100g=n(sodium_mg=sodium))
+    d = to_draft(e)
+    assert SUSPECT_100 in d.warnings
+    assert "sodium_mg" in d.engine_withheld and engine_nutrients(d).sodium_mg is None
+    assert d.confirm.columns.per_100g.sodium_unit_required is True
+    assert _hypertensive_status(e) is not Status.OK
+
+
+def test_hypertensive_member_gets_ok_only_when_the_honest_sodium_is_plausible():
+    # Control for the verdict check above: the same chaat masala panel printed honestly in mg.
+    chaat = ["dry mango", "black salt", "salt", "cumin", "coriander"]
+    honest = ex(product_name="Chaat Masala", ingredients=chaat, per_100g=n(sodium_mg=13200.0))
+    assert SUSPECT_100 not in to_draft(honest).warnings
+    assert _hypertensive_status(honest) is Status.AVOID
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "sodium", "suspect"),
+    [
+        (["salt", "chilli", "cumin"], 39.9, True),
+        (["chilli", "salt", "cumin"], 39.9, True),  # 2nd
+        (["chilli", "cumin", "salt"], 39.9, True),  # 3rd
+        (["chilli", "cumin", "coriander", "salt"], 39.9, False),  # 4th: the 10 mg limit
+        (["chilli", "cumin", "coriander", "salt"], 9.9, True),
+        (["chilli", "seasoning (sugar, salt, spices)", "cumin"], 39.9, True),  # inside a bracket
+        (["chilli", "cumin", "salt"], 40.0, False),
+        (["Chilli, cumin, coriander, salt"], 39.9, False),  # one string: salt is still 4th
+        (["Chilli, cumin, salt, coriander"], 39.9, True),
+        (["gram flour", "salt"], 12.5, True),  # SF1 kept this as honest; SF2 rules it suspect
+    ],
+)
+def test_salt_in_the_first_three_ingredients_uses_the_40_mg_limit(ingredients, sodium, suspect):
+    d = to_draft(ex(product_name="Masala", ingredients=ingredients, per_100g=n(sodium_mg=sodium)))
+    assert (SUSPECT_100 in d.warnings) is suspect
+
+
+@pytest.mark.parametrize(
+    "term",
+    [
+        "khar",
+        "papad khar",
+        "sajji khar",
+        "sodium carbonate",
+        "sodium bicarbonate",
+        "baking soda",
+        "msg",
+        "monosodium glutamate",
+        "ajinomoto",
+        "खार",
+    ],
+)
+def test_khar_soda_and_msg_are_sodium_additives(term, cfg):
+    assert find_terms([term], cfg.ingredient_lists["sodium_additives"])
+
+
+@pytest.mark.parametrize(
+    "term",
+    [
+        "black salt",
+        "rock salt",
+        "sendha namak",
+        "kala namak",
+        "lavana",
+        "saindhava",
+        "saindhava lavana",
+        "नमक",
+        "काला नमक",
+        "सेंधा नमक",
+    ],
+)
+def test_indian_salts_are_salt(term, cfg):
+    assert find_terms([term], cfg.ingredient_lists["salt"])
+
+
+@pytest.mark.parametrize("word", ["khari biscuit", "khara boondi", "खारीक"])
+def test_khar_does_not_match_other_words(word, cfg):
+    assert not find_terms([word], cfg.ingredient_lists["sodium_additives"])
+
+
+@pytest.mark.parametrize("sodium", [350.0, 1200.0])
+@pytest.mark.parametrize("name", [n for n, *_ in SF2_FAULTS])
+def test_honest_mg_on_the_same_salty_products_is_not_flagged(name, sodium):
+    ingredients = next(i for n_, i, _ in SF2_FAULTS if n_ == name)
+    d = to_draft(ex(product_name=name, ingredients=ingredients, per_100g=n(sodium_mg=sodium)))
+    assert not any(w.startswith("sodium_unit_suspect") for w in d.warnings)
+    assert "sodium_mg" not in d.engine_withheld
 
 
 def test_save_needs_the_unit_and_g_restores_the_real_sodium():

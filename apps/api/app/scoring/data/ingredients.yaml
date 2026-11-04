@@ -3,9 +3,16 @@ added_sugars:     [sugar, cane sugar, brown sugar, jaggery, gur, khand, mishri, 
 # Infant-only: free sugars from juice (Ruling R37). Whole-fruit puree is not listed.
 infant_free_sugars: [juice, fruit juice, apple juice, orange juice, grape juice, mango juice, fruit puree concentrate, fruit concentrate]
 hidden_sugars:    [maltodextrin, dextrose, glucose, glucose syrup, liquid glucose, invert sugar, invert syrup, fructose, high fructose corn syrup, corn syrup, sucrose, malt extract, maltose, date syrup, fruit juice concentrate, golden syrup, molasses]
-sodium_additives: [monosodium glutamate, ins621, sodium benzoate, ins211, sodium bicarbonate, baking soda, ins500, sodium nitrite, ins250, disodium inosinate, ins631, disodium guanylate, ins627, ins635, sodium citrate, ins331, sodium phosphate, ins339]
+# SF2: khar (papad khar, sajji khar) is sodium carbonate, the alkali in papad; ajinomoto is the
+# common Indian name for MSG. Bare `khar` is safe: whole-word matching skips khari, khara, खारीक.
+sodium_additives: [monosodium glutamate, monosodium l glutamate, msg, ajinomoto, aji no moto, अजीनोमोटो, अजिनोमोटो, मोनोसोडियम ग्लूटामेट, ins621, sodium benzoate, ins211, sodium bicarbonate, baking soda, bicarbonate of soda, soda bicarb, cooking soda, edible soda, khane ka soda, meetha soda, sodium carbonate, khar, papad khar, sajji khar, पापड़ खार, सज्जी खार, खार, ins500, sodium nitrite, ins250, disodium inosinate, ins631, disodium guanylate, ins627, ins635, sodium citrate, ins331, sodium phosphate, ins339]
 caffeine:         [caffeine, coffee, guarana, tea, chai, green tea, green tea extract, kola, kola nut, matcha, mate, चाय, कॉफी]
-salt:             [salt, iodised salt, rock salt, black salt, sendha namak, नमक, sodium chloride, namak, मीठ, lavan, सैंधव]
+# SF2: Indian salts (black salt = kala namak, rock salt = sendha namak = saindhava lavana).
+salt:             [salt, iodised salt, rock salt, black salt, sendha namak, kala namak, नमक, काला नमक, सेंधा नमक, sodium chloride, namak, मीठ, काळे मीठ, सैंधव मीठ, lavan, lavana, saindhava, saindhav, सैंधव, सैंधा नमक, लवण]
+# SF2: product names that mean a very salty product (sodium is grams per 100 g, never tens of mg).
+# Used only by the scan normaliser's sodium-unit check (`sodium_unit_suspect`), for a list cut off
+# before the salt. Not a scoring rule.
+salty_product_names: [pickle, achar, achaar, aachar, अचार, लोणचे, papad, papadum, pappadam, appalam, पापड़, पापड, chaat masala, chat masala, pani puri masala, panipuri masala, jaljeera, jal jeera, tastemaker, taste maker, bouillon, stock cube, soup cube, soy sauce, ajinomoto, baking soda, khar, salt, namak, नमक]
 # Member-chosen ingredient alerts (Plan 5 T1; Rulings P4, P7). PENDING DIETITIAN/CLINICIAN REVIEW.
 # Each match adds a CAUTION `custom_alert` reason; these are preferences, not safety rules.
 # With no readable ingredient list, or extraction confidence below min_extraction_confidence,

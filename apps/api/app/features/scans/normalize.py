@@ -104,7 +104,8 @@ Warning codes, always in this order:
                               but below SODIUM_SUSPECT_MAX_MG per 100 g / 100 ml (water exempt),
                               or, for foods, below SODIUM_SALTY_MAX_MG when salt or a sodium
                               additive is listed or no ingredient list is readable, or below
-                              SODIUM_SALT_FIRST_MAX_MG when salt is the first ingredient (SF1):
+                              SODIUM_SALT_EARLY_MAX_MG when salt or a sodium additive is in the
+                              first 3 ingredients or the name is a salty product (SF1, SF2):
                               likely g read as mg. Per printed column (per-serving via a
                               plausible serving); withheld when on the column used; the user
                               picks the unit (`sodium_unit_required`)
@@ -120,7 +121,6 @@ Warning codes, always in this order:
 from __future__ import annotations
 
 import math
-import re
 from collections.abc import Callable, Mapping
 from typing import Literal, get_args
 
@@ -133,6 +133,7 @@ from app.features.products.confirm_rules import (
     confirm_hints,
     placeholder_confirm,
 )
+from app.features.products.off_mapping import split_ingredients
 from app.features.products.schemas import NutrientsOut
 from app.features.scans.schemas import NUTRIENT_FIELDS, NutrientsIn, NutritionExtraction
 from app.scoring import Nutrients, Product, load_config
@@ -266,8 +267,11 @@ COLUMN_ROUNDING_UNITS: dict[str, float] = {"energy_kcal": 5.0, "sodium_mg": 10.0
 #   - (foods) it is below SODIUM_SALTY_MAX_MG and salt or a sodium additive is listed, or no
 #     ingredient list is readable (a panel-only photo can't rule out a salty food): pickle 2.5 g,
 #     papad 2.2 g, soy sauce 5.7 g, masala 6 g read as mg; or
-#   - (foods) it is below SODIUM_SALT_FIRST_MAX_MG and salt is the first ingredient (salt, chaat
-#     masala: pure salt is 39.3 % sodium, so "38.7 mg" is 38.7 g).
+#   - (foods) it is below SODIUM_SALT_EARLY_MAX_MG and salt or a sodium additive (khar, MSG,
+#     baking soda) is in the first SALT_EARLY_INGREDIENTS ingredients (brackets included), or the
+#     product name is a salty product type (ingredients.yaml `salty_product_names`: pickle, papad,
+#     chaat masala..., for a list cut off before the salt). Pure salt is 39.3 % sodium, MSG
+#     12.3 %, baking soda 27.4 %: chaat masala "13.2 mg", tastemaker "15.5 mg" are grams.
 # SF1 recalibration (replaces Plan 9's "food 10 mg, or non-integer below 100 mg"). Measured with
 # the E5 fault-injection method on the v4 Open Food Facts India set (.research/data/v4/
 # e5_sf1.json): 406 g-read-as-mg faults (sodium-only, no salt) and 461 correct sodium-only
@@ -278,10 +282,19 @@ COLUMN_ROUNDING_UNITS: dict[str, float] = {"energy_kcal": 5.0, "sodium_mg": 10.0
 # from salt or per-serving values, so honest panels are often non-integer (milk 40.6, jam 11.6).
 # Without the no-ingredient-list branch false alarms fall to 1.7 % raw / 0.5 % rounded but catch
 # drops to 97.8 % / 98.0 %; it is kept because a miss is the unsafe direction.
+# SF2 (safety review of SF1: salty spice mixes with salt 2nd or 3rd, khar papads and MSG slipped
+# through and a hypertensive member got `ok`): the 40 mg limit now covers salt or a sodium
+# additive in the first 3 ingredients and salty product names; khar, Indian salts and
+# MSG/ajinomoto were added to the term lists. Same harness and set (.research/data/v4/
+# e5_sf2.json): catch 402/406 (99.0 %) raw, 398/401 (99.3 %) rounded, unchanged; false alarms
+# 14/461 (3.0 %, was 2.8 %) raw, 9/401 (2.2 %, was 1.7 %) rounded. The new flags are a "Mango
+# Pickle" at 35 mg with common salt 2nd and oats whose seasoning lists salt at 10 mg: both
+# implausible, likely OFF data errors. The reviewer's 25 salty-pack probes: 25 caught (SF1: 11).
 # "food" covers general, fat, cheese and an unknown category.
 SODIUM_SUSPECT_MAX_MG: dict[str, float] = {"food": 2.0, "beverage": 0.5}
 SODIUM_SALTY_MAX_MG = 10.0
-SODIUM_SALT_FIRST_MAX_MG = 40.0
+SODIUM_SALT_EARLY_MAX_MG = 40.0
+SALT_EARLY_INGREDIENTS = 3
 # EF3: a /10 slip on energy, protein, carbs or fat that the loose Atwater tolerance above hides
 # (protein 7 printed 0.7 moves Atwater by only 25 kcal). When the printed panel misses a TIGHT
 # fit, max(DECIMAL_PROBE_TIGHT_RATIO x kcal, DECIMAL_PROBE_TIGHT_MIN_KCAL), and x 10 on exactly
@@ -445,21 +458,29 @@ def _sodium_unit_unconfirmed(col: NutrientsIn | None) -> bool:
     return col is not None and col.sodium_mg is not None and col.sodium_unit is None
 
 
-# The first listed ingredient ends at a separator or a bracket ("Salt (iodised), spices").
-_FIRST_INGREDIENT_END = re.compile(r"[,;:(\[{]")
+def _top_level_items(texts: list[str]) -> list[str]:
+    """Ingredients in printed order: each extracted string, split at commas and semicolons outside
+    brackets (an OCR'd list may arrive as one string). Bracketed sub-ingredients stay with their
+    parent ("Seasoning (salt, sugar)" is one item)."""
+    return [item for text in texts for item in split_ingredients(text)]
 
 
 def _salt_signals(e: NutritionExtraction) -> tuple[bool, bool]:
-    """EF2 (SF1) signals from the printed ingredient list: (salty, salt_first). `salty`: salt
-    or a sodium additive is listed, or no ingredient list is readable (caution: a salty food
-    can't be ruled out). `salt_first`: salt is the first listed ingredient."""
+    """EF2 (SF1, SF2) signals from the printed label: (salty, salt_early).
+    `salty`: salt or a sodium additive is listed, or no ingredient list is readable (caution: a
+    salty food can't be ruled out). `salt_early`: salt or a sodium additive (khar, MSG, baking
+    soda) is among the first `SALT_EARLY_INGREDIENTS` ingredients, brackets included, or the
+    product name is a very salty product type (`salty_product_names`: pickle, papad, chaat
+    masala...; catches a list cut off before the salt)."""
+    lists = load_config().ingredient_lists
+    named_salty = bool(find_terms([e.product_name or ""], lists["salty_product_names"]))
     texts = [] if "ingredients" in e.unreadable_fields else _texts(e.ingredients)
     if not has_ingredient_content(texts):
-        return True, False
-    lists = load_config().ingredient_lists
-    salty = bool(find_terms(texts, [*lists["salt"], *lists["sodium_additives"]]))
-    first = _FIRST_INGREDIENT_END.split(texts[0], maxsplit=1)[0]
-    return salty, bool(find_terms([first], lists["salt"]))
+        return True, named_salty
+    terms = [*lists["salt"], *lists["sodium_additives"]]
+    salty = bool(find_terms(texts, terms))
+    early = _top_level_items(texts)[:SALT_EARLY_INGREDIENTS]
+    return salty, named_salty or bool(find_terms(early, terms))
 
 
 def _sodium_unit_suspect(
@@ -473,7 +494,7 @@ def _sodium_unit_suspect(
     """EF2: sodium printed as mg, no salt on this column to cross-check it, and per 100 g /
     100 ml it is non-zero but implausibly low for the product (water exempt): most likely a
     "g" value read as mg. Limits: `SODIUM_SUSPECT_MAX_MG`; for foods also
-    `SODIUM_SALTY_MAX_MG` and `SODIUM_SALT_FIRST_MAX_MG` from `salt_signals` (`_salt_signals`).
+    `SODIUM_SALTY_MAX_MG` and `SODIUM_SALT_EARLY_MAX_MG` from `salt_signals` (`_salt_signals`).
     `per_100_factor` turns this column into per 100 (1 for the per-100 column, 100 / serving
     for the per-serving one, None when no plausible serving)."""
     if col is None or col.sodium_unit != "mg" or category == "water" or per_100_factor is None:
@@ -486,11 +507,11 @@ def _sodium_unit_suspect(
         return False
     if category == "beverage":  # drinks keep the one limit: colas honestly print 3-10 mg
         return per_100 < SODIUM_SUSPECT_MAX_MG["beverage"]
-    salty, salt_first = salt_signals
+    salty, salt_early = salt_signals
     return (
         per_100 < SODIUM_SUSPECT_MAX_MG["food"]
         or (salty and per_100 < SODIUM_SALTY_MAX_MG)
-        or (salt_first and per_100 < SODIUM_SALT_FIRST_MAX_MG)
+        or (salt_early and per_100 < SODIUM_SALT_EARLY_MAX_MG)
     )
 
 

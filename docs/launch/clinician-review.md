@@ -1,7 +1,7 @@
 # Clinician review: SmartNutri scoring thresholds
 
 > **Generated** by `scripts/clinician_review_sheet.py` from `apps/api/app/scoring/data/thresholds.yaml`. Do not edit by hand.
-> Scoring version: `e3d06c44e19d`. Pending clinician review: **True**.
+> Scoring version: `a754de17a377`. Pending clinician review: **True**.
 
 **For the reviewer.** SmartNutri shows packaged-food verdicts per family member: `ok`, `caution`, `unknown` or `avoid`. It is information, not medical advice. Values are per 100 g (food) or per 100 ml (drink) unless the unit says otherwise. For each row, tick Approved, or write the value you recommend in Change to, then initial the Signed column. Sign and date the bottom of the sheet.
 
