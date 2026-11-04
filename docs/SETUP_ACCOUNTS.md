@@ -31,6 +31,54 @@ The Android ID can never change after the first Play Store upload. The prototype
 
 ---
 
+## CallMissed AI setup (models, residency, fallbacks, probe)
+
+Why these models: [ADR 0021](adr/0021-callmissed-model-choices.md). Sources: docs.callmissed.com (chat-completion, api-speed, gateway-controls, speech-to-text, text-to-speech, tts-voices, models, data-residency) and the public catalogue `GET https://api.callmissed.com/api/v1/models`, all read on 2026-11-04. **The catalogue is authoritative**: re-check `processing`, `deprecated` and prices there before changing a model.
+
+### Models per job (defaults in `apps/api/app/core/config.py` and `.env.example`)
+
+| Job | Primary | Fallback (tried once) | Request |
+|---|---|---|---|
+| Label extraction (vision) | `gpt-4o` | `glm-5.3-flash` | `POST /v1/chat/completions`, text part + base64 `image_url` part, `response_format` `json_schema` strict, `reasoning_effort: "none"` |
+| Explanation and voice answer (text) | `gpt-4o` | `gemma-4-31b` (thinking off with `"none"`) | Same, plus `provider: {"data_residency": "in"}`, 8 s budget |
+| Speech-to-text | `saaras:v4` (`language` `en-IN` / `hi-IN` / `mr-IN`) | `whisper` (no `language`: auto-detect) | `POST /v1/audio/transcriptions`, multipart `file`, `model`, `language`; reply `{"text": ...}`; saaras at most 30 s of audio, 25 MB |
+| Text-to-speech | `bulbul:v3`, voices en `ratan`, hi `shubh`, mr `ratan` | `gnani-timbre-v3.0`, voice `Chetana` (all three) | `POST /v1/audio/speech`, JSON `model`, `input`, `voice`, `language`, `response_format: "mp3"`; bulbul at most 2,500 characters |
+
+- `sarvam-105b` stays selectable for explanations (`CALLMISSED_EXPLANATION_MODEL=sarvam-105b`, keep `CALLMISSED_EXPLANATION_REASONING_EFFORT=none`), but is not the default: it timed out at 8 s.
+- The label eval (`label-eval` skill) should compare the four India vision models: `gpt-4o`, `gemma-4-31b`, `glm-5.3-flash`, `deepseek-v4.1-flash-1017`.
+- `microsoft-neural-tts` is processed in India but is **voice-sessions only** (400 on `/v1/audio/speech`), so it cannot be the TTS fallback. Gnani Timbre v3 is (India, a different provider from Sarvam, Marathi supported).
+
+### Residency (health data stays in India)
+
+- Every default model has catalogue `processing: "india"`. Models marked `india_preferred` (for example `kimi-k2.5`, `gpt-6-sol`, `gpt-oss-120b`) may be processed outside India and are not used.
+- The API refuses, before any request, a health-data call (explanation, voice answer, STT, TTS) whose primary or fallback model is not in `INDIA_PROCESSED_MODELS` (`apps/api/app/integrations/callmissed.py`). Label extraction is not health data, so the eval may try any model.
+- Chat calls send `"provider": {"data_residency": "in"}`. The docs document that field for chat, messages, responses and embeddings only. **Also turn on "India-only processing" on each API key** (console, Developer → API keys): the docs say the key setting covers STT and TTS too, and a request can never switch it off.
+
+### Fallbacks
+
+- A primary 5xx, timeout or `400 region_unavailable` switches to the fallback **once**, inside the same deadline. With a fallback the primary may use 60% of the budget (4.8 s of the 8 s explanation budget), so the fallback always has time.
+- 402 (credits), 401/403 and other 4xx never fall back. CallMissed's own `models` fallback list is not used: the docs say it never applies to requests with `response_format`.
+- Empty `CALLMISSED_*_FALLBACK_MODEL` turns a fallback off.
+
+### Plan and cost
+
+- `gpt-4o`, `gemma-4-31b`, `glm-5.3-flash`, `whisper` and `gnani-timbre-v3.0` are **paid-plan models** (Starter or higher). A Free key gets `403 model_not_available`, which the API treats as "AI unavailable". `saaras:v4`, `bulbul:v3` and `sarvam-105b` are free-tier.
+- **`gpt-4o` is deprecated, sunset 2026-11-16**; from then it is answered by `gpt-6-sol`, which is `india_preferred`, so India-only requests will be refused (`region_unavailable`) and fall back. Pick the replacement primary from the label eval and probe before that date.
+- Prices (US$, US$1 = ₹96): `gpt-4o` 2.604 in / 10.42 out per 1M tokens; `gemma-4-31b` 0.3646 / 0.9375; `glm-5.3-flash` 0.2292 / 0.7604; `saaras:v4` 0.3125 per hour; `whisper` 0.4167 per hour; `bulbul:v3` 0.3125 per 10K characters; `gnani-timbre-v3.0` 0.2813 per 10K characters.
+- Rough cost per call (estimates from those prices, not measured): explanation on `gpt-4o` about ₹0.5 to ₹1 (2,000 prompt and 300 answer tokens is about ₹0.8); label extraction on `gpt-4o` up to about ₹4; a 30 s voice question about ₹0.25 for STT plus about ₹0.9 for a 300-character spoken answer (TTS), plus the answer's LLM call.
+
+### Probe (run once with a real key, then after any model change)
+
+```bash
+cd apps/api
+uv run python -m scripts.probe_callmissed              # dry run: the 16 calls and the estimated cost
+uv run python -m scripts.probe_callmissed --yes-spend  # spends; at most US$0.07 (about ₹7)
+```
+
+It calls each job's primary **and** fallback (chat, vision on a drawn synthetic label, TTS and STT in en, hi and mr) through the API's own client and prints only job, model, language, status and latency. Exit 0 means every call worked. Record the table in `docs/research/` before setting `VOICE_ENABLED=true`.
+
+---
+
 ## 2. Supabase (login + database + photo storage) · ~15 minutes
 
 1. Sign up at **supabase.com**. Using "Continue with GitHub" is easiest.

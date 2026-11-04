@@ -25,11 +25,14 @@ CallMissed is our AI and voice provider. It is OpenAI-compatible, so use the off
    - All calls go through `app/integrations/callmissed.py`, behind `LLMProvider` and `SpeechProvider` protocols.
    - Services depend on the protocol, never on the SDK. Tests use fakes.
 2. **Model IDs come from config, never literals in code.** Use `settings.models.extraction`, `.explanation`, `.stt`, `.tts`.
-   - Candidates (confirm with the `label-eval` skill):
-     - Extraction: `gpt-6-luna`, `glm-5.3-flash`, `gemma-4-31b`, `gemini-3.5-flash-lite`.
-     - Explanation: `sarvam-105b`.
-     - STT: `saaras:v4`.
-     - TTS: `bulbul:v3` or `bulbul:v4-flash`.
+   - Each job also has a `*_fallback_model`, tried once on a 5xx, timeout or `region_unavailable`.
+   - Current choices and why: ADR 0021 and `docs/SETUP_ACCOUNTS.md` ("CallMissed AI setup").
+     - Extraction: `gpt-4o`, falling back to `glm-5.3-flash`. Compare the India vision models with the `label-eval` skill.
+     - Explanation and voice answers: `gpt-4o`, falling back to `gemma-4-31b`, with `reasoning_effort: "none"`.
+     - STT: `saaras:v4`, falling back to `whisper`.
+     - TTS: `bulbul:v3` with a voice per language, falling back to `gnani-timbre-v3.0`.
+   - `gpt-4o` sunsets on 2026-11-16.
+   - Health-data calls refuse models outside `INDIA_PROCESSED_MODELS`.
 3. **Health data stays in India.**
    - Any prompt that contains a member's conditions, allergies, diet or logs must pass `provider={"data_residency": "in"}` (via `extra_body`).
    - It must also use a model whose catalogue `processing` is `india`.
