@@ -90,6 +90,7 @@ _PROTEIN_AMOUNT = (
     re.compile(rf"(?<![\d.,]){_NUM}\s*{_GRAMS}\s+(?:of\s+)?(?:whey\s+)?protein(?![a-z])"),
     re.compile(rf"(?<![a-z])protein\s*[:\-]?\s*{_NUM}\s*{_GRAMS}(?![a-z])"),
 )
+_AMBIGUOUS_COMMA = re.compile(r"\d{1,3},\d{3}")
 _PER_SERVING = re.compile(r"(?<![a-z])(?:serving|servings|scoop|scoops|serve|serves)(?![a-z])")
 # A package unit (P9 safety S2) is read per serving too, but the serving may be only part of a
 # bar or pack, so a shortfall there is `basis_unknown` (unverifiable), never a contradiction.
@@ -103,14 +104,24 @@ def _claim_text(claim: str) -> str:
     return unicodedata.normalize("NFKC", claim).lower()
 
 
-def _protein_amount(claim: str) -> float | None:
-    """The claimed grams of protein, or None when the claim states no amount."""
+def _amount_text(claim: str) -> str | None:
+    """The amount as written ("24", "24,5", "1,000"), or None when the claim states none."""
     text = _claim_text(claim)
     for pattern in _PROTEIN_AMOUNT:
         m = pattern.search(text)
         if m:
-            return float(m.group(1).replace(",", "."))
+            return m.group(1)
     return None
+
+
+def _protein_amount(claim: str) -> float | None:
+    """The claimed grams of protein, or None when the claim states no readable amount. A lone
+    comma followed by exactly three digits ("1,000") is ambiguous (1.000 or 1000), so it is
+    never read (the q2 rule); it must not become 1 g."""
+    amount = _amount_text(claim)
+    if amount is None or _AMBIGUOUS_COMMA.fullmatch(amount):
+        return None
+    return float(amount.replace(",", "."))
 
 
 # A negated whey phrase (P9 safety S3) is not a whey claim: "whey free", "whey-free", "no whey",
@@ -127,7 +138,7 @@ def _match(claim: str) -> str | None:
     text = _NEGATED_WHEY.sub(" ", normalize(claim))
     for key, pats in _COMPILED:
         if key == "protein_amount":
-            if _protein_amount(claim) is not None:
+            if _amount_text(claim) is not None:
                 return key
             continue
         if any(p.search(text) for p in pats):
@@ -226,6 +237,8 @@ def _protein_amount_check(claim: str, product: Product, cfg: ScoringConfig) -> C
     """
     key = "protein_amount"
     claimed = _protein_amount(claim)
+    if claimed is None and _amount_text(claim) is not None:
+        return ClaimCheck(key, ClaimVerdict.UNVERIFIABLE, "basis_unknown")  # "1,000 g": q2
     protein = product.per_100g.protein_g
     if claimed is None or protein is None:
         return _missing(key, "protein_g")

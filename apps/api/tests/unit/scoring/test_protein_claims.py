@@ -274,3 +274,26 @@ def test_new_claims_never_change_status(cfg):
         assert {c.claim for c in new.report.claims} >= {"protein_amount", "whey_only"}
         for a, b in zip(base.verdicts, new.verdicts, strict=True):
             assert (a.status, a.reasons) == (b.status, b.reasons), (product.name, a.member_id)
+
+
+# --- P9 final review: "N,NNN" is never read as N grams -------------------------------------
+
+
+@pytest.mark.parametrize(
+    "claim",
+    ["1,000 g protein per scoop", "protein: 1,000 g", "2,500g whey protein"],
+)
+def test_thousands_looking_protein_amount_is_unverifiable_never_one_gram(cfg, claim):
+    # The q2 rule: a lone comma + exactly three digits is ambiguous (1.000 or 1000), so the
+    # amount is not read. It must never become 1 g (which a whey scoop would "support").
+    c = _one(_whey(claims=(claim,)), cfg)
+    assert (c.claim, c.verdict, c.reason_code) == (
+        "protein_amount",
+        ClaimVerdict.UNVERIFIABLE,
+        "basis_unknown",
+    )
+
+
+def test_decimal_comma_amount_is_still_read(cfg):
+    c = _one(_whey(claims=("24,5 g protein per scoop",)), cfg)
+    assert c.verdict == ClaimVerdict.SUPPORTED
