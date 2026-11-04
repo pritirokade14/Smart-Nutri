@@ -79,3 +79,63 @@ def test_the_hint_never_changes_a_verdict(cfg):
     result = analyze(p, members, cfg)
     assert result.report.nutriscore.reason != "not_scored_supplement"
     assert [r.code for v in result.verdicts for r in v.reasons].count("supplement_child") == 0
+
+
+# --- P9 integration q3: legumes, soya chunks and dairy are not flagged by protein alone -------
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "protein", "category"),
+    [
+        (("defatted soya flour",), 52, Category.GENERAL),  # soya chunks
+        (("soya chunks",), 52, Category.GENERAL),
+        (("Soya Nuggets (Defatted Soy Flour)",), 54, Category.GENERAL),
+        (("सोया चंक्स",), 52, Category.GENERAL),
+        (("milk", "citric acid"), 55, Category.GENERAL),  # high-protein paneer
+        (("paneer",), 55, Category.GENERAL),
+        (("पनीर",), 55, Category.GENERAL),
+        ((), 55, Category.CHEESE),  # a dairy category, ingredients unknown
+        (("skimmed milk", "live cultures"), 50, Category.GENERAL),  # skyr
+        (("skyr",), 50, Category.GENERAL),
+        (("roasted chana", "salt"), 50, Category.GENERAL),  # a legume
+        (("moong dal",), 50, Category.GENERAL),
+    ],
+)
+def test_legumes_soya_and_dairy_are_not_suspect_by_protein_alone(
+    cfg, ingredients, protein, category
+):
+    assert not supplement_suspect(_p(ingredients, protein=protein, category=category), cfg)
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "category"),
+    [
+        (("defatted soya flour", "whey protein isolate"), Category.GENERAL),
+        (("milk", "whey protein concentrate"), Category.GENERAL),
+        (("skimmed milk", "milk protein concentrate"), Category.GENERAL),
+        (("whey protein isolate",), Category.CHEESE),
+    ],
+)
+def test_whey_isolate_or_concentrate_still_flags_them(cfg, ingredients, category):
+    assert supplement_suspect(_p(ingredients, protein=60, category=category), cfg)
+
+
+@pytest.mark.parametrize(
+    "ingredients",
+    [
+        ("pea protein", "cocoa"),  # a protein powder, first ingredient a protein
+        ("roasted chana", "soy protein", "cocoa"),  # a named protein anywhere
+        ("wheat gluten", "salt"),  # not a legume, soya or dairy food
+        ("cocoa", "milk"),  # the dairy food is not the main ingredient
+    ],
+)
+def test_other_high_protein_products_are_still_suspect(cfg, ingredients):
+    assert supplement_suspect(_p(ingredients, protein=60), cfg)
+
+
+def test_whole_food_terms_live_in_data(cfg):
+    s = cfg.thresholds["supplements"]
+    assert {"soya chunks", "defatted soya flour", "paneer", "skyr", "milk"} <= set(
+        s["suspect_whole_food_terms"]
+    )
+    assert s["suspect_whole_food_categories"] == ["cheese"]
