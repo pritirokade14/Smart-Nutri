@@ -910,3 +910,35 @@ def test_b1_deny_list_contents():
         "mass gainer", "protein powder", "anabolic", "testosterone", "bcaa", "multivitamin",
         "सप्लीमेंट", "डोज", "प्री-वर्कआउट", "क्रिएटीन", "स्टिरॉइड", "ब्रैंड", "गेनर", "पूरक आहार",
     } <= words  # fmt: skip
+
+
+# --- P9 integration q1: "डोस" (dose) is whole-word only, so "डोसा" (dosa) passes -----------
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "member_1: डोसा बनाने के लिए यह बैटर ठीक है।",
+        "member_1: हे डोसा पीठ आहे.",
+        "member_1: डोसे आणि इडली.",
+        "member_1: मसाला डोसा mix, 12 g protein per 100 g.",
+    ],
+)
+def test_guard_keeps_dosa(all_ok, text):
+    ok_result, ok_rows = all_ok
+    assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is not None
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["member_1: डोस लें", "member_1: एक डोस घ्या.", "डोस", "member_1: (डोस)"],
+)
+def test_guard_drops_dose_whole_word(family_result, family_rows, all_ok, text):
+    assert _guard(_llm_out(family_result, text=text), family_result, family_rows) is None
+    ok_result, ok_rows = all_ok
+    assert _guard(_llm_out(ok_result, text=text), ok_result, ok_rows) is None
+
+
+def test_whole_word_terms_are_in_the_deny_list():
+    assert set(explain_mod.DENY_WHOLE_WORD_ONLY) <= set(explain_mod.DENY_WORDS_ADVICE)
+    assert "डोस" in explain_mod.DENY_WHOLE_WORD_ONLY

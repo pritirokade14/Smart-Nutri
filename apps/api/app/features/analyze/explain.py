@@ -204,6 +204,10 @@ DENY_WORDS_ADVICE: tuple[str, ...] = (
     "फैट बर्नर",
     "फॅट बर्नर",
 )
+# Devanagari deny terms that are the start of an everyday food word, so they match as WHOLE
+# words only, never as a prefix: "डोस" (dose) must not catch "डोसा"/"डोसे" (dosa). Each must
+# also be in a deny list above.
+DENY_WHOLE_WORD_ONLY: frozenset[str] = frozenset({"डोस"})
 _UNIT = r"(?:g|gm|gms|grams?|ग्राम|ग्रॅम)"
 # `\d` matches Latin and Devanagari digits ("६०").
 _NUM = r"\d+(?:[.,]\d+)?"
@@ -456,11 +460,12 @@ def _is_word_char(c: str) -> bool:
     return c == "_" or unicodedata.category(c)[0] in "LMN"
 
 
-def _contains_word(text: str, needle: str) -> bool:
+def _contains_word(text: str, needle: str, *, whole: bool = False) -> bool:
     """`needle` starts a word in `text`. Latin needles must also end a word ("Al" is not in
     "also"); other scripts match as a word prefix, because Marathi attaches case endings
-    ("रियाला"). A false positive only costs the explanation."""
-    prefix_ok = not needle.isascii() and len(needle) >= 3
+    ("रियाला"), unless `whole` (then they too must end a word). A false positive only costs
+    the explanation."""
+    prefix_ok = not whole and not needle.isascii() and len(needle) >= 3
     start = text.find(needle)
     while start != -1:
         end = start + len(needle)
@@ -514,7 +519,7 @@ def _drop_reason(
     deny = (*DENY_WORDS, *DENY_WORDS_CLAIMS, *DENY_WORDS_ADVICE)
     if any(v.status is not scoring.Status.OK for v in result.verdicts):
         deny = (*deny, *DENY_WORDS_NOT_ALL_OK)
-    if any(_contains_word(haystack, _normalise(w)) for w in deny):
+    if any(_contains_word(haystack, _normalise(w), whole=w in DENY_WHOLE_WORD_ONLY) for w in deny):
         return "denied_word"
     if any(p.search(haystack) for p in DENY_PATTERNS):
         return "dose_advice"
