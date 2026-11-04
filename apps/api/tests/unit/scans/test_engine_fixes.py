@@ -22,7 +22,8 @@ from app.features.scans.normalize import (
     DECIMAL_PROBE_MIN_GAIN,
     DECIMAL_PROBE_TIGHT_MIN_KCAL,
     DECIMAL_PROBE_TIGHT_RATIO,
-    SODIUM_DECIMAL_MAX_MG,
+    SODIUM_SALT_FIRST_MAX_MG,
+    SODIUM_SALTY_MAX_MG,
     SODIUM_SUSPECT_MAX_MG,
     WARNING_CODES,
     engine_nutrients,
@@ -79,8 +80,10 @@ SUSPECT_100 = "sodium_unit_suspect:per_100g.sodium_mg"
 # --- EF2 --------------------------------------------------------------------------------------
 def test_thresholds_are_the_measured_constants():
     # Chosen with the E5 method on Open Food Facts panels (see normalize.py).
-    assert SODIUM_SUSPECT_MAX_MG == {"food": 10.0, "beverage": 0.5}
-    assert SODIUM_DECIMAL_MAX_MG == 100.0
+    # SF1: the "non-integer below 100 mg" rule is gone (15.2 % false alarms on real panels).
+    assert SODIUM_SUSPECT_MAX_MG == {"food": 2.0, "beverage": 0.5}
+    assert SODIUM_SALTY_MAX_MG == 10.0
+    assert SODIUM_SALT_FIRST_MAX_MG == 40.0
     assert "sodium_unit_suspect" in WARNING_CODES
     assert WARNING_CODES.index("sodium_unit_suspect") == WARNING_CODES.index("unit_unconfirmed") + 1
 
@@ -100,7 +103,7 @@ def test_sodium_in_g_read_as_mg_without_salt_is_withheld_and_asks_the_unit():
 @pytest.mark.parametrize(
     ("category", "sodium", "suspect"),
     [
-        ("general", 9.0, True),  # whole number below 10 mg, no salt row
+        ("general", 9.0, True),  # salt is listed (gram flour, salt): the salty limit, 10 mg
         ("general", 10.0, False),
         ("general", 1.99, True),
         ("general", 0.0, False),  # "0" / "Nil" is the same in mg and g
@@ -119,21 +122,84 @@ def test_threshold_by_category(category, sodium, suspect):
     assert ("sodium_mg" in d.engine_withheld) is suspect
 
 
+# Realistic salty packs (SF1): each lists salt or a sodium additive, as FSSAI labels must.
+SALTY_PACKS = {
+    "pickle": ["raw mango", "salt", "mustard oil", "red chilli powder", "fenugreek"],
+    "papad": ["urad dal flour", "salt", "papad khar (sodium carbonate)", "black pepper"],
+    "masala": ["coriander", "red chilli", "salt", "cumin", "black pepper", "dry mango"],
+    "soy sauce": ["water", "soybean", "salt", "wheat", "sodium benzoate (ins211)"],
+}
+
+
 @pytest.mark.parametrize(
     ("name", "sodium"),
     [("pickle", 2.5), ("papad", 2.2), ("masala", 6.0), ("soy sauce", 5.7)],
 )
 def test_very_salty_products_printed_in_g_read_as_mg_are_flagged(name, sodium):
-    # 2.5 g of sodium per 100 g printed in g and read as "2.5 mg": EF2 used to miss these.
-    d = to_draft(ex(product_name=name, per_100g=n(sodium_mg=sodium)))
+    # 2.5 g of sodium per 100 g printed in g and read as "2.5 mg": above the 2 mg food limit,
+    # but salt is listed, so the salty limit (10 mg) applies.
+    d = to_draft(ex(product_name=name, ingredients=SALTY_PACKS[name], per_100g=n(sodium_mg=sodium)))
     assert SUSPECT_100 in d.warnings and "sodium_mg" in d.engine_withheld
 
 
-@pytest.mark.parametrize("sodium", [12.5, 45.5, 99.9])
-def test_non_integer_mg_below_100_is_flagged(sodium):
-    # Honest mg labels rarely print decimals: 45.5 "mg" is more likely 0.0455 g misread.
-    d = to_draft(ex(per_100g=n(sodium_mg=sodium)))
+@pytest.mark.parametrize(
+    "unreadable",
+    [
+        {"ingredients": []},  # only the nutrition panel was photographed
+        {"ingredients": ["N/A"]},
+        {"unreadable_fields": ["ingredients"]},
+    ],
+)
+def test_no_readable_ingredient_list_keeps_the_salty_limit(unreadable):
+    # Caution: with no ingredient list we can't rule out a salty food, so 6 "mg" is flagged.
+    d = to_draft(ex(product_name="masala", per_100g=n(sodium_mg=6.0), **unreadable))
     assert SUSPECT_100 in d.warnings and "sodium_mg" in d.engine_withheld
+
+
+@pytest.mark.parametrize(("sodium", "suspect"), [(38.7, True), (39.9, True), (40.0, False)])
+def test_salt_as_the_first_ingredient_is_checked_up_to_40_mg(sodium, suspect):
+    # Pure salt is 39.3 % sodium: 38.7 g printed in g reads as "38.7 mg".
+    d = to_draft(
+        ex(
+            product_name="iodised salt",
+            ingredients=["iodised salt", "ins536"],
+            per_100g=n(sodium_mg=sodium),
+        )
+    )
+    assert (SUSPECT_100 in d.warnings) is suspect
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "sodium"),
+    [
+        # Typical honest values from the v4 false-positive list (real OFF sodium-only panels).
+        (["semolina"], 2.1),  # rava
+        (["rolled oats"], 4.9),
+        (["peanuts", "almonds", "pumpkin seeds"], 3.592),  # nuts and seeds mix
+        (["toned milk"], 40.6),
+        (["milk", "cream", "sugar", "salt", "emulsifier"], 52.414),  # ice cream sandwich
+        (["fruit pulp", "sugar", "pectin", "citric acid", "sodium benzoate"], 11.6),  # jam
+        (["split urad dal"], 18.88),
+        (["milk", "citric acid"], 9.6),  # paneer
+        (["gram flour", "salt"], 12.5),
+        (["gram flour", "salt"], 45.5),
+        (["gram flour", "salt"], 99.9),
+    ],
+)
+def test_honest_decimal_mg_values_are_not_flagged(ingredients, sodium):
+    # SF1: OFF stores derived, non-integer per-100 g sodium; a decimal is not evidence of g.
+    d = to_draft(ex(ingredients=ingredients, per_100g=n(sodium_mg=sodium)))
+    assert not any(w.startswith("sodium_unit_suspect") for w in d.warnings)
+    assert "sodium_mg" not in d.engine_withheld
+
+
+@pytest.mark.parametrize("sodium", [2.0, 6.0, 9.5])
+def test_low_mg_without_salt_listed_is_plausible(sodium):
+    # Plain flours, oats, dates: honest single-digit mg with no salt or sodium additive listed.
+    d = to_draft(
+        ex(product_name="Atta", ingredients=["whole wheat flour"], per_100g=n(sodium_mg=sodium))
+    )
+    assert SUSPECT_100 not in d.warnings
 
 
 @pytest.mark.parametrize("sodium", [10.0, 35.0, 350.0, 1200.0, 100.5, 350.5])
