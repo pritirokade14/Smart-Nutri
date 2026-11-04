@@ -820,7 +820,7 @@
       },
       "weight_loss": {
         "title": "Weight loss",
-        "description": "For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories."
+        "description": "For members losing weight, we flag energy-dense products and low Nutri-Score grades, and for adults (18 and over) note products with good protein for their calories."
       },
       "child": {
         "title": "Children",
@@ -840,11 +840,11 @@
       },
       "build_muscle": {
         "title": "Build muscle",
-        "description": "For members who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein."
+        "description": "For adult members (18 and over) who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid, and it can't be set for members under 18. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein."
       },
       "supplements": {
         "title": "Supplements",
-        "description": "Protein powders, whey and other supplements get no Nutri-Score grade and are never suggested as alternatives. We still check allergens, diet, claims and each member's rules, and add a caution for children and teenagers (an avoid under 2)."
+        "description": "Protein powders, whey and other supplements get no Nutri-Score grade and are never suggested as alternatives. We still check allergens, diet, claims and each member's rules, and add a caution for children and teenagers (an avoid under 2). When a label lists whey or a protein isolate, or has 50 g or more protein per 100 g, the confirm screen asks whether it is a supplement, and such products are left out of protein-sorted results for members under 18."
       }
     },
     "meta_description": "How SmartNutri checks packaged food for each family member: the fixed rules, their thresholds and sources. Information, not medical advice.",

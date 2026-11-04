@@ -2719,7 +2719,7 @@ abstract class AppLocalizations {
   /// No description provided for @methodologySectionBuildMuscleDescription.
   ///
   /// In en, this message translates to:
-  /// **'For members who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein.'**
+  /// **'For adult members (18 and over) who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid, and it can\'t be set for members under 18. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein.'**
   String get methodologySectionBuildMuscleDescription;
 
   /// No description provided for @methodologySectionBuildMuscleTitle.
@@ -2839,7 +2839,7 @@ abstract class AppLocalizations {
   /// No description provided for @methodologySectionSupplementsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Protein powders, whey and other supplements get no Nutri-Score grade and are never suggested as alternatives. We still check allergens, diet, claims and each member\'s rules, and add a caution for children and teenagers (an avoid under 2).'**
+  /// **'Protein powders, whey and other supplements get no Nutri-Score grade and are never suggested as alternatives. We still check allergens, diet, claims and each member\'s rules, and add a caution for children and teenagers (an avoid under 2). When a label lists whey or a protein isolate, or has 50 g or more protein per 100 g, the confirm screen asks whether it is a supplement, and such products are left out of protein-sorted results for members under 18.'**
   String get methodologySectionSupplementsDescription;
 
   /// No description provided for @methodologySectionSupplementsTitle.
@@ -2851,7 +2851,7 @@ abstract class AppLocalizations {
   /// No description provided for @methodologySectionWeightLossDescription.
   ///
   /// In en, this message translates to:
-  /// **'For members losing weight, we flag energy-dense products and low Nutri-Score grades, and note products with good protein for their calories.'**
+  /// **'For members losing weight, we flag energy-dense products and low Nutri-Score grades, and for adults (18 and over) note products with good protein for their calories.'**
   String get methodologySectionWeightLossDescription;
 
   /// No description provided for @methodologySectionWeightLossTitle.
