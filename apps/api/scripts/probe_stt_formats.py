@@ -108,21 +108,21 @@ def main(argv: list[str] | None = None) -> int:
                 files={"file": (path.name, path.read_bytes(), mime)},
             )
             print(f"{fmt} ({mime}): {response.status_code}")
+        voice = settings.callmissed_tts_voices["en"]
         response = http.post(
             f"{base}/audio/speech",
             headers=headers,
             json={
                 "model": settings.callmissed_tts_model,
                 "input": "For this member, avoid this product.",
-                "voice": settings.callmissed_tts_voice,
+                "voice": voice,
                 "response_format": "mp3",
                 "language": "en-IN",
             },
         )
         ctype = response.headers.get("content-type", "")
         print(
-            f"tts ({settings.callmissed_tts_model}, voice {settings.callmissed_tts_voice}): "
-            f"{response.status_code} {ctype}"
+            f"tts ({settings.callmissed_tts_model}, voice {voice}): {response.status_code} {ctype}"
         )
     return 0
 
