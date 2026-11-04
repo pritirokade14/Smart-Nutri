@@ -173,7 +173,7 @@ describe("focused modes (T13)", () => {
     ["eat_better", "/en/compare", "compare"],
     ["health_condition", "/en/compare", "scan"],
     ["allergy_diet", "/en/search", "search"],
-    ["family", "/en/search", "scan"],
+    ["family", "/en/search", null],
     ["gym", "/en/result/8901063201089", "scan"],
     ["gym", "/en/protein", "protein"],
     ["family", "/en/members/new", "family"],

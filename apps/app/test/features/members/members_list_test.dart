@@ -84,6 +84,29 @@ void main() {
     expect(find.byKey(MembersListScreen.addKey), findsOneWidget);
   });
 
+  testWidgets('named primary shows the name plus the You badge', (t) async {
+    final l = l10nFor('en');
+    await pumpMembers(
+      t,
+      const MembersListScreen(),
+      members: FakeMembersClient([primaryMember()]),
+      consents: FakeConsentsClient(),
+    );
+    expect(find.text('Ravi'), findsOneWidget);
+    expect(find.text(l.membersYouBadge), findsOneWidget);
+  });
+
+  testWidgets('unnamed primary shows a single You', (t) async {
+    final l = l10nFor('en');
+    await pumpMembers(
+      t,
+      const MembersListScreen(),
+      members: FakeMembersClient([primaryMember(name: '')]),
+      consents: FakeConsentsClient(),
+    );
+    expect(find.text(l.membersYouBadge), findsOneWidget);
+  });
+
   testWidgets('at the member limit the add button becomes a note', (t) async {
     final l = l10nFor('en');
     await pumpMembers(

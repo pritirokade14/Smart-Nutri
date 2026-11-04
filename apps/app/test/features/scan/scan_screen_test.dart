@@ -34,6 +34,26 @@ class FakeBarcodeSource implements BarcodeSource {
   Future<void> dispose() async => disposed = true;
 }
 
+/// Like the real scanner: start() only succeeds once the preview was built.
+class _AttachingSource extends FakeBarcodeSource {
+  final _attached = Completer<void>();
+
+  @override
+  Future<BarcodeSourceStatus> start() async {
+    await _attached.future.timeout(
+      const Duration(milliseconds: 500),
+      onTimeout: () => throw StateError('controllerNotAttached'),
+    );
+    return BarcodeSourceStatus.ready;
+  }
+
+  @override
+  Widget buildPreview(BuildContext context) {
+    if (!_attached.isCompleted) _attached.complete();
+    return const SizedBox(key: Key('preview'));
+  }
+}
+
 /// Never answers, so the result screen stays in its loading state.
 class _PendingRepo implements AnalysisRepository {
   @override
@@ -105,6 +125,17 @@ void main() {
     }
     expect(visited, ['8901063201089']);
     expect(find.byType(ResultScreen), findsOneWidget);
+  });
+
+  testWidgets('preview is attached while starting, so start() can succeed', (
+    tester,
+  ) async {
+    final src = _AttachingSource();
+    await tester.pumpWidget(_app(src, []));
+    await tester.pumpAndSettle();
+    final l10n = AppLocalizations.of(tester.element(find.byType(ScanScreen)));
+    expect(find.text(l10n.scanCameraUnavailable), findsNothing);
+    expect(find.text(l10n.scanScanning), findsOneWidget);
   });
 
   testWidgets('permission denied shows message and manual field', (

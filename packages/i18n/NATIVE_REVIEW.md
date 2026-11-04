@@ -255,3 +255,6 @@ All hi/mr strings below are machine drafts and need a native reader. Safe words 
 
 ## Voice audio not stored (ADR 0020)
 - [ ] **hi/mr `settings.delete_body`**: machine edit. "Voice answers" was removed from the list of what account deletion erases, because voice answers are no longer stored. mr: the verb now agrees with "फोटो" ("कायमचे हटवले जातील"); check it reads naturally.
+
+## Web QA fixes (2026-11-04)
+- [ ] **hi/mr `meals.log.cta_for`, `voice.button_hold_for`**: machine drafts. Screen-reader names only ("I ate this, {name}", "Hold to ask, {name}"), so each member's button is distinct; the visible text stays `meals.log.cta` / `voice.button_hold`.

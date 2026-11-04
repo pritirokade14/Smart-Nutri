@@ -88,6 +88,13 @@ describe("HowWeScore", () => {
     ).toBeTruthy();
   });
 
+  it("lets long unbroken keys wrap instead of widening the page", () => {
+    show(FIXTURE);
+    const codes = document.querySelectorAll("code");
+    expect(codes.length).toBeGreaterThan(0);
+    for (const c of codes) expect(c.className).toContain("break-all");
+  });
+
   it("labels Nutri-Score as calculated by SmartNutri, never as an FSSAI rating", () => {
     show(FIXTURE);
     const ns = screen.getByTestId("methodology-nutriscore_2023");

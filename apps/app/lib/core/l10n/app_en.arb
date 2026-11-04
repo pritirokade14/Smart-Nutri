@@ -489,6 +489,14 @@
   },
   "mealsLogAmountServings": "Number of servings",
   "mealsLogCta": "I ate this",
+  "mealsLogCtaFor": "I ate this, {name}",
+  "@mealsLogCtaFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealsLogEatenAt": "When",
   "mealsLogGrams": "Grams",
   "mealsLogMember": "Who ate it?",
@@ -1429,6 +1437,14 @@
   "voiceAiUnavailable": "Voice answers are unavailable right now. Please try again later.",
   "voiceAnswerTitle": "Answer",
   "voiceButtonHold": "Hold to ask",
+  "voiceButtonHoldFor": "Hold to ask, {name}",
+  "@voiceButtonHoldFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "voiceElapsed": "{seconds} s of 30 s",
   "@voiceElapsed": {
     "placeholders": {

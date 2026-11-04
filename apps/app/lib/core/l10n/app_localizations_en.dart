@@ -1204,6 +1204,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mealsLogCta => 'I ate this';
 
   @override
+  String mealsLogCtaFor(String name) {
+    return 'I ate this, $name';
+  }
+
+  @override
   String get mealsLogEatenAt => 'When';
 
   @override
@@ -2642,6 +2647,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voiceButtonHold => 'Hold to ask';
+
+  @override
+  String voiceButtonHoldFor(String name) {
+    return 'Hold to ask, $name';
+  }
 
   @override
   String voiceElapsed(String seconds) {

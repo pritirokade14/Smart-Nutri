@@ -197,7 +197,10 @@ describe("search page", () => {
         <QueryClientProvider client={new QueryClient()}>
           <NextIntlClientProvider locale="en" messages={clientMessages(en)}>
             <Suspense>
-              <Page params={Promise.resolve({ locale: "en" })} />
+              <Page
+                params={Promise.resolve({ locale: "en" })}
+                searchParams={Promise.resolve({})}
+              />
             </Suspense>
           </NextIntlClientProvider>
         </QueryClientProvider>,

@@ -392,7 +392,9 @@ describe("voice on the result page", () => {
     );
     for (const card of screen.getAllByTestId("verdict-card"))
       expect(
-        within(card).getByRole("button", { name: en.voice.button_hold }),
+        within(card).getByRole("button", {
+          name: new RegExp(`^${en.voice.button_hold}`),
+        }),
       ).toBeTruthy();
   });
 });

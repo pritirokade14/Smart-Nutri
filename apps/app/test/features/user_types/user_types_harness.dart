@@ -46,8 +46,10 @@ Future<AppHarness> pumpApp(
   FakeMealsClient? meals,
   String? initial,
   List<Override> overrides = const [],
+  String locale = 'en',
+  Size size = const Size(900, 3600),
 }) async {
-  t.view.physicalSize = const Size(900, 3600);
+  t.view.physicalSize = size;
   t.view.devicePixelRatio = 1;
   addTearDown(t.view.reset);
   final h = AppHarness(api);
@@ -70,7 +72,7 @@ Future<AppHarness> pumpApp(
           h.container = ProviderScope.containerOf(context);
           return MaterialApp.router(
             theme: buildAppTheme(),
-            locale: const Locale('en'),
+            locale: Locale(locale),
             routerConfig: ref.watch(routerProvider),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,

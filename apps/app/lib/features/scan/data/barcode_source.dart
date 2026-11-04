@@ -37,7 +37,17 @@ class MobileBarcodeSource implements BarcodeSource {
   @override
   Future<BarcodeSourceStatus> start() async {
     try {
-      await _controller.start();
+      try {
+        await _controller.start();
+      } on MobileScannerException catch (e) {
+        if (e.errorCode != MobileScannerErrorCode.controllerNotAttached) {
+          rethrow;
+        }
+        // The preview widget was not in the tree yet; retry once after the
+        // next frame has attached it.
+        await WidgetsBinding.instance.endOfFrame;
+        await _controller.start();
+      }
       return BarcodeSourceStatus.ready;
     } on MobileScannerException catch (e) {
       return e.errorCode == MobileScannerErrorCode.permissionDenied

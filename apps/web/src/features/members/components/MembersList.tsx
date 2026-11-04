@@ -47,7 +47,7 @@ export function MembersList() {
                 <span>
                   {m.name === "" ? t("members.relation.self") : m.name}
                 </span>
-                {m.is_primary ? (
+                {m.is_primary && m.name !== "" ? (
                   <span className="rounded-full bg-surface-muted px-2 py-0.5 text-sm font-medium text-text-secondary">
                     {t("members.you_badge")}
                   </span>

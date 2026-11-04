@@ -34,6 +34,7 @@ export function SearchBox({
   debounceMs = 600,
   memberId = null,
   defaultSort = "relevance",
+  initialQuery = "",
 }: {
   hrefFor?: (hit: SearchHit) => string | null;
   /** Visible label; defaults to "Search products". */
@@ -42,12 +43,14 @@ export function SearchBox({
   /** "Higher protein" rates hits for this member (else the primary member). */
   memberId?: string | null;
   defaultSort?: SearchSort;
+  /** Prefills the field and searches at once (the `?q=` of a link). */
+  initialQuery?: string;
 }) {
   const t = useTranslations();
   const locale = useLocale();
   const inputId = useId();
-  const [raw, setRaw] = useState("");
-  const [q, setQ] = useState("");
+  const [raw, setRaw] = useState(initialQuery);
+  const [q, setQ] = useState(initialQuery.trim());
   useEffect(() => {
     const id = setTimeout(() => setQ(raw.trim()), debounceMs);
     return () => clearTimeout(id);

@@ -14,12 +14,15 @@ export function PushToTalkButton({
   onStart,
   onStop,
   onCancel,
+  memberName,
 }: {
   status: RecorderState["status"];
   elapsedMs: number;
   onStart: () => void;
   onStop: () => void;
   onCancel: () => void;
+  /** Makes the accessible name unique when several members each have one. */
+  memberName?: string;
 }) {
   const t = useTranslations("voice");
   const recording = status === "recording";
@@ -28,6 +31,9 @@ export function PushToTalkButton({
     <div className="space-y-1">
       <button
         type="button"
+        aria-label={
+          memberName ? t("button_hold_for", { name: memberName }) : undefined
+        }
         aria-pressed={recording}
         disabled={busy}
         onPointerDown={(e) => {

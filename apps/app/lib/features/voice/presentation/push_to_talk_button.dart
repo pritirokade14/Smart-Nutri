@@ -30,9 +30,12 @@ String _clock(Duration d) =>
 /// to send, slide away to cancel. Shows the elapsed time while recording and
 /// opens the answer when it arrives.
 class PushToTalkButton extends ConsumerStatefulWidget {
-  const PushToTalkButton({super.key, required this.target});
+  const PushToTalkButton({super.key, required this.target, this.memberName});
 
   final VoiceTarget target;
+
+  /// Used only for the accessible label; never logged or sent anywhere.
+  final String? memberName;
 
   /// How far the finger may move before the recording is cancelled.
   static const cancelDistance = 80.0;
@@ -87,13 +90,18 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
       VoiceUploading() => l10n.voiceThinking,
       _ => l10n.voiceButtonHold,
     };
+    final name = widget.memberName?.trim() ?? '';
+    final semanticsLabel =
+        state is! VoiceRecording && state is! VoiceUploading && name.isNotEmpty
+        ? l10n.voiceButtonHoldFor(name)
+        : label;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Semantics(
           button: true,
-          label: label,
+          label: semanticsLabel,
           excludeSemantics: true,
           child: GestureDetector(
             onLongPressStart: busy

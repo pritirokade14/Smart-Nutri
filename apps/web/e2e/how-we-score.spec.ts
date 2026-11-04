@@ -50,3 +50,17 @@ test("Nutri-Score is labelled calculated by SmartNutri", async ({ page }) => {
     page.getByTestId("methodology-nutriscore_2023").getByRole("heading"),
   ).toContainText("calculated by SmartNutri");
 });
+
+for (const locale of ["en", "hi", "mr"] as const) {
+  test(`/${locale}/how-we-score does not scroll sideways at 390 px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`/${locale}/how-we-score`);
+    await expect(page.getByTestId("pending-review")).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+}

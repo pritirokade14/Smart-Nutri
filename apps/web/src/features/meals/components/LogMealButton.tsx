@@ -15,10 +15,13 @@ export function LogMealButton({
   product,
   members,
   memberId,
+  memberName,
 }: {
   product: LogMealProduct;
   members: readonly LogMealMember[];
   memberId: string;
+  /** Makes the button's accessible name unique per member card. */
+  memberName?: string;
 }) {
   const t = useTranslations("meals.log");
   const [open, setOpen] = useState(false);
@@ -28,6 +31,7 @@ export function LogMealButton({
         variant="secondary"
         size="sm"
         data-testid="log-meal-cta"
+        aria-label={memberName ? t("cta_for", { name: memberName }) : undefined}
         onClick={() => setOpen(true)}
       >
         <PlusIcon className="size-4" />

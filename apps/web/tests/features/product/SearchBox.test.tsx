@@ -78,6 +78,18 @@ describe("SearchBox", () => {
     expect(api.callsTo("GET", "/v1/products/search")).toHaveLength(0);
   });
 
+  it("initialQuery fills the field and searches without typing", async () => {
+    const api = apiStub(fetchMock).on("GET", "/v1/products/search", HITS);
+    view({ initialQuery: "  parle " });
+    expect(
+      (screen.getByLabelText(en.search.title) as HTMLInputElement).value,
+    ).toBe("  parle ");
+    expect((await screen.findAllByTestId("search-hit")).length).toBe(2);
+    expect(
+      api.callsTo("GET", "/v1/products/search").at(-1)?.query.get("q"),
+    ).toBe("parle");
+  });
+
   it("default debounce is 600 ms and Enter searches at once", async () => {
     const api = apiStub(fetchMock).on("GET", "/v1/products/search", HITS);
     render(

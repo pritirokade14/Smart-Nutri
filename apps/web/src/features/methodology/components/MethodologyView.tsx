@@ -23,7 +23,7 @@ function isScalar(v: unknown): boolean {
 
 function Value({ value }: { value: unknown }): ReactNode {
   if (isScalar(value))
-    return <span className="font-mono">{formatScalar(value)}</span>;
+    return <span className="font-mono break-all">{formatScalar(value)}</span>;
   if (Array.isArray(value)) {
     if (value.every(isScalar))
       return (
@@ -47,8 +47,8 @@ function Value({ value }: { value: unknown }): ReactNode {
     <dl className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-4 gap-y-1">
       {entries.map(([k, v]) => (
         <div key={k} className="contents">
-          <dt>
-            <code className="text-text-secondary">{k}</code>
+          <dt className="min-w-0">
+            <code className="break-all text-text-secondary">{k}</code>
           </dt>
           <dd className="min-w-0">
             <Value value={v} />

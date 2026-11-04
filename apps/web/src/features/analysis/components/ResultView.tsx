@@ -137,29 +137,37 @@ function Analysis({
             {t("result.family_title")}
           </h2>
         ) : null}
-        {data.verdicts.map((v) => (
-          <div
-            key={v.member_id}
-            data-testid="member-result"
-            className="space-y-2"
-          >
-            <VerdictCard
-              verdict={v}
-              footer={
-                voice && voiceProduct ? (
-                  <VoiceAsk memberId={v.member_id} product={voiceProduct} />
-                ) : null
-              }
-            />
-            {logProduct ? (
-              <LogMealButton
-                product={logProduct}
-                members={members}
-                memberId={v.member_id}
+        {data.verdicts.map((v) => {
+          const name = v.member_name === "" ? t("result.you") : v.member_name;
+          return (
+            <div
+              key={v.member_id}
+              data-testid="member-result"
+              className="space-y-2"
+            >
+              <VerdictCard
+                verdict={v}
+                footer={
+                  voice && voiceProduct ? (
+                    <VoiceAsk
+                      memberId={v.member_id}
+                      product={voiceProduct}
+                      memberName={name}
+                    />
+                  ) : null
+                }
               />
-            ) : null}
-          </div>
-        ))}
+              {logProduct ? (
+                <LogMealButton
+                  product={logProduct}
+                  members={members}
+                  memberId={v.member_id}
+                  memberName={name}
+                />
+              ) : null}
+            </div>
+          );
+        })}
       </section>
 
       <ResultShare
