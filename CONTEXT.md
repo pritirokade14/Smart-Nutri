@@ -81,7 +81,7 @@ See [AGENTS.md](AGENTS.md). In short:
 
 ## 7. Plans and build order
 
-Plans 1–8 are **code complete on `v1-rebuild`** (head `0c69efd` plus the final fix batch). Plan 9 is written and not started. Nothing past Plan 4 has been merged to `main` or deployed. Plan 4 was merged (PR #2, `7d9fd3d`) and dev migration 0002 applied.
+Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 2026-11-04). Dev migrations are at `0007_plan9_supplement_category` (head) and the dev API and web are deployed and healthy.
 
 | Plan | File | Status |
 |---|---|---|
@@ -89,11 +89,11 @@ Plans 1–8 are **code complete on `v1-rebuild`** (head `0c69efd` plus the final
 | 2. Foundation | `docs/superpowers/plans/2026-11-03-plan-2-foundation.md` | Code complete; dev deploy live |
 | 3. M1: barcode → verdict, public product pages | `…-plan-3-m1-barcode-verdict.md` | Code complete; manual real-pack check is USER |
 | 4. M2: label scan | [plan-4](docs/superpowers/plans/2026-11-03-plan-4-m2-label-scan.md) | Code complete, merged to `main`; label eval and real-pack check are USER |
-| 5. M3: family members, per-member verdicts, explanation, alerts | `…-plan-5-m3-family-verdicts.md` | Code complete on `v1-rebuild`, not merged |
-| 6. M4: scan-to-log, weekly summary, alternatives, compare, share | `…-plan-6-m4-log-share.md` | Code complete on `v1-rebuild`, not merged |
-| 7. M5: voice Q&A, How we score, Report a problem | `…-plan-7-m5-voice-methodology-reports.md` | Code complete; voice is **OFF** by flag until the USER steps in section 8 |
+| 5. M3: family members, per-member verdicts, explanation, alerts | `…-plan-5-m3-family-verdicts.md` | Code complete, merged (PR #3), deployed to dev |
+| 6. M4: scan-to-log, weekly summary, alternatives, compare, share | `…-plan-6-m4-log-share.md` | Code complete, merged (PR #3), deployed to dev |
+| 7. M5: voice Q&A, How we score, Report a problem | `…-plan-7-m5-voice-methodology-reports.md` | Code complete; voice is **ON on dev** (repo variables `VOICE_ENABLED` and `NEXT_PUBLIC_FEATURE_VOICE`, 2026-11-04) |
 | 8. M6: consent/DPDP, deletion, retention, release checklist | `…-plan-8-m6-launch.md` | Code complete; prod deploy, Play Store and legal are USER |
-| 9. User types, focused modes, gym protein guide | [plan-9](docs/superpowers/plans/2026-11-04-plan-9-personas.md) | **Planned** (2026-11-04), to build before the Play closed test. 15 tasks: API 1–8, then Android 9–11 ∥ web 12–14, then the gate. Migrations 0005 (user types) and 0006 (supplement category). ADR 0019 |
+| 9. User types, focused modes, gym protein guide | [plan-9](docs/superpowers/plans/2026-11-04-plan-9-personas.md) | Code complete, merged (PR #3), deployed to dev. Migrations 0006 (user types) and 0007 (supplement category). ADR 0019 |
 
 **How plans are executed:** `superpowers:subagent-driven-development`, with a ledger in `.superpowers/sdd/<plan>/progress.md` (git-ignored). Independent tasks run in parallel git worktrees. For each slice: the API first → `just contract` → Android ∥ web → `nutrition-safety-reviewer`.
 
@@ -109,32 +109,30 @@ Plans 1–8 are **code complete on `v1-rebuild`** (head `0c69efd` plus the final
 - **Plans 5–8 (code complete on `v1-rebuild`, head `0c69efd` + final fix batch):**
   - Plan 5: family members, per-member verdicts, claim checker, custom ingredient alerts, LLM explanation (consent gate G1: `terms` for core use, `health_data` to save member health fields, `ai_processing` for explanations and voice).
   - Plan 6: scan-to-log (Android offline queue, web online-only), daily and weekly totals, alternatives, compare, search, share (member statuses opt-in, off by default). ADR 0017.
-  - Plan 7: voice Q&A (STT, guarded answer, TTS), How we score, Report a problem. Voice is **off by default** (`VOICE_ENABLED=false`, `NEXT_PUBLIC_FEATURE_VOICE=false`, `FEATURE_VOICE` on Android).
+  - Plan 7: voice Q&A (STT, guarded answer, TTS), How we score, Report a problem. Voice defaults to off in code (`VOICE_ENABLED`, `NEXT_PUBLIC_FEATURE_VOICE`, `FEATURE_VOICE` on Android); dev turns it on through the GitHub repo variables `VOICE_ENABLED` and `NEXT_PUBLIC_FEATURE_VOICE` (set to `true` on 2026-11-04). Set them to `false` to switch voice off again.
   - Plan 8: consent and withdrawal (ADR 0018), account deletion with a tombstone (migration `0004_plan8_deleted_accounts`), retention job, EXIF stripping, telemetry allow-list, privacy policy and terms drafts, release checklist (`docs/launch/RELEASE_CHECKLIST.md`).
   - Whole-branch nutrition-safety review: APPROVE WITH CHANGES; the final fix batch addresses them.
-- **Test totals at `0c69efd`:** API 2811, Flutter 1192 (APK builds), web 1083, web e2e 42.
+- **Plan 9 (user types, focused modes, gym protein guide):** code complete, safety-reviewed, merged (PR #3).
+- **Test totals at `2003e9c`:** 6,738 (API 3,972, Flutter 1,473, web 1,293), plus 44 web e2e.
 
 **Not done, by design or waiting on the user:**
 - Android has no release signing yet and nothing is on Play. No prod project exists.
 - Robots.txt and OG share-card images are **not built** (TODO in FEATURE_PARITY). `sitemap.ts` and hreflang exist.
 - Phone OTP is OFF (needs Meta template approval). Email OTP is OFF (needs a domain and SMTP).
-- Voice is OFF (see below).
+- Voice is ON on dev only (repo variables). Prod stays off until the prod launch.
 
 **Next (all USER unless noted):**
-0. **Agents:** build Plan 9 (user types, focused modes, gym protein guide) with parallel agents: API Tasks 1–8 first (1 ∥ 3; scoring 3 → 4 → 6 → 7; Task 7 supplements can slip), then Android ∥ web, then the safety review. The user decided to do this before the Play closed test.
 1. ~~Create the `voice-answers` bucket~~: no longer needed. Voice answers are returned inline and never stored (ADR 0020, user decision 2026-11-04). The empty dev bucket created 2026-11-04 may be deleted.
-2. Apply migrations 0003 and 0004 to dev (`just db-migrate`), then PR `v1-rebuild` to `main` when local checks are green. The deploy also updates the retention job once its shell exists.
 3. Run `bash scripts/setup-retention-schedule.sh setup`, then after the deploy `dry-run`, then `schedule` (02:30 IST).
-4. Approve and run the paid STT/TTS probe, then enable voice.
+4. ~~Approve and run the paid STT/TTS probe, then enable voice~~: probe passed 2026-11-04 (saaras STT and bulbul/gnani TTS ok in en/hi/mr, India-processed); voice enabled on dev.
 5. Run the label eval, the manual real-pack parity checks, clinician and native-language reviews, lawyer review, Play Store steps (all in section 9 and `docs/launch/RELEASE_CHECKLIST.md`).
 
 ## 9. Open items that only the user can do
 
 - [ ] **USER:** `scripts/push-secrets.sh prod` before the prod deploy (dev secrets are already in Secret Manager).
 - [ ] **USER (optional): delete the empty `voice-answers` bucket on dev** (created 2026-11-04). It is no longer used: voice answers come back inline in the API response and no voice audio is stored (ADR 0020). Do not create it on prod.
-- [ ] **USER: apply dev migrations 0003 and 0004** (`just db-migrate`) before merging Plans 5–8 to `main`. After Plan 9: also 0005 (user types) and 0006 (supplement category).
 - [ ] **USER: retention job schedule** (`scripts/setup-retention-schedule.sh`: `setup`, `dry-run`, `schedule`).
-- [ ] **USER: approve the paid STT/TTS probe** (`scripts.probe_callmissed --yes-spend`). It must also confirm CallMissed accepts the India data-residency setting on STT and TTS. Voice stays off until then. (No voice retention is needed: no voice audio is stored, ADR 0020.)
+- [x] **Paid STT/TTS probe** approved and run 2026-11-04 (14/16 ok; the whisper hi/mr fallback was rate-limited, retry later). Voice is on in dev.
 - [ ] **USER: lawyer review** of the privacy policy and terms drafts (`docs/launch/`), including DPDP withdrawal versus erasure (ADR 0018) and children's profiles.
 - [ ] **USER: Play Store:** create the Google Play Console **personal** account ($25) and complete ID verification.
 - [ ] **USER:** recruit 12–20 closed-test testers once a usable build exists.
