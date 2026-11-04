@@ -639,6 +639,7 @@
   "meals": {
     "log": {
       "cta": "I ate this",
+      "cta_for": "I ate this, {name}",
       "title": "Log what was eaten",
       "member": "Who ate it?",
       "servings": "Servings",
@@ -767,6 +768,7 @@
   "voice": {
     "word_safe": "safe",
     "button_hold": "Hold to ask",
+    "button_hold_for": "Hold to ask, {name}",
     "recording": "Listening… release to send",
     "thinking": "Getting your answer…",
     "playing": "Playing the answer",

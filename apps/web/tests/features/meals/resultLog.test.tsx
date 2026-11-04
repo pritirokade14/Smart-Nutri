@@ -52,10 +52,19 @@ describe("result page: I ate this", () => {
     const results = await screen.findAllByTestId("member-result");
     expect(results).toHaveLength(body.verdicts.length);
     for (const r of results) {
-      expect(
-        within(r).getByRole("button", { name: en.meals.log.cta }),
-      ).toBeTruthy();
+      expect(within(r).getByTestId("log-meal-cta")).toBeTruthy();
     }
+  });
+
+  it("each button has its own accessible name (the member's)", async () => {
+    const body = analyzeResponse("sf_biscuit");
+    view(body);
+    await screen.findAllByTestId("member-result");
+    const buttons = screen.getAllByTestId("log-meal-cta");
+    const names = buttons.map((b) => b.getAttribute("aria-label"));
+    expect(new Set(names).size).toBe(buttons.length);
+    for (const n of names) expect(n).toContain(en.meals.log.cta);
+    expect(names[0]).toContain(body.verdicts[0].member_name || en.result.you);
   });
 
   it("opens the dialog for that card's member and logs the product", async () => {
@@ -86,9 +95,7 @@ describe("result page: I ate this", () => {
     );
     const results = await screen.findAllByTestId("member-result");
     const user = userEvent.setup();
-    await user.click(
-      within(results[1]).getByRole("button", { name: en.meals.log.cta }),
-    );
+    await user.click(within(results[1]).getByTestId("log-meal-cta"));
     const dialog = screen.getByTestId("log-meal-dialog");
     expect(within(dialog).getByText(en.meals.online_only)).toBeTruthy();
     expect(

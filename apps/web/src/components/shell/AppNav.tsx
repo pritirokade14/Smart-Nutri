@@ -17,10 +17,10 @@ import { useActiveMode } from "@/features/modes/useActiveMode";
 import { cn } from "@/lib/cn";
 
 // Pages without a tab of their own light the tab they are reached from,
-// when that tab is in the bar: results, saved products, search and compare
-// come from Scan; adding and editing members happens under Family.
+// when that tab is in the bar: results, saved products and compare come
+// from Scan; search lights nothing unless it is a tab; adding and editing members happens under Family.
 const ALSO: Partial<Record<Destination, readonly string[]>> = {
-  scan: ["result", "product", "search", "compare"],
+  scan: ["result", "product", "compare"],
   family: ["members"],
 };
 

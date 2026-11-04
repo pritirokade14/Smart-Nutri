@@ -30,8 +30,10 @@ export function isVoiceEnabled(): boolean {
 export function VoiceAsk({
   memberId,
   product,
+  memberName,
 }: {
   memberId: string;
+  memberName?: string;
   product: VoiceProductRef;
 }) {
   const t = useTranslations();
@@ -65,6 +67,7 @@ export function VoiceAsk({
     <div className="space-y-2" data-testid="voice-ask">
       <PushToTalkButton
         status={status}
+        memberName={memberName}
         elapsedMs={recorder.state.elapsedMs}
         onStart={() => {
           ask.reset();
