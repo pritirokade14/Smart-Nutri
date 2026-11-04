@@ -139,3 +139,27 @@ def test_whole_food_terms_live_in_data(cfg):
         s["suspect_whole_food_terms"]
     )
     assert s["suspect_whole_food_categories"] == ["cheese"]
+
+
+# --- P9 final review: caseins are protein-powder words -------------------------------------
+
+
+@pytest.mark.parametrize(
+    "ingredients",
+    [
+        ("milk solids", "calcium caseinate"),  # first ingredient is a dairy food
+        ("milk", "sodium caseinate", "cocoa"),
+        ("skimmed milk", "casein"),
+        ("milk solids", "milk protein"),
+    ],
+)
+def test_casein_and_milk_protein_flag_a_dairy_first_powder(cfg, ingredients):
+    p = _p(ingredients, protein=65)
+    assert supplement_suspect(p, cfg)
+    # ... so a protein-sorted list for a minor leaves it out.
+    assert hides_supplement_suspects(Member(id="m", name="", age=12), cfg)
+
+
+def test_casein_words_live_in_data(cfg):
+    words = set(cfg.thresholds["supplements"]["suspect_protein_words"])
+    assert {"casein", "caseinate", "calcium caseinate", "milk protein"} <= words

@@ -108,11 +108,11 @@ supplements:
   # Naturally high-protein whole foods (P9 integration q3): legumes, soya chunks and dairy.
   # The protein threshold alone does not flag a product whose FIRST ingredient is one of
   # these, or whose category is in suspect_whole_food_categories, unless an ingredient names
-  # a protein (suspect_protein_words: "pea protein", "soy protein"). suspect_terms (whey,
+  # a protein (suspect_protein_words: "pea protein", "soy protein", casein, caseinate). suspect_terms (whey,
   # isolate, concentrate) still flag them. SmartNutri working values, PENDING CLINICIAN REVIEW.
   suspect_whole_food_terms: [soya chunks, soya chunk, soy chunks, soya nuggets, soy nuggets, soya granules, soya badi, soya flour, soy flour, defatted soya flour, defatted soy flour, soybean, soybeans, soya bean, soya beans, chana, roasted chana, chickpea, chickpeas, dal, moong, moong dal, masoor, urad, rajma, lentil, lentils, peas, besan, gram flour, peanut, peanuts, groundnut, groundnuts, paneer, cottage cheese, chhena, skyr, quark, curd, yogurt, yoghurt, greek yogurt, cheese, milk, skimmed milk, skim milk, toned milk, सोया, सोयाबीन, सोया चंक्स, सोया बड़ी, चना, दाल, मूंग, राजमा, बेसन, मूंगफली, पनीर, दही, दूध, हरभरा, डाळ, शेंगदाणे]
   suspect_whole_food_categories: [cheese]
-  suspect_protein_words: [protein, proteins, प्रोटीन, प्रथिने]
+  suspect_protein_words: [protein, proteins, casein, caseinate, calcium caseinate, milk protein, प्रोटीन, प्रथिने]
 # Daily limits for the meal-log summaries (Plan 6 T1). PENDING CLINICIAN REVIEW.
 # Read only by daily_limits.py, never by the verdict rules, with one exception: protein_min_age
 # also gates the OK-level good_protein_density reason (conditions.py, P9 safety S4), which never

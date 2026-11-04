@@ -716,6 +716,10 @@
         "suspect_protein_words": [
           "protein",
           "proteins",
+          "casein",
+          "caseinate",
+          "calcium caseinate",
+          "milk protein",
           "प्रोटीन",
           "प्रथिने"
         ],
@@ -1096,5 +1100,5 @@
       "url_verified": false
     }
   ],
-  "version": "1b19c9cd2721"
+  "version": "e3d06c44e19d"
 }
