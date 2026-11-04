@@ -16,7 +16,6 @@ from app.features.voice.schemas import VoiceAnswer, VoiceLanguage
 from app.integrations.callmissed import get_llm_provider, get_speech_provider
 from app.integrations.openfoodfacts import OffClient, get_off_client
 from app.integrations.providers import LLMProvider, SpeechProvider
-from app.integrations.storage import StorageClient, get_voice_storage
 
 router = APIRouter(prefix="/v1/voice", tags=["voice"])
 
@@ -35,7 +34,7 @@ _RESPONSES = {
         "model": ErrorEnvelope,
         "description": (
             "Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), "
-            "or speech, AI, storage or OFF is unavailable"
+            "or speech, AI or OFF is unavailable"
         ),
     },
 }
@@ -73,7 +72,6 @@ async def voice_ask(
     settings: Annotated[Settings, Depends(get_app_settings)],
     speech: Annotated[SpeechProvider, Depends(get_speech_provider)],
     llm: Annotated[LLMProvider, Depends(get_llm_provider)],
-    storage: Annotated[StorageClient, Depends(get_voice_storage)],
     off: Annotated[OffClient, Depends(get_off_client)],
     product_id: Annotated[UUID | None, Form()] = None,
     barcode: Annotated[str | None, Form(max_length=64)] = None,
@@ -84,6 +82,9 @@ async def voice_ask(
     at most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The
     verdict comes only from the rules engine; `answer` starts with it. Needs the
     `ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).
+
+    No voice audio is stored: the spoken answer comes back inline as base64 mp3
+    (`audio_base64`), or null when it would be over about 1 MB (show the text answer).
 
     Off by default: while the server setting `VOICE_ENABLED` is false, every call answers
     503 `ai_unavailable` (clients show the same "voice unavailable" message as for an outage).
@@ -101,7 +102,6 @@ async def voice_ask(
         settings=settings,
         speech=speech,
         llm=llm,
-        storage=storage,
         off=off,
         today=datetime.now(UTC).date(),
     )

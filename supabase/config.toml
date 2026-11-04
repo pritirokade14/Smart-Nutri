@@ -37,9 +37,4 @@ public = false
 file_size_limit = "8MiB"
 allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
 
-# Private bucket for spoken voice answers (voice/{account_id}/{uuid}.mp3), written by the API
-# and read through 1-hour signed URLs. Objects are deleted after 24 h (Plan 8 retention job).
-[storage.buckets.voice-answers]
-public = false
-file_size_limit = "5MiB"
-allowed_mime_types = ["audio/mpeg"]
+# No voice bucket: spoken answers are returned inline and never stored (ADR 0020).

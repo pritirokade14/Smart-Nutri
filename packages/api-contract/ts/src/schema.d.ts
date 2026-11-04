@@ -71,7 +71,7 @@ export interface paths {
          * Me Delete
          * @description Permanently erase the caller's account (DPDP erasure, F11).
          *
-         *     Order: storage objects (label photos, and voice answers in their own bucket), then every
+         *     Order: storage objects (label photos; voice audio is never stored), then every
          *     account-owned row in one transaction (contributed products stay with no owner), then the
          *     Supabase auth user. The row erasure also writes a tombstone (ruling D1/B1): until it is
          *     purged (7 days), the caller's still-valid token gets 401 `auth_invalid` everywhere else.
@@ -518,6 +518,9 @@ export interface paths {
          *     at most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The
          *     verdict comes only from the rules engine; `answer` starts with it. Needs the
          *     `ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).
+         *
+         *     No voice audio is stored: the spoken answer comes back inline as base64 mp3
+         *     (`audio_base64`), or null when it would be over about 1 MB (show the text answer).
          *
          *     Off by default: while the server setting `VOICE_ENABLED` is false, every call answers
          *     503 `ai_unavailable` (clients show the same "voice unavailable" message as for an outage).
@@ -1941,16 +1944,17 @@ export interface components {
              */
             answer: string;
             /**
-             * Audio Expires In
-             * @description Seconds until audio_url expires.
-             * @default 3600
+             * Audio Base64
+             * @description The spoken answer, base64-encoded (`audio_mime`), sent only in this response and never stored. null when the audio would be over about 1 MB: show `answer` as text.
              */
-            audio_expires_in: number;
+            audio_base64: string | null;
             /**
-             * Audio Url
-             * @description Signed URL of the mp3 answer; expires.
+             * Audio Mime
+             * @description Media type of audio_base64 (mp3).
+             * @default audio/mpeg
+             * @constant
              */
-            audio_url: string;
+            audio_mime: "audio/mpeg";
             /**
              * Question
              * @description The transcribed question (never stored or logged).
@@ -4457,7 +4461,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), or speech, AI, storage or OFF is unavailable */
+            /** @description Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), or speech, AI or OFF is unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;

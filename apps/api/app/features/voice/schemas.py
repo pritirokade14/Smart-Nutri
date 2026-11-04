@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.features.analyze.schemas import VerdictStatus
 
-AUDIO_URL_EXPIRES_IN_S = 3600
+ANSWER_AUDIO_MIME = "audio/mpeg"
 
 
 class VoiceLanguage(StrEnum):
@@ -24,9 +24,14 @@ class VoiceAnswer(BaseModel):
 
     question: str = Field(description="The transcribed question (never stored or logged).")
     answer: str = Field(description="Engine verdict sentence, then the explanation.")
-    audio_url: str = Field(description="Signed URL of the mp3 answer; expires.")
-    audio_expires_in: int = Field(
-        default=AUDIO_URL_EXPIRES_IN_S, description="Seconds until audio_url expires."
+    audio_base64: str | None = Field(
+        description=(
+            "The spoken answer, base64-encoded (`audio_mime`), sent only in this response and "
+            "never stored. null when the audio would be over about 1 MB: show `answer` as text."
+        )
+    )
+    audio_mime: Literal["audio/mpeg"] = Field(
+        default=ANSWER_AUDIO_MIME, description="Media type of audio_base64 (mp3)."
     )
     verdict_status: VerdictStatus
     source: Literal["llm", "fallback"] = Field(

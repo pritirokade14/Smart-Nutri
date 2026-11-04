@@ -1,14 +1,16 @@
-"""POST /v1/voice/ask (Plan 7 Task 4, F10).
+"""POST /v1/voice/ask (Plan 7 Task 4, F10; ADR 0020: the answer audio is inline, never stored).
 
-Test DB plus fakes for SpeechProvider, LLMProvider, voice storage and OFF (dependency
-overrides). Audio is an ffmpeg tone (tests/audio.py); nothing reaches CallMissed.
+Test DB plus fakes for SpeechProvider, LLMProvider and OFF (dependency overrides). Audio is
+an ffmpeg tone (tests/audio.py); nothing reaches CallMissed.
 """
 
+import base64
 import io
 import logging
+import tempfile
 import wave
 from pathlib import Path
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import text
@@ -20,6 +22,7 @@ from scripts.export_fixture_responses import fixture_member_record
 from tests.api.analyze.conftest import OFF_BARCODE
 from tests.api.voice.conftest import A, llm_answer
 from tests.fakes.llm import FakeLLM
+from tests.fakes.speech import FAKE_MP3
 
 pytestmark = pytest.mark.usefixtures("auth_headers")
 
@@ -43,10 +46,11 @@ async def test_voice_ask_happy_path(client, seeded_member, seeded_biscuit, wav3s
     body = r.json()
     assert r.status_code == 200, body
     assert body["verdict_status"] == "avoid" and body["source"] == "llm"
-    assert body["audio_url"].startswith("https://")
+    assert base64.b64decode(body["audio_base64"], validate=True) == FAKE_MP3
+    assert body["audio_mime"] == "audio/mpeg"
+    assert "audio_url" not in body and "audio_expires_in" not in body
     assert body["answer"] == f"{AVOID_SENTENCE} It has a lot of sugar."
     assert body["question"] == "is this ok for me"
-    assert body["audio_expires_in"] == 3600
 
 
 async def test_flow_order_and_calls(client, seeded_member, seeded_biscuit, wav3s, fakes):
@@ -55,11 +59,6 @@ async def test_flow_order_and_calls(client, seeded_member, seeded_biscuit, wav3s
     assert stt.mime == "audio/wav" and stt.language == "en"
     [tts] = fakes.speech.synth_calls
     assert tts.text == f"{AVOID_SENTENCE} It has a lot of sugar. {DISCLAIMER}"
-    [(path, ctype)] = fakes.storage.uploads
-    assert ctype == "audio/mpeg"
-    assert path.startswith(f"voice/{A}/") and path.endswith(".mp3")
-    UUID(path.removeprefix(f"voice/{A}/").removesuffix(".mp3"))
-    assert fakes.storage.signed_urls == [(path, 3600)]
 
 
 async def test_stt_gets_the_measured_wav_not_the_upload(
@@ -232,12 +231,6 @@ async def test_llm_out_of_credits_503_without_tts(
     assert fakes.speech.synth_calls == []
 
 
-async def test_storage_unavailable_503(client, seeded_member, seeded_biscuit, wav3s, fakes):
-    fakes.storage.fail_uploads = True
-    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
-    assert (r.status_code, r.json()["error"]["code"]) == (503, "ai_unavailable")
-
-
 async def test_requires_ai_processing_consent(
     client, db_session, seeded_member, seeded_biscuit, wav3s, fakes
 ):
@@ -259,12 +252,12 @@ async def test_voice_disabled_is_503_before_any_paid_call(
     client, app, seeded_member, seeded_biscuit, wav3s, fakes
 ):
     """Ruling V1 S3: with VOICE_ENABLED off the route answers 503 ai_unavailable and never
-    reads the audio or calls STT, the LLM, TTS or storage."""
+    reads the audio or calls STT, the LLM or TTS."""
     app.state.settings.voice_enabled = False
     r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
     assert (r.status_code, r.json()["error"]["code"]) == (503, "ai_unavailable")
     assert fakes.speech.stt_calls == [] and fakes.llm.chat_calls == []
-    assert fakes.speech.synth_calls == [] and fakes.storage.uploads == []
+    assert fakes.speech.synth_calls == []
 
 
 async def test_voice_disabled_wins_over_the_rate_limit(
@@ -347,6 +340,130 @@ async def test_requires_auth_401(app, client, seeded_member, seeded_biscuit, wav
     del app.dependency_overrides[current_account]
     r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
     assert r.status_code == 401
+
+
+# --- No voice audio is ever stored (ADR 0020) ---------------------------------------------------
+
+
+def _voice_temp_files() -> set[str]:
+    return {p.name for p in Path(tempfile.gettempdir()).glob("voice-*")}
+
+
+async def test_answer_audio_over_the_cap_is_text_only(
+    client, seeded_member, seeded_biscuit, wav3s, fakes, monkeypatch
+):
+    """Over MAX_ANSWER_AUDIO_BYTES the answer is still given, as text, with no audio."""
+    from app.features.voice import service
+
+    monkeypatch.setattr(service, "MAX_ANSWER_AUDIO_BYTES", len(FAKE_MP3) - 1)
+    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+    body = r.json()
+    assert r.status_code == 200, body
+    assert body["audio_base64"] is None and body["audio_mime"] == "audio/mpeg"
+    assert body["answer"] == f"{AVOID_SENTENCE} It has a lot of sugar."
+    assert body["verdict_status"] == "avoid"
+
+
+def test_answer_audio_cap_is_about_one_megabyte():
+    from app.features.voice.service import MAX_ANSWER_AUDIO_BYTES
+
+    assert MAX_ANSWER_AUDIO_BYTES == 1024 * 1024
+
+
+async def test_tts_stops_once_the_cap_is_passed(
+    client, seeded_member, seeded_biscuit, wav3s, fakes, monkeypatch
+):
+    """A long answer is spoken in chunks; once the audio is over the cap, no more paid TTS."""
+    from app.features.voice import service
+
+    monkeypatch.setattr(service, "MAX_ANSWER_AUDIO_BYTES", len(FAKE_MP3) + 1)
+    monkeypatch.setattr(service, "split_for_tts", lambda text: ["one.", "two.", "three."])
+    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+    assert r.status_code == 200 and r.json()["audio_base64"] is None
+    assert len(fakes.speech.synth_calls) == 2
+
+
+@pytest.mark.parametrize("fmt", ["wav3s", "m4a3s", "webm3s"])
+async def test_no_storage_call_and_no_audio_left_behind(
+    client, app, request, seeded_member, seeded_biscuit, fmt, fakes
+):
+    """Neither the question audio nor the answer audio is written to storage, and the
+    transient ffmpeg input (MP4 only) is gone when the request ends."""
+    from app.integrations.storage import get_storage
+    from tests.fakes.storage import FakeStorage
+
+    storage = FakeStorage()
+    app.dependency_overrides[get_storage] = lambda: storage
+    before = _voice_temp_files()
+    r = await _ask(client, request.getfixturevalue(fmt), seeded_biscuit, seeded_member)
+    assert r.status_code == 200, r.json()
+    assert storage.uploads == [] and storage.objects == {}
+    assert _voice_temp_files() <= before
+
+
+def test_voice_route_has_no_storage_dependency():
+    """No storage client is even constructed for POST /v1/voice/ask."""
+    from fastapi.routing import APIRoute
+
+    from app.features.voice.router import router
+    from app.integrations import storage
+
+    storage_deps = {
+        obj
+        for name, obj in vars(storage).items()
+        if name.startswith("get_") and getattr(obj, "__module__", "") == storage.__name__
+    }
+    assert storage.get_storage in storage_deps
+    [route] = [r for r in router.routes if isinstance(r, APIRoute) and r.path == "/v1/voice/ask"]
+
+    def calls(dependant):
+        for dep in dependant.dependencies:
+            yield dep.call
+            yield from calls(dep)
+
+    assert not storage_deps & set(calls(route.dependant))
+
+
+def test_voice_feature_never_imports_storage():
+    voice_dir = Path(__file__).parents[3] / "app" / "features" / "voice"
+    for source in voice_dir.glob("*.py"):
+        assert "app.integrations.storage" not in source.read_text("utf-8"), source.name
+
+
+async def test_nothing_about_the_question_is_written_to_the_database(
+    client, db_session, seeded_member, seeded_biscuit, wav3s, fakes
+):
+    """Only the voice rate-limit counter changes: no row holds the audio, the transcript or
+    the answer."""
+    tables = list(
+        await db_session.scalars(
+            text("select tablename from pg_tables where schemaname = 'public' order by 1")
+        )
+    )
+
+    async def snapshot() -> dict[str, str]:
+        out = {}
+        for table in tables:
+            out[table] = await db_session.scalar(
+                text(
+                    f"select coalesce(md5(string_agg(t::text, ',' order by t::text)), '') "
+                    f"from {table} t"
+                )
+            )
+        return out
+
+    fakes.speech.transcript = "chini kitni hai"
+    before = await snapshot()
+    r = await _ask(client, wav3s, seeded_biscuit, seeded_member)
+    assert r.status_code == 200
+    after = await snapshot()
+    changed = {t for t in tables if before[t] != after[t]}
+    assert changed <= {"rate_limit_counters"}
+    for table in tables:
+        dump = await db_session.scalar(
+            text(f"select coalesce(string_agg(t::text, ','), '') from {table} t")
+        )
+        assert "chini kitni hai" not in dump and "It has a lot of sugar" not in dump
 
 
 # --- TTS splitting (pure) ----------------------------------------------------------------------

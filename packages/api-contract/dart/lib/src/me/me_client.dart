@@ -20,7 +20,7 @@ abstract class MeClient {
   ///
   /// Permanently erase the caller's account (DPDP erasure, F11).
   ///
-  /// Order: storage objects (label photos, and voice answers in their own bucket), then every.
+  /// Order: storage objects (label photos; voice audio is never stored), then every.
   /// account-owned row in one transaction (contributed products stay with no owner), then the.
   /// Supabase auth user. The row erasure also writes a tombstone (ruling D1/B1): until it is.
   /// purged (7 days), the caller's still-valid token gets 401 `auth_invalid` everywhere else.

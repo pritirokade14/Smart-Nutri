@@ -35,11 +35,9 @@ class Settings(BaseSettings):
     supabase_jwks_url: str = ""
     supabase_secret_key: SecretStr | None = None
     supabase_storage_bucket: str = "label-photos"
-    # Private bucket for spoken answers (voice/{account_id}/{uuid}.mp3), kept at most 24 h.
-    supabase_voice_bucket: str = "voice-answers"
     # POST /v1/voice/ask answers 503 `ai_unavailable` while false (Ruling V1 S3). Stays false
-    # on dev and prod until the 24 h voice retention is live and the user approves the paid
-    # STT/TTS probe (scripts/probe_stt_formats.py --yes-spend).
+    # on dev and prod until the user approves the paid STT/TTS probe
+    # (scripts/probe_stt_formats.py --yes-spend). No voice audio is stored (ADR 0020).
     voice_enabled: bool = False
     database_url: SecretStr = SecretStr(
         "postgresql+psycopg://postgres:postgres@127.0.0.1:54322/postgres"

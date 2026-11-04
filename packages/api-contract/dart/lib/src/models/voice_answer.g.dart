@@ -8,21 +8,21 @@ part of 'voice_answer.dart';
 
 VoiceAnswer _$VoiceAnswerFromJson(Map<String, dynamic> json) => VoiceAnswer(
   answer: json['answer'] as String,
-  audioUrl: json['audio_url'] as String,
+  audioBase64: json['audio_base64'] as String?,
   question: json['question'] as String,
   source: VoiceAnswerSource.fromJson(json['source'] as String),
   verdictStatus: VoiceAnswerVerdictStatus.fromJson(
     json['verdict_status'] as String,
   ),
-  audioExpiresIn: (json['audio_expires_in'] as num?)?.toInt() ?? 3600,
+  audioMime: json['audio_mime'] as String? ?? 'audio/mpeg',
 );
 
 Map<String, dynamic> _$VoiceAnswerToJson(
   VoiceAnswer instance,
 ) => <String, dynamic>{
   'answer': instance.answer,
-  'audio_expires_in': instance.audioExpiresIn,
-  'audio_url': instance.audioUrl,
+  'audio_base64': instance.audioBase64,
+  'audio_mime': instance.audioMime,
   'question': instance.question,
   'source': _$VoiceAnswerSourceEnumMap[instance.source]!,
   'verdict_status': _$VoiceAnswerVerdictStatusEnumMap[instance.verdictStatus]!,

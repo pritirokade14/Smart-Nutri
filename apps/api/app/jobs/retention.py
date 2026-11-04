@@ -1,16 +1,13 @@
-"""Retention job: label photos after 30 days, voice answers after 24 hours (Plan 8 Task 3),
-deletion tombstones after 7 days (ruling D1/B1).
+"""Retention job: label photos after 30 days (Plan 8 Task 3), deletion tombstones after 7 days
+(ruling D1/B1). Voice audio is never stored (ADR 0020), so there is nothing voice to delete.
 
 Run as a Cloud Run Job, daily at 02:30 IST (Plan 8 Task 10):
 
-    python -m app.jobs.retention [--dry-run] [--photo-days 30] [--voice-hours 24]
+    python -m app.jobs.retention [--dry-run] [--photo-days 30]
 
 What it does:
-- Deletes every object in the private bucket outside `voice/` (label photos and orphan uploads,
+- Deletes every object in the private bucket (label photos and orphan uploads,
   `<account_id>/<uuid>.<ext>`) created more than `photo_days` ago.
-- Deletes every `voice/` object (spoken answers) created more than `voice_hours` ago, in the
-  voice-answers bucket (`settings.supabase_voice_bucket`, Plan 7) when `voice_storage` is given,
-  else in the label-photo bucket.
 - Sets `scans.image_path = NULL` on scans older than `photo_days`, and on any scan whose photo
   it just deleted. Scans whose object is already gone are nulled too.
 - Retries the Supabase auth-user removal for every tombstone whose removal `DELETE /v1/me`
@@ -49,16 +46,13 @@ from app.integrations.supabase_admin import AdminUnavailable, SupabaseAdmin, Sup
 
 logger = logging.getLogger("app.jobs.retention")
 
-VOICE_PREFIX = "voice"
 PHOTO_DAYS = 30
-VOICE_HOURS = 24
 TOMBSTONE_DAYS = 7
 
 
 @dataclass(frozen=True)
 class RetentionResult:
     photos_deleted: int
-    voice_deleted: int
     scans_nulled: int
     tombstones_purged: int = 0
     # m2: auth users of erased accounts whose removal DELETE /v1/me could not confirm.
@@ -76,22 +70,13 @@ async def run_retention(
     session: AsyncSession,
     storage: StorageClient,
     photo_days: int = PHOTO_DAYS,
-    voice_hours: int = VOICE_HOURS,
     *,
-    voice_storage: StorageClient | None = None,
     admin: SupabaseAdmin | None = None,
     dry_run: bool = False,
 ) -> RetentionResult:
-    voice_store = voice_storage if voice_storage is not None else storage
     photo_cutoff = now - timedelta(days=photo_days)
-    voice_cutoff = now - timedelta(hours=voice_hours)
 
-    old_photos = [
-        p
-        for p in await storage.list_prefix("", older_than=photo_cutoff)
-        if not p.startswith(VOICE_PREFIX + "/")
-    ]
-    old_voice = await voice_store.list_prefix(VOICE_PREFIX, older_than=voice_cutoff)
+    old_photos = await storage.list_prefix("", older_than=photo_cutoff)
     params = {"cutoff": photo_cutoff, "paths": old_photos}
     # Scan rows past the cutoff whose object the listing did not show (already gone, or no
     # timestamp): delete their path too, so nothing older than the window survives.
@@ -120,15 +105,9 @@ async def run_retention(
     await session.commit()  # release the connection during the storage and auth calls
 
     if dry_run:
-        return RetentionResult(
-            len(old_photos), len(old_voice), len(scan_paths), len(old_tombstones)
-        )
+        return RetentionResult(len(old_photos), len(scan_paths), len(old_tombstones))
 
-    if voice_store is storage:
-        await storage.delete_paths(sorted(set(old_photos) | set(scan_paths) | set(old_voice)))
-    else:
-        await voice_store.delete_paths(sorted(old_voice))
-        await storage.delete_paths(sorted(set(old_photos) | set(scan_paths)))
+    await storage.delete_paths(sorted(set(old_photos) | set(scan_paths)))
 
     removed, failed = await _retry_auth_deletes(admin, unconfirmed)
 
@@ -163,7 +142,6 @@ async def run_retention(
     await session.commit()
     return RetentionResult(
         len(old_photos),
-        len(old_voice),
         result.rowcount,
         len(purged),
         auth_deletes_retried=len(removed),
@@ -189,9 +167,7 @@ async def _retry_auth_deletes(
     return removed, len(account_ids) - len(removed)
 
 
-async def _run_from_settings(
-    *, dry_run: bool, photo_days: int, voice_hours: int
-) -> RetentionResult:
+async def _run_from_settings(*, dry_run: bool, photo_days: int) -> RetentionResult:
     settings = get_settings()
     if not settings.supabase_url or settings.supabase_secret_key is None:
         raise RuntimeError("storage is not configured")
@@ -207,12 +183,6 @@ async def _run_from_settings(
                 secret_key=settings.supabase_secret_key,
                 bucket=settings.supabase_storage_bucket,
             )
-            voice_storage = SupabaseStorage(
-                http,
-                url=settings.supabase_url,
-                secret_key=settings.supabase_secret_key,
-                bucket=settings.supabase_voice_bucket,
-            )
             admin = SupabaseAuthAdmin(
                 http, url=settings.supabase_url, secret_key=settings.supabase_secret_key
             )
@@ -221,8 +191,6 @@ async def _run_from_settings(
                 session,
                 storage,
                 photo_days,
-                voice_hours,
-                voice_storage=voice_storage,
                 admin=admin,
                 dry_run=dry_run,
             )
@@ -234,10 +202,9 @@ def _parse(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="python -m app.jobs.retention")
     parser.add_argument("--dry-run", action="store_true", help="count only; delete nothing")
     parser.add_argument("--photo-days", type=int, default=PHOTO_DAYS)
-    parser.add_argument("--voice-hours", type=int, default=VOICE_HOURS)
     args = parser.parse_args(argv)
-    if args.photo_days < 1 or args.voice_hours < 1:
-        parser.error("--photo-days and --voice-hours must be at least 1")
+    if args.photo_days < 1:
+        parser.error("--photo-days must be at least 1")
     return args
 
 
@@ -245,19 +212,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parse(argv)
     configure_logging(get_settings().log_level)
     try:
-        result = asyncio.run(
-            _run_from_settings(
-                dry_run=args.dry_run, photo_days=args.photo_days, voice_hours=args.voice_hours
-            )
-        )
+        result = asyncio.run(_run_from_settings(dry_run=args.dry_run, photo_days=args.photo_days))
     except Exception as exc:  # noqa: BLE001 - exit 1 with the type only (no URLs or paths)
         logger.error("retention status=failed error=%s", type(exc).__name__)
         return 1
     logger.info(
-        "retention photos_deleted=%d voice_deleted=%d scans_nulled=%d tombstones_purged=%d "
+        "retention photos_deleted=%d scans_nulled=%d tombstones_purged=%d "
         "dry_run=%s auth_deletes_retried=%d auth_deletes_failed=%d",
         result.photos_deleted,
-        result.voice_deleted,
         result.scans_nulled,
         result.tombstones_purged,
         args.dry_run,

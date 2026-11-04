@@ -3886,15 +3886,23 @@
             "title": "Answer",
             "type": "string"
           },
-          "audio_expires_in": {
-            "default": 3600,
-            "description": "Seconds until audio_url expires.",
-            "title": "Audio Expires In",
-            "type": "integer"
+          "audio_base64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The spoken answer, base64-encoded (`audio_mime`), sent only in this response and never stored. null when the audio would be over about 1 MB: show `answer` as text.",
+            "title": "Audio Base64"
           },
-          "audio_url": {
-            "description": "Signed URL of the mp3 answer; expires.",
-            "title": "Audio Url",
+          "audio_mime": {
+            "const": "audio/mpeg",
+            "default": "audio/mpeg",
+            "description": "Media type of audio_base64 (mp3).",
+            "title": "Audio Mime",
             "type": "string"
           },
           "question": {
@@ -3925,7 +3933,7 @@
         "required": [
           "question",
           "answer",
-          "audio_url",
+          "audio_base64",
           "verdict_status",
           "source"
         ],
@@ -4346,7 +4354,7 @@
     },
     "/v1/me": {
       "delete": {
-        "description": "Permanently erase the caller's account (DPDP erasure, F11).\n\nOrder: storage objects (label photos, and voice answers in their own bucket), then every\naccount-owned row in one transaction (contributed products stay with no owner), then the\nSupabase auth user. The row erasure also writes a tombstone (ruling D1/B1): until it is\npurged (7 days), the caller's still-valid token gets 401 `auth_invalid` everywhere else.\nIdempotent: calling it again returns 204 (at most 5 calls a day, then 429). On 503\n`deletion_incomplete`, retry: completed steps are skipped. Depends on `current_account`\n(not `current_account_row`) so a repeat call never re-creates the account row.",
+        "description": "Permanently erase the caller's account (DPDP erasure, F11).\n\nOrder: storage objects (label photos; voice audio is never stored), then every\naccount-owned row in one transaction (contributed products stay with no owner), then the\nSupabase auth user. The row erasure also writes a tombstone (ruling D1/B1): until it is\npurged (7 days), the caller's still-valid token gets 401 `auth_invalid` everywhere else.\nIdempotent: calling it again returns 204 (at most 5 calls a day, then 429). On 503\n`deletion_incomplete`, retry: completed steps are skipped. Depends on `current_account`\n(not `current_account_row`) so a repeat call never re-creates the account row.",
         "operationId": "me_delete",
         "responses": {
           "204": {
@@ -7152,7 +7160,7 @@
     },
     "/v1/voice/ask": {
       "post": {
-        "description": "Answer a spoken question about one product for one family member.\n\nSend exactly one of `product_id` (our catalogue) or `barcode` (Open Food Facts). Audio:\nat most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The\nverdict comes only from the rules engine; `answer` starts with it. Needs the\n`ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).\n\nOff by default: while the server setting `VOICE_ENABLED` is false, every call answers\n503 `ai_unavailable` (clients show the same \"voice unavailable\" message as for an outage).",
+        "description": "Answer a spoken question about one product for one family member.\n\nSend exactly one of `product_id` (our catalogue) or `barcode` (Open Food Facts). Audio:\nat most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The\nverdict comes only from the rules engine; `answer` starts with it. Needs the\n`ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).\n\nNo voice audio is stored: the spoken answer comes back inline as base64 mp3\n(`audio_base64`), or null when it would be over about 1 MB (show the text answer).\n\nOff by default: while the server setting `VOICE_ENABLED` is false, every call answers\n503 `ai_unavailable` (clients show the same \"voice unavailable\" message as for an outage).",
         "operationId": "voice_ask",
         "requestBody": {
           "content": {
@@ -7263,7 +7271,7 @@
                 }
               }
             },
-            "description": "Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), or speech, AI, storage or OFF is unavailable"
+            "description": "Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), or speech, AI or OFF is unavailable"
           }
         },
         "security": [

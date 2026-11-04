@@ -16,11 +16,11 @@ part 'voice_answer.g.dart';
 class VoiceAnswer {
   const VoiceAnswer({
     required this.answer,
-    required this.audioUrl,
+    required this.audioBase64,
     required this.question,
     required this.source,
     required this.verdictStatus,
-    this.audioExpiresIn = 3600,
+    this.audioMime = 'audio/mpeg',
   });
 
   factory VoiceAnswer.fromJson(Map<String, Object?> json) =>
@@ -29,13 +29,13 @@ class VoiceAnswer {
   /// Engine verdict sentence, then the explanation.
   final String answer;
 
-  /// Seconds until audio_url expires.
-  @JsonKey(name: 'audio_expires_in')
-  final int audioExpiresIn;
+  /// The spoken answer, base64-encoded (`audio_mime`), sent only in this response and never stored. null when the audio would be over about 1 MB: show `answer` as text.
+  @JsonKey(name: 'audio_base64')
+  final String? audioBase64;
 
-  /// Signed URL of the mp3 answer; expires.
-  @JsonKey(name: 'audio_url')
-  final String audioUrl;
+  /// Media type of audio_base64 (mp3).
+  @JsonKey(name: 'audio_mime')
+  final String audioMime;
 
   /// The transcribed question (never stored or logged).
   final String question;

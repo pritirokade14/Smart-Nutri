@@ -3,13 +3,14 @@
 Flow (after the rate limit, in the route): product reference -> ai_processing consent ->
 member and product ownership -> release the DB connection -> audio checks (size, sniffed
 type, duration, silence) -> STT -> the engine's verdict for this one member -> the guarded
-answer (engine verdict sentence first) -> TTS -> private upload -> signed URL.
+answer (engine verdict sentence first) -> TTS -> the mp3, base64, in the response.
 
 Everything that can be refused for free (bad input, consent, ownership, audio) is refused
-before the first paid call. The transcript and the answer are never written to the database
-or to logs; logs carry only sizes, lengths, the language, the answer source and latency.
-The mp3 lives at `voice/{account_id}/{uuid}.mp3` in the private voice bucket; the M6
-retention job deletes objects older than 24 h.
+before the first paid call. No voice audio is ever stored (ADR 0020): the uploaded question
+is held in memory only (an MP4 upload passes through a private temporary file for ffmpeg,
+deleted straight after, see audio.py), and the answer mp3 goes back inline in the response,
+never to storage. The transcript and the answer are never written to the database or to
+logs; logs carry only sizes, lengths, the language, the answer source and latency.
 """
 
 from __future__ import annotations
@@ -17,8 +18,9 @@ from __future__ import annotations
 import logging
 import re
 import time
+from base64 import b64encode
 from datetime import date
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,7 +34,7 @@ from app.features.products import service as products_service
 from app.features.products.service import ProductLookup
 from app.features.voice.answer import answer_question
 from app.features.voice.audio import AudioRejected, prepare_for_stt
-from app.features.voice.schemas import AUDIO_URL_EXPIRES_IN_S, VoiceAnswer
+from app.features.voice.schemas import VoiceAnswer
 from app.integrations.openfoodfacts import InvalidBarcode, OffClient, OffUnavailable
 from app.integrations.providers import (
     MAX_TTS_CHARS,
@@ -41,11 +43,13 @@ from app.integrations.providers import (
     SpeechProvider,
     SpeechUnavailable,
 )
-from app.integrations.storage import StorageClient, StorageUnavailable
 
 logger = logging.getLogger(__name__)
 
 DISCLAIMER_KEY = "common.disclaimer"
+# The answer mp3 travels base64 in the JSON body (about 4/3 of this). Over the cap the client
+# gets the text answer only (audio_base64 null) and no further TTS chunk is paid for.
+MAX_ANSWER_AUDIO_BYTES = 1024 * 1024
 _SENTENCE_END = re.compile(r"(?<=[.!?।])\s+")
 
 
@@ -123,7 +127,6 @@ async def ask_voice(
     settings: Settings,
     speech: SpeechProvider,
     llm: LLMProvider,
-    storage: StorageClient,
     off: OffClient,
     today: date,
 ) -> VoiceAnswer:
@@ -187,29 +190,22 @@ async def ask_voice(
         sizes["answer_chars"] = len(spoken.text)
 
         tts_text = f"{spoken.text} {cat.t(DISCLAIMER_KEY, language)}"
+        mp3: bytes | None = b""
         try:
-            mp3 = b"".join(
-                [await speech.synthesize(chunk, language) for chunk in split_for_tts(tts_text)]
-            )
+            for chunk in split_for_tts(tts_text):
+                mp3 += await speech.synthesize(chunk, language)
+                if len(mp3) > MAX_ANSWER_AUDIO_BYTES:
+                    mp3 = None  # too big to send inline: the text answer only
+                    break
         except SpeechUnavailable as exc:
             status = f"tts_{exc.reason}"
             raise ApiError("ai_unavailable", 503) from None
 
-        path = f"voice/{account_id}/{uuid4()}.mp3"
-        try:
-            await storage.upload(path, mp3, "audio/mpeg")
-            url = await storage.create_signed_url(path, AUDIO_URL_EXPIRES_IN_S)
-        except StorageUnavailable:
-            # Same client message as the other voice outages; logs keep the real cause.
-            status = "storage_unavailable"
-            raise ApiError("ai_unavailable", 503) from None
-
-        status = "ok"
+        status = "ok" if mp3 is not None else "ok_text_only"
         return VoiceAnswer(
             question=question,
             answer=spoken.text,
-            audio_url=url,
-            audio_expires_in=AUDIO_URL_EXPIRES_IN_S,
+            audio_base64=b64encode(mp3).decode("ascii") if mp3 is not None else None,
             verdict_status=spoken.status.value,
             source=spoken.source,
         )

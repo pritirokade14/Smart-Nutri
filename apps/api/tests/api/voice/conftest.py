@@ -12,13 +12,11 @@ from app.features.me.service import ensure_account
 from app.features.voice.answer import VoiceLLM
 from app.integrations.callmissed import get_llm_provider, get_speech_provider
 from app.integrations.openfoodfacts import get_off_client
-from app.integrations.storage import get_voice_storage
 from scripts.export_fixture_responses import fixture_member_record, fixture_product_record
 from tests.api.analyze.conftest import OFF_PAYLOAD
 from tests.api.products.test_lookup_service import FakeOff
 from tests.fakes.llm import FakeLLM
 from tests.fakes.speech import FakeSpeech
-from tests.fakes.storage import FakeStorage
 
 A = UUID("11111111-1111-1111-1111-111111111111")
 B = UUID("22222222-2222-2222-2222-222222222222")
@@ -29,7 +27,6 @@ EMAIL = "asha@example.com"
 class Fakes:
     speech: FakeSpeech
     llm: FakeLLM
-    storage: FakeStorage
     off: FakeOff
 
 
@@ -48,7 +45,6 @@ def fakes() -> Fakes:
     return Fakes(
         speech=FakeSpeech(),
         llm=FakeLLM(chat_result=llm_answer()),
-        storage=FakeStorage(),
         off=FakeOff(OFF_PAYLOAD),
     )
 
@@ -73,7 +69,6 @@ def login(app, db_session, fakes):
         app.dependency_overrides[current_account] = lambda: AccountContext(account_id, EMAIL)
         app.dependency_overrides[get_llm_provider] = lambda: fakes.llm
         app.dependency_overrides[get_speech_provider] = lambda: fakes.speech
-        app.dependency_overrides[get_voice_storage] = lambda: fakes.storage
         app.dependency_overrides[get_off_client] = lambda: fakes.off
 
     return _login

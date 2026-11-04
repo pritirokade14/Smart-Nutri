@@ -11,8 +11,10 @@ Writes packages/test-fixtures/responses/:
   methodology.json           GET /v1/methodology?language=en
   voice/answer_avoid.json    a POST /v1/voice/ask body (VoiceAnswer) for sf_biscuit and
                              diabetic_adult, source "llm"; answer_avoid_fallback.json is the
-                             same with source "fallback". The answer text is the engine-built
-                             fallback text, so it never contains invented values.
+                             same with source "fallback"; answer_avoid_text_only.json has no
+                             audio (audio_base64 null: over the inline cap). The answer text is
+                             the engine-built fallback text, so it never contains invented
+                             values. The audio is a tiny placeholder mp3 (base64), not speech.
 
 The responses come from the same service functions the endpoints run (in-memory records, no
 database), so they cannot drift from the API. Output is deterministic: fixed UUIDs
@@ -23,6 +25,7 @@ fails when they are stale.
 
 from __future__ import annotations
 
+import base64
 import json
 import shutil
 import sys
@@ -46,6 +49,8 @@ from tests.fixtures.loader import FIXTURES, load_member, load_product
 # Ages in members/*.json are turned into birth years against this fixed date, and the same
 # date is used as "today" for the engine, so the golden files never change on 1 January.
 REFERENCE_DATE = date(2026, 1, 1)
+# Four MPEG-1 layer III frame headers behind an ID3 tag: a stand-in, not speech.
+PLACEHOLDER_MP3 = b"ID3\x04\x00\x00\x00\x00\x00\x00" + b"\xff\xfb\x90\x00" * 4
 
 
 def fixture_id(kind: str, name: str) -> UUID:
@@ -156,11 +161,16 @@ def _voice_answers(fixtures: Path) -> dict[str, str]:
     result = analyze_service.evaluate(found, [member], today=REFERENCE_DATE)
     verdict = result.verdicts[0]
     out: dict[str, str] = {}
-    for name, source in (("answer_avoid", "llm"), ("answer_avoid_fallback", "fallback")):
+    placeholder = base64.b64encode(PLACEHOLDER_MP3).decode("ascii")
+    for name, source, audio in (
+        ("answer_avoid", "llm", placeholder),
+        ("answer_avoid_fallback", "fallback", placeholder),
+        ("answer_avoid_text_only", "llm", None),
+    ):
         answer = VoiceAnswer(
             question="is this ok for me",
             answer=fallback_answer(verdict, "en"),
-            audio_url=f"https://storage.example/voice/{name}.mp3?token=placeholder",
+            audio_base64=audio,
             verdict_status=verdict.status.value,
             source=source,
         )

@@ -1,4 +1,4 @@
-"""Supabase Storage (private label-photo and voice-answer buckets) over its REST API,
+"""Supabase Storage (the private label-photo bucket) over its REST API,
 server-side only.
 
 Uses the server secret key, which never leaves the API. Logs and exceptions carry no key,
@@ -55,10 +55,6 @@ class StorageClient(Protocol):
     ) -> None:
         """Store `data` at `path`. Never overwrites unless `upsert` (used only to replace a
         label photo with its EXIF-free re-encode). Raises StorageUnavailable."""
-        ...
-
-    async def create_signed_url(self, path: str, expires_in: int) -> str:
-        """An absolute URL that GETs the object for `expires_in` seconds."""
         ...
 
     async def list_prefix(self, prefix: str, *, older_than: datetime | None = None) -> list[str]:
@@ -193,27 +189,6 @@ class SupabaseStorage:
             logger.warning("storage_upload status=%d", response.status_code)
             raise StorageUnavailable("upload failed")
 
-    async def create_signed_url(self, path: str, expires_in: int) -> str:
-        url = f"{self._base}/object/sign/{self._object(path)}"
-        try:
-            response = await self._http.post(
-                url, headers=self._headers(), json={"expiresIn": expires_in}
-            )
-        except httpx.HTTPError:
-            logger.warning("storage_sign_url status=network_error")
-            raise StorageUnavailable("network error") from None
-        if response.status_code != 200:
-            logger.warning("storage_sign_url status=%d", response.status_code)
-            raise StorageUnavailable("sign url failed")
-        try:
-            signed = response.json()["signedURL"]
-        except (ValueError, KeyError, TypeError):
-            signed = None
-        if not isinstance(signed, str) or not signed.startswith("/"):
-            logger.warning("storage_sign_url status=malformed")
-            raise StorageUnavailable("malformed response")
-        return f"{self._base}{signed}"
-
     # --- listing and deletion (Plan 8: account deletion and retention) ---------------------
 
     async def list_prefix(self, prefix: str, *, older_than: datetime | None = None) -> list[str]:
@@ -314,9 +289,6 @@ class _UnconfiguredStorage:
     async def delete_paths(self, paths: Sequence[str]) -> None:
         raise StorageUnavailable("not configured")
 
-    async def create_signed_url(self, path: str, expires_in: int) -> str:
-        raise StorageUnavailable("not configured")
-
 
 async def _storage(settings: Settings, bucket: str) -> AsyncIterator[StorageClient]:
     if not settings.supabase_url or settings.supabase_secret_key is None:
@@ -336,13 +308,4 @@ async def get_storage(
 ) -> AsyncIterator[StorageClient]:
     """FastAPI dependency: the label-photo bucket for this request (closed afterwards)."""
     async for storage in _storage(settings, settings.supabase_storage_bucket):
-        yield storage
-
-
-async def get_voice_storage(
-    settings: Annotated[Settings, Depends(get_app_settings)],
-) -> AsyncIterator[StorageClient]:
-    """FastAPI dependency: the private voice-answer bucket (objects deleted after 24 h by the
-    M6 retention job)."""
-    async for storage in _storage(settings, settings.supabase_voice_bucket):
         yield storage

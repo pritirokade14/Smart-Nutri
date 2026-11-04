@@ -1,4 +1,5 @@
-"""Plan 8 Task 3: the retention job (30-day label photos, 24-hour voice answers).
+"""Plan 8 Task 3: the retention job (30-day label photos). No voice audio is stored (ADR 0020),
+so there is no voice window.
 
 Uses the throwaway test database (tests/db) and FakeStorage with object timestamps.
 """
@@ -63,7 +64,7 @@ async def test_photos_older_than_30_days_deleted_and_image_path_nulled(session):
     storage = storage_with((path, created))
     scan = await add_scan(session, path, timedelta(days=31))
     result = await run_retention(NOW, session, storage)
-    assert result == RetentionResult(photos_deleted=1, voice_deleted=0, scans_nulled=1)
+    assert result == RetentionResult(photos_deleted=1, scans_nulled=1)
     assert path not in storage.objects
     assert await image_path(session, scan) is None
 
@@ -73,7 +74,7 @@ async def test_photo_29_days_old_kept(session):
     storage = storage_with((path, created))
     scan = await add_scan(session, path, timedelta(days=29))
     result = await run_retention(NOW, session, storage)
-    assert result == RetentionResult(0, 0, 0)
+    assert result == RetentionResult(0, 0)
     assert path in storage.objects
     assert await image_path(session, scan) == path
 
@@ -85,45 +86,6 @@ async def test_orphan_upload_without_a_scan_is_deleted(session):
     result = await run_retention(NOW, session, storage)
     assert result.photos_deleted == 1
     assert list(storage.objects) == [new]
-
-
-async def test_voice_older_than_24h_deleted(session):
-    old = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(hours=25))
-    new = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(hours=23))
-    storage = storage_with(old, new)
-    result = await run_retention(NOW, session, storage)
-    assert result == RetentionResult(photos_deleted=0, voice_deleted=1, scans_nulled=0)
-    assert list(storage.objects) == [new[0]]
-
-
-async def test_voice_is_not_counted_as_a_label_photo(session):
-    storage = storage_with((f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(days=40)))
-    result = await run_retention(NOW, session, storage)
-    assert result.photos_deleted == 0 and result.voice_deleted == 1
-
-
-async def test_separate_voice_bucket_is_cleaned(session):
-    """Plan 7 keeps voice answers in their own bucket (settings.supabase_voice_bucket)."""
-    photo = label(timedelta(days=31))
-    photos = storage_with(photo)
-    old = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(hours=25))
-    new = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(hours=23))
-    voices = storage_with(old, new)
-    result = await run_retention(NOW, session, photos, voice_storage=voices)
-    assert result == RetentionResult(photos_deleted=1, voice_deleted=1, scans_nulled=0)
-    assert list(voices.objects) == [new[0]]
-    assert photos.objects == {} and voices.deleted == [old[0]]
-
-
-async def test_voice_bucket_outage_changes_nothing(session):
-    path, created = label(timedelta(days=31))
-    photos = storage_with((path, created))
-    voices = storage_with((f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(days=2)))
-    voices.unavailable = True
-    scan = await add_scan(session, path, timedelta(days=31))
-    with pytest.raises(Exception):  # noqa: B017 - StorageUnavailable surfaces; the job exits 1
-        await run_retention(NOW, session, photos, voice_storage=voices)
-    assert photos.deleted == [] and await image_path(session, scan) == path
 
 
 async def test_missing_storage_object_still_nulls_image_path(session):
@@ -139,28 +101,26 @@ async def test_object_deleted_by_age_nulls_a_younger_scan_row(session):
     storage = storage_with((path, NOW - timedelta(days=30, minutes=1)))
     scan = await add_scan(session, path, timedelta(days=29, hours=23))
     result = await run_retention(NOW, session, storage)
-    assert result == RetentionResult(photos_deleted=1, voice_deleted=0, scans_nulled=1)
+    assert result == RetentionResult(photos_deleted=1, scans_nulled=1)
     assert await image_path(session, scan) is None
 
 
 async def test_run_is_idempotent(session):
     path, created = label(timedelta(days=31))
-    voice = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(days=2))
-    storage = storage_with((path, created), voice)
+    storage = storage_with((path, created))
     await add_scan(session, path, timedelta(days=31))
     first = await run_retention(NOW, session, storage)
-    assert first == RetentionResult(1, 1, 1)
-    assert await run_retention(NOW, session, storage) == RetentionResult(0, 0, 0)
+    assert first == RetentionResult(1, 1)
+    assert await run_retention(NOW, session, storage) == RetentionResult(0, 0)
 
 
 async def test_dry_run_counts_but_changes_nothing(session):
     path, created = label(timedelta(days=31))
-    voice = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(days=2))
-    storage = storage_with((path, created), voice)
+    storage = storage_with((path, created))
     scan = await add_scan(session, path, timedelta(days=31))
     result = await run_retention(NOW, session, storage, dry_run=True)
-    assert result == RetentionResult(1, 1, 1)
-    assert set(storage.objects) == {path, voice[0]} and storage.deleted == []
+    assert result == RetentionResult(1, 1)
+    assert set(storage.objects) == {path} and storage.deleted == []
     assert await image_path(session, scan) == path
 
 
@@ -181,14 +141,36 @@ async def test_storage_outage_changes_no_rows(session):
 
 
 def test_main_logs_counts_only(monkeypatch, capsys):
-    async def fake_run(*, dry_run, photo_days, voice_hours):
-        assert (dry_run, photo_days, voice_hours) == (True, 30, 24)
-        return RetentionResult(2, 3, 1, tombstones_purged=4)
+    async def fake_run(*, dry_run, photo_days):
+        assert (dry_run, photo_days) == (True, 30)
+        return RetentionResult(2, 1, tombstones_purged=4)
 
     monkeypatch.setattr(retention, "_run_from_settings", fake_run)
     assert retention.main(["--dry-run"]) == 0
     out = capsys.readouterr().out  # configure_logging writes JSON lines to stdout
-    assert "photos_deleted=2 voice_deleted=3 scans_nulled=1 tombstones_purged=4 dry_run=True" in out
+    assert "photos_deleted=2 scans_nulled=1 tombstones_purged=4 dry_run=True" in out
+    assert "voice" not in out
+
+
+def test_no_voice_retention_left(capsys):
+    """ADR 0020: voice audio is never stored, so the job has no voice bucket or window."""
+    import inspect
+
+    params = inspect.signature(run_retention).parameters
+    assert "voice_storage" not in params and "voice_hours" not in params
+    assert "voice_deleted" not in RetentionResult.__dataclass_fields__
+    with pytest.raises(SystemExit):
+        retention._parse(["--voice-hours", "24"])
+    capsys.readouterr()
+
+
+async def test_a_voice_folder_in_the_photo_bucket_is_just_an_old_object(session):
+    """Nothing writes `voice/` any more; anything left there goes after 30 days like the rest."""
+    old = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(days=31))
+    new = (f"voice/{A}/{uuid4()}.mp3", NOW - timedelta(days=2))
+    storage = storage_with(old, new)
+    result = await run_retention(NOW, session, storage)
+    assert result.photos_deleted == 1 and list(storage.objects) == [new[0]]
 
 
 def test_main_failure_exits_1_without_details(monkeypatch, capsys):
@@ -238,7 +220,7 @@ async def test_tombstones_older_than_7_days_are_purged_with_their_counter(sessio
     await add_tombstone(session, old, timedelta(days=7, minutes=1))
     await add_tombstone(session, young, timedelta(days=6, hours=23))
     result = await run_retention(NOW, session, FakeStorage())
-    assert result == RetentionResult(0, 0, 0, tombstones_purged=1)
+    assert result == RetentionResult(0, 0, tombstones_purged=1)
     assert await tombstone_ids(session) == {young}
     assert await counter_keys(session) == {f"acct:{young}"}
 
@@ -278,7 +260,7 @@ async def test_unconfirmed_auth_deletion_is_retried_then_purged(session):
     admin = FakeAdmin()
     result = await run_retention(NOW, session, FakeStorage(), admin=admin)
     assert admin.deleted == [pending]
-    assert result == RetentionResult(0, 0, 0, tombstones_purged=1, auth_deletes_retried=1)
+    assert result == RetentionResult(0, 0, tombstones_purged=1, auth_deletes_retried=1)
     assert await tombstone_ids(session) == set()
     assert await counter_keys(session) == set()
 
@@ -338,7 +320,7 @@ async def test_storage_outage_makes_no_auth_calls(session):
 
 def test_main_exits_1_when_an_auth_retry_failed(monkeypatch, capsys):
     async def fake_run(**_):
-        return RetentionResult(0, 0, 0, tombstones_purged=0, auth_deletes_failed=2)
+        return RetentionResult(0, 0, tombstones_purged=0, auth_deletes_failed=2)
 
     monkeypatch.setattr(retention, "_run_from_settings", fake_run)
     assert retention.main([]) == 1
@@ -347,7 +329,7 @@ def test_main_exits_1_when_an_auth_retry_failed(monkeypatch, capsys):
 
 
 async def test_missing_buckets_mean_nothing_to_delete(session):
-    """C1: both buckets missing (not created yet on an environment): the job still nulls old
+    """C1: the bucket missing (not created yet on an environment): the job still nulls old
     scan paths and purges tombstones instead of failing."""
     path, _ = label(timedelta(days=31))
     scan = await add_scan(session, path, timedelta(days=31))
@@ -357,9 +339,8 @@ async def test_missing_buckets_mean_nothing_to_delete(session):
         NOW,
         session,
         missing_bucket_storage("label-photos"),
-        voice_storage=missing_bucket_storage("voice-answers"),
     )
-    assert result == RetentionResult(0, 0, scans_nulled=1, tombstones_purged=1)
+    assert result == RetentionResult(0, scans_nulled=1, tombstones_purged=1)
     assert await image_path(session, scan) is None
     assert await tombstone_ids(session) == set()
 

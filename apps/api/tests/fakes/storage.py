@@ -41,7 +41,6 @@ class FakeStorage:
         self.downloads: list[str] = []
         self.uploads: list[tuple[str, str]] = []  # (path, content_type)
         self.upserts: list[str] = []  # paths written with upsert=True
-        self.signed_urls: list[tuple[str, int]] = []
         self.fail_uploads = False
         # Object creation times for list_prefix(older_than=...); missing means "just now".
         self.created = dict(created or {})
@@ -59,10 +58,6 @@ class FakeStorage:
         if upsert:
             self.upserts.append(path)
         self.objects[path] = data
-
-    async def create_signed_url(self, path: str, expires_in: int) -> str:
-        self.signed_urls.append((path, expires_in))
-        return f"https://storage.test/sign/{path}?token=fake"
 
     async def create_signed_upload(self, path: str, expires_in: int) -> str:
         self.signed.append((path, expires_in))

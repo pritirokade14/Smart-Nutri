@@ -137,7 +137,7 @@ jobs:
             --command python --args "-m,app.jobs.retention" \
             --max-retries 0 --task-timeout 600 --memory 512Mi --cpu 1 \
             --set-secrets "SUPABASE_SECRET_KEY=supabase-secret-key-dev:latest,DATABASE_URL=database-url-dev:latest" \
-            --set-env-vars "^@^ENVIRONMENT=dev@SUPABASE_URL=https://uhjopvrewcwqvugmdhdw.supabase.co@SUPABASE_PROJECT_REF=uhjopvrewcwqvugmdhdw@SUPABASE_STORAGE_BUCKET=label-photos@SUPABASE_VOICE_BUCKET=voice-answers"
+            --set-env-vars "^@^ENVIRONMENT=dev@SUPABASE_URL=https://uhjopvrewcwqvugmdhdw.supabase.co@SUPABASE_PROJECT_REF=uhjopvrewcwqvugmdhdw@SUPABASE_STORAGE_BUCKET=label-photos"
 
   deploy-web:
     # After the API so the first web build points at a live API.

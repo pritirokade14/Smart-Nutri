@@ -11,7 +11,7 @@ from app.core.security import AccountContext, current_account
 from app.db.session import get_session
 from app.features.me.service import ACCOUNT_OWNED_TABLES, ensure_account, erase_account_rows
 from app.integrations import posthog
-from app.integrations.storage import get_storage, get_voice_storage
+from app.integrations.storage import get_storage
 from app.integrations.supabase_admin import get_supabase_admin
 from tests.fakes.admin import FakeAdmin
 from tests.fakes.storage import FakeStorage, missing_bucket_storage
@@ -33,28 +33,16 @@ def storage() -> FakeStorage:
 
 
 @pytest.fixture
-def voice_storage() -> FakeStorage:
-    """The separate voice-answers bucket (Plan 7: voice/{account_id}/{uuid}.mp3)."""
-    return FakeStorage(
-        {
-            f"voice/{A}/{uuid4()}.mp3": b"a-voice",
-            f"voice/{B}/{uuid4()}.mp3": b"b-voice",
-        }
-    )
-
-
-@pytest.fixture
 def admin() -> FakeAdmin:
     return FakeAdmin()
 
 
 @pytest.fixture
-def login(app, db_session, storage, voice_storage, admin):
+def login(app, db_session, storage, admin):
     def _login(account_id: UUID = A) -> None:
         app.dependency_overrides[get_session] = lambda: db_session
         app.dependency_overrides[current_account] = lambda: AccountContext(account_id, None)
         app.dependency_overrides[get_storage] = lambda: storage
-        app.dependency_overrides[get_voice_storage] = lambda: voice_storage
         app.dependency_overrides[get_supabase_admin] = lambda: admin
 
     return _login
@@ -184,16 +172,13 @@ async def test_delete_me_erases_user_types(client, login, db_session, storage):
 
 
 async def test_delete_me_removes_storage_and_is_idempotent(
-    client, login, db_session, storage, voice_storage, admin
+    client, login, db_session, storage, admin
 ):
     await seed(db_session, A, storage)
     login(A)
     assert (await client.delete("/v1/me")).status_code == 204
     assert not [p for p in storage.objects if str(A) in p]
     assert len([p for p in storage.deleted if str(A) in p]) == 2  # label, orphan
-    # Voice answers live in their own bucket and are erased too.
-    assert not [p for p in voice_storage.objects if str(A) in p]
-    assert len([p for p in voice_storage.deleted if str(A) in p]) == 1
     assert admin.deleted == [A]
     # Second call: nothing left to delete, auth user already gone (404 = success).
     r = await client.delete("/v1/me")
@@ -245,19 +230,22 @@ async def test_storage_failure_returns_503_and_deletes_nothing(
     assert admin.deleted == []
 
 
-async def test_voice_storage_failure_returns_503_and_deletes_nothing(
-    client, login, db_session, storage, voice_storage, admin
-):
-    await seed(db_session, A, storage)
-    voice_storage.unavailable = True
-    login(A)
-    r = await client.delete("/v1/me")
-    assert r.status_code == 503 and r.json()["error"]["code"] == "deletion_incomplete"
-    assert (await counts(db_session, A))["members"] == 1
-    assert storage.deleted == [] and admin.deleted == []
+def test_delete_me_never_touches_a_voice_bucket():
+    """ADR 0020: no voice audio is stored, so erasure lists and deletes only label photos."""
+    from fastapi.routing import APIRoute
+
+    from app.features.me import service
+    from app.features.me.router import router
+    from app.integrations import storage
+
+    assert not hasattr(storage, "get_voice_storage")
+    assert not hasattr(service, "account_voice_paths")
+    [route] = [r for r in router.routes if isinstance(r, APIRoute) and r.name == "me_delete"]
+    assert [d.name for d in route.dependant.dependencies].count("storage") == 1
+    assert "voice_storage" not in {d.name for d in route.dependant.dependencies}
 
 
-async def test_other_accounts_data_untouched(client, login, db_session, storage, voice_storage):
+async def test_other_accounts_data_untouched(client, login, db_session, storage):
     await seed(db_session, A, storage)
     await seed(db_session, B, storage)
     before = await counts(db_session, B)
@@ -265,7 +253,6 @@ async def test_other_accounts_data_untouched(client, login, db_session, storage,
     assert (await client.delete("/v1/me")).status_code == 204
     assert await counts(db_session, B) == before
     assert len([p for p in storage.objects if str(B) in p]) == 1
-    assert len([p for p in voice_storage.objects if str(B) in p]) == 1
 
 
 async def test_delete_requires_auth(client):
@@ -486,13 +473,12 @@ async def test_auth_failure_leaves_the_tombstone_unmarked_until_a_retry(
 # --- C1: a bucket that does not exist holds nothing to delete ---------------------------------
 
 
-async def test_delete_me_succeeds_when_both_buckets_are_missing(
+async def test_delete_me_succeeds_when_the_bucket_is_missing(
     app, client, login, db_session, storage, admin
 ):
     await seed(db_session, A, storage)  # its scan row still points at a label photo path
     login(A)
     app.dependency_overrides[get_storage] = lambda: missing_bucket_storage("label-photos")
-    app.dependency_overrides[get_voice_storage] = lambda: missing_bucket_storage("voice-answers")
     r = await client.delete("/v1/me")
     assert r.status_code == 204
     assert set((await counts(db_session, A)).values()) == {0}

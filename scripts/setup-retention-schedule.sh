@@ -9,7 +9,7 @@
 #   ... merge to main; deploy-dev deploys the real image into the job ...
 #   bash scripts/setup-retention-schedule.sh dry-run   # runs the job with --dry-run; logs counts only
 #   bash scripts/setup-retention-schedule.sh schedule  # creates the 02:30 IST schedule (after a clean dry run)
-# Safe to re-run. Needs the voice-answers bucket to exist first (docs/SETUP_ACCOUNTS.md section 2.8).
+# Safe to re-run. Needs the label-photos bucket (docs/SETUP_ACCOUNTS.md section 2). No voice bucket (ADR 0020).
 set -euo pipefail
 
 export CLOUDSDK_ACTIVE_CONFIG_NAME=smartnutri
@@ -58,7 +58,7 @@ case "$cmd" in
     # Overrides the job args for this one execution only. Counts only are logged, never paths.
     gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" --wait \
       --args "-m,app.jobs.retention,--dry-run"
-    echo "Check the execution logs for photos_deleted / voice_deleted / scans_nulled counts."
+    echo "Check the execution logs for photos_deleted / scans_nulled / tombstones_purged counts."
     echo "On a new project expect all zero. Then run: $0 schedule"
     ;;
   schedule)

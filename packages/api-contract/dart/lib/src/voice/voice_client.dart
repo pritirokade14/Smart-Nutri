@@ -26,6 +26,9 @@ abstract class VoiceClient {
   /// verdict comes only from the rules engine; `answer` starts with it. Needs the.
   /// `ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).
   ///
+  /// No voice audio is stored: the spoken answer comes back inline as base64 mp3.
+  /// (`audio_base64`), or null when it would be over about 1 MB (show the text answer).
+  ///
   /// Off by default: while the server setting `VOICE_ENABLED` is false, every call answers.
   /// 503 `ai_unavailable` (clients show the same "voice unavailable" message as for an outage).
   @MultiPart()

@@ -95,18 +95,8 @@ ACCOUNT_OWNED_TABLES: tuple[str, ...] = (
 )
 
 # Storage folders that hold an account's objects. Label photos are in the label-photo bucket
-# (`<account_id>/<uuid>.<ext>`, Plan 4); voice answers are in their own private bucket
-# (`settings.supabase_voice_bucket`, `voice/<account_id>/<uuid>.mp3`, Plan 7).
+# (`<account_id>/<uuid>.<ext>`, Plan 4). Voice audio is never stored (ADR 0020).
 STORAGE_PREFIXES: tuple[str, ...] = ("{account_id}",)
-VOICE_STORAGE_PREFIXES: tuple[str, ...] = ("voice/{account_id}",)
-
-
-async def account_voice_paths(voice_storage: StorageClient, account_id: UUID) -> list[str]:
-    """Every voice answer of the account in the voice-answers bucket."""
-    paths: set[str] = set()
-    for prefix in VOICE_STORAGE_PREFIXES:
-        paths.update(await voice_storage.list_prefix(prefix.format(account_id=account_id)))
-    return sorted(paths)
 
 
 async def account_storage_paths(

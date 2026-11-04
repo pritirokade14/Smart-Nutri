@@ -39,6 +39,7 @@ responses/public/<product>.json    # GET /v1/products/{barcode}/public body (Pub
 responses/methodology.json         # GET /v1/methodology?language=en body (Methodology)
 responses/voice/answer_avoid.json  # POST /v1/voice/ask body (VoiceAnswer): sf_biscuit + diabetic_adult, source "llm"
 responses/voice/answer_avoid_fallback.json  # the same with source "fallback"
+responses/voice/answer_avoid_text_only.json  # the same with audio_base64 null (over the inline audio cap: text only)
 ```
 
 - **`index.json`:** `{"reference_date": "2026-01-01", "account_id": "<uuid>", "products": {"<product>": "<uuid>"}, "members": {"<member>": "<uuid>"}, "scans": {"<product>": "<uuid>"}}`. UUIDs are `uuid5(NAMESPACE_URL, "https://smartnutri.app/test-fixtures/<kind>/<name>")`.
