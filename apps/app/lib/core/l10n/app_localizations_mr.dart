@@ -1315,6 +1315,10 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String get membersFormBuildMuscleAdultOnly =>
+      'स्नायू बळकट करणे हे फक्त प्रौढांसाठी (18 वर्षे आणि त्याहून अधिक) आहे. दुसरे ध्येय निवडा.';
+
+  @override
   String get membersFormCancel => 'रद्द करा';
 
   @override
@@ -2168,6 +2172,12 @@ class AppLocalizationsMr extends AppLocalizations {
   String get searchPlaceholder => 'नाव किंवा ब्रँडने शोधा';
 
   @override
+  String get searchSortLabel => 'क्रम';
+
+  @override
+  String get searchSortRelevance => 'सर्वात जुळणारे';
+
+  @override
   String get searchSourceOff => 'Open Food Facts';
 
   @override
@@ -2476,7 +2486,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get userTypesPrefillGoalNeither =>
-      'दोन्हीपैकी नाही: माझे ध्येय आहे तसे ठेवा';
+      'यापैकी नाही (माझे सध्याचे ध्येय ठेवा)';
 
   @override
   String userTypesPrefillLineAllergens(String values) {

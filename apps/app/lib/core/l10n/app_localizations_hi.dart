@@ -1317,6 +1317,10 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get membersFormBuildMuscleAdultOnly =>
+      'मांसपेशियाँ बनाना केवल वयस्कों (18 वर्ष और उससे अधिक) के लिए है। कोई दूसरा लक्ष्य चुनें।';
+
+  @override
   String get membersFormCancel => 'रद्द करें';
 
   @override
@@ -2172,6 +2176,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get searchPlaceholder => 'नाम या ब्रांड से खोजें';
 
   @override
+  String get searchSortLabel => 'क्रम';
+
+  @override
+  String get searchSortRelevance => 'सबसे मिलते-जुलते';
+
+  @override
   String get searchSourceOff => 'Open Food Facts';
 
   @override
@@ -2479,7 +2489,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get userTypesPrefillGoalNeither =>
-      'कोई नहीं: मेरा लक्ष्य जैसा है वैसा रखें';
+      'कोई नहीं (मेरा मौजूदा लक्ष्य रखें)';
 
   @override
   String userTypesPrefillLineAllergens(String values) {

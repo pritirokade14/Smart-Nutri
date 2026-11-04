@@ -548,6 +548,7 @@
       }
     }
   },
+  "membersFormBuildMuscleAdultOnly": "मांसपेशियाँ बनाना केवल वयस्कों (18 वर्ष और उससे अधिक) के लिए है। कोई दूसरा लक्ष्य चुनें।",
   "membersFormCancel": "रद्द करें",
   "membersFormClearAllergiesConfirm": "{name} की सारी एलर्जी हटाएँ? इन एलर्जी वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।",
   "@membersFormClearAllergiesConfirm": {
@@ -1121,6 +1122,8 @@
   "searchNoResults": "कोई उत्पाद नहीं मिला।",
   "searchOffDegraded": "और परिणाम बाद में जोड़े जाएँगे।",
   "searchPlaceholder": "नाम या ब्रांड से खोजें",
+  "searchSortLabel": "क्रम",
+  "searchSortRelevance": "सबसे मिलते-जुलते",
   "searchSourceOff": "Open Food Facts",
   "searchSourceOurs": "SmartNutri",
   "searchTitle": "उत्पाद खोजें",
@@ -1317,7 +1320,7 @@
   "userTypesPrefillApply": "प्रोफ़ाइल में जोड़ें",
   "userTypesPrefillBody": "आपकी पुष्टि के बिना कुछ नहीं जोड़ा जाता। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
   "userTypesPrefillGoalConflict": "आपने वज़न घटाना और जिम दोनों चुने हैं। प्रोफ़ाइल के लिए एक लक्ष्य चुनें।",
-  "userTypesPrefillGoalNeither": "कोई नहीं: मेरा लक्ष्य जैसा है वैसा रखें",
+  "userTypesPrefillGoalNeither": "कोई नहीं (मेरा मौजूदा लक्ष्य रखें)",
   "userTypesPrefillLineAllergens": "एलर्जी: {values}",
   "@userTypesPrefillLineAllergens": {
     "placeholders": {

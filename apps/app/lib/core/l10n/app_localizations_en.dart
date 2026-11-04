@@ -1312,6 +1312,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get membersFormBuildMuscleAdultOnly =>
+      'Build muscle is only for adults (18 and over). Choose another goal.';
+
+  @override
   String get membersFormCancel => 'Cancel';
 
   @override
@@ -2165,6 +2169,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchPlaceholder => 'Search by name or brand';
 
   @override
+  String get searchSortLabel => 'Sort';
+
+  @override
+  String get searchSortRelevance => 'Best match';
+
+  @override
   String get searchSourceOff => 'Open Food Facts';
 
   @override
@@ -2471,7 +2481,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'You picked weight loss and gym. Choose one goal for your profile.';
 
   @override
-  String get userTypesPrefillGoalNeither => 'Neither: keep my goal as it is';
+  String get userTypesPrefillGoalNeither => 'Neither (keep my current goal)';
 
   @override
   String userTypesPrefillLineAllergens(String values) {

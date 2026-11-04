@@ -548,6 +548,7 @@
       }
     }
   },
+  "membersFormBuildMuscleAdultOnly": "Build muscle is only for adults (18 and over). Choose another goal.",
   "membersFormCancel": "Cancel",
   "membersFormClearAllergiesConfirm": "Remove every allergy for {name}? Products with these allergens will no longer be flagged for them.",
   "@membersFormClearAllergiesConfirm": {
@@ -1121,6 +1122,8 @@
   "searchNoResults": "No products found.",
   "searchOffDegraded": "More results will be added later.",
   "searchPlaceholder": "Search by name or brand",
+  "searchSortLabel": "Sort",
+  "searchSortRelevance": "Best match",
   "searchSourceOff": "Open Food Facts",
   "searchSourceOurs": "SmartNutri",
   "searchTitle": "Search products",
@@ -1317,7 +1320,7 @@
   "userTypesPrefillApply": "Add to profile",
   "userTypesPrefillBody": "Nothing is added unless you confirm. Information, not medical advice.",
   "userTypesPrefillGoalConflict": "You picked weight loss and gym. Choose one goal for your profile.",
-  "userTypesPrefillGoalNeither": "Neither: keep my goal as it is",
+  "userTypesPrefillGoalNeither": "Neither (keep my current goal)",
   "userTypesPrefillLineAllergens": "Allergies: {values}",
   "@userTypesPrefillLineAllergens": {
     "placeholders": {

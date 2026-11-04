@@ -2416,6 +2416,12 @@ abstract class AppLocalizations {
   /// **'Enter a year from 1900 to {year}.'**
   String membersFormBirthYearInvalid(String year);
 
+  /// No description provided for @membersFormBuildMuscleAdultOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle is only for adults (18 and over). Choose another goal.'**
+  String get membersFormBuildMuscleAdultOnly;
+
   /// No description provided for @membersFormCancel.
   ///
   /// In en, this message translates to:
@@ -3808,6 +3814,18 @@ abstract class AppLocalizations {
   /// **'Search by name or brand'**
   String get searchPlaceholder;
 
+  /// No description provided for @searchSortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get searchSortLabel;
+
+  /// No description provided for @searchSortRelevance.
+  ///
+  /// In en, this message translates to:
+  /// **'Best match'**
+  String get searchSortRelevance;
+
   /// No description provided for @searchSourceOff.
   ///
   /// In en, this message translates to:
@@ -4339,7 +4357,7 @@ abstract class AppLocalizations {
   /// No description provided for @userTypesPrefillGoalNeither.
   ///
   /// In en, this message translates to:
-  /// **'Neither: keep my goal as it is'**
+  /// **'Neither (keep my current goal)'**
   String get userTypesPrefillGoalNeither;
 
   /// No description provided for @userTypesPrefillLineAllergens.

@@ -548,6 +548,7 @@
       }
     }
   },
+  "membersFormBuildMuscleAdultOnly": "स्नायू बळकट करणे हे फक्त प्रौढांसाठी (18 वर्षे आणि त्याहून अधिक) आहे. दुसरे ध्येय निवडा.",
   "membersFormCancel": "रद्द करा",
   "membersFormClearAllergiesConfirm": "{name} यांच्या सर्व ॲलर्जी काढायच्या? या ॲलर्जी असलेल्या उत्पादनांवर त्यांच्यासाठी इशारा दिसणार नाही.",
   "@membersFormClearAllergiesConfirm": {
@@ -1121,6 +1122,8 @@
   "searchNoResults": "कोणतेही उत्पादन सापडले नाही.",
   "searchOffDegraded": "आणखी निकाल नंतर जोडले जातील.",
   "searchPlaceholder": "नाव किंवा ब्रँडने शोधा",
+  "searchSortLabel": "क्रम",
+  "searchSortRelevance": "सर्वात जुळणारे",
   "searchSourceOff": "Open Food Facts",
   "searchSourceOurs": "SmartNutri",
   "searchTitle": "उत्पादने शोधा",
@@ -1317,7 +1320,7 @@
   "userTypesPrefillApply": "प्रोफाइलमध्ये जोडा",
   "userTypesPrefillBody": "तुमच्या पुष्टीशिवाय काहीही जोडले जात नाही. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
   "userTypesPrefillGoalConflict": "तुम्ही वजन कमी करणे आणि जिम दोन्ही निवडले आहे. प्रोफाइलसाठी एक ध्येय निवडा.",
-  "userTypesPrefillGoalNeither": "दोन्हीपैकी नाही: माझे ध्येय आहे तसे ठेवा",
+  "userTypesPrefillGoalNeither": "यापैकी नाही (माझे सध्याचे ध्येय ठेवा)",
   "userTypesPrefillLineAllergens": "अॅलर्जी: {values}",
   "@userTypesPrefillLineAllergens": {
     "placeholders": {
