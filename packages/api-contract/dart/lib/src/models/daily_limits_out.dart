@@ -11,6 +11,7 @@ part 'daily_limits_out.g.dart';
 class DailyLimitsOut {
   const DailyLimitsOut({
     required this.kcal,
+    required this.proteinGPerKg,
     required this.proteinTargetG,
     required this.saltG,
     required this.sugarG,
@@ -21,6 +22,10 @@ class DailyLimitsOut {
 
   /// Always null in v1 (no personal energy target)
   final num? kcal;
+
+  /// The g per kg body weight per day the protein target was computed with (thresholds.yaml, pending clinician review), for the protein.guide copy. Null whenever protein_target_g is null. Display only; never compute a target on the client
+  @JsonKey(name: 'protein_g_per_kg')
+  final num? proteinGPerKg;
 
   /// A target, not a limit. Adults (18+) with a weight only; null for children, adolescents, an unknown age or no weight
   @JsonKey(name: 'protein_target_g')

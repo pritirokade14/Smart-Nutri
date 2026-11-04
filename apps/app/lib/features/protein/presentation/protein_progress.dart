@@ -21,6 +21,7 @@ class ProteinProgress extends StatelessWidget {
 
   static const noTargetKey = Key('protein-no-target');
   static const progressKey = Key('protein-progress');
+  static const guideKey = Key('protein-guide');
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +31,7 @@ class ProteinProgress extends StatelessWidget {
     final total = summary.totals.protein;
     final target = summary.limits.protein;
     final left = summary.proteinLeftG;
+    final perKg = summary.proteinGPerKg;
     final kcal = summary.totals.kcal;
     final band = shownBand(
       SummaryNutrient.protein,
@@ -78,6 +80,17 @@ class ProteinProgress extends StatelessWidget {
             child: Text(
               l10n.proteinLeftToday(formatAmount(left)),
               style: theme.textTheme.bodyMedium,
+            ),
+          ),
+        if (target != null && perKg != null && perKg > 0)
+          Padding(
+            key: guideKey,
+            padding: const EdgeInsets.only(top: SnTokens.space2),
+            child: Text(
+              l10n.proteinGuide(formatAmount(perKg), formatAmount(target)),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: c.textSecondary,
+              ),
             ),
           ),
         if (target == null)

@@ -84,7 +84,13 @@ const summary = (over: Partial<Summary> = {}): Summary => ({
     salt_g: false,
     protein_g: false,
   },
-  limits: { kcal: null, protein_target_g: 112, salt_g: 5, sugar_g: 25 },
+  limits: {
+    kcal: null,
+    protein_target_g: 112,
+    protein_g_per_kg: 1.6,
+    salt_g: 5,
+    sugar_g: 25,
+  },
   bands: { kcal: "unknown", protein_g: "ok", salt_g: "ok", sugar_g: "near" },
   days: [],
   pending_clinician_review: true,
@@ -240,12 +246,47 @@ describe("home cards (T13)", () => {
     expect(
       within(card).getByText(en.protein.left_today.replace("{left}", "72")),
     ).toBeTruthy();
-    // The guide: 112 g for 70 kg is 1.6 g per kg, worded as a guide.
+    // The guide: the API's target and its g per kg basis, worded as a guide.
     expect(
       within(card).getByText(
         en.protein.guide.replace("{target}", "112").replace("{per_kg}", "1.6"),
       ),
     ).toBeTruthy();
+  });
+
+  it("today_protein: the guide basis is the API's g per kg, never derived", async () => {
+    // 112 / 80 kg would read 1.4: the client must show the API's 1.6.
+    home("gym", [member({ weight_kg: 80 })]);
+    api.on("GET", "/v1/meals/summary", summary());
+    const card = await screen.findByTestId("home-card-today_protein");
+    expect(
+      await within(card).findByText(
+        en.protein.guide.replace("{target}", "112").replace("{per_kg}", "1.6"),
+      ),
+    ).toBeTruthy();
+  });
+
+  it("today_protein: no g per kg from the API shows no guide line", async () => {
+    home("gym", [member()]);
+    api.on(
+      "GET",
+      "/v1/meals/summary",
+      summary({
+        limits: {
+          kcal: null,
+          protein_target_g: 112,
+          protein_g_per_kg: null,
+          salt_g: 5,
+          sugar_g: 25,
+        },
+      }),
+    );
+    const card = await screen.findByTestId("home-card-today_protein");
+    await within(card).findByText(
+      en.protein.progress.replace("{total}", "40").replace("{target}", "112"),
+    );
+    const guideStart = en.protein.guide.split("{target}")[0] ?? "";
+    expect(within(card).queryByText(new RegExp(`^${guideStart}`))).toBeNull();
   });
 
   it("today_protein: an error offers a retry", async () => {
@@ -270,7 +311,13 @@ describe("home cards (T13)", () => {
       "GET",
       "/v1/meals/summary",
       summary({
-        limits: { kcal: null, protein_target_g: null, salt_g: 5, sugar_g: 25 },
+        limits: {
+          kcal: null,
+          protein_target_g: null,
+          protein_g_per_kg: null,
+          salt_g: 5,
+          sugar_g: 25,
+        },
         protein_left_g: null,
       }),
     );

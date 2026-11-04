@@ -206,6 +206,7 @@ def summarise(
             salt_g=limits.salt_g,
             protein_target_g=None if protein is None else _round1(protein),
             kcal=None,
+            protein_g_per_kg=limits.protein_g_per_kg,
         ),
         bands=NutrientBands(**_period_bands(whole, days, limits, cfg)),
         days=days,

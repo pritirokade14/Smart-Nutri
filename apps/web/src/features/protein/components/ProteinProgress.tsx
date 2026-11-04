@@ -10,18 +10,13 @@ import type { MemberOut } from "@/features/members/api/members";
 const TWO_DP = new Intl.NumberFormat("en", { maximumFractionDigits: 2 });
 
 /**
- * The basis of the API's daily protein guide, for the guide sentence: the
- * target the API computed divided by the member's own weight (the API's
- * target is weight x g per kg). Null without both: then no basis is shown.
- * Display only: the target itself always comes from the API.
+ * The basis of the API's daily protein guide, for the guide sentence:
+ * `limits.protein_g_per_kg` exactly as the API sent it (the YAML g per kg the
+ * target was computed with). Null when the API sends none: then no basis is
+ * shown. Never derived on the client.
  */
-export function perKgBasis(
-  target: number | null | undefined,
-  weightKg: number | null | undefined,
-): string | null {
-  if (typeof target !== "number" || typeof weightKg !== "number") return null;
-  if (!(weightKg > 0)) return null;
-  return TWO_DP.format(target / weightKg);
+export function perKgBasis(perKg: number | null | undefined): string | null {
+  return typeof perKg === "number" && perKg > 0 ? TWO_DP.format(perKg) : null;
 }
 
 /**
@@ -53,7 +48,7 @@ export function ProteinProgress({
     summary.totals?.energy_kcal,
     summary.incomplete?.energy_kcal === true,
   );
-  const perKg = perKgBasis(target, member?.weight_kg);
+  const perKg = perKgBasis(summary.limits?.protein_g_per_kg);
   const pct =
     total !== null && target !== null && target > 0
       ? Math.min(100, Math.round((total / target) * 100))

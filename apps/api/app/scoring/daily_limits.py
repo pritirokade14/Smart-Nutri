@@ -25,6 +25,9 @@ class DailyLimits:
     # adults only; None without a weight or below the adult age. A guide, never a verdict input.
     protein_target_g: float | None
     kcal: None = None  # informational only in v1: no personal energy target
+    # The g/kg the protein target was computed with (YAML); None whenever the target is None.
+    # Display only (the protein.guide copy), never a verdict input.
+    protein_g_per_kg: float | None = None
 
 
 def _by_min_age(age: int, bands: Mapping[Any, float]) -> float | None:
@@ -62,12 +65,19 @@ def daily_limits_for(
         salt = _by_min_age(age, dl["child_salt_g_by_min_age"])
 
     protein = None
+    per_kg: float | None = None
     is_adult = age is not None and age >= dl["protein_min_age"]
     if is_adult and weight_kg is not None and weight_kg > 0:
         by_goal = dl.get("protein_g_per_kg_by_goal") or {}
         per_kg = by_goal.get(member.goal, adult["protein_g_per_kg"])
         protein = weight_kg * per_kg
-    return DailyLimits(sugar_g=sugar, salt_g=salt, protein_target_g=protein, kcal=None)
+    return DailyLimits(
+        sugar_g=sugar,
+        salt_g=salt,
+        protein_target_g=protein,
+        kcal=None,
+        protein_g_per_kg=per_kg if protein is not None else None,
+    )
 
 
 def nutrient_band(

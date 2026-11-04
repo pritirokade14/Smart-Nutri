@@ -25,6 +25,7 @@ Summary daySummary(
   String saltBand = 'ok',
   String proteinBand = 'near',
   num? proteinTarget = 56,
+  num? proteinPerKg = 0.8,
   num? proteinLeft = 36,
 }) {
   final totals = {
@@ -61,6 +62,7 @@ Summary daySummary(
     'limits': {
       'kcal': null,
       'protein_target_g': proteinTarget,
+      'protein_g_per_kg': proteinPerKg,
       'salt_g': 5.0,
       'sugar_g': 25.0,
     },
@@ -157,15 +159,43 @@ void main() {
     expect(find.text(en.proteinProgress('56', '20')), findsOneWidget);
     expect(find.text(en.proteinLeftToday('36')), findsOneWidget);
     expect(find.text(en.summaryKcalTotal('300')), findsOneWidget);
+    // The guide line: the API's target and its g per kg basis, as sent.
+    expect(find.text(en.proteinGuide('0.8', '56')), findsOneWidget);
+  });
+
+  testWidgets('the guide basis is the API g per kg, never derived', (t) async {
+    // 56 g for a 70 kg member would derive 0.8; the API says 0.83.
+    await _pumpHome(
+      t,
+      'gym',
+      summary: (id) => daySummary(id, proteinPerKg: 0.83),
+    );
+    expect(find.text(en.proteinGuide('0.83', '56')), findsOneWidget);
+  });
+
+  testWidgets('no g per kg from the API shows no guide line', (t) async {
+    await _pumpHome(
+      t,
+      'gym',
+      summary: (id) => daySummary(id, proteinPerKg: null),
+    );
+    expect(find.text(en.proteinProgress('56', '20')), findsOneWidget);
+    expect(find.byKey(ProteinProgress.guideKey), findsNothing);
   });
 
   testWidgets('no protein target shows the note', (t) async {
     await _pumpHome(
       t,
       'gym',
-      summary: (id) => daySummary(id, proteinTarget: null, proteinLeft: null),
+      summary: (id) => daySummary(
+        id,
+        proteinTarget: null,
+        proteinPerKg: null,
+        proteinLeft: null,
+      ),
     );
     expect(find.byKey(ProteinProgress.noTargetKey), findsOneWidget);
+    expect(find.byKey(ProteinProgress.guideKey), findsNothing);
     expect(find.text(en.proteinNoTarget), findsOneWidget);
   });
 

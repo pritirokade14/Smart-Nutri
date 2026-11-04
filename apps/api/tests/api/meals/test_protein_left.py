@@ -102,3 +102,15 @@ async def test_protein_left_for_the_default_goal(client, family, sf_biscuit_prod
     await _log(client, family.dad, sf_biscuit_product_id, grams=200)
     s = await _summary(client, family.dad)
     assert s["protein_left_g"] == 42.1
+
+
+async def test_summary_exposes_protein_per_kg(client, family, gym_member):
+    # The YAML g/kg the target was computed with (the protein.guide copy); null with no target.
+    s = await _summary(client, gym_member)
+    assert s["limits"]["protein_g_per_kg"] == 1.6
+    week = await _summary(client, gym_member, period="week")
+    assert week["limits"]["protein_g_per_kg"] == 1.6
+    assert (await _summary(client, family.dad))["limits"]["protein_g_per_kg"] == 0.83
+    riya = await _summary(client, family.riya)
+    assert riya["limits"]["protein_target_g"] is None
+    assert riya["limits"]["protein_g_per_kg"] is None

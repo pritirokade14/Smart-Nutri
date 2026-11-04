@@ -144,6 +144,7 @@ def test_unknown_limits(cfg):
         "salt_g": 5,
         "protein_target_g": None,
         "kcal": None,
+        "protein_g_per_kg": None,
     }
 
 

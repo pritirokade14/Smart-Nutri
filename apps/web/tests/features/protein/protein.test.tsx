@@ -395,7 +395,13 @@ describe("protein guide (T14)", () => {
           salt_g: false,
           protein_g: false,
         },
-        limits: { kcal: null, protein_target_g: 112, salt_g: 5, sugar_g: 25 },
+        limits: {
+          kcal: null,
+          protein_target_g: 112,
+          protein_g_per_kg: 1.6,
+          salt_g: 5,
+          sugar_g: 25,
+        },
         bands: {
           kcal: "unknown",
           protein_g: "ok",

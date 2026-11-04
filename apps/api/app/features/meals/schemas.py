@@ -124,6 +124,13 @@ class DailyLimitsOut(BaseModel):
         )
     )
     kcal: float | None = Field(description="Always null in v1 (no personal energy target)")
+    protein_g_per_kg: float | None = Field(
+        description=(
+            "The g per kg body weight per day the protein target was computed with (thresholds.yaml, "
+            "pending clinician review), for the protein.guide copy. Null whenever "
+            "protein_target_g is null. Display only; never compute a target on the client"
+        )
+    )
 
 
 class NutrientBands(BaseModel):

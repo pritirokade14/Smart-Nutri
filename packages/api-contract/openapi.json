@@ -741,6 +741,18 @@
             "description": "Always null in v1 (no personal energy target)",
             "title": "Kcal"
           },
+          "protein_g_per_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The g per kg body weight per day the protein target was computed with (thresholds.yaml, pending clinician review), for the protein.guide copy. Null whenever protein_target_g is null. Display only; never compute a target on the client",
+            "title": "Protein G Per Kg"
+          },
           "protein_target_g": {
             "anyOf": [
               {
@@ -780,7 +792,8 @@
           "sugar_g",
           "salt_g",
           "protein_target_g",
-          "kcal"
+          "kcal",
+          "protein_g_per_kg"
         ],
         "title": "DailyLimitsOut",
         "type": "object"

@@ -160,3 +160,24 @@ def test_build_muscle_never_changes_status(cfg, all_fixture_products):
             missing = [r for r in a.reasons if r not in b.reasons]
             assert missing == [], (product.name, member.id)
             assert extra in ([], [("good_protein_density", Status.OK)]), (product.name, member.id)
+
+
+# --- protein g/kg basis (P9 integration f3: the protein.guide copy) ------------------------
+
+
+def test_protein_per_kg_by_goal(cfg):
+    m = Member(id="g", name="G", age=25, goal="build_muscle")
+    assert daily_limits_for(m, 70.0, cfg).protein_g_per_kg == pytest.approx(1.6)
+
+
+@pytest.mark.parametrize("goal", [None, "weight_loss", "healthy_eating"])
+def test_protein_per_kg_adult_default(cfg, goal):
+    m = Member(id="w", name="W", age=30, goal=goal)
+    assert daily_limits_for(m, 70.0, cfg).protein_g_per_kg == pytest.approx(0.83)
+
+
+@pytest.mark.parametrize(("age", "weight"), [(17, 70.0), (None, 70.0), (30, None), (30, 0.0)])
+def test_protein_per_kg_null_whenever_target_is_null(cfg, age, weight):
+    m = Member(id="g", name="G", age=age, goal="build_muscle")
+    limits = daily_limits_for(m, weight, cfg)
+    assert limits.protein_target_g is None and limits.protein_g_per_kg is None

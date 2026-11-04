@@ -118,6 +118,7 @@ class MealSummary {
     required this.days,
     required this.pendingClinicianReview,
     this.proteinLeftG,
+    this.proteinGPerKg,
   });
 
   factory MealSummary.fromApi(Summary s) {
@@ -152,6 +153,7 @@ class MealSummary {
       days: days,
       pendingClinicianReview: s.pendingClinicianReview,
       proteinLeftG: s.proteinLeftG,
+      proteinGPerKg: s.limits.proteinGPerKg,
     );
   }
 
@@ -172,6 +174,11 @@ class MealSummary {
   /// `period=day` only: how far today's protein is below the target, as the
   /// API calculated it; null without a target (or for a week).
   final num? proteinLeftG;
+
+  /// The g per kg the API computed the protein target with (its YAML
+  /// value), for the guide sentence; null whenever there is no target.
+  /// Display only: never derived on the device.
+  final num? proteinGPerKg;
 
   /// Any nutrient on any day is missing from a logged label.
   bool get anyIncomplete => [

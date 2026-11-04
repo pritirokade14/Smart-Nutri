@@ -807,6 +807,11 @@ export interface components {
              */
             kcal: number | null;
             /**
+             * Protein G Per Kg
+             * @description The g per kg body weight per day the protein target was computed with (thresholds.yaml, pending clinician review), for the protein.guide copy. Null whenever protein_target_g is null. Display only; never compute a target on the client
+             */
+            protein_g_per_kg: number | null;
+            /**
              * Protein Target G
              * @description A target, not a limit. Adults (18+) with a weight only; null for children, adolescents, an unknown age or no weight
              */

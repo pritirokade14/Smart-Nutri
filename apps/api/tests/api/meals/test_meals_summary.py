@@ -56,7 +56,13 @@ async def test_week_summary_for_child(client, family, sf_biscuit_product_id):
     assert len(s["days"]) == 7 and s["days"][-1]["date"] == str(today_ist())
     assert s["start"] == str(today_ist() - timedelta(days=6))
     # Age 8: NHS child bands (sugar 24 g, salt 5 g); no weight -> no protein target.
-    assert s["limits"] == {"sugar_g": 24, "salt_g": 5, "protein_target_g": None, "kcal": None}
+    assert s["limits"] == {
+        "sugar_g": 24,
+        "salt_g": 5,
+        "protein_target_g": None,
+        "kcal": None,
+        "protein_g_per_kg": None,
+    }
     assert s["days"][-1]["items"] == 1 and s["days"][0]["items"] == 0
     assert s["days"][0]["bands"]["sugar_g"] == "unknown"
     # Ruling M1 S1: an empty day has null totals, never 0.0.

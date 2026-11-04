@@ -170,6 +170,7 @@
   },
   "limits": {
     "kcal": null,
+    "protein_g_per_kg": 0.83,
     "protein_target_g": 58.1,
     "salt_g": 5.0,
     "sugar_g": 25.0
