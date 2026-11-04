@@ -72,26 +72,29 @@ class VoiceAnswerSheet extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: SnTokens.space3),
-          Row(
-            children: [
-              Icon(Icons.volume_up_rounded, color: c.textSecondary),
-              const SizedBox(width: SnTokens.space2),
-              Expanded(
-                child: Text(
-                  l10n.voicePlaying,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: c.textSecondary,
+          // No audio (over the inline cap): the text above is the answer.
+          if (answer.audioBase64 != null) ...[
+            const SizedBox(height: SnTokens.space3),
+            Row(
+              children: [
+                Icon(Icons.volume_up_rounded, color: c.textSecondary),
+                const SizedBox(width: SnTokens.space2),
+                Expanded(
+                  child: Text(
+                    l10n.voicePlaying,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: c.textSecondary,
+                    ),
                   ),
                 ),
-              ),
-              TextButton.icon(
-                icon: const Icon(Icons.replay_rounded),
-                label: Text(l10n.voiceReplay),
-                onPressed: onReplay,
-              ),
-            ],
-          ),
+                TextButton.icon(
+                  icon: const Icon(Icons.replay_rounded),
+                  label: Text(l10n.voiceReplay),
+                  onPressed: onReplay,
+                ),
+              ],
+            ),
+          ],
           const DisclaimerFooter(),
           if (onClose case final close?)
             Align(

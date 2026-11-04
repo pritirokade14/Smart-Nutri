@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,8 @@ import 'package:smartnutri_ai/features/voice/data/voice_device.dart';
 import 'package:smartnutri_ai/features/voice/data/voice_repository.dart';
 import 'package:smartnutri_ai/features/voice/domain/voice_state.dart';
 import 'package:smartnutri_ai/features/voice/presentation/voice_controller.dart';
+// ignore: implementation_imports
+import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fixtures.dart';
 import '../members/members_harness.dart' show apiError;
@@ -88,7 +91,8 @@ void main() {
       'product_id': 'p1',
       'barcode': null,
     });
-    expect(h.player.played, [answer.audioUrl]);
+    // The inline mp3 (base64 in the response) is decoded and played from memory.
+    expect(h.player.played, [base64Decode(answer.audioBase64!)]);
     final state = h.state as VoicePlaying;
     expect(state.answer.answer, answer.answer);
     expect(state.answer.verdictStatus, answer.verdictStatus);
@@ -96,6 +100,45 @@ void main() {
     expect(File(path).existsSync(), isFalse);
     expect(h.events.single.$1, 'voice_asked');
     expect(h.events.single.$2, {'language': 'hi'});
+  });
+
+  testWidgets(
+    'a text_only answer (audio null) shows the text and plays nothing',
+    (t) async {
+      final h = _Harness()..keepAlive();
+      h.repo.result = () => voiceAnswerFixture('answer_avoid_text_only');
+      await h.controller.start(_target);
+      await h.controller.stopAndSend();
+      final state = h.state as VoicePlaying;
+      expect(state.answer.audioBase64, isNull);
+      expect(state.answer.answer, isNotEmpty);
+      expect(h.player.played, isEmpty);
+      await h.controller.replay();
+      expect(h.player.played, isEmpty);
+    },
+  );
+
+  testWidgets('malformed audio is skipped; the text answer stays', (t) async {
+    final h = _Harness()..keepAlive();
+    final json = voiceAnswerFixture('answer_avoid').toJson()
+      ..['audio_base64'] = 'not base64 !!';
+    h.repo.result = () => VoiceAnswer.fromJson(json);
+    await h.controller.start(_target);
+    await h.controller.stopAndSend();
+    expect(h.state, isA<VoicePlaying>());
+    expect(h.player.played, isEmpty);
+  });
+
+  testWidgets('replay plays the same answer again while it is open', (t) async {
+    final h = _Harness()..keepAlive();
+    await h.controller.start(_target);
+    await h.controller.stopAndSend();
+    await h.controller.replay();
+    final bytes = base64Decode(voiceAnswerFixture('answer_avoid').audioBase64!);
+    expect(h.player.played, [bytes, bytes]);
+    await h.controller.dismiss();
+    await h.controller.replay();
+    expect(h.player.played, hasLength(2));
   });
 
   testWidgets('429_maps_to_rate_limited_message', (t) async {

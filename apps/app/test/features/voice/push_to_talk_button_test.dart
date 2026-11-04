@@ -92,6 +92,41 @@ void main() {
     expect(find.text(_l.commonDisclaimer), findsOneWidget);
   });
 
+  testWidgets('a text-only answer has no replay control', (t) async {
+    final answer = voiceAnswerFixture('answer_avoid_text_only');
+    await t.pumpWidget(
+      _wrap(
+        Scaffold(
+          body: VoiceAnswerSheet(answer: answer, onReplay: () {}),
+        ),
+        [],
+      ),
+    );
+    await t.pumpAndSettle();
+    expect(find.text(answer.answer), findsOneWidget);
+    expect(find.text(_l.commonDisclaimer), findsOneWidget);
+    expect(find.text(_l.voiceReplay), findsNothing);
+    expect(find.text(_l.voicePlaying), findsNothing);
+  });
+
+  testWidgets('an answer with audio offers replay', (t) async {
+    var replays = 0;
+    await t.pumpWidget(
+      _wrap(
+        Scaffold(
+          body: VoiceAnswerSheet(
+            answer: voiceAnswerFixture('answer_avoid'),
+            onReplay: () => replays++,
+          ),
+        ),
+        [],
+      ),
+    );
+    await t.pumpAndSettle();
+    await t.tap(find.text(_l.voiceReplay));
+    expect(replays, 1);
+  });
+
   test('an unknown status from a newer API never shows as ok', () {
     final json = voiceAnswerFixture('answer_avoid').toJson()
       ..['verdict_status'] = 'something_new';

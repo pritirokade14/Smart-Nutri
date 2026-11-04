@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
@@ -60,26 +62,75 @@ class RecordVoiceRecorder implements VoiceRecorder {
   Future<void> dispose() => _recorder.dispose();
 }
 
-/// Plays the answer's signed mp3 URL.
+/// Plays the answer's mp3, which arrives inline in the API response and is
+/// never stored (ADR 0020).
 abstract interface class VoicePlayer {
-  Future<void> play(String url);
+  /// Plays [mp3] from the start.
+  Future<void> playMp3(Uint8List mp3);
+
+  /// Stops playback and deletes any staged audio.
   Future<void> stop();
+}
+
+/// Holds at most one answer mp3 in a private file in the app's cache, only
+/// while it plays. ExoPlayer needs a file or URL source, and an in-memory
+/// `StreamAudioSource` would need a cleartext localhost proxy, which the app
+/// does not allow. A new answer replaces the file; [delete] removes it.
+class StagedMp3 {
+  StagedMp3(this._dir);
+
+  final Future<Directory> Function() _dir;
+  File? _file;
+
+  Future<String> write(Uint8List mp3) async {
+    delete();
+    final dir = await _dir();
+    final file = File(
+      '${dir.path}/voice_answer_${DateTime.now().microsecondsSinceEpoch}.mp3',
+    );
+    _file = file;
+    await file.writeAsBytes(mp3, flush: true);
+    return file.path;
+  }
+
+  void delete() {
+    final file = _file;
+    _file = null;
+    if (file == null) return;
+    try {
+      if (file.existsSync()) file.deleteSync();
+    } on Object {
+      // The OS clears the cache directory eventually.
+    }
+  }
 }
 
 class JustAudioVoicePlayer implements VoicePlayer {
   final _player = AudioPlayer();
+  final _staged = StagedMp3(getTemporaryDirectory);
 
   @override
-  Future<void> play(String url) async {
-    await _player.setUrl(url);
+  Future<void> playMp3(Uint8List mp3) async {
+    await _player.stop();
+    final path = await _staged.write(mp3);
+    await _player.setFilePath(path);
     // play() completes only when playback ends; don't wait for it.
     unawaited(_player.play());
   }
 
   @override
-  Future<void> stop() => _player.stop();
+  Future<void> stop() async {
+    try {
+      await _player.stop();
+    } finally {
+      _staged.delete();
+    }
+  }
 
-  Future<void> dispose() => _player.dispose();
+  Future<void> dispose() async {
+    _staged.delete();
+    await _player.dispose();
+  }
 }
 
 final micPermissionProvider = Provider<MicPermission>(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:smartnutri_ai/features/voice/data/voice_device.dart';
 import 'package:smartnutri_ai/features/voice/data/voice_repository.dart';
@@ -45,11 +46,11 @@ class FakeRecorder implements VoiceRecorder {
 }
 
 class FakePlayer implements VoicePlayer {
-  final played = <String>[];
+  final played = <Uint8List>[];
   int stops = 0;
 
   @override
-  Future<void> play(String url) async => played.add(url);
+  Future<void> playMp3(Uint8List mp3) async => played.add(mp3);
 
   @override
   Future<void> stop() async => stops++;

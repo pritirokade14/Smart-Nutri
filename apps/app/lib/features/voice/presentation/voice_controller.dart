@@ -1,16 +1,24 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/observability/analytics.dart';
+// The generated package has no top-level library file, only src/export.dart.
+// ignore: implementation_imports
+import 'package:smartnutri_api/src/export.dart';
+
 import '../data/voice_device.dart';
 import '../data/voice_repository.dart';
 import '../domain/voice_state.dart';
 
 /// Push-to-talk for one member (F10): ask for the mic, record up to 30 s,
 /// send, then show and play the API's answer. The recording is deleted as
-/// soon as it is sent or cancelled; the transcript is never stored.
+/// soon as it is sent or cancelled; the transcript is never stored. The
+/// answer mp3 comes inline (base64) and is never stored either (ADR 0020):
+/// it is played from memory, staged only while playing, and dropped when the
+/// answer is closed. With no audio (`audio_base64` null) only the text shows.
 class VoiceController extends Notifier<VoiceState> {
   VoiceController(this.memberId);
 
@@ -112,11 +120,7 @@ class VoiceController extends Notifier<VoiceState> {
           );
       if (!ref.mounted) return;
       state = VoicePlaying(answer);
-      try {
-        await _player.play(answer.audioUrl);
-      } on Object {
-        // The text is on screen; audio is a bonus.
-      }
+      await _play(answer);
     } on VoiceFailure catch (e) {
       if (ref.mounted) {
         state = VoiceError(voiceErrorKey(e.code), code: e.code);
@@ -149,14 +153,18 @@ class VoiceController extends Notifier<VoiceState> {
     if (ref.mounted && !_sending) state = const VoiceIdle();
   }
 
-  /// Play the answer again.
+  /// Play the answer again (while it is open).
   Future<void> replay() async {
-    if (state case VoicePlaying(:final answer)) {
-      try {
-        await _player.play(answer.audioUrl);
-      } on Object {
-        // The text stays on screen.
-      }
+    if (state case VoicePlaying(:final answer)) await _play(answer);
+  }
+
+  Future<void> _play(VoiceAnswer answer) async {
+    final audio = answer.audioBase64;
+    if (audio == null) return; // Text only: over the inline audio cap.
+    try {
+      await _player.playMp3(base64Decode(audio));
+    } on Object {
+      // The text is on screen; audio is a bonus.
     }
   }
 
