@@ -724,6 +724,16 @@ class DraftFormState extends State<DraftForm> {
                   ],
                 ),
               ),
+              // P9 S5: a deterministic API hint; it never preselects.
+              if (_draft?.confirm.categorySuggestion == 'supplement')
+                Padding(
+                  key: const ValueKey('category_suggestion'),
+                  padding: const EdgeInsets.only(bottom: SnTokens.space2),
+                  child: Text(
+                    l10n.confirmCategorySuggestionSupplement,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
             ],
           ),
           _section(

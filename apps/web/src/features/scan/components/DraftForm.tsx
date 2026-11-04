@@ -425,6 +425,14 @@ export function DraftForm({
               </label>
             ))}
           </div>
+          {draft?.confirm.category_suggestion === "supplement" ? (
+            <p
+              data-testid="category-suggestion"
+              className="mt-2 text-sm text-text-secondary"
+            >
+              {t("confirm.category_suggestion.supplement")}
+            </p>
+          ) : null}
           {missing.category ? chooseRequired : null}
           {fieldError("category")}
         </fieldset>

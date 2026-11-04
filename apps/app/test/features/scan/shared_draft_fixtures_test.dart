@@ -82,6 +82,16 @@ void main() {
         );
         await t.pumpAndSettle();
 
+        // P9 S5: the API's category hint shows next to the picker, only
+        // when set, and never preselects a category.
+        final en = lookupAppLocalizations(const Locale('en'));
+        final suggested = draft.confirm.categorySuggestion == 'supplement';
+        expect(
+          find.text(en.confirmCategorySuggestionSupplement),
+          suggested ? findsOneWidget : findsNothing,
+          reason: '$name category_suggestion',
+        );
+
         Future<void> tap(String key) async {
           final f = find.byKey(ValueKey(key));
           expect(f, findsOneWidget, reason: '$key is offered');
