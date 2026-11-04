@@ -2230,6 +2230,12 @@ abstract class AppLocalizations {
   /// **'I ate this'**
   String get mealsLogCta;
 
+  /// No description provided for @mealsLogCtaFor.
+  ///
+  /// In en, this message translates to:
+  /// **'I ate this, {name}'**
+  String mealsLogCtaFor(String name);
+
   /// No description provided for @mealsLogEatenAt.
   ///
   /// In en, this message translates to:
@@ -4611,6 +4617,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hold to ask'**
   String get voiceButtonHold;
+
+  /// No description provided for @voiceButtonHoldFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to ask, {name}'**
+  String voiceButtonHoldFor(String name);
 
   /// No description provided for @voiceElapsed.
   ///

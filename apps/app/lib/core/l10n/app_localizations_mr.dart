@@ -1207,6 +1207,11 @@ class AppLocalizationsMr extends AppLocalizations {
   String get mealsLogCta => 'मी हे खाल्ले';
 
   @override
+  String mealsLogCtaFor(String name) {
+    return 'मी हे खाल्ले, $name';
+  }
+
+  @override
   String get mealsLogEatenAt => 'केव्हा';
 
   @override
@@ -2647,6 +2652,11 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get voiceButtonHold => 'विचारण्यासाठी दाबून ठेवा';
+
+  @override
+  String voiceButtonHoldFor(String name) {
+    return 'विचारण्यासाठी दाबून ठेवा, $name';
+  }
 
   @override
   String voiceElapsed(String seconds) {

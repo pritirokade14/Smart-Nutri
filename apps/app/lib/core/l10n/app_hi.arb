@@ -489,6 +489,14 @@
   },
   "mealsLogAmountServings": "सर्विंग की संख्या",
   "mealsLogCta": "मैंने यह खाया",
+  "mealsLogCtaFor": "मैंने यह खाया, {name}",
+  "@mealsLogCtaFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealsLogEatenAt": "कब",
   "mealsLogGrams": "ग्राम",
   "mealsLogMember": "किसने खाया?",
@@ -1429,6 +1437,14 @@
   "voiceAiUnavailable": "आवाज़ वाले जवाब अभी उपलब्ध नहीं हैं। कृपया बाद में फिर कोशिश करें।",
   "voiceAnswerTitle": "जवाब",
   "voiceButtonHold": "पूछने के लिए दबाकर रखें",
+  "voiceButtonHoldFor": "पूछने के लिए दबाकर रखें, {name}",
+  "@voiceButtonHoldFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "voiceElapsed": "30 में से {seconds} सेकंड",
   "@voiceElapsed": {
     "placeholders": {

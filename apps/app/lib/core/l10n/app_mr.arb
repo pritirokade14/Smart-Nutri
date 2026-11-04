@@ -489,6 +489,14 @@
   },
   "mealsLogAmountServings": "सर्व्हिंगची संख्या",
   "mealsLogCta": "मी हे खाल्ले",
+  "mealsLogCtaFor": "मी हे खाल्ले, {name}",
+  "@mealsLogCtaFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealsLogEatenAt": "केव्हा",
   "mealsLogGrams": "ग्रॅम",
   "mealsLogMember": "कोणी खाल्ले?",
@@ -1429,6 +1437,14 @@
   "voiceAiUnavailable": "आवाजातील उत्तरे सध्या उपलब्ध नाहीत. कृपया नंतर पुन्हा प्रयत्न करा.",
   "voiceAnswerTitle": "उत्तर",
   "voiceButtonHold": "विचारण्यासाठी दाबून ठेवा",
+  "voiceButtonHoldFor": "विचारण्यासाठी दाबून ठेवा, {name}",
+  "@voiceButtonHoldFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "voiceElapsed": "30 पैकी {seconds} सेकंद",
   "@voiceElapsed": {
     "placeholders": {
