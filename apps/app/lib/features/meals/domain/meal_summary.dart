@@ -117,6 +117,7 @@ class MealSummary {
     required this.bands,
     required this.days,
     required this.pendingClinicianReview,
+    this.proteinLeftG,
   });
 
   factory MealSummary.fromApi(Summary s) {
@@ -150,6 +151,7 @@ class MealSummary {
       bands: _bands(s.bands),
       days: days,
       pendingClinicianReview: s.pendingClinicianReview,
+      proteinLeftG: s.proteinLeftG,
     );
   }
 
@@ -166,6 +168,10 @@ class MealSummary {
   final PerNutrient<Band> bands;
   final List<SummaryDay> days;
   final bool pendingClinicianReview;
+
+  /// `period=day` only: how far today's protein is below the target, as the
+  /// API calculated it; null without a target (or for a week).
+  final num? proteinLeftG;
 
   /// Any nutrient on any day is missing from a logged label.
   bool get anyIncomplete => [

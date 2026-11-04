@@ -21,6 +21,7 @@ import '../../features/methodology/presentation/methodology_screen.dart';
 import '../../features/product/presentation/compare_screen.dart';
 import '../../features/product/presentation/discovery_routes.dart';
 import '../../features/product/presentation/search_screen.dart';
+import '../../features/protein/presentation/protein_screen.dart';
 import '../../features/scan/presentation/confirm_screen.dart';
 import '../../features/scan/presentation/label_capture_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
@@ -123,8 +124,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             GoRoute(path: 'phone', builder: (_, _) => const PhoneOtpScreen()),
         ],
       ),
-      // The signed-in tabs. Scan, label capture, confirm and result are
-      // full-screen routes above the shell (see AppShell).
+      // The signed-in branches, in `kShellBranches` order: Home, History,
+      // Family, Protein, Profile. The tab bar shows the focused mode's five
+      // (AppShell). Scan, Compare, Search, label capture, confirm and result
+      // are full-screen routes above the shell.
       StatefulShellRoute.indexedStack(
         // The offline log syncs while signed in (start, resume, back online).
         builder: (_, _, shell) => MealSyncScope(child: AppShell(shell: shell)),
@@ -158,6 +161,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                         MemberFormScreen(memberId: state.pathParameters['id']),
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/protein',
+                builder: (_, _) => const ProteinScreen(),
               ),
             ],
           ),

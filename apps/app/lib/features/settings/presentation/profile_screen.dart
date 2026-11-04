@@ -10,6 +10,9 @@ import '../../../shared/widgets/buttons.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../consent/presentation/policy_links.dart';
+import '../../modes/presentation/mode_switcher.dart';
+import '../../modes/presentation/more_menu.dart';
+import '../../modes/mode_providers.dart';
 import '../../user_types/domain/user_types.dart';
 import '../../user_types/presentation/user_type_labels.dart';
 import '../../user_types/presentation/user_types_providers.dart';
@@ -40,6 +43,10 @@ class ProfileScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(SnTokens.space4),
         children: [
+          // More first (P9-R6): everything not in the tab bar.
+          SectionHeader(title: l10n.modesMoreTitle, icon: Icons.apps_rounded),
+          const Card(child: MoreList()),
+          const SizedBox(height: SnTokens.space4),
           const _UserTypesSection(),
           const SizedBox(height: SnTokens.space4),
           const _LanguageSection(),
@@ -120,14 +127,30 @@ class _UserTypesSection extends ConsumerWidget {
     final names = out == null
         ? ''
         : [for (final t in chosenTypes(out)) modeName(l10n, t)].join(', ');
+    final switcher = ref.watch(chosenTypesProvider).length >= 2;
     return Card(
-      child: ListTile(
-        key: ProfileScreen.userTypesKey,
-        leading: const Icon(Icons.tune_rounded),
-        title: Text(l10n.userTypesEdit),
-        subtitle: names.isEmpty ? null : Text(names),
-        trailing: const Icon(Icons.chevron_right_rounded),
-        onTap: () => context.push('/welcome?edit=1'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            key: ProfileScreen.userTypesKey,
+            leading: const Icon(Icons.tune_rounded),
+            title: Text(l10n.userTypesEdit),
+            subtitle: names.isEmpty ? null : Text(names),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/welcome?edit=1'),
+          ),
+          if (switcher)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(
+                SnTokens.space4,
+                0,
+                SnTokens.space4,
+                SnTokens.space4,
+              ),
+              child: ModeSwitcher(showNote: true),
+            ),
+        ],
       ),
     );
   }

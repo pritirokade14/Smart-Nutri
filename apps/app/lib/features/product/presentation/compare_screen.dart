@@ -34,6 +34,8 @@ class CompareScreen extends ConsumerStatefulWidget {
   final ProductRef? b;
   final String? memberId;
 
+  static const pickKey = Key('compare-pick-products');
+
   @override
   ConsumerState<CompareScreen> createState() => _CompareScreenState();
 }
@@ -55,7 +57,23 @@ class _CompareScreenState extends ConsumerState<CompareScreen> {
     final b = widget.b;
     final Widget body;
     if (a == null) {
-      body = Center(child: ErrorState(message: l10n.errorInvalidProductRef));
+      // Opened from a tab or More: pick the products first.
+      body = Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(SnTokens.space4),
+          child: EmptyState(
+            icon: Icons.compare_arrows_rounded,
+            title: l10n.compareTitle,
+            body: l10n.searchHint,
+            action: PrimaryButton(
+              buttonKey: CompareScreen.pickKey,
+              label: l10n.searchTitle,
+              icon: Icons.search_rounded,
+              onPressed: () => context.push(searchLocation()),
+            ),
+          ),
+        ),
+      );
     } else if (b == null) {
       body = Center(
         child: Padding(

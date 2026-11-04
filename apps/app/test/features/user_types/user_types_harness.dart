@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smartnutri_ai/core/config/app_config.dart';
@@ -44,6 +45,7 @@ Future<AppHarness> pumpApp(
   FakeUserTypesApi api, {
   FakeMealsClient? meals,
   String? initial,
+  List<Override> overrides = const [],
 }) async {
   t.view.physicalSize = const Size(900, 3600);
   t.view.devicePixelRatio = 1;
@@ -53,6 +55,7 @@ Future<AppHarness> pumpApp(
     ProviderScope(
       overrides: [
         ...mealTestOverrides(client: meals ?? FakeMealsClient()),
+        ...overrides,
         appConfigProvider.overrideWithValue(testAppConfig),
         authRepositoryProvider.overrideWithValue(
           FakeAuthRepository(signedIn: true),

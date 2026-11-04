@@ -20,27 +20,14 @@ import 'package:smartnutri_api/src/export.dart';
 import '../support/fake_auth.dart';
 import '../support/fake_members.dart';
 import '../support/fake_meals.dart';
-
-class _FakeMe implements MeClient {
-  @override
-  Future<MeOut> meGet() async => MeOut(
-    createdAt: DateTime(2026),
-    displayName: 'Asha',
-    email: 'a@b.c',
-    id: 'u1',
-    language: MeOutLanguage.values.first,
-  );
-
-  @override
-  Future<void> meDelete() => throw UnimplementedError();
-
-  @override
-  dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
-}
+import '../support/fake_user_types.dart';
 
 class _FakeApi implements SmartNutriApiClient {
+  /// The health-condition mode: Home, Scan, History, Family, Profile.
   @override
-  MeClient get me => _FakeMe();
+  final MeClient me = FakeUserTypesMe(
+    userTypesOut(types: ['health_condition']),
+  );
   @override
   final MembersClient members = FakeMembersClient();
   @override
@@ -65,6 +52,10 @@ final en = lookupAppLocalizations(const Locale('en'));
 
 Future<FakeAuthRepository> _pump(WidgetTester t, {bool dark = false}) async {
   final repo = FakeAuthRepository(signedIn: true);
+  // Tall enough for Profile with "More" as its first section.
+  t.view.physicalSize = const Size(900, 3000);
+  t.view.devicePixelRatio = 1;
+  addTearDown(t.view.reset);
   await t.pumpWidget(
     ProviderScope(
       overrides: [

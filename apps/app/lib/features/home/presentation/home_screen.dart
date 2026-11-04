@@ -9,10 +9,12 @@ import '../../../core/network/api_client.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/disclaimer_footer.dart';
-import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/states.dart';
 import '../../consent/presentation/consent_providers.dart';
 import '../../members/presentation/members_providers.dart';
+import '../../modes/presentation/mode_switcher.dart';
+import '../../modes/presentation/more_menu.dart';
+import 'cards/home_cards.dart';
 
 final meProvider = FutureProvider.autoDispose<MeOut>(
   (ref) => ref.watch(apiClientProvider).me.meGet(),
@@ -22,6 +24,8 @@ final meProvider = FutureProvider.autoDispose<MeOut>(
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
+
+  static const moreKey = Key('home-more');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,7 +45,23 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const _Wordmark(),
+              // The header: More (every destination not in the tab bar,
+              // P9-R6) and the mode switcher (2–3 types).
+              Row(
+                children: [
+                  const Expanded(child: _Wordmark()),
+                  TextButton.icon(
+                    key: moreKey,
+                    icon: const Icon(Icons.apps_rounded),
+                    label: Text(l10n.modesMore),
+                    onPressed: () => showMoreMenu(context),
+                  ),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: SnTokens.space3),
+                child: ModeSwitcher(),
+              ),
               const SizedBox(height: SnTokens.space5),
               me.when(
                 loading: () => const LoadingSkeleton(lines: 2),
@@ -91,17 +111,7 @@ class HomeScreen extends ConsumerWidget {
                 onTap: () => context.push('/scan/label'),
               ),
               const SizedBox(height: SnTokens.space6),
-              SectionHeader(
-                title: l10n.homeRecentTitle,
-                icon: Icons.receipt_long_rounded,
-              ),
-              Card(
-                child: EmptyState(
-                  icon: Icons.shopping_basket_outlined,
-                  title: l10n.homeRecentEmptyTitle,
-                  body: l10n.homeRecentEmptyBody,
-                ),
-              ),
+              const HomeCards(),
               const SizedBox(height: SnTokens.space3),
               const DisclaimerFooter(),
             ],
