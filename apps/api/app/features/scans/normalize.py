@@ -257,11 +257,17 @@ COLUMN_ROUNDING_UNITS: dict[str, float] = {"energy_kcal": 5.0, "sodium_mg": 10.0
 # only ("0.4 g", no salt) read as mg gives ~0 sodium that nothing can cross-check. A non-zero
 # sodium printed as mg, with no salt on that column, below this per 100 g / 100 ml (water
 # exempt) raises `sodium_unit_suspect`. Chosen with the E5 fault-injection method on 705 Open
-# Food Facts India products (.research/data/e5_after_fix.json): foods 2 mg flags 1.6 % of real
+# Food Facts India products (.research/data/e5_after_fix.json): foods 2 mg flagged 1.6 % of real
 # sodium-only labels (rice, flours, dates) and catches 93 % of g-read-as-mg slips (89 % of
 # those with >= 120 mg real sodium); beverages 0.5 mg (colas print 3-10 mg) flags 1.6 % and
-# catches 95 %. "food" covers general, fat, cheese and an unknown category.
-SODIUM_SUSPECT_MAX_MG: dict[str, float] = {"food": 2.0, "beverage": 0.5}
+# catches 95 %. Plan 9 final review: food limit raised to 10 mg plus the decimal rule below;
+# re-measured on the 461 real sodium-only labels: 6 flagged (1.3 %). "food" covers general, fat, cheese and an unknown category.
+SODIUM_SUSPECT_MAX_MG: dict[str, float] = {"food": 10.0, "beverage": 0.5}
+# EF2 (second rule): honest mg labels rarely print decimals, but "g" read as "mg" does (very salty
+# foods: pickle 2.5 g, papad 2.2 g, soy sauce 5.7 g, which the limit above cannot separate from
+# real low-sodium foods). A non-integer printed mg value, no salt row, below this per 100 g /
+# 100 g (water and drinks exempt) is flagged too.
+SODIUM_DECIMAL_MAX_MG = 100.0
 # EF3: a /10 slip on energy, protein, carbs or fat that the loose Atwater tolerance above hides
 # (protein 7 printed 0.7 moves Atwater by only 25 kcal). When the printed panel misses a TIGHT
 # fit, max(DECIMAL_PROBE_TIGHT_RATIO x kcal, DECIMAL_PROBE_TIGHT_MIN_KCAL), and x 10 on exactly
@@ -442,7 +448,11 @@ def _sodium_unit_suspect(
     if sodium is None or values["salt_g"] is not None:
         return False
     limit = SODIUM_SUSPECT_MAX_MG["beverage" if category == "beverage" else "food"]
-    return 0 < sodium * per_100_factor < limit
+    per_100 = sodium * per_100_factor
+    if 0 < per_100 < limit:
+        return True
+    # Drinks keep the one limit: colas honestly print decimals like 3.5 mg.
+    return category != "beverage" and 0 < per_100 < SODIUM_DECIMAL_MAX_MG and sodium != int(sodium)
 
 
 _ATWATER_FIELDS = ("energy_kcal", "protein_g", "carbs_g", "fat_g", "fiber_g")

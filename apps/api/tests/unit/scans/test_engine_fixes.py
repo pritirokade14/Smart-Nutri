@@ -22,6 +22,7 @@ from app.features.scans.normalize import (
     DECIMAL_PROBE_MIN_GAIN,
     DECIMAL_PROBE_TIGHT_MIN_KCAL,
     DECIMAL_PROBE_TIGHT_RATIO,
+    SODIUM_DECIMAL_MAX_MG,
     SODIUM_SUSPECT_MAX_MG,
     WARNING_CODES,
     engine_nutrients,
@@ -78,7 +79,8 @@ SUSPECT_100 = "sodium_unit_suspect:per_100g.sodium_mg"
 # --- EF2 --------------------------------------------------------------------------------------
 def test_thresholds_are_the_measured_constants():
     # Chosen with the E5 method on Open Food Facts panels (see normalize.py).
-    assert SODIUM_SUSPECT_MAX_MG == {"food": 2.0, "beverage": 0.5}
+    assert SODIUM_SUSPECT_MAX_MG == {"food": 10.0, "beverage": 0.5}
+    assert SODIUM_DECIMAL_MAX_MG == 100.0
     assert "sodium_unit_suspect" in WARNING_CODES
     assert WARNING_CODES.index("sodium_unit_suspect") == WARNING_CODES.index("unit_unconfirmed") + 1
 
@@ -98,8 +100,9 @@ def test_sodium_in_g_read_as_mg_without_salt_is_withheld_and_asks_the_unit():
 @pytest.mark.parametrize(
     ("category", "sodium", "suspect"),
     [
+        ("general", 9.0, True),  # whole number below 10 mg, no salt row
+        ("general", 10.0, False),
         ("general", 1.99, True),
-        ("general", 2.0, False),
         ("general", 0.0, False),  # "0" / "Nil" is the same in mg and g
         ("fat", 0.5, True),
         ("cheese", 1.0, True),
@@ -114,6 +117,35 @@ def test_threshold_by_category(category, sodium, suspect):
     d = to_draft(ex(category_guess=category, per_100g=n(sodium_mg=sodium)))
     assert (SUSPECT_100 in d.warnings) is suspect
     assert ("sodium_mg" in d.engine_withheld) is suspect
+
+
+@pytest.mark.parametrize(
+    ("name", "sodium"),
+    [("pickle", 2.5), ("papad", 2.2), ("masala", 6.0), ("soy sauce", 5.7)],
+)
+def test_very_salty_products_printed_in_g_read_as_mg_are_flagged(name, sodium):
+    # 2.5 g of sodium per 100 g printed in g and read as "2.5 mg": EF2 used to miss these.
+    d = to_draft(ex(product_name=name, per_100g=n(sodium_mg=sodium)))
+    assert SUSPECT_100 in d.warnings and "sodium_mg" in d.engine_withheld
+
+
+@pytest.mark.parametrize("sodium", [12.5, 45.5, 99.9])
+def test_non_integer_mg_below_100_is_flagged(sodium):
+    # Honest mg labels rarely print decimals: 45.5 "mg" is more likely 0.0455 g misread.
+    d = to_draft(ex(per_100g=n(sodium_mg=sodium)))
+    assert SUSPECT_100 in d.warnings and "sodium_mg" in d.engine_withheld
+
+
+@pytest.mark.parametrize("sodium", [10.0, 35.0, 350.0, 1200.0, 100.5, 350.5])
+def test_honest_integer_or_large_mg_is_not_flagged(sodium):
+    d = to_draft(ex(per_100g=n(sodium_mg=sodium)))
+    assert not any(w.startswith("sodium_unit_suspect") for w in d.warnings)
+    assert "sodium_mg" not in d.engine_withheld
+
+
+def test_non_integer_mg_with_salt_printed_is_not_flagged():
+    d = to_draft(ex(per_100g=n(sodium_mg=45.5, salt_g=0.12)))
+    assert SUSPECT_100 not in d.warnings
 
 
 def test_ml_drink_uses_the_beverage_threshold():
@@ -172,11 +204,11 @@ def test_per_serving_column_is_checked_per_100g_via_the_serving():
     assert "sodium_unit_suspect:per_serving.sodium_mg" in d.warnings
     assert "sodium_mg" in d.engine_withheld
     assert d.confirm.columns.per_serving.sodium_unit_required is True
-    # 30 g serving at 1.5 mg = 5 mg / 100 g: plausible.
+    # 30 g serving at 4 mg = 13.3 mg / 100 g: plausible.
     ok = to_draft(
         ex(
             per_100g=None,
-            per_serving=serving.model_copy(update={"sodium_mg": 1.5}),
+            per_serving=serving.model_copy(update={"sodium_mg": 4.0}),
             serving_size_g=30.0,
             serving_size_unit="g",
             basis_detected="per_serving",
