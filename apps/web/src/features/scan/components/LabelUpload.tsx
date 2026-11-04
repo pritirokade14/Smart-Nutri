@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { track } from "@/lib/analytics";
 import { setScanDraft } from "../api/draftCache";
 import { type UploadStage, useUploadLabel } from "../api/useUploadLabel";
+import { imageQualityReasons } from "../lib/warnings";
 
 /**
  * Label photo capture: camera (mobile), file picker, or drag and drop
@@ -68,8 +69,35 @@ export function LabelUpload({ barcode }: { barcode: string | null }) {
     );
   } else if (upload.isError) {
     const key = `error.${upload.error.code}`;
+    // Label v2: an unreadable photo (no extraction was tried) gets a retake
+    // prompt with one concrete fix per reason the API found.
+    const quality = upload.error.code === "image_quality_low";
+    const reasons = quality ? imageQualityReasons(upload.error.details) : [];
     body = (
-      <ErrorState message={t.has(key) ? t(key) : t("error.internal_error")}>
+      <ErrorState
+        message={
+          quality
+            ? t("image_quality.title")
+            : t.has(key)
+              ? t(key)
+              : t("error.internal_error")
+        }
+      >
+        {quality ? (
+          <ul data-testid="retake-hints" className="w-full space-y-1">
+            {(reasons.length > 0 ? reasons : (["generic"] as const)).map(
+              (r) => (
+                <li key={r} className="text-md text-text-primary">
+                  {t(
+                    r === "generic"
+                      ? "image_quality.hint_generic"
+                      : `image_quality.${r}`,
+                  )}
+                </li>
+              ),
+            )}
+          </ul>
+        ) : null}
         <button type="button" onClick={retake} className={btn}>
           <CameraIcon />
           {t("label.retake")}

@@ -13,6 +13,11 @@ import {
 import { NutriScoreChip } from "@/components/ui/NutriScoreChip";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { OffAttribution } from "@/features/analysis/components/OffAttribution";
+import { ProteinFacts } from "@/features/analysis/components/ProteinFacts";
+import {
+  hasProteinFacts,
+  readNutriscoreReason,
+} from "@/features/protein/lib/reportProtein";
 import { PublicReportButton } from "@/features/reports/components/PublicReportButton";
 import type { PublicProductOut } from "../api/public-product";
 
@@ -114,7 +119,12 @@ export function PublicProduct({
                 <p className="text-md text-text-secondary">{product.brand}</p>
               ) : null}
             </div>
-            <NutriScoreChip grade={grade} showGradeLabel creditWithoutGrade />
+            <NutriScoreChip
+              grade={grade}
+              showGradeLabel
+              creditWithoutGrade
+              reason={readNutriscoreReason(data.report)}
+            />
             {highIn.length > 0 ? (
               <section className="space-y-2">
                 <h2 className="text-sm font-semibold text-text-secondary">
@@ -179,6 +189,11 @@ export function PublicProduct({
             })}
           </ul>
         </Card>
+      ) : null}
+
+      {/* Generic product facts (no member data): protein, sweeteners, caffeine. */}
+      {hasProteinFacts(data.report) ? (
+        <ProteinFacts report={data.report} />
       ) : null}
 
       <Card as="section" className="space-y-3">

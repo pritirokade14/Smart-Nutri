@@ -162,6 +162,10 @@ export function MemberForm({ member }: { member?: MemberOut }) {
       const err = e as ApiError;
       // The API is the gate: a 403 opens the consent flow, then retries.
       if (err.code === "consent_required") setConsentFor(body);
+      // Build muscle for a minor: the API refuses it (422); say why on the
+      // goal field, whatever the exact error code.
+      else if (err.status === 422 && body.goal === "build_muscle")
+        setErrors({ goal: "members.form.build_muscle_adult_only" });
       else setSaveError(err);
     }
   }
@@ -410,10 +414,16 @@ export function MemberForm({ member }: { member?: MemberOut }) {
           ))}
         </fieldset>
 
-        <Field id={id("goal")} label={t("members.form.goal")}>
+        <Field
+          id={id("goal")}
+          label={t("members.form.goal")}
+          error={errorText("goal")}
+        >
           <select
             id={id("goal")}
             className={inputClass}
+            aria-invalid={invalid("goal")}
+            aria-describedby={describedBy("goal")}
             value={values.goal}
             onChange={(e) =>
               set("goal", e.target.value as MemberFormValues["goal"])

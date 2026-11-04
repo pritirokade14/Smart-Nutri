@@ -30,7 +30,14 @@ export const GOALS: readonly Goal[] = [
   "healthy_eating",
   "weight_loss",
   "weight_gain",
+  "build_muscle",
 ];
+
+/**
+ * "Build muscle" is for adults only (decision 5). The API is the gate (it
+ * answers 422 for a minor); the form says so first, by year of birth.
+ */
+export const BUILD_MUSCLE_MIN_AGE = 18;
 export const CONDITIONS: readonly Condition[] = [
   "diabetes",
   "prediabetes",
@@ -202,6 +209,13 @@ export const memberFormSchema = {
     }
     if (allergens.length > MAX_ALLERGENS)
       errors.allergens = "members.form.allergen_limit";
+
+    if (
+      values.goal === "build_muscle" &&
+      !errors.birth_year &&
+      currentYear - birthYear < BUILD_MUSCLE_MIN_AGE
+    )
+      errors.goal = "members.form.build_muscle_adult_only";
 
     if (Object.keys(errors).length > 0) return { success: false, errors };
     return {

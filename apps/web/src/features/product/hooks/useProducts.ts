@@ -2,6 +2,7 @@ import { type UseQueryResult, useQuery } from "@tanstack/react-query";
 import type { ApiError } from "@/lib/api/errors";
 import {
   type AlternativesOut,
+  type AlternativesSort,
   alternativesKey,
   type CompareOut,
   compareKey,
@@ -10,6 +11,7 @@ import {
   type ProductRef,
   SEARCH_MIN,
   type SearchHit,
+  type SearchSort,
   searchKey,
   searchProducts,
 } from "../api/products";
@@ -23,21 +25,29 @@ const retryOff = (n: number, e: ApiError) => e.status === 503 && n < 1;
 export function useAlternatives(
   ref: ProductRef | null,
   memberId: string | null,
+  sort: AlternativesSort = "grade",
 ): UseQueryResult<AlternativesOut, ApiError> {
   return useQuery<AlternativesOut, ApiError>({
-    queryKey: ref ? alternativesKey(ref, memberId) : ["alternatives", "none"],
-    queryFn: () => getAlternatives(ref as ProductRef, memberId),
+    queryKey: ref
+      ? alternativesKey(ref, memberId, sort)
+      : ["alternatives", "none"],
+    queryFn: () => getAlternatives(ref as ProductRef, memberId, sort),
     enabled: ref !== null,
     retry: retryOff,
     ...PERSONAL,
   });
 }
 
-export function useSearch(q: string): UseQueryResult<SearchHit[], ApiError> {
+export function useSearch(
+  q: string,
+  sort: SearchSort = "relevance",
+  memberId: string | null = null,
+): UseQueryResult<SearchHit[], ApiError> {
   const query = q.trim();
+  const member = sort === "protein" ? memberId : null;
   return useQuery<SearchHit[], ApiError>({
-    queryKey: searchKey(query),
-    queryFn: () => searchProducts(query),
+    queryKey: searchKey(query, sort, member),
+    queryFn: () => searchProducts(query, 20, sort, member),
     enabled: query.length >= SEARCH_MIN,
     retry: retryOff,
     staleTime: 60_000,

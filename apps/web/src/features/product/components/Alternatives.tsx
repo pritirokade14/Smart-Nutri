@@ -14,9 +14,11 @@ import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { OffAttribution } from "@/features/analysis/components/OffAttribution";
 import { formatAmount } from "@/features/history/lib/summary";
 import type { LogMealMember } from "@/features/meals/components/LogMealDialog";
+import { SortToggle } from "@/features/protein/components/SortToggle";
 import type { ApiError } from "@/lib/api/errors";
 import {
   type AlternativeOut,
+  type AlternativesSort,
   compareHref,
   compareParams,
   type ProductRef,
@@ -25,7 +27,13 @@ import {
 import { useAlternatives } from "../hooks/useProducts";
 
 const HIGH_IN = new Set(["sugar", "fat", "sat_fat", "salt"]);
-const REASONS = new Set(["no_category", "no_better_found", "source_ungraded"]);
+const REASONS = new Set([
+  "no_category",
+  "no_better_found",
+  "source_ungraded",
+  "source_supplement",
+  "source_protein_unknown",
+]);
 
 /**
  * Healthier options (same Open Food Facts category, strictly better
@@ -47,7 +55,8 @@ export function Alternatives({
   const [memberId, setMemberId] = useState<string | null>(
     members[0]?.id ?? null,
   );
-  const query = useAlternatives(productRef, memberId);
+  const [sort, setSort] = useState<AlternativesSort>("grade");
+  const query = useAlternatives(productRef, memberId, sort);
   const member = members.find((m) => m.id === memberId);
   const memberName = member
     ? member.name.trim() !== ""
@@ -95,7 +104,9 @@ export function Alternatives({
           data-testid="alternatives-empty"
           className="text-md text-text-secondary"
         >
-          {t(`alternatives.reason.${reason}`)}
+          {sort === "protein" && reason === "no_better_found"
+            ? t("protein.swaps_empty")
+            : t(`alternatives.reason.${reason}`)}
         </p>
       );
     } else {
@@ -134,6 +145,16 @@ export function Alternatives({
                           {t("alternatives.sugars", {
                             value: formatAmount(i.sugars_g),
                           })}
+                        </p>
+                      ) : null}
+                      {typeof i.protein_per_100kcal === "number" ? (
+                        <p className="flex gap-1 text-sm text-text-secondary">
+                          <span>{t("protein.per_100kcal")}</span>
+                          <span className="font-semibold text-text-primary">
+                            {t("summary.total_g", {
+                              total: formatAmount(i.protein_per_100kcal),
+                            })}
+                          </span>
                         </p>
                       ) : null}
                     </div>
@@ -217,6 +238,14 @@ export function Alternatives({
           </select>
         </div>
       ) : null}
+      <SortToggle
+        options={[
+          { value: "grade", label: t("alternatives.title") },
+          { value: "protein", label: t("protein.sort_higher") },
+        ]}
+        value={sort}
+        onChange={setSort}
+      />
       {body}
     </section>
   );

@@ -98,6 +98,19 @@ export function claimReasonText(t: Translator, c: ClaimCheck): string | null {
       values = n ? { nutrient: n } : null;
       break;
     }
+    case "whey_not_listed":
+      values = {};
+      break;
+    case "below_claimed": {
+      // "{value} g ... {basis, select, per_serving {...} other {...}}"
+      const value = num("value");
+      const claimed = num("claimed");
+      const basis =
+        p.basis === "per_serving" || p.basis === "per_100g" ? p.basis : null;
+      values = value && claimed && basis ? { value, claimed, basis } : null;
+      break;
+    }
+    case "other_protein_source":
     case "added_sugar_ingredient":
     case "refined_sugar_ingredient": {
       const i = list("ingredients");

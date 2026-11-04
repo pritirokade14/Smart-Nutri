@@ -109,7 +109,12 @@ test("first sign-in: terms, then the picker, follow-ups and a confirmed pre-fill
   await page.keyboard.press("Escape");
   await nav.getByRole("link", { name: "Protein" }).click();
   await expect(page).toHaveURL(/\/en\/protein$/);
-  await expect(page.getByRole("heading", { name: "Protein" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Protein" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Higher-protein options" }),
+  ).toBeVisible();
 
   // Answered: /welcome without ?edit=1 goes home.
   await page.goto("/en/welcome");

@@ -15,6 +15,10 @@ import { LogMealButton } from "@/features/meals/components/LogMealButton";
 import type { LogMealProduct } from "@/features/meals/components/LogMealDialog";
 import type { ProductRef } from "@/features/product/api/products";
 import { Alternatives } from "@/features/product/components/Alternatives";
+import {
+  hasProteinFacts,
+  readNutriscoreReason,
+} from "@/features/protein/lib/reportProtein";
 import { ReportButton } from "@/features/reports/components/ReportDialog";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
 import { ResultShare } from "@/features/share/ResultShare";
@@ -33,6 +37,7 @@ import { ExplanationCard } from "./ExplanationCard";
 import { GradeChip } from "./GradeChip";
 import { NutritionTable } from "./NutritionTable";
 import { OffAttribution } from "./OffAttribution";
+import { ProteinFacts } from "./ProteinFacts";
 import { VerdictCard } from "./VerdictCard";
 
 const HIGH_IN = new Set(["sugar", "fat", "sat_fat", "salt"]);
@@ -59,6 +64,7 @@ function Analysis({
   const t = useTranslations();
   const { product } = data;
   const { grade, highIn } = readReport(data.report);
+  const gradeReason = readNutriscoreReason(data.report);
   // Only how many cards were shown: never statuses, reasons or names.
   const memberCount = data.verdicts.length;
   useEffect(() => {
@@ -103,7 +109,7 @@ function Analysis({
           ) : null}
         </header>
 
-        <GradeChip grade={grade} />
+        <GradeChip grade={grade} reason={gradeReason} />
 
         {highIn.length > 0 ? (
           <section className="space-y-2">
@@ -169,6 +175,10 @@ function Analysis({
       />
 
       <NutritionTable per100g={product.per_100g} />
+
+      {hasProteinFacts(data.report) ? (
+        <ProteinFacts report={data.report} />
+      ) : null}
 
       <ClaimsSection checks={readClaims(data.report)} />
 

@@ -8,13 +8,17 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { hintClass, inputClass, labelClass } from "@/components/ui/field";
 import { ArrowRightIcon } from "@/components/ui/icons";
 import { LoadingState } from "@/components/ui/Skeleton";
+import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { OffAttribution } from "@/features/analysis/components/OffAttribution";
+import { formatAmount } from "@/features/history/lib/summary";
+import { SortToggle } from "@/features/protein/components/SortToggle";
 import { cn } from "@/lib/cn";
 import {
   productHref,
   SEARCH_MAX,
   SEARCH_MIN,
   type SearchHit,
+  type SearchSort,
 } from "../api/products";
 import { useSearch } from "../hooks/useProducts";
 
@@ -28,11 +32,16 @@ export function SearchBox({
   hrefFor,
   label,
   debounceMs = 600,
+  memberId = null,
+  defaultSort = "relevance",
 }: {
   hrefFor?: (hit: SearchHit) => string | null;
   /** Visible label; defaults to "Search products". */
   label?: string;
   debounceMs?: number;
+  /** "Higher protein" rates hits for this member (else the primary member). */
+  memberId?: string | null;
+  defaultSort?: SearchSort;
 }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -43,7 +52,8 @@ export function SearchBox({
     const id = setTimeout(() => setQ(raw.trim()), debounceMs);
     return () => clearTimeout(id);
   }, [raw, debounceMs]);
-  const search = useSearch(q);
+  const [sort, setSort] = useState<SearchSort>(defaultSort);
+  const search = useSearch(q, sort, memberId);
   const link = hrefFor ?? ((h: SearchHit) => productHref(locale, h));
 
   let body: React.ReactNode = null;
@@ -87,6 +97,19 @@ export function SearchBox({
                     <span className={chipClass}>
                       {t("result.grade", { grade: h.grade })}
                     </span>
+                  ) : null}
+                  {typeof h.protein_per_100kcal === "number" ? (
+                    <span className={chipClass}>
+                      <span>{t("protein.per_100kcal")}</span>
+                      <span>
+                        {t("summary.total_g", {
+                          total: formatAmount(h.protein_per_100kcal),
+                        })}
+                      </span>
+                    </span>
+                  ) : null}
+                  {h.member_status ? (
+                    <VerdictBadge status={h.member_status} />
                   ) : null}
                   <span className="text-sm text-text-secondary">
                     {t(`search.source.${h.source === "off" ? "off" : "ours"}`)}
@@ -149,6 +172,14 @@ export function SearchBox({
           className={inputClass}
         />
       </div>
+      <SortToggle
+        options={[
+          { value: "relevance", label: t("search.sort_relevance") },
+          { value: "protein", label: t("protein.sort_higher") },
+        ]}
+        value={sort}
+        onChange={setSort}
+      />
       {body}
     </div>
   );

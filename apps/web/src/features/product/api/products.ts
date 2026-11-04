@@ -18,22 +18,41 @@ export const refKey = (ref: ProductRef) =>
 
 // Query keys. Alternatives and compare carry a member's status: dropped on
 // sign-out with the other personal data.
-export const alternativesKey = (ref: ProductRef, memberId: string | null) =>
-  ["alternatives", refKey(ref), memberId] as const;
-export const searchKey = (q: string) => ["search", q] as const;
+export type AlternativesSort = "grade" | "protein";
+export type SearchSort = "relevance" | "protein";
+
+export const alternativesKey = (
+  ref: ProductRef,
+  memberId: string | null,
+  sort: AlternativesSort = "grade",
+) => ["alternatives", refKey(ref), memberId, sort] as const;
+export const searchKey = (
+  q: string,
+  sort: SearchSort = "relevance",
+  memberId: string | null = null,
+) => ["search", q, sort, memberId] as const;
 export const compareKey = (
   a: ProductRef,
   b: ProductRef,
   memberId: string | null,
 ) => ["compare", refKey(a), refKey(b), memberId] as const;
 
-/** Up to 5 healthier options in the same category (API order kept). */
+/**
+ * Up to 5 options in the same category (API order kept): a better
+ * Nutri-Score (`grade`), or more protein per 100 kcal with no worse grade
+ * (`protein`; the API drops `avoid` for the member and never suggests a
+ * supplement).
+ */
 export function getAlternatives(
   ref: ProductRef,
   memberId: string | null,
+  sort: AlternativesSort = "grade",
 ): Promise<AlternativesOut> {
   const api = getApi();
-  const query = memberId ? { member_id: memberId } : {};
+  const query = {
+    ...(memberId ? { member_id: memberId } : {}),
+    ...(sort === "protein" ? { sort } : {}),
+  };
   return "productId" in ref
     ? call(
         api.GET("/v1/products/{product_id}/alternatives", {
@@ -50,11 +69,24 @@ export function getAlternatives(
 export const SEARCH_MIN = 3;
 export const SEARCH_MAX = 80;
 
-export function searchProducts(q: string, limit = 20): Promise<SearchHit[]> {
+/**
+ * Product search. `protein` orders by protein per 100 kcal and fills the
+ * member's status (the given member, else the API's primary member).
+ */
+export function searchProducts(
+  q: string,
+  limit = 20,
+  sort: SearchSort = "relevance",
+  memberId: string | null = null,
+): Promise<SearchHit[]> {
   const api = getApi();
-  return call(
-    api.GET("/v1/products/search", { params: { query: { q, limit } } }),
-  );
+  const query = {
+    q,
+    limit,
+    ...(sort === "protein" ? { sort } : {}),
+    ...(memberId && sort === "protein" ? { member_id: memberId } : {}),
+  };
+  return call(api.GET("/v1/products/search", { params: { query } }));
 }
 
 function side(prefix: "a" | "b", ref: ProductRef) {

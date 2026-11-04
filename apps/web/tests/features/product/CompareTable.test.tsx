@@ -100,7 +100,7 @@ describe("CompareTable", () => {
       expect(grid.className).toMatch(/(^|\s)md:grid-cols-2(\s|$)/);
     }
     // Header plus one per row.
-    expect(screen.getAllByTestId("compare-columns")).toHaveLength(8);
+    expect(screen.getAllByTestId("compare-columns")).toHaveLength(11);
   });
 
   it("marks better side", () => {

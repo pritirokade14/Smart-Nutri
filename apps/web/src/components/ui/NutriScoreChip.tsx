@@ -14,12 +14,15 @@ const GRADE_CLASS: Record<string, string> = {
 /**
  * The Nutri-Score as the API computed it: a square letter tile (not a pill,
  * so it never reads as a member's status), always labelled "calculated by
- * SmartNutri". No grade: the insufficient-data line instead.
+ * SmartNutri". No grade: the insufficient-data line instead, or, for a
+ * supplement (`reason` "not_scored_supplement"), "not calculated for
+ * supplements" (Plan 9: supplements are never graded).
  */
 export function NutriScoreChip({
   grade,
   showGradeLabel = false,
   creditWithoutGrade = false,
+  reason = null,
   className,
 }: {
   grade: string | null;
@@ -27,6 +30,8 @@ export function NutriScoreChip({
   showGradeLabel?: boolean;
   /** Keep the "calculated by SmartNutri" line even with no grade (public page). */
   creditWithoutGrade?: boolean;
+  /** The API's `nutriscore.reason` when there is no grade. */
+  reason?: string | null;
   className?: string;
 }) {
   const t = useTranslations();
@@ -39,7 +44,11 @@ export function NutriScoreChip({
           className,
         )}
       >
-        <p>{t("nutriscore.insufficient_data")}</p>
+        <p>
+          {reason === "not_scored_supplement"
+            ? t("nutriscore.not_scored_supplement")
+            : t("nutriscore.insufficient_data")}
+        </p>
         {creditWithoutGrade ? <p>{t("nutriscore.calculated_by")}</p> : null}
       </div>
     );

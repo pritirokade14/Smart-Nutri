@@ -493,7 +493,8 @@
       "height_invalid": "Enter a height between 30 and 250 cm, or leave it blank.",
       "weight_invalid": "Enter a weight between 2 and 300 kg, or leave it blank.",
       "allergen_invalid": "An allergy must be 2 to 40 characters.",
-      "remove_allergy": "Remove {allergen}"
+      "remove_allergy": "Remove {allergen}",
+      "build_muscle_adult_only": "Build muscle is only for adults (18 and over). Choose another goal."
     },
     "relation": {
       "self": "You",
@@ -714,7 +715,9 @@
       "ours": "SmartNutri",
       "off": "Open Food Facts"
     },
-    "hint": "Find a product by name or brand, then open it or compare it."
+    "hint": "Find a product by name or brand, then open it or compare it.",
+    "sort_label": "Sort",
+    "sort_relevance": "Best match"
   },
   "compare": {
     "title": "Compare",

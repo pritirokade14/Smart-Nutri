@@ -5,6 +5,7 @@ import { NutriScoreChip } from "@/components/ui/NutriScoreChip";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { OffAttribution } from "@/features/analysis/components/OffAttribution";
 import { formatAmount } from "@/features/history/lib/summary";
+import { PricePerScoop } from "@/features/protein/components/PricePerScoop";
 import { cn } from "@/lib/cn";
 import type { BetterSide, CompareOut, CompareSide } from "../api/products";
 
@@ -16,8 +17,22 @@ const ROWS = [
   "sat_fat_g",
   "protein_g",
   "fiber_g",
+  // Protein guide (decision 6b, part 5): per serving and per 100 kcal, as
+  // the API computed them from report.protein (never derived here).
+  "protein_per_serving_g",
+  "protein_per_100kcal",
+  "sugars_per_serving_g",
 ] as const;
 type Row = (typeof ROWS)[number];
+
+/** Rows read from the side itself (not per_100g), with their labels. */
+const SIDE_ROWS: Partial<Record<Row, string>> = {
+  protein_per_serving_g: "protein.compare.protein_serving",
+  protein_per_100kcal: "protein.compare.protein_100kcal",
+  sugars_per_serving_g: "protein.compare.sugar",
+};
+
+const rowLabel = (row: Row) => SIDE_ROWS[row] ?? `compare.row.${row}`;
 
 const SIDES = new Set<string>(["a", "b", "same", "unknown"]);
 
@@ -53,7 +68,9 @@ function Value({ row, side }: { row: Row; side: CompareSide }) {
   if (row === "grade") {
     return <NutriScoreChip grade={side.grade} />;
   }
-  const v = (side.per_100g as Record<string, number | null | undefined>)[row];
+  const v = SIDE_ROWS[row]
+    ? (side as unknown as Record<string, number | null | undefined>)[row]
+    : (side.per_100g as Record<string, number | null | undefined>)[row];
   if (typeof v !== "number") {
     return (
       <span className="text-md text-text-secondary">
@@ -97,7 +114,7 @@ export function CompareTable({ data }: { data: CompareOut }) {
               id={`compare-${row}`}
               className="text-sm font-semibold text-text-secondary"
             >
-              {t(`compare.row.${row}`)}
+              {t(rowLabel(row))}
             </h3>
             <div data-testid="compare-columns" className={COLUMNS}>
               {(["a", "b"] as const).map((s) => {
@@ -137,6 +154,7 @@ export function CompareTable({ data }: { data: CompareOut }) {
           </section>
         );
       })}
+      <PricePerScoop a={data.a} b={data.b} />
     </section>
   );
 }
