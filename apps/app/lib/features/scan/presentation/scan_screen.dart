@@ -70,7 +70,15 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     final theme = Theme.of(context);
     final c = SnColors.of(context);
     final Widget camera = switch (_status) {
-      null => const Center(child: CircularProgressIndicator()),
+      // Starting: the preview must be in the tree so the scanner controller
+      // can attach and start() can request the camera permission.
+      null => Stack(
+        fit: StackFit.expand,
+        children: [
+          _source.buildPreview(context),
+          const Center(child: CircularProgressIndicator()),
+        ],
+      ),
       BarcodeSourceStatus.ready => Stack(
         fit: StackFit.expand,
         children: [
