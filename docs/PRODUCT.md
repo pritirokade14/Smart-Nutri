@@ -22,13 +22,32 @@ Sources: `docs/research/`.
 2. **Family health manager:** parents buying for children, and adult children managing elderly parents' diets. Multiple profiles, multiple conditions, vernacular voice.
 3. **Weight loss**, including people on GLP-1 drugs who need enough protein in small portions.
 
+**v1 (Plan 9): user types and focused modes**
+- After the Terms screen, the app asks "What brings you to SmartNutri?". The user picks up to 3 of 6 types, or skips:
+  - a health condition (diabetes, prediabetes, PCOS, BP)
+  - family
+  - weight loss
+  - gym and fitness
+  - food allergy or special diet
+  - just eating better
+- Each type has a **focused mode**: its own Home cards and 5-tab bar. Everything else is in "More"; nothing is removed. Scan, verdicts and allergy checks are the same in every mode.
+- The type is presentation only. It **never changes a verdict**, it is never sent to analytics, and it pre-fills the account holder's profile only after the user confirms (ADR 0019).
+- **Gym and fitness** gets a protein guide:
+  - a "Build muscle" goal with a daily protein guide (1.6 g/kg, adults, pending clinician review)
+  - protein per serving, per 100 g and per 100 kcal on every scan
+  - protein and whey claim checks
+  - a "higher protein" sort
+  - protein columns and a typed-in price per scoop in Compare
+- **Supplements** (whey, protein powders) are not given a Nutri-Score grade, are still checked for allergens, diet and claims, get a caution for children, and are never suggested.
+- **Not doing:** doses, brand or supplement recommendations, creatine or steroid advice, "you need X g" claims.
+
 **Later**
 - Hypertension (partly covered in v1)
 - Kidney disease
 - Pregnancy and gestational diabetes
 - Jain, vrat and halal diets (Jain is in v1)
-- Celiac and allergy
-- Gym and high-protein users
+- Celiac and allergy (allergy checks and an allergy mode are in v1)
+- Deeper gym features: amino-spiking checks, protein per rupee (the protein guide is in v1, Plan 9)
 - Low-literacy and WhatsApp-first users
 - B2B: dietitians, clinics, corporate wellness
 
@@ -74,6 +93,7 @@ See the spec, `docs/superpowers/specs/2026-11-02-smartnutri-v1-design.md` §2, i
 - Report a problem
 - Share to WhatsApp
 - Consent and account deletion
+- User types, focused modes and the gym protein guide (Plan 9, F18–F20)
 
 ## Roadmap
 

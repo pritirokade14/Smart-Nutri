@@ -5,13 +5,27 @@ from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_app_settings
+from app.core.consent import CONSENT_RESPONSES, gate_for
 from app.core.errors import ERROR_RESPONSES, ApiError, ErrorEnvelope
 from app.core.ratelimit import limit
 from app.core.security import AccountContext, current_account
+from app.core.time import today_ist
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
-from app.features.products import service
-from app.features.products.schemas import ProductCreate, ProductOut, PublicProductOut
+from app.features.members import service as members_service
+from app.features.members.models import Member
+from app.features.members.service import to_scoring_member
+from app.features.products import alternatives, compare, search, service
+from app.features.products.schemas import (
+    AlternativesOut,
+    AlternativesSort,
+    CompareOut,
+    ProductCreate,
+    ProductOut,
+    PublicProductOut,
+    SearchHit,
+    SearchSort,
+)
 from app.integrations.openfoodfacts import (
     InvalidBarcode,
     OffClient,
@@ -25,6 +39,10 @@ _RESPONSES = {
     **ERROR_RESPONSES,
     503: {"model": ErrorEnvelope, "description": "Open Food Facts unavailable"},
 }
+# Alternatives and compare (I3): `terms` consent, always. The gate first (a refused call
+# costs no quota), then limit(), which commits the session.
+_VERDICT_RESPONSES = {**_RESPONSES, **CONSENT_RESPONSES}
+_VERDICT_DEPENDENCIES = [Depends(gate_for("product_verdicts")), Depends(limit("product_lookups"))]
 
 
 async def _find(
@@ -54,6 +72,7 @@ async def _find(
     operation_id="products_get_by_barcode",
     response_model=ProductOut,
     responses=_RESPONSES,
+    dependencies=[Depends(limit("product_lookups"))],  # first: it commits the session
 )
 async def products_get_by_barcode(
     code: str,
@@ -66,6 +85,265 @@ async def products_get_by_barcode(
     return service.to_product_out(await _find(session, off, code, settings, ctx.account_id))
 
 
+async def _member_or_primary(
+    session: AsyncSession, account_id: UUID, member_id: UUID | None, *, primary: bool
+) -> Member | None:
+    """``member_id``'s member (404 ``member_not_found`` if foreign); without one, the primary
+    member when ``primary`` (the higher-protein sort always ranks for someone), else None."""
+    if member_id is not None:
+        return await members_service.get_member(session, account_id, member_id)
+    if primary:
+        return await members_service.get_or_create_primary(session, account_id)
+    return None
+
+
+async def _alternatives(
+    session: AsyncSession,
+    off: OffClient,
+    settings: Settings,
+    account_id: UUID,
+    member_id: UUID | None,
+    *,
+    sort: AlternativesSort = AlternativesSort.GRADE,
+    product_id: UUID | None = None,
+    barcode: str | None = None,
+) -> AlternativesOut:
+    # The member first: a foreign member never reaches Open Food Facts.
+    member = await _member_or_primary(
+        session, account_id, member_id, primary=sort == AlternativesSort.PROTEIN
+    )
+    found = await service.resolve_ref(
+        session,
+        off,
+        product_id=product_id,
+        barcode=barcode,
+        settings=settings,
+        account_id=account_id,
+    )
+    out = await alternatives.find_alternatives(
+        session, off, found, member=member, settings=settings, today=today_ist(), sort=sort
+    )
+    await session.commit()  # OFF cache writes (product and category search)
+    return out
+
+
+_ALTERNATIVES_DOC = (
+    "Up to 5 products from the same Open Food Facts category. ``sort=grade`` (default): a "
+    "strictly better Nutri-Score (calculated by SmartNutri). ``sort=protein``: strictly more "
+    "protein per 100 kcal and a Nutri-Score no worse, ranked for ``member_id`` or else the "
+    "primary member. ``member_status`` comes from the rules engine; a product the engine "
+    "rates ``avoid`` for the member is never suggested, and safer statuses rank first. "
+    "Never an error for a product with no category: ``reason`` says why the list is empty."
+)
+_SORT_DOC = (
+    "grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the "
+    "member (member_id or the primary member), never a worse grade"
+)
+
+
+@router.get(
+    "/{product_id}/alternatives",
+    operation_id="products_alternatives",
+    response_model=AlternativesOut,
+    responses=_VERDICT_RESPONSES,
+    description=_ALTERNATIVES_DOC,
+    dependencies=_VERDICT_DEPENDENCIES,
+)
+async def products_alternatives(
+    product_id: UUID,
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    off: Annotated[OffClient, Depends(get_off_client)],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    member_id: Annotated[UUID | None, Query()] = None,
+    sort: Annotated[AlternativesSort, Query(description=_SORT_DOC)] = AlternativesSort.GRADE,
+) -> AlternativesOut:
+    return await _alternatives(
+        session, off, settings, current.account.id, member_id, sort=sort, product_id=product_id
+    )
+
+
+@router.get(
+    "/barcode/{code}/alternatives",
+    operation_id="products_alternatives_by_barcode",
+    response_model=AlternativesOut,
+    responses=_VERDICT_RESPONSES,
+    description=_ALTERNATIVES_DOC + " For products known by barcode (Open Food Facts).",
+    dependencies=_VERDICT_DEPENDENCIES,
+)
+async def products_alternatives_by_barcode(
+    code: str,
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    off: Annotated[OffClient, Depends(get_off_client)],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    member_id: Annotated[UUID | None, Query()] = None,
+    sort: Annotated[AlternativesSort, Query(description=_SORT_DOC)] = AlternativesSort.GRADE,
+) -> AlternativesOut:
+    return await _alternatives(
+        session, off, settings, current.account.id, member_id, sort=sort, barcode=code
+    )
+
+
+_SearchSortQuery = Annotated[
+    SearchSort,
+    Query(
+        description=(
+            "relevance: ours first, then Open Food Facts. protein: most protein per "
+            "100 kcal first (unknown last), never avoid for the member (member_id or the "
+            "primary member)"
+        )
+    ),
+]
+
+
+def search_loads_member(member_id: UUID | None, sort: SearchSort) -> bool:
+    """Whether a search loads a member (so returns rules-engine statuses for stored health
+    data): an explicit ``member_id``, or the primary member for ``sort=protein``. One predicate
+    for the consent gate and the handler, so they cannot drift apart."""
+    return member_id is not None or sort == SearchSort.PROTEIN
+
+
+async def search_consent_gate(
+    ctx: Annotated[AccountContext, Depends(current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    sort: _SearchSortQuery = SearchSort.RELEVANCE,
+    member_id: Annotated[UUID | None, Query()] = None,
+) -> None:
+    """`terms` consent, only when the search loads a member; plain search stays open."""
+    if search_loads_member(member_id, sort):
+        await gate_for("product_verdicts")(ctx, session)
+
+
+def search_query(
+    q: Annotated[
+        str,
+        Query(
+            max_length=search.MAX_QUERY,
+            description=(
+                f"{search.MIN_QUERY} to {search.MAX_QUERY} characters after trimming and "
+                "collapsing spaces; shorter is 422 search_query_too_short"
+            ),
+        ),
+    ],
+) -> str:
+    """The search text, refused when shorter than MIN_QUERY once normalised (I4). Runs
+    before limit(), so a too-short query costs no quota and touches no database."""
+    if len(search.normalise_query(q)) < search.MIN_QUERY:
+        raise ApiError(
+            "search_query_too_short",
+            422,
+            details={"fields": ["query.q"], "min_length": search.MIN_QUERY},
+        )
+    return q
+
+
+@router.get(
+    "/search",
+    operation_id="products_search",
+    response_model=list[SearchHit],
+    responses={
+        **ERROR_RESPONSES,
+        503: {
+            "model": ErrorEnvelope,
+            "description": (
+                "off_unavailable: the Open Food Facts search budget is used up, nothing is "
+                "cached for this query and we have no local hits; retry after Retry-After "
+                "seconds"
+            ),
+        },
+        **CONSENT_RESPONSES,
+    },
+    # The consent gate first, only when a member is loaded (member_id, or sort=protein: the
+    # primary member; hits then carry rules-engine
+    # statuses for that member, like alternatives and compare: `terms`; plain search stays
+    # open), then the query check (no quota for a too-short query), then limit(), which
+    # commits.
+    dependencies=[
+        Depends(search_consent_gate),
+        Depends(search_query),
+        Depends(limit("search")),
+    ],
+)
+async def products_search(
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    off: Annotated[OffClient, Depends(get_off_client)],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    q: Annotated[str, Depends(search_query)],
+    limit_: Annotated[int, Query(alias="limit", ge=1, le=50)] = 20,
+    sort: _SearchSortQuery = SearchSort.RELEVANCE,
+    member_id: Annotated[UUID | None, Query()] = None,
+) -> list[SearchHit]:
+    """Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.
+
+    Open Food Facts search calls are capped for the whole server; over the cap a cached
+    result is served, else our own hits come back with ``off_degraded`` true, and
+    only with no local hits either 503 ``off_unavailable`` with Retry-After.
+
+    ``member_status`` comes from the rules engine: with ``member_id`` (404 if not this
+    account's), or for the primary member with ``sort=protein``, which never returns a hit
+    the engine rates ``avoid`` for that member.
+    """
+    account_id = current.account.id
+    # The member first: a foreign member never reaches Open Food Facts.
+    member = await _member_or_primary(
+        session, account_id, member_id, primary=search_loads_member(member_id, sort)
+    )
+    scoring_member = to_scoring_member(member, today=today_ist()) if member is not None else None
+    hits = await search.search_products(
+        session,
+        off,
+        q,
+        limit_,
+        account_id=account_id,
+        settings=settings,
+        member=scoring_member,
+        sort=sort,
+    )
+    await session.commit()  # the OFF search cache write
+    return hits
+
+
+@router.get(
+    "/compare",
+    operation_id="products_compare",
+    response_model=CompareOut,
+    responses=_VERDICT_RESPONSES,
+    dependencies=_VERDICT_DEPENDENCIES,
+)
+async def products_compare(
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    off: Annotated[OffClient, Depends(get_off_client)],
+    settings: Annotated[Settings, Depends(get_app_settings)],
+    a: Annotated[UUID | None, Query(description="Side a: our product id")] = None,
+    a_barcode: Annotated[str | None, Query(max_length=64, description="Side a: barcode")] = None,
+    b: Annotated[UUID | None, Query(description="Side b: our product id")] = None,
+    b_barcode: Annotated[str | None, Query(max_length=64, description="Side b: barcode")] = None,
+    member_id: Annotated[UUID | None, Query()] = None,
+) -> CompareOut:
+    """Two products side by side. Each side is exactly one of a product id or a barcode
+    (``invalid_product_ref`` otherwise). ``member_status`` comes from the rules engine."""
+    account_id = current.account.id
+    for ref_id, ref_code in ((a, a_barcode), (b, b_barcode)):
+        if (ref_id is None) == (ref_code is None):
+            raise ApiError("invalid_product_ref", 422)
+    member = (
+        await members_service.get_member(session, account_id, member_id)
+        if member_id is not None
+        else None
+    )
+    sides = [
+        await service.resolve_ref(
+            session, off, product_id=pid, barcode=code, settings=settings, account_id=account_id
+        )
+        for pid, code in ((a, a_barcode), (b, b_barcode))
+    ]
+    await session.commit()  # OFF cache writes
+    return compare.compare_products(sides[0], sides[1], member=member, today=today_ist())
+
+
 @router.post(
     "",
     operation_id="products_create",
@@ -74,8 +352,10 @@ async def products_get_by_barcode(
     responses={
         **ERROR_RESPONSES,
         409: {"model": ErrorEnvelope, "description": "A product with this barcode exists"},
+        **CONSENT_RESPONSES,
     },
-    dependencies=[Depends(limit("product_creates"))],  # first: it commits the session
+    # The consent gate first (a refused call costs no quota), then limit(), which commits.
+    dependencies=[Depends(gate_for("products_create")), Depends(limit("product_creates"))],
 )
 async def products_create(
     body: ProductCreate,

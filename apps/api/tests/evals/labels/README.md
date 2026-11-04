@@ -26,6 +26,10 @@ uv run python -m scripts.label_eval --models kimi-k2.5,gemma-4-31b --limit 10
 uv run python -m scripts.label_eval --models kimi-k2.5,gemma-4-31b --limit 10 --yes-spend
 ```
 
+Compare prompt versions with `--prompt extraction_v1` (numbers) or `--prompt extraction_v2`
+(raw cell text parsed in code by `app/features/scans/cells.py`). Both are scored on the parsed
+`NutritionExtraction`; `raw/` keeps each version's own output (v2: the verbatim cells).
+
 Every model sees the same photos, prompt and temperature 0. Never run it in CI. Start with
 `--limit 10`, then the full set. Models that fail a gate cannot ship; the allergen and
 may-contain gates are absolute.

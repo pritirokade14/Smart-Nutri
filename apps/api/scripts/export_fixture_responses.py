@@ -8,6 +8,13 @@ Writes packages/test-fixtures/responses/:
   analyze/<product>.json     POST /v1/analyze for the product and EVERY fixture member
                              (verdicts in sorted member-name order)
   public/<product>.json      GET /v1/products/{barcode}/public for the product
+  methodology.json           GET /v1/methodology?language=en
+  voice/answer_avoid.json    a POST /v1/voice/ask body (VoiceAnswer) for sf_biscuit and
+                             diabetic_adult, source "llm"; answer_avoid_fallback.json is the
+                             same with source "fallback"; answer_avoid_text_only.json has no
+                             audio (audio_base64 null: over the inline cap). The answer text is
+                             the engine-built fallback text, so it never contains invented
+                             values. The audio is a tiny placeholder mp3 (base64), not speech.
 
 The responses come from the same service functions the endpoints run (in-memory records, no
 database), so they cannot drift from the API. Output is deterministic: fixed UUIDs
@@ -18,6 +25,7 @@ fails when they are stale.
 
 from __future__ import annotations
 
+import base64
 import json
 import shutil
 import sys
@@ -30,13 +38,19 @@ sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from app.features.analyze import service as analyze_service
 from app.features.members.models import Member
+from app.features.methodology.router import build_methodology
+from app.features.methodology.schemas import MethodologyLanguage
 from app.features.products import service as products_service
 from app.features.products.models import Product
+from app.features.voice.fallback import fallback_answer
+from app.features.voice.schemas import VoiceAnswer
 from tests.fixtures.loader import FIXTURES, load_member, load_product
 
 # Ages in members/*.json are turned into birth years against this fixed date, and the same
 # date is used as "today" for the engine, so the golden files never change on 1 January.
 REFERENCE_DATE = date(2026, 1, 1)
+# Four MPEG-1 layer III frame headers behind an ID3 tag: a stand-in, not speech.
+PLACEHOLDER_MP3 = b"ID3\x04\x00\x00\x00\x00\x00\x00" + b"\xff\xfb\x90\x00" * 4
 
 
 def fixture_id(kind: str, name: str) -> UUID:
@@ -100,7 +114,7 @@ def fixture_member_record(
         diet=m.diet.value,
         allergens=list(m.allergens),
         conditions=list(m.conditions),
-        custom_alerts=[],
+        custom_alerts=list(m.custom_alerts),
         goal=m.goal,
         is_primary=False,
     )
@@ -125,6 +139,10 @@ def build(fixtures: Path = FIXTURES) -> dict[str, str]:
         out[f"analyze/{name}.json"] = _dump(analyzed.model_dump(mode="json"))
         public = products_service.to_public_out(found)
         out[f"public/{name}.json"] = _dump(public.model_dump(mode="json"))
+    out["methodology.json"] = _dump(
+        build_methodology(MethodologyLanguage.EN).model_dump(mode="json")
+    )
+    out.update(_voice_answers(fixtures))
     out["index.json"] = _dump(
         {
             "reference_date": REFERENCE_DATE.isoformat(),
@@ -134,6 +152,29 @@ def build(fixtures: Path = FIXTURES) -> dict[str, str]:
             "scans": {p: str(fixture_id("scan", p)) for p in products},
         }
     )
+    return out
+
+
+def _voice_answers(fixtures: Path) -> dict[str, str]:
+    found = products_service.lookup_from_record(fixture_product_record("sf_biscuit", fixtures))
+    member = fixture_member_record("diabetic_adult", fixtures=fixtures)
+    result = analyze_service.evaluate(found, [member], today=REFERENCE_DATE)
+    verdict = result.verdicts[0]
+    out: dict[str, str] = {}
+    placeholder = base64.b64encode(PLACEHOLDER_MP3).decode("ascii")
+    for name, source, audio in (
+        ("answer_avoid", "llm", placeholder),
+        ("answer_avoid_fallback", "fallback", placeholder),
+        ("answer_avoid_text_only", "llm", None),
+    ):
+        answer = VoiceAnswer(
+            question="is this ok for me",
+            answer=fallback_answer(verdict, "en"),
+            audio_base64=audio,
+            verdict_status=verdict.status.value,
+            source=source,
+        )
+        out[f"voice/{name}.json"] = _dump(answer.model_dump(mode="json"))
     return out
 
 

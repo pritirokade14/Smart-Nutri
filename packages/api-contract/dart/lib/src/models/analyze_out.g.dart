@@ -7,16 +7,15 @@ part of 'analyze_out.dart';
 // **************************************************************************
 
 AnalyzeOut _$AnalyzeOutFromJson(Map<String, dynamic> json) => AnalyzeOut(
+  explanation: ExplanationOut.fromJson(
+    json['explanation'] as Map<String, dynamic>,
+  ),
   product: ProductOut.fromJson(json['product'] as Map<String, dynamic>),
   report: json['report'],
   scanId: json['scan_id'] as String,
   verdicts: (json['verdicts'] as List<dynamic>)
       .map((e) => VerdictOut.fromJson(e as Map<String, dynamic>))
       .toList(),
-  tips:
-      (json['tips'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
-  explanation: json['explanation'] as String?,
 );
 
 Map<String, dynamic> _$AnalyzeOutToJson(AnalyzeOut instance) =>
@@ -25,6 +24,5 @@ Map<String, dynamic> _$AnalyzeOutToJson(AnalyzeOut instance) =>
       'product': instance.product,
       'report': instance.report,
       'scan_id': instance.scanId,
-      'tips': instance.tips,
       'verdicts': instance.verdicts,
     };

@@ -4,6 +4,7 @@ OFF payloads live only in ``off_product_cache`` (ODbL), never in ``products``.
 """
 
 import math
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
@@ -138,6 +139,11 @@ def _visible_to(account_id: UUID | None) -> ColumnElement[bool]:
     return or_(verified, own_pending)
 
 
+def visible_to(account_id: UUID | None) -> ColumnElement[bool]:
+    """Public twin of ``_visible_to`` for other modules (search)."""
+    return _visible_to(account_id)
+
+
 def _is_visible(record: Product, account_id: UUID | None) -> bool:
     """Python twin of ``_visible_to`` for a loaded row."""
     if record.verification_status == "verified":
@@ -264,6 +270,83 @@ async def lookup_by_barcode(
 
     await _write_cache(session, barcode, payload)
     return _from_off(payload, barcode, settings)
+
+
+SEARCH_CACHE_TTL = timedelta(hours=24)  # OFF rate-limits search; never re-ask within a day
+SEARCH_CACHE_PREFIX = "search:"  # off_product_cache keys; barcodes are digits, so no clash
+
+
+async def cached_off_search(
+    session: AsyncSession,
+    key: str,
+    fetch: Callable[[], Awaitable[list[dict]]],
+) -> list[dict]:
+    """An OFF search result, cached in ``off_product_cache`` under ``search:<key>`` for 24 h.
+
+    OFF data stays in ``off_product_cache`` (ODbL). A stale entry is served when OFF is down;
+    with no entry, ``OffUnavailable`` propagates. The cache write is left for the caller to
+    commit.
+    """
+    cache_key = f"{SEARCH_CACHE_PREFIX}{key}"
+    cached = await session.scalar(
+        select(OffProductCache)
+        .where(OffProductCache.barcode == cache_key)
+        .execution_options(populate_existing=True)
+    )
+    if cached is not None and datetime.now(UTC) - cached.fetched_at < SEARCH_CACHE_TTL:
+        return list(cached.payload.get("products") or [])
+    try:
+        products = await fetch()
+    except OffUnavailable:
+        if cached is not None:
+            return list(cached.payload.get("products") or [])
+        raise
+    await _write_cache(session, cache_key, {"products": products})
+    return products
+
+
+async def off_payload(session: AsyncSession, barcode: str | None) -> dict | None:
+    """The cached OFF payload for a barcode (any age), or None. Never calls OFF."""
+    if not barcode:
+        return None
+    cached = await session.scalar(select(OffProductCache).where(OffProductCache.barcode == barcode))
+    return None if cached is None else cached.payload
+
+
+async def resolve_ref(
+    session: AsyncSession,
+    off: OffClient,
+    *,
+    product_id: UUID | None,
+    barcode: str | None,
+    settings: Settings,
+    account_id: UUID,
+) -> ProductLookup:
+    """Exactly one product reference (own ``product_id`` or a ``barcode``) -> ProductLookup.
+
+    The same resolution ``POST /v1/analyze`` uses: another account's pending product is never
+    served (CROSS-PLAN 18). Errors: ``invalid_product_ref`` (422), ``invalid_barcode`` (422),
+    ``off_unavailable`` (503), ``product_not_found`` (404). A stale OFF cache delete is
+    committed before the 404; an OFF cache write is left for the caller to commit.
+    """
+    if (product_id is None) == (barcode is None):
+        raise ApiError("invalid_product_ref", 422)
+    if product_id is not None:
+        found = await lookup_by_id(session, product_id, account_id=account_id)
+    else:
+        try:
+            found = await lookup_by_barcode(
+                session, off, barcode or "", settings=settings, account_id=account_id
+            )
+        except InvalidBarcode as exc:
+            raise ApiError("invalid_barcode", 422) from exc
+        except OffUnavailable as exc:
+            raise ApiError("off_unavailable", 503) from exc
+        if found is None:
+            await session.commit()  # persist a stale OFF cache delete
+    if found is None:
+        raise ApiError("product_not_found", 404)
+    return found
 
 
 # --- POST /v1/products: a confirmed label draft or a manual entry --------------------------

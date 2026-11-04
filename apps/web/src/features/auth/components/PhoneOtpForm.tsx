@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { buttonClass } from "@/components/ui/Button";
+import { inputClass, labelClass } from "@/components/ui/field";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function PhoneOtpForm({ target }: { target: string }) {
@@ -33,8 +35,11 @@ export function PhoneOtpForm({ target }: { target: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-(--spacing-2)">
-      <label className="flex flex-col gap-(--spacing-1)">
+    <form
+      onSubmit={submit}
+      className="flex flex-col gap-3 rounded-lg border border-border-default bg-surface-muted p-4"
+    >
+      <label className={`flex flex-col gap-1 ${labelClass}`}>
         {t("phoneLabel")}
         <input
           type="tel"
@@ -42,11 +47,11 @@ export function PhoneOtpForm({ target }: { target: string }) {
           autoComplete="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="rounded-(--radius-sm) border p-(--spacing-2)"
+          className={inputClass}
         />
       </label>
       {sent && (
-        <label className="flex flex-col gap-(--spacing-1)">
+        <label className={`flex flex-col gap-1 ${labelClass}`}>
           {t("codeLabel")}
           <input
             inputMode="numeric"
@@ -54,17 +59,18 @@ export function PhoneOtpForm({ target }: { target: string }) {
             required
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="rounded-(--radius-sm) border p-(--spacing-2)"
+            className={inputClass}
           />
         </label>
       )}
-      <button
-        type="submit"
-        className="rounded-(--radius-md) border p-(--spacing-3)"
-      >
+      <button type="submit" className={buttonClass({ block: true })}>
         {sent ? t("verify") : t("sendCode")}
       </button>
-      {failed && <p role="alert">{t("error")}</p>}
+      {failed && (
+        <p role="alert" className="text-md text-text-primary">
+          {t("error")}
+        </p>
+      )}
     </form>
   );
 }

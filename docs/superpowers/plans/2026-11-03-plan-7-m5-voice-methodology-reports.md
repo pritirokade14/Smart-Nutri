@@ -52,7 +52,7 @@
 - **Verdict lock:** the final answer = `verdict_sentence(status, language)` + LLM text. LLM text that contains any status label (in the request language or English) other than the engine's status → reject and use the fallback.
 - **Privacy:**
   - **Transcripts and audio are never written to the database or logs.** Logs carry only lengths, durations, model id, prompt version, latency and status.
-  - Answer mp3s live under `voice/{account_id}/{uuid}.mp3`, with signed URLs that expire in **3600 s**. M6 deletes objects older than 24 h.
+  - ~~Answer mp3s live under `voice/{account_id}/{uuid}.mp3`, with signed URLs that expire in **3600 s**. M6 deletes objects older than 24 h.~~ **Superseded 2026-11-04 (user decision, ADR 0020):** no voice audio is ever stored. `VoiceAnswer` carries the mp3 inline as `audio_base64` (`audio_mime: "audio/mpeg"`), replacing `audio_url` and `audio_expires_in`; over about 1 MB it is `null` and clients show the text only. There is no voice bucket. Read `audio_url` below in this plan as `audio_base64`.
 - **Rate limits:**
   - `limit("voice")` uses `RATE_LIMIT_VOICE_PER_DAY` (20) → `429 {"error":{"code":"rate_limited_voice"}}`.
   - `limit("reports")` uses the new `RATE_LIMIT_REPORTS_PER_DAY` (10) → `rate_limited`.

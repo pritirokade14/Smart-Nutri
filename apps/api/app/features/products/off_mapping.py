@@ -18,8 +18,8 @@ from app.scoring import Category, Nutrients, Product
 
 _KJ_PER_KCAL = 4.184
 
-# categories_tags -> engine category. Order: dry/powder exclusion (GENERAL), WATER, BEVERAGE,
-# CHEESE, FAT. OFF lists every ancestor, so powders and tea bags also carry `en:beverages`;
+# categories_tags -> engine category. Order: SUPPLEMENT (Plan 9 Task 7, before everything),
+# dry/powder exclusion (GENERAL), WATER, BEVERAGE, CHEESE, FAT. OFF lists every ancestor, so powders and tea bags also carry `en:beverages`;
 # they are per-100 g of dry product and must NOT get per-100 ml drink thresholds.
 DRY_DRINK_TAGS = frozenset(
     {
@@ -38,6 +38,16 @@ DRY_DRINK_TAGS = frozenset(
         "en:dehydrated-beverages",
         "en:cocoa-and-chocolate-powders",
     }
+)
+# Supplements (P9-R10): never graded, never suggested. Checked before every other category, so
+# a protein powder also tagged en:beverage-preparations is still a supplement. TODO before
+# launch: verify each tag against the OFF taxonomy (https://world.openfoodfacts.org/categories).
+SUPPLEMENT_TAGS: tuple[str, ...] = (
+    "en:dietary-supplements",
+    "en:protein-powders",
+    "en:bodybuilding-supplements",
+    "en:whey-proteins",
+    "en:sports-nutrition-supplements",
 )
 # Dry leaves unless the product is also tagged as a ready-to-drink child category.
 DRY_UNLESS_READY_TAGS = frozenset({"en:green-teas", "en:black-teas"})
@@ -68,14 +78,64 @@ BEVERAGE_TAGS = frozenset(
         "en:lassi",
         "en:plant-based-milks",
         "en:plant-based-beverages",
+        # EF1: OFF tags sodas, colas and flavoured waters as en:waters too.
+        "en:soft-drinks",
+        "en:colas",
+        "en:flavoured-waters",
+        "en:flavored-waters",
     }
 )
 # Parent tags that say "a drink" but not "ready to drink".
 GENERIC_DRINK_TAGS = frozenset(
     {"en:beverages", "en:non-alcoholic-beverages", "en:plant-based-beverages"}
 )
+# EF1 (Nutri-Score 2023: only plain water gets A): en:waters is WATER unless a specific
+# ready-to-drink beverage tag says it is a soda, a flavoured water or another drink.
+# en:carbonated-drinks alone does not (sparkling mineral water is still water).
+NOT_PLAIN_WATER_TAGS = BEVERAGE_TAGS - GENERIC_DRINK_TAGS - {"en:carbonated-drinks"}
 CHEESE_TAGS = frozenset({"en:cheeses"})
-FAT_TAGS = frozenset({"en:fats"})
+# EF1: the official Nutri-Score 2023 "fats, oils, nuts and seeds" group (Santé publique France
+# 2022 update report; scope as in the Open Food Facts reference implementation, which also
+# counts creams). OFF's taxonomy files cereal grains and pulses under en:seeds, so en:seeds is
+# NOT used: only oleaginous seeds are listed. Category FAT is read only by Nutri-Score.
+FAT_TAGS = frozenset(
+    {
+        "en:fats",
+        "en:creams",
+        "en:nuts",
+        "en:peanuts",
+        "en:nut-butters",
+        "en:legume-butters",
+        "en:peanut-butters",
+        "en:oilseed-purees",
+        "en:tahini",
+        "en:sunflower-seeds",
+        "en:pumpkin-seeds",
+        "en:sesame-seeds",
+        "en:flax-seeds",
+        "en:linseeds",
+        "en:chia-seeds",
+        "en:hemp-seeds",
+        "en:watermelon-seeds",
+        "en:melon-seeds",
+    }
+)
+# Starchy "nuts" are not oleaginous (official scope).
+NOT_FAT_TAGS = frozenset({"en:chestnuts"})
+# EF1: liquid milk is a beverage for Nutri-Score 2023 (Santé publique France 2023 beverages
+# report) but stays GENERAL for every other rule (see Product.nutriscore_beverage).
+LIQUID_MILK_TAGS = frozenset({"en:milks"})
+NOT_LIQUID_MILK_TAGS = frozenset(
+    {
+        "en:milk-powders",
+        "en:powdered-milks",
+        "en:dried-milks",
+        "en:condensed-milks",
+        "en:sweetened-condensed-milks",
+        "en:unsweetened-condensed-milks",
+        "en:evaporated-milks",
+    }
+)
 
 # OFF allergen tag -> text the engine's matcher recognises. Anything not listed is
 # passed through as the tag name with "-" -> " " (so unknown allergens still show up).
@@ -266,20 +326,32 @@ def _nutriments(product: dict) -> Nutrients:
 
 def _category(tags: list[str]) -> Category:
     found = set(tags)
+    if found.intersection(SUPPLEMENT_TAGS):
+        return Category.SUPPLEMENT
     if found & DRY_DRINK_TAGS:
         return Category.GENERAL
     ready = found & (BEVERAGE_TAGS - GENERIC_DRINK_TAGS)
     if found & DRY_UNLESS_READY_TAGS and not ready:
         return Category.GENERAL
-    if found & WATER_TAGS:
+    if found & WATER_TAGS and not found & NOT_PLAIN_WATER_TAGS:
         return Category.WATER
     if found & BEVERAGE_TAGS:
         return Category.BEVERAGE
     if found & CHEESE_TAGS:
         return Category.CHEESE
-    if found & FAT_TAGS:
+    if found & FAT_TAGS and not found & NOT_FAT_TAGS:
         return Category.FAT
     return Category.GENERAL
+
+
+def _nutriscore_beverage(tags: list[str], category: Category) -> bool:
+    """Liquid milk (EF1): a Nutri-Score 2023 beverage that keeps category GENERAL."""
+    found = set(tags)
+    return (
+        category == Category.GENERAL
+        and bool(found & LIQUID_MILK_TAGS)
+        and not found & (NOT_LIQUID_MILK_TAGS | DRY_DRINK_TAGS)
+    )
 
 
 def _allergen_text(tag: str) -> str:
@@ -385,9 +457,11 @@ def off_to_product(payload: dict, *, confidence: float) -> Product:
     claims = tuple(
         dict.fromkeys(CLAIM_TAGS[t] for t in _tags(product, "labels_tags") if t in CLAIM_TAGS)
     )
+    tags = _tags(product, "categories_tags")
+    category = _category(tags)
     return Product(
         name=_text(product.get("product_name")) or "",
-        category=_category(_tags(product, "categories_tags")),
+        category=category,
         per_100g=_nutriments(product),
         serving_size_g=_serving_size(product),
         ingredients=_ingredient_items(product),
@@ -397,6 +471,7 @@ def off_to_product(payload: dict, *, confidence: float) -> Product:
         veg_mark=None,
         contains_sweeteners=_contains_sweeteners(product),
         extraction_confidence=confidence,
+        nutriscore_beverage=_nutriscore_beverage(tags, category),
     )
 
 

@@ -1,0 +1,13 @@
+{
+  "status": "caution",
+  "reasons": [
+    {
+      "code": "added_sugars",
+      "severity": "caution"
+    },
+    {
+      "code": "sugar_moderate",
+      "severity": "caution"
+    }
+  ]
+}

@@ -1,7 +1,9 @@
 import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations } from "next-intl/server";
+import { getLocale, getMessages } from "next-intl/server";
+import { NotFoundView } from "@/components/shell/NotFoundView";
 import { clientMessages } from "@/i18n/client-messages";
+import { fontVariables } from "./fonts";
 import "./globals.css";
 
 // There is no root layout (the [locale] layout owns <html>), so unmatched URLs
@@ -9,15 +11,13 @@ import "./globals.css";
 // stamp its scripts with the request's CSP nonce.
 export default async function RootNotFound() {
   await headers();
-  const t = await getTranslations();
+  const locale = await getLocale();
   const messages = await getMessages();
   return (
-    <html lang="en">
-      <body>
+    <html lang={locale} className={fontVariables}>
+      <body className="min-h-dvh bg-surface-canvas font-sans text-text-primary antialiased">
         <NextIntlClientProvider messages={clientMessages(messages)}>
-          <main className="mx-auto max-w-xl p-(--spacing-4)">
-            <h1 className="text-(length:--text-xl)">{t("error.not_found")}</h1>
-          </main>
+          <NotFoundView locale={locale} />
         </NextIntlClientProvider>
       </body>
     </html>

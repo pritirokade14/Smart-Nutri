@@ -4,6 +4,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { pageClass } from "@/components/shell/page";
+import { buttonClass } from "@/components/ui/Button";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { CameraIcon, PencilIcon } from "@/components/ui/icons";
+import { LoadingState } from "@/components/ui/Skeleton";
 import { track } from "@/lib/analytics";
 import type { ApiError } from "@/lib/api/errors";
 import { removeScanDraft, useScanDraft } from "../api/draftCache";
@@ -36,14 +41,15 @@ export function ScanExits({ barcode }: { barcode: string | null }) {
   const t = useTranslations("label");
   const locale = useLocale();
   const q = barcode ? `?barcode=${encodeURIComponent(barcode)}` : "";
-  const cls =
-    "inline-block rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md)";
+  const cls = buttonClass({ variant: "outline", size: "sm" });
   return (
-    <nav className="flex flex-wrap gap-(--spacing-2)">
+    <nav className="flex flex-wrap gap-2">
       <a href={`/${locale}/scan/label${q}`} className={cls}>
+        <CameraIcon className="size-4 shrink-0" />
         {t("retake")}
       </a>
       <a href={`/${locale}/scan/manual${q}`} className={cls}>
+        <PencilIcon className="size-4 shrink-0" />
         {t("enter_manually")}
       </a>
     </nav>
@@ -75,10 +81,8 @@ export function ConfirmScreen({
 
   if (savedId) {
     return (
-      <main className="mx-auto max-w-xl space-y-(--spacing-4) p-(--spacing-4)">
-        <p role="status" className="text-(length:--text-md)">
-          {t("common.loading")}
-        </p>
+      <main className={pageClass}>
+        <LoadingState label={t("common.loading")} />
       </main>
     );
   }
@@ -88,7 +92,10 @@ export function ConfirmScreen({
       barcode={barcode}
       onSaved={(productId) => {
         // Event names only: no label content or health data.
-        track(scanId ? "label_scan_saved" : "manual_product_saved");
+        track("scan_completed", {
+          method: scanId ? "label" : "manual",
+          found: true,
+        });
         setSavedId(productId);
         router.push(`/${locale}/product/${productId}`);
       }}
@@ -120,17 +127,9 @@ function DraftStep({
 
   let body: React.ReactNode;
   if (scanId !== null && draft.isPending) {
-    body = (
-      <p role="status" className="text-(length:--text-md)">
-        {t("common.loading")}
-      </p>
-    );
+    body = <LoadingState label={t("common.loading")} />;
   } else if (scanId !== null && draft.isError) {
-    body = (
-      <p role="alert" className="text-(length:--text-md)">
-        {t("error.scan_not_found")}
-      </p>
-    );
+    body = <ErrorState message={t("error.scan_not_found")} />;
   } else {
     const error = save.error;
     const missingId = save.isSuccess && !save.data.product_id;
@@ -145,19 +144,16 @@ function DraftStep({
     body = (
       <>
         {message ? (
-          <section className="space-y-(--spacing-2)">
-            <p role="alert" className="text-(length:--text-md)">
-              {message}
-            </p>
+          <ErrorState message={message}>
             {existing ? (
               <a
                 href={`/${locale}/product/${existing}`}
-                className="inline-block rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md) underline"
+                className={buttonClass({ variant: "outline" })}
               >
                 {t("confirm.open_existing")}
               </a>
             ) : null}
-          </section>
+          </ErrorState>
         ) : null}
         <DraftForm
           scan={
@@ -178,7 +174,7 @@ function DraftStep({
   }
 
   return (
-    <main className="mx-auto max-w-xl space-y-(--spacing-4) p-(--spacing-4)">
+    <main className={pageClass}>
       <ScanExits barcode={code} />
       {body}
     </main>

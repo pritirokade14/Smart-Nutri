@@ -8,13 +8,16 @@ Pure: no I/O. Works on any object shaped like a `ProductDraft` (see `DraftFacts`
 normaliser can call it while building a draft without an import cycle.
 
 Rules (R14-R20):
-- `sodium_unit_unconfirmed`: sodium printed without a unit on ANY column (R19). The user must
+- `sodium_unit_unconfirmed`: sodium printed without a unit on ANY column (R19), or printed as
+  an implausibly low mg value with no salt to check it (`sodium_unit_suspect`, EF2). The user must
   pick the unit (`ProductCreate.sodium_unit`) whenever the saved sodium is not null; the pick
   confirms sodium, so sodium is never a tick.
 - `withheld_fields`: engine fields stored only when listed in `confirmed_fields` (or, for
   sodium, when a unit is picked). The draft's `engine_withheld`, except that on a
   `basis_mismatch` the explicit `basis` answers the basis doubt; plus an upper-bound ("<X")
-  protein or fibre on ANY printed column (R19.3); plus sodium when its unit is unconfirmed.
+  protein or fibre on ANY printed column (R19.3); plus sodium when its unit is unconfirmed;
+  plus every printed field a failed arithmetic check names (`checked_fields`, label accuracy
+  v2), basis mismatch or not: picking a basis does not answer an arithmetic doubt.
 - `needs_serving_confirmation`: a per-serving save, or any save of a `derived_from_serving`
   draft (R19.2), stores nutrients only when `serving_size_g` is confirmed.
 - R18: a scanned serving size is stored only when `serving_size_g` is confirmed.
@@ -33,14 +36,27 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Literal, Protocol
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
+from app import scoring
 from app.features.products.schemas import CONFIRMABLE_FIELDS, NUTRIENT_FIELDS, ConfirmableField
 
 Basis = Literal["per_100g", "per_serving"]
 BASES: tuple[Basis, ...] = ("per_100g", "per_serving")
 UPPER_BOUND_FIELDS = ("protein_g", "fiber_g")  # an upper bound is no evidence of protein
 CATEGORY_WARNINGS = ("category_unknown", "category_check")
+# Label accuracy v2: a failed arithmetic check withholds the fields it involves (the printed
+# ones). The normaliser's `engine_withheld` and these hints read the same map.
+CHECK_FIELDS: dict[str, tuple[str, ...]] = {
+    "energy_mismatch": ("energy_kcal", "protein_g", "carbs_g", "fat_g", "fiber_g"),
+    "kcal_kj_mismatch": ("energy_kcal",),
+    "salt_sodium_mismatch": ("salt_g", "sodium_mg"),
+    "fat_parts_mismatch": ("fat_g", "sat_fat_g"),
+}
+# "<code>:<path or field>" warnings that withhold the field they name (last path segment).
+FIELD_CHECK_CODES = ("decimal_shift", "column_mismatch")
+# "<code>:<column>.sodium_mg" warnings that make the user pick the sodium unit (mg or g).
+SODIUM_UNIT_CODES = ("unit_unconfirmed", "sodium_unit_suspect")
 
 
 class DraftFacts(Protocol):
@@ -58,6 +74,10 @@ class DraftFacts(Protocol):
     def per_100g(self) -> object: ...
     @property
     def per_serving(self) -> object | None: ...
+    @property
+    def category(self) -> str: ...
+    @property
+    def ingredients(self) -> Sequence[str]: ...
 
 
 class ColumnConfirm(BaseModel):
@@ -86,7 +106,9 @@ class ColumnConfirm(BaseModel):
     sodium_unit_required: bool = Field(
         description=(
             "Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` "
-            "(never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`."
+            "(never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`. "
+            "Set when sodium was printed without a unit (`unit_unconfirmed`) or as an "
+            "implausibly low mg value with no salt to check it (`sodium_unit_suspect`)."
         )
     )
     serving_required: bool = Field(
@@ -110,6 +132,10 @@ class DraftConfirm(BaseModel):
     """Server-computed confirm-screen hints (R21). Clients render these; they never
     re-derive the save rules. Computed from the draft itself, so always current."""
 
+    # `category_suggestion` has a default only so older callers still validate; the API always
+    # sends it, so the contract marks it required.
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     basis_required: bool = Field(
         description="Basis in doubt: offer both columns and never preselect a basis."
     )
@@ -117,6 +143,16 @@ class DraftConfirm(BaseModel):
         description="Category in doubt: never preselect; the user must pick a category."
     )
     columns: ConfirmColumns
+    category_suggestion: Literal["supplement"] | None = Field(
+        default=None,
+        description=(
+            "A deterministic hint (never an LLM, P9 safety S5): the ingredients name a whey or "
+            "protein isolate/concentrate, or protein is at least 50 g per 100 g, so the pack "
+            "may be a supplement. Show `confirm.category_suggestion.supplement` next to the "
+            "category picker. Never preselect it: `category_required` is true whenever this is "
+            "set, and the user's pick is saved as is."
+        ),
+    )
 
 
 def _has_engine_values(column: object | None) -> bool:
@@ -124,15 +160,39 @@ def _has_engine_values(column: object | None) -> bool:
 
 
 def sodium_unit_unconfirmed(draft: DraftFacts) -> bool:
-    """Sodium was printed without a unit on ANY column (R19)."""
-    return any(f"unit_unconfirmed:{col}.sodium_mg" in draft.warnings for col in BASES)
+    """The sodium unit must be picked: sodium was printed without a unit on ANY column (R19),
+    or printed as mg but implausibly low with no salt to check it (`sodium_unit_suspect`,
+    EF2: most likely a g value read as mg)."""
+    return any(
+        f"{code}:{col}.sodium_mg" in draft.warnings for code in SODIUM_UNIT_CODES for col in BASES
+    )
+
+
+def checked_fields(warnings: Sequence[str]) -> set[str]:
+    """Engine fields named by failed arithmetic checks (`CHECK_FIELDS`, `FIELD_CHECK_CODES`),
+    printed or not: callers keep only the printed ones."""
+    fields: set[str] = set()
+    for warning in warnings:
+        code, _, path = warning.partition(":")
+        if code in CHECK_FIELDS:
+            fields.update(CHECK_FIELDS[code])
+        elif code in FIELD_CHECK_CODES and path:
+            fields.add(path.rsplit(".", 1)[-1])
+    return fields & set(NUTRIENT_FIELDS)
 
 
 def withheld_fields(draft: DraftFacts) -> set[str]:
-    """Engine fields held back from storage until the user confirms them (R13/R14/R17/R19)."""
+    """Engine fields held back from storage until the user confirms them (R13/R14/R17/R19,
+    and the label accuracy v2 arithmetic checks)."""
     withheld = set() if "basis_mismatch" in draft.warnings else set(draft.engine_withheld)
     withheld |= {
         f for f in UPPER_BOUND_FIELDS for col in BASES if f"upper_bound:{col}.{f}" in draft.warnings
+    }
+    columns = (draft.per_100g, draft.per_serving)
+    withheld |= {
+        f
+        for f in checked_fields(draft.warnings)
+        if any(getattr(c, f, None) is not None for c in columns)
     }
     if sodium_unit_unconfirmed(draft):
         withheld.add("sodium_mg")
@@ -152,8 +212,27 @@ def basis_required(draft: DraftFacts) -> bool:
     return "basis_mismatch" in draft.warnings or not _printed_bases(draft)
 
 
+def category_suggestion(draft: DraftFacts) -> Literal["supplement"] | None:
+    """ "supplement" when the draft looks like one (`scoring.supplement_suspect`, P9 safety S5):
+    a hint only, never the category."""
+    protein = getattr(draft.per_100g, "protein_g", None)
+    try:
+        category = scoring.Category(draft.category)
+    except ValueError:
+        category = scoring.Category.GENERAL
+    product = scoring.Product(
+        name="",
+        category=category,
+        per_100g=scoring.Nutrients(protein_g=protein),
+        ingredients=tuple(draft.ingredients),
+    )
+    return "supplement" if scoring.supplement_suspect(product) else None
+
+
 def category_required(draft: DraftFacts) -> bool:
-    return any(w in draft.warnings for w in CATEGORY_WARNINGS)
+    return any(w in draft.warnings for w in CATEGORY_WARNINGS) or (
+        category_suggestion(draft) is not None
+    )
 
 
 def printed(draft: DraftFacts, basis: Basis) -> bool:
@@ -206,6 +285,7 @@ def confirm_hints(draft: DraftFacts) -> DraftConfirm:
         basis_required=basis_required(draft),
         category_required=category_required(draft),
         columns=ConfirmColumns(**columns),
+        category_suggestion=category_suggestion(draft),
     )
 
 

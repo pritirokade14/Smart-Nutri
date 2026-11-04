@@ -23,6 +23,9 @@ class Category(StrEnum):
     WATER = "water"
     CHEESE = "cheese"
     FAT = "fat"
+    # Protein powders, whey and health supplements (Plan 9, P9-R10): never graded, never
+    # suggested. Set only from the user's pick or Open Food Facts tags, never the LLM.
+    SUPPLEMENT = "supplement"
 
 
 class Status(StrEnum):
@@ -163,6 +166,13 @@ class Product:
     veg_mark: Literal["veg", "non_veg"] | None = None
     contains_sweeteners: bool = False
     extraction_confidence: float = 1.0
+    # Nutri-Score 2023 only (EF1): score this GENERAL product with the beverage tables. The
+    # official 2023 algorithm counts liquid milk as a beverage, but whether plain milk should
+    # also get the per-100 ml drink thresholds of the OTHER rules is pending clinician review,
+    # so milk keeps category GENERAL (is_drink False) and only Nutri-Score reads this flag.
+    # Set only by the Open Food Facts mapping (liquid-milk tags); ignored for any category
+    # other than GENERAL.
+    nutriscore_beverage: bool = False
 
     def __post_init__(self) -> None:
         _reject_bare_str(self, ("ingredients", "claims"))
@@ -187,6 +197,18 @@ class Product:
 
 
 @dataclass(frozen=True, slots=True)
+class ProteinFacts:
+    """Protein numbers for the protein guide (Plan 9 Task 4). Information only: they never
+    change a verdict. All rounded to 1 dp from the SANITISED product; a missing input is None,
+    never 0."""
+
+    per_100g: float | None
+    per_serving: float | None  # None without serving_size_g (Product.per_serving)
+    per_100kcal: float | None  # protein_g / energy_kcal * 100; None if either is None or kcal == 0
+    serving_size_g: float | None
+
+
+@dataclass(frozen=True, slots=True)
 class Member:
     id: str
     name: str
@@ -195,9 +217,22 @@ class Member:
     allergens: tuple[str, ...] = ()
     conditions: tuple[str, ...] = ()
     goal: str | None = None
+    custom_alerts: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        _reject_bare_str(self, ("allergens", "conditions"))
+        _reject_bare_str(self, ("allergens", "conditions", "custom_alerts"))
+
+
+# Ingredient alerts a member can switch on (preferences, not safety rules). The order is
+# the order of `custom_alert` reasons. Terms: data/ingredients.yaml `custom_alerts`;
+# `added_sugar` reuses the added_sugars + hidden_sugars lists.
+CUSTOM_ALERT_KEYS: tuple[str, ...] = (
+    "palm_oil",
+    "maida",
+    "added_sugar",
+    "artificial_sweetener",
+    "msg",
+)
 
 
 @dataclass(frozen=True, slots=True)

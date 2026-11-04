@@ -226,5 +226,71 @@
     },
     "reason_index": 0,
     "text": "मीठ जास्त आहे: प्रति 100 ग्रॅम/मि.ली. 2.5 ग्रॅम."
+  },
+  {
+    "key": "reason.custom_alert",
+    "member": "palm_alert_adult",
+    "product": "sf_biscuit",
+    "reason": {
+      "code": "custom_alert",
+      "params": {
+        "alert": "palm_oil",
+        "ingredients": [
+          "palm"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "यात पाम तेल आहे: palm."
+  },
+  {
+    "key": "reason.custom_alert",
+    "member": "alert_child",
+    "product": "kiwi_yogurt",
+    "reason": {
+      "code": "custom_alert",
+      "params": {
+        "alert": "artificial_sweetener",
+        "ingredients": [
+          "ins955"
+        ]
+      },
+      "severity": "caution"
+    },
+    "reason_index": 2,
+    "text": "यात कृत्रिम स्वीटनर (गोडवा) आहे: ins955."
+  },
+  {
+    "key": "reason.custom_alert_unknown",
+    "member": "alert_child",
+    "product": "no_ingredients",
+    "reason": {
+      "code": "custom_alert_unknown",
+      "params": {
+        "alerts": [
+          "added_sugar",
+          "artificial_sweetener"
+        ]
+      },
+      "severity": "unknown"
+    },
+    "reason_index": 0,
+    "text": "या अलर्टची तपासणी करता आली नाही: वरून घातलेली साखर, कृत्रिम स्वीटनर (गोडवा)."
+  },
+  {
+    "key": "reason_variant.custom_alert_flag_only",
+    "member": "synthetic",
+    "product": "synthetic",
+    "reason": {
+      "code": "custom_alert",
+      "params": {
+        "alert": "artificial_sweetener",
+        "ingredients": []
+      },
+      "severity": "caution"
+    },
+    "reason_index": 0,
+    "text": "उत्पादनाच्या माहितीनुसार यात स्वीटनर (गोडवा) आहेत."
   }
 ]

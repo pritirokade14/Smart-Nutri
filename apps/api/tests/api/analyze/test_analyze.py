@@ -42,7 +42,7 @@ def test_to_scoring_member_maps_fields():
         diet="jain",
         allergens=["peanut"],
         conditions=["diabetes"],
-        custom_alerts=[],
+        custom_alerts=["palm_oil", "msg"],
         goal="weight_loss",
     )
     m = to_scoring_member(record, today=date(2026, 11, 3))
@@ -51,6 +51,7 @@ def test_to_scoring_member_maps_fields():
     assert m.diet is Diet.JAIN
     assert m.allergens == ("peanut",) and m.conditions == ("diabetes",)
     assert m.goal == "weight_loss"
+    assert m.custom_alerts == ("palm_oil", "msg")
 
 
 def test_to_scoring_member_without_birth_year_has_no_age():
@@ -134,10 +135,27 @@ async def test_response_shape(auth_client, seeded_product):
     assert body["product"]["product_id"] == str(seeded_product.id)
     assert body["product"]["attribution"] is None
     assert "nutriscore" in body["report"]
-    assert body["explanation"] is None and body["tips"] == []
+    # No ai_processing consent: no LLM call, an "unavailable" explanation (P3, P5-R17).
+    assert body["explanation"] == {
+        "text": None,
+        "tips": [],
+        "language": "hi",
+        "source": "unavailable",
+        "prompt_version": "explanation_v3",
+        "member_refs": {},
+    }
+    assert "tips" not in body
     (v,) = body["verdicts"]
     assert v["status"] in {"ok", "caution", "unknown", "avoid"}
-    assert set(v) == {"member_id", "member_name", "status", "reasons", "profile_set_up"}
+    assert set(v) == {
+        "member_id",
+        "member_name",
+        "relation",
+        "is_primary",
+        "status",
+        "reasons",
+        "profile_set_up",
+    }
     for reason in v["reasons"]:
         assert set(reason) == {"code", "severity", "params"}
 

@@ -1,0 +1,13 @@
+{
+  "status": "avoid",
+  "reasons": [
+    {
+      "code": "infant_salt_high",
+      "severity": "avoid"
+    },
+    {
+      "code": "supplement_infant",
+      "severity": "avoid"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import {
   MAX_UPLOAD_BYTES,
   resizeImage,
 } from "@/features/scan/lib/resizeImage";
+import { readBytes } from "@/features/scan/lib/stripMetadata";
 
 // jsdom has no image decoder or canvas encoder: stub them. The photo has a
 // displayed size (read through <img>); createImageBitmap honours the resize
@@ -68,7 +69,9 @@ beforeEach(() => {
       getContext: () => ({ drawImage: () => {} }),
       toBlob: (cb, type, q) => {
         const size = Math.round(c.width * c.height * bytesPerPixel * q);
-        cb(new Blob([new Uint8Array(size)], { type }));
+        // A JPEG whose header carries EXIF with GPS (a worst-case encoder
+        // that copies the source metadata), then the image data.
+        cb(new Blob([EXIF_JPEG_HEAD, new Uint8Array(size), EOI], { type }));
       },
     };
     canvases.push(c);
@@ -80,10 +83,43 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+const ascii = (t: string) => [...t].map((c) => c.charCodeAt(0));
+const exifPayload = [...ascii("Exif"), 0, 0, ...ascii("GPS N 18.52 E 73.85")];
+const EXIF_JPEG_HEAD = new Uint8Array([
+  0xff,
+  0xd8,
+  0xff,
+  0xe1,
+  0,
+  exifPayload.length + 2,
+  ...exifPayload,
+  0xff,
+  0xda,
+  0,
+  8,
+  1,
+  1,
+  0,
+  0,
+  0x3f,
+  0,
+]);
+const EOI = new Uint8Array([0xff, 0xd9]);
+
 const photo = (name = "label.jpg", type = "image/jpeg") =>
   new File([new Uint8Array(10)], name, { type });
 
 describe("resizeImage", () => {
+  it("the uploaded JPEG carries no EXIF or GPS metadata", async () => {
+    const out = await resizeImage(photo());
+    const bytes = await readBytes(out);
+    expect([bytes[0], bytes[1]]).toEqual([0xff, 0xd8]);
+    const head = String.fromCharCode(...bytes.slice(0, 64));
+    expect(head).not.toContain("Exif");
+    expect(head).not.toContain("GPS");
+    expect(out.type).toBe("image/jpeg");
+  });
+
   it("output ≤ 8 MB and image/jpeg, longest side ≤ 2000 px", async () => {
     const out = await resizeImage(photo());
     expect(out.type).toBe("image/jpeg");

@@ -39,6 +39,12 @@ def n(**kw) -> NutrientsIn:
     return NutrientsIn(**(dict.fromkeys(NutrientsIn.model_fields) | VALUES | kw))
 
 
+def ns(**kw) -> NutrientsIn:
+    """The same food per 30 g serving (agrees with `n()`: no `column_mismatch`)."""
+    scaled = {k: v * 0.3 if isinstance(v, float) else v for k, v in VALUES.items()}
+    return NutrientsIn(**(dict.fromkeys(NutrientsIn.model_fields) | scaled | kw))
+
+
 def ex(**kw) -> NutritionExtraction:
     data = {
         "product_name": "Test Snack",
@@ -116,7 +122,7 @@ def test_clean_draft_with_a_serving_asks_to_tick_it():
 
 
 def test_basis_mismatch_both_columns_printed():
-    d = to_draft(ex(basis_detected="unknown", per_serving=n(), serving_size_g=30))
+    d = to_draft(ex(basis_detected="unknown", per_serving=ns(), serving_size_g=30))
     assert "basis_mismatch" in d.warnings
     assert d.confirm == hints(
         col(confirm_fields=["serving_size_g"]),
@@ -175,7 +181,7 @@ def test_unit_unconfirmed_sodium_on_per_100g():
 
 def test_unit_unconfirmed_sodium_on_the_other_column_still_needs_the_unit():
     # R19: a unit-less sodium on EITHER column, whichever column is saved.
-    d = to_draft(ex(per_serving=n(sodium_unit=None, sodium_mg=0.06), serving_size_g=30))
+    d = to_draft(ex(per_serving=ns(sodium_unit=None, sodium_mg=0.06), serving_size_g=30))
     assert "unit_unconfirmed:per_serving.sodium_mg" in d.warnings
     # Both columns are printed, so both are offered (R22); the basis is not in doubt.
     per_100g = col(confirm_fields=["serving_size_g"], sodium_unit_required=True)
@@ -194,7 +200,7 @@ def test_upper_bound_protein_on_the_other_column_is_asked_too():
     # R19.3: an upper bound on ANY column (the user may transcribe either).
     d = to_draft(
         ex(
-            per_serving=n(protein_g=0.5),
+            per_serving=ns(protein_g=0.5),
             serving_size_g=30,
             upper_bound_fields=["per_serving.protein_g", "per_100g.fiber_g"],
         )
@@ -273,7 +279,7 @@ def test_positive_suppressed_is_gone():
 def test_sodium_unit_unconfirmed_on_either_column():
     assert not sodium_unit_unconfirmed(to_draft(ex()))
     assert sodium_unit_unconfirmed(to_draft(ex(per_100g=n(sodium_unit=None))))
-    d = to_draft(ex(per_serving=n(sodium_unit=None), serving_size_g=30))
+    d = to_draft(ex(per_serving=ns(sodium_unit=None), serving_size_g=30))
     assert sodium_unit_unconfirmed(d)
 
 
@@ -316,6 +322,36 @@ def test_basis_and_category_required():
     assert category_required(to_draft(ex(category_guess=None)))
 
 
+# --- P9 safety S5: a deterministic supplement hint ------------------------------------------
+
+
+def test_clean_draft_has_no_category_suggestion():
+    assert to_draft(ex()).confirm.category_suggestion is None
+
+
+@pytest.mark.parametrize(
+    "kw",
+    [
+        {"ingredients": ["whey protein concentrate", "cocoa", "sucralose"]},
+        {"ingredients": ["soy protein isolate", "cocoa"]},
+        # 55 g protein per 100 g (energy 400 so the Atwater check passes).
+        {"per_100g": n(protein_g=55.0, energy_kcal=400.0, carbs_g=30.0, sugars_g=5.0,
+                       fat_g=11.0)},
+    ],
+)  # fmt: skip
+def test_whey_or_high_protein_suggests_supplement_and_asks_for_the_category(kw):
+    d = to_draft(ex(**kw))
+    assert d.confirm.category_suggestion == "supplement"
+    assert d.confirm.category_required  # never preselect: the user picks
+    assert d.category != "supplement"  # a hint only: the category is never set for the user
+    assert d.confirm == confirm_hints(d)
+
+
+def test_whey_powder_in_a_biscuit_suggests_nothing():
+    d = to_draft(ex(ingredients=["wheat flour", "sugar", "whey powder", "milk solids"]))
+    assert d.confirm.category_suggestion is None and not d.confirm.category_required
+
+
 # --- R22: offer exactly the printed columns --------------------------------------------------
 
 
@@ -341,7 +377,7 @@ def test_no_printed_column_offers_both_and_requires_a_basis():
 
 
 def test_both_columns_printed_without_a_mismatch_offers_both_with_a_preselectable_basis():
-    d = to_draft(ex(basis_detected="per_100g", per_serving=n(), serving_size_g=30))
+    d = to_draft(ex(basis_detected="per_100g", per_serving=ns(), serving_size_g=30))
     assert "basis_mismatch" not in d.warnings and not d.derived_from_serving
     assert d.confirm.basis_required is False
     assert d.confirm.columns.per_100g is not None and d.confirm.columns.per_100g.printed
@@ -357,7 +393,7 @@ def test_serving_required_is_the_enforcement_helper(derived, basis):
             ex(basis_detected="per_serving", per_100g=None, per_serving=n(), serving_size_g=30)
         )
     else:
-        d = to_draft(ex(basis_detected="unknown", per_serving=n(), serving_size_g=30))
+        d = to_draft(ex(basis_detected="unknown", per_serving=ns(), serving_size_g=30))
     column = getattr(d.confirm.columns, basis)
     if column is not None:
         assert column.serving_required is needs_serving_confirmation(d, basis)

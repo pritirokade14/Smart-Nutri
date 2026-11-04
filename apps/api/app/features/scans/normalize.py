@@ -44,7 +44,32 @@ Listed in `ENGINE_FIELDS` order, without duplicates:
 - every engine field, when `basis_mismatch` (the printed basis is in doubt);
 - `protein_g` / `fiber_g` printed as "<X" on the column used (an upper bound is never
   evidence for a positive reason such as good_protein_density);
-- `sodium_mg`, when `unit_unconfirmed` (sodium printed without a unit on the column used).
+- `sodium_mg`, when `unit_unconfirmed` (sodium printed without a unit on the column used) or
+  `sodium_unit_suspect` on the column used (EF2);
+- every printed field a failed arithmetic check involves (label accuracy v2), using the map
+  `confirm_rules.CHECK_FIELDS` shared with the confirm hints: `energy_mismatch` -> energy,
+  protein, carbs, fat, fibre; `kcal_kj_mismatch` -> energy; `salt_sodium_mismatch` -> salt,
+  sodium; `fat_parts_mismatch` -> fat, sat fat; `decimal_shift:<path>` and
+  `column_mismatch:<field>` -> that field.
+
+Arithmetic checks (on the column used; tolerances are data-quality constants, not health
+thresholds, and are tested in tests/unit/scans/test_consistency_checks.py):
+- Atwater: |kcal - E| <= max(ENERGY_MISMATCH_RATIO x kcal, ENERGY_MISMATCH_MIN_KCAL), where E
+  may be anywhere in 4p + 4c + 9f +/- FIBRE_KCAL_PER_G x fibre (carbs with or without fibre;
+  fibre at 2 kcal/g), so honest high-fibre labels are not flagged.
+- kcal vs kJ: |kJ / 4.184 - kcal| within the same energy tolerance.
+- salt vs sodium: |salt - sodium x 2.5 / 1000| <= SALT_MISMATCH_RATIO x salt. A unit-less
+  sodium passes when either reading (mg or g) does (its unit is asked anyway).
+- fat parts: sat + trans <= fat + CROSS_FIELD_TOLERANCE_G (sugars <= carbs and sat <= fat are
+  the engine's own `implausible_value` checks; added <= total sugars and trans <= fat are the
+  display-only ones).
+- decimal-shift probe: when x10 or /10 (DECIMAL_SHIFT_FACTORS) on ONE field makes a failed
+  Atwater check pass, that field is named; salt and sodium are named together (x10 on one is
+  /10 on the other).
+- tight decimal probe (EF3): when Atwater passes the loose tolerance but not a tight one
+  (DECIMAL_PROBE_TIGHT_*), and x10 on exactly ONE of energy, protein, carbs or fat gives a tight
+  fit DECIMAL_PROBE_MIN_GAIN times better that the engine's plausibility accepts, that field is
+  named `decimal_shift:<path>` (withheld). Skipped when an Atwater input is an upper bound.
 
 `confirm` (ruling R21): what the confirm screen must ask (basis, category, ticks, sodium unit)
 per offered basis. Computed from the draft's own fields by
@@ -62,12 +87,28 @@ Warning codes, always in this order:
   per_serving_ignored         per-serving values were printed but not used (the per-100 g
                               column was used and lacks those fields, or nothing could be
                               derived); the columns are never mixed
-  energy_mismatch             kcal disagrees with 4p + 4c + 9f
+  energy_mismatch             kcal disagrees with 4p + 4c + 9f (+/- 2 kcal/g fibre)
   kcal_kj_mismatch            printed kcal disagrees with printed kJ / 4.184 (kcal is used)
   salt_sodium_mismatch        salt disagrees with sodium x 2.5 / 1000
+  fat_parts_mismatch          sat fat + trans fat is more than total fat
+  decimal_shift:<path>        a x10 or /10 slip on this printed cell would explain a failed
+                              check (draft field order)
+  column_mismatch:<field>     both columns and a plausible serving are printed, and this
+                              engine field's per-serving value is not per_100g x serving / 100
+                              within max(10%, its rounding unit); never on a derived draft;
+                              upper bounds and unit-less sodium are skipped (engine order)
   unit_unconfirmed:<path>     sodium printed without a unit, per printed column
                               (per_100g first, then per_serving); the printed number is shown;
                               withheld from the engine when on the column used
+  sodium_unit_suspect:<path>  EF2: sodium printed as mg, no salt on that column, and non-zero
+                              but below SODIUM_SUSPECT_MAX_MG per 100 g / 100 ml (water exempt),
+                              or, for foods, below SODIUM_SALTY_MAX_MG when salt or a sodium
+                              additive is listed or no ingredient list is readable, or below
+                              SODIUM_SALT_EARLY_MAX_MG when salt or a sodium additive is in the
+                              first 3 ingredients or the name is a salty product (SF1, SF2):
+                              likely g read as mg. Per printed column (per-serving via a
+                              plausible serving); withheld when on the column used; the user
+                              picks the unit (`sodium_unit_required`)
   low_confidence              (capped) confidence below min_extraction_confidence
   category_unknown            no category and no ml signal; "general" was used
   category_check              ml printed and the guess was not beverage/water (beverage was
@@ -80,7 +121,7 @@ Warning codes, always in this order:
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -88,12 +129,15 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from app.features.products.confirm_rules import (
     UPPER_BOUND_FIELDS,
     DraftConfirm,
+    checked_fields,
     confirm_hints,
     placeholder_confirm,
 )
+from app.features.products.off_mapping import split_ingredients
 from app.features.products.schemas import NutrientsOut
 from app.features.scans.schemas import NUTRIENT_FIELDS, NutrientsIn, NutritionExtraction
 from app.scoring import Nutrients, Product, load_config
+from app.scoring.ingredients import find_terms, has_ingredient_content
 from app.scoring.models import CROSS_FIELD_TOLERANCE_G, MAX_GRAMS_PER_100
 
 __all__ = [
@@ -124,6 +168,27 @@ EngineField = Literal[
     "sodium_mg",
 ]
 ENGINE_FIELDS: tuple[EngineField, ...] = get_args(EngineField)
+# Every warning code `to_draft` can emit (the part before ":"), in warning order. Each needs
+# `warning.<code>` in packages/i18n (tests/unit/scans/test_warning_codes_i18n.py).
+WARNING_CODES: tuple[str, ...] = (
+    "implausible_value",
+    "per_100g_missing",
+    "basis_mismatch",
+    "per_serving_ignored",
+    "energy_mismatch",
+    "kcal_kj_mismatch",
+    "salt_sodium_mismatch",
+    "fat_parts_mismatch",
+    "decimal_shift",
+    "column_mismatch",
+    "unit_unconfirmed",
+    "sodium_unit_suspect",
+    "low_confidence",
+    "category_unknown",
+    "category_check",
+    "unreadable_field",
+    "upper_bound",
+)
 
 
 class DraftNutrients(NutrientsOut):
@@ -184,6 +249,62 @@ _KJ_PER_KCAL = 4.184  # unit conversion, as in products/off_mapping.py
 ENERGY_MISMATCH_RATIO = 0.15
 ENERGY_MISMATCH_MIN_KCAL = 20.0
 SALT_MISMATCH_RATIO = 0.2
+# Label accuracy v2 (data-quality constants, not health thresholds). Fibre counts 2 kcal/g
+# (EU Regulation 1169/2011 Annex XIV). A decimal slip is one field off by x10 or /10.
+FIBRE_KCAL_PER_G = 2.0
+DECIMAL_SHIFT_FACTORS = (10.0, 0.1)
+# Column ratio check: per_serving ~= per_100g x serving / 100 within
+# max(COLUMN_RATIO_TOLERANCE x the larger value, the field's rounding unit). The units allow
+# for labels that round each column on its own (whole kcal or 5 kcal, sodium to 10 mg, grams
+# to whole numbers or "0" under 0.5 g), so small values are only checked loosely.
+COLUMN_RATIO_TOLERANCE = 0.10
+COLUMN_ROUNDING_UNITS: dict[str, float] = {"energy_kcal": 5.0, "sodium_mg": 10.0, "default": 0.5}
+# EF2 (safety; data-quality constants, not health thresholds). A label that prints sodium in g
+# only ("0.4 g", no salt) read as mg gives ~0 sodium that nothing can cross-check. A non-zero
+# sodium printed as mg, with no salt on that column, raises `sodium_unit_suspect` when, per
+# 100 g / 100 ml (water exempt):
+#   - it is below SODIUM_SUSPECT_MAX_MG (food 2 mg, beverage 0.5 mg: colas print 3-10 mg); or
+#   - (foods) it is below SODIUM_SALTY_MAX_MG and salt or a sodium additive is listed, or no
+#     ingredient list is readable (a panel-only photo can't rule out a salty food): pickle 2.5 g,
+#     papad 2.2 g, soy sauce 5.7 g, masala 6 g read as mg; or
+#   - (foods) it is below SODIUM_SALT_EARLY_MAX_MG and salt or a sodium additive (khar, MSG,
+#     baking soda) is in the first SALT_EARLY_INGREDIENTS ingredients (brackets included), or the
+#     product name is a salty product type (ingredients.yaml `salty_product_names`: pickle, papad,
+#     chaat masala..., for a list cut off before the salt). Pure salt is 39.3 % sodium, MSG
+#     12.3 %, baking soda 27.4 %: chaat masala "13.2 mg", tastemaker "15.5 mg" are grams.
+# SF1 recalibration (replaces Plan 9's "food 10 mg, or non-integer below 100 mg"). Measured with
+# the E5 fault-injection method on the v4 Open Food Facts India set (.research/data/v4/
+# e5_sf1.json): 406 g-read-as-mg faults (sodium-only, no salt) and 461 correct sodium-only
+# panels (salt removed). Raw OFF values: catch 402/406 (99.0 %, unchanged from Plan 9), false
+# alarms 13/461 (2.8 %, was 70/461 = 15.2 %). Sodium rounded to whole mg as packs print it:
+# catch 398/401 (99.3 %), false alarms 7/401 (1.7 %, was 24/401 = 6.0 %). The earlier "1.3 %"
+# figure could not be reproduced. The decimal rule was dropped: OFF derives per-100 g sodium
+# from salt or per-serving values, so honest panels are often non-integer (milk 40.6, jam 11.6).
+# Without the no-ingredient-list branch false alarms fall to 1.7 % raw / 0.5 % rounded but catch
+# drops to 97.8 % / 98.0 %; it is kept because a miss is the unsafe direction.
+# SF2 (safety review of SF1: salty spice mixes with salt 2nd or 3rd, khar papads and MSG slipped
+# through and a hypertensive member got `ok`): the 40 mg limit now covers salt or a sodium
+# additive in the first 3 ingredients and salty product names; khar, Indian salts and
+# MSG/ajinomoto were added to the term lists. Same harness and set (.research/data/v4/
+# e5_sf2.json): catch 402/406 (99.0 %) raw, 398/401 (99.3 %) rounded, unchanged; false alarms
+# 14/461 (3.0 %, was 2.8 %) raw, 9/401 (2.2 %, was 1.7 %) rounded. The new flags are a "Mango
+# Pickle" at 35 mg with common salt 2nd and oats whose seasoning lists salt at 10 mg: both
+# implausible, likely OFF data errors. The reviewer's 25 salty-pack probes: 25 caught (SF1: 11).
+# "food" covers general, fat, cheese and an unknown category.
+SODIUM_SUSPECT_MAX_MG: dict[str, float] = {"food": 2.0, "beverage": 0.5}
+SODIUM_SALTY_MAX_MG = 10.0
+SODIUM_SALT_EARLY_MAX_MG = 40.0
+SALT_EARLY_INGREDIENTS = 3
+# EF3: a /10 slip on energy, protein, carbs or fat that the loose Atwater tolerance above hides
+# (protein 7 printed 0.7 moves Atwater by only 25 kcal). When the printed panel misses a TIGHT
+# fit, max(DECIMAL_PROBE_TIGHT_RATIO x kcal, DECIMAL_PROBE_TIGHT_MIN_KCAL), and x 10 on exactly
+# one of those fields gives a tight fit that is DECIMAL_PROBE_MIN_GAIN times better and passes
+# the engine's own plausibility (macro consistency), that field is named `decimal_shift`.
+# Only x 10 ("printed too low", the direction that hides sugar, fat and energy) is probed
+# tightly: /10 hypotheses flagged honest labels. On 528 real OFF panels: 0 false positives.
+DECIMAL_PROBE_TIGHT_RATIO = 0.03
+DECIMAL_PROBE_TIGHT_MIN_KCAL = 5.0
+DECIMAL_PROBE_MIN_GAIN = 3.0
 # Ruling R10: an unreadable ingredient list or allergen line caps confidence here, below
 # the engine's min_extraction_confidence (a test keeps it below), so allergens are unknown.
 UNREADABLE_ALLERGEN_CONFIDENCE_CAP = 0.69
@@ -337,17 +458,162 @@ def _sodium_unit_unconfirmed(col: NutrientsIn | None) -> bool:
     return col is not None and col.sodium_mg is not None and col.sodium_unit is None
 
 
-def _consistency_warnings(values: dict[str, float | None], col: NutrientsIn | None) -> list[str]:
+def _top_level_items(texts: list[str]) -> list[str]:
+    """Ingredients in printed order: each extracted string, split at commas and semicolons outside
+    brackets (an OCR'd list may arrive as one string). Bracketed sub-ingredients stay with their
+    parent ("Seasoning (salt, sugar)" is one item)."""
+    return [item for text in texts for item in split_ingredients(text)]
+
+
+def _salt_signals(e: NutritionExtraction) -> tuple[bool, bool]:
+    """EF2 (SF1, SF2) signals from the printed label: (salty, salt_early).
+    `salty`: salt or a sodium additive is listed, or no ingredient list is readable (caution: a
+    salty food can't be ruled out). `salt_early`: salt or a sodium additive (khar, MSG, baking
+    soda) is among the first `SALT_EARLY_INGREDIENTS` ingredients, brackets included, or the
+    product name is a very salty product type (`salty_product_names`: pickle, papad, chaat
+    masala...; catches a list cut off before the salt)."""
+    lists = load_config().ingredient_lists
+    named_salty = bool(find_terms([e.product_name or ""], lists["salty_product_names"]))
+    texts = [] if "ingredients" in e.unreadable_fields else _texts(e.ingredients)
+    if not has_ingredient_content(texts):
+        return True, named_salty
+    terms = [*lists["salt"], *lists["sodium_additives"]]
+    salty = bool(find_terms(texts, terms))
+    early = _top_level_items(texts)[:SALT_EARLY_INGREDIENTS]
+    return salty, named_salty or bool(find_terms(early, terms))
+
+
+def _sodium_unit_suspect(
+    col: NutrientsIn | None,
+    values: Mapping[str, float | None],
+    *,
+    per_100_factor: float | None,
+    category: _CategoryName,
+    salt_signals: tuple[bool, bool],
+) -> bool:
+    """EF2: sodium printed as mg, no salt on this column to cross-check it, and per 100 g /
+    100 ml it is non-zero but implausibly low for the product (water exempt): most likely a
+    "g" value read as mg. Limits: `SODIUM_SUSPECT_MAX_MG`; for foods also
+    `SODIUM_SALTY_MAX_MG` and `SODIUM_SALT_EARLY_MAX_MG` from `salt_signals` (`_salt_signals`).
+    `per_100_factor` turns this column into per 100 (1 for the per-100 column, 100 / serving
+    for the per-serving one, None when no plausible serving)."""
+    if col is None or col.sodium_unit != "mg" or category == "water" or per_100_factor is None:
+        return False
+    sodium = _finite(values["sodium_mg"])
+    if sodium is None or values["salt_g"] is not None:
+        return False
+    per_100 = sodium * per_100_factor
+    if not per_100 > 0:
+        return False
+    if category == "beverage":  # drinks keep the one limit: colas honestly print 3-10 mg
+        return per_100 < SODIUM_SUSPECT_MAX_MG["beverage"]
+    salty, salt_early = salt_signals
+    return (
+        per_100 < SODIUM_SUSPECT_MAX_MG["food"]
+        or (salty and per_100 < SODIUM_SALTY_MAX_MG)
+        or (salt_early and per_100 < SODIUM_SALT_EARLY_MAX_MG)
+    )
+
+
+_ATWATER_FIELDS = ("energy_kcal", "protein_g", "carbs_g", "fat_g", "fiber_g")
+
+
+def _atwater_gap(v: Mapping[str, float | None]) -> float:
+    """kcal's distance from 4p + 4c + 9f, the expected value widened by `FIBRE_KCAL_PER_G` x
+    fibre either way: carbs that include fibre give 4p + 4(c - fib) + 9f + 2 fib (= base - 2
+    fib); carbs that exclude it give base + 2 fib. A missing fibre gives no widening."""
+    kcal, p, c, f = (v[k] or 0.0 for k in _ATWATER_FIELDS[:4])
+    base = 4 * p + 4 * c + 9 * f
+    widen = FIBRE_KCAL_PER_G * (v["fiber_g"] or 0.0)
+    return max(base - widen - kcal, kcal - base - widen, 0.0)
+
+
+def _atwater_ok(v: Mapping[str, float | None]) -> bool:
+    """kcal agrees with Atwater within `_energy_tolerance`. Callers check that kcal, p, c and f
+    are printed."""
+    return _atwater_gap(v) <= _energy_tolerance(v["energy_kcal"] or 0.0)
+
+
+def _atwater_tight(v: Mapping[str, float | None]) -> bool:
+    kcal = v["energy_kcal"] or 0.0
+    tolerance = max(DECIMAL_PROBE_TIGHT_RATIO * kcal, DECIMAL_PROBE_TIGHT_MIN_KCAL)
+    return _atwater_gap(v) <= tolerance
+
+
+def _plausible(v: Mapping[str, float | None]) -> bool:
+    """The engine's own per-field and cross-field plausibility (macro consistency)."""
+    nutrients = Nutrients(**{f: v.get(f) for f in ENGINE_FIELDS})
+    return not Product(name="", per_100g=nutrients).sanitized()[1]
+
+
+def _tight_decimal_suspects(values: Mapping[str, float | None]) -> list[str]:
+    """EF3: the one Atwater field (energy, protein, carbs, fat) whose x 10 turns a loose-but-
+    passing Atwater fit into a tight one; [] when none or several do."""
+    if _atwater_tight(values):
+        return []
+    gap = _atwater_gap(values)
+    found = []
+    for f in _ATWATER_FIELDS[:4]:
+        if not values[f]:
+            continue
+        shifted = {**values, f: values[f] * 10}
+        if (
+            _plausible(shifted)
+            and _atwater_tight(shifted)
+            and gap >= DECIMAL_PROBE_MIN_GAIN * max(_atwater_gap(shifted), 1.0)
+        ):
+            found.append(f)
+    return found if len(found) == 1 else []
+
+
+def _salt_ok(salt: float, sodium_mg: float) -> bool:
+    salt_from_sodium = Nutrients(sodium_mg=sodium_mg).salt()  # the engine's conversion
+    return salt_from_sodium is None or abs(salt - salt_from_sodium) <= SALT_MISMATCH_RATIO * salt
+
+
+def _salt_sodium_ok(salt: float, sodium: float, *, unit_unconfirmed: bool) -> bool:
+    """Salt agrees with sodium. A unit-less sodium agrees when either reading (mg or g) does:
+    its unit is asked anyway, and salt cannot be blamed for the missing unit."""
+    readings = (sodium, sodium * 1000) if unit_unconfirmed else (sodium,)
+    return any(_salt_ok(salt, mg) for mg in readings)
+
+
+def _decimal_shift_suspects(
+    values: Mapping[str, float | None],
+    fields: tuple[str, ...],
+    passes: Callable[[Mapping[str, float | None]], bool],
+) -> list[str]:
+    """Printed fields where x10 or /10 on that field alone makes a failed check pass."""
+    return [
+        f
+        for f in fields
+        if values[f] is not None
+        and any(passes({**values, f: values[f] * k}) for k in DECIMAL_SHIFT_FACTORS)
+    ]
+
+
+def _consistency_warnings(
+    values: dict[str, float | None],
+    col: NutrientsIn | None,
+    path: _Column,
+    *,
+    sodium_unit_unconfirmed: bool,
+    upper_bounds: set[str],
+) -> list[str]:
+    """Arithmetic checks on the column used (label accuracy v2 item 1). Each failed check
+    withholds the fields it involves (`confirm_rules.CHECK_FIELDS`); `decimal_shift:<path>`
+    names a field that a x10 or /10 slip would explain."""
     warnings: list[str] = []
-    kcal, p, c, f = (values[k] for k in ("energy_kcal", "protein_g", "carbs_g", "fat_g"))
-    if (
-        kcal is not None
-        and p is not None
-        and c is not None
-        and f is not None
-        and abs(kcal - (4 * p + 4 * c + 9 * f)) > _energy_tolerance(kcal)
-    ):
-        warnings.append("energy_mismatch")
+    suspects: list[str] = []
+    if all(values[k] is not None for k in _ATWATER_FIELDS[:4]):
+        if not _atwater_ok(values):
+            warnings.append("energy_mismatch")
+            found = _decimal_shift_suspects(values, _ATWATER_FIELDS, _atwater_ok)
+            if len(found) == 1:  # name a field only when exactly one explains the gap
+                suspects += found
+        elif not upper_bounds.intersection(_ATWATER_FIELDS):
+            # EF3. A "<X" value is a bound, not a reading: its gap is no evidence of a slip.
+            suspects += _tight_decimal_suspects(values)
 
     # Both energies printed on the column used and they disagree (printed kcal wins).
     printed_kcal = _finite(col.energy_kcal) if col is not None else None
@@ -361,13 +627,58 @@ def _consistency_warnings(values: dict[str, float | None], col: NutrientsIn | No
 
     salt, sodium = values["salt_g"], values["sodium_mg"]
     if salt is not None and sodium is not None:
-        salt_from_sodium = Nutrients(sodium_mg=sodium).salt()  # the engine's conversion
-        if salt_from_sodium is not None and abs(salt - salt_from_sodium) > (
-            SALT_MISMATCH_RATIO * salt
-        ):
-            warnings.append("salt_sodium_mismatch")
 
+        def salt_passes(v: Mapping[str, float | None]) -> bool:
+            s, na = v["salt_g"] or 0.0, v["sodium_mg"] or 0.0  # both printed here
+            return _salt_sodium_ok(s, na, unit_unconfirmed=sodium_unit_unconfirmed)
+
+        if not salt_passes(values):
+            warnings.append("salt_sodium_mismatch")
+            # x10 on salt and /10 on sodium are the same fix, so both (or neither) are named.
+            suspects += _decimal_shift_suspects(values, ("salt_g", "sodium_mg"), salt_passes)
+
+    fat, sat, trans = values["fat_g"], values["sat_fat_g"], values["trans_fat_g"]
+    if (
+        fat is not None
+        and sat is not None
+        and trans is not None
+        and sat + trans > fat + CROSS_FIELD_TOLERANCE_G
+    ):
+        warnings.append("fat_parts_mismatch")
+
+    warnings += [f"decimal_shift:{path}.{f}" for f in DraftNutrients.model_fields if f in suspects]
     return warnings
+
+
+def _column_ratio_mismatches(
+    per_100: Mapping[str, float | None],
+    per_serving: Mapping[str, float | None],
+    serving: float,
+    *,
+    skip: set[str],
+) -> list[str]:
+    """Engine fields (engine order) printed on both columns that disagree once the serving
+    size is applied (label accuracy v2 item 2). `skip`: fields not comparable (an upper bound
+    on either column, a unit-less sodium)."""
+    out: list[str] = []
+    for f in ENGINE_FIELDS:
+        a, b = _finite(per_100.get(f)), _finite(per_serving.get(f))
+        if f in skip or a is None or b is None:
+            continue
+        expected = a * serving / 100
+        unit = COLUMN_ROUNDING_UNITS.get(f, COLUMN_ROUNDING_UNITS["default"])
+        if abs(b - expected) > max(COLUMN_RATIO_TOLERANCE * max(abs(b), abs(expected)), unit):
+            out.append(f)
+    return out
+
+
+def _ratio_skip(
+    e: NutritionExtraction, per_100_col: NutrientsIn | None, per_serving_col: NutrientsIn | None
+) -> set[str]:
+    bounds = {p.split(".", 1)[1] for p in e.upper_bound_fields if "." in p}
+    if _sodium_unit_unconfirmed(per_100_col) or _sodium_unit_unconfirmed(per_serving_col):
+        bounds.add("sodium_mg")
+    return bounds
 
 
 def _confidence(e: NutritionExtraction) -> float:
@@ -396,6 +707,7 @@ def _engine_withheld(
     values: dict[str, float | None],
     source: NutrientsIn | None,
     path: _Column,
+    warnings: list[str],
     *,
     basis_mismatch: bool,
 ) -> list[EngineField]:
@@ -406,8 +718,10 @@ def _engine_withheld(
     bounds = set(e.upper_bound_fields)
     # An upper-bound protein/fibre on the column used is never evidence for a positive reason.
     withheld |= {f for f in UPPER_BOUND_FIELDS if f"{path}.{f}" in bounds and values[f] is not None}
-    if _sodium_unit_unconfirmed(source):
+    if _sodium_unit_unconfirmed(source) or f"sodium_unit_suspect:{path}.sodium_mg" in warnings:
         withheld.add("sodium_mg")
+    # Fields a failed arithmetic check involves (the same map the confirm hints use).
+    withheld |= {f for f in checked_fields(warnings) if values.get(f) is not None}
     return [f for f in ENGINE_FIELDS if f in withheld]
 
 
@@ -463,22 +777,51 @@ def to_draft(e: NutritionExtraction) -> ProductDraft:
         warnings.append("basis_mismatch")
     if _per_serving_ignored(values, per_serving, path):
         warnings.append("per_serving_ignored")
-    warnings += _consistency_warnings(values, source)
+    warnings += _consistency_warnings(
+        values,
+        source,
+        path,
+        sodium_unit_unconfirmed=_sodium_unit_unconfirmed(source),
+        upper_bounds={p.split(".", 1)[1] for p in e.upper_bound_fields if p.startswith(f"{path}.")},
+    )
+    # Both printed columns and a plausible serving: they must agree (never on a derived draft,
+    # whose per-100 g column was computed from the per-serving one).
+    if path == "per_100g" and serving_ok and serving is not None:
+        skip = _ratio_skip(e, per_100_col, per_serving_col)
+        warnings += [
+            f"column_mismatch:{f}"
+            for f in _column_ratio_mismatches(per_100, per_serving, serving, skip=skip)
+        ]
     # Each printed column with a unit-less sodium (both can be saved, R17).
     for column, col in (("per_100g", per_100_col), ("per_serving", per_serving_col)):
         if _sodium_unit_unconfirmed(col):
             warnings.append(f"unit_unconfirmed:{column}.sodium_mg")
+    # EF2: each printed column whose mg sodium is implausibly low with no salt to check it.
+    category, category_warnings = _category(e)
+    per_serving_factor = 100 / serving if serving_ok and serving is not None else None
+    salt_signals = _salt_signals(e)
+    for column, col, printed_values, factor in (
+        ("per_100g", per_100_col, per_100, 1.0),
+        ("per_serving", per_serving_col, per_serving, per_serving_factor),
+    ):
+        if _sodium_unit_suspect(
+            col,
+            printed_values,
+            per_100_factor=factor,
+            category=category,
+            salt_signals=salt_signals,
+        ):
+            warnings.append(f"sodium_unit_suspect:{column}.sodium_mg")
 
     confidence = _confidence(e)
     if confidence < load_config().thresholds["min_extraction_confidence"]:
         warnings.append("low_confidence")
 
-    category, category_warnings = _category(e)
     warnings += category_warnings
     warnings += _path_warnings("unreadable_field", e.unreadable_fields)
     warnings += _path_warnings("upper_bound", e.upper_bound_fields)
 
-    withheld = _engine_withheld(e, values, source, path, basis_mismatch=basis_mismatch)
+    withheld = _engine_withheld(e, values, source, path, warnings, basis_mismatch=basis_mismatch)
     return ProductDraft(
         name=_text(e.product_name),
         brand=_text(e.brand),

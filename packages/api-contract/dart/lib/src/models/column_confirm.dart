@@ -36,7 +36,7 @@ class ColumnConfirm {
   /// On a `basis_mismatch` draft, this is the only printed column: show its values whichever basis the user picks (its basis is the doubt).
   final bool shared;
 
-  /// Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`.
+  /// Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`. Set when sodium was printed without a unit (`unit_unconfirmed`) or as an implausibly low mg value with no salt to check it (`sodium_unit_suspect`).
   @JsonKey(name: 'sodium_unit_required')
   final bool sodiumUnitRequired;
 

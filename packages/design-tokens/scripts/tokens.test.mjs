@@ -58,6 +58,49 @@ test("unknown is never green", () => {
   assert.ok(!isGreenish(tok("color.verdict.unknown")));
   assert.ok(deltaE(tok("color.verdict.unknown"), tok("color.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
 });
+test("dark-theme and tint unknown colours are never green", () => {
+  for (const p of ["color.dark.verdict.unknown", "color.surface.verdict.unknown", "color.dark.surface.verdict.unknown"])
+    assert.ok(!isGreenish(tok(p)), p);
+  assert.ok(deltaE(tok("color.dark.verdict.unknown"), tok("color.dark.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
+});
+test("brand colours are not green and are far from the ok verdict", () => {
+  for (const p of ["color.brand.primary", "color.brand.soft", "color.brand.strong", "color.dark.brand.primary"])
+    assert.ok(!isGreenish(tok(p)), p);
+  assert.ok(deltaE(tok("color.brand.primary"), tok("color.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
+  assert.ok(deltaE(tok("color.dark.brand.primary"), tok("color.dark.verdict.ok")) >= MIN_DELTA_E_FROM_OK);
+});
+test("light text, brand and verdict colours meet WCAG AA on their backgrounds", () => {
+  const aa = (fg, bg) => assert.ok(contrast(tok(fg), tok(bg)) >= 4.5, `${fg} on ${bg}`);
+  for (const bg of ["color.surface.default", "color.surface.canvas", "color.surface.muted"]) {
+    aa("color.text.primary", bg);
+    aa("color.text.secondary", bg);
+    aa("color.brand.primary", bg);
+  }
+  aa("color.text.inverse", "color.brand.primary");
+  aa("color.brand.strong", "color.brand.soft");
+  for (const k of ["ok", "caution", "avoid", "unknown"]) {
+    aa(`color.verdict.${k}`, `color.surface.verdict.${k}`);
+    aa(`color.verdict.${k}`, "color.surface.canvas");
+    aa("color.text.inverse", `color.verdict.${k}`);
+    aa("color.text.primary", `color.surface.verdict.${k}`);
+  }
+});
+test("dark text, brand and verdict colours meet WCAG AA on their backgrounds", () => {
+  const aa = (fg, bg) => assert.ok(contrast(tok(fg), tok(bg)) >= 4.5, `${fg} on ${bg}`);
+  for (const bg of ["color.dark.surface.default", "color.dark.surface.canvas", "color.dark.surface.muted"]) {
+    aa("color.dark.text.primary", bg);
+    aa("color.dark.text.secondary", bg);
+    aa("color.dark.brand.primary", bg);
+    for (const k of ["ok", "caution", "avoid", "unknown"]) aa(`color.dark.verdict.${k}`, bg);
+  }
+  aa("color.dark.text.inverse", "color.dark.brand.primary");
+  aa("color.dark.brand.strong", "color.dark.brand.soft");
+  for (const k of ["ok", "caution", "avoid", "unknown"]) {
+    aa(`color.dark.verdict.${k}`, `color.dark.surface.verdict.${k}`);
+    aa("color.dark.text.inverse", `color.dark.verdict.${k}`);
+    aa("color.dark.text.primary", `color.dark.surface.verdict.${k}`);
+  }
+});
 test("the green check rejects teal and grey-green candidates", () => {
   assert.ok(!unknownOk("#0F766E"));
   assert.ok(!unknownOk("#4B5B4B"));
@@ -86,6 +129,67 @@ test("dart output exposes SnTokens", () => {
   assert.match(s, /abstract final class SnTokens/);
   assert.match(s, /static const Color verdictOk = Color\(0xFF15803D\)/);
   assert.match(s, /static const Color verdictUnknown = Color\(0xFF4B5563\)/);
+});
+
+// Light palette (color.*) and dark palette (color.dark.*) share the same
+// semantic names; the web swaps them under prefers-color-scheme: dark.
+const PALETTES = [
+  ["light", "color"],
+  ["dark", "color.dark"],
+];
+const VERDICTS = ["ok", "caution", "avoid", "unknown"];
+
+for (const [mode, p] of PALETTES) {
+  test(`${mode}: body and secondary text meet AA on every surface`, () => {
+    for (const s of ["canvas", "default", "muted"])
+      for (const tx of ["primary", "secondary"])
+        assert.ok(contrast(tok(`${p}.text.${tx}`), tok(`${p}.surface.${s}`)) >= 4.5, `${tx} on ${s}`);
+  });
+  test(`${mode}: brand accent is readable (text on brand, brand as text)`, () => {
+    for (const b of ["primary", "strong"])
+      assert.ok(contrast(tok(`${p}.brand.on`), tok(`${p}.brand.${b}`)) >= 4.5, `on ${b}`);
+    for (const s of ["canvas", "default"])
+      assert.ok(contrast(tok(`${p}.brand.primary`), tok(`${p}.surface.${s}`)) >= 4.5, `brand on ${s}`);
+    assert.ok(contrast(tok(`${p}.brand.primary`), tok(`${p}.brand.soft`)) >= 4.5, "brand on soft");
+  });
+  test(`${mode}: verdict colours are readable on their soft tint, the surface, and as badge fills`, () => {
+    for (const v of VERDICTS) {
+      const c = tok(`${p}.verdict.${v}`);
+      assert.ok(contrast(c, tok(`${p}.verdict.soft.${v}`)) >= 4.5, `${v} on soft`);
+      assert.ok(contrast(c, tok(`${p}.surface.default`)) >= 4.5, `${v} on surface`);
+      assert.ok(contrast(tok(`${p}.text.inverse`), c) >= 4.5, `inverse on ${v}`);
+    }
+  });
+  test(`${mode}: unknown is never green (solid and soft tint)`, () => {
+    assert.ok(!isGreenish(tok(`${p}.verdict.unknown`)));
+    assert.ok(!isGreenish(tok(`${p}.verdict.soft.unknown`)));
+    assert.ok(deltaE(tok(`${p}.verdict.unknown`), tok(`${p}.verdict.ok`)) >= MIN_DELTA_E_FROM_OK);
+  });
+  test(`${mode}: the brand accent never reads as a verdict colour`, () => {
+    const brand = tok(`${p}.brand.primary`);
+    assert.ok(!isGreenish(brand), "brand is not green");
+    for (const v of VERDICTS)
+      assert.ok(deltaE(brand, tok(`${p}.verdict.${v}`)) >= MIN_DELTA_E_FROM_OK, `brand vs ${v}`);
+  });
+}
+test("grade tiles carry a fixed on-colour (not swapped in dark mode)", () => {
+  for (const g of ["a", "b", "c", "d", "e"])
+    assert.ok(contrast(tok(`color.grade.on.${g}`), tok(`color.grade.${g}`)) >= 3, g); // large bold text
+});
+test("css output exposes the semantic and dark palette", () => {
+  const s = readFileSync(css, "utf8");
+  for (const v of [
+    "--color-brand-primary",
+    "--color-surface-canvas",
+    "--color-text-secondary",
+    "--color-verdict-soft-unknown",
+    "--color-dark-surface-canvas",
+    "--color-dark-verdict-unknown",
+    "--color-grade-on-a",
+    "--text-2xl",
+    "--radius-xl",
+  ])
+    assert.match(s, new RegExp(`${v}:`), v);
 });
 
 test("committed outputs are fresh (rebuild is byte-identical)", async () => {

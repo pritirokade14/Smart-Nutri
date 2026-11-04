@@ -3,16 +3,41 @@
 import { useRouter } from "next/navigation";
 import { hasLocale, useLocale, useTranslations } from "next-intl";
 import { useEffect } from "react";
+import { pageClass } from "@/components/shell/page";
+import { buttonClass } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { chipClass } from "@/components/ui/Chip";
+import { DisclaimerFooter } from "@/components/ui/DisclaimerFooter";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { CameraIcon, ScanIcon } from "@/components/ui/icons";
+import { LoadingState } from "@/components/ui/Skeleton";
+import { LogMealButton } from "@/features/meals/components/LogMealButton";
+import type { LogMealProduct } from "@/features/meals/components/LogMealDialog";
+import type { ProductRef } from "@/features/product/api/products";
+import { Alternatives } from "@/features/product/components/Alternatives";
+import {
+  hasProteinFacts,
+  readNutriscoreReason,
+} from "@/features/protein/lib/reportProtein";
+import { ReportButton } from "@/features/reports/components/ReportDialog";
 import { normalizeBarcode } from "@/features/scan/lib/barcode";
+import { ResultShare } from "@/features/share/ResultShare";
+import { isVoiceEnabled, VoiceAsk } from "@/features/voice/components/VoiceAsk";
 import { routing } from "@/i18n/routing";
+import { track } from "@/lib/analytics";
 import {
   type AnalyzeOut,
   analyzeErrorView,
   normalizeProductId,
   useAnalyze,
 } from "../api/useAnalyzeBarcode";
+import { readClaims } from "../lib/report";
+import { ClaimsSection } from "./ClaimsSection";
+import { ExplanationCard } from "./ExplanationCard";
 import { GradeChip } from "./GradeChip";
+import { NutritionTable } from "./NutritionTable";
 import { OffAttribution } from "./OffAttribution";
+import { ProteinFacts } from "./ProteinFacts";
 import { VerdictCard } from "./VerdictCard";
 
 const HIGH_IN = new Set(["sugar", "fat", "sat_fat", "salt"]);
@@ -39,47 +64,136 @@ function Analysis({
   const t = useTranslations();
   const { product } = data;
   const { grade, highIn } = readReport(data.report);
+  const gradeReason = readNutriscoreReason(data.report);
+  // Only how many cards were shown: never statuses, reasons or names.
+  const memberCount = data.verdicts.length;
+  useEffect(() => {
+    track("verdicts_shown", { member_count: memberCount });
+  }, [memberCount]);
   const offBarcode = product.barcode ?? barcode;
+  // Logging needs exactly one product reference: our id, else the barcode.
+  const logProduct: LogMealProduct | null =
+    product.product_id || offBarcode
+      ? {
+          productId: product.product_id,
+          barcode: product.product_id ? null : offBarcode,
+          name: product.name ?? offBarcode ?? "",
+          servingSizeG: product.serving_size_g,
+        }
+      : null;
+  // F10, behind NEXT_PUBLIC_FEATURE_VOICE: a saved product by id, otherwise
+  // the barcode (Open Food Facts products have no product_id).
+  const voice = isVoiceEnabled();
+  const voiceProduct = product.product_id
+    ? { productId: product.product_id }
+    : offBarcode
+      ? { barcode: offBarcode }
+      : null;
+  const members = data.verdicts.map((v) => ({
+    id: v.member_id,
+    name: v.member_name,
+    isPrimary: v.is_primary,
+    relation: v.relation,
+  }));
+  // Alternatives use the same product reference as voice.
+  const altRef: ProductRef | null = voiceProduct;
   return (
     <>
-      <header className="space-y-(--spacing-1)">
-        <h1 className="text-(length:--text-xl)">
-          {product.name ?? product.barcode ?? barcode}
-        </h1>
-        {product.brand ? (
-          <p className="text-(length:--text-md)">{product.brand}</p>
+      <Card as="section" className="space-y-4">
+        <header className="space-y-1">
+          <h1 className="text-xl font-bold break-words text-text-primary sm:text-2xl">
+            {product.name ?? product.barcode ?? barcode}
+          </h1>
+          {product.brand ? (
+            <p className="text-md text-text-secondary">{product.brand}</p>
+          ) : null}
+        </header>
+
+        <GradeChip grade={grade} reason={gradeReason} />
+
+        {highIn.length > 0 ? (
+          <section className="space-y-2">
+            <h2 className="text-sm font-semibold text-text-secondary">
+              {t("result.high_in_title")}
+            </h2>
+            <ul className="flex flex-wrap gap-2">
+              {highIn.map((k) => (
+                <li key={k} className={chipClass}>
+                  {t(`high_in.${k}`)}
+                </li>
+              ))}
+            </ul>
+          </section>
         ) : null}
-      </header>
-
-      <GradeChip grade={grade} />
-
-      {highIn.length > 0 ? (
-        <section className="space-y-(--spacing-2)">
-          <h2 className="text-(length:--text-md)">
-            {t("result.high_in_title")}
-          </h2>
-          <ul className="flex flex-wrap gap-(--spacing-2)">
-            {highIn.map((k) => (
-              <li
-                key={k}
-                className="rounded-(--radius-sm) border px-(--spacing-2) py-(--spacing-1) text-(length:--text-sm)"
-              >
-                {t(`high_in.${k}`)}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      </Card>
 
       {/* One card per member, in the order the API sent them. */}
-      <section className="space-y-(--spacing-3)">
+      <section aria-labelledby="members-title" className="space-y-3">
+        {data.verdicts.length > 0 ? (
+          <h2
+            id="members-title"
+            className="text-md font-semibold text-text-secondary"
+          >
+            {t("result.family_title")}
+          </h2>
+        ) : null}
         {data.verdicts.map((v) => (
-          <VerdictCard key={v.member_id} verdict={v} />
+          <div
+            key={v.member_id}
+            data-testid="member-result"
+            className="space-y-2"
+          >
+            <VerdictCard
+              verdict={v}
+              footer={
+                voice && voiceProduct ? (
+                  <VoiceAsk memberId={v.member_id} product={voiceProduct} />
+                ) : null
+              }
+            />
+            {logProduct ? (
+              <LogMealButton
+                product={logProduct}
+                members={members}
+                memberId={v.member_id}
+              />
+            ) : null}
+          </div>
         ))}
       </section>
 
+      <ResultShare
+        productName={product.name ?? offBarcode ?? ""}
+        grade={grade}
+        barcode={offBarcode}
+        verdicts={data.verdicts}
+      />
+
+      <ExplanationCard
+        explanation={data.explanation}
+        verdicts={data.verdicts}
+      />
+
+      <NutritionTable per100g={product.per_100g} />
+
+      {hasProteinFacts(data.report) ? (
+        <ProteinFacts report={data.report} />
+      ) : null}
+
+      <ClaimsSection checks={readClaims(data.report)} />
+
+      {altRef ? <Alternatives productRef={altRef} members={members} /> : null}
+
       {product.attribution != null && offBarcode ? (
         <OffAttribution barcode={offBarcode} />
+      ) : null}
+
+      {/* F14: only our own catalogue can be reported (reports reference
+          products.id; an Open Food Facts product has no product_id). */}
+      {product.product_id ? (
+        <div>
+          <ReportButton productId={product.product_id} />
+        </div>
       ) : null}
     </>
   );
@@ -124,67 +238,51 @@ export function ResultView(props: ResultRef) {
 
   let body: React.ReactNode;
   if (!byId && code === null) {
-    body = (
-      <p role="alert" className="text-(length:--text-md)">
-        {t("error.invalid_barcode")}
-      </p>
-    );
+    body = <ErrorState message={t("error.invalid_barcode")} />;
   } else if (byId && id === null) {
-    body = (
-      <p role="alert" className="text-(length:--text-md)">
-        {t("error.invalid_product_ref")}
-      </p>
-    );
+    body = <ErrorState message={t("error.invalid_product_ref")} />;
   } else if (notFound && labelUrl) {
     body = (
-      <a
-        href={labelUrl}
-        className="inline-block rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md) underline"
-      >
+      <a href={labelUrl} className={buttonClass({ size: "lg", block: true })}>
+        <CameraIcon />
         {t("notfound.go_to_label")}
       </a>
     );
   } else if (query.isPending) {
-    body = (
-      <p role="status" className="text-(length:--text-md)">
-        {t("common.loading")}
-      </p>
-    );
+    body = <LoadingState label={t("common.loading")} />;
   } else if (query.isError) {
     const view = analyzeErrorView(query.error);
     const message = t.has(view.messageKey)
       ? t(view.messageKey)
       : t("error.internal_error");
     body = (
-      <section className="space-y-(--spacing-2)">
-        <p role="alert" className="text-(length:--text-md)">
-          {message}
-        </p>
-        {view.kind !== "invalid" ? (
-          <button
-            type="button"
-            disabled={query.isFetching}
-            onClick={() => query.refetch()}
-            className="rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md)"
-          >
-            {t("scan.retry")}
-          </button>
-        ) : null}
-      </section>
+      <ErrorState
+        message={message}
+        onRetry={view.kind !== "invalid" ? () => query.refetch() : undefined}
+        retrying={query.isFetching}
+        retryLabel={t("scan.retry")}
+      />
     );
   } else {
     body = <Analysis data={query.data} barcode={code} />;
   }
 
   return (
-    <main className="mx-auto max-w-xl space-y-(--spacing-4) p-(--spacing-4)">
+    <main className={pageClass}>
       {body}
-      <footer className="space-y-(--spacing-2)">
-        <p className="text-(length:--text-sm)">{t("common.disclaimer")}</p>
+      <footer className="space-y-4">
+        <DisclaimerFooter />
+        <a
+          href={`/${language}/how-we-score`}
+          className="inline-block text-sm font-semibold text-brand-primary underline underline-offset-4 hover:text-brand-strong"
+        >
+          {t("methodology.title")}
+        </a>
         <a
           href={`/${language}/scan`}
-          className="inline-block rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md) underline"
+          className={buttonClass({ variant: "outline", block: true })}
         >
+          <ScanIcon />
           {t("result.scan_another")}
         </a>
       </footer>

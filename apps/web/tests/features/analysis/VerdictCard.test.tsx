@@ -70,6 +70,8 @@ const rs = (
 const synth = (status: string, reasons: Rs[]): VerdictOut => ({
   member_id: "x",
   member_name: "A",
+  relation: "other",
+  is_primary: false,
   profile_set_up: true,
   status: status as VerdictOut["status"],
   reasons,
@@ -91,20 +93,37 @@ describe("VerdictCard details", () => {
     return c.verdict;
   };
 
-  it("shows the member name, and 'You' for the primary member with no name", () => {
+  it("headline: '<status> for <name>', 'You' for an empty name, 'for you' for the account holder", () => {
+    const forMember = (name: string) =>
+      MESSAGES.en.verdict.for_member
+        .replace("{status}", MESSAGES.en.status.avoid)
+        .replace("{name}", name);
     renderCard(pick("sf_biscuit.diabetic_adult"));
     expect(
-      screen.getByRole("heading", { level: 2, name: "Diabetic Adult" }),
+      screen.getByRole("heading", {
+        level: 2,
+        name: forMember("Diabetic Adult"),
+      }),
     ).toBeTruthy();
     cleanup();
     renderCard({ ...pick("sf_biscuit.diabetic_adult"), member_name: "" });
     expect(
-      screen.getByRole("heading", { level: 2, name: MESSAGES.en.result.you }),
+      screen.getByRole("heading", {
+        level: 2,
+        name: forMember(MESSAGES.en.result.you),
+      }),
     ).toBeTruthy();
     cleanup();
     // No trimming (parity with Android): a whitespace name is shown as sent.
     renderCard({ ...pick("sf_biscuit.diabetic_adult"), member_name: " A " });
-    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(" A ");
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(
+      forMember(" A "),
+    );
+    cleanup();
+    renderCard({ ...pick("sf_biscuit.diabetic_adult"), is_primary: true });
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(
+      MESSAGES.en.verdict.for_you.replace("{status}", MESSAGES.en.status.avoid),
+    );
   });
 
   it("the avoid reason is visible; caution reasons sit behind the toggle, in API order", async () => {
@@ -134,6 +153,8 @@ describe("VerdictCard details", () => {
     const v: VerdictOut = {
       member_id: "x",
       member_name: "A",
+      relation: "other",
+      is_primary: false,
       profile_set_up: true,
       status: "unknown",
       reasons: [
@@ -157,6 +178,8 @@ describe("VerdictCard details", () => {
     const v: VerdictOut = {
       member_id: "x",
       member_name: "A",
+      relation: "other",
+      is_primary: false,
       profile_set_up: true,
       status: "caution",
       reasons: [{ code: "future_rule", severity: "caution", params: {} }],
@@ -253,6 +276,8 @@ describe("VerdictCard details", () => {
     renderCard({
       member_id: "x",
       member_name: "A",
+      relation: "other",
+      is_primary: false,
       profile_set_up: true,
       status: "safe" as VerdictOut["status"],
       reasons: [],
@@ -267,6 +292,8 @@ describe("VerdictCard details", () => {
     const { container } = renderCard({
       member_id: "x",
       member_name: "A",
+      relation: "other",
+      is_primary: false,
       profile_set_up: true,
       status: "ok",
       reasons: [],
@@ -276,13 +303,12 @@ describe("VerdictCard details", () => {
   });
 });
 
+// The card's tone is keyed on data-verdict (the API status) in globals.css.
 describe("verdict colours (globals.css)", () => {
   const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
   const rule = (status: string) =>
     css.match(
-      new RegExp(
-        `\\.verdict-card\\[data-status="${status}"\\]\\s*\\{([^}]*)\\}`,
-      ),
+      new RegExp(`(?:^|\\n)\\[data-verdict="${status}"\\]\\s*\\{([^}]*)\\}`),
     )?.[1] ?? "";
 
   it.each(["ok", "caution", "unknown", "avoid"])(
@@ -293,7 +319,7 @@ describe("verdict colours (globals.css)", () => {
   );
   it("unknown is never green, and the default is the unknown grey", () => {
     expect(rule("unknown")).not.toContain("verdict-ok");
-    const base = css.match(/\.verdict-card\s*\{([^}]*)\}/)?.[1] ?? "";
+    const base = css.match(/(?:^|\n)\[data-verdict\]\s*\{([^}]*)\}/)?.[1] ?? "";
     expect(base).toContain("var(--color-verdict-unknown)");
     expect(base).not.toContain("verdict-ok");
   });

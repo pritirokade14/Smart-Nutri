@@ -1,0 +1,15 @@
+{
+  "formula": "price * serving_size_g / pack_size_g, rounded to 2 dp; null when any input is missing or <= 0",
+  "cases": [
+    {"name": "typical_scoop", "price": 2499, "pack_size_g": 1000, "serving_size_g": 33, "expected": 82.47},
+    {"name": "rounds_to_2dp", "price": 1999, "pack_size_g": 907, "serving_size_g": 30, "expected": 66.12},
+    {"name": "small_pack", "price": 850, "pack_size_g": 500, "serving_size_g": 25, "expected": 42.5},
+    {"name": "serving_size_null", "price": 2499, "pack_size_g": 1000, "serving_size_g": null, "expected": null},
+    {"name": "price_missing", "price": null, "pack_size_g": 1000, "serving_size_g": 33, "expected": null},
+    {"name": "pack_size_missing", "price": 2499, "pack_size_g": null, "serving_size_g": 33, "expected": null},
+    {"name": "price_zero", "price": 0, "pack_size_g": 1000, "serving_size_g": 33, "expected": null},
+    {"name": "pack_size_zero", "price": 2499, "pack_size_g": 0, "serving_size_g": 33, "expected": null},
+    {"name": "serving_negative", "price": 2499, "pack_size_g": 1000, "serving_size_g": -5, "expected": null},
+    {"name": "price_negative", "price": -10, "pack_size_g": 1000, "serving_size_g": 33, "expected": null}
+  ]
+}

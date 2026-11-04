@@ -1,0 +1,87 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "supplement",
+    "claims": [
+      "24g protein per scoop",
+      "100% whey"
+    ],
+    "image_url": null,
+    "ingredients": [
+      "whey protein concentrate",
+      "cocoa powder",
+      "soy lecithin",
+      "sucralose"
+    ],
+    "name": "Whey Protein Powder (chocolate)",
+    "per_100g": {
+      "carbs_g": 9.1,
+      "energy_kcal": 395.0,
+      "fat_g": 6.1,
+      "fiber_g": 1.5,
+      "protein_g": 72.7,
+      "salt_g": 0.5,
+      "sat_fat_g": 3.0,
+      "sodium_mg": null,
+      "sugars_g": 6.1
+    },
+    "product_id": "2cd81729-1051-5618-92df-78679a2ae99c",
+    "serving_size_g": 33.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "milk": "contains",
+      "soy": "contains"
+    },
+    "caffeine": [],
+    "claims": [
+      {
+        "claim": "protein_amount",
+        "params": {},
+        "reason_code": "ok",
+        "verdict": "supported"
+      },
+      {
+        "claim": "whey_only",
+        "params": {},
+        "reason_code": "ok",
+        "verdict": "supported"
+      }
+    ],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": [
+        "whey"
+      ]
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": null,
+      "partial": false,
+      "points": null,
+      "reason": "not_scored_supplement"
+    },
+    "protein": {
+      "per_100g": 72.7,
+      "per_100kcal": 18.4,
+      "per_serving": 24.0,
+      "serving_size_g": 33.0
+    },
+    "sodium_additives": [],
+    "sweeteners": [
+      "sucralose"
+    ],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

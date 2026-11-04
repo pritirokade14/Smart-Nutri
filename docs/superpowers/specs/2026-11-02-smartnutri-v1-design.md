@@ -128,7 +128,7 @@ Row-level security applies on every table, keyed by `account_id`. The API also c
 - **Rate limits** (configurable): 30 label extractions per account per day, 20 voice questions per account per day, and 120 `/analyze` calls per account per hour. Public endpoints are limited per IP. Over the limit, the API returns `429` with `{code: "rate_limited_scans" | "rate_limited_voice" | "rate_limited", retry_after}`.
 - **Contract:** FastAPI exports `openapi.json` to `packages/api-contract/`. Both clients are generated from it, and CI fails on drift (ADR 0010).
 - `POST /meals`, `GET /meals?member_id&from&to`, `GET /meals/summary?member_id&period=day|week`
-- `POST /voice/ask` (multipart audio plus `product_id`, `member_id`, `language`), returning `{question, answer, audio_url}`
+- `POST /voice/ask` (multipart audio plus `product_id`, `member_id`, `language`), returning `{question, answer, audio_url}` (superseded 2026-11-04 by ADR 0020: the mp3 comes inline as `audio_base64` and is never stored)
 
 ## 6. Rules Engine Requirements
 

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { CameraIcon, ScanIcon } from "@/components/ui/icons";
 import { normalizeBarcode } from "../lib/barcode";
 import { createDetector } from "../lib/detector";
 
@@ -62,15 +63,35 @@ export function BarcodeScanner({ onCode }: { onCode: (code: string) => void }) {
 
   if (error) {
     return (
-      <p role="alert" className="text-(length:--text-md)">
-        {t(error)}
-      </p>
+      <div className="flex items-start gap-3 p-4 sm:p-5">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-muted text-text-secondary">
+          <CameraIcon />
+        </span>
+        <p role="alert" className="pt-2 text-md text-text-primary">
+          {t(error)}
+        </p>
+      </div>
     );
   }
   return (
-    <div className="flex flex-col gap-(--spacing-2)">
-      <video ref={videoRef} playsInline muted className="w-full" />
-      <p className="text-(length:--text-sm)">{t("scanning")}</p>
+    <div className="flex flex-col">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-muted">
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          className="h-full w-full object-cover"
+        />
+        {/* Aiming frame (decorative). */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-8 top-1/2 h-1/3 -translate-y-1/2 rounded-lg border-2 border-brand-on shadow-sm"
+        />
+      </div>
+      <p className="flex items-center gap-2 px-4 py-3 text-sm text-text-secondary">
+        <ScanIcon className="size-4 shrink-0" />
+        {t("scanning")}
+      </p>
     </div>
   );
 }

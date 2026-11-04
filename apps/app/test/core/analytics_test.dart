@@ -4,29 +4,53 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:smartnutri_ai/core/observability/analytics.dart';
 
 void main() {
-  test('allow-list matches API and web', () {
-    expect(allowedEventProps, {
-      'platform',
-      'locale',
-      'screen',
-      'status_code',
-      'source',
+  test('allowed events mirror the API ALLOWED_EVENTS exactly', () {
+    // apps/api/app/integrations/posthog.py::ALLOWED_EVENTS
+    expect(allowedEvents, {
+      'app_opened': <String>{},
+      'scan_started': {'method'},
+      'scan_completed': {'method', 'found'},
+      'verdicts_shown': {'member_count'},
+      'meal_logged': <String>{},
+      'meal_queued': <String>{},
+      'meal_log_undone': <String>{},
+      'meal_removed': <String>{},
+      'share_result': <String>{},
+      'share_weekly': <String>{},
+      'compare_opened': <String>{},
+      'compare_viewed': <String>{},
+      'product_search': <String>{},
+      'voice_asked': {'language'},
+      'report_submitted': {'reason'},
+      'share_clicked': {'kind'},
+      'account_deleted': <String>{},
     });
   });
 
-  test('track drops non-allowed keys and keeps allowed ones', () async {
+  test('track_drops_unknown_props', () async {
     final sent = <(String, Map<String, Object>)>[];
     final a = Analytics((e, p) async => sent.add((e, p)));
-    await a.track('viewed', {
+    await a.track('scan_completed', {
+      'method': 'barcode',
+      'found': true,
+      'reason': 'allergen_contains',
       'conditions': ['diabetes'],
       'screen': 'home',
     });
-    expect(sent.single.$1, 'viewed');
-    expect(sent.single.$2, {'screen': 'home'});
+    expect(sent.single.$1, 'scan_completed');
+    expect(sent.single.$2, {'method': 'barcode', 'found': true});
+  });
+
+  test('track ignores events outside the allow-list', () async {
+    final sent = <String>[];
+    final a = Analytics((e, p) async => sent.add(e));
+    await a.track('viewed', {'screen': 'home'});
+    await a.track('label_scan_failed');
+    expect(sent, isEmpty);
   });
 
   test('track is a no-op without a sink (no key)', () async {
-    await const Analytics.disabled().track('viewed', {'screen': 'home'});
+    await const Analytics.disabled().track('app_opened');
   });
 
   test('scrubSentryEvent removes body, cookies, headers, email and ip', () {
@@ -85,32 +109,32 @@ void main() {
   test('track constrains allow-listed values', () async {
     final sent = <Map<String, Object>>[];
     final a = Analytics((e, p) async => sent.add(p));
-    await a.track('e', {
-      'locale': 'fr',
-      'platform': 'ios',
-      'screen': 'Diabetes Home',
-      'source': 'scan_page',
-      'status_code': '200',
-    });
-    expect(sent.last, {'source': 'scan_page'});
-    await a.track('e', {
-      'locale': 'mr',
-      'platform': 'android',
-      'screen': 'home',
-      'status_code': 404,
-    });
-    expect(sent.last, {
-      'locale': 'mr',
-      'platform': 'android',
-      'screen': 'home',
-      'status_code': 404,
-    });
+    await a.track('scan_started', {'method': 'photo'});
+    expect(sent.last, isEmpty);
+    await a.track('scan_completed', {'method': 'label', 'found': 'yes'});
+    expect(sent.last, {'method': 'label'});
+    await a.track('verdicts_shown', {'member_count': true});
+    expect(sent.last, isEmpty);
+    await a.track('verdicts_shown', {'member_count': 4});
+    expect(sent.last, {'member_count': 4});
+    await a.track('verdicts_shown', {'member_count': 5000});
+    expect(sent.last, isEmpty);
+    await a.track('voice_asked', {'language': 'fr'});
+    expect(sent.last, isEmpty);
+    await a.track('voice_asked', {'language': 'mr'});
+    expect(sent.last, {'language': 'mr'});
+    await a.track('report_submitted', {'reason': 'wrong_values'});
+    expect(sent.last, {'reason': 'wrong_values'});
+    await a.track('report_submitted', {'reason': 'Has peanuts'});
+    expect(sent.last, isEmpty);
+    await a.track('share_clicked', {'kind': 'whatsapp'});
+    expect(sent.last, {'kind': 'whatsapp'});
   });
 
   test('analyticsProvider defaults to a no-op and can be overridden', () async {
     final c = ProviderContainer();
     addTearDown(c.dispose);
-    await c.read(analyticsProvider).track('e', {'screen': 'home'});
+    await c.read(analyticsProvider).track('app_opened');
     final sent = <String>[];
     final c2 = ProviderContainer(
       overrides: [
@@ -120,7 +144,7 @@ void main() {
       ],
     );
     addTearDown(c2.dispose);
-    await c2.read(analyticsProvider).track('hit');
-    expect(sent, ['hit']);
+    await c2.read(analyticsProvider).track('app_opened');
+    expect(sent, ['app_opened']);
   });
 }

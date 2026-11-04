@@ -9,7 +9,8 @@ import 'analyze_request_language.dart';
 part 'analyze_request.g.dart';
 
 /// Exactly one product reference: our own ``product_id``, or a ``barcode`` (OFF products.
-/// have no product_id). With no ``member_ids`` the account's primary member is used.
+/// have no product_id). With no ``member_ids`` every member of the account is analysed, the.
+/// primary (the account holder) first. Any unknown or foreign id is a 404.
 @JsonSerializable()
 class AnalyzeRequest {
   const AnalyzeRequest({

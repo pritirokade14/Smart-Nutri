@@ -12,16 +12,25 @@ import 'package:smartnutri_ai/features/auth/presentation/email_otp_screen.dart';
 import 'package:smartnutri_ai/features/auth/presentation/phone_otp_screen.dart';
 import 'package:smartnutri_ai/features/auth/presentation/sign_in_screen.dart';
 import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
+import 'package:smartnutri_ai/features/product/presentation/compare_screen.dart';
+import 'package:smartnutri_ai/features/product/presentation/search_screen.dart';
 import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
+import 'package:smartnutri_ai/features/settings/presentation/profile_screen.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../support/fake_auth.dart';
+import '../support/fake_members.dart';
+import '../support/fake_meals.dart';
 
 class _FakeMe implements MeClient {
   _FakeMe(this.result);
   final Future<MeOut> Function() result;
   @override
   Future<MeOut> meGet() => result();
+  @override
+  Future<void> meDelete() => throw UnimplementedError();
+  @override
+  dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
 
 class _FakeApi implements SmartNutriApiClient {
@@ -29,6 +38,8 @@ class _FakeApi implements SmartNutriApiClient {
   final MeClient _me;
   @override
   MeClient get me => _me;
+  @override
+  final ConsentsClient consents = FakeConsentsClient(granted: {'terms'});
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
@@ -52,6 +63,7 @@ Widget _app(
   bool email = false,
 }) => ProviderScope(
   overrides: [
+    ...mealTestOverrides(),
     appConfigProvider.overrideWithValue(_cfg(phone, email)),
     authRepositoryProvider.overrideWithValue(repo),
     apiClientProvider.overrideWithValue(_FakeApi(me)),
@@ -135,6 +147,20 @@ void main() {
     await tester.pumpAndSettle();
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
     expect(find.text(l10n.errorRateLimited), findsOneWidget);
+    // Sign-out lives on the Profile tab.
+    await tester.tap(find.text(l10n.navProfile));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text(l10n.authSignOut),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ProfileScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l10n.authSignOut));
     await tester.pumpAndSettle();
     expect(find.byType(SignInScreen), findsOneWidget);
@@ -193,5 +219,29 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.byType(SignInScreen), findsNothing);
+  });
+
+  testWidgets('/compare and /search are routes above the shell', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(FakeAuthRepository(signedIn: true), _FakeMe(() async => _me())),
+    );
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(HomeScreen)),
+    );
+    final router = container.read(routerProvider);
+    router.push('/compare?a=pa');
+    await tester.pumpAndSettle();
+    expect(find.byType(CompareScreen), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(CompareScreen)),
+    );
+    await tester.tap(find.text(l10n.comparePickSecond));
+    await tester.pumpAndSettle();
+    final search = tester.widget<SearchScreen>(find.byType(SearchScreen));
+    expect(search.compareWith, (productId: 'pa', barcode: null));
   });
 }

@@ -9,10 +9,30 @@ import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/presentation/email_otp_screen.dart';
 import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
+import '../../features/consent/presentation/consent_providers.dart';
+import '../../features/consent/presentation/consent_screen.dart';
+import '../../features/history/presentation/history_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/meals/presentation/meals_providers.dart';
+import '../../features/members/presentation/member_form_screen.dart';
+import '../../features/members/presentation/members_list_screen.dart';
+import '../../features/members/presentation/members_providers.dart';
+import '../../features/methodology/presentation/methodology_screen.dart';
+import '../../features/product/presentation/compare_screen.dart';
+import '../../features/product/presentation/discovery_routes.dart';
+import '../../features/product/presentation/search_screen.dart';
+import '../../features/protein/presentation/protein_screen.dart';
 import '../../features/scan/presentation/confirm_screen.dart';
 import '../../features/scan/presentation/label_capture_screen.dart';
 import '../../features/scan/presentation/scan_screen.dart';
+import '../../features/settings/presentation/goodbye_screen.dart';
+import '../../features/settings/presentation/profile_screen.dart';
+import '../../features/user_types/domain/user_types.dart';
+import '../../features/user_types/presentation/follow_up_screen.dart';
+import '../../features/user_types/presentation/prefill_review_screen.dart';
+import '../../features/user_types/presentation/type_picker_screen.dart';
+import '../../features/user_types/presentation/user_types_providers.dart';
+import '../../shared/widgets/app_shell.dart';
 import '../config/app_config.dart';
 
 class _AuthRefresh extends ChangeNotifier {
@@ -21,6 +41,9 @@ class _AuthRefresh extends ChangeNotifier {
   }
   late final StreamSubscription<bool> _sub;
 
+  /// Re-runs the redirect (e.g. when the terms status changes).
+  void ping() => notifyListeners();
+
   @override
   void dispose() {
     _sub.cancel();
@@ -28,19 +51,66 @@ class _AuthRefresh extends ChangeNotifier {
   }
 }
 
+/// Routes the unanswered type picker never blocks: consents, Profile, the
+/// goodbye page, and adding a family member from the family follow-up.
+const _typesExempt = {
+  '/profile',
+  '/terms',
+  '/consent',
+  '/goodbye',
+  '/family/new',
+};
+
+bool _edit(GoRouterState state) => state.uri.queryParameters['edit'] == '1';
+
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authRepositoryProvider);
   final config = ref.watch(appConfigProvider);
   final refresh = _AuthRefresh(auth.authStateChanges());
   ref.onDispose(refresh.dispose);
+  ref.listen(termsStatusProvider, (_, _) => refresh.ping());
+  ref.listen(userTypesStatusProvider, (_, _) => refresh.ping());
 
   final router = GoRouter(
     initialLocation: '/home',
     refreshListenable: refresh,
     redirect: (context, state) {
-      final onSignIn = state.matchedLocation.startsWith('/sign-in');
-      if (!auth.isSignedIn) return onSignIn ? null : '/sign-in';
-      if (onSignIn) return '/home';
+      final location = state.matchedLocation;
+      final onSignIn = location.startsWith('/sign-in');
+      // Shown signed out, right after the account is deleted.
+      final onGoodbye = location == '/goodbye';
+      if (!auth.isSignedIn) return onSignIn || onGoodbye ? null : '/sign-in';
+      // F11: nothing else until the current terms are agreed (ruling G1:
+      // every product route needs `terms`). While the states load the app
+      // goes on (a 403 brings the user back here); if they fail to load, the
+      // terms screen blocks with an error and a retry.
+      final onTerms = location == '/terms';
+      if (ref.read(termsStatusProvider) == TermsStatus.required) {
+        return onTerms ? null : '/terms';
+      }
+      // Plan 9: "What brings you here?" right after the terms, until it is
+      // answered (or skipped). While the answer loads or failed to load the
+      // app goes on, as for the terms.
+      final types = ref.read(userTypesStatusProvider);
+      final onWelcome =
+          location == '/welcome' || location.startsWith('/welcome/');
+      final editing = state.uri.queryParameters['edit'] == '1';
+      if (types == UserTypesStatus.unanswered &&
+          !onWelcome &&
+          !_typesExempt.contains(location)) {
+        return '/welcome';
+      }
+      // Once answered, the picker and follow-up open only from Profile
+      // (`?edit=1`). The review comes right after the save, so it stays open.
+      if (onWelcome &&
+          types == UserTypesStatus.answered &&
+          !editing &&
+          location != '/welcome/review') {
+        return '/home';
+      }
+      if (onSignIn || onTerms || onGoodbye) {
+        return types == UserTypesStatus.unanswered ? '/welcome' : '/home';
+      }
       return null;
     },
     routes: [
@@ -54,7 +124,96 @@ final routerProvider = Provider<GoRouter>((ref) {
             GoRoute(path: 'phone', builder: (_, _) => const PhoneOtpScreen()),
         ],
       ),
-      GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
+      // The signed-in branches, in `kShellBranches` order: Home, History,
+      // Family, Protein, Profile. The tab bar shows the focused mode's five
+      // (AppShell). Scan, Compare, Search, label capture, confirm and result
+      // are full-screen routes above the shell.
+      StatefulShellRoute.indexedStack(
+        // The offline log syncs while signed in (start, resume, back online).
+        builder: (_, _, shell) => MealSyncScope(child: AppShell(shell: shell)),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/history',
+                builder: (_, _) => const HistoryScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/family',
+                builder: (_, _) => const MembersListScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (_, _) => const MemberFormScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) =>
+                        MemberFormScreen(memberId: state.pathParameters['id']),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/protein',
+                builder: (_, _) => const ProteinScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (_, _) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
+      GoRoute(path: '/goodbye', builder: (_, _) => const GoodbyeScreen()),
+      GoRoute(
+        path: '/welcome',
+        builder: (_, state) => TypePickerScreen(edit: _edit(state)),
+        routes: [
+          GoRoute(
+            path: 'follow-up',
+            builder: (_, state) => FollowUpScreen(edit: _edit(state)),
+          ),
+          GoRoute(
+            path: 'review',
+            builder: (_, state) => PrefillReviewScreen(edit: _edit(state)),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/terms',
+        builder: (_, _) =>
+            ConsentScreen(purposes: const [consentPurposeTerms], gate: true),
+      ),
+      GoRoute(
+        path: '/consent',
+        builder: (_, state) => ConsentScreen(
+          purposes: ConsentScreen.parsePurposes(
+            state.uri.queryParameters['purposes'],
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/methodology',
+        builder: (_, _) => const MethodologyScreen(),
+      ),
       GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
       GoRoute(
         path: '/scan/label',
@@ -70,6 +229,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/search',
+        builder: (_, state) {
+          final q = discoveryQuery(state.uri.queryParameters);
+          return SearchScreen(compareWith: q.a, memberId: q.memberId);
+        },
+      ),
+      GoRoute(
+        path: '/compare',
+        builder: (_, state) {
+          final q = discoveryQuery(state.uri.queryParameters);
+          return CompareScreen(a: q.a, b: q.b, memberId: q.memberId);
+        },
+      ),
+      GoRoute(
         path: '/result',
         builder: (_, state) => ResultScreen(
           barcode: state.uri.queryParameters['barcode'],
@@ -79,5 +252,23 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
   ref.onDispose(router.dispose);
+
+  // A 403 `consent_required` from any gated call: reload the states (the
+  // terms screen follows if terms is missing) and open the consent screen
+  // for the other purposes.
+  ref.listen(consentRequestProvider, (_, purposes) {
+    if (purposes == null) return;
+    ref.read(consentRequestProvider.notifier).clear();
+    ref.invalidate(consentStateProvider);
+    if (purposes.contains(consentPurposeTerms)) return;
+    final path = router.routerDelegate.currentConfiguration.uri.path;
+    if (path == '/consent' || path == '/terms') return;
+    router.push(
+      Uri(
+        path: '/consent',
+        queryParameters: {'purposes': purposes.join(',')},
+      ).toString(),
+    );
+  });
   return router;
 });

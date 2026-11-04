@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AlertTriangleIcon } from "@/components/ui/icons";
 import { parseWarning } from "../lib/warnings";
 
 // Shown prominently (role=alert): the whole draft may be misread.
@@ -28,12 +29,15 @@ export function WarningBanner({ warning }: { warning: string }) {
     <div
       data-testid={`warning-${warning}`}
       role={prominent ? "alert" : "note"}
-      className={`rounded-(--radius-md) border-2 border-(--color-verdict-caution) p-(--spacing-3) text-(length:--text-md) ${prominent ? "font-semibold" : ""}`}
+      className={`flex items-start gap-3 rounded-md border-2 border-verdict-caution bg-verdict-soft-caution p-3 text-md text-text-primary ${prominent ? "font-semibold" : ""}`}
     >
-      {fieldLabel ? (
-        <p className="font-semibold text-(length:--text-sm)">{fieldLabel}</p>
-      ) : null}
-      <p>{message}</p>
+      <AlertTriangleIcon className="mt-0.5 size-5 shrink-0 text-verdict-caution" />
+      <div className="min-w-0 space-y-1">
+        {fieldLabel ? (
+          <p className="text-sm font-semibold">{fieldLabel}</p>
+        ) : null}
+        <p>{message}</p>
+      </div>
     </div>
   );
 }

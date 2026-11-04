@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import Annotated, Any, Literal, get_args
 from uuid import UUID
 
@@ -143,7 +144,8 @@ class ProductCreate(BaseModel):
     Scan-save rules (422 `validation_error` with `details.fields` naming the field):
     - `category` and `basis` are always required (the user must pick them; nothing defaults).
     - (R19) `sodium_unit` must be `mg` or `g` (not null) whenever the draft has ANY
-      `unit_unconfirmed:*.sodium_mg` warning (either column, whichever `basis` is chosen) and
+      `unit_unconfirmed:*.sodium_mg` or `sodium_unit_suspect:*.sodium_mg` warning (either
+      column, whichever `basis` is chosen; `confirm.columns.*.sodium_unit_required`) and
       `nutrients.sodium_mg` is not null; else 422 `["body.sodium_unit"]`. Listing `sodium_mg`
       in `confirmed_fields` never stands in for the unit. A non-null unit confirms sodium.
     - (R19) With `basis` `per_serving`, or whenever the draft was `derived_from_serving`
@@ -164,7 +166,7 @@ class ProductCreate(BaseModel):
     barcode: str | None = Field(default=None, max_length=64)
     name: _Name
     brand: _ShortText | None = None
-    category: Literal["general", "beverage", "water", "cheese", "fat"] = Field(
+    category: Literal["general", "beverage", "water", "cheese", "fat", "supplement"] = Field(
         description="Required: the user's explicit choice (drinks are judged on drink limits)."
     )
     basis: Literal["per_100g", "per_serving"] = Field(
@@ -185,7 +187,8 @@ class ProductCreate(BaseModel):
             "The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this "
             "is a manual entry in mg). `g` is converted to mg by the server. Send the user's "
             "explicit pick (`mg` or `g`, never null) whenever the scan draft has any "
-            "`unit_unconfirmed:*.sodium_mg` warning (either column, whatever the basis) and "
+            "`unit_unconfirmed:*.sodium_mg` or `sodium_unit_suspect:*.sodium_mg` warning "
+            "(either column, whatever the basis; `sodium_unit_required`) and "
             "sodium is not null, else 422 `body.sodium_unit` (R19). A non-null unit "
             "confirms sodium; `confirmed_fields` never replaces it."
         ),
@@ -228,3 +231,182 @@ class ProductCreate(BaseModel):
     @classmethod
     def _drop_blank_items(cls, value: list[str]) -> list[str]:
         return [s for v in value if (s := v.strip())]
+
+
+# --- alternatives, search and compare (Plan 6 T5/T6) ---------------------------------------
+
+
+class NutriScoreGrade(StrEnum):
+    """Nutri-Score grade, calculated by SmartNutri (never an FSSAI rating)."""
+
+    A = "A"
+    B = "B"
+    C = "C"
+    D = "D"
+    E = "E"
+
+
+class MemberStatus(StrEnum):
+    """A member's verdict from the rules engine (never computed by clients)."""
+
+    OK = "ok"
+    CAUTION = "caution"
+    UNKNOWN = "unknown"
+    AVOID = "avoid"
+
+
+class AlternativesSort(StrEnum):
+    """Alternatives order: ``grade`` (better Nutri-Score) or ``protein`` (more protein per
+    100 kcal, never avoid for the member, never a worse grade)."""
+
+    GRADE = "grade"
+    PROTEIN = "protein"
+
+
+class SearchSort(StrEnum):
+    """Search order: ``relevance`` (ours first, then Open Food Facts) or ``protein`` (most
+    protein per 100 kcal first, unknown last, never avoid for the member)."""
+
+    RELEVANCE = "relevance"
+    PROTEIN = "protein"
+
+
+class AlternativeOut(BaseModel):
+    """A product in the same Open Food Facts category with a strictly better Nutri-Score
+    (calculated by SmartNutri). Open it with ``products_get_by_barcode``."""
+
+    barcode: str | None
+    product_id: UUID | None
+    name: str
+    brand: str | None
+    image_url: str | None
+    grade: NutriScoreGrade
+    sugars_g: float | None = Field(description="Per 100 g/ml; null if not on the label")
+    protein_g: float | None = Field(
+        description="Protein per 100 g/ml (report.protein.per_100g); null if not on the label"
+    )
+    protein_per_100kcal: float | None = Field(
+        description="report.protein.per_100kcal; null without protein or energy"
+    )
+    high_in: list[str]
+    member_status: MemberStatus | None = Field(
+        description=(
+            "The rules engine's verdict for member_id (only when member_id is given; with "
+            "sort=protein, for member_id or else the primary member)"
+        )
+    )
+    attribution: str | None = Field(description='"attribution.off": credit Open Food Facts')
+
+
+class AlternativesOut(BaseModel):
+    items: list[AlternativeOut] = Field(
+        description=(
+            "At most 5. sort=grade: best grade first, then less sugar, then name. "
+            "sort=protein: strictly more protein per 100 kcal than the source and a grade no "
+            "worse; ok before caution before unknown, then most protein per 100 kcal, then "
+            "grade, then name. Never a product the engine rates avoid for the member "
+            "(sort=grade: member_id only; sort=protein: member_id or the primary member)"
+        )
+    )
+    reason: Literal[
+        "ok",
+        "no_category",
+        "no_better_found",
+        "source_ungraded",
+        "source_protein_unknown",
+        "source_supplement",
+    ] = Field(
+        description=(
+            "no_better_found also when every better product is avoid for the member; "
+            "source_protein_unknown: sort=protein and the source has no protein per 100 kcal; "
+            "source_supplement: the source is a supplement (never suggested, no swaps)"
+        )
+    )
+
+
+class SearchHit(BaseModel):
+    """Our own products first (``product_id``), then Open Food Facts (``barcode`` only: open
+    with ``products_get_by_barcode``)."""
+
+    product_id: UUID | None
+    barcode: str | None
+    name: str
+    brand: str | None
+    grade: NutriScoreGrade | None = Field(
+        description="Nutri-Score calculated by SmartNutri; null if unknown"
+    )
+    source: Literal["ours", "off"]
+    attribution: str | None = Field(description='"attribution.off" for Open Food Facts hits')
+    protein_g: float | None = Field(
+        description="Protein per 100 g/ml (report.protein.per_100g); null if not on the label"
+    )
+    protein_per_100kcal: float | None = Field(
+        description="report.protein.per_100kcal; null without protein or energy"
+    )
+    member_status: MemberStatus | None = Field(
+        description=(
+            "The rules engine's verdict. sort=relevance: only when member_id is given. "
+            "sort=protein: for member_id or else the primary member (avoid is never returned)"
+        )
+    )
+    off_degraded: bool = Field(
+        default=False,
+        description=(
+            "true when the Open Food Facts search budget was spent and only our own "
+            "catalogue is returned; clients show a small 'more results later' note"
+        ),
+    )
+
+
+class BetterSide(StrEnum):
+    A = "a"
+    B = "b"
+    SAME = "same"
+    UNKNOWN = "unknown"
+
+
+class CompareSide(BaseModel):
+    product_id: UUID | None = Field(description="Our own product; null for Open Food Facts")
+    barcode: str | None
+    name: str
+    brand: str | None
+    grade: NutriScoreGrade | None
+    per_100g: NutrientsOut
+    serving_size_g: float | None = Field(description="null when the label has no serving size")
+    protein_per_serving_g: float | None = Field(
+        description="report.protein.per_serving; null without a serving size or protein"
+    )
+    sugars_per_serving_g: float | None = Field(
+        description="Sugars in one serving, 1 dp; null without a serving size or sugars"
+    )
+    protein_per_100kcal: float | None = Field(
+        description="report.protein.per_100kcal; null without protein or energy"
+    )
+    high_in: list[str]
+    member_status: MemberStatus | None = Field(
+        description="The rules engine's verdict for member_id (only when member_id is given)"
+    )
+    attribution: str | None
+
+
+class CompareBetter(BaseModel):
+    """Which side is better: lower energy, sugars, salt and saturated fat; higher protein and
+    fibre; grade A best; higher protein per serving and per 100 kcal; lower sugars per serving.
+    ``unknown`` when either side has no value (never a win)."""
+
+    energy_kcal: BetterSide
+    sugars_g: BetterSide
+    salt_g: BetterSide
+    sat_fat_g: BetterSide
+    protein_g: BetterSide
+    fiber_g: BetterSide
+    grade: BetterSide
+    protein_per_serving_g: BetterSide
+    protein_per_100kcal: BetterSide
+    sugars_per_serving_g: BetterSide
+
+
+class CompareOut(BaseModel):
+    a: CompareSide
+    b: CompareSide
+    better: CompareBetter

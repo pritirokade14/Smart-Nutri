@@ -16,6 +16,72 @@ def test_every_product_and_member_has_expectations():
     assert {(p, m) for p, m, _ in CASES} == {(p, m) for p in products for m in members}
 
 
+def test_meal_and_share_fixtures_are_current():
+    """Plan 6: meals/expected/ and share/ are generated; regenerate with
+    `uv run python scripts/export_meal_fixtures.py --write` and review the diff."""
+    from scripts.export_meal_fixtures import changes
+
+    stale = sorted(p.name for p in changes())
+    assert stale == [], f"stale meal/share fixtures (run export_meal_fixtures.py --write): {stale}"
+
+
+def test_share_texts_never_leak_health_data():
+    import json
+
+    data = json.loads((FIXTURES / "share" / "share_result.sf_biscuit.json").read_text("utf-8"))
+    messages = FIXTURES.parent / "i18n" / "messages"
+    for case in data["cases"]:
+        for locale, text in data["expected"][case["id"]].items():
+            assert data["forbidden_substrings"][locale]
+            # Ruling M1 S6: custom alert labels (alert.*) are health data too.
+            alerts = json.loads((messages / f"{locale}.json").read_text("utf-8"))["alert"]
+            forbidden = set(data["forbidden_substrings"][locale])
+            assert {a.casefold() for a in alerts.values()} <= forbidden
+            assert not [w for w in forbidden if w in text.casefold()]
+    # The verdict statuses in the share input are the engine's, as in expected/.
+    for v in data["input"]["verdicts"]:
+        expected = json.loads(
+            (FIXTURES / "expected" / f"sf_biscuit.{v['fixture_member']}.json").read_text("utf-8")
+        )
+        assert v["status"] == expected["status"]
+
+
+def _share(name: str) -> dict:
+    import json
+
+    return json.loads((FIXTURES / "share" / name).read_text("utf-8"))
+
+
+def test_share_default_is_product_and_grade_only():
+    """Ruling SH1: the default share names the product and its Nutri-Score only; member
+    statuses are opted in per share (every box unticked by default)."""
+    data = _share("share_result.sf_biscuit.json")
+    cases = {c["id"]: c for c in data["cases"]}
+    assert data["default_case"] == "default"
+    assert cases["default"]["member_ids"] == [] and cases["default"]["link"] is True
+    names = [v["name"].split()[0] for v in data["input"]["verdicts"] if v["name"]]
+    for locale, text in data["expected"]["default"].items():
+        assert data["input"]["product"] in text
+        assert not [n for n in names if n in text], locale
+        assert data["input"]["urls"][locale] in text
+    # Opting one member in adds exactly that member.
+    riya = data["expected"]["one_member"]["en"]
+    assert "Riya:" in riya and "Ravi" not in riya
+
+
+def test_share_link_only_with_a_site_url():
+    """Ruling SH1: no hard-coded domain; without SITE_URL / NEXT_PUBLIC_SITE_URL the text has
+    no link at all."""
+    result = _share("share_result.sf_biscuit.json")
+    weekly = _share("share_weekly.week_family.json")
+    for data in (result, weekly):
+        no_link = data["expected"]["no_link"]
+        for locale, text in no_link.items():
+            assert "http" not in text and data["input"]["urls"][locale] not in text
+        for url in data["input"]["urls"].values():
+            assert "smartnutri.app" not in url
+
+
 @pytest.mark.parametrize(
     ("product", "member", "expected"), CASES, ids=[f"{p}.{m}" for p, m, _ in CASES]
 )
@@ -24,3 +90,37 @@ def test_engine_matches_expected(product, member, expected):
     assert verdict.status.value == expected["status"]
     actual = [{"code": r.code, "severity": r.severity.value} for r in verdict.reasons]
     assert actual == expected["reasons"]
+
+
+# --- family coverage (Plan 5 Task 8) -----------------------------------------------------------
+
+
+def _codes(expected: dict) -> set[str]:
+    return {r["code"] for r in expected["reasons"]}
+
+
+def _members():
+    return [load_member(m.stem) for m in sorted((FIXTURES / "members").glob("*.json"))]
+
+
+def test_custom_alert_reasons_are_covered():
+    """Both clients render custom_alert and custom_alert_unknown from these fixtures."""
+    assert any("custom_alert" in _codes(e) for _, _, e in CASES)
+    assert any("custom_alert_unknown" in _codes(e) for _, _, e in CASES)
+
+
+def test_alert_members_cover_adult_child_infant_and_unknown_age():
+    """Controller ruling: an adult, a child, an infant and an age=None member with alerts."""
+    ages = [m.age for m in _members() if m.custom_alerts]
+    assert None in ages
+    assert any(a is not None and a < 2 for a in ages)  # infant
+    assert any(a is not None and 2 <= a < 13 for a in ages)  # child
+    assert any(a is not None and a >= 18 for a in ages)  # adult
+
+
+def test_free_text_allergen_fixture_is_avoid():
+    """kiwi_child: a typed-in (non-canonical) allergen reaches the engine as `avoid`."""
+    assert load_member("kiwi_child").allergens == ("kiwi",)
+    expected = next(e for p, m, e in CASES if (p, m) == ("kiwi_yogurt", "kiwi_child"))
+    assert expected["status"] == "avoid"
+    assert expected["reasons"][0] == {"code": "allergen_contains", "severity": "avoid"}

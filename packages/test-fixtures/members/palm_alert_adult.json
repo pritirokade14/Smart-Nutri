@@ -1,0 +1,13 @@
+{
+  "id": "palm_alert_adult",
+  "name": "Palm Alert Adult",
+  "age": 30,
+  "diet": "non_veg",
+  "allergens": [],
+  "conditions": [],
+  "goal": null,
+  "custom_alerts": [
+    "palm_oil",
+    "maida"
+  ]
+}

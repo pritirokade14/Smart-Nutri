@@ -1,6 +1,8 @@
+import pytest
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.pool import NullPool
 
 from alembic import command
@@ -14,8 +16,203 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert MigrationContext.configure(conn).get_current_revision() == "0002_scans_path_unique"
+        assert (
+            MigrationContext.configure(conn).get_current_revision()
+            == "0007_plan9_supplement_category"
+        )
     engine.dispose()
+
+
+def test_single_alembic_head():
+    """Plan 9: 0006 and 0007 are chained, so there is exactly one head, 0007."""
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
+    script = ScriptDirectory.from_config(Config("alembic.ini"))
+    assert script.get_heads() == ["0007_plan9_supplement_category"]
+    assert script.get_revision("0007_plan9_supplement_category").down_revision == (
+        "0006_plan9_user_types"
+    )
+
+
+def test_user_types_downgrades_cleanly(migrated):
+    """Plan 9 (P9-R1): account_user_types comes and goes with 0006, with forced RLS, its
+    owner policy, SELECT-only for users and its check constraints."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0005_plan8_tombstone_auth")
+        with engine.connect() as conn:
+            assert "account_user_types" not in inspect(conn).get_table_names()
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    "select relrowsecurity, relforcerowsecurity from pg_class "
+                    "where oid = 'public.account_user_types'::regclass"
+                )
+            ).one()
+            assert tuple(row) == (True, True)
+            policies = conn.execute(
+                text(
+                    "select policyname, cmd from pg_policies where tablename = 'account_user_types'"
+                )
+            ).all()
+            assert [tuple(p) for p in policies] == [("account_user_types_owner", "ALL")]
+            checks = {c["name"] for c in inspect(conn).get_check_constraints("account_user_types")}
+            assert checks == {
+                "ck_account_user_types_user_types",
+                "ck_account_user_types_active_type",
+            }
+            for role, expected in (("anon", False), ("authenticated", True)):
+                granted = conn.execute(
+                    text("select has_table_privilege(:r, 'public.account_user_types', 'SELECT')"),
+                    {"r": role},
+                ).scalar()
+                assert granted is expected, role
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
+def test_user_types_check_constraints(migrated):
+    """The table refuses more than 3 types, unknown types and an unselected active type."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    bad = (
+        "'{gym,family,weight_loss,eat_better}', null",
+        "'{yoga}', null",
+        "'{gym}', 'family'",
+        "'{}', 'eat_better'",
+    )
+    try:
+        with engine.connect() as conn:
+            acc = conn.execute(
+                text("insert into accounts (id) values (gen_random_uuid()) returning id")
+            ).scalar_one()
+            for values in bad:
+                with pytest.raises(IntegrityError), conn.begin_nested():
+                    conn.execute(
+                        text(
+                            "insert into account_user_types (account_id, types, active_type) "
+                            f"values (:a, {values})"
+                        ),
+                        {"a": acc},
+                    )
+            conn.execute(
+                text(
+                    "insert into account_user_types (account_id, types, active_type) "
+                    "values (:a, '{gym,family}', 'family')"
+                ),
+                {"a": acc},
+            )
+            conn.rollback()
+    finally:
+        engine.dispose()
+
+
+def _insert_product(conn, category: str) -> None:
+    conn.execute(
+        text(
+            "insert into products (id, name, source, verification_status, category, per_100g, "
+            "claims) values (gen_random_uuid(), 'Whey', 'label', 'verified', :c, '{}', '{}')"
+        ),
+        {"c": category},
+    )
+
+
+def test_supplement_category_downgrades_cleanly(migrated):
+    """Plan 9 Task 7: `supplement` comes and goes with 0007; the downgrade maps supplement
+    rows to `general` first, so the old check constraint holds."""
+    from sqlalchemy.exc import IntegrityError
+
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("delete from products where name = 'Whey'"))
+            _insert_product(conn, "supplement")
+        command.downgrade(migrated, "0006_plan9_user_types")
+        with engine.begin() as conn:
+            cats = conn.execute(text("select category from products where name = 'Whey'"))
+            assert [r[0] for r in cats] == ["general"]
+        try:
+            with engine.begin() as conn:
+                _insert_product(conn, "supplement")
+            raise AssertionError("the old constraint accepted 'supplement'")
+        except IntegrityError:
+            pass
+        command.upgrade(migrated, "head")
+        with engine.begin() as conn:
+            _insert_product(conn, "supplement")
+            n = conn.execute(
+                text("select count(*) from products where category = 'supplement'")
+            ).scalar()
+            assert n == 1
+            conn.execute(text("delete from products where name = 'Whey'"))
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
+def test_tombstone_auth_deleted_column_downgrades_cleanly(migrated):
+    """m2: tombstones record when the Supabase auth user was removed (nullable: unknown for
+    rows written before 0005, so the retention job retries those)."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0004_plan8_deleted_accounts")
+        with engine.connect() as conn:
+            cols = {c["name"] for c in inspect(conn).get_columns("deleted_accounts")}
+            assert "auth_deleted_at" not in cols
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            cols = {c["name"]: c for c in inspect(conn).get_columns("deleted_accounts")}
+            assert cols["auth_deleted_at"]["nullable"] is True
+            assert "TIMESTAMP" in str(cols["auth_deleted_at"]["type"]).upper()
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
+def test_deleted_accounts_downgrades_cleanly(migrated):
+    """D1/B1: the tombstone table comes and goes with 0004, with forced RLS and no user grant."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0003_plan6_meal_logs_off")
+        with engine.connect() as conn:
+            assert "deleted_accounts" not in inspect(conn).get_table_names()
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    "select relrowsecurity, relforcerowsecurity from pg_class "
+                    "where oid = 'public.deleted_accounts'::regclass"
+                )
+            ).one()
+            assert tuple(row) == (True, True)
+            for role in ("anon", "authenticated"):
+                granted = conn.execute(
+                    text("select has_table_privilege(:r, 'public.deleted_accounts', 'SELECT')"),
+                    {"r": role},
+                ).scalar()
+                assert granted is False, role
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
+def test_meal_logs_off_columns_downgrade_cleanly(migrated):
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    new = {"off_barcode", "product_name", "grade"}
+    try:
+        command.downgrade(migrated, "0002_scans_path_unique")
+        with engine.connect() as conn:
+            cols = {c["name"]: c for c in inspect(conn).get_columns("meal_logs")}
+            assert new.isdisjoint(cols) and cols["product_id"]["nullable"] is False
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            cols = {c["name"]: c for c in inspect(conn).get_columns("meal_logs")}
+            assert new <= set(cols) and cols["product_id"]["nullable"] is True
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
 
 
 def test_scans_path_index_downgrades_cleanly(migrated):
@@ -88,7 +285,7 @@ def test_models_match_migration(migrated):
 
 def test_orm_class_names():
     from app.features.consents.models import Consent
-    from app.features.me.models import Account
+    from app.features.me.models import Account, AccountUserTypes, DeletedAccount
     from app.features.meals.models import MealLog
     from app.features.members.models import Member
     from app.features.products.models import OffProductCache, Product
@@ -100,6 +297,8 @@ def test_orm_class_names():
         c.__tablename__
         for c in (
             Account,
+            AccountUserTypes,
+            DeletedAccount,
             Member,
             Consent,
             Product,

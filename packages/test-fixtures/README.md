@@ -5,7 +5,7 @@ Shared, realistic test cases: Indian products and family members, with the **ver
 ## Contents
 
 ```
-members/<id>.json                 # e.g. diabetic_adult, milk_allergic_child, jain_adult, bp_parent, infant
+members/<id>.json                 # e.g. diabetic_adult, milk_allergic_child, jain_adult, bp_parent, infant, palm_alert_adult (optional "custom_alerts")
 products/<name>.json              # per_100g nutrition, serving_size_g, ingredients, claims, "source"
 expected/<name>.<member>.json     # { "status": "avoid", "reasons": [{"code": "...", "severity": "avoid"}, ...] } (engine order)
 responses/                        # generated golden API responses (see "Golden API responses")
@@ -36,16 +36,22 @@ cd apps/api && uv run python scripts/export_fixture_responses.py
 responses/index.json               # fixture name -> fixed UUID, plus the reference date
 responses/analyze/<product>.json   # POST /v1/analyze body (AnalyzeOut) for the product and ALL members
 responses/public/<product>.json    # GET /v1/products/{barcode}/public body (PublicProductOut)
+responses/methodology.json         # GET /v1/methodology?language=en body (Methodology)
+responses/voice/answer_avoid.json  # POST /v1/voice/ask body (VoiceAnswer): sf_biscuit + diabetic_adult, source "llm"
+responses/voice/answer_avoid_fallback.json  # the same with source "fallback"
+responses/voice/answer_avoid_text_only.json  # the same with audio_base64 null (over the inline audio cap: text only)
 ```
 
 - **`index.json`:** `{"reference_date": "2026-01-01", "account_id": "<uuid>", "products": {"<product>": "<uuid>"}, "members": {"<member>": "<uuid>"}, "scans": {"<product>": "<uuid>"}}`. UUIDs are `uuid5(NAMESPACE_URL, "https://smartnutri.app/test-fixtures/<kind>/<name>")`.
-- **`analyze/<product>.json`:** `{scan_id, product, report, verdicts, explanation: null, tips: []}`. `verdicts` holds one entry per member, sorted by member file name (`bp_parent`, `diabetic_adult`, ...): `{member_id, member_name, status, reasons: [{code, severity, params}], profile_set_up}`. To find the verdict for `<product>.<member>`, look up `index.json` `members[<member>]` and match `member_id`; it agrees with `expected/<product>.<member>.json` (status, then codes and severities in order).
+- **`analyze/<product>.json`:** `{scan_id, product, report, verdicts, explanation}`. `verdicts` holds one entry per member, sorted by member file name (`alert_child`, `alert_infant`, ...): `{member_id, member_name, relation, is_primary, status, reasons: [{code, severity, params}], profile_set_up}`. Fixture members are all `relation: "other"`, `is_primary: false`. `explanation` is always the "unavailable" object (`{text: null, tips: [], language: "en", source: "unavailable", prompt_version, member_refs: {}}`): the goldens never call an LLM. To find the verdict for `<product>.<member>`, look up `index.json` `members[<member>]` and match `member_id`; it agrees with `expected/<product>.<member>.json` (status, then codes and severities in order).
 - **`public/<product>.json`:** `{product, report, score_label: "calculated_by_smartnutri"}`. No member data.
-- `profile_set_up` is display metadata (false when the member has no birth year, so age/allergies/diet may not be set). It is true for every fixture member and never affects status or reasons.
+- `profile_set_up` is display metadata (false when the member has no birth year, so age/allergies/diet may not be set). It is false only for the members with `"age": null` (`no_age`, `alert_no_age`) and never affects status or reasons.
 - Fixture products are served as our own verified catalogue products (`product.source = "smartnutri"`, `attribution = null`, `barcode = null`). Ages are turned into birth years against the fixed `reference_date`, which is also the engine's "today", so the files never change on 1 January.
 - All files use sorted keys, 2-space indent and a trailing newline.
 
-The products mirror the Plan 1 engine fixtures (`sf_biscuit`, `namkeen`, `curd`, `oats`, `cola`, `water`, `no_ingredients`) plus real packs added over time.
+The products mirror the Plan 1 engine fixtures (`sf_biscuit`, `namkeen`, `curd`, `oats`, `cola`, `water`, `no_ingredients`) plus real packs added over time. `kiwi_yogurt` (Plan 5) is synthetic: it carries a typed-in allergen (kiwi) and a sweetener for the alert members.
+
+Plan 5 members: `kiwi_child` (free-text allergen `kiwi`), and members with `custom_alerts` at every age band: `palm_alert_adult` (30), `alert_child` (9), `alert_infant` (1) and `alert_no_age` (`null`). Together they emit `custom_alert` (e.g. `sf_biscuit`, `kiwi_yogurt`) and `custom_alert_unknown` (`no_ingredients`), which `tests/fixtures/test_shared_fixtures.py` checks.
 
 ## Confirm-screen drafts (`drafts/`)
 
@@ -63,7 +69,7 @@ drafts/<case>.json     # ProductDraft exactly as POST /v1/scans/label returns it
 drafts/expected.json   # {"format_version": 1, "cases": {"<case>": {...}}}
 ```
 
-Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `per_serving_only_no_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_and_basis`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`.
+Cases: `clean`, `basis_mismatch_both_columns`, `basis_mismatch_one_column`, `derived_from_serving`, `per_serving_only_no_serving`, `derived_basis_mismatch`, `unit_unconfirmed_sodium_per_100g`, `unit_unconfirmed_sodium_per_serving`, `upper_bound_protein_per_100g`, `upper_bound_protein_per_serving`, `category_check`, `category_and_basis`, `category_unknown`, `low_confidence`, `implausible_value`, `devanagari`, and the label accuracy v2 checks: `energy_decimal_shift`, `salt_sodium_mismatch`, `column_mismatch`, plus the engine fixes `sodium_unit_suspect` (EF2: sodium-only label, g read as mg; the user must pick the unit) and `decimal_shift_tight` (EF3: a /10 slip the loose energy tolerance hides). A failed arithmetic check (`energy_mismatch`, `kcal_kj_mismatch`, `salt_sodium_mismatch`, `fat_parts_mismatch`, `decimal_shift:<path>`, `column_mismatch:<field>`) puts the fields it involves in `engine_withheld` and in every offered column's `confirm_fields`, so an unticked one is stored as null.
 
 **`draft.confirm`** (the hints):
 
@@ -113,6 +119,52 @@ Golden reasons (every param type: allergen, diet with and without ingredients, s
 - `key` is the message key the client must pick (`reason.<code>` or a `reason_variant.*`).
 - Rules baked in: lists joined with `", "`, numbers with Latin digits and at most 3 decimals, code params mapped through their namespaces (see `packages/i18n/README.md`).
 - Files use sorted keys, 2-space indent and a trailing newline. The web test `apps/web/tests/features/analysis/reason-text.test.ts` asserts them; regenerate with `UPDATE_REASON_TEXT=1 pnpm test reason-text` (from `apps/web`) and review the diff. A change needs `nutrition-safety-reviewer`.
+
+## Meal summaries and share texts (Plan 6: `meals/`, `share/`)
+
+```
+meals/week_family.json                          # hand-written input: members, meals over 7 IST days (+2 outside), one OFF product with no sugars
+meals/expected/week_family.dad_diabetic.json    # generated: GET /v1/meals/summary?member_id=<dad>&period=week&date=<end_date>
+share/share_result.sf_biscuit.json              # generated: result share text per locale + the forbidden words
+share/share_weekly.week_family.json             # generated: weekly share text per locale
+```
+
+They live outside `expected/`, which holds only `<product>.<member>` verdicts (the expectations script removes anything else there). Regenerate from `apps/api`, never by hand:
+
+```
+uv run python scripts/export_meal_fixtures.py          # --check (default): diff, exit 1 if stale
+uv run python scripts/export_meal_fixtures.py --write  # write only the files that differ
+```
+
+- **Summary:** built with the endpoint's own functions (nutrient snapshot at log time, engine daily limits, `summarise`) on rows with fixed UUIDs (`uuid5(NAMESPACE_URL, ".../member/week_family/<key>")`). `tests/api/meals/test_week_family_fixture.py` inserts the same rows and checks the endpoint returns this file exactly. It covers an over-limit sugar day (2026-10-31), an incomplete day (2026-11-01: an Open Food Facts product with no sugars), the IST boundary (a meal at 18:00 UTC = 23:30 IST counts on 3 Nov) and empty days (bands `unknown`, totals `null`). Ruling M1: a total with no known value is `null`, never `0`; the week band is `over` because one day is (week limits are the daily limit x the days with logged items); protein has a band only once its target is met (`ok`), otherwise `unknown`, and only adults (18+) with a weight have a target. Clients render bands and the incomplete and limits notes from it; they never compute a band.
+- **Share texts:** each file has `input`, `rules` (the algorithm both clients implement), `expected` (the exact string per case, then per locale) and, for the result, `forbidden_substrings` per locale (condition and allergen labels and their English words). A share text never includes conditions, allergens, reason codes or nutrient totals. `who` is the first word of the member's name, or `share.relation.<relation>` when the name is blank. Counts are passed as plain Latin-digit strings. **Ruling SH1:** the result file's `cases` are `default` (no member ticked: product and grade only, the default on both clients), `one_member`, `all_members` and `no_link`; the weekly file has `with_link` and `no_link`. The link (`share.link`) is appended only when `SITE_URL` / `NEXT_PUBLIC_SITE_URL` is set; `https://site.example` stands in for it, never a hard-coded domain. Statuses in the result input are the engine's (`expected/sf_biscuit.<member>.json`, checked by `tests/fixtures/test_shared_fixtures.py`).
+
+## Focused modes and protein (Plan 9: `modes/`, `protein/`)
+
+`modes/layouts.json` is **hand-written, reviewed, and the single source of truth** for each user type's tab bar, Home cards and "More". Both clients mirror it as constants and their tests compare the constants with the file; `apps/api/tests/fixtures/test_mode_layouts.py` checks that `priority` equals `USER_TYPE_PRIORITY` and `default_type` equals `DEFAULT_TYPE`, and the invariants below.
+
+- **Tabs:** five per mode; `home` first, `scan` second, `profile` last (ruling P9-R5 for the tab sets the decisions left open).
+- **More** = `destinations` minus the mode's `tabs`, in `destinations` order (for gym: history, family, search, how_we_score). Nothing is deleted from any mode, so scan, results (opened from scan, history, search and the Home recent list) and allergy entry (family members) are reachable in all six.
+- **Allergy card (P9-R7):** when any member has an allergen, every mode's Home shows `allergy_check` first (`always_first_card_when_any_member_has_allergens`). It is injected by this rule, so it is listed in `home_cards` only for `allergy_diet`.
+- The scan CTAs (barcode, label photo, manual) sit above the cards and are not cards. `recent_scans` is always last.
+- Clients never compute verdicts, bands or limits for a card: they render existing API data.
+
+| Card | Data | Notes |
+|---|---|---|
+| `allergy_check` | `members_list` | who has which allergy; "Unknown means we couldn't check, so it is never marked safe"; a CTA to add allergies when none are set (allergy mode only) |
+| `today_sugar_salt` | `meals_summary` (primary member, day) | bands from tokens; `unknown` is grey |
+| `today_protein` | `meals_summary` (primary member, day) | total vs `limits.protein_target_g`, `protein_left_g`; "no target" note; kcal shown without a target |
+| `protein_swaps` | link | "Find higher-protein options" opens the Protein screen |
+| `protein_claims_tip` | static copy | protein claims are checked against the nutrition table |
+| `claims_tip` | static copy | "Sugar-free? We check claims" |
+| `not_covered` | static copy | thyroid, cholesterol, kidney disease, pregnancy are not covered yet |
+| `family_strip` | `members_list` | members and "Add member" |
+| `weekly_family` | `meals_week_counts` | counts only |
+| `unknown_explainer` | static copy | why `unknown` is not safe |
+| `custom_alerts_setup` | `members_list` | CTA to switch on alerts |
+| `recent_scans` | existing recent list | always last |
+
+`protein/price_per_scoop.json` holds hand-written cases for the client-only arithmetic `price_per_scoop = price * serving_size_g / pack_size_g`, rounded to 2 dp (half up). It is `null` when any input is missing or <= 0. The price is typed by the user and never saved. `members/build_muscle_adult.json` (age 25, goal `build_muscle`) and `products/whey_powder.json` (synthetic, category `supplement`) feed the protein target, claim checks and the supplement rules; their `expected/` files are generated like the others.
 
 ## How each project uses them
 

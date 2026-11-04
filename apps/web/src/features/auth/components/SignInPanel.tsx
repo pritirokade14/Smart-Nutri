@@ -2,13 +2,19 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { buttonClass } from "@/components/ui/Button";
 import { safeNext } from "@/lib/auth/safe-next";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { EmailOtpForm } from "./EmailOtpForm";
 import { PhoneOtpForm } from "./PhoneOtpForm";
 
-export const buttonClass =
-  "w-full rounded-(--radius-md) border p-(--spacing-3) text-(length:--text-md)";
+// Google sign-in branding: neutral surface, a thin outline, the standard
+// multicolour "G" (the official asset, public/google-g.svg) at the left and
+// "Continue with Google" as the label.
+const googleClass =
+  "flex min-h-11 w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-text-secondary/60 bg-surface-default px-4 text-md font-medium text-text-primary transition-colors hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary";
+
+const otherClass = buttonClass({ variant: "outline", block: true });
 
 export function SignInPanel({
   locale,
@@ -37,14 +43,27 @@ export function SignInPanel({
   }
 
   return (
-    <div className="flex flex-col gap-(--spacing-3)">
-      <button type="button" className={buttonClass} onClick={google}>
-        {t("google")}
+    <div className="flex flex-col gap-3">
+      <button type="button" className={googleClass} onClick={google}>
+        {/* biome-ignore lint/performance/noImgElement: a static brand mark; next/image injects inline styles, blocked by our CSP */}
+        <img src="/google-g.svg" alt="" width={20} height={20} />
+        <span>{t("google")}</span>
       </button>
+      {emailEnabled || phoneEnabled ? (
+        <div
+          aria-hidden="true"
+          className="flex items-center gap-3 text-sm text-text-secondary"
+        >
+          <span className="h-px flex-1 bg-border-default" />
+          {t("or")}
+          <span className="h-px flex-1 bg-border-default" />
+        </div>
+      ) : null}
       {emailEnabled && (
         <button
           type="button"
-          className={buttonClass}
+          className={otherClass}
+          aria-expanded={mode === "email"}
           onClick={() => setMode("email")}
         >
           {t("email")}
@@ -54,14 +73,22 @@ export function SignInPanel({
       {phoneEnabled && (
         <button
           type="button"
-          className={buttonClass}
+          className={otherClass}
+          aria-expanded={mode === "phone"}
           onClick={() => setMode("phone")}
         >
           {t("phone")}
         </button>
       )}
       {phoneEnabled && mode === "phone" && <PhoneOtpForm target={target} />}
-      {failed && <p role="alert">{t("error")}</p>}
+      {failed && (
+        <p
+          role="alert"
+          className="rounded-md bg-surface-muted px-3 py-2 text-md text-text-primary"
+        >
+          {t("error")}
+        </p>
+      )}
     </div>
   );
 }

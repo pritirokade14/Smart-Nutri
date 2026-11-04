@@ -55,6 +55,10 @@ class _FakeProducts implements ProductsClient {
     required String barcode,
     Language? language = Language.en,
   }) => throw UnimplementedError();
+
+  // Routes this test does not use (alternatives, search, compare, ...).
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 /// Records every request the upload Dio sends.
@@ -120,7 +124,44 @@ ProductCreate _body() => const ProductCreate(
   ),
 );
 
+/// Whether [jpeg] has an APP1 "Exif\0\0" segment anywhere.
+bool _hasExifSegment(Uint8List jpeg) {
+  const sig = [0x45, 0x78, 0x69, 0x66, 0x00, 0x00];
+  for (var i = 0; i + sig.length <= jpeg.length; i++) {
+    var match = true;
+    for (var j = 0; j < sig.length; j++) {
+      if (jpeg[i + j] != sig[j]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) return true;
+  }
+  return false;
+}
+
 void main() {
+  test('compressForUpload strips EXIF and GPS from label photos', () async {
+    final src = img.Image(width: 40, height: 30);
+    src.exif.imageIfd['Make'] = 'TestCam';
+    src.exif.imageIfd['Orientation'] = 6; // rotated 90° clockwise
+    src.exif.gpsIfd[0x0001] = img.IfdValueAscii('N'); // GPSLatitudeRef
+    src.exif.gpsIfd[0x0002] = img.IfdValueRational(18, 1); // GPSLatitude
+    final input = img.encodeJpg(src);
+    // The test photo really carries a location.
+    expect(_hasExifSegment(input), isTrue);
+    expect(img.decodeJpg(input)!.exif.gpsIfd.isEmpty, isFalse);
+
+    final out = await compressForUpload(input);
+
+    expect(_hasExifSegment(out), isFalse);
+    final decoded = img.decodeJpg(out)!;
+    expect(decoded.exif.isEmpty, isTrue);
+    expect(decoded.exif.gpsIfd.isEmpty, isTrue);
+    // Orientation is applied to the pixels before the metadata goes.
+    expect((decoded.width, decoded.height), (30, 40));
+  });
+
   test('compressForUpload keeps output ≤ 8 MB', () async {
     // Noise does not compress well, so this is close to the worst case.
     final rnd = Random(7);
@@ -201,6 +242,27 @@ void main() {
       repo.scanLabel(XFile.fromData(Uint8List.fromList([1]))),
       throwsA(
         isA<LabelFailure>().having((f) => f.code, 'code', 'extraction_failed'),
+      ),
+    );
+  });
+
+  test('image_quality_low carries details.reasons', () async {
+    final scans = _FakeScans()
+      ..labelError = _apiError('image_quality_low', 422, {
+        'reasons': ['blur', 'too_small'],
+      });
+    final repo = LabelRepository(
+      scans: scans,
+      products: _FakeProducts(() async => analyzeFixture('water').product),
+      uploadDio: Dio()..httpClientAdapter = _RecordingAdapter(),
+      compress: (b) async => b,
+    );
+    await expectLater(
+      repo.scanLabel(XFile.fromData(Uint8List.fromList([1]))),
+      throwsA(
+        isA<LabelFailure>()
+            .having((f) => f.code, 'code', 'image_quality_low')
+            .having((f) => f.reasons, 'reasons', ['blur', 'too_small']),
       ),
     );
   });

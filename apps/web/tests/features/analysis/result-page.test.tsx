@@ -36,6 +36,9 @@ const VERDICT_NAMESPACES = [
   "nutrient",
   "allergen",
   "diet",
+  "alert",
+  "claim_verdict",
+  "claim_reason",
 ];
 
 describe("result messages", () => {
@@ -46,8 +49,8 @@ describe("result messages", () => {
   it("the result catalogue adds back exactly what the verdict UI needs", () => {
     const m = resultMessages(MESSAGES.en);
     for (const ns of VERDICT_NAMESPACES) expect(m).toHaveProperty(ns);
-    for (const ns of ["claim_verdict", "claim_reason", "condition"])
-      expect(m).not.toHaveProperty(ns);
+    // condition_unrecognised carries the member's own wording.
+    expect(m).not.toHaveProperty("condition");
     // Everything the root client provider has is still there.
     for (const ns of Object.keys(clientMessages(MESSAGES.en)))
       expect(m).toHaveProperty(ns);
@@ -75,7 +78,8 @@ describe("result page", () => {
       </QueryClientProvider>,
     );
     const cards = await screen.findAllByTestId("verdict-card");
-    expect(cards.length).toBe(9);
+    // One card per fixture member in the golden response.
+    expect(cards.length).toBe(analyzeResponse("sf_biscuit").verdicts.length);
     expect(
       screen.getAllByText(MESSAGES.mr.status.avoid).length,
     ).toBeGreaterThan(0);

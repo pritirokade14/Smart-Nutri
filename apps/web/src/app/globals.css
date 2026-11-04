@@ -1,36 +1,117 @@
 @import "tailwindcss";
 @import "@smartnutri/design-tokens/tokens.css";
 
-body {
-  background: var(--color-surface-default);
-  color: var(--color-text-primary);
+/* Fonts are self-hosted by next/font ([locale]/layout.tsx): Noto Sans for
+   Latin, Noto Sans Devanagari for Hindi and Marathi. */
+@theme inline {
+  --font-sans:
+    var(--font-latin), var(--font-deva), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Verdict colour comes only from the API status on data-status. Anything
-   unexpected stays the neutral "unknown" grey, never green. */
-.verdict-card {
-  --verdict-color: var(--color-verdict-unknown);
-  border-inline-start: 6px solid var(--verdict-color);
+:root {
+  color-scheme: light;
 }
-.verdict-card[data-status="ok"] {
+
+/* Dark palette: the same semantic names, pointed at the generated
+   color.dark.* tokens. Grade tiles keep their colours (Nutri-Score). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --color-brand-primary: var(--color-dark-brand-primary);
+    --color-brand-strong: var(--color-dark-brand-strong);
+    --color-brand-on: var(--color-dark-brand-on);
+    --color-brand-soft: var(--color-dark-brand-soft);
+    --color-text-primary: var(--color-dark-text-primary);
+    --color-text-secondary: var(--color-dark-text-secondary);
+    --color-text-inverse: var(--color-dark-text-inverse);
+    --color-surface-default: var(--color-dark-surface-default);
+    --color-surface-canvas: var(--color-dark-surface-canvas);
+    --color-surface-muted: var(--color-dark-surface-muted);
+    --color-border-default: var(--color-dark-border-default);
+    --color-verdict-ok: var(--color-dark-verdict-ok);
+    --color-verdict-caution: var(--color-dark-verdict-caution);
+    --color-verdict-avoid: var(--color-dark-verdict-avoid);
+    --color-verdict-unknown: var(--color-dark-verdict-unknown);
+    --color-verdict-soft-ok: var(--color-dark-verdict-soft-ok);
+    --color-verdict-soft-caution: var(--color-dark-verdict-soft-caution);
+    --color-verdict-soft-avoid: var(--color-dark-verdict-soft-avoid);
+    --color-verdict-soft-unknown: var(--color-dark-verdict-soft-unknown);
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-surface-canvas);
+    color: var(--color-text-primary);
+    /* Devanagari matras need a little more line height than Latin. */
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
+  }
+  input:not([type="checkbox"], [type="radio"], [type="file"]),
+  textarea,
+  select {
+    border-color: var(--color-border-default);
+    background: var(--color-surface-default);
+    color: var(--color-text-primary);
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-brand-primary);
+  }
+}
+
+/* Verdict tone. The colour comes only from the API status on data-verdict.
+   The base rule is the neutral unknown grey, so a missing or unexpected value
+   is never green. */
+[data-verdict] {
+  --verdict-color: var(--color-verdict-unknown);
+  --verdict-soft: var(--color-verdict-soft-unknown);
+}
+[data-verdict="ok"] {
   --verdict-color: var(--color-verdict-ok);
+  --verdict-soft: var(--color-verdict-soft-ok);
 }
-.verdict-card[data-status="caution"] {
+[data-verdict="caution"] {
   --verdict-color: var(--color-verdict-caution);
+  --verdict-soft: var(--color-verdict-soft-caution);
 }
-.verdict-card[data-status="unknown"] {
+[data-verdict="unknown"] {
   --verdict-color: var(--color-verdict-unknown);
+  --verdict-soft: var(--color-verdict-soft-unknown);
 }
-.verdict-card[data-status="avoid"] {
+[data-verdict="avoid"] {
   --verdict-color: var(--color-verdict-avoid);
-}
-.verdict-badge {
-  background: var(--verdict-color);
-  color: var(--color-surface-default);
+  --verdict-soft: var(--color-verdict-soft-avoid);
 }
 
-/* Neutral note (not a verdict colour): profile not set up. */
-.profile-note {
-  background: transparent;
-  border-color: currentcolor;
+/* Daily-limit band (meal summaries). The band comes only from the API on
+   data-band and reuses the verdict tokens: within → ok, close → caution,
+   over → avoid. The base rule is the unknown grey, so a missing or
+   unexpected band ("Not enough data") is never green. */
+[data-band] {
+  --band-color: var(--color-verdict-unknown);
+  --band-soft: var(--color-verdict-soft-unknown);
+}
+[data-band="ok"] {
+  --band-color: var(--color-verdict-ok);
+  --band-soft: var(--color-verdict-soft-ok);
+}
+[data-band="near"] {
+  --band-color: var(--color-verdict-caution);
+  --band-soft: var(--color-verdict-soft-caution);
+}
+[data-band="over"] {
+  --band-color: var(--color-verdict-avoid);
+  --band-soft: var(--color-verdict-soft-avoid);
+}
+[data-band="unknown"] {
+  --band-color: var(--color-verdict-unknown);
+  --band-soft: var(--color-verdict-soft-unknown);
 }

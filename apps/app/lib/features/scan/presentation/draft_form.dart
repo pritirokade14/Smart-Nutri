@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/section_header.dart';
 import '../domain/draft_warnings.dart';
 import '../domain/number_text.dart';
 import 'warning_banner.dart';
@@ -205,7 +207,13 @@ class DraftFormState extends State<DraftForm> {
       }
       if (!draft.confirm.categoryRequired) {
         final c = ProductCreateCategory.fromJson(draft.category.json ?? '');
-        _category = c == ProductCreateCategory.$unknown ? null : c;
+        // "Supplement" is never preselected: only the user picks it
+        // (P9-R10).
+        _category =
+            c == ProductCreateCategory.$unknown ||
+                c == ProductCreateCategory.supplement
+            ? null
+            : c;
       }
     }
     final veg = ProductCreateVegMark.fromJson(draft?.vegMark?.json ?? '');
@@ -485,7 +493,6 @@ class DraftFormState extends State<DraftForm> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: label,
-              border: const OutlineInputBorder(),
               errorText:
                   widget.fieldErrors[field] ??
                   (field == 'sodium_mg'
@@ -535,9 +542,9 @@ class DraftFormState extends State<DraftForm> {
     );
   }
 
+  /// The list's title is its section header.
   Widget _textList({
     required String field,
-    required String title,
     required String addLabel,
     required String removeLabel,
     required List<TextEditingController> items,
@@ -550,7 +557,6 @@ class DraftFormState extends State<DraftForm> {
         key: ValueKey('list:$field'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleSmall),
           if (error != null)
             Padding(
               padding: const EdgeInsets.only(top: SnTokens.space1),
@@ -569,7 +575,6 @@ class DraftFormState extends State<DraftForm> {
               child: TextField(
                 controller: c,
                 decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
                   isDense: true,
                   // Removing is always the user's own action: items are
                   // never dropped automatically.
@@ -617,7 +622,6 @@ class DraftFormState extends State<DraftForm> {
             maxLines: null,
             decoration: InputDecoration(
               labelText: label,
-              border: const OutlineInputBorder(),
               errorText: widget.fieldErrors[field],
             ),
           ),
@@ -648,203 +652,284 @@ class DraftFormState extends State<DraftForm> {
           controller: c,
           decoration: InputDecoration(
             labelText: label,
-            border: const OutlineInputBorder(),
             errorText: widget.fieldErrors[field],
           ),
         ),
       );
 
+  /// A titled card grouping related fields. Layout only.
+  Widget _section({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) => Padding(
+    padding: const EdgeInsets.only(bottom: SnTokens.space4),
+    child: Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          SnTokens.space4,
+          SnTokens.space4,
+          SnTokens.space4,
+          SnTokens.space2,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SectionHeader(title: title, icon: icon),
+            ...children,
+          ],
+        ),
+      ),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final colors = SnColors.of(context);
     final serving = _serving.value;
     final servingBox = _scan && _confirmFields.contains('serving_size_g');
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(SnTokens.space4),
+      padding: const EdgeInsets.fromLTRB(
+        SnTokens.space4,
+        SnTokens.space2,
+        SnTokens.space4,
+        SnTokens.space6,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ...widget.header,
           for (final w in _warnings) WarningBanner(warning: w),
           const SizedBox(height: SnTokens.space2),
-          _plainField('name', l10n.confirmName, _name),
-          _plainField('brand', l10n.confirmBrand, _brand),
-          const SizedBox(height: SnTokens.space2),
-          _highlight(
-            'category',
-            _chips<ProductCreateCategory>(
-              title: l10n.confirmCategory,
-              keyPrefix: 'category',
-              requiredChoice: true,
-              selected: _category,
-              onSelected: (v) => _category = v,
-              options: [
-                for (final c in ProductCreateCategory.$valuesDefined)
-                  (c, c.json!, _categoryLabel(l10n, c)),
-              ],
-            ),
-          ),
-          _highlight(
-            'basis',
-            _chips<String>(
-              title: l10n.confirmBasis,
-              keyPrefix: 'basis',
-              requiredChoice: true,
-              selected: _basis,
-              onSelected: (v) {
-                // The picked unit belongs to the column it was picked for.
-                final before = _source;
-                _basis = v;
-                if (_source != before) _sodiumUnit = null;
-              },
-              // Only the offered bases; a basis not offered is hidden.
-              options: [for (final b in _offered) (b, b, _basisLabel(l10n, b))],
-            ),
-          ),
-          if (_draft?.derivedFromServing ?? false)
-            if (serving != null)
-              Padding(
-                key: const ValueKey('derived_per_serving'),
-                padding: const EdgeInsets.only(bottom: SnTokens.space2),
-                child: Text(
-                  // The serving as currently typed, not the draft's.
-                  l10n.confirmDerivedPerServing(formatForDisplay(serving)),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+          _section(
+            title: l10n.confirmSectionProduct,
+            icon: Icons.inventory_2_outlined,
+            children: [
+              _plainField('name', l10n.confirmName, _name),
+              _plainField('brand', l10n.confirmBrand, _brand),
+              const SizedBox(height: SnTokens.space2),
+              _highlight(
+                'category',
+                _chips<ProductCreateCategory>(
+                  title: l10n.confirmCategory,
+                  keyPrefix: 'category',
+                  requiredChoice: true,
+                  selected: _category,
+                  onSelected: (v) => _category = v,
+                  options: [
+                    for (final c in ProductCreateCategory.$valuesDefined)
+                      (c, c.json!, _categoryLabel(l10n, c)),
+                  ],
                 ),
               ),
-          _highlight(
-            'serving_size_g',
-            Column(
-              key: const ValueKey('field:serving_size_g'),
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _serving.controller,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: l10n.confirmServingSize,
-                    border: const OutlineInputBorder(),
-                    errorText:
-                        widget.fieldErrors['serving_size_g'] ??
-                        (_serving.valid ? null : l10n.errorValidationError),
+              // P9 S5: a deterministic API hint; it never preselects.
+              if (_draft?.confirm.categorySuggestion == 'supplement')
+                Padding(
+                  key: const ValueKey('category_suggestion'),
+                  padding: const EdgeInsets.only(bottom: SnTokens.space2),
+                  child: Text(
+                    l10n.confirmCategorySuggestionSupplement,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
-                if (servingBox) ...[
-                  if (_servingTickRequired)
-                    Padding(
-                      padding: const EdgeInsets.only(top: SnTokens.space1),
-                      child: Text(
-                        l10n.confirmWithheldHint,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: SnTokens.verdictCaution,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  _confirmBox(
-                    'confirm:serving_size_g',
-                    _servingConfirmed,
-                    (v) => _servingTicked = v,
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: SnTokens.space2),
-          if (_sharedShown && _basis != null)
-            Padding(
-              key: const ValueKey('shared_basis'),
-              padding: const EdgeInsets.only(bottom: SnTokens.space2),
-              child: Wrap(
-                spacing: SnTokens.space2,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(l10n.confirmBasis, style: theme.textTheme.bodyMedium),
-                  Chip(label: Text(_basisLabel(l10n, _basis!))),
-                ],
-              ),
-            ),
-          Text(l10n.confirmLeaveBlankHint, style: theme.textTheme.bodySmall),
-          const SizedBox(height: SnTokens.space2),
-          for (final f in formNutrientFields) ...[
-            _numberField(
-              f,
-              _shown[f]!,
-              suffix: f == 'sodium_mg' && _unitPickerShown
-                  ? _sodiumSuffix(l10n)
-                  : null,
-            ),
-            if (f == 'sodium_mg' && _unitPickerShown)
-              _chips<ProductCreateSodiumUnit>(
-                title: l10n.confirmSodiumUnit,
-                keyPrefix: 'sodium_unit',
-                requiredChoice: true,
-                selected: _sodiumUnit,
-                onSelected: (v) => _sodiumUnit = v,
-                options: [
-                  (
-                    ProductCreateSodiumUnit.mg,
-                    'mg',
-                    l10n.confirmSodiumUnitOptionMg,
-                  ),
-                  (
-                    ProductCreateSodiumUnit.g,
-                    'g',
-                    l10n.confirmSodiumUnitOptionG,
-                  ),
-                ],
-              ),
-          ],
-          const SizedBox(height: SnTokens.space2),
-          _textList(
-            field: 'ingredients',
-            title: l10n.confirmIngredients,
-            addLabel: l10n.confirmAddIngredient,
-            removeLabel: l10n.confirmRemoveIngredient,
-            items: _ingredients,
-            itemKey: 'ingredient',
-          ),
-          _statement(l10n, 'allergen_statement', l10n.confirmAllergenStatement),
-          _statement(
-            l10n,
-            'may_contain_statement',
-            l10n.confirmMayContainStatement,
-          ),
-          _highlight(
-            'claims',
-            TextField(
-              key: const ValueKey('field:claims'),
-              controller: _claims,
-              minLines: 2,
-              maxLines: null,
-              decoration: InputDecoration(
-                labelText: l10n.confirmClaims,
-                border: const OutlineInputBorder(),
-                errorText: widget.fieldErrors['claims'],
-              ),
-            ),
-          ),
-          _chips<ProductCreateVegMark>(
-            title: l10n.confirmVegMarkTitle,
-            keyPrefix: 'veg_mark',
-            selected: _vegMark,
-            onSelected: (v) => _vegMark = v,
-            options: [
-              (ProductCreateVegMark.veg, 'veg', l10n.confirmVegMarkVeg),
-              (
-                ProductCreateVegMark.nonVeg,
-                'non_veg',
-                l10n.confirmVegMarkNonVeg,
-              ),
-              (null, 'none', l10n.confirmVegMarkNone),
             ],
           ),
-          const SizedBox(height: SnTokens.space3),
+          _section(
+            title: l10n.confirmSectionNutrition,
+            icon: Icons.table_rows_rounded,
+            children: [
+              _highlight(
+                'basis',
+                _chips<String>(
+                  title: l10n.confirmBasis,
+                  keyPrefix: 'basis',
+                  requiredChoice: true,
+                  selected: _basis,
+                  onSelected: (v) {
+                    // The picked unit belongs to the column it was picked for.
+                    final before = _source;
+                    _basis = v;
+                    if (_source != before) _sodiumUnit = null;
+                  },
+                  // Only the offered bases; a basis not offered is hidden.
+                  options: [
+                    for (final b in _offered) (b, b, _basisLabel(l10n, b)),
+                  ],
+                ),
+              ),
+              if (_draft?.derivedFromServing ?? false)
+                if (serving != null)
+                  Padding(
+                    key: const ValueKey('derived_per_serving'),
+                    padding: const EdgeInsets.only(bottom: SnTokens.space2),
+                    child: Text(
+                      // The serving as currently typed, not the draft's.
+                      l10n.confirmDerivedPerServing(formatForDisplay(serving)),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              _highlight(
+                'serving_size_g',
+                Column(
+                  key: const ValueKey('field:serving_size_g'),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: _serving.controller,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: l10n.confirmServingSize,
+                        errorText:
+                            widget.fieldErrors['serving_size_g'] ??
+                            (_serving.valid ? null : l10n.errorValidationError),
+                      ),
+                    ),
+                    if (servingBox) ...[
+                      if (_servingTickRequired)
+                        Padding(
+                          padding: const EdgeInsets.only(top: SnTokens.space1),
+                          child: Text(
+                            l10n.confirmWithheldHint,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: SnTokens.verdictCaution,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      _confirmBox(
+                        'confirm:serving_size_g',
+                        _servingConfirmed,
+                        (v) => _servingTicked = v,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: SnTokens.space2),
+              if (_sharedShown && _basis != null)
+                Padding(
+                  key: const ValueKey('shared_basis'),
+                  padding: const EdgeInsets.only(bottom: SnTokens.space2),
+                  child: Wrap(
+                    spacing: SnTokens.space2,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        l10n.confirmBasis,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      Chip(label: Text(_basisLabel(l10n, _basis!))),
+                    ],
+                  ),
+                ),
+              Text(
+                l10n.confirmLeaveBlankHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: SnTokens.space3),
+              for (final f in formNutrientFields) ...[
+                _numberField(
+                  f,
+                  _shown[f]!,
+                  suffix: f == 'sodium_mg' && _unitPickerShown
+                      ? _sodiumSuffix(l10n)
+                      : null,
+                ),
+                if (f == 'sodium_mg' && _unitPickerShown)
+                  _chips<ProductCreateSodiumUnit>(
+                    title: l10n.confirmSodiumUnit,
+                    keyPrefix: 'sodium_unit',
+                    requiredChoice: true,
+                    selected: _sodiumUnit,
+                    onSelected: (v) => _sodiumUnit = v,
+                    options: [
+                      (
+                        ProductCreateSodiumUnit.mg,
+                        'mg',
+                        l10n.confirmSodiumUnitOptionMg,
+                      ),
+                      (
+                        ProductCreateSodiumUnit.g,
+                        'g',
+                        l10n.confirmSodiumUnitOptionG,
+                      ),
+                    ],
+                  ),
+              ],
+            ],
+          ),
+          _section(
+            title: l10n.confirmIngredients,
+            icon: Icons.format_list_bulleted_rounded,
+            children: [
+              _textList(
+                field: 'ingredients',
+                addLabel: l10n.confirmAddIngredient,
+                removeLabel: l10n.confirmRemoveIngredient,
+                items: _ingredients,
+                itemKey: 'ingredient',
+              ),
+            ],
+          ),
+          _section(
+            title: l10n.confirmSectionAllergens,
+            icon: Icons.no_food_outlined,
+            children: [
+              _statement(
+                l10n,
+                'allergen_statement',
+                l10n.confirmAllergenStatement,
+              ),
+              _statement(
+                l10n,
+                'may_contain_statement',
+                l10n.confirmMayContainStatement,
+              ),
+            ],
+          ),
+          _section(
+            title: l10n.confirmSectionPack,
+            icon: Icons.sell_outlined,
+            children: [
+              _highlight(
+                'claims',
+                TextField(
+                  key: const ValueKey('field:claims'),
+                  controller: _claims,
+                  minLines: 2,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    labelText: l10n.confirmClaims,
+                    errorText: widget.fieldErrors['claims'],
+                  ),
+                ),
+              ),
+              _chips<ProductCreateVegMark>(
+                title: l10n.confirmVegMarkTitle,
+                keyPrefix: 'veg_mark',
+                selected: _vegMark,
+                onSelected: (v) => _vegMark = v,
+                options: [
+                  (ProductCreateVegMark.veg, 'veg', l10n.confirmVegMarkVeg),
+                  (
+                    ProductCreateVegMark.nonVeg,
+                    'non_veg',
+                    l10n.confirmVegMarkNonVeg,
+                  ),
+                  (null, 'none', l10n.confirmVegMarkNone),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: SnTokens.space2),
           FilledButton(
             key: const Key('save'),
             onPressed: _canSave && !widget.saving
@@ -852,10 +937,17 @@ class DraftFormState extends State<DraftForm> {
                 : null,
             child: widget.saving
                 ? const SizedBox.square(
-                    dimension: 20,
+                    dimension: SnTokens.fontSizeLg,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(l10n.confirmSave),
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.check_rounded),
+                      const SizedBox(width: SnTokens.space2),
+                      Flexible(child: Text(l10n.confirmSave)),
+                    ],
+                  ),
           ),
           ...widget.footer,
         ],
@@ -877,6 +969,7 @@ class DraftFormState extends State<DraftForm> {
     ProductCreateCategory.water => l10n.confirmCategoryOptionWater,
     ProductCreateCategory.cheese => l10n.confirmCategoryOptionCheese,
     ProductCreateCategory.fat => l10n.confirmCategoryOptionFat,
+    ProductCreateCategory.supplement => l10n.confirmCategoryOptionSupplement,
     ProductCreateCategory.$unknown => c.toString(),
   };
 }

@@ -1,0 +1,11 @@
+{
+  "id": "kiwi_child",
+  "name": "Kiwi Child",
+  "age": 8,
+  "diet": "veg",
+  "allergens": [
+    "kiwi"
+  ],
+  "conditions": [],
+  "goal": null
+}

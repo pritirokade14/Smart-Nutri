@@ -159,3 +159,58 @@ async def test_network_error_raises_unavailable():
 async def test_malformed_body_raises_unavailable(response):
     with pytest.raises(OffUnavailable):
         await _client(lambda req: response).get_product("8901063201089")
+
+
+# --- search (Plan 6 T5/T6) ----------------------------------------------------------------
+
+
+async def test_search_by_category_sends_ua_tag_and_fields():
+    seen = {}
+
+    def handler(req):
+        seen.update(ua=req.headers["user-agent"], path=req.url.path, params=dict(req.url.params))
+        return httpx.Response(200, json={"count": 1, "products": [{"code": "1"}, "bad"]})
+
+    products = await _client(handler).search_by_category("en:namkeen", page_size=10)
+    assert products == [{"code": "1"}]  # non-objects dropped
+    assert seen["ua"] == UA and seen["path"] == "/api/v2/search"
+    assert seen["params"]["categories_tags"] == "en:namkeen"
+    assert seen["params"]["page_size"] == "10"
+    assert seen["params"]["fields"] == PRODUCT_FIELDS
+
+
+async def test_search_text_uses_search_terms():
+    seen = {}
+
+    def handler(req):
+        seen.update(path=req.url.path, params=dict(req.url.params))
+        return httpx.Response(200, json={"products": [{"code": "2"}]})
+
+    assert await _client(handler).search_text("marie biscuit", page_size=5) == [{"code": "2"}]
+    assert seen["path"] == "/cgi/search.pl"
+    assert seen["params"]["search_terms"] == "marie biscuit"
+    assert seen["params"]["json"] == "1" and seen["params"]["page_size"] == "5"
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        httpx.Response(503),
+        httpx.Response(200, content=b"<html>"),
+        httpx.Response(200, json={"products": "x"}),
+        httpx.Response(404, json={}),
+    ],
+)
+async def test_search_failures_raise_unavailable(response):
+    with pytest.raises(OffUnavailable):
+        await _client(lambda req: response).search_by_category("en:x")
+    with pytest.raises(OffUnavailable):
+        await _client(lambda req: response).search_text("abc")
+
+
+async def test_search_network_error_raises_unavailable():
+    def handler(req):
+        raise httpx.ConnectError("down", request=req)
+
+    with pytest.raises(OffUnavailable):
+        await _client(handler).search_by_category("en:x")

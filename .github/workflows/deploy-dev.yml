@@ -42,6 +42,7 @@ env:
   DEPLOYER_SA: github-deployer@smartnutri-513518.iam.gserviceaccount.com
   API_SA: smartnutri-api-dev@smartnutri-513518.iam.gserviceaccount.com
   WEB_SA: smartnutri-web-dev@smartnutri-513518.iam.gserviceaccount.com
+  RETENTION_JOB: smartnutri-retention-dev
   API_URL: https://smartnutri-api-dev-609833507754.asia-south1.run.app
   WEB_URL: https://smartnutri-web-dev-609833507754.asia-south1.run.app
 
@@ -87,7 +88,7 @@ jobs:
       - run: gcloud auth configure-docker "$AR_HOST" --quiet
       - name: Build and push the API image
         run: |
-          docker build -t "$AR_REPO/api:${{ github.sha }}" apps/api
+          docker build --build-context i18n=packages/i18n/messages -t "$AR_REPO/api:${{ github.sha }}" apps/api
           docker push "$AR_REPO/api:${{ github.sha }}"
           echo "IMAGE=$(docker inspect --format '{{index .RepoDigests 0}}' "$AR_REPO/api:${{ github.sha }}")" >> "$GITHUB_ENV"
       - name: Deploy smartnutri-api-dev (no traffic, tagged)
@@ -103,7 +104,7 @@ jobs:
             --no-traffic --tag "c${GITHUB_SHA::7}" \
             --min-instances 0 --max-instances 3 --memory 512Mi --cpu 1 \
             --set-secrets "CALLMISSED_API_KEY=callmissed-api-key-dev:latest,SUPABASE_SECRET_KEY=supabase-secret-key-dev:latest,DATABASE_URL=database-url-dev:latest" \
-            --set-env-vars "^@^ENVIRONMENT=dev@CALLMISSED_BASE_URL=https://api.callmissed.com/v1@CALLMISSED_RESOURCE_URL=https://api.callmissed.com/api/v1@CALLMISSED_EXTRACTION_MODEL=kimi-k2.5@CALLMISSED_EXPLANATION_MODEL=sarvam-105b@CALLMISSED_STT_MODEL=saaras:v4@CALLMISSED_TTS_MODEL=bulbul:v3@SUPABASE_URL=https://uhjopvrewcwqvugmdhdw.supabase.co@SUPABASE_PROJECT_REF=uhjopvrewcwqvugmdhdw@SUPABASE_JWKS_URL=https://uhjopvrewcwqvugmdhdw.supabase.co/auth/v1/.well-known/jwks.json@SUPABASE_STORAGE_BUCKET=label-photos@ALLOWED_ORIGINS=${WEB_URL},http://localhost:3000@OFF_USER_AGENT=SmartNutri/0.1 (contact: https://github.com/pritirokade14/Smart-Nutri)@RATE_LIMIT_LABEL_SCANS_PER_DAY=30@RATE_LIMIT_VOICE_PER_DAY=20@RATE_LIMIT_ANALYZE_PER_HOUR=120@RATE_LIMIT_PUBLIC_PER_MINUTE=60@TRUSTED_PROXY_HOPS=1"
+            --set-env-vars "^@^ENVIRONMENT=dev@CALLMISSED_BASE_URL=https://api.callmissed.com/v1@CALLMISSED_RESOURCE_URL=https://api.callmissed.com/api/v1@CALLMISSED_EXTRACTION_MODEL=gemma-4-31b@CALLMISSED_EXPLANATION_MODEL=gemma-4-31b@CALLMISSED_STT_MODEL=saaras:v4@CALLMISSED_TTS_MODEL=bulbul:v3@SUPABASE_URL=https://uhjopvrewcwqvugmdhdw.supabase.co@SUPABASE_PROJECT_REF=uhjopvrewcwqvugmdhdw@SUPABASE_JWKS_URL=https://uhjopvrewcwqvugmdhdw.supabase.co/auth/v1/.well-known/jwks.json@SUPABASE_STORAGE_BUCKET=label-photos@ALLOWED_ORIGINS=${WEB_URL},http://localhost:3000@OFF_USER_AGENT=SmartNutri/0.1 (contact: https://github.com/pritirokade14/Smart-Nutri)@RATE_LIMIT_LABEL_SCANS_PER_DAY=30@RATE_LIMIT_VOICE_PER_DAY=20@RATE_LIMIT_ANALYZE_PER_HOUR=120@RATE_LIMIT_PUBLIC_PER_MINUTE=60@TRUSTED_PROXY_HOPS=1"
       - name: Smoke test the new API revision (tag URL), then shift traffic
         run: |
           TAG_URL="https://c${GITHUB_SHA::7}---smartnutri-api-dev-609833507754.asia-south1.run.app"
@@ -118,6 +119,25 @@ jobs:
           gcloud run services update-traffic smartnutri-api-dev \
             --project "$GCP_PROJECT" --region "$REGION" \
             --remove-tags "c${GITHUB_SHA::7}" || echo "no tag to remove"
+
+      - name: Deploy the retention Cloud Run Job (same image, same service account)
+        # Main only. The job shell, its IAM and the 02:30 IST Cloud Scheduler trigger are one-time
+        # USER setup: scripts/setup-retention-schedule.sh (docs/SETUP_ACCOUNTS.md). This only updates
+        # the image, command and env. Nothing here runs the job; the scheduler does.
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if ! gcloud run jobs describe "$RETENTION_JOB" --project "$GCP_PROJECT" --region "$REGION" >/dev/null 2>&1; then
+            echo "::warning::Cloud Run Job $RETENTION_JOB does not exist yet: run 'bash scripts/setup-retention-schedule.sh setup' (USER), then redeploy. Retention is NOT running."
+            exit 0
+          fi
+          gcloud run jobs deploy "$RETENTION_JOB" \
+            --project "$GCP_PROJECT" --region "$REGION" \
+            --image "$IMAGE" \
+            --service-account "$API_SA" \
+            --command python --args "-m,app.jobs.retention" \
+            --max-retries 0 --task-timeout 600 --memory 512Mi --cpu 1 \
+            --set-secrets "SUPABASE_SECRET_KEY=supabase-secret-key-dev:latest,DATABASE_URL=database-url-dev:latest" \
+            --set-env-vars "^@^ENVIRONMENT=dev@SUPABASE_URL=https://uhjopvrewcwqvugmdhdw.supabase.co@SUPABASE_PROJECT_REF=uhjopvrewcwqvugmdhdw@SUPABASE_STORAGE_BUCKET=label-photos"
 
   deploy-web:
     # After the API so the first web build points at a live API.
@@ -146,6 +166,8 @@ jobs:
           NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
           NEXT_PUBLIC_FEATURE_PHONE_OTP: ${{ vars.NEXT_PUBLIC_FEATURE_PHONE_OTP || 'false' }}
           NEXT_PUBLIC_FEATURE_EMAIL_OTP: ${{ vars.NEXT_PUBLIC_FEATURE_EMAIL_OTP || 'false' }}
+          # Voice stays off until the API runs with VOICE_ENABLED=true (Ruling V1 S3).
+          NEXT_PUBLIC_FEATURE_VOICE: ${{ vars.NEXT_PUBLIC_FEATURE_VOICE || 'false' }}
         run: |
           if [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
             echo "Set the repository variable NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Settings > Secrets and variables > Actions > Variables)." >&2
@@ -160,6 +182,7 @@ jobs:
             --build-arg NEXT_PUBLIC_SENTRY_DSN="$NEXT_PUBLIC_SENTRY_DSN" \
             --build-arg NEXT_PUBLIC_FEATURE_PHONE_OTP="$NEXT_PUBLIC_FEATURE_PHONE_OTP" \
             --build-arg NEXT_PUBLIC_FEATURE_EMAIL_OTP="$NEXT_PUBLIC_FEATURE_EMAIL_OTP" \
+            --build-arg NEXT_PUBLIC_FEATURE_VOICE="$NEXT_PUBLIC_FEATURE_VOICE" \
             .
           docker push "$AR_REPO/web:${{ github.sha }}"
           echo "IMAGE=$(docker inspect --format '{{index .RepoDigests 0}}' "$AR_REPO/web:${{ github.sha }}")" >> "$GITHUB_ENV"

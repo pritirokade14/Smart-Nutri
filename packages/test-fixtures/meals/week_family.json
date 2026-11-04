@@ -1,0 +1,44 @@
+{
+  "format_version": 1,
+  "description": "One family's meal logs across the 7 IST days ending on end_date, plus two logs just outside the week. Dad has an over-limit sugar day (cola) and an Open Food Facts product with no sugars value (incomplete). Synthetic people and OFF data.",
+  "end_date": "2026-11-03",
+  "scans": 12,
+  "members": {
+    "me": {"name": "Asha Patil", "relation": "self", "birth_year": 1990, "weight_kg": 62, "diet": "veg", "allergens": [], "conditions": []},
+    "dad": {"name": "Ravi Patil", "relation": "parent", "birth_year": 1960, "weight_kg": 70, "diet": "veg", "allergens": [], "conditions": ["diabetes"]},
+    "riya": {"name": "Riya", "relation": "child", "birth_year": 2017, "weight_kg": null, "diet": "veg", "allergens": ["milk"], "conditions": []}
+  },
+  "off_products": {
+    "8900000000073": {
+      "code": "8900000000073",
+      "product_name": "Plain Khakhra",
+      "brands": "Test Foods",
+      "categories_tags": ["en:snacks", "en:crackers"],
+      "ingredients_text": "wheat flour, edible vegetable oil, salt",
+      "ingredients_lc": "en",
+      "nutriments": {
+        "energy-kcal_100g": 410,
+        "carbohydrates_100g": 64,
+        "fat_100g": 12,
+        "saturated-fat_100g": 4,
+        "fiber_100g": 6,
+        "proteins_100g": 11,
+        "salt_100g": 1.4
+      }
+    }
+  },
+  "meals": [
+    {"member": "dad", "product": "oats", "grams": 40, "eaten_at": "2026-10-27T23:30:00+05:30"},
+    {"member": "dad", "product": "oats", "grams": 40, "eaten_at": "2026-10-28T08:30:00+05:30"},
+    {"member": "dad", "product": "sf_biscuit", "grams": 50, "eaten_at": "2026-10-29T16:00:00+05:30"},
+    {"member": "dad", "product": "cola", "grams": 330, "eaten_at": "2026-10-31T13:00:00+05:30"},
+    {"member": "dad", "barcode": "8900000000073", "grams": 30, "eaten_at": "2026-11-01T17:30:00+05:30"},
+    {"member": "dad", "product": "namkeen", "grams": 30, "eaten_at": "2026-11-03T11:00:00+05:30"},
+    {"member": "dad", "product": "curd", "grams": 100, "eaten_at": "2026-11-03T18:00:00+00:00"},
+    {"member": "dad", "product": "sf_biscuit", "grams": 25, "eaten_at": "2026-11-04T00:10:00+05:30"},
+    {"member": "me", "product": "oats", "grams": 50, "eaten_at": "2026-10-30T08:00:00+05:30"},
+    {"member": "me", "product": "cola", "grams": 250, "eaten_at": "2026-11-02T20:00:00+05:30"},
+    {"member": "riya", "product": "sf_biscuit", "grams": 25, "eaten_at": "2026-11-01T16:30:00+05:30"},
+    {"member": "riya", "product": "curd", "grams": 150, "eaten_at": "2026-11-03T13:00:00+05:30"}
+  ]
+}

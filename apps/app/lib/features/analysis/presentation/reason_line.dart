@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/l10n/app_localizations.dart';
-import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/reason_list.dart';
 import '../domain/reasons.dart';
 
 /// Generic line for a reason the app cannot render: a reason code this build
@@ -30,19 +30,8 @@ class ReasonLine extends StatelessWidget {
   final ReasonOut reason;
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: SnTokens.space1),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('•  '),
-          Expanded(child: Text(reasonText(l10n, reason))),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      ReasonBullet(text: reasonText(AppLocalizations.of(context), reason));
 }
 
 class _BadParam implements Exception {
@@ -69,6 +58,8 @@ class _ReasonFormatter {
         );
       case 'reason_variant.diet_violation_mark_only':
         return l10n.reasonVariantDietViolationMarkOnly(_diet(_str('diet')));
+      case 'reason_variant.custom_alert_flag_only':
+        return l10n.reasonVariantCustomAlertFlagOnly;
     }
     return switch (r.code) {
       'added_sugars' => l10n.reasonAddedSugars(_list('ingredients')),
@@ -100,6 +91,13 @@ class _ReasonFormatter {
       'condition_unrecognised' => l10n.reasonConditionUnrecognised(
         _str('condition'),
       ),
+      'custom_alert' => l10n.reasonCustomAlert(
+        _alert(_str('alert')),
+        _nonEmptyList('ingredients'),
+      ),
+      'custom_alert_unknown' => l10n.reasonCustomAlertUnknown(
+        _list('alerts', _alert),
+      ),
       'diet_unknown' => l10n.reasonDietUnknown(_diet(_str('diet'))),
       // Mark-only (no ingredients) is handled above; any other empty or
       // missing ingredient list cannot be rendered.
@@ -129,6 +127,8 @@ class _ReasonFormatter {
       'sodium_additives' => l10n.reasonSodiumAdditives(_list('ingredients')),
       'sugar_high' => l10n.reasonSugarHigh(_num('sugars_g')),
       'sugar_moderate' => l10n.reasonSugarModerate(_num('sugars_g')),
+      'supplement_child' => l10n.reasonSupplementChild,
+      'supplement_infant' => l10n.reasonSupplementInfant,
       _ => reasonFallbackText(l10n),
     };
   }
@@ -194,6 +194,17 @@ class _ReasonFormatter {
     'no_refined_sugar' => l10n.claimNoRefinedSugar,
     'diabetic_friendly' => l10n.claimDiabeticFriendly,
     _ => code,
+  };
+
+  // Member ingredient alerts (`alert.*`). An alert key this build does not
+  // know cannot be named, so the whole line falls back.
+  String _alert(String code) => switch (code) {
+    'palm_oil' => l10n.alertPalmOil,
+    'maida' => l10n.alertMaida,
+    'added_sugar' => l10n.alertAddedSugar,
+    'artificial_sweetener' => l10n.alertArtificialSweetener,
+    'msg' => l10n.alertMsg,
+    _ => throw const _BadParam(),
   };
 
   String _nutrient(String code) => switch (code) {

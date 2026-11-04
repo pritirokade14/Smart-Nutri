@@ -1,0 +1,17 @@
+{
+  "status": "caution",
+  "reasons": [
+    {
+      "code": "child_sugar_moderate",
+      "severity": "caution"
+    },
+    {
+      "code": "custom_alert",
+      "severity": "caution"
+    },
+    {
+      "code": "custom_alert",
+      "severity": "caution"
+    }
+  ]
+}

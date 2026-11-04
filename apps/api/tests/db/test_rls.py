@@ -13,8 +13,22 @@ from sqlalchemy.exc import DBAPIError
 
 from tests.db.conftest import TABLES, as_anon, as_user
 
-OWNED = ("members", "consents", "scans", "meal_logs", "product_reports")
-SERVER_ONLY = ("off_product_cache", "rate_limit_counters", "explanation_cache")
+OWNED = (
+    "members",
+    "consents",
+    "scans",
+    "meal_logs",
+    "product_reports",
+    "account_user_types",
+)
+# The column that identifies a row. account_user_types has one row per account (P9-R1).
+KEY = {t: "id" for t in OWNED} | {"account_user_types": "account_id"}
+SERVER_ONLY = (
+    "off_product_cache",
+    "rate_limit_counters",
+    "explanation_cache",
+    "deleted_accounts",
+)
 INSUFFICIENT_PRIVILEGE = "42501"
 
 
@@ -55,6 +69,7 @@ async def test_policies_are_exactly_as_designed(db):
         ("product_reports", "ALL"),
         ("meal_logs", "ALL"),
         ("products", "SELECT"),
+        ("account_user_types", "ALL"),
     }
     assert all(list(r.roles) == ["authenticated"] for r in rows)
 
@@ -94,22 +109,9 @@ async def test_account_sees_only_itself(db, two_accounts):
 @pytest.mark.parametrize("table", OWNED)
 async def test_owned_tables_hide_other_accounts_rows(db, two_accounts, table):
     async with as_user(db, two_accounts.b):
-        ids = set((await db.execute(text(f"select id from {table}"))).scalars().all())
-    seed_b, seed_a = two_accounts.seed_b, two_accounts.seed_a
-    own = {
-        "members": seed_b.member,
-        "consents": seed_b.consent,
-        "scans": seed_b.scan,
-        "meal_logs": seed_b.meal_log,
-        "product_reports": seed_b.report,
-    }[table]
-    other = {
-        "members": seed_a.member,
-        "consents": seed_a.consent,
-        "scans": seed_a.scan,
-        "meal_logs": seed_a.meal_log,
-        "product_reports": seed_a.report,
-    }[table]
+        ids = set((await db.execute(text(f"select {KEY[table]} from {table}"))).scalars().all())
+    own = _row_of(two_accounts.seed_b, table)
+    other = _row_of(two_accounts.seed_a, table)
     assert ids == {own}
     assert other not in ids
 
@@ -121,6 +123,7 @@ def _row_of(seed, table):
         "scans": seed.scan,
         "meal_logs": seed.meal_log,
         "product_reports": seed.report,
+        "account_user_types": seed.account,
     }[table]
 
 
@@ -129,11 +132,14 @@ async def test_owned_tables_deny_update_and_delete(db, two_accounts, table):
     for seed in (two_accounts.seed_a, two_accounts.seed_b):  # foreign row and own row
         row = _row_of(seed, table)
         async with as_user(db, two_accounts.b):
+            key = KEY[table]
             await _expect_denied(
-                db, f"update {table} set account_id = account_id where id = :id", {"id": row}
+                db, f"update {table} set account_id = account_id where {key} = :id", {"id": row}
             )
-            await _expect_denied(db, f"delete from {table} where id = :id", {"id": row})
-        still = await db.execute(text(f"select count(*) from {table} where id = :id"), {"id": row})
+            await _expect_denied(db, f"delete from {table} where {key} = :id", {"id": row})
+        still = await db.execute(
+            text(f"select count(*) from {table} where {KEY[table]} = :id"), {"id": row}
+        )
         assert still.scalar() == 1
 
 
@@ -142,7 +148,7 @@ async def test_owned_tables_deny_moving_row_to_other_account(db, two_accounts, t
     async with as_user(db, two_accounts.b):
         await _expect_denied(
             db,
-            f"update {table} set account_id = :a where id = :id",
+            f"update {table} set account_id = :a where {KEY[table]} = :id",
             {"a": two_accounts.a, "id": _row_of(two_accounts.seed_b, table)},
         )
 
@@ -174,6 +180,11 @@ async def test_all_inserts_by_authenticated_are_denied(db, two_accounts):
                 "insert into meal_logs (account_id, member_id, product_id, grams, nutrients) "
                 "values (:o, :m, :p, 10, '{}')",
                 {"o": owner, "m": m_b, "p": p},
+            )
+            await _expect_denied(
+                db,
+                "insert into account_user_types (account_id, types) values (:o, '{gym}')",
+                {"o": owner},
             )
 
 
@@ -233,6 +244,12 @@ async def test_server_only_tables_reject_user_writes(db, two_accounts):
             {"p": two_accounts.product},
         )
         await _expect_denied(db, "update rate_limit_counters set count = 0")
+        # Deletion tombstones (D1/B1): a user can neither lift one nor plant one.
+        await _expect_denied(
+            db, "insert into deleted_accounts (id) values (:id)", {"id": two_accounts.a}
+        )
+        await _expect_denied(db, "delete from deleted_accounts")
+        await _expect_denied(db, "update deleted_accounts set deleted_at = now()")
 
 
 async def test_user_without_jwt_sub_sees_nothing(db, two_accounts):

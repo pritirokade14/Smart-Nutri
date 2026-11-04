@@ -1,5 +1,10 @@
 {
   "@@locale": "hi",
+  "alertAddedSugar": "अतिरिक्त चीनी",
+  "alertArtificialSweetener": "कृत्रिम स्वीटनर",
+  "alertMaida": "मैदा",
+  "alertMsg": "एमएसजी (मोनोसोडियम ग्लूटामेट)",
+  "alertPalmOil": "पाम तेल",
   "allergenCrustacean": "शेलफ़िश (झींगा, केकड़ा आदि)",
   "allergenEgg": "अंडा",
   "allergenFish": "मछली",
@@ -11,6 +16,30 @@
   "allergenSoy": "सोया",
   "allergenSulphite": "सल्फ़ाइट",
   "allergenTreeNut": "ट्री नट्स (बादाम, काजू, अखरोट आदि)",
+  "alternativesCompare": "तुलना करें",
+  "alternativesForMember": "{name} के लिए",
+  "@alternativesForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "alternativesReasonNoBetterFound": "इस तरह का बेहतर न्यूट्री-स्कोर वाला कोई उत्पाद नहीं मिला।",
+  "alternativesReasonNoCategory": "इस उत्पाद के लिए अभी हम विकल्प नहीं सुझा सकते।",
+  "alternativesReasonSourceProteinUnknown": "प्रोटीन की तुलना के लिए इस उत्पाद के लेबल पर प्रोटीन और ऊर्जा की पर्याप्त जानकारी नहीं है।",
+  "alternativesReasonSourceSupplement": "सप्लीमेंट के लिए हम दूसरे उत्पाद नहीं सुझाते।",
+  "alternativesReasonSourceUngraded": "तुलना के लिए इस उत्पाद के लेबल पर पर्याप्त जानकारी नहीं है।",
+  "alternativesSubtitle": "उसी तरह का उत्पाद, बेहतर न्यूट्री-स्कोर के साथ (गणना SmartNutri ने की है)",
+  "alternativesSugars": "शर्करा: {value} ग्राम प्रति 100 ग्राम/मि.ली.",
+  "@alternativesSugars": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "alternativesTitle": "बेहतर विकल्प",
   "appName": "SmartNutri AI",
   "attributionOff": "डेटा: Open Food Facts (ODbL)",
   "authChange": "बदलें",
@@ -19,12 +48,16 @@
   "authEmailLabel": "ईमेल पता",
   "authError": "साइन इन नहीं हो सका। कृपया दोबारा कोशिश करें।",
   "authGoogle": "Google से जारी रखें",
+  "authOr": "या",
   "authPhone": "फ़ोन से जारी रखें",
   "authPhoneLabel": "फ़ोन नंबर (देश कोड सहित)",
   "authSendCode": "कोड भेजें",
   "authSignOut": "साइन आउट करें",
+  "authSubtitle": "अपने परिवार के लिए पैकेटबंद खाना जाँचने हेतु साइन इन करें।",
+  "authTagline": "जानिए कि कोई पैकेज्ड खाना आपके परिवार के हर सदस्य के लिए सही है या नहीं।",
   "authTitle": "साइन इन करें",
   "authVerify": "सत्यापित करें",
+  "categorySupplement": "सप्लीमेंट",
   "claimDiabeticFriendly": "डायबिटीज़ के अनुकूल",
   "claimHighProtein": "उच्च प्रोटीन",
   "claimLowFat": "कम वसा",
@@ -32,10 +65,26 @@
   "claimLowSugar": "कम चीनी",
   "claimNoAddedSugar": "अतिरिक्त चीनी नहीं",
   "claimNoRefinedSugar": "रिफ़ाइंड चीनी नहीं",
+  "claimProteinAmount": "प्रोटीन की मात्रा",
   "claimReasonAddedSugarIngredient": "सामग्री में अतिरिक्त चीनी शामिल है: {ingredients}।",
   "@claimReasonAddedSugarIngredient": {
     "placeholders": {
       "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "claimReasonBasisUnknown": "दावे में साफ़ नहीं लिखा है कि यह प्रति 100 ग्राम है या प्रति सर्विंग, इसलिए इसे तालिका से जाँचा नहीं जा सकता।",
+  "claimReasonBelowClaimed": "पोषण तालिका में {basis, select, per_serving {प्रति सर्विंग} other {प्रति 100 ग्राम}} {value} ग्राम प्रोटीन है, जो दावा किए गए {claimed} ग्राम से कम है।",
+  "@claimReasonBelowClaimed": {
+    "placeholders": {
+      "basis": {
+        "type": "String"
+      },
+      "claimed": {
+        "type": "String"
+      },
+      "value": {
         "type": "String"
       }
     }
@@ -73,6 +122,14 @@
     }
   },
   "claimReasonOk": "लेबल की जानकारी इस दावे से मेल खाती है।",
+  "claimReasonOtherProteinSource": "सामग्री में प्रोटीन का दूसरा स्रोत भी है: {ingredients}।",
+  "@claimReasonOtherProteinSource": {
+    "placeholders": {
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
   "claimReasonRefinedSugarIngredient": "सामग्री में रिफ़ाइंड चीनी शामिल है: {ingredients}।",
   "@claimReasonRefinedSugarIngredient": {
     "placeholders": {
@@ -81,14 +138,40 @@
       }
     }
   },
+  "claimReasonWheyNotListed": "सामग्री की सूची में व्हे नहीं है।",
   "claimSourceOfProtein": "प्रोटीन का स्रोत",
   "claimSugarFree": "चीनी रहित",
   "claimVerdictContradicted": "लेबल की जानकारी इस दावे से मेल नहीं खाती",
   "claimVerdictSupported": "लेबल की जानकारी इस दावे का समर्थन करती है",
   "claimVerdictUnverifiable": "लेबल से इसकी जाँच नहीं हो सकती",
+  "claimWheyOnly": "100% व्हे",
+  "claimWheyProtein": "व्हे प्रोटीन",
+  "commonCancel": "रद्द करें",
+  "commonClose": "बंद करें",
+  "commonComingSoon": "जल्द आ रहा है",
   "commonDisclaimer": "यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "commonErrorTitle": "कुछ गड़बड़ हो गई",
+  "commonGoHome": "होम पेज पर जाएँ",
   "commonLoading": "लोड हो रहा है…",
+  "commonNotFoundBody": "आप जो पेज ढूँढ रहे हैं, वह मौजूद नहीं है या कहीं और चला गया है।",
+  "commonOpenSettings": "सेटिंग्स खोलें",
   "commonRetry": "फिर से कोशिश करें",
+  "commonSkipToContent": "सीधे मुख्य सामग्री पर जाएँ",
+  "compareBetterA": "यहाँ पहला उत्पाद बेहतर है",
+  "compareBetterB": "यहाँ दूसरा उत्पाद बेहतर है",
+  "compareBetterChip": "बेहतर",
+  "compareBetterSame": "लगभग बराबर",
+  "compareBetterUnknown": "तुलना नहीं हो सकती: किसी लेबल पर यह मान नहीं है",
+  "comparePickSecond": "तुलना के लिए एक उत्पाद चुनें",
+  "compareRowEnergyKcal": "कैलोरी (प्रति 100 ग्राम/मि.ली.)",
+  "compareRowFiberG": "फ़ाइबर (प्रति 100 ग्राम/मि.ली.)",
+  "compareRowGrade": "न्यूट्री-स्कोर (गणना SmartNutri ने की है)",
+  "compareRowProteinG": "प्रोटीन (प्रति 100 ग्राम/मि.ली.)",
+  "compareRowSaltG": "नमक (प्रति 100 ग्राम/मि.ली.)",
+  "compareRowSatFatG": "संतृप्त वसा (प्रति 100 ग्राम/मि.ली.)",
+  "compareRowSugarsG": "शर्करा (प्रति 100 ग्राम/मि.ली.)",
+  "compareTitle": "तुलना करें",
+  "conditionBuildMuscle": "मांसपेशियाँ बनाना",
   "conditionDiabetes": "मधुमेह (डायबिटीज़)",
   "conditionHypertension": "उच्च रक्तचाप",
   "conditionPcos": "पीसीओएस",
@@ -103,9 +186,11 @@
   "confirmCategory": "उत्पाद का प्रकार",
   "confirmCategoryOptionBeverage": "पेय",
   "confirmCategoryOptionCheese": "चीज़",
-  "confirmCategoryOptionFat": "तेल या वसा",
+  "confirmCategoryOptionFat": "तेल, वसा, नट्स या बीज",
   "confirmCategoryOptionGeneral": "खाद्य पदार्थ",
+  "confirmCategoryOptionSupplement": "सप्लीमेंट (प्रोटीन पाउडर, व्हे, हेल्थ सप्लीमेंट)",
   "confirmCategoryOptionWater": "पैक्ड पानी",
+  "confirmCategorySuggestionSupplement": "सामग्री या प्रोटीन की मात्रा से लगता है कि यह सप्लीमेंट (प्रोटीन पाउडर या व्हे) हो सकता है। अगर ऐसा है, तो प्रकार में सप्लीमेंट चुनें।",
   "confirmChooseRequired": "आगे बढ़ने के लिए एक चुनें",
   "confirmClaims": "पैक पर किए गए दावे",
   "confirmClearStatementConfirm": "मैंने पैक देख लिया है: यह कथन उस पर छपा नहीं है",
@@ -137,6 +222,10 @@
   "confirmOpenExisting": "सहेजा गया उत्पाद खोलें",
   "confirmRemoveIngredient": "यह सामग्री हटाएँ",
   "confirmSave": "पुष्टि करें और सहेजें",
+  "confirmSectionAllergens": "एलर्जी कारक",
+  "confirmSectionNutrition": "पोषण तालिका",
+  "confirmSectionPack": "पैक पर दावे और निशान",
+  "confirmSectionProduct": "उत्पाद",
   "confirmServingSize": "सर्विंग साइज़ (g)",
   "confirmSodium": "सोडियम",
   "confirmSodiumUnit": "पैक पर सोडियम की इकाई",
@@ -149,27 +238,71 @@
   "confirmVegMarkTitle": "शाकाहारी या मांसाहारी निशान",
   "confirmVegMarkVeg": "शाकाहारी (हरा निशान)",
   "confirmWithheldHint": "पैक पर यह मान जाँचें, फिर पुष्टि के लिए टिक करें।",
+  "consentAgree": "मैं सहमत हूँ",
+  "consentAiOptional": "वैकल्पिक। इसके बिना भी आपको हर नतीजा मिलेगा, बस AI की व्याख्या नहीं मिलेगी।",
+  "consentAiProcessingBody": "SmartNutri को हर नतीजे का सारांश, बिना नामों के, भारत में प्रोसेस होने वाली AI सेवा को भेजने दें, ताकि एक छोटी व्याख्या लिखी जा सके। नतीजा कभी AI तय नहीं करता।",
+  "consentAiProcessingTitle": "AI से व्याख्या",
+  "consentDecline": "अभी नहीं",
+  "consentGranted": "सहमति दी गई",
+  "consentHealthDataBody": "आप जो एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न दर्ज करते हैं, SmartNutri उनसे परिवार के हर सदस्य के लिए उत्पादों की जाँच करता है। यह जानकारी है, चिकित्सा सलाह नहीं। आप यह सहमति कभी भी वापस ले सकते हैं।",
+  "consentHealthDataTitle": "स्वास्थ्य डेटा",
+  "consentNeedsUpdate": "अपडेट हुआ है, कृपया देखें",
+  "consentNotGranted": "सहमति नहीं दी गई",
+  "consentPromptBody": "जारी रखने के लिए कृपया इनसे सहमति दें। आप अपनी प्रोफ़ाइल से कभी भी सहमति वापस ले सकते हैं।",
+  "consentPromptTitle": "आपकी सहमति चाहिए",
+  "consentRequiredNote": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए ज़रूरी है।",
+  "consentRequiredToContinue": "आगे बढ़ने के लिए कृपया देखें और सहमति दें।",
+  "consentReviewAgree": "पढ़ें और सहमति दें",
+  "consentTermsBody": "मैं SmartNutri की उपयोग की शर्तों और गोपनीयता नीति से सहमत हूँ।",
+  "consentTermsStepBody": "कृपया हमारी उपयोग की शर्तें और गोपनीयता सूचना पढ़ें। उत्पादों की जाँच और स्कैन करने के लिए आपको इनसे सहमत होना होगा।",
+  "consentTermsStepLeaveNote": "सहमत नहीं होना चाहते? आप साइन आउट कर सकते हैं, या अपनी प्रोफ़ाइल से अपना खाता हटा सकते हैं।",
+  "consentTermsStepReadPrivacy": "गोपनीयता सूचना",
+  "consentTermsStepReadTerms": "उपयोग की शर्तें",
+  "consentTermsStepTitle": "शुरू करने से पहले",
+  "consentTermsStepUpdatedBody": "हमारी उपयोग की शर्तें या गोपनीयता सूचना बदल गई है। उत्पादों की जाँच और स्कैन जारी रखने के लिए कृपया इन्हें पढ़ें और फिर से सहमति दें।",
+  "consentTermsStepUpdatedTitle": "हमने अपनी शर्तें अपडेट की हैं",
+  "consentTermsTitle": "उपयोग की शर्तें",
+  "consentTermsWithdrawConfirm": "सहमति वापस लेने पर, जब तक आप फिर से सहमति नहीं देते, आप उत्पादों की जाँच या स्कैन नहीं कर पाएँगे। आपका सहेजा गया डेटा तब तक रहेगा जब तक आप अपना खाता नहीं हटाते।",
+  "consentUpdateNote": "हमने यह जानकारी अपडेट की है। कृपया इसे पढ़ें और फिर से सहमति दें।",
+  "consentUpdatesBanner": "हमने कुछ सहमति की जानकारी अपडेट की है। कृपया उन्हें देखें।",
+  "consentWithdraw": "सहमति वापस लें",
   "dietEggetarian": "अंडाहारी (अंडा खाने वाला शाकाहारी)",
   "dietJain": "जैन",
   "dietNonVeg": "मांसाहारी",
   "dietVeg": "शाकाहारी",
   "dietVegan": "वीगन",
+  "errorAiUnavailable": "आवाज़ वाले जवाब अभी उपलब्ध नहीं हैं। कृपया बाद में फिर कोशिश करें।",
+  "errorAudioTooLarge": "यह रिकॉर्डिंग बहुत बड़ी है। कृपया छोटा सवाल पूछें।",
+  "errorAudioTooLong": "यह रिकॉर्डिंग 30 सेकंड से लंबी है। कृपया छोटा सवाल पूछें।",
+  "errorAudioUnsupported": "हम यह रिकॉर्डिंग चला नहीं पाए। कृपया फिर कोशिश करें।",
   "errorAuthInvalid": "आपका सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।",
   "errorAuthRequired": "कृपया साइन इन करें।",
+  "errorConsentRequired": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए, कृपया पहले स्वास्थ्य डेटा के उपयोग के लिए सहमति दें।",
+  "errorConsentVersionMismatch": "सहमति का पाठ अपडेट हो गया है। कृपया पेज फिर से लोड करके उसे दोबारा देखें।",
+  "errorDeletionIncomplete": "हम आपका खाता पूरी तरह हटा नहीं सके। कृपया फिर से कोशिश करें; जो हट चुका है वह वापस नहीं आएगा।",
+  "errorEatenAtOutOfRange": "पिछले 30 दिनों के भीतर का समय चुनें।",
   "errorExtractionFailed": "हम यह लेबल नहीं पढ़ पाए। दूसरी फ़ोटो आज़माएँ या जानकारी खुद भरें।",
   "errorExtractionUnavailable": "लेबल पढ़ने की सुविधा अभी उपलब्ध नहीं है। बाद में फिर कोशिश करें या जानकारी खुद भरें।",
+  "errorFollowUpWithoutType": "कृपया अपने जवाब जाँचें और फिर से कोशिश करें।",
   "errorForbidden": "आपके पास इसकी पहुँच नहीं है।",
   "errorHttpError": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
+  "errorImageQualityLow": "यह फ़ोटो साफ़ नहीं पढ़ी जा रही। कृपया फिर से फ़ोटो लें।",
   "errorImageTooLarge": "यह फ़ोटो बहुत बड़ी है। कृपया 8 MB से छोटी फ़ोटो इस्तेमाल करें।",
   "errorImplausibleValue": "कुछ मान सही नहीं लगते। कृपया चिह्नित फ़ील्ड जाँचें, या उन्हें खाली छोड़ दें।",
   "errorInternalError": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
   "errorInvalidBarcode": "यह सही बारकोड नहीं लगता।",
   "errorInvalidProductRef": "जाँचने के लिए एक उत्पाद चुनें।",
+  "errorMealNotFound": "यह खाने की एंट्री नहीं मिली।",
+  "errorMemberLimit": "आप परिवार के अधिकतम 10 सदस्य जोड़ सकते हैं।",
   "errorMemberNotFound": "परिवार का यह सदस्य नहीं मिला।",
   "errorMethodNotAllowed": "यह कार्य समर्थित नहीं है। कृपया ऐप अपडेट करें।",
   "errorNetwork": "इंटरनेट कनेक्शन नहीं है।",
   "errorNotFound": "नहीं मिला।",
   "errorOffUnavailable": "उत्पाद डेटाबेस अभी व्यस्त है। कृपया थोड़ी देर बाद फिर कोशिश करें।",
+  "errorPayloadTooLarge": "यह अनुरोध बहुत बड़ा है। कृपया कम डेटा के साथ फिर से कोशिश करें।",
+  "errorPhoneOtpDisabled": "फ़ोन से साइन-इन अभी उपलब्ध नहीं है। कृपया ईमेल या Google से साइन इन करें।",
+  "errorPortionRequired": "कितना खाया, चुनें: सर्विंग या ग्राम।",
+  "errorPrimaryMember": "आपकी अपनी प्रोफ़ाइल हटाई नहीं जा सकती।",
   "errorProductExists": "यह उत्पाद पहले से सहेजा गया है।",
   "errorProductNotFound": "यह उत्पाद अभी हमें नहीं मिला।",
   "errorRateLimited": "बहुत अधिक अनुरोध। कृपया थोड़ी देर रुकें।",
@@ -177,10 +310,36 @@
   "errorRateLimitedVoice": "आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।",
   "errorScanImageNotFound": "वह फ़ोटो हमें नहीं मिली। कृपया फ़ोटो फिर से लें या अपलोड करें।",
   "errorScanNotFound": "यह लेबल स्कैन नहीं मिला। कृपया लेबल फिर से स्कैन करें।",
+  "errorSearchQueryTooShort": "खोजने के लिए कम से कम 3 अक्षर लिखें।",
+  "errorServingSizeUnknown": "इस पैक पर सर्विंग का आकार नहीं लिखा है। मात्रा ग्राम में भरें।",
   "errorStorageUnavailable": "हम अभी फ़ोटो संभाल नहीं पाए। कृपया थोड़ी देर बाद फिर कोशिश करें।",
   "errorUnauthorized": "कृपया साइन इन करें।",
   "errorUnsupportedImage": "कृपया JPEG, PNG या WebP फ़ोटो इस्तेमाल करें।",
+  "errorUserTypeNotSelected": "अपने लिए चुने गए विकल्पों में से एक चुनें।",
+  "errorUserTypesNotFound": "पहले बताइए कि आप SmartNutri क्यों इस्तेमाल कर रहे हैं।",
   "errorValidationError": "कृपया चिह्नित फ़ील्ड जाँचें।",
+  "errorVoiceNotUnderstood": "हमें कोई सवाल सुनाई नहीं दिया। कृपया बटन दबाए रखें और साफ़ बोलें।",
+  "explanationAiNote": "ऊपर के नतीजों से AI ने लिखा है। यह कभी कोई नतीजा नहीं बदलता।",
+  "explanationFallbackTip1": "मिलते-जुलते उत्पादों के लेबल की तुलना करें और कम चीनी व कम नमक वाला चुनें।",
+  "explanationFallbackTip2": "पैक पर सर्विंग का आकार देखें: लेबल के मान प्रति 100 ग्राम या 100 मि.ली. होते हैं।",
+  "explanationFallbackTip3": "अगर आपको कोई स्वास्थ्य समस्या है, तो बदलाव से पहले अपने डॉक्टर या डाइटीशियन से पूछें।",
+  "explanationSourceFallbackNote": "AI से समझाने की सुविधा अभी उपलब्ध नहीं है, इसलिए यह सारांश हमारे नियमों से बना है।",
+  "explanationTipsTitle": "सुझाव",
+  "explanationTitle": "यह नतीजा क्यों",
+  "familyBody": "परिवार के हर सदस्य को उनकी उम्र, एलर्जी और खान-पान के साथ जोड़ें, ताकि हर नतीजा उनके हिसाब से हो।",
+  "familyComingSoonBody": "हर सदस्य की उम्र, एलर्जी और आहार जोड़ें, ताकि हर किसी के लिए अलग नतीजा मिले।",
+  "familyComingSoonTitle": "परिवार प्रोफ़ाइल जल्द आ रही हैं",
+  "familyTitle": "परिवार",
+  "footerLinksLabel": "SmartNutri के बारे में",
+  "footerTagline": "भारतीय परिवारों के लिए पैकेटबंद खाने की जानकारी।",
+  "goalBuildMuscle": "मांसपेशियाँ बनाना",
+  "goalHealthyEating": "बेहतर खाना",
+  "goalWeightGain": "वज़न बढ़ाना",
+  "goalWeightLoss": "वज़न घटाना",
+  "goodbyeAction": "साइन इन पर वापस जाएँ",
+  "goodbyeBody": "आपका खाता और उसका डेटा हटा दिया गया है, और आप साइन आउट हो गए हैं। SmartNutri आज़माने के लिए धन्यवाद।",
+  "goodbyeMetaTitle": "खाता हटाया गया",
+  "goodbyeTitle": "आपका खाता हटा दिया गया है",
   "highInFat": "वसा अधिक",
   "highInPercentOfLimit": "सीमा का {pct}%",
   "@highInPercentOfLimit": {
@@ -193,7 +352,78 @@
   "highInSalt": "नमक अधिक",
   "highInSatFat": "संतृप्त वसा अधिक",
   "highInSugar": "चीनी अधिक",
+  "historyBody": "आप जो उत्पाद जाँचेंगे, वे यहाँ दिखेंगे, ताकि आप उन्हें फिर से ढूँढ सकें।",
+  "historyComingSoonBody": "आपने जो भी उत्पाद जाँचे हैं, वे सब यहाँ दिखेंगे।",
+  "historyComingSoonTitle": "आपका इतिहास जल्द आ रहा है",
+  "historyEmpty": "अभी तक कुछ दर्ज नहीं किया गया।",
+  "historyItemAmount": "{grams} ग्राम",
+  "@historyItemAmount": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "historyLoggedTitle": "क्या खाया गया",
+  "historyMember": "परिवार का सदस्य",
+  "historyNextDay": "अगला दिन",
+  "historyPreviousDay": "पिछला दिन",
+  "historyRemove": "हटाएँ",
+  "historyRemoveConfirm": "इसे लॉग से हटाएँ?",
+  "historyThisWeek": "इस हफ़्ते",
+  "historyTitle": "इतिहास",
+  "historyToday": "आज",
+  "homeCardsAllergyCheckAddCta": "एलर्जी जोड़ें",
+  "homeCardsAllergyCheckMemberLine": "{name}: {allergens}",
+  "@homeCardsAllergyCheckMemberLine": {
+    "placeholders": {
+      "allergens": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCardsAllergyCheckNone": "अभी तक कोई एलर्जी नहीं जोड़ी गई।",
+  "homeCardsAllergyCheckTitle": "एलर्जी जाँच",
+  "homeCardsAllergyCheckUnknownNote": "अज्ञात का मतलब है कि हम जाँच नहीं कर पाए, इसलिए उसे कभी सुरक्षित नहीं बताया जाता।",
+  "homeCardsClaimsTipBody": "शुगर-फ़्री? हम दावों को लेबल से मिलाकर जाँचते हैं।",
+  "homeCardsClaimsTipTitle": "पैक पर दावे",
+  "homeCardsCustomAlertsSetupBody": "ऐसी सामग्री चुनें जिसे हम लेबल पर बताएँ।",
+  "homeCardsCustomAlertsSetupCta": "अलर्ट सेट करें",
+  "homeCardsCustomAlertsSetupTitle": "सामग्री अलर्ट",
+  "homeCardsFamilyStripAdd": "सदस्य जोड़ें",
+  "homeCardsFamilyStripTitle": "आपका परिवार",
+  "homeCardsNotCoveredBody": "अभी शामिल नहीं: थायरॉइड, कोलेस्ट्रॉल, किडनी रोग, गर्भावस्था।",
+  "homeCardsNotCoveredTitle": "अभी शामिल नहीं",
+  "homeCardsProteinClaimsTipBody": "हम प्रोटीन के दावों को पोषण तालिका से मिलाकर जाँचते हैं।",
+  "homeCardsProteinClaimsTipTitle": "प्रोटीन के दावे",
+  "homeCardsProteinSwapsCta": "ज़्यादा प्रोटीन वाले विकल्प खोजें",
+  "homeCardsProteinSwapsTitle": "ज़्यादा प्रोटीन वाले विकल्प",
+  "homeCardsRecentScansTitle": "हाल के स्कैन",
+  "homeCardsTodayProteinTitle": "आज: प्रोटीन",
+  "homeCardsTodaySugarSaltTitle": "आज: चीनी और नमक",
+  "homeCardsUnknownExplainerBody": "जब लेबल पर सामग्री न हो या पढ़ना मुश्किल हो, तो हम जाँच नहीं कर सकते। हम उसे कभी सुरक्षित नहीं दिखाते।",
+  "homeCardsUnknownExplainerTitle": "\"अज्ञात\" सुरक्षित क्यों नहीं है",
+  "homeCardsWeeklyFamilyBody": "पिछले 7 दिनों में आपके परिवार के लिए {count} चीज़ें दर्ज हुईं",
+  "@homeCardsWeeklyFamilyBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCardsWeeklyFamilyTitle": "इस सप्ताह",
+  "homeLabelBody": "बारकोड नहीं है, या उत्पाद हमें अभी पता नहीं? लेबल की फ़ोटो लें।",
+  "homeLabelTitle": "लेबल की फ़ोटो लें",
+  "homeManualBody": "पैक पर लिखी पोषण जानकारी खुद टाइप करें।",
+  "homeRecentEmptyBody": "आप जो उत्पाद जाँचेंगे, वे यहाँ दिखेंगे।",
+  "homeRecentEmptyTitle": "अभी कोई स्कैन नहीं",
+  "homeRecentTitle": "हाल के स्कैन",
+  "homeScanBody": "कैमरे का इस्तेमाल करें, या बारकोड के नीचे लिखा नंबर टाइप करें।",
   "homeScanCta": "उत्पाद स्कैन करें",
+  "homeSubtitle": "आज आप क्या जाँचना चाहेंगे?",
   "homeWelcome": "नमस्ते, {name}",
   "@homeWelcome": {
     "placeholders": {
@@ -202,6 +432,12 @@
       }
     }
   },
+  "homeWelcomeNoName": "नमस्ते",
+  "imageQualityBlur": "फ़ोटो धुंधली है। फ़ोन को स्थिर रखें और फ़ोकस के लिए लेबल पर टैप करें।",
+  "imageQualityGlare": "रोशनी से फ़ोटो धुल गई है। फ़्लैश बंद करें या पैक को रोशनी से थोड़ा हटाकर झुकाएँ।",
+  "imageQualityHintGeneric": "अच्छी रोशनी में पूरा लेबल फ़्रेम में रखकर फ़ोटो लें।",
+  "imageQualityTitle": "कृपया फ़ोटो दोबारा लें",
+  "imageQualityTooSmall": "फ़ोटो बहुत छोटी है। पास से फ़ोटो लें, ताकि लेबल पूरी फ़्रेम में आए।",
   "labelCameraPermissionDenied": "कैमरा की अनुमति बंद है। लेबल की फ़ोटो लेने के लिए सेटिंग्स में इसे चालू करें, या कोई फ़ोटो चुनें या जानकारी खुद भरें।",
   "labelChooseFile": "फ़ाइल चुनें",
   "labelDropHere": "फ़ोटो यहाँ छोड़ें",
@@ -211,6 +447,272 @@
   "labelTakePhoto": "फ़ोटो लें",
   "labelTitle": "लेबल की फ़ोटो लें",
   "labelUploading": "फ़ोटो अपलोड हो रही है…",
+  "landingCtaStart": "शुरू करें",
+  "landingEyebrow": "भारतीय परिवारों के लिए",
+  "landingHeroBody": "बारकोड स्कैन करें या लेबल की फ़ोटो लें। SmartNutri उसे पढ़कर हर व्यक्ति की उम्र, एलर्जी और खान-पान के हिसाब से जाँचता है, और कारण भी बताता है।",
+  "landingHeroTitle": "जानिए कि कोई पैकेटबंद खाना आपके परिवार के हर सदस्य के लिए सही है या नहीं",
+  "landingHowTitle": "यह कैसे काम करता है",
+  "landingMetaDescription": "पैकेटबंद खाना स्कैन करें और देखें कि यह आपके परिवार के हर सदस्य के लिए ठीक है या नहीं, कारणों के साथ। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "landingMetaTitle": "SmartNutri AI – क्या यह पैकेटबंद खाना आपके परिवार के लिए सही है?",
+  "landingStep1Body": "बारकोड स्कैन करें, या पैक पर छपे पोषण लेबल की फ़ोटो लें।",
+  "landingStep1Title": "स्कैन करें या फ़ोटो लें",
+  "landingStep2Body": "कुछ भी सहेजने से पहले आप लेबल की जानकारी की पुष्टि करते हैं।",
+  "landingStep2Title": "हमने जो पढ़ा, उसे जाँचें",
+  "landingStep3Body": "परिवार के हर सदस्य के लिए आसान नतीजा पाएँ, साथ में सरल शब्दों में कारण।",
+  "landingStep3Title": "देखें कि यह किसके लिए ठीक है",
+  "languageEn": "English",
+  "languageHi": "हिन्दी",
+  "languageLabel": "भाषा",
+  "languageMr": "मराठी",
+  "legalDraftNotice": "मसौदा: लॉन्च से पहले एक वकील इस दस्तावेज़ की समीक्षा कर रहे हैं।",
+  "legalEnglishOnly": "यह दस्तावेज़ अभी केवल अंग्रेज़ी में उपलब्ध है।",
+  "legalPrivacyDescription": "SmartNutri AI भारत के DPDP अधिनियम, 2023 के तहत आपके परिवार का डेटा कैसे इकट्ठा, इस्तेमाल और सुरक्षित करता है।",
+  "legalPrivacyTitle": "गोपनीयता सूचना",
+  "legalTermsDescription": "SmartNutri AI के उपयोग की शर्तें। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "legalTermsTitle": "उपयोग की शर्तें",
+  "legalVersion": "संस्करण {version}",
+  "@legalVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLogAmountGrams": "मात्रा ग्राम में",
+  "mealsLogAmountInvalid": "0 से ज़्यादा और {max} तक की मात्रा डालें।",
+  "@mealsLogAmountInvalid": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLogAmountServings": "सर्विंग की संख्या",
+  "mealsLogCta": "मैंने यह खाया",
+  "mealsLogEatenAt": "कब",
+  "mealsLogGrams": "ग्राम",
+  "mealsLogMember": "किसने खाया?",
+  "mealsLogNow": "अभी",
+  "mealsLogPortion": "कितना खाया?",
+  "mealsLogSave": "सहेजें",
+  "mealsLogSaved": "{who} के लिए दर्ज किया गया",
+  "@mealsLogSaved": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLogSavedYou": "आपके लिए दर्ज किया गया",
+  "mealsLogServingSize": "1 सर्विंग = {grams} ग्राम",
+  "@mealsLogServingSize": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "mealsLogServings": "सर्विंग",
+  "mealsLogTitle": "क्या खाया, दर्ज करें",
+  "mealsLogUndo": "वापस लें",
+  "mealsLogUndone": "लॉग से हटाया गया",
+  "mealsOnlineOnly": "वेब पर दर्ज करने के लिए इंटरनेट चाहिए। ऑफ़लाइन कुछ भी सहेजा नहीं जाता।",
+  "mealsQueuedOffline": "इस फ़ोन पर सहेजा गया। ऑनलाइन होते ही यह लॉग में जुड़ जाएगा।",
+  "mealsSyncFailed": "कुछ चीज़ें लॉग में नहीं जुड़ पाईं। कृपया उन्हें फिर से दर्ज करें।",
+  "mealsSyncing": "दर्ज की गई चीज़ें सिंक हो रही हैं…",
+  "membersAdd": "परिवार का सदस्य जोड़ें",
+  "membersBorn": "जन्म वर्ष {year}",
+  "@membersBorn": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "membersConsentWithdrawnNotice": "स्वास्थ्य डेटा की सहमति बंद है। सहेजी गई एलर्जी और स्वास्थ्य स्थितियाँ अब भी उत्पादों की जाँच में इस्तेमाल होती हैं, लेकिन दोबारा सहमति देने तक नई नहीं सहेजी जा सकतीं।",
+  "membersEdit": "बदलें",
+  "membersFormAllergenAdd": "जोड़ें",
+  "membersFormAllergenInvalid": "एलर्जी का नाम 2 से 40 अक्षरों का होना चाहिए।",
+  "membersFormAllergenLength": "2 से 40 अक्षर लिखें।",
+  "membersFormAllergenLimit": "आप ज़्यादा से ज़्यादा 20 एलर्जी जोड़ सकते हैं।",
+  "membersFormAllergenOther": "दूसरी एलर्जी",
+  "membersFormAllergens": "एलर्जी",
+  "membersFormAllergensHelp": "सूची में से चुनें, या खुद लिखें।",
+  "membersFormBirthYear": "जन्म का वर्ष",
+  "membersFormBirthYearHelp": "बच्चों और 2 साल से छोटे बच्चों की जाँच के लिए इस्तेमाल होता है।",
+  "membersFormBirthYearInvalid": "1900 से {year} के बीच का वर्ष लिखें।",
+  "@membersFormBirthYearInvalid": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormCancel": "रद्द करें",
+  "membersFormClearAllergiesConfirm": "{name} की सारी एलर्जी हटाएँ? इन एलर्जी वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।",
+  "@membersFormClearAllergiesConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormConditions": "स्वास्थ्य स्थितियाँ",
+  "membersFormCustomAlerts": "सामग्री अलर्ट",
+  "membersFormCustomAlertsHelp": "लेबल पर ये मिलने पर हम इन्हें बताएँगे।",
+  "membersFormDiet": "आहार",
+  "membersFormGoal": "लक्ष्य (वैकल्पिक)",
+  "membersFormHealthFieldsNote": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई और वज़न केवल स्वास्थ्य डेटा के उपयोग की आपकी सहमति से सहेजे जाते हैं।",
+  "membersFormHeightCm": "ऊँचाई (सेमी, वैकल्पिक)",
+  "membersFormHeightInvalid": "30 से 250 सेमी के बीच ऊँचाई लिखें, या खाली छोड़ें।",
+  "membersFormName": "नाम",
+  "membersFormNameInvalid": "40 अक्षरों तक का नाम लिखें।",
+  "membersFormNameRequired": "नाम लिखें।",
+  "membersFormNotSet": "तय नहीं",
+  "membersFormNumberRange": "{min} से {max} के बीच की संख्या लिखें।",
+  "@membersFormNumberRange": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormRelation": "रिश्ता",
+  "membersFormRelationRequired": "रिश्ता चुनें।",
+  "membersFormRemoveAllergy": "{allergen} हटाएँ",
+  "@membersFormRemoveAllergy": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormRemoveAllergyConfirm": "{name} की एलर्जी की सूची से यह हटाएँ: {allergen}? इसके बाद इसे रखने वाले उत्पादों पर उनके लिए चेतावनी नहीं दिखेगी।",
+  "@membersFormRemoveAllergyConfirm": {
+    "placeholders": {
+      "allergen": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersFormSave": "सहेजें",
+  "membersFormSex": "लिंग (वैकल्पिक)",
+  "membersFormWeightInvalid": "2 से 300 किग्रा के बीच वज़न लिखें, या खाली छोड़ें।",
+  "membersFormWeightKg": "वज़न (किग्रा, वैकल्पिक)",
+  "membersGoalBuildMuscle": "मांसपेशियाँ बनाना",
+  "membersGoalBuildMuscleAdultsOnly": "मांसपेशियाँ बनाना वयस्कों (18 वर्ष और उससे अधिक) का लक्ष्य है। इस सदस्य के लिए कोई दूसरा लक्ष्य चुनें।",
+  "membersGoalHealthyEating": "बेहतर खाना",
+  "membersGoalWeightGain": "वज़न बढ़ाना",
+  "membersGoalWeightLoss": "वज़न घटाना",
+  "membersLimitReached": "आपके परिवार में 10 सदस्य हैं, इससे ज़्यादा नहीं जोड़ सकते।",
+  "membersRelationChild": "बच्चा",
+  "membersRelationOther": "अन्य",
+  "membersRelationParent": "माता-पिता",
+  "membersRelationSelf": "आप",
+  "membersRelationSpouse": "जीवनसाथी",
+  "membersRemove": "हटाएँ",
+  "membersRemoveConfirm": "{name} को परिवार से हटाएँ?",
+  "@membersRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersSaved": "सहेजा गया",
+  "membersSexFemale": "महिला",
+  "membersSexMale": "पुरुष",
+  "membersSexOther": "अन्य",
+  "membersTitle": "परिवार",
+  "membersYouBadge": "आप",
+  "methodologyBasedOn": "आधार:",
+  "methodologyIntro": "SmartNutri हर पैक्ड खाने को उसके लेबल और परिवार के हर सदस्य की प्रोफ़ाइल से तय नियमों के अनुसार जाँचता है। AI सिर्फ़ नतीजा समझाता है, कभी तय नहीं करता। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "methodologyMetaDescription": "SmartNutri परिवार के हर सदस्य के लिए पैकेटबंद खाने की जाँच कैसे करता है: तय नियम, उनकी सीमाएँ और स्रोत। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "methodologyPendingReview": "ये सीमाएँ अभी काम चलाने के मान हैं और किसी चिकित्सक की समीक्षा बाकी है।",
+  "methodologySectionAllergensDescription": "हम हर एलर्जी वाले तत्व के सामग्री-नाम और पैक पर लिखी एलर्जी की जानकारी देखते हैं। अगर सामग्री पढ़ी न जा सके, तो हम कहते हैं कि लेबल स्पष्ट नहीं है, कभी ठीक नहीं कहते।",
+  "methodologySectionAllergensTitle": "एलर्जी वाले तत्व",
+  "methodologySectionBloodSugarDescription": "ब्लड शुगर पर ध्यान रखने वाले सदस्यों (डायबिटीज़, प्रीडायबिटीज़ या PCOS) के लिए हम ज़्यादा चीनी, प्रति सर्विंग ज़्यादा कार्बोहाइड्रेट, और ज़्यादा नमक या संतृप्त वसा वाले उत्पाद बताते हैं।",
+  "methodologySectionBloodSugarTitle": "ब्लड शुगर",
+  "methodologySectionBuildMuscleDescription": "मांसपेशियाँ बनाना चाहने वाले वयस्क सदस्यों (18 वर्ष और उससे अधिक) के लिए हम कैलोरी के हिसाब से अच्छे प्रोटीन वाले उत्पाद बताते हैं। यह लक्ष्य कभी सावधानी या बचें नहीं जोड़ता, और 18 साल से कम उम्र के सदस्यों के लिए इसे चुना नहीं जा सकता। फ़ूड लॉग में, जिन वयस्कों का वज़न दर्ज है, उन्हें शरीर के वज़न के आधार पर रोज़ के प्रोटीन की एक गाइड दिखती है। अगर आपको किडनी की बीमारी है, तो ज़्यादा प्रोटीन खाने से पहले अपने डॉक्टर से पूछें।",
+  "methodologySectionBuildMuscleTitle": "मांसपेशियाँ बनाना",
+  "methodologySectionChildDescription": "बच्चों के लिए हम 100 ग्राम या एक सर्विंग की चीनी को उनकी उम्र की दैनिक चीनी सीमा से मिलाते हैं।",
+  "methodologySectionChildTitle": "बच्चे",
+  "methodologySectionClaimsDescription": "हम \"शुगर फ्री\" या \"हाई प्रोटीन\" जैसे दावों को लेबल के मानों और FSSAI की सीमाओं से मिलाकर जाँचते हैं।",
+  "methodologySectionClaimsTitle": "पैक के आगे लिखे दावे",
+  "methodologySectionCustomAlertsDescription": "वे सामग्रियाँ जिनके बारे में सदस्य ने बताने को कहा है, जैसे पाम तेल या मैदा। ये पसंद हैं, इसलिए इनका कोई स्रोत नहीं है।",
+  "methodologySectionCustomAlertsTitle": "आपके सामग्री अलर्ट",
+  "methodologySectionDailyLimitsDescription": "फ़ूड लॉग में हम हर सदस्य के लिए एक दिन में दर्ज चीनी और नमक जोड़ते हैं और कुल मात्रा को उनकी उम्र की दैनिक सीमा से मिलाते हैं। प्रोटीन को दैनिक लक्ष्य की ओर प्रगति के रूप में दिखाया जाता है। लेबल पर कुल चीनी लिखी होती है, सिर्फ़ ऊपर से डाली गई चीनी नहीं, इसलिए यह ज़रूरत से ज़्यादा चेतावनी दे सकता है।",
+  "methodologySectionDailyLimitsTitle": "दैनिक सीमाएँ",
+  "methodologySectionDietDescription": "हम ऐसी सामग्री ढूँढ़ते हैं जो सदस्य के आहार (शाकाहारी, अंडाहारी, वीगन या जैन) से मेल न खाए, और पैक पर हरा या भूरा निशान देखते हैं।",
+  "methodologySectionDietTitle": "आहार",
+  "methodologySectionHighInDescription": "जब किसी पोषक तत्व की मात्रा प्रति 100 ग्राम या 100 मि.ली. इन सीमाओं के बराबर या उनसे ज़्यादा हो, तो उत्पाद को उस तत्व में अधिक बताया जाता है।",
+  "methodologySectionHighInTitle": "चीनी, वसा, संतृप्त वसा या नमक अधिक",
+  "methodologySectionHypertensionDescription": "हाई ब्लड प्रेशर वाले सदस्यों के लिए हम ज़्यादा नमक वाले उत्पाद बताते हैं।",
+  "methodologySectionHypertensionTitle": "ब्लड प्रेशर",
+  "methodologySectionInfantDescription": "शिशुओं और छोटे बच्चों के लिए हम अतिरिक्त चीनी, अतिरिक्त नमक, शहद और कैफ़ीन, और ज़्यादा चीनी या नमक बताते हैं।",
+  "methodologySectionInfantTitle": "शिशु और छोटे बच्चे",
+  "methodologySectionNutriscore2023Description": "हम लेबल से न्यूट्री-स्कोर ग्रेड निकालते हैं, इस तरीके के 2023 के अपडेट के अनुसार। इसकी गणना SmartNutri करता है; यह FSSAI रेटिंग नहीं है।",
+  "methodologySectionNutriscore2023Title": "न्यूट्री-स्कोर (SmartNutri द्वारा गणना)",
+  "methodologySectionSupplementsDescription": "प्रोटीन पाउडर, व्हे और दूसरे सप्लीमेंट को कोई न्यूट्री-स्कोर ग्रेड नहीं मिलता और इन्हें कभी विकल्प के रूप में नहीं सुझाया जाता। फिर भी हम एलर्जी, आहार, दावे और हर सदस्य के नियम जाँचते हैं, और बच्चों व किशोरों के लिए सावधानी जोड़ते हैं (2 साल से छोटे बच्चों के लिए बचें)। जब लेबल पर व्हे या प्रोटीन आइसोलेट लिखा हो, या 100 ग्राम में 50 ग्राम या उससे ज़्यादा प्रोटीन हो, तो पुष्टि स्क्रीन पूछती है कि क्या यह सप्लीमेंट है, और ऐसे उत्पाद 18 साल से कम उम्र के सदस्यों के लिए प्रोटीन के क्रम वाले नतीजों में नहीं दिखाए जाते।",
+  "methodologySectionSupplementsTitle": "सप्लीमेंट",
+  "methodologySectionWeightLossDescription": "वज़न घटा रहे सदस्यों के लिए हम ज़्यादा कैलोरी वाले उत्पाद और कम न्यूट्री-स्कोर ग्रेड बताते हैं, और वयस्कों (18 वर्ष और उससे अधिक) के लिए कैलोरी के हिसाब से अच्छे प्रोटीन वाले उत्पाद भी बताते हैं।",
+  "methodologySectionWeightLossTitle": "वज़न घटाना",
+  "methodologySourcesTitle": "स्रोत",
+  "methodologyTitle": "हम कैसे जाँचते हैं",
+  "methodologyUnavailable": "हम अभी जाँच के नियम लोड नहीं कर पाए। कृपया थोड़ी देर बाद फिर से कोशिश करें।",
+  "methodologyUrlUnverified": "लिंक की अभी जाँच नहीं हुई है",
+  "methodologyValues": "नियम के मान",
+  "methodologyVersion": "नियम संस्करण {version}",
+  "@methodologyVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "modesCurrent": "मौजूदा मोड: {mode}",
+  "@modesCurrent": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "modesMore": "और",
+  "modesMoreTitle": "और",
+  "modesNameAllergyDiet": "एलर्जी या डाइट",
+  "modesNameEatBetter": "बेहतर खाना",
+  "modesNameFamily": "परिवार",
+  "modesNameGym": "जिम और फ़िटनेस",
+  "modesNameHealthCondition": "स्वास्थ्य स्थिति",
+  "modesNameWeightLoss": "वज़न घटाना",
+  "modesSameChecks": "हर मोड में स्कैन, नतीजे और एलर्जी जाँच एक जैसी रहती हैं।",
+  "modesSwitchTo": "{mode} पर जाएँ",
+  "@modesSwitchTo": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "modesSwitcherLabel": "मोड",
+  "navCompare": "तुलना",
+  "navFamily": "परिवार",
+  "navHistory": "इतिहास",
+  "navHome": "होम",
+  "navHowWeScore": "हम स्कोर कैसे देते हैं",
+  "navLabel": "मुख्य मेनू",
+  "navMore": "और",
+  "navProfile": "प्रोफ़ाइल",
+  "navProtein": "प्रोटीन",
+  "navScan": "स्कैन",
+  "navSearch": "खोजें",
   "notfoundGoToLabel": "हम इस उत्पाद को अभी नहीं जानते — इसके लेबल की फ़ोटो लें",
   "nutrientCarbsG": "कार्बोहाइड्रेट",
   "nutrientEnergyKcal": "ऊर्जा (कैलोरी)",
@@ -218,10 +720,13 @@
   "nutrientProteinG": "प्रोटीन",
   "nutrientSalt": "नमक",
   "nutrientSatFat": "संतृप्त वसा",
+  "nutrientServingSizeG": "सर्विंग का आकार",
   "nutrientSodiumMg": "सोडियम",
   "nutrientSugarsG": "शर्करा (चीनी)",
   "nutriscoreCalculatedBy": "Nutri-Score की गणना SmartNutri ने की है",
   "nutriscoreInsufficientData": "Nutri-Score की गणना के लिए लेबल पर पर्याप्त जानकारी नहीं है।",
+  "nutriscoreNotScoredSupplement": "सप्लीमेंट के लिए न्यूट्री-स्कोर की गणना नहीं की जाती।",
+  "policyOpenFailed": "पेज नहीं खुल सका। कृपया फिर से कोशिश करें।",
   "productClaimsHeading": "लेबल पर किए गए दावे, SmartNutri द्वारा जाँचे गए",
   "productLabelSays": "लेबल पर लिखा है: {claim}",
   "@productLabelSays": {
@@ -240,7 +745,62 @@
       }
     }
   },
+  "productNotFoundBody": "बारकोड नंबर जाँचें। आप साइन इन करके लेबल की फ़ोटो लेकर यह उत्पाद जोड़ भी सकते हैं।",
   "productPublicCta": "अपने परिवार के लिए जाँचें",
+  "profileBody": "आपके खाते, भाषा और गोपनीयता की सेटिंग्स यहाँ होंगी।",
+  "profileComingSoonBody": "भाषा, गोपनीयता और खाते की सेटिंग्स यहाँ दिखेंगी।",
+  "profileComingSoonTitle": "सेटिंग्स जल्द आ रही हैं",
+  "profileGiveConsent": "सहमति दें",
+  "profilePrivacyTitle": "गोपनीयता और सहमति",
+  "profileTitle": "प्रोफ़ाइल",
+  "proteinComparePriceScoop": "प्रति स्कूप कीमत",
+  "proteinCompareProtein100kcal": "प्रति 100 kcal प्रोटीन",
+  "proteinCompareProteinServing": "प्रति सर्विंग प्रोटीन",
+  "proteinCompareSugar": "शर्करा",
+  "proteinGuide": "रोज़ाना प्रोटीन गाइड: {target} ग्राम, प्रति किलो {per_kg} ग्राम पर आधारित। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "@proteinGuide": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinKidneyNote": "अगर आपको किडनी की बीमारी है, तो ज़्यादा प्रोटीन खाने से पहले डॉक्टर से पूछें।",
+  "proteinLeftToday": "आज {left} ग्राम बाकी",
+  "@proteinLeftToday": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinNoTarget": "अभी रोज़ाना प्रोटीन गाइड नहीं है। देखने के लिए वयस्क का वज़न और जन्म वर्ष जोड़ें।",
+  "proteinNotOnLabel": "लेबल पर नहीं है",
+  "proteinPackSizeLabel": "पैक का आकार (ग्राम)",
+  "proteinPer100g": "प्रति 100 ग्राम प्रोटीन",
+  "proteinPer100kcal": "प्रति 100 kcal प्रोटीन",
+  "proteinPerServing": "प्रति सर्विंग प्रोटीन",
+  "proteinPriceLabel": "पैक की कीमत",
+  "proteinPriceNote": "आप जो कीमत लिखते हैं वह सिर्फ़ इसी स्क्रीन पर इस्तेमाल होती है और कभी सहेजी नहीं जाती।",
+  "proteinPricePerScoop": "प्रति स्कूप कीमत",
+  "proteinProgress": "{target} ग्राम में से {total} ग्राम",
+  "@proteinProgress": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinSortHigher": "ज़्यादा प्रोटीन",
+  "proteinSwapsEmpty": "इस तरह का ज़्यादा प्रोटीन वाला विकल्प नहीं मिला।",
+  "proteinSwapsTitle": "ज़्यादा प्रोटीन वाले विकल्प",
+  "proteinTitle": "प्रोटीन",
   "reasonAddedSugars": "इसमें अतिरिक्त शर्करा मिलाई गई है: {ingredients}।",
   "@reasonAddedSugars": {
     "placeholders": {
@@ -274,7 +834,7 @@
       }
     }
   },
-  "reasonAllergenUnrecognised": "आपकी प्रोफ़ाइल में दिए गए एलर्जन \"{allergen}\" को हम पहचान नहीं पाए।",
+  "reasonAllergenUnrecognised": "हम लेबल पर केवल \"{allergen}\" शब्द ही खोज सकते हैं। सामग्री खुद भी जाँच लें।",
   "@reasonAllergenUnrecognised": {
     "placeholders": {
       "allergen": {
@@ -342,6 +902,25 @@
   "@reasonConditionUnrecognised": {
     "placeholders": {
       "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCustomAlert": "इसमें {alert} है: {ingredients}।",
+  "@reasonCustomAlert": {
+    "placeholders": {
+      "alert": {
+        "type": "String"
+      },
+      "ingredients": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonCustomAlertUnknown": "इन अलर्ट की जाँच नहीं हो सकी: {alerts}।",
+  "@reasonCustomAlertUnknown": {
+    "placeholders": {
+      "alerts": {
         "type": "String"
       }
     }
@@ -467,6 +1046,9 @@
       }
     }
   },
+  "reasonSupplementChild": "यह एक सप्लीमेंट है, जो बच्चों और किशोरों के लिए अनुशंसित नहीं है। पहले अपने डॉक्टर से पूछें।",
+  "reasonSupplementInfant": "यह एक सप्लीमेंट है, जो 2 साल से छोटे बच्चों के लिए अनुशंसित नहीं है।",
+  "reasonVariantCustomAlertFlagOnly": "उत्पाद की जानकारी के अनुसार इसमें स्वीटनर हैं।",
   "reasonVariantDietViolationMarkOnly": "पैक पर भूरे रंग का मांसाहारी निशान है, इसलिए यह शायद {diet} आहार के अनुरूप न हो।",
   "@reasonVariantDietViolationMarkOnly": {
     "placeholders": {
@@ -483,6 +1065,20 @@
       }
     }
   },
+  "reportButton": "समस्या बताएँ",
+  "reportCaffeine": "इसमें कैफ़ीन है",
+  "reportNoteHint": "कृपया निजी या स्वास्थ्य से जुड़ी जानकारी न लिखें।",
+  "reportNoteLabel": "और बताएँ (वैकल्पिक)",
+  "reportReasonLabel": "क्या गलत है?",
+  "reportReasonOther": "कुछ और",
+  "reportReasonWrongIngredients": "सामग्री गलत है",
+  "reportReasonWrongProduct": "यह कोई दूसरा उत्पाद है",
+  "reportReasonWrongValues": "पोषण के मान गलत हैं",
+  "reportSubmit": "रिपोर्ट भेजें",
+  "reportSweeteners": "इसमें मिठास देने वाले पदार्थ हैं",
+  "reportThanks": "धन्यवाद। हम इस उत्पाद की जानकारी की समीक्षा करेंगे।",
+  "reportTitle": "इस उत्पाद की जानकारी में क्या गलत है?",
+  "resultFamilyTitle": "आपके परिवार के लिए",
   "resultForMember": "{name} के लिए",
   "@resultForMember": {
     "placeholders": {
@@ -501,13 +1097,17 @@
   },
   "resultHighInTitle": "इनमें अधिक",
   "resultIngredients": "सामग्री",
+  "resultMembersTitle": "आपके परिवार के लिए",
   "resultNoIngredients": "सामग्री उपलब्ध नहीं",
+  "resultNotOnLabel": "लेबल पर नहीं",
+  "resultNutritionTitle": "प्रति 100 ग्राम/मि.ली. पोषण",
   "resultScanAnother": "दूसरा उत्पाद स्कैन करें",
   "resultTitle": "परिणाम",
   "resultYou": "आप",
   "scanCameraDenied": "कैमरा की अनुमति बंद है। आप बारकोड टाइप कर सकते हैं।",
   "scanCameraUnavailable": "कैमरा नहीं मिला। आप बारकोड टाइप कर सकते हैं।",
   "scanInvalid": "बारकोड के नीचे लिखे 8, 12, 13 या 14 अंक दर्ज करें।",
+  "scanLabelHint": "बारकोड नहीं है? इसके बजाय लेबल की फ़ोटो लें।",
   "scanManualEntry": "या बारकोड टाइप करें",
   "scanManualPlaceholder": "जैसे 8901063201089",
   "scanNotFound": "यह उत्पाद अभी हमें नहीं मिला।",
@@ -515,15 +1115,293 @@
   "scanRetry": "फिर से कोशिश करें",
   "scanScanning": "कैमरा बारकोड की ओर रखें",
   "scanSubmit": "यह उत्पाद जाँचें",
+  "scanSubtitle": "कैमरे को बारकोड की ओर रखें, या नीचे नंबर टाइप करें।",
   "scanTitle": "बारकोड स्कैन करें",
+  "searchHint": "नाम या ब्रांड से उत्पाद ढूँढें, फिर उसे खोलें या तुलना करें।",
+  "searchNoResults": "कोई उत्पाद नहीं मिला।",
+  "searchOffDegraded": "और परिणाम बाद में जोड़े जाएँगे।",
+  "searchPlaceholder": "नाम या ब्रांड से खोजें",
+  "searchSortLabel": "क्रम",
+  "searchSortRelevance": "सबसे मिलते-जुलते",
+  "searchSourceOff": "Open Food Facts",
+  "searchSourceOurs": "SmartNutri",
+  "searchTitle": "उत्पाद खोजें",
+  "searchTooShort": "कम से कम 3 अक्षर लिखें।",
+  "settingsAboutTitle": "SmartNutri के बारे में",
+  "settingsAccountTitle": "खाता",
+  "settingsDeleteBody": "इससे आपका खाता, आपके परिवार की प्रोफ़ाइलें और स्वास्थ्य डेटा, स्कैन, खाने की एंट्री और लेबल की फ़ोटो हमेशा के लिए हट जाएँगे। आपके जोड़े गए उत्पाद आपके नाम के बिना साझा सूची में रहेंगे। इसे वापस नहीं किया जा सकता।",
+  "settingsDeleteButton": "खाता हटाएँ",
+  "settingsDeleteConfirm": "हमेशा के लिए हटाएँ",
+  "settingsDeleteConfirmLabel": "पुष्टि के लिए {word} लिखें",
+  "@settingsDeleteConfirmLabel": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDeleteConfirmWord": "DELETE",
+  "settingsDeleteDialogTitle": "अपना खाता हमेशा के लिए हटाएँ?",
+  "settingsDeleteRetrying": "अभी भी हटाया जा रहा है। फिर से कोशिश कर रहे हैं…",
+  "settingsDeleteTitle": "खाता हटाएँ",
+  "settingsDeleting": "आपका खाता हटाया जा रहा है…",
+  "settingsLanguageBody": "इस डिवाइस पर SmartNutri की भाषा चुनें।",
+  "settingsLanguageSystem": "डिवाइस की भाषा",
+  "shareButton": "शेयर करें",
+  "shareCopied": "लिंक कॉपी हो गया",
+  "shareCopyLink": "लिंक कॉपी करें",
+  "shareInclude": "किसी व्यक्ति का नतीजा जोड़ें (वैकल्पिक)",
+  "shareLink": "SmartNutri से जाँचा गया: {url}",
+  "@shareLink": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePreview": "संदेश का पूर्वावलोकन",
+  "sharePrivacyNote": "केवल उत्पाद और उसका ग्रेड शेयर होता है, और जिन लोगों को आप चुनें उनका नतीजा। स्वास्थ्य की जानकारी निजी रहती है।",
+  "shareRelationChild": "बच्चा",
+  "shareRelationOther": "परिवार का सदस्य",
+  "shareRelationParent": "माता/पिता",
+  "shareRelationSelf": "मैं",
+  "shareRelationSpouse": "जीवनसाथी",
+  "shareResultMember": "{who}: {status}",
+  "@shareResultMember": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultProductOnly": "{product} — न्यूट्री-स्कोर {grade} (गणना SmartNutri ने की है)।",
+  "@shareResultProductOnly": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultProductOnlyUngraded": "{product} — न्यूट्री-स्कोर के लिए लेबल पर पर्याप्त जानकारी नहीं।",
+  "@shareResultProductOnlyUngraded": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultText": "{product} — न्यूट्री-स्कोर {grade} (गणना SmartNutri ने की है)। {members}।",
+  "@shareResultText": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      },
+      "members": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "shareResultUngraded": "{product} — न्यूट्री-स्कोर के लिए लेबल पर पर्याप्त जानकारी नहीं। {members}।",
+  "@shareResultUngraded": {
+    "placeholders": {
+      "members": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "shareWeekly": "SmartNutri पर हमारा हफ़्ता — जाँचे गए उत्पाद: {scans}, दर्ज की गई चीज़ें: {logged}।",
+  "@shareWeekly": {
+    "placeholders": {
+      "logged": {
+        "type": "String"
+      },
+      "scans": {
+        "type": "String"
+      }
+    }
+  },
+  "shareWeeklyButton": "हमारा हफ़्ता शेयर करें",
+  "shareWhatsapp": "WhatsApp पर शेयर करें",
   "statusAvoid": "बचें",
   "statusCaution": "सावधानी",
   "statusOk": "ठीक है",
   "statusUnknown": "लेबल स्पष्ट नहीं",
+  "summaryBandNear": "सीमा के करीब",
+  "summaryBandOk": "सीमा के भीतर",
+  "summaryBandOver": "सीमा से ज़्यादा",
+  "summaryBandUnknown": "पर्याप्त जानकारी नहीं",
+  "summaryIncomplete": "कुछ दर्ज चीज़ों के लेबल पर यह मान नहीं है, इसलिए असली कुल इससे ज़्यादा हो सकता है।",
+  "summaryKcalInfo": "कैलोरी केवल जानकारी के लिए दिखाई गई है। अभी कोई निजी कैलोरी लक्ष्य नहीं है।",
+  "summaryKcalTotal": "{total} kcal",
+  "@summaryKcalTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryLimitsNote": "सीमाएँ अभी चिकित्सक की समीक्षा में हैं।",
+  "summaryNoProteinTarget": "इस सदस्य के लिए प्रोटीन का कोई लक्ष्य नहीं है",
+  "summaryNothingLogged": "इस दिन कुछ दर्ज नहीं किया गया।",
+  "summaryNutrientEnergyKcal": "कैलोरी",
+  "summaryNutrientProteinG": "प्रोटीन",
+  "summaryNutrientSaltG": "नमक",
+  "summaryNutrientSugarsG": "शर्करा",
+  "summaryProteinOfTarget": "{target} ग्राम के लक्ष्य में से {total} ग्राम",
+  "@summaryProteinOfTarget": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "summarySugarNote": "लेबल पर कुल शर्करा होती है, जिसमें प्राकृतिक शर्करा भी शामिल है, इसलिए यह कुल केवल अतिरिक्त चीनी से ज़्यादा हो सकता है।",
+  "summaryTitleDay": "आज",
+  "summaryTitleWeek": "पिछले 7 दिन",
+  "summaryTotalG": "{total} ग्राम",
+  "@summaryTotalG": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryTotalOfLimit": "{limit} ग्राम में से {total} ग्राम",
+  "@summaryTotalOfLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryWeekNote": "हफ़्ते की तुलना हर उस दिन की दैनिक सीमा से की जाती है, जिस दिन कुछ दर्ज किया गया।",
+  "userTypesChangeLater": "आप इसे प्रोफ़ाइल में बदल सकते हैं",
+  "userTypesConsentNeeded": "स्वास्थ्य जानकारी सहेजने के लिए स्वास्थ्य डेटा पर आपकी सहमति ज़रूरी है।",
+  "userTypesConsentNote": "इनमें से कुछ चुनने पर आपकी प्रोफ़ाइल में जानकारी जोड़ने का सुझाव आ सकता है। यह तभी सहेजा जाएगा जब आप पुष्टि करेंगे, और स्वास्थ्य डेटा के लिए आपकी सहमति होने पर ही।",
+  "userTypesContinue": "आगे बढ़ें",
+  "userTypesEdit": "अपनी पसंद बदलें",
+  "userTypesFollowUpAllergyDietAllergensQuestion": "हम किन एलर्जी के लिए जाँच करें?",
+  "userTypesFollowUpAllergyDietDietQuestion": "आप कौन सी डाइट अपनाते हैं?",
+  "userTypesFollowUpEatBetterHint": "जैसे पाम ऑयल या कृत्रिम मिठास। आप इन्हें अभी या बाद में जोड़ सकते हैं।",
+  "userTypesFollowUpEatBetterQuestion": "ऐसी सामग्री जिसे हम बताएँ",
+  "userTypesFollowUpFamilyChildren": "बच्चे",
+  "userTypesFollowUpFamilyOthers": "अन्य",
+  "userTypesFollowUpFamilyParents": "माता-पिता",
+  "userTypesFollowUpFamilyPartner": "जीवनसाथी",
+  "userTypesFollowUpFamilyQuestion": "आप किसके लिए खाना जाँच रहे हैं?",
+  "userTypesFollowUpGymBuildMuscle": "मांसपेशियाँ बनाना",
+  "userTypesFollowUpGymLoseFat": "चर्बी घटाना",
+  "userTypesFollowUpGymQuestion": "आपका मुख्य लक्ष्य क्या है?",
+  "userTypesFollowUpGymStayFit": "फ़िट रहना",
+  "userTypesFollowUpHealthConditionQuestion": "इनमें से कौन सा लागू होता है?",
+  "userTypesMaxReached": "आप अधिकतम 3 चुन सकते हैं।",
+  "userTypesNotCoveredBody": "थायरॉइड, कोलेस्ट्रॉल, किडनी रोग और गर्भावस्था अभी शामिल नहीं हैं, इसलिए नतीजों में इनका ध्यान नहीं रखा जाता।",
+  "userTypesNotCoveredTitle": "अभी शामिल नहीं",
+  "userTypesPickUpTo": "अधिकतम 3 चुनें",
+  "userTypesPrefillApply": "प्रोफ़ाइल में जोड़ें",
+  "userTypesPrefillBody": "आपकी पुष्टि के बिना कुछ नहीं जोड़ा जाता। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
+  "userTypesPrefillGoalConflict": "आपने वज़न घटाना और जिम दोनों चुने हैं। प्रोफ़ाइल के लिए एक लक्ष्य चुनें।",
+  "userTypesPrefillGoalNeither": "कोई नहीं (मेरा मौजूदा लक्ष्य रखें)",
+  "userTypesPrefillLineAllergens": "एलर्जी: {values}",
+  "@userTypesPrefillLineAllergens": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineConditions": "स्वास्थ्य स्थितियाँ: {values}",
+  "@userTypesPrefillLineConditions": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineCustomAlerts": "सामग्री अलर्ट: {values}",
+  "@userTypesPrefillLineCustomAlerts": {
+    "placeholders": {
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineDiet": "डाइट: {value}",
+  "@userTypesPrefillLineDiet": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillLineGoal": "लक्ष्य: {value}",
+  "@userTypesPrefillLineGoal": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "userTypesPrefillNotNow": "अभी नहीं",
+  "userTypesPrefillNothing": "जोड़ने के लिए कुछ नहीं।",
+  "userTypesPrefillTitle": "क्या इन्हें आपकी प्रोफ़ाइल में जोड़ें?",
+  "userTypesSaved": "सहेजा गया",
+  "userTypesSkip": "अभी छोड़ें",
+  "userTypesSubtitle": "हम ऐप को आपकी ज़रूरत के हिसाब से सजाते हैं। स्कैन और नतीजे वैसे ही रहते हैं।",
+  "userTypesTileAllergyDietSubtitle": "एलर्जन, शाकाहारी, वीगन या जैन के लिए लेबल जाँचें",
+  "userTypesTileAllergyDietTitle": "खाने की एलर्जी या खास डाइट",
+  "userTypesTileEatBetterSubtitle": "उत्पादनों की तुलना करें और लेबल समझें",
+  "userTypesTileEatBetterTitle": "बस बेहतर खाना",
+  "userTypesTileFamilySubtitle": "बच्चों, माता-पिता या घर में सबके लिए खाना जाँचें",
+  "userTypesTileFamilyTitle": "मेरा परिवार",
+  "userTypesTileGymSubtitle": "प्रोटीन ट्रैक करें और प्रोटीन उत्पादों की तुलना करें",
+  "userTypesTileGymTitle": "जिम और फ़िटनेस",
+  "userTypesTileHealthConditionSubtitle": "डायबिटीज़, प्री-डायबिटीज़, PCOS या हाई ब्लड प्रेशर",
+  "userTypesTileHealthConditionTitle": "कोई स्वास्थ्य स्थिति",
+  "userTypesTileWeightLossSubtitle": "जो खाते हैं उसमें चीनी, नमक, कैलोरी और प्रोटीन देखें",
+  "userTypesTileWeightLossTitle": "वज़न घटाना",
+  "userTypesTitle": "आप SmartNutri पर किस लिए आए हैं?",
   "verdictConfidenceNote": "{reason, select, low_confidence {लेबल पढ़ना कठिन था, इसलिए यह परिणाम कम निश्चित है।} other {कुछ डेटा अनिश्चित है।}}",
   "@verdictConfidenceNote": {
     "placeholders": {
       "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictForMember": "{name} के लिए {status}",
+  "@verdictForMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "verdictForYou": "आपके लिए {status}",
+  "@verdictForYou": {
+    "placeholders": {
+      "status": {
         "type": "String"
       }
     }
@@ -540,21 +1418,61 @@
     }
   },
   "verdictShowAllReasons": "सभी कारण दिखाएँ",
+  "verdictSpokenAvoid": "इस सदस्य के लिए, इस उत्पाद से बचें।",
+  "verdictSpokenCaution": "इस सदस्य के लिए, इस उत्पाद के साथ सावधानी रखें।",
+  "verdictSpokenOk": "इस सदस्य के लिए यह उत्पाद ठीक लगता है।",
+  "verdictSpokenUnknown": "इस सदस्य के लिए लेबल स्पष्ट नहीं है, इसलिए हम कुछ नहीं कह सकते।",
   "verdictStatusAvoid": "बचें",
   "verdictStatusCaution": "सावधानी",
   "verdictStatusOk": "ठीक है",
   "verdictStatusUnknown": "लेबल स्पष्ट नहीं",
+  "voiceAiUnavailable": "आवाज़ वाले जवाब अभी उपलब्ध नहीं हैं। कृपया बाद में फिर कोशिश करें।",
+  "voiceAnswerTitle": "जवाब",
+  "voiceButtonHold": "पूछने के लिए दबाकर रखें",
+  "voiceElapsed": "30 में से {seconds} सेकंड",
+  "@voiceElapsed": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceHint": "बटन दबाकर रखें, इस उत्पाद के बारे में पूछें, फिर छोड़ दें। शुरू करने के लिए Space दबाएँ और भेजने के लिए फिर से दबाएँ।",
+  "voiceMicDenied": "माइक्रोफ़ोन की अनुमति बंद है। आवाज़ से पूछने के लिए सेटिंग्स में इसे चालू करें।",
+  "voiceNoMic": "इस डिवाइस पर माइक्रोफ़ोन नहीं मिला।",
+  "voiceNotUnderstood": "हमें कोई सवाल सुनाई नहीं दिया। बटन दबाए रखें और साफ़ बोलें।",
+  "voicePlaying": "जवाब सुनाया जा रहा है",
+  "voiceRateLimited": "आज के आवाज़ वाले सवालों की सीमा पूरी हो गई है।",
+  "voiceRecording": "सुन रहे हैं… भेजने के लिए छोड़ें",
+  "voiceReplay": "फिर से सुनें",
+  "voiceThinking": "आपका जवाब तैयार हो रहा है…",
+  "voiceTitle": "सवाल पूछें",
+  "voiceTooLong": "कृपया अपना सवाल 30 सेकंड से छोटा रखें।",
+  "voiceUnsupportedBrowser": "इस ब्राउज़र में आवाज़ से सवाल नहीं पूछे जा सकते। Chrome, Edge या Firefox का नया संस्करण आज़माएँ।",
+  "voiceWordSafe": "सुरक्षित",
+  "voiceYouAsked": "आपने पूछा: {question}",
+  "@voiceYouAsked": {
+    "placeholders": {
+      "question": {
+        "type": "String"
+      }
+    }
+  },
   "warningBasisMismatch": "हम समझ नहीं पाए कि ये मान प्रति 100 g हैं या प्रति सर्विंग। पैक पर जो दिखे, वह चुनें।",
   "warningCategoryCheck": "जाँचें कि उत्पाद का प्रकार सही है, क्योंकि इससे मानों को पढ़ने का तरीका बदलता है।",
   "warningCategoryUnknown": "हम समझ नहीं पाए कि यह किस तरह का उत्पाद है। एक चुनें।",
+  "warningColumnMismatch": "इस पोषक तत्व के प्रति 100 ग्राम और प्रति सर्विंग मान सर्विंग साइज़ से मेल नहीं खा रहे। दोनों पैक पर जाँचें।",
+  "warningDecimalShift": "इस मान में दशमलव बिंदु शायद गलत पढ़ा गया है। इसे पैक पर जाँचें।",
   "warningDerivedFromServing": "यह मान प्रति सर्विंग की मात्रा से निकाला गया है। इसे पैक से मिलाकर देखें।",
   "warningEnergyMismatch": "ऊर्जा का मान बाकी मानों से मेल नहीं खा रहा। इसे पैक पर जाँचें।",
+  "warningFatPartsMismatch": "संतृप्त और ट्रांस वसा मिलाकर कुल वसा से ज़्यादा हो रहे हैं। ये मान पैक पर जाँचें।",
   "warningImplausibleValue": "यह मान असामान्य लग रहा है। कृपया इसे पैक से मिलाकर देखें।",
   "warningKcalKjMismatch": "kcal और kJ के मान आपस में मेल नहीं खा रहे। दोनों पैक पर जाँचें।",
   "warningLowConfidence": "लेबल पढ़ना मुश्किल था। कृपया हर मान को पैक से मिलाकर जाँचें।",
   "warningPer100gMissing": "पैक पर प्रति 100 g के मान नहीं मिले। संख्याएँ जाँचें या पैक से भरें।",
   "warningPerServingIgnored": "पैक के प्रति सर्विंग वाले मान इस्तेमाल नहीं किए गए। जाँचें कि प्रति 100 g के मान सही हैं।",
   "warningSaltSodiumMismatch": "नमक और सोडियम के मान आपस में मेल नहीं खा रहे। दोनों पैक पर जाँचें।",
+  "warningSodiumUnitSuspect": "इस उत्पाद के लिए सोडियम बहुत कम लग रहा है। पैक पर देखें कि यह mg में छपा है या g में, और वही इकाई चुनें।",
   "warningUnitUnconfirmed": "इस मान की इकाई साफ़ नहीं थी। जैसा छपा है, वैसा mg या g चुनें।",
   "warningUnreadableField": "हम यह मान पढ़ नहीं पाए। इसे पैक से भरें या खाली छोड़ें।",
   "warningUpperBound": "पैक पर लिखा है कि इतनी मात्रा से \"कम\"। अगर यह सही है तो पुष्टि करें।"

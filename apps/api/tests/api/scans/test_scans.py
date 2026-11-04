@@ -35,9 +35,15 @@ _PATH_RE = re.compile(r"^(?P<acct>[0-9a-f-]{36})/(?P<id>[0-9a-f-]{36})\.(?P<ext>
 # --- image helpers --------------------------------------------------------------------
 
 
-def make_image(fmt: str = "JPEG", size=(64, 48), color=(200, 30, 30), exif=None) -> bytes:
+def make_image(fmt: str = "JPEG", size=(640, 480), color=(200, 30, 30), exif=None) -> bytes:
+    """A small label-like photo (lines of text on `color`) that passes the quality gate."""
+    from PIL import ImageDraw
+
     buf = io.BytesIO()
     img = Image.new("RGB", size, color)
+    draw = ImageDraw.Draw(img)
+    for i, y in enumerate(range(8, size[1] - 8, max(12, size[1] // 12))):
+        draw.text((10, y), f"Sugars (g) {i}.5   Energy (kcal) 45{i}", fill=(255, 255, 255))
     kwargs = {"exif": exif} if exif is not None else {}
     img.save(buf, format=fmt, **kwargs)
     return buf.getvalue()
@@ -87,6 +93,8 @@ def scan_app(app, db_session):
 
     app.dependency_overrides[get_session] = lambda: db_session
     app.dependency_overrides[current_account] = _account
+    # These tests drive the v1 schema (`extraction()`); the v2 tests at the end switch it.
+    app.state.settings.extraction_prompt_version = "extraction_v1"
     return app
 
 
@@ -154,7 +162,7 @@ def fake_storage_unique_jpegs(scan_app):
     def _unique(_path: str) -> bytes:
         i = next(counter)
         # PNG: lossless, so neighbouring colours never encode to identical bytes.
-        return make_image("PNG", size=(16, 16), color=(i % 256, (i // 256) % 256, 7))
+        return make_image("PNG", size=(480, 360), color=(i % 256, (i // 256) % 256, 7))
 
     return _use_storage(scan_app, FakeStorage(default=_unique))
 
@@ -349,6 +357,91 @@ async def test_image_downscaled_and_metadata_stripped(scan_app, auth_client, fak
     assert img.format == "JPEG"
     assert not img.getexif()
     assert "exif" not in img.info
+
+
+def assert_no_metadata(data: bytes) -> None:
+    img = Image.open(io.BytesIO(data))
+    assert img.format == "JPEG"
+    assert not img.getexif()
+    assert "exif" not in img.info and "xmp" not in img.info
+    assert b"PhoneMaker" not in data  # the EXIF Make tag is nowhere in the bytes
+
+
+# --- D1/S4: the stored photo itself carries no EXIF/GPS ---------------------------------
+
+
+@pytest.mark.parametrize("fmt", ["JPEG", "PNG", "WEBP"])
+async def test_stored_photo_is_overwritten_without_exif(scan_app, auth_client, fake_llm_ok, fmt):
+    ext = {"JPEG": "jpg", "PNG": "png", "WEBP": "webp"}[fmt]
+    path = new_path(auth_client, ext)
+    original = make_image(fmt, size=(3200, 2400), exif=gps_exif())
+    assert Image.open(io.BytesIO(original)).getexif()  # the upload carries EXIF/GPS
+    storage = _use_storage(scan_app, FakeStorage({path: original}))
+    r = await post_label(auth_client, path)
+    assert r.status_code == 200, r.text
+    stored = storage.objects[path]
+    assert stored != original
+    assert_no_metadata(stored)
+    # The same re-encode the model got (EXIF orientation applied, long edge 1600 px).
+    assert stored == fake_llm_ok.last_kwargs["image"]
+    assert storage.uploads == [(path, "image/jpeg")] and storage.upserts == [path]
+
+
+async def test_stored_photo_is_stripped_on_a_cache_hit(
+    scan_app, auth_client, other_client, fake_llm_ok
+):
+    original = make_image(exif=gps_exif())
+    storage = _use_storage(scan_app, FakeStorage(default=original))
+    first, second = new_path(auth_client), new_path(other_client)
+    assert (await post_label(auth_client, first)).status_code == 200
+    r = await post_label(other_client, second)
+    assert r.status_code == 200 and r.json()["cached"] is True and fake_llm_ok.calls == 1
+    assert_no_metadata(storage.objects[first])
+    assert_no_metadata(storage.objects[second])
+
+
+async def test_stored_photo_strip_failure_does_not_fail_the_scan(
+    scan_app, auth_client, fake_llm_ok, caplog
+):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: make_image(exif=gps_exif())}))
+    storage.fail_uploads = True
+    caplog.set_level(logging.WARNING, logger="app.features.scans.service")
+    r = await post_label(auth_client, path)
+    assert r.status_code == 200
+    assert "label_photo_strip status=unavailable" in caplog.text
+    assert path not in caplog.text
+
+
+async def test_rejected_upload_is_deleted(scan_app, auth_client, fake_llm_ok):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: b"%PDF-1.7\n" + b"\0" * 100}))
+    r = await post_label(auth_client, path)
+    assert r.status_code == 415
+    assert path not in storage.objects and storage.deleted == [path]
+
+
+async def test_undecodable_upload_is_deleted(scan_app, auth_client, fake_llm_ok):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: b"\xff\xd8\xff\xe0" + b"junk" * 50}))
+    assert (await post_label(auth_client, path)).status_code == 415
+    assert path not in storage.objects
+
+
+async def test_too_large_upload_is_deleted(scan_app, auth_client, fake_llm_ok):
+    path = new_path(auth_client)
+    big = b"\xff\xd8\xff" + b"\0" * (9 * 1024 * 1024)
+    storage = _use_storage(scan_app, FakeStorage({path: big}))
+    assert (await post_label(auth_client, path)).status_code == 413
+    assert path not in storage.objects
+
+
+async def test_rejected_upload_delete_failure_keeps_the_error(scan_app, auth_client, fake_llm_ok):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: b"%PDF-1.7\n"}))
+    storage.unavailable = True
+    r = await post_label(auth_client, path)
+    assert r.status_code == 415 and r.json()["error"]["code"] == "unsupported_image"
 
 
 @pytest.mark.parametrize("fmt", ["PNG", "WEBP"])
@@ -558,6 +651,8 @@ async def test_out_of_credits_is_503(
     assert r.json()["error"]["code"] == "extraction_unavailable"
     assert len(captured) == 1
     assert "insufficient_credits" in str(captured[0])
+    # The message is redacted by scrub_event (D1/S3); the tag keeps the alert identifiable.
+    assert captured[0][1]["tags"] == {"alert": "callmissed_insufficient_credits"}
     assert await scans_for(db_session, A) == []
 
 
@@ -863,3 +958,179 @@ async def test_upload_url_creates_the_account_row(auth_client, fake_storage_jpeg
     r = await auth_client.post("/v1/scans/upload-url", json={"ext": "jpg"})
     assert r.status_code == 200
     assert await db_session.get(Account, A, populate_existing=True) is not None
+
+
+# --- label accuracy v2: extraction_v2 (raw cells parsed in code) ------------------------
+
+
+def extraction_v2(**over):
+    from app.features.scans.schemas import CellIn, NutrientCellsIn, NutritionExtractionV2
+
+    cells = dict.fromkeys(NutrientCellsIn.model_fields) | {
+        "sugars_g": CellIn(printed="१२", unit_label="ग्रा"),
+        "protein_g": CellIn(printed="<0.5 g", unit_label=None),
+    }
+    data = {
+        "product_name": "Test Biscuit",
+        "brand": "Acme",
+        "basis_detected": "per_100g",
+        "per_100g": NutrientCellsIn(**cells),
+        "per_serving": None,
+        "per_100_unit": "g",
+        "serving_size": None,
+        "ingredients": ["Wheat flour", "Sugar"],
+        "allergen_statement": "Contains wheat",
+        "may_contain_statement": None,
+        "claims": [],
+        "veg_mark": "veg",
+        "category_guess": "general",
+        "confidence": 0.9,
+        "unreadable_fields": [],
+    }
+    return NutritionExtractionV2(**(data | over))
+
+
+@pytest.fixture
+def v2(scan_app):
+    scan_app.state.settings.extraction_prompt_version = "extraction_v2"
+    return scan_app
+
+
+def test_v1_is_the_default_prompt():
+    from app.core.config import Settings
+
+    assert Settings(_env_file=None).extraction_prompt_version == "extraction_v1"
+
+
+async def test_v2_extraction_is_parsed_in_code(v2, auth_client, fake_storage_jpeg, db_session):
+    from app.features.scans.schemas import NutritionExtractionV2
+
+    llm = _use_llm(v2, FakeLLM(extraction_v2()))
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["prompt_version"] == "extraction_v2"
+    assert body["draft"]["per_100g"]["sugars_g"] == 12.0  # Devanagari digits
+    assert body["draft"]["per_100g"]["protein_g"] == 0.5
+    assert "upper_bound:per_100g.protein_g" in body["draft"]["warnings"]
+    assert body["draft"]["engine_withheld"] == ["protein_g"]
+
+    kwargs = llm.last_kwargs
+    assert kwargs["schema"] is NutritionExtractionV2
+    assert kwargs["prompt_version"] == "extraction_v2"
+    assert kwargs["prompt"] == load_extraction_prompt("extraction_v2")[0]
+
+    [scan] = await scans_for(db_session, A)
+    assert scan.analysis["prompt_version"] == "extraction_v2"
+    # The raw cells are stored (the cache entry); every reuse parses them again.
+    assert scan.analysis["extraction"] == extraction_v2().model_dump(mode="json")
+    stored = await scan_service.get_label_scan(db_session, A, scan.id)
+    assert stored is not None and stored.draft.model_dump(mode="json") == body["draft"]
+
+
+async def test_v2_cache_hit_is_free_and_re_parsed(v2, auth_client, other_client, fake_storage_jpeg):
+    llm = _use_llm(v2, FakeLLM(extraction_v2()))
+    first = await post_label(auth_client)
+    second = await post_label(other_client)
+    assert second.status_code == 200, second.text
+    assert second.json()["cached"] is True and llm.calls == 1
+    assert second.json()["draft"] == first.json()["draft"]
+
+
+async def test_v2_same_path_again_returns_the_stored_scan(v2, auth_client, fake_storage_jpeg):
+    llm = _use_llm(v2, FakeLLM(extraction_v2()))
+    path = new_path(auth_client)
+    first = await post_label(auth_client, path)
+    again = await post_label(auth_client, path)
+    assert again.status_code == 200, again.text
+    assert again.json()["scan_id"] == first.json()["scan_id"] and llm.calls == 1
+    assert again.json()["draft"] == first.json()["draft"]
+    assert again.json()["prompt_version"] == "extraction_v2"
+
+
+async def test_switching_prompt_version_is_a_cache_miss(
+    v2, auth_client, other_client, fake_storage_jpeg
+):
+    _use_llm(v2, FakeLLM(extraction_v2()))
+    assert (await post_label(auth_client)).status_code == 200
+    v2.state.settings.extraction_prompt_version = "extraction_v1"
+    llm_v1 = _use_llm(v2, FakeLLM(extraction()))
+    r = await post_label(other_client)
+    assert r.status_code == 200, r.text
+    assert r.json()["cached"] is False and llm_v1.calls == 1
+    assert r.json()["prompt_version"] == "extraction_v1"
+    assert llm_v1.last_kwargs["schema"] is NutritionExtraction
+
+
+# --- label accuracy v2: image-quality gate before the paid call ------------------------
+
+
+def _flat_image(size=(640, 480), color=(180, 180, 180)) -> bytes:
+    buf = io.BytesIO()
+    Image.new("RGB", size, color).save(buf, format="JPEG", quality=90)
+    return buf.getvalue()
+
+
+@pytest.mark.parametrize(
+    ("image", "reasons"),
+    [
+        (_flat_image(), ["blur"]),  # nothing readable at all
+        (make_image(size=(300, 200)), ["too_small"]),
+        (_flat_image(color=(255, 255, 255)), ["blur", "glare"]),  # washed out
+    ],
+)
+async def test_bad_photo_is_rejected_before_any_paid_call(
+    scan_app, auth_client, fake_llm_ok, scan_limit_used, db_session, image, reasons
+):
+    path = new_path(auth_client)
+    storage = _use_storage(scan_app, FakeStorage({path: image}))
+    r = await post_label(auth_client, path)
+    assert r.status_code == 422, r.text
+    error = r.json()["error"]
+    assert error["code"] == "image_quality_low"
+    assert error["message_key"] == "error.image_quality_low"
+    assert error["details"] == {"reasons": reasons}
+    assert fake_llm_ok.calls == 0  # no paid call
+    assert await scan_limit_used(auth_client) == 0  # refunded: nothing was paid for
+    assert await scans_for(db_session, A) == []
+    assert storage.deleted == [path]  # the rejected upload (and its EXIF) is not kept
+
+
+async def test_quality_report_is_stored_with_the_scan(
+    auth_client, fake_storage_jpeg, fake_llm_ok, db_session
+):
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    [scan] = await scans_for(db_session, A)
+    quality = scan.analysis["quality"]
+    assert quality["reasons"] == [] and quality["width"] == 640
+    assert {"sharpness", "blown_center", "soft"} <= set(quality)
+
+
+async def test_cache_hit_skips_the_gate(scan_app, auth_client, fake_llm_ok, db_session):
+    """A stored extraction of the same bytes is reused for free; no new paid call to save."""
+    image = _flat_image()
+    _use_storage(scan_app, FakeStorage(default=image))
+    await _seed_scan(
+        db_session,
+        B,
+        _sha(image),
+        {
+            "draft": _stale_draft(),
+            "extraction": extraction().model_dump(mode="json"),
+            "prompt_version": "extraction_v1",
+            "model": scan_app.state.settings.callmissed_extraction_model,
+        },
+    )
+    r = await post_label(auth_client)
+    assert r.status_code == 200, r.text
+    assert r.json()["cached"] is True and fake_llm_ok.calls == 0
+
+
+async def test_v2_wrong_schema_from_the_provider_is_extraction_failed(
+    v2, auth_client, fake_storage_jpeg
+):
+    _use_llm(v2, FakeLLM(extraction()))  # a v1 object for a v2 request
+    r = await post_label(auth_client)
+    assert r.status_code == 502
+    assert r.json()["error"]["code"] == "extraction_failed"

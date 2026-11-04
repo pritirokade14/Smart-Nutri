@@ -1,0 +1,555 @@
+"""Engine fixes EF2 and EF3 from the real-data experiments (E5 fault injection on 462+ Open
+Food Facts panels; .research/data/e5_after_fix.json).
+
+EF2 (safety): a label that prints sodium only (no salt), in g, read as mg ("0.4 g" -> 0.4 mg).
+Nothing could cross-check it, so a salty food reached the engine as almost sodium-free. Now a
+non-zero sodium below SODIUM_SUSPECT_MAX_MG per 100 g / 100 ml (water exempt), printed as mg
+with no salt on that column, raises `sodium_unit_suspect:<path>`: sodium is withheld and the
+confirm screen must ask mg or g (`sodium_unit_required`), exactly as for a unit-less sodium.
+
+EF3: a /10 decimal slip on energy, protein, carbs or fat that the 15 % Atwater tolerance hides.
+When the printed panel misses a TIGHT Atwater fit and multiplying exactly one of those fields
+by 10 gives a tight fit (and the panel stays physically consistent), that field is named
+`decimal_shift:<path>` and withheld.
+"""
+
+import pytest
+
+from app.features.products.confirm_rules import sodium_unit_unconfirmed, withheld_fields
+from app.features.products.schemas import PrintedNutrients, ProductCreate
+from app.features.products.service import stored_values
+from app.features.scans.normalize import (
+    DECIMAL_PROBE_MIN_GAIN,
+    DECIMAL_PROBE_TIGHT_MIN_KCAL,
+    DECIMAL_PROBE_TIGHT_RATIO,
+    SALT_EARLY_INGREDIENTS,
+    SODIUM_SALT_EARLY_MAX_MG,
+    SODIUM_SALTY_MAX_MG,
+    SODIUM_SUSPECT_MAX_MG,
+    WARNING_CODES,
+    engine_nutrients,
+    to_draft,
+)
+from app.features.scans.schemas import NutrientsIn, NutritionExtraction
+from app.scoring import Product, Status, analyze, load_config
+from app.scoring.ingredients import find_terms
+from app.scoring.models import Member
+
+# Sodium-only namkeen label: sodium printed in g (0.4 g = 400 mg), read as 0.4 "mg".
+# 4*10 + 4*50 + 9*30 = 510 kcal (label 510): Atwater-consistent.
+SODIUM_ONLY = {
+    "energy_kcal": 510.0,
+    "protein_g": 10.0,
+    "carbs_g": 50.0,
+    "sugars_g": 3.0,
+    "fat_g": 30.0,
+    "sat_fat_g": 12.0,
+    "fiber_g": None,
+    "salt_g": None,
+    "sodium_mg": 0.4,
+    "sodium_unit": "mg",
+}
+
+
+NAMKEEN = ["gram flour", "edible vegetable oil", "spices", "salt"]
+
+
+def n(**kw) -> NutrientsIn:
+    return NutrientsIn(**(dict.fromkeys(NutrientsIn.model_fields) | SODIUM_ONLY | kw))
+
+
+def ex(**kw) -> NutritionExtraction:
+    data = {
+        "product_name": "Namkeen",
+        "brand": None,
+        "basis_detected": "per_100g",
+        "per_100g": n(),
+        "per_serving": None,
+        "per_100_unit": "g",
+        "serving_size_g": None,
+        "serving_size_unit": None,
+        # SF2: salt 4th, as on most namkeen; salt in the first 3 would use the 40 mg limit.
+        "ingredients": NAMKEEN,
+        "allergen_statement": None,
+        "may_contain_statement": None,
+        "claims": [],
+        "veg_mark": None,
+        "category_guess": "general",
+        "confidence": 0.9,
+        "unreadable_fields": [],
+        "upper_bound_fields": [],
+    }
+    return NutritionExtraction(**(data | kw))
+
+
+SUSPECT_100 = "sodium_unit_suspect:per_100g.sodium_mg"
+
+
+@pytest.fixture
+def cfg():
+    return load_config()
+
+
+# --- EF2 --------------------------------------------------------------------------------------
+def test_thresholds_are_the_measured_constants():
+    # Chosen with the E5 method on Open Food Facts panels (see normalize.py).
+    # SF1: the "non-integer below 100 mg" rule is gone (15.2 % false alarms on real panels).
+    assert SODIUM_SUSPECT_MAX_MG == {"food": 2.0, "beverage": 0.5}
+    assert SODIUM_SALTY_MAX_MG == 10.0
+    assert SODIUM_SALT_EARLY_MAX_MG == 40.0
+    assert SALT_EARLY_INGREDIENTS == 3  # SF2: salt or a sodium additive in the first 3
+    assert "sodium_unit_suspect" in WARNING_CODES
+    assert WARNING_CODES.index("sodium_unit_suspect") == WARNING_CODES.index("unit_unconfirmed") + 1
+
+
+def test_sodium_in_g_read_as_mg_without_salt_is_withheld_and_asks_the_unit():
+    d = to_draft(ex())
+    assert SUSPECT_100 in d.warnings
+    assert "sodium_mg" in d.engine_withheld
+    assert engine_nutrients(d).sodium_mg is None  # the engine never sees ~0 sodium
+    assert d.per_100g.sodium_mg == pytest.approx(0.4)  # shown as printed, never changed
+    col = d.confirm.columns.per_100g
+    assert col is not None and col.sodium_unit_required is True
+    assert "sodium_mg" not in col.confirm_fields  # the unit pick confirms it
+    assert sodium_unit_unconfirmed(d) and "sodium_mg" in withheld_fields(d)
+
+
+@pytest.mark.parametrize(
+    ("category", "sodium", "suspect"),
+    [
+        ("general", 9.0, True),  # salt is listed (gram flour, salt): the salty limit, 10 mg
+        ("general", 10.0, False),
+        ("general", 1.99, True),
+        ("general", 0.0, False),  # "0" / "Nil" is the same in mg and g
+        ("fat", 0.5, True),
+        ("cheese", 1.0, True),
+        (None, 1.0, True),  # category unknown: the food threshold
+        ("beverage", 0.49, True),
+        ("beverage", 0.5, False),
+        ("beverage", 3.0, False),  # colas print ~3-10 mg
+        ("water", 0.1, False),  # plain water can be almost sodium-free
+    ],
+)
+def test_threshold_by_category(category, sodium, suspect):
+    d = to_draft(ex(category_guess=category, per_100g=n(sodium_mg=sodium)))
+    assert (SUSPECT_100 in d.warnings) is suspect
+    assert ("sodium_mg" in d.engine_withheld) is suspect
+
+
+# Realistic salty packs (SF1): each lists salt or a sodium additive, as FSSAI labels must.
+SALTY_PACKS = {
+    "pickle": ["raw mango", "salt", "mustard oil", "red chilli powder", "fenugreek"],
+    "papad": ["urad dal flour", "salt", "papad khar (sodium carbonate)", "black pepper"],
+    "masala": ["coriander", "red chilli", "salt", "cumin", "black pepper", "dry mango"],
+    "soy sauce": ["water", "soybean", "salt", "wheat", "sodium benzoate (ins211)"],
+}
+
+
+@pytest.mark.parametrize(
+    ("name", "sodium"),
+    [("pickle", 2.5), ("papad", 2.2), ("masala", 6.0), ("soy sauce", 5.7)],
+)
+def test_very_salty_products_printed_in_g_read_as_mg_are_flagged(name, sodium):
+    # 2.5 g of sodium per 100 g printed in g and read as "2.5 mg": above the 2 mg food limit,
+    # but salt is listed, so the salty limit (10 mg) applies.
+    d = to_draft(ex(product_name=name, ingredients=SALTY_PACKS[name], per_100g=n(sodium_mg=sodium)))
+    assert SUSPECT_100 in d.warnings and "sodium_mg" in d.engine_withheld
+
+
+@pytest.mark.parametrize(
+    "unreadable",
+    [
+        {"ingredients": []},  # only the nutrition panel was photographed
+        {"ingredients": ["N/A"]},
+        {"unreadable_fields": ["ingredients"]},
+    ],
+)
+def test_no_readable_ingredient_list_keeps_the_salty_limit(unreadable):
+    # Caution: with no ingredient list we can't rule out a salty food, so 6 "mg" is flagged.
+    d = to_draft(ex(product_name="masala", per_100g=n(sodium_mg=6.0), **unreadable))
+    assert SUSPECT_100 in d.warnings and "sodium_mg" in d.engine_withheld
+
+
+@pytest.mark.parametrize(("sodium", "suspect"), [(38.7, True), (39.9, True), (40.0, False)])
+def test_salt_as_the_first_ingredient_is_checked_up_to_40_mg(sodium, suspect):
+    # Pure salt is 39.3 % sodium: 38.7 g printed in g reads as "38.7 mg".
+    d = to_draft(
+        ex(
+            product_name="iodised salt",
+            ingredients=["iodised salt", "ins536"],
+            per_100g=n(sodium_mg=sodium),
+        )
+    )
+    assert (SUSPECT_100 in d.warnings) is suspect
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "sodium"),
+    [
+        # Typical honest values from the v4 false-positive list (real OFF sodium-only panels).
+        (["semolina"], 2.1),  # rava
+        (["rolled oats"], 4.9),
+        (["peanuts", "almonds", "pumpkin seeds"], 3.592),  # nuts and seeds mix
+        (["toned milk"], 40.6),
+        (["milk", "cream", "sugar", "salt", "emulsifier"], 52.414),  # ice cream sandwich
+        (["fruit pulp", "sugar", "pectin", "citric acid", "sodium benzoate"], 11.6),  # jam
+        (["split urad dal"], 18.88),
+        (["milk", "citric acid"], 9.6),  # paneer
+        (NAMKEEN, 12.5),  # salt 4th (SF2: ["gram flour", "salt"] at 12.5 is now suspect)
+        (["gram flour", "salt"], 45.5),
+        (["gram flour", "salt"], 99.9),
+    ],
+)
+def test_honest_decimal_mg_values_are_not_flagged(ingredients, sodium):
+    # SF1: OFF stores derived, non-integer per-100 g sodium; a decimal is not evidence of g.
+    d = to_draft(ex(ingredients=ingredients, per_100g=n(sodium_mg=sodium)))
+    assert not any(w.startswith("sodium_unit_suspect") for w in d.warnings)
+    assert "sodium_mg" not in d.engine_withheld
+
+
+@pytest.mark.parametrize("sodium", [2.0, 6.0, 9.5])
+def test_low_mg_without_salt_listed_is_plausible(sodium):
+    # Plain flours, oats, dates: honest single-digit mg with no salt or sodium additive listed.
+    d = to_draft(
+        ex(product_name="Atta", ingredients=["whole wheat flour"], per_100g=n(sodium_mg=sodium))
+    )
+    assert SUSPECT_100 not in d.warnings
+
+
+@pytest.mark.parametrize("sodium", [10.0, 35.0, 350.0, 1200.0, 100.5, 350.5])
+def test_honest_integer_or_large_mg_is_not_flagged(sodium):
+    d = to_draft(ex(per_100g=n(sodium_mg=sodium)))
+    assert not any(w.startswith("sodium_unit_suspect") for w in d.warnings)
+    assert "sodium_mg" not in d.engine_withheld
+
+
+def test_non_integer_mg_with_salt_printed_is_not_flagged():
+    d = to_draft(ex(per_100g=n(sodium_mg=45.5, salt_g=0.12)))
+    assert SUSPECT_100 not in d.warnings
+
+
+def test_ml_drink_uses_the_beverage_threshold():
+    # No guess, per 100 ml: the draft category is beverage, so 1.0 mg is plausible (a soda).
+    drink = n(
+        energy_kcal=44.0,
+        protein_g=0.0,
+        carbs_g=11.0,
+        sugars_g=11.0,
+        fat_g=0.0,
+        sat_fat_g=0.0,
+        sodium_mg=1.0,
+    )
+    d = to_draft(ex(category_guess=None, per_100_unit="ml", per_100g=drink))
+    assert d.category == "beverage" and SUSPECT_100 not in d.warnings
+
+
+def test_printed_salt_is_the_cross_check_so_no_suspicion():
+    # Salt printed and agreeing: a genuinely low-sodium food (rice, flour) is not flagged.
+    d = to_draft(ex(per_100g=n(sodium_mg=1.0, salt_g=0.0025)))
+    assert SUSPECT_100 not in d.warnings and "sodium_mg" not in d.engine_withheld
+
+
+def test_printed_g_unit_is_converted_not_suspected():
+    d = to_draft(ex(per_100g=n(sodium_mg=0.4, sodium_unit="g")))
+    assert d.per_100g.sodium_mg == pytest.approx(400) and SUSPECT_100 not in d.warnings
+
+
+def test_unitless_sodium_keeps_unit_unconfirmed_only():
+    d = to_draft(ex(per_100g=n(sodium_unit=None)))
+    assert "unit_unconfirmed:per_100g.sodium_mg" in d.warnings
+    assert SUSPECT_100 not in d.warnings
+
+
+def test_per_serving_column_is_checked_per_100g_via_the_serving():
+    # Per 30 g serving: 0.12 "mg" = 0.4 mg / 100 g -> suspect on the serving column too.
+    serving = n(
+        energy_kcal=153.0,
+        protein_g=3.0,
+        carbs_g=15.0,
+        sugars_g=0.9,
+        fat_g=9.0,
+        sat_fat_g=3.6,
+        sodium_mg=0.12,
+    )
+    d = to_draft(
+        ex(
+            per_100g=None,
+            per_serving=serving,
+            serving_size_g=30.0,
+            serving_size_unit="g",
+            basis_detected="per_serving",
+        )
+    )
+    assert d.derived_from_serving
+    assert "sodium_unit_suspect:per_serving.sodium_mg" in d.warnings
+    assert "sodium_mg" in d.engine_withheld
+    assert d.confirm.columns.per_serving.sodium_unit_required is True
+    # 30 g serving at 4 mg = 13.3 mg / 100 g: plausible.
+    ok = to_draft(
+        ex(
+            per_100g=None,
+            per_serving=serving.model_copy(update={"sodium_mg": 4.0}),
+            serving_size_g=30.0,
+            serving_size_unit="g",
+            basis_detected="per_serving",
+        )
+    )
+    assert not any(w.startswith("sodium_unit_suspect") for w in ok.warnings)
+
+
+# --- SF2: salty spice mixes, khar and sodium additives ------------------------------------------
+# A spice mix or additive whose sodium is printed in g and read as mg. Salt (or a sodium
+# additive) in the first 3 ingredients means a very salty product: below 40 mg is implausible.
+# Each case's printed value is its real sodium in g (pure salt 39.3 %, MSG 12.3 %, baking soda
+# 27.4 %).
+SF2_FAULTS = [
+    ("Chaat Masala", ["dry mango", "black salt", "salt", "cumin", "coriander"], 13.2),
+    ("Chaat Masala", ["Dry mango, black salt, salt, cumin, coriander"], 13.2),  # one OCR string
+    ("Noodle Tastemaker", ["mixed spices", "sugar", "salt", "starch"], 15.5),
+    (
+        "Noodle Tastemaker",
+        ["mixed spices (onion, coriander, chilli, garlic)", "sugar", "salt", "starch"],
+        15.5,
+    ),
+    ("Pani Puri Masala", ["dry mango", "black salt", "cumin", "mint", "ginger"], 18.0),
+    ("Pani Puri Masala", ["amchur", "kala namak", "jeera", "pudina"], 18.0),
+    ("Ajinomoto", ["monosodium glutamate (ins 621)"], 12.3),
+    ("Ajinomoto", ["Ajinomoto"], 12.3),
+    ("Ajinomoto", ["MSG"], 12.3),
+    ("Baking Soda", ["sodium bicarbonate"], 27.4),
+    ("Baking Soda", ["baking soda"], 27.4),
+    ("Mango Pickle", ["raw mango", "mustard oil", "red chilli"], 2.5),  # list cut off before salt
+    ("Urad Papad", ["urad dal flour", "papad khar", "black pepper"], 2.2),
+    ("Urad Papad", ["urad dal flour", "sajji khar", "black pepper"], 2.2),
+    ("Urad Papad", ["urad dal flour", "khar", "salt"], 2.2),
+    ("Urad Papad", ["urad dal flour", "sodium carbonate", "black pepper"], 2.2),
+    ("Bouillon Cube", ["palm fat", "salt", "flavour enhancer (ins621)", "spices"], 20.0),
+    ("Jaljeera", ["cumin", "rock salt", "mint"], 25.0),
+    ("Jaljeera", ["cumin", "sendha namak", "mint"], 25.0),
+    ("Churan", ["saindhava lavana", "jeera"], 30.0),
+    ("Churan", ["amla", "lavana", "jeera"], 30.0),
+    ("Chaat Masala", ["आमचूर", "काला नमक", "जीरा"], 13.2),
+    ("Jaljeera", ["जीरा", "सेंधा नमक", "पुदीना"], 25.0),
+    ("Papad", ["उड़द दाल", "खार", "काली मिर्च"], 2.2),
+]
+HYPERTENSIVE = Member(id="m", name="x", age=60, conditions=("hypertension",))
+
+
+def _hypertensive_status(e: NutritionExtraction) -> Status:
+    d = to_draft(e)
+    product = Product(
+        name=e.product_name or "",
+        per_100g=engine_nutrients(d),
+        ingredients=tuple(e.ingredients),
+        extraction_confidence=0.95,
+    )
+    return analyze(product, [HYPERTENSIVE]).verdicts[0].status
+
+
+@pytest.mark.parametrize(("name", "ingredients", "sodium"), SF2_FAULTS)
+def test_salty_mixes_and_additives_printed_in_g_are_withheld(name, ingredients, sodium):
+    # A complete, Atwater-consistent panel: only the sodium unit is wrong.
+    e = ex(product_name=name, ingredients=ingredients, per_100g=n(sodium_mg=sodium))
+    d = to_draft(e)
+    assert SUSPECT_100 in d.warnings
+    assert "sodium_mg" in d.engine_withheld and engine_nutrients(d).sodium_mg is None
+    assert d.confirm.columns.per_100g.sodium_unit_required is True
+    assert _hypertensive_status(e) is not Status.OK
+
+
+def test_hypertensive_member_gets_ok_only_when_the_honest_sodium_is_plausible():
+    # Control for the verdict check above: the same chaat masala panel printed honestly in mg.
+    chaat = ["dry mango", "black salt", "salt", "cumin", "coriander"]
+    honest = ex(product_name="Chaat Masala", ingredients=chaat, per_100g=n(sodium_mg=13200.0))
+    assert SUSPECT_100 not in to_draft(honest).warnings
+    assert _hypertensive_status(honest) is Status.AVOID
+
+
+@pytest.mark.parametrize(
+    ("ingredients", "sodium", "suspect"),
+    [
+        (["salt", "chilli", "cumin"], 39.9, True),
+        (["chilli", "salt", "cumin"], 39.9, True),  # 2nd
+        (["chilli", "cumin", "salt"], 39.9, True),  # 3rd
+        (["chilli", "cumin", "coriander", "salt"], 39.9, False),  # 4th: the 10 mg limit
+        (["chilli", "cumin", "coriander", "salt"], 9.9, True),
+        (["chilli", "seasoning (sugar, salt, spices)", "cumin"], 39.9, True),  # inside a bracket
+        (["chilli", "cumin", "salt"], 40.0, False),
+        (["Chilli, cumin, coriander, salt"], 39.9, False),  # one string: salt is still 4th
+        (["Chilli, cumin, salt, coriander"], 39.9, True),
+        (["gram flour", "salt"], 12.5, True),  # SF1 kept this as honest; SF2 rules it suspect
+    ],
+)
+def test_salt_in_the_first_three_ingredients_uses_the_40_mg_limit(ingredients, sodium, suspect):
+    d = to_draft(ex(product_name="Masala", ingredients=ingredients, per_100g=n(sodium_mg=sodium)))
+    assert (SUSPECT_100 in d.warnings) is suspect
+
+
+@pytest.mark.parametrize(
+    "term",
+    [
+        "khar",
+        "papad khar",
+        "sajji khar",
+        "sodium carbonate",
+        "sodium bicarbonate",
+        "baking soda",
+        "msg",
+        "monosodium glutamate",
+        "ajinomoto",
+        "खार",
+    ],
+)
+def test_khar_soda_and_msg_are_sodium_additives(term, cfg):
+    assert find_terms([term], cfg.ingredient_lists["sodium_additives"])
+
+
+@pytest.mark.parametrize(
+    "term",
+    [
+        "black salt",
+        "rock salt",
+        "sendha namak",
+        "kala namak",
+        "lavana",
+        "saindhava",
+        "saindhava lavana",
+        "नमक",
+        "काला नमक",
+        "सेंधा नमक",
+    ],
+)
+def test_indian_salts_are_salt(term, cfg):
+    assert find_terms([term], cfg.ingredient_lists["salt"])
+
+
+@pytest.mark.parametrize("word", ["khari biscuit", "khara boondi", "खारीक"])
+def test_khar_does_not_match_other_words(word, cfg):
+    assert not find_terms([word], cfg.ingredient_lists["sodium_additives"])
+
+
+@pytest.mark.parametrize("sodium", [350.0, 1200.0])
+@pytest.mark.parametrize("name", [n for n, *_ in SF2_FAULTS])
+def test_honest_mg_on_the_same_salty_products_is_not_flagged(name, sodium):
+    ingredients = next(i for n_, i, _ in SF2_FAULTS if n_ == name)
+    d = to_draft(ex(product_name=name, ingredients=ingredients, per_100g=n(sodium_mg=sodium)))
+    assert not any(w.startswith("sodium_unit_suspect") for w in d.warnings)
+    assert "sodium_mg" not in d.engine_withheld
+
+
+def test_save_needs_the_unit_and_g_restores_the_real_sodium():
+    draft = to_draft(ex())
+
+    def body(unit):
+        return ProductCreate(
+            name="Namkeen",
+            category="general",
+            basis="per_100g",
+            nutrients=PrintedNutrients(
+                **{k: v for k, v in SODIUM_ONLY.items() if k in PrintedNutrients.model_fields}
+            ),
+            sodium_unit=unit,
+            confirmed_fields=[],
+        )
+
+    with pytest.raises(Exception) as err:
+        stored_values(body(None), draft)
+    assert "sodium_unit" in str(err.value.details)  # type: ignore[attr-defined]
+    values, _ = stored_values(body("g"), draft)
+    assert values["sodium_mg"] == pytest.approx(400)
+    values, _ = stored_values(body("mg"), draft)  # the user says the pack really prints mg
+    assert values["sodium_mg"] == pytest.approx(0.4)
+
+
+# --- EF3 --------------------------------------------------------------------------------------
+# Biscuit, honest panel: 4*7 + 4*70 + 9*18 = 470 kcal (label 470). Salt printed and consistent.
+BISCUIT = {
+    "energy_kcal": 470.0,
+    "protein_g": 7.0,
+    "carbs_g": 70.0,
+    "sugars_g": 25.0,
+    "fat_g": 18.0,
+    "sat_fat_g": 9.0,
+    "fiber_g": None,
+    "salt_g": 0.75,
+    "sodium_mg": 300.0,
+    "sodium_unit": "mg",
+}
+
+
+def biscuit(**kw) -> NutritionExtraction:
+    col = NutrientsIn(**(dict.fromkeys(NutrientsIn.model_fields) | BISCUIT | kw))
+    return ex(per_100g=col)
+
+
+def test_probe_constants():
+    assert (DECIMAL_PROBE_TIGHT_RATIO, DECIMAL_PROBE_TIGHT_MIN_KCAL, DECIMAL_PROBE_MIN_GAIN) == (
+        0.03,
+        5.0,
+        3.0,
+    )
+
+
+def test_honest_biscuit_has_no_warning():
+    d = to_draft(biscuit())
+    assert d.warnings == [] and d.engine_withheld == []
+
+
+def test_protein_slip_hidden_by_the_loose_tolerance_is_withheld():
+    # Protein 7 printed 0.7: Atwater 444.8 vs 470 kcal is within 15 % (no energy_mismatch),
+    # but protein x 10 fits exactly.
+    d = to_draft(biscuit(protein_g=0.7))
+    assert "energy_mismatch" not in d.warnings
+    assert "decimal_shift:per_100g.protein_g" in d.warnings
+    assert d.engine_withheld == ["protein_g"]
+    assert engine_nutrients(d).protein_g is None
+    assert "protein_g" in d.confirm.columns.per_100g.confirm_fields
+
+
+@pytest.mark.parametrize(
+    ("field", "slipped", "named"),
+    [
+        ("fat_g", 1.8, True),
+        ("energy_kcal", 47.0, True),
+        # 70 g carbs printed 7: protein x 10 would also fit, so no single field is named, but
+        # energy_mismatch still withholds carbs (and the other Atwater fields).
+        ("carbs_g", 7.0, False),
+    ],
+)
+def test_other_atwater_field_slips_are_withheld(field, slipped, named):
+    d = to_draft(biscuit(**{field: slipped}))
+    assert (f"decimal_shift:per_100g.{field}" in d.warnings) is named
+    assert field in d.engine_withheld
+
+
+def test_a_printed_value_that_is_too_high_is_never_shrunk_by_the_tight_probe():
+    # A real juice panel (OFF): 4*14 + 9*0.9 = 64.1 vs 56 kcal. Fat / 10 would fit tightly, but
+    # only "printed too low" (x 10) is probed tightly: honest labels did this in E5.
+    d = to_draft(
+        biscuit(
+            energy_kcal=56.0, protein_g=0.0, carbs_g=14.0, sugars_g=13.79, fat_g=0.9, sat_fat_g=0.5
+        )
+    )
+    assert not any(w.startswith("decimal_shift") for w in d.warnings)
+    assert d.engine_withheld == []
+
+
+def test_tight_probe_skips_a_panel_with_an_upper_bound():
+    # Protein printed "<0.7 g" is a bound, not a reading: the Atwater gap is not evidence.
+    d = to_draft(
+        biscuit(protein_g=0.7).model_copy(update={"upper_bound_fields": ["per_100g.protein_g"]})
+    )
+    assert not any(w.startswith("decimal_shift") for w in d.warnings)
+    assert "protein_g" in d.engine_withheld  # withheld anyway as an upper bound
+
+
+def test_tight_probe_respects_macro_consistency():
+    # 4*1.5 + 4*65 + 9*26 = 500 vs 554 kcal (within 15 %). Protein x 10 would fit exactly but
+    # makes protein + carbs + fat 106 g, which the engine rejects: no suspect is named.
+    d = to_draft(
+        biscuit(
+            energy_kcal=554.0, protein_g=1.5, carbs_g=65.0, fat_g=26.0, sat_fat_g=5.0, sugars_g=5.0
+        )
+    )
+    assert "energy_mismatch" not in d.warnings
+    assert not any(w.startswith("decimal_shift") for w in d.warnings)

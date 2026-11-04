@@ -2,6 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { type ReactNode, useId, useMemo, useRef, useState } from "react";
+import { buttonClass } from "@/components/ui/Button";
+import { cardClass } from "@/components/ui/Card";
+import { inputClass as fieldInputClass } from "@/components/ui/field";
+import { InfoIcon } from "@/components/ui/icons";
 import {
   BASES,
   type Basis,
@@ -304,7 +308,7 @@ export function DraftForm({
 
   const fieldError = (field: string): ReactNode =>
     serverFields.has(field) && serverError ? (
-      <p role="alert" className="text-(length:--text-sm)">
+      <p role="alert" className="text-sm font-medium text-text-primary">
         {t.has(`error.${serverError.code}`)
           ? t(`error.${serverError.code}`)
           : t("error.validation_error")}
@@ -312,16 +316,17 @@ export function DraftForm({
     ) : null;
 
   const chooseRequired = (
-    <p className="text-(length:--text-sm) font-semibold">
+    <p className="text-sm font-semibold text-verdict-caution">
       {t("confirm.choose_required")}
     </p>
   );
 
   // Unticked by default; never pre-ticked.
   const confirmBox = (f: ConfirmableField) => (
-    <label className="flex items-center gap-(--spacing-2) text-(length:--text-sm)">
+    <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm font-medium text-text-primary">
       <input
         type="checkbox"
+        className="size-5 shrink-0"
         data-testid={`confirm-${f}`}
         checked={ticked.has(keyOf(f))}
         onChange={(e) => tick(f, e.target.checked)}
@@ -330,390 +335,423 @@ export function DraftForm({
     </label>
   );
 
+  // A highlighted row (a draft warning or a server error) gets the caution
+  // outline: "check this", never a verdict and never green.
   const rowClass = (field: string) =>
-    `space-y-(--spacing-1) rounded-(--radius-sm) p-(--spacing-2) ${
-      highlights.has(field) ? "border-2 border-(--color-verdict-caution)" : ""
+    `space-y-2 rounded-md p-3 ${
+      highlights.has(field)
+        ? "border-2 border-verdict-caution bg-verdict-soft-caution"
+        : ""
     }`;
-  const inputClass = "w-full border p-(--spacing-2) text-(length:--text-md)";
+  const inputClass = fieldInputClass;
+  const labelText = "block text-md font-medium text-text-primary";
+  const choiceClass =
+    "flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border-default bg-surface-default px-4 text-md text-text-primary has-[:checked]:border-brand-primary has-[:checked]:bg-brand-soft has-[:checked]:font-semibold";
 
   return (
     <form
-      className="space-y-(--spacing-4)"
+      className="space-y-6"
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
         if (!blocked && parsed.success) onSave(parsed.data);
       }}
     >
-      <header className="space-y-(--spacing-1)">
-        <h1 className="text-(length:--text-xl)">{t("confirm.title")}</h1>
-        <p className="text-(length:--text-md)">{t("confirm.subtitle")}</p>
+      <header className="space-y-1">
+        <h1 className="text-xl font-bold text-text-primary sm:text-2xl">
+          {t("confirm.title")}
+        </h1>
+        <p className="text-md text-text-secondary">{t("confirm.subtitle")}</p>
       </header>
 
       {warnings.length > 0 ? (
-        <section className="space-y-(--spacing-2)">
+        <section className="space-y-2">
           {warnings.map((w) => (
             <WarningBanner key={w} warning={w} />
           ))}
         </section>
       ) : null}
 
-      <div data-testid="row-name" className={rowClass("name")}>
-        <label htmlFor={`${uid}-name`} className="text-(length:--text-md)">
-          {t("confirm.name")}
-        </label>
-        <input
-          id={`${uid}-name`}
-          type="text"
-          value={name}
-          maxLength={200}
-          aria-invalid={serverFields.has("name") || undefined}
-          onChange={(e) => setName(e.target.value)}
-          className={inputClass}
-        />
-        {fieldError("name")}
-      </div>
-
-      <div data-testid="row-brand" className={rowClass("brand")}>
-        <label htmlFor={`${uid}-brand`} className="text-(length:--text-md)">
-          {t("confirm.brand")}
-        </label>
-        <input
-          id={`${uid}-brand`}
-          type="text"
-          value={brand}
-          maxLength={200}
-          onChange={(e) => setBrand(e.target.value)}
-          className={inputClass}
-        />
-        {fieldError("brand")}
-      </div>
-
-      <fieldset data-testid="choice-category" className={rowClass("category")}>
-        <legend className="text-(length:--text-md)">
-          {t("confirm.category")}
-        </legend>
-        <div className="flex flex-wrap gap-(--spacing-3)">
-          {CATEGORIES.map((c) => (
-            <label key={c} className="flex items-center gap-(--spacing-1)">
-              <input
-                type="radio"
-                name="category"
-                value={c}
-                checked={category === c}
-                onChange={() => setCategory(c)}
-              />
-              {t(`confirm.category_option.${c}`)}
-            </label>
-          ))}
+      <div className={`${cardClass} space-y-2 p-2 sm:p-3`}>
+        <div data-testid="row-name" className={rowClass("name")}>
+          <label htmlFor={`${uid}-name`} className={labelText}>
+            {t("confirm.name")}
+          </label>
+          <input
+            id={`${uid}-name`}
+            type="text"
+            value={name}
+            maxLength={200}
+            aria-invalid={serverFields.has("name") || undefined}
+            onChange={(e) => setName(e.target.value)}
+            className={inputClass}
+          />
+          {fieldError("name")}
         </div>
-        {missing.category ? chooseRequired : null}
-        {fieldError("category")}
-      </fieldset>
 
-      <fieldset data-testid="choice-basis" className={rowClass("basis")}>
-        <legend className="text-(length:--text-md)">
-          {t("confirm.basis")}
-        </legend>
-        <div className="flex flex-wrap gap-(--spacing-3)">
-          {BASES.map((b) => {
-            const off = !hints.offered.includes(b);
-            return (
-              <label
-                key={b}
-                className={`flex items-center gap-(--spacing-1) ${off ? "opacity-50" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="basis"
-                  value={b}
-                  checked={basis === b}
-                  disabled={off}
-                  onChange={() => {
-                    if (b !== basis) setSodiumUnit(""); // R24: new column, new unit
-                    setBasis(b);
-                  }}
-                />
-                {t(`confirm.basis_option.${b}`)}
-              </label>
-            );
-          })}
+        <div data-testid="row-brand" className={rowClass("brand")}>
+          <label htmlFor={`${uid}-brand`} className={labelText}>
+            {t("confirm.brand")}
+          </label>
+          <input
+            id={`${uid}-brand`}
+            type="text"
+            value={brand}
+            maxLength={200}
+            onChange={(e) => setBrand(e.target.value)}
+            className={inputClass}
+          />
+          {fieldError("brand")}
         </div>
-        {missing.basis ? chooseRequired : null}
-        {fieldError("basis")}
-      </fieldset>
 
-      <div
-        data-testid="row-serving_size_g"
-        data-highlight={highlights.has("serving_size_g") ? "true" : "false"}
-        className={rowClass("serving_size_g")}
-      >
-        <label htmlFor={`${uid}-serving`} className="text-(length:--text-md)">
-          {t("confirm.serving_size")}
-        </label>
-        <input
-          id={`${uid}-serving`}
-          type="text"
-          inputMode="decimal"
-          autoComplete="off"
-          value={shown(serving)}
-          aria-invalid={
-            invalidNumbers.has("serving_size_g") ||
-            serverFields.has("serving_size_g") ||
-            missing.serving_value ||
-            undefined
-          }
-          onChange={(e) => {
-            setServing(e.target.value);
-          }}
-          className={inputClass}
-        />
-        {boxes.has("serving_size_g") ? confirmBox("serving_size_g") : null}
-        {missing.serving_value || missing.serving_tick ? chooseRequired : null}
-        {invalidNumbers.has("serving_size_g") ? (
-          <p role="alert" className="text-(length:--text-sm)">
-            {t("error.validation_error")}
-          </p>
-        ) : null}
-        {fieldError("serving_size_g")}
-      </div>
-
-      {unitPicker ? (
         <fieldset
-          data-testid="choice-sodium_unit"
-          className={rowClass("sodium_unit")}
+          data-testid="choice-category"
+          className={rowClass("category")}
         >
-          <legend className="text-(length:--text-md)">
-            {t("confirm.sodium_unit")}
+          <legend className="mb-2 text-md font-medium text-text-primary">
+            {t("confirm.category")}
           </legend>
-          <div className="flex flex-wrap gap-(--spacing-3)">
-            {SODIUM_UNITS.map((u) => (
-              <label key={u} className="flex items-center gap-(--spacing-1)">
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((c) => (
+              <label key={c} className={choiceClass}>
                 <input
                   type="radio"
-                  name="sodium_unit"
-                  value={u}
-                  checked={sodiumUnit === u}
-                  onChange={() => setSodiumUnit(u)}
+                  name="category"
+                  value={c}
+                  checked={category === c}
+                  onChange={() => setCategory(c)}
                 />
-                {t(`confirm.sodium_unit_option.${u}`)}
+                {t(`confirm.category_option.${c}`)}
               </label>
             ))}
           </div>
-          {missing.sodium_unit ? chooseRequired : null}
-          {fieldError("sodium_unit")}
-        </fieldset>
-      ) : null}
-
-      <section className="space-y-(--spacing-2)">
-        <p className="text-(length:--text-sm)">
-          {t("confirm.leave_blank_hint")}
-        </p>
-        {sharedShown && basis ? (
-          // One printed column whose basis is the doubt: say which basis
-          // these numbers will be saved as.
-          <p
-            data-testid="shared-basis"
-            className="text-(length:--text-md) font-semibold"
-          >
-            {t(`confirm.basis_option.${basis}`)}
-          </p>
-        ) : null}
-        {draft?.derived_from_serving ? (
-          <p className="text-(length:--text-md) font-semibold">
-            {t("confirm.derived_per_serving", { serving: shown(serving) })}
-          </p>
-        ) : null}
-        {NUTRIENT_FIELDS.map((f) => {
-          const id = `${uid}-${f}`;
-          const isSodium = f === "sodium_mg";
-          // The picker's unit sits beside the input; otherwise the label
-          // already says "(mg)".
-          const label =
-            isSodium && unitPicker
-              ? t("confirm.sodium")
-              : t(`confirm.field.${f}`);
-          const invalid = invalidNumbers.has(f) || serverFields.has(f);
-          const box = boxes.has(f as ConfirmableField);
-          return (
-            <div
-              key={f}
-              data-testid={`row-${f}`}
-              data-highlight={highlights.has(f) ? "true" : "false"}
-              className={rowClass(f)}
+          {draft?.confirm.category_suggestion === "supplement" ? (
+            <p
+              data-testid="category-suggestion"
+              className="mt-2 text-sm text-text-secondary"
             >
-              <label htmlFor={id} className="text-(length:--text-md)">
-                {label}
-              </label>
-              <div className="flex items-center gap-(--spacing-2)">
+              {t("confirm.category_suggestion.supplement")}
+            </p>
+          ) : null}
+          {missing.category ? chooseRequired : null}
+          {fieldError("category")}
+        </fieldset>
+
+        <fieldset data-testid="choice-basis" className={rowClass("basis")}>
+          <legend className="mb-2 text-md font-medium text-text-primary">
+            {t("confirm.basis")}
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {BASES.map((b) => {
+              const off = !hints.offered.includes(b);
+              return (
+                <label
+                  key={b}
+                  className={`${choiceClass} ${off ? "cursor-not-allowed opacity-50" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name="basis"
+                    value={b}
+                    checked={basis === b}
+                    disabled={off}
+                    onChange={() => {
+                      if (b !== basis) setSodiumUnit(""); // R24: new column, new unit
+                      setBasis(b);
+                    }}
+                  />
+                  {t(`confirm.basis_option.${b}`)}
+                </label>
+              );
+            })}
+          </div>
+          {missing.basis ? chooseRequired : null}
+          {fieldError("basis")}
+        </fieldset>
+
+        <div
+          data-testid="row-serving_size_g"
+          data-highlight={highlights.has("serving_size_g") ? "true" : "false"}
+          className={rowClass("serving_size_g")}
+        >
+          <label htmlFor={`${uid}-serving`} className={labelText}>
+            {t("confirm.serving_size")}
+          </label>
+          <input
+            id={`${uid}-serving`}
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            value={shown(serving)}
+            aria-invalid={
+              invalidNumbers.has("serving_size_g") ||
+              serverFields.has("serving_size_g") ||
+              missing.serving_value ||
+              undefined
+            }
+            onChange={(e) => {
+              setServing(e.target.value);
+            }}
+            className={inputClass}
+          />
+          {boxes.has("serving_size_g") ? confirmBox("serving_size_g") : null}
+          {missing.serving_value || missing.serving_tick
+            ? chooseRequired
+            : null}
+          {invalidNumbers.has("serving_size_g") ? (
+            <p role="alert" className="text-sm font-medium text-text-primary">
+              {t("error.validation_error")}
+            </p>
+          ) : null}
+          {fieldError("serving_size_g")}
+        </div>
+
+        {unitPicker ? (
+          <fieldset
+            data-testid="choice-sodium_unit"
+            className={rowClass("sodium_unit")}
+          >
+            <legend className="mb-2 text-md font-medium text-text-primary">
+              {t("confirm.sodium_unit")}
+            </legend>
+            <div className="flex flex-wrap gap-2">
+              {SODIUM_UNITS.map((u) => (
+                <label key={u} className={choiceClass}>
+                  <input
+                    type="radio"
+                    name="sodium_unit"
+                    value={u}
+                    checked={sodiumUnit === u}
+                    onChange={() => setSodiumUnit(u)}
+                  />
+                  {t(`confirm.sodium_unit_option.${u}`)}
+                </label>
+              ))}
+            </div>
+            {missing.sodium_unit ? chooseRequired : null}
+            {fieldError("sodium_unit")}
+          </fieldset>
+        ) : null}
+
+        <section className={`${cardClass} space-y-2 p-2 sm:p-3`}>
+          <p className="flex items-start gap-2 px-3 pt-2 text-sm text-text-secondary">
+            <InfoIcon className="mt-0.5 size-4 shrink-0" />
+            {t("confirm.leave_blank_hint")}
+          </p>
+          {sharedShown && basis ? (
+            // One printed column whose basis is the doubt: say which basis
+            // these numbers will be saved as.
+            <p
+              data-testid="shared-basis"
+              className="px-3 text-md font-semibold text-text-primary"
+            >
+              {t(`confirm.basis_option.${basis}`)}
+            </p>
+          ) : null}
+          {draft?.derived_from_serving ? (
+            <p className="px-3 text-md font-semibold text-text-primary">
+              {t("confirm.derived_per_serving", { serving: shown(serving) })}
+            </p>
+          ) : null}
+          {NUTRIENT_FIELDS.map((f) => {
+            const id = `${uid}-${f}`;
+            const isSodium = f === "sodium_mg";
+            // The picker's unit sits beside the input; otherwise the label
+            // already says "(mg)".
+            const label =
+              isSodium && unitPicker
+                ? t("confirm.sodium")
+                : t(`confirm.field.${f}`);
+            const invalid = invalidNumbers.has(f) || serverFields.has(f);
+            const box = boxes.has(f as ConfirmableField);
+            return (
+              <div
+                key={f}
+                data-testid={`row-${f}`}
+                data-highlight={highlights.has(f) ? "true" : "false"}
+                className={rowClass(f)}
+              >
+                <label htmlFor={id} className={labelText}>
+                  {label}
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    id={id}
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={shown(values[f])}
+                    aria-invalid={invalid || undefined}
+                    onChange={(e) => editNutrient(f, e.target.value)}
+                    className={inputClass}
+                  />
+                  {isSodium && unitPicker ? (
+                    <span
+                      data-testid="sodium-unit"
+                      className="shrink-0 text-md text-text-secondary"
+                    >
+                      {sodiumUnit
+                        ? t(`confirm.sodium_unit_option.${sodiumUnit}`)
+                        : `${t("confirm.sodium_unit_option.mg")} / ${t("confirm.sodium_unit_option.g")}`}
+                    </span>
+                  ) : null}
+                </div>
+                {box ? (
+                  <>
+                    <p className="text-sm text-text-secondary">
+                      {t("confirm.withheld_hint")}
+                    </p>
+                    {confirmBox(f as ConfirmableField)}
+                  </>
+                ) : null}
+                {invalidNumbers.has(f) && !serverFields.has(f) ? (
+                  <p
+                    role="alert"
+                    className="text-sm font-medium text-text-primary"
+                  >
+                    {t("error.validation_error")}
+                  </p>
+                ) : null}
+                {fieldError(f)}
+              </div>
+            );
+          })}
+        </section>
+
+        <section
+          data-testid="row-ingredients"
+          className={`${cardClass} ${rowClass("ingredients")} space-y-3 p-4`}
+        >
+          <h2 className="text-md font-semibold text-text-primary">
+            {t("confirm.ingredients")}
+          </h2>
+          <ul className="space-y-2">
+            {ingredients.map((item, i) => (
+              <li key={item.id} className="flex gap-2">
                 <input
-                  id={id}
                   type="text"
-                  inputMode="decimal"
-                  autoComplete="off"
-                  value={shown(values[f])}
-                  aria-invalid={invalid || undefined}
-                  onChange={(e) => editNutrient(f, e.target.value)}
+                  aria-label={`${t("confirm.ingredients")} ${i + 1}`}
+                  value={item.text}
+                  maxLength={1000}
+                  onChange={(e) =>
+                    setIngredients((prev) =>
+                      prev.map((p) =>
+                        p.id === item.id ? { ...p, text: e.target.value } : p,
+                      ),
+                    )
+                  }
                   className={inputClass}
                 />
-                {isSodium && unitPicker ? (
-                  <span
-                    data-testid="sodium-unit"
-                    className="text-(length:--text-md)"
-                  >
-                    {sodiumUnit
-                      ? t(`confirm.sodium_unit_option.${sodiumUnit}`)
-                      : `${t("confirm.sodium_unit_option.mg")} / ${t("confirm.sodium_unit_option.g")}`}
-                  </span>
-                ) : null}
-              </div>
-              {box ? (
-                <>
-                  <p className="text-(length:--text-sm)">
-                    {t("confirm.withheld_hint")}
-                  </p>
-                  {confirmBox(f as ConfirmableField)}
-                </>
-              ) : null}
-              {invalidNumbers.has(f) && !serverFields.has(f) ? (
-                <p role="alert" className="text-(length:--text-sm)">
-                  {t("error.validation_error")}
-                </p>
-              ) : null}
-              {fieldError(f)}
-            </div>
-          );
-        })}
-      </section>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIngredients((prev) =>
+                      prev.filter((p) => p.id !== item.id),
+                    )
+                  }
+                  className={buttonClass({ variant: "ghost", size: "sm" })}
+                >
+                  {t("confirm.remove_ingredient")}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={() =>
+              setIngredients((prev) => [
+                ...prev,
+                { id: nextId.current++, text: "" },
+              ])
+            }
+            className={buttonClass({ variant: "secondary", size: "sm" })}
+          >
+            {t("confirm.add_ingredient")}
+          </button>
+          {fieldError("ingredients")}
+        </section>
 
-      <section
-        data-testid="row-ingredients"
-        className={`${rowClass("ingredients")} space-y-(--spacing-2)`}
-      >
-        <h2 className="text-(length:--text-md)">{t("confirm.ingredients")}</h2>
-        <ul className="space-y-(--spacing-2)">
-          {ingredients.map((item, i) => (
-            <li key={item.id} className="flex gap-(--spacing-2)">
-              <input
-                type="text"
-                aria-label={`${t("confirm.ingredients")} ${i + 1}`}
-                value={item.text}
-                maxLength={1000}
-                onChange={(e) =>
-                  setIngredients((prev) =>
-                    prev.map((p) =>
-                      p.id === item.id ? { ...p, text: e.target.value } : p,
-                    ),
-                  )
-                }
-                className={inputClass}
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  setIngredients((prev) => prev.filter((p) => p.id !== item.id))
-                }
-                className="rounded-(--radius-md) border px-(--spacing-2) text-(length:--text-sm)"
-              >
-                {t("confirm.remove_ingredient")}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <button
-          type="button"
-          onClick={() =>
-            setIngredients((prev) => [
-              ...prev,
-              { id: nextId.current++, text: "" },
-            ])
-          }
-          className="rounded-(--radius-md) border px-(--spacing-3) py-(--spacing-1) text-(length:--text-md)"
-        >
-          {t("confirm.add_ingredient")}
-        </button>
-        {fieldError("ingredients")}
-      </section>
-
-      <Statement
-        id={`${uid}-allergen`}
-        field="allergen_statement"
-        label={t("confirm.allergen_statement")}
-        value={allergen}
-        onChange={(v) => {
-          setAllergen(v);
-          setAllergenAck(false);
-        }}
-        needsAck={needsClearAck(draft?.allergen_statement, allergen)}
-        ack={allergenAck}
-        onAck={setAllergenAck}
-        ackLabel={t("confirm.clear_statement_confirm")}
-        highlighted={highlights.has("allergen_statement")}
-        error={fieldError("allergen_statement")}
-      />
-      <Statement
-        id={`${uid}-may`}
-        field="may_contain_statement"
-        label={t("confirm.may_contain_statement")}
-        value={mayContain}
-        onChange={(v) => {
-          setMayContain(v);
-          setMayContainAck(false);
-        }}
-        needsAck={needsClearAck(draft?.may_contain_statement, mayContain)}
-        ack={mayContainAck}
-        onAck={setMayContainAck}
-        ackLabel={t("confirm.clear_statement_confirm")}
-        highlighted={highlights.has("may_contain_statement")}
-        error={fieldError("may_contain_statement")}
-      />
-
-      <div data-testid="row-claims" className={rowClass("claims")}>
-        <label htmlFor={`${uid}-claims`} className="text-(length:--text-md)">
-          {t("confirm.claims")}
-        </label>
-        <textarea
-          id={`${uid}-claims`}
-          rows={3}
-          value={claims}
-          onChange={(e) => setClaims(e.target.value)}
-          className={inputClass}
+        <Statement
+          id={`${uid}-allergen`}
+          field="allergen_statement"
+          label={t("confirm.allergen_statement")}
+          value={allergen}
+          onChange={(v) => {
+            setAllergen(v);
+            setAllergenAck(false);
+          }}
+          needsAck={needsClearAck(draft?.allergen_statement, allergen)}
+          ack={allergenAck}
+          onAck={setAllergenAck}
+          ackLabel={t("confirm.clear_statement_confirm")}
+          highlighted={highlights.has("allergen_statement")}
+          error={fieldError("allergen_statement")}
         />
-        {fieldError("claims")}
+        <Statement
+          id={`${uid}-may`}
+          field="may_contain_statement"
+          label={t("confirm.may_contain_statement")}
+          value={mayContain}
+          onChange={(v) => {
+            setMayContain(v);
+            setMayContainAck(false);
+          }}
+          needsAck={needsClearAck(draft?.may_contain_statement, mayContain)}
+          ack={mayContainAck}
+          onAck={setMayContainAck}
+          ackLabel={t("confirm.clear_statement_confirm")}
+          highlighted={highlights.has("may_contain_statement")}
+          error={fieldError("may_contain_statement")}
+        />
+
+        <div data-testid="row-claims" className={rowClass("claims")}>
+          <label htmlFor={`${uid}-claims`} className={labelText}>
+            {t("confirm.claims")}
+          </label>
+          <textarea
+            id={`${uid}-claims`}
+            rows={3}
+            value={claims}
+            onChange={(e) => setClaims(e.target.value)}
+            className={inputClass}
+          />
+          {fieldError("claims")}
+        </div>
+
+        <fieldset
+          data-testid="choice-veg_mark"
+          className={rowClass("veg_mark")}
+        >
+          <legend className="mb-2 text-md font-medium text-text-primary">
+            {t("confirm.veg_mark_title")}
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {(["veg", "non_veg", ""] as const).map((v) => (
+              <label key={v || "none"} className={choiceClass}>
+                <input
+                  type="radio"
+                  name="veg_mark"
+                  value={v || "none"}
+                  checked={veg === v}
+                  onChange={() => setVeg(v)}
+                />
+                {t(`confirm.veg_mark.${v || "none"}`)}
+              </label>
+            ))}
+          </div>
+          {fieldError("veg_mark")}
+        </fieldset>
       </div>
 
-      <fieldset data-testid="choice-veg_mark" className={rowClass("veg_mark")}>
-        <legend className="text-(length:--text-md)">
-          {t("confirm.veg_mark_title")}
-        </legend>
-        <div className="flex flex-wrap gap-(--spacing-3)">
-          {(["veg", "non_veg", ""] as const).map((v) => (
-            <label
-              key={v || "none"}
-              className="flex items-center gap-(--spacing-1)"
-            >
-              <input
-                type="radio"
-                name="veg_mark"
-                value={v || "none"}
-                checked={veg === v}
-                onChange={() => setVeg(v)}
-              />
-              {t(`confirm.veg_mark.${v || "none"}`)}
-            </label>
-          ))}
-        </div>
-        {fieldError("veg_mark")}
-      </fieldset>
-
-      <p className="text-(length:--text-sm)">
+      <p className="flex items-start gap-2 rounded-md bg-surface-muted px-3 py-2 text-sm text-text-secondary">
+        <InfoIcon className="mt-0.5 size-4 shrink-0" />
         {t("confirm.not_medical_advice")}
       </p>
 
       <button
         type="submit"
         disabled={blocked}
-        className="w-full rounded-(--radius-md) border px-(--spacing-4) py-(--spacing-2) text-(length:--text-md) disabled:opacity-50"
+        className={buttonClass({ size: "lg", block: true })}
       >
         {busy ? t("common.loading") : t("confirm.save")}
       </button>
@@ -738,11 +776,16 @@ function Statement(props: {
   return (
     <div
       data-testid={`row-${props.field}`}
-      className={`space-y-(--spacing-1) rounded-(--radius-sm) p-(--spacing-2) ${
-        props.highlighted ? "border-2 border-(--color-verdict-caution)" : ""
+      className={`${cardClass} space-y-2 p-4 ${
+        props.highlighted
+          ? "border-2 border-verdict-caution bg-verdict-soft-caution"
+          : ""
       }`}
     >
-      <label htmlFor={props.id} className="text-(length:--text-md)">
+      <label
+        htmlFor={props.id}
+        className="block text-md font-medium text-text-primary"
+      >
         {props.label}
       </label>
       <textarea
@@ -751,12 +794,13 @@ function Statement(props: {
         maxLength={4000}
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
-        className="w-full border p-(--spacing-2) text-(length:--text-md)"
+        className={fieldInputClass}
       />
       {props.needsAck ? (
-        <label className="flex items-center gap-(--spacing-2) border-2 border-(--color-verdict-caution) p-(--spacing-2) text-(length:--text-sm)">
+        <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border-2 border-verdict-caution bg-verdict-soft-caution p-3 text-sm font-medium text-text-primary">
           <input
             type="checkbox"
+            className="size-5 shrink-0"
             checked={props.ack}
             onChange={(e) => props.onAck(e.target.checked)}
           />

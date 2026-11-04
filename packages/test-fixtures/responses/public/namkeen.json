@@ -35,6 +35,7 @@
     "allergens": {
       "peanut": "contains"
     },
+    "caffeine": [],
     "claims": [],
     "diet_violations": {
       "eggetarian": [],
@@ -61,7 +62,14 @@
       "points": 25,
       "reason": null
     },
+    "protein": {
+      "per_100g": 15.0,
+      "per_100kcal": 2.7,
+      "per_serving": 4.5,
+      "serving_size_g": 30.0
+    },
     "sodium_additives": [],
+    "sweeteners": [],
     "veg_mark_mismatch": false
   },
   "score_label": "calculated_by_smartnutri"

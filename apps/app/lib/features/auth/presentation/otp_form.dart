@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/sn_colors.dart';
+import '../../../core/theme/tokens.g.dart';
+import '../../../shared/widgets/buttons.dart';
+import '../../../shared/widgets/disclaimer_footer.dart';
+import '../../../shared/widgets/states.dart';
 
 bool isValidEmail(String v) => v.trim().contains('@');
 bool isValidPhone(String v) => RegExp(r'^\+\d{8,15}$').hasMatch(v.trim());
@@ -80,68 +85,98 @@ class _OtpFormState extends State<OtpForm> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final c = SnColors.of(context);
     final idOk = widget.isValidIdentifier(_id.text);
     final codeOk = isValidCode(_code.text);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.authTitle)),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _id,
-              keyboardType: widget.keyboardType,
-              enabled: !_sent,
-              decoration: InputDecoration(
-                labelText: widget.identifierLabel(l10n),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            padding: const EdgeInsets.all(SnTokens.space5),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - SnTokens.space5 * 2,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.appName,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: c.brandStrong,
+                      ),
+                    ),
+                    const SizedBox(height: SnTokens.space1),
+                    Text(
+                      l10n.authTagline,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: c.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: SnTokens.space5),
+                    TextField(
+                      controller: _id,
+                      keyboardType: widget.keyboardType,
+                      enabled: !_sent,
+                      decoration: InputDecoration(
+                        labelText: widget.identifierLabel(l10n),
+                      ),
+                    ),
+                    const SizedBox(height: SnTokens.space4),
+                    if (_sent) ...[
+                      TextField(
+                        controller: _code,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(6),
+                        ],
+                        decoration: InputDecoration(
+                          labelText: l10n.authCodeLabel,
+                        ),
+                      ),
+                      const SizedBox(height: SnTokens.space4),
+                      PrimaryButton(
+                        label: l10n.authVerify,
+                        onPressed: _busy || !codeOk
+                            ? null
+                            : () => _run(
+                                () => widget.onVerify(
+                                  _id.text.trim(),
+                                  _code.text.trim(),
+                                ),
+                              ),
+                      ),
+                      const SizedBox(height: SnTokens.space2),
+                      TextButton(
+                        onPressed: _busy ? null : _change,
+                        child: Text(l10n.authChange),
+                      ),
+                    ] else
+                      PrimaryButton(
+                        label: l10n.authSendCode,
+                        onPressed: _busy || !idOk
+                            ? null
+                            : () => _run(
+                                () => widget.onSend(_id.text.trim()),
+                                sends: true,
+                              ),
+                      ),
+                    if (_failed) ...[
+                      const SizedBox(height: SnTokens.space4),
+                      InlineErrorBanner(message: l10n.authError),
+                    ],
+                    const Spacer(),
+                    const SizedBox(height: SnTokens.space4),
+                    const DisclaimerFooter(),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            if (_sent) ...[
-              TextField(
-                controller: _code,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(6),
-                ],
-                decoration: InputDecoration(labelText: l10n.authCodeLabel),
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: _busy || !codeOk
-                    ? null
-                    : () => _run(
-                        () =>
-                            widget.onVerify(_id.text.trim(), _code.text.trim()),
-                      ),
-                child: Text(l10n.authVerify),
-              ),
-              TextButton(
-                onPressed: _busy ? null : _change,
-                child: Text(l10n.authChange),
-              ),
-            ] else
-              FilledButton(
-                onPressed: _busy || !idOk
-                    ? null
-                    : () => _run(
-                        () => widget.onSend(_id.text.trim()),
-                        sends: true,
-                      ),
-                child: Text(l10n.authSendCode),
-              ),
-            if (_failed) ...[
-              const SizedBox(height: 16),
-              Text(
-                l10n.authError,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ],
-            const Spacer(),
-            Text(l10n.commonDisclaimer, textAlign: TextAlign.center),
-          ],
+          ),
         ),
       ),
     );

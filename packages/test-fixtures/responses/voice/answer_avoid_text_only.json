@@ -1,0 +1,8 @@
+{
+  "answer": "For this member, avoid this product. The pack says \"Sugar free\", but the label data does not support this claim. High in saturated fat. People managing blood sugar are often advised to limit these; check with your doctor. Contains sugars listed under other names: maltodextrin.",
+  "audio_base64": null,
+  "audio_mime": "audio/mpeg",
+  "question": "is this ok for me",
+  "source": "llm",
+  "verdict_status": "avoid"
+}

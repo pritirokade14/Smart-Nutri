@@ -4,12 +4,12 @@ import { useTranslations } from "next-intl";
 export function OffAttribution({ barcode }: { barcode: string | null }) {
   const t = useTranslations();
   return (
-    <p className="text-(length:--text-sm)">
+    <p className="text-sm text-text-secondary">
       {barcode ? (
         <a
           href={`https://world.openfoodfacts.org/product/${encodeURIComponent(barcode)}`}
           rel="noopener noreferrer"
-          className="underline"
+          className="underline underline-offset-4 hover:text-text-primary"
         >
           {t("attribution.off")}
         </a>

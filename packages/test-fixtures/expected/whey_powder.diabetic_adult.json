@@ -1,0 +1,9 @@
+{
+  "status": "caution",
+  "reasons": [
+    {
+      "code": "sugar_moderate",
+      "severity": "caution"
+    }
+  ]
+}

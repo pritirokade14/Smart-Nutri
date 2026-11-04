@@ -5,7 +5,15 @@
   "common": {
     "disclaimer": "Information, not medical advice.",
     "loading": "Loading…",
-    "retry": "Try again"
+    "retry": "Try again",
+    "go_home": "Go to the home page",
+    "coming_soon": "Coming soon",
+    "skip_to_content": "Skip to content",
+    "not_found_body": "The page you're looking for doesn't exist or has moved.",
+    "error_title": "Something went wrong",
+    "cancel": "Cancel",
+    "close": "Close",
+    "open_settings": "Open settings"
   },
   "auth": {
     "title": "Sign in",
@@ -19,11 +27,74 @@
     "phoneLabel": "Phone number (with country code)",
     "change": "Change",
     "error": "Could not sign in. Please try again.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "subtitle": "Sign in to check packaged foods for your family.",
+    "or": "or",
+    "tagline": "Know if a packaged food suits each person in your family."
   },
   "home": {
     "welcome": "Hello, {name}",
-    "scan_cta": "Scan a product"
+    "scan_cta": "Scan a product",
+    "subtitle": "What would you like to check today?",
+    "scan_body": "Use your camera, or type the number under the barcode.",
+    "label_body": "No barcode, or a product we don't know yet? Photograph the label.",
+    "manual_body": "Type the nutrition facts from the pack yourself.",
+    "welcome_no_name": "Hello",
+    "label_title": "Photograph a label",
+    "recent_title": "Recent scans",
+    "recent_empty_title": "No scans yet",
+    "recent_empty_body": "Products you check will show up here.",
+    "cards": {
+      "allergy_check": {
+        "title": "Allergy check",
+        "member_line": "{name}: {allergens}",
+        "unknown_note": "Unknown means we couldn't check, so it is never marked safe.",
+        "none": "No allergies added yet.",
+        "add_cta": "Add allergies"
+      },
+      "today_sugar_salt": {
+        "title": "Today: sugar and salt"
+      },
+      "today_protein": {
+        "title": "Today: protein"
+      },
+      "protein_swaps": {
+        "title": "Higher-protein options",
+        "cta": "Find higher-protein options"
+      },
+      "protein_claims_tip": {
+        "title": "Protein claims",
+        "body": "We check protein claims against the nutrition table."
+      },
+      "claims_tip": {
+        "title": "Claims on the pack",
+        "body": "Sugar-free? We check claims against the label."
+      },
+      "not_covered": {
+        "title": "Not covered yet",
+        "body": "Not covered yet: thyroid, cholesterol, kidney disease, pregnancy."
+      },
+      "family_strip": {
+        "title": "Your family",
+        "add": "Add member"
+      },
+      "weekly_family": {
+        "title": "This week",
+        "body": "{count} items logged for your family in the last 7 days"
+      },
+      "unknown_explainer": {
+        "title": "Why \"unknown\" is not safe",
+        "body": "When a label is missing ingredients or is hard to read, we can't check it. We never show that as safe."
+      },
+      "custom_alerts_setup": {
+        "title": "Ingredient alerts",
+        "body": "Choose ingredients you want us to point out on labels.",
+        "cta": "Set up alerts"
+      },
+      "recent_scans": {
+        "title": "Recent scans"
+      }
+    }
   },
   "verdict": {
     "status": {
@@ -37,7 +108,15 @@
     "reason_unavailable": "Details for this result aren't available in this version.",
     "profile_not_set_up": "Profile not set up: age, allergies and diet aren't checked yet.",
     "show_all_reasons": "Show all reasons",
-    "hide_reasons": "Hide reasons"
+    "hide_reasons": "Hide reasons",
+    "for_member": "{status} for {name}",
+    "for_you": "{status} for you",
+    "spoken": {
+      "ok": "For this member, this product looks OK.",
+      "caution": "For this member, take care with this product.",
+      "unknown": "For this member, the label is unclear, so we can't say.",
+      "avoid": "For this member, avoid this product."
+    }
   },
   "status": {
     "ok": "OK",
@@ -49,7 +128,7 @@
     "allergen_contains": "Contains {allergen}, which is on your avoid list.",
     "allergen_may_contain": "May contain {allergen}, which is on your avoid list.",
     "allergen_unknown": "We can't tell whether this contains {allergen}.",
-    "allergen_unrecognised": "We don't recognise the allergen \"{allergen}\" in your profile.",
+    "allergen_unrecognised": "We can only search the label for the exact word \"{allergen}\". Check the ingredients yourself.",
     "diet_violation": "May not match the {diet} diet: {ingredients}.",
     "diet_unknown": "We can't tell whether this fits the {diet} diet.",
     "sugar_high": "High in sugar: {sugars_g} g per 100 g/ml.",
@@ -78,11 +157,16 @@
     "nutrient_missing": "The label does not show {nutrient}, so this check could not be done.",
     "condition_unrecognised": "We do not have guidance for \"{condition}\" yet.",
     "cardio_risk_high_in": "High in {high_in}. People managing blood sugar are often advised to limit these; check with your doctor.",
-    "age_unknown": "Add this member's birth year: this food may not suit young children or babies."
+    "age_unknown": "Add this member's birth year: this food may not suit young children or babies.",
+    "custom_alert": "Contains {alert}: {ingredients}.",
+    "custom_alert_unknown": "These alerts couldn't be checked: {alerts}.",
+    "supplement_child": "This is a supplement, which is not recommended for children and teenagers. Check with your doctor first.",
+    "supplement_infant": "This is a supplement, which is not recommended for children under 2."
   },
   "reason_variant": {
     "nutrient_missing_low_confidence": "We couldn't read {nutrient} clearly on the label, so this check could not be done.",
-    "diet_violation_mark_only": "The pack has the brown non-vegetarian mark, so this may not match the {diet} diet."
+    "diet_violation_mark_only": "The pack has the brown non-vegetarian mark, so this may not match the {diet} diet.",
+    "custom_alert_flag_only": "The product data says it contains sweeteners."
   },
   "nutrient": {
     "energy_kcal": "energy (calories)",
@@ -92,7 +176,8 @@
     "fat_g": "fat",
     "sat_fat": "saturated fat",
     "salt": "salt",
-    "sodium_mg": "sodium"
+    "sodium_mg": "sodium",
+    "serving_size_g": "serving size"
   },
   "allergen": {
     "milk": "Milk",
@@ -119,7 +204,15 @@
     "prediabetes": "Prediabetes",
     "pcos": "PCOS",
     "hypertension": "High blood pressure",
-    "weight_loss": "Weight loss"
+    "weight_loss": "Weight loss",
+    "build_muscle": "Build muscle"
+  },
+  "alert": {
+    "palm_oil": "palm oil",
+    "maida": "maida (refined wheat flour)",
+    "added_sugar": "added sugar",
+    "artificial_sweetener": "artificial sweeteners",
+    "msg": "MSG (monosodium glutamate)"
   },
   "high_in": {
     "sugar": "High in sugar",
@@ -130,7 +223,8 @@
   },
   "nutriscore": {
     "calculated_by": "Nutri-Score calculated by SmartNutri",
-    "insufficient_data": "Not enough label data to calculate a Nutri-Score."
+    "insufficient_data": "Not enough label data to calculate a Nutri-Score.",
+    "not_scored_supplement": "Nutri-Score is not calculated for supplements."
   },
   "claim": {
     "no_added_sugar": "No added sugar",
@@ -141,7 +235,10 @@
     "high_protein": "High protein",
     "source_of_protein": "Source of protein",
     "no_refined_sugar": "No refined sugar",
-    "diabetic_friendly": "Diabetic friendly"
+    "diabetic_friendly": "Diabetic friendly",
+    "protein_amount": "Protein amount",
+    "whey_only": "100% whey",
+    "whey_protein": "Whey protein"
   },
   "claim_verdict": {
     "supported": "Label data supports this claim",
@@ -156,7 +253,11 @@
     "ingredients_unknown": "The ingredients list is not available, so this claim can't be checked.",
     "added_sugar_ingredient": "The ingredients include added sugar: {ingredients}.",
     "refined_sugar_ingredient": "The ingredients include refined sugar: {ingredients}.",
-    "no_standard": "There is no standard to check this claim against."
+    "no_standard": "There is no standard to check this claim against.",
+    "below_claimed": "The nutrition table shows {value} g protein {basis, select, per_serving {per serving} other {per 100 g}}, below the {claimed} g claimed.",
+    "other_protein_source": "The ingredients include another protein source: {ingredients}.",
+    "whey_not_listed": "Whey is not listed in the ingredients.",
+    "basis_unknown": "The claim doesn't clearly say per 100 g or per serving, so it can't be checked against the table."
   },
   "error": {
     "auth_required": "Please sign in.",
@@ -180,12 +281,33 @@
     "scan_not_found": "We couldn't find that label scan. Please scan the label again.",
     "implausible_value": "Some values don't look right. Please check the highlighted fields, or leave them blank.",
     "product_exists": "This product is already saved.",
+    "consent_version_mismatch": "This consent text has been updated. Please reload and review it again.",
     "scan_image_not_found": "We couldn't find that photo. Please take or upload it again.",
     "image_too_large": "This photo is too large. Please use a photo under 8 MB.",
     "unsupported_image": "Please use a JPEG, PNG or WebP photo.",
     "extraction_failed": "We couldn't read this label. Try another photo or enter the details manually.",
     "extraction_unavailable": "Label reading is unavailable right now. Try again later or enter the details manually.",
-    "storage_unavailable": "We couldn't handle the photo right now. Please try again in a moment."
+    "storage_unavailable": "We couldn't handle the photo right now. Please try again in a moment.",
+    "consent_required": "To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.",
+    "member_limit": "You can add up to 10 family members.",
+    "primary_member": "Your own profile can't be removed.",
+    "portion_required": "Choose how much was eaten: servings or grams.",
+    "serving_size_unknown": "This pack doesn't show a serving size. Enter the amount in grams.",
+    "eaten_at_out_of_range": "Choose a time within the last 30 days.",
+    "meal_not_found": "That food log wasn't found.",
+    "audio_too_long": "That recording is longer than 30 seconds. Please ask a shorter question.",
+    "audio_too_large": "That recording is too large. Please ask a shorter question.",
+    "audio_unsupported": "We couldn't play that recording. Please try again.",
+    "voice_not_understood": "We couldn't hear a question. Please hold the button and speak clearly.",
+    "ai_unavailable": "Voice answers are unavailable right now. Please try again later.",
+    "deletion_incomplete": "We could not finish deleting your account. Please try again; nothing you deleted will come back.",
+    "phone_otp_disabled": "Phone sign-in is not available yet. Please sign in with email or Google.",
+    "payload_too_large": "That request is too large. Please try again with less.",
+    "search_query_too_short": "Type at least 3 letters to search.",
+    "user_type_not_selected": "Pick one of the options you chose for yourself.",
+    "follow_up_without_type": "Please check your answers and try again.",
+    "user_types_not_found": "Tell us what brings you to SmartNutri first.",
+    "image_quality_low": "This photo is hard to read. Please take it again."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -198,7 +320,9 @@
     "not_found": "We couldn't find this product yet.",
     "retry": "Try again",
     "off_unavailable": "The product database is busy right now. Please try again in a moment.",
-    "scanning": "Point the camera at the barcode"
+    "scanning": "Point the camera at the barcode",
+    "subtitle": "Point your camera at the barcode, or type the number below.",
+    "label_hint": "No barcode? Photograph the label instead."
   },
   "result": {
     "title": "Result",
@@ -208,14 +332,19 @@
     "scan_another": "Scan another product",
     "ingredients": "Ingredients",
     "no_ingredients": "Ingredients not available",
-    "you": "You"
+    "you": "You",
+    "members_title": "For your family",
+    "family_title": "For your family",
+    "nutrition_title": "Nutrition per 100 g/ml",
+    "not_on_label": "Not on the label"
   },
   "product": {
     "public_cta": "Check it for your family",
     "meta_title": "{name} – nutrition facts | SmartNutri",
     "meta_description": "Nutrition facts, Nutri-Score calculated by SmartNutri, and ingredients for this packaged food. Information, not medical advice.",
     "claims_heading": "Claims on the label, checked by SmartNutri",
-    "label_says": "Label says: {claim}"
+    "label_says": "Label says: {claim}",
+    "not_found_body": "Check the barcode number. You can also sign in and photograph the label to add this product."
   },
   "attribution": {
     "off": "Data from Open Food Facts (ODbL)"
@@ -263,7 +392,8 @@
       "beverage": "Drink",
       "water": "Packaged water",
       "cheese": "Cheese",
-      "fat": "Oil or fat"
+      "fat": "Oil, fat, nuts or seeds",
+      "supplement": "Supplement (protein powder, whey, health supplement)"
     },
     "sodium_unit": "Sodium unit on the pack",
     "sodium_unit_option": {
@@ -289,7 +419,14 @@
     "veg_mark_title": "Veg or non-veg mark",
     "remove_ingredient": "Remove this ingredient",
     "clear_statement_confirm": "I checked the pack: this statement isn't printed",
-    "open_existing": "Open the saved product"
+    "open_existing": "Open the saved product",
+    "section_product": "Product",
+    "section_nutrition": "Nutrition table",
+    "section_allergens": "Allergens",
+    "section_pack": "Claims and marks on the pack",
+    "category_suggestion": {
+      "supplement": "The ingredients or the protein amount suggest this may be a supplement (protein powder or whey). If it is, pick Supplement as the type."
+    }
   },
   "warning": {
     "implausible_value": "This value looks unusual. Please check it against the pack.",
@@ -300,14 +437,613 @@
     "kcal_kj_mismatch": "The kcal and kJ values don't match each other. Check both on the pack.",
     "salt_sodium_mismatch": "The salt and sodium values don't match each other. Check both on the pack.",
     "unit_unconfirmed": "The unit for this value wasn't clear. Choose mg or g as printed.",
+    "sodium_unit_suspect": "The sodium looks too low for this product. Check whether the pack prints it in mg or g, and choose that unit.",
     "low_confidence": "The label was hard to read. Please check every value against the pack.",
     "category_unknown": "We couldn't tell what type of product this is. Choose one.",
     "category_check": "Check that the product type is right, because it changes how the values are read.",
     "unreadable_field": "We couldn't read this value. Enter it from the pack, or leave it blank.",
     "upper_bound": "The pack says 'less than' this amount. Confirm it if that's right.",
-    "derived_from_serving": "This value was worked out from the per-serving amount. Check it against the pack."
+    "derived_from_serving": "This value was worked out from the per-serving amount. Check it against the pack.",
+    "fat_parts_mismatch": "Saturated and trans fat add up to more than the total fat. Check these values on the pack.",
+    "decimal_shift": "The decimal point in this value may have been misread. Check it on the pack.",
+    "column_mismatch": "The per 100 g and per-serving values for this nutrient don't match the serving size. Check both on the pack."
   },
   "notfound": {
     "go_to_label": "We don't know this product yet — photograph its label"
+  },
+  "members": {
+    "title": "Family",
+    "add": "Add a family member",
+    "edit": "Edit",
+    "remove": "Remove",
+    "remove_confirm": "Remove {name} from your family?",
+    "you_badge": "You",
+    "saved": "Saved",
+    "consent_withdrawn_notice": "Health data consent is off. Saved allergies and conditions are still used to check products, but new ones can't be saved until you agree again.",
+    "form": {
+      "name": "Name",
+      "relation": "Relation",
+      "birth_year": "Year of birth",
+      "birth_year_help": "Used for the checks for children and babies under 2.",
+      "sex": "Sex (optional)",
+      "height_cm": "Height (cm, optional)",
+      "weight_kg": "Weight (kg, optional)",
+      "diet": "Diet",
+      "allergens": "Allergies",
+      "allergens_help": "Pick from the list, or type your own.",
+      "allergen_other": "Other allergy",
+      "allergen_add": "Add",
+      "conditions": "Health conditions",
+      "goal": "Goal (optional)",
+      "custom_alerts": "Ingredient alerts",
+      "custom_alerts_help": "We point these out when we find them on the label.",
+      "health_fields_note": "Allergies, health conditions, goal, height and weight are saved only with your consent to health data processing.",
+      "clear_allergies_confirm": "Remove every allergy for {name}? Products with these allergens will no longer be flagged for them.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "name_required": "Enter a name.",
+      "birth_year_invalid": "Enter a year from 1900 to {year}.",
+      "number_range": "Enter a number from {min} to {max}.",
+      "allergen_length": "Type 2 to 40 characters.",
+      "allergen_limit": "You can add up to 20 allergies.",
+      "remove_allergy_confirm": "Remove {allergen} from the allergies for {name}? Products with it will no longer be flagged for them.",
+      "not_set": "Not set",
+      "name_invalid": "Enter a name of up to 40 characters.",
+      "relation_required": "Choose a relation.",
+      "height_invalid": "Enter a height between 30 and 250 cm, or leave it blank.",
+      "weight_invalid": "Enter a weight between 2 and 300 kg, or leave it blank.",
+      "allergen_invalid": "An allergy must be 2 to 40 characters.",
+      "remove_allergy": "Remove {allergen}"
+    },
+    "relation": {
+      "self": "You",
+      "child": "Child",
+      "parent": "Parent",
+      "spouse": "Spouse",
+      "other": "Other"
+    },
+    "sex": {
+      "female": "Female",
+      "male": "Male",
+      "other": "Other"
+    },
+    "goal": {
+      "healthy_eating": "Eat better",
+      "weight_loss": "Lose weight",
+      "weight_gain": "Gain weight",
+      "build_muscle": "Build muscle",
+      "build_muscle_adults_only": "Build muscle is a goal for adults (18 and over). Pick another goal for this member."
+    },
+    "born": "Born {year}",
+    "limit_reached": "You have 10 family members, the most you can add."
+  },
+  "consent": {
+    "health_data": {
+      "title": "Health data",
+      "body": "SmartNutri uses the allergies, health conditions, goal, height and weight you enter to check products for each family member. This is information, not medical advice. You can withdraw this consent at any time."
+    },
+    "ai_processing": {
+      "title": "AI explanations",
+      "body": "Allow SmartNutri to send a summary of each result, without names, to an AI service processed in India, to write a short explanation. The AI never decides a result."
+    },
+    "terms": {
+      "title": "Terms of use",
+      "body": "I agree to the SmartNutri terms of use and privacy policy.",
+      "withdraw_confirm": "If you withdraw, you can't check or scan products until you agree again. Your saved data stays until you delete your account."
+    },
+    "agree": "I agree",
+    "decline": "Not now",
+    "withdraw": "Withdraw consent",
+    "granted": "Agreed",
+    "not_granted": "Not agreed",
+    "ai_optional": "Optional. Without it you still get every result, just no AI explanation.",
+    "required_note": "Needed to save allergies, health conditions, a goal, height or weight.",
+    "terms_step": {
+      "title": "Before you start",
+      "updated_title": "We've updated our terms",
+      "body": "Please read our terms of use and privacy notice. You need to agree to them to check and scan products.",
+      "updated_body": "Our terms of use or privacy notice have changed. Please read them and agree again to keep checking and scanning products.",
+      "read_terms": "Terms of use",
+      "read_privacy": "Privacy notice",
+      "leave_note": "Don't want to agree? You can sign out, or delete your account from your profile."
+    },
+    "update_note": "We've updated this text. Please read it and agree again.",
+    "needs_update": "Updated, please review",
+    "review_agree": "Review and agree",
+    "prompt": {
+      "title": "Your agreement is needed",
+      "body": "To continue, please agree to the following. You can withdraw at any time from your profile."
+    },
+    "required_to_continue": "Please review and agree to continue.",
+    "updates_banner": "We've updated some consent texts. Please review them."
+  },
+  "explanation": {
+    "title": "Why this result",
+    "ai_note": "Written by AI from the results above. It never changes a result.",
+    "tips_title": "Tips",
+    "fallback_tip": {
+      "1": "Compare the labels of similar products and choose the one with less sugar and salt.",
+      "2": "Check the serving size on the pack: the label values are per 100 g or 100 ml.",
+      "3": "If you have a health condition, ask your doctor or a dietitian before making changes."
+    },
+    "source_fallback_note": "The AI explanation isn't available right now, so this summary comes from our rules."
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "Home",
+    "scan": "Scan",
+    "history": "History",
+    "family": "Family",
+    "profile": "Profile",
+    "protein": "Protein",
+    "compare": "Compare",
+    "search": "Search",
+    "more": "More",
+    "how_we_score": "How we score"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "hi": "हिन्दी",
+    "mr": "मराठी"
+  },
+  "landing": {
+    "eyebrow": "For Indian families",
+    "hero_title": "Know if a packaged food is right for each member of your family",
+    "hero_body": "Scan a barcode or photograph the label. SmartNutri reads it, checks it against each person's age, allergies and diet, and tells you why.",
+    "cta_start": "Get started",
+    "how_title": "How it works",
+    "step1_title": "Scan or snap",
+    "step1_body": "Scan the barcode, or take a photo of the nutrition label on the pack.",
+    "step2_title": "Check what we read",
+    "step2_body": "You confirm the label details before anything is saved.",
+    "step3_title": "See who it suits",
+    "step3_body": "Get a simple result for each family member, with the reasons in plain words.",
+    "meta_title": "SmartNutri AI – is this packaged food right for your family?",
+    "meta_description": "Scan a packaged food and see whether it suits each member of your family, with the reasons. Information, not medical advice."
+  },
+  "footer": {
+    "tagline": "Packaged-food information for Indian families.",
+    "links_label": "About SmartNutri"
+  },
+  "history": {
+    "title": "History",
+    "body": "Products you check will be listed here, so you can find them again.",
+    "coming_soon_title": "Your history is coming soon",
+    "coming_soon_body": "You'll see every product you've checked here.",
+    "member": "Family member",
+    "today": "Today",
+    "this_week": "This week",
+    "empty": "Nothing logged yet.",
+    "item_amount": "{grams} g",
+    "remove": "Remove",
+    "remove_confirm": "Remove this item from the log?",
+    "previous_day": "Previous day",
+    "next_day": "Next day",
+    "logged_title": "What was eaten"
+  },
+  "family": {
+    "title": "Family",
+    "body": "Add each family member with their age, allergies and diet, so every result is about them.",
+    "coming_soon_title": "Family profiles are coming soon",
+    "coming_soon_body": "Add each person's age, allergies and diet to get a result for each of them."
+  },
+  "profile": {
+    "title": "Profile",
+    "body": "Your account, language and privacy settings will be here.",
+    "coming_soon_title": "Settings are coming soon",
+    "coming_soon_body": "Language, privacy and account settings will appear here.",
+    "privacy_title": "Privacy and consent",
+    "give_consent": "Agree"
+  },
+  "meals": {
+    "log": {
+      "cta": "I ate this",
+      "title": "Log what was eaten",
+      "member": "Who ate it?",
+      "servings": "Servings",
+      "grams": "Grams",
+      "serving_size": "1 serving = {grams} g",
+      "amount_servings": "Number of servings",
+      "amount_grams": "Amount in grams",
+      "eaten_at": "When",
+      "now": "Now",
+      "save": "Save",
+      "saved": "Logged for {who}",
+      "undo": "Undo",
+      "undone": "Removed from the log",
+      "amount_invalid": "Enter an amount more than 0 and up to {max}.",
+      "saved_you": "Logged for you",
+      "portion": "How much was eaten?"
+    },
+    "online_only": "On the web, logging needs an internet connection. Items are not saved offline.",
+    "queued_offline": "Saved on this phone. It will be added to the log when you are back online.",
+    "syncing": "Syncing logged items…",
+    "sync_failed": "Some items could not be added to the log. Please log them again."
+  },
+  "summary": {
+    "title": {
+      "day": "Today",
+      "week": "Last 7 days"
+    },
+    "nutrient": {
+      "energy_kcal": "Calories",
+      "sugars_g": "Sugars",
+      "salt_g": "Salt",
+      "protein_g": "Protein"
+    },
+    "band": {
+      "ok": "Within limit",
+      "near": "Close to limit",
+      "over": "Over limit",
+      "unknown": "Not enough data"
+    },
+    "total_of_limit": "{total} g of {limit} g",
+    "protein_of_target": "{total} g of a {target} g target",
+    "kcal_total": "{total} kcal",
+    "kcal_info": "Calories are shown for information. There is no personal calorie target yet.",
+    "no_protein_target": "No protein target for this member",
+    "nothing_logged": "Nothing logged on this day.",
+    "incomplete": "Some logged items do not show this value on the label, so the real total may be higher.",
+    "limits_note": "Limits pending clinician review.",
+    "sugar_note": "Labels show total sugars, including natural sugars, so this total may be higher than added sugar alone.",
+    "total_g": "{total} g",
+    "week_note": "The week is compared with the daily limit for each day something was logged."
+  },
+  "alternatives": {
+    "title": "Healthier options",
+    "subtitle": "Same kind of product with a better Nutri-Score (calculated by SmartNutri)",
+    "sugars": "Sugars: {value} g per 100 g/ml",
+    "for_member": "For {name}",
+    "compare": "Compare",
+    "reason": {
+      "no_category": "We cannot suggest options for this product yet.",
+      "no_better_found": "We did not find a product with a better Nutri-Score of this kind.",
+      "source_ungraded": "This product does not have enough label data to compare.",
+      "source_supplement": "We do not suggest other products for supplements.",
+      "source_protein_unknown": "This product's label does not show enough protein and energy data to compare protein."
+    }
+  },
+  "search": {
+    "title": "Search products",
+    "off_degraded": "More results will be added later.",
+    "placeholder": "Search by name or brand",
+    "too_short": "Type at least 3 letters.",
+    "no_results": "No products found.",
+    "source": {
+      "ours": "SmartNutri",
+      "off": "Open Food Facts"
+    },
+    "hint": "Find a product by name or brand, then open it or compare it.",
+    "sort_label": "Sort",
+    "sort_relevance": "Best match"
+  },
+  "compare": {
+    "title": "Compare",
+    "pick_second": "Choose a product to compare with",
+    "better_chip": "Better",
+    "better": {
+      "a": "The first product is better here",
+      "b": "The second product is better here",
+      "same": "About the same",
+      "unknown": "Cannot compare: missing on a label"
+    },
+    "row": {
+      "grade": "Nutri-Score (calculated by SmartNutri)",
+      "energy_kcal": "Calories (per 100 g/ml)",
+      "sugars_g": "Sugars (per 100 g/ml)",
+      "salt_g": "Salt (per 100 g/ml)",
+      "sat_fat_g": "Saturated fat (per 100 g/ml)",
+      "protein_g": "Protein (per 100 g/ml)",
+      "fiber_g": "Fibre (per 100 g/ml)"
+    }
+  },
+  "share": {
+    "button": "Share",
+    "weekly_button": "Share our week",
+    "copy_link": "Copy link",
+    "copied": "Link copied",
+    "whatsapp": "Share on WhatsApp",
+    "privacy_note": "Only the product and its grade are shared, plus the result of anyone you tick. Health details stay private.",
+    "result": {
+      "text": "{product} — Nutri-Score {grade} (calculated by SmartNutri). {members}.",
+      "ungraded": "{product} — not enough label data for a Nutri-Score. {members}.",
+      "member": "{who}: {status}",
+      "product_only": "{product} — Nutri-Score {grade} (calculated by SmartNutri).",
+      "product_only_ungraded": "{product} — not enough label data for a Nutri-Score."
+    },
+    "weekly": "Our week on SmartNutri — products checked: {scans}, items logged: {logged}.",
+    "link": "Checked with SmartNutri: {url}",
+    "relation": {
+      "self": "Me",
+      "child": "Child",
+      "parent": "Parent",
+      "spouse": "Spouse",
+      "other": "Family member"
+    },
+    "include": "Add a person's result (optional)",
+    "preview": "Message preview"
+  },
+  "voice": {
+    "word_safe": "safe",
+    "button_hold": "Hold to ask",
+    "recording": "Listening… release to send",
+    "thinking": "Getting your answer…",
+    "playing": "Playing the answer",
+    "mic_denied": "Microphone access is off. Allow it in your settings to ask by voice.",
+    "unsupported_browser": "Voice questions don't work in this browser. Try the latest Chrome, Edge or Firefox.",
+    "too_long": "Please keep your question under 30 seconds.",
+    "not_understood": "We couldn't hear a question. Hold the button and speak clearly.",
+    "rate_limited": "You've reached today's voice-question limit.",
+    "ai_unavailable": "Voice answers are unavailable right now. Please try again later.",
+    "title": "Ask a question",
+    "hint": "Hold the button, ask about this product, then let go. Press Space to start and again to send.",
+    "elapsed": "{seconds} s of 30 s",
+    "no_mic": "We couldn't find a microphone on this device.",
+    "you_asked": "You asked: {question}",
+    "answer_title": "Answer",
+    "replay": "Play again"
+  },
+  "methodology": {
+    "title": "How we score",
+    "intro": "SmartNutri checks each packaged food against its label and each family member's profile using fixed rules. An AI only explains the result; it never decides it. This is information, not medical advice.",
+    "pending_review": "These thresholds are working values, pending review by a clinician.",
+    "sources_title": "Sources",
+    "url_unverified": "Link not yet checked",
+    "version": "Rules version {version}",
+    "section": {
+      "nutriscore_2023": {
+        "title": "Nutri-Score (calculated by SmartNutri)",
+        "description": "We calculate a Nutri-Score grade from the label, using the 2023 update of the method. It is calculated by SmartNutri; it is not an FSSAI rating."
+      },
+      "high_in": {
+        "title": "High in sugar, fat, saturated fat or salt",
+        "description": "A product is marked high in a nutrient when its amount per 100 g or 100 ml is at or above these limits."
+      },
+      "allergens": {
+        "title": "Allergens",
+        "description": "We look for each allergen's ingredient names and for the pack's allergen statements. If the ingredients can't be read, we say the label is unclear, never OK."
+      },
+      "diet": {
+        "title": "Diet",
+        "description": "We look for ingredients that don't fit a member's diet (vegetarian, eggetarian, vegan or Jain) and check the green or brown mark on the pack."
+      },
+      "claims": {
+        "title": "Front-of-pack claims",
+        "description": "We check claims such as \"sugar free\" or \"high protein\" against the label values and the FSSAI limits."
+      },
+      "blood_sugar": {
+        "title": "Blood sugar",
+        "description": "For members managing blood sugar (diabetes, prediabetes or PCOS), we flag products with a lot of sugar, or a lot of carbohydrate per serving, and high salt or saturated fat."
+      },
+      "hypertension": {
+        "title": "Blood pressure",
+        "description": "For members with high blood pressure, we flag products with a lot of salt."
+      },
+      "weight_loss": {
+        "title": "Weight loss",
+        "description": "For members losing weight, we flag energy-dense products and low Nutri-Score grades, and for adults (18 and over) note products with good protein for their calories."
+      },
+      "child": {
+        "title": "Children",
+        "description": "For children, we compare the sugar in 100 g or one serving with a daily sugar limit for their age."
+      },
+      "infant": {
+        "title": "Babies and toddlers",
+        "description": "For babies and toddlers, we flag added sugar, added salt, honey and caffeine, and high sugar or salt."
+      },
+      "custom_alerts": {
+        "title": "Your ingredient alerts",
+        "description": "Ingredients a member asked to be told about, such as palm oil or maida. These are preferences, so there is no source to cite."
+      },
+      "daily_limits": {
+        "title": "Daily limits",
+        "description": "In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed."
+      },
+      "build_muscle": {
+        "title": "Build muscle",
+        "description": "For adult members (18 and over) who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid, and it can't be set for members under 18. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein."
+      },
+      "supplements": {
+        "title": "Supplements",
+        "description": "Protein powders, whey and other supplements get no Nutri-Score grade and are never suggested as alternatives. We still check allergens, diet, claims and each member's rules, and add a caution for children and teenagers (an avoid under 2). When a label lists whey or a protein isolate, or has 50 g or more protein per 100 g, the confirm screen asks whether it is a supplement, and such products are left out of protein-sorted results for members under 18."
+      }
+    },
+    "meta_description": "How SmartNutri checks packaged food for each family member: the fixed rules, their thresholds and sources. Information, not medical advice.",
+    "values": "Rule values",
+    "based_on": "Based on:",
+    "unavailable": "We couldn't load the scoring rules right now. Please try again in a moment."
+  },
+  "report": {
+    "button": "Report a problem",
+    "title": "What's wrong with this product's data?",
+    "reason": {
+      "wrong_values": "The nutrition values are wrong",
+      "wrong_ingredients": "The ingredients are wrong",
+      "wrong_product": "This is a different product",
+      "other": "Something else"
+    },
+    "note_label": "Tell us more (optional)",
+    "submit": "Send report",
+    "thanks": "Thanks. We'll review this product's data.",
+    "reason_label": "What's wrong?",
+    "note_hint": "Please don't include personal or health details.",
+    "sweeteners": "Contains sweeteners",
+    "caffeine": "Contains caffeine"
+  },
+  "legal": {
+    "privacy_title": "Privacy notice",
+    "terms_title": "Terms of use",
+    "privacy_description": "How SmartNutri AI collects, uses and protects your family's data under India's DPDP Act, 2023.",
+    "terms_description": "The terms for using SmartNutri AI. Information, not medical advice.",
+    "english_only": "This document is available in English only for now.",
+    "draft_notice": "Draft: this document is being reviewed by a lawyer before launch.",
+    "version": "Version {version}"
+  },
+  "policy": {
+    "open_failed": "Couldn't open the page. Please try again."
+  },
+  "settings": {
+    "language_system": "Device language",
+    "about_title": "About SmartNutri",
+    "account_title": "Account",
+    "delete_button": "Delete account",
+    "delete_dialog_title": "Delete your account permanently?",
+    "delete_title": "Delete account",
+    "delete_body": "This permanently deletes your account, your family profiles and health data, scans, food logs and label photos. Products you added stay in the shared catalogue without your name. This can't be undone.",
+    "delete_confirm_word": "DELETE",
+    "delete_confirm_label": "Type {word} to confirm",
+    "delete_confirm": "Delete permanently",
+    "deleting": "Deleting your account…",
+    "delete_retrying": "Still deleting. Trying again…",
+    "language_body": "Choose the language for SmartNutri on this device."
+  },
+  "goodbye": {
+    "title": "Your account has been deleted",
+    "body": "Your account and its data have been deleted, and you have been signed out. Thank you for trying SmartNutri.",
+    "meta_title": "Account deleted",
+    "action": "Back to sign in"
+  },
+  "image_quality": {
+    "blur": "The photo is blurred. Hold the phone steady and tap the label to focus.",
+    "glare": "The photo is washed out by light. Turn off the flash or tilt the pack away from the light.",
+    "too_small": "The photo is too small. Take it closer, with the label filling the frame.",
+    "title": "Please retake the photo",
+    "hint_generic": "Take the photo in good light with the whole label in the frame."
+  },
+  "user_types": {
+    "title": "What brings you to SmartNutri?",
+    "subtitle": "We arrange the app around what matters to you. Scanning and results stay the same.",
+    "pick_up_to": "Pick up to 3",
+    "max_reached": "You can pick up to 3.",
+    "skip": "Skip for now",
+    "continue": "Continue",
+    "change_later": "You can change this in Profile",
+    "consent_note": "Choosing some of these may offer to add details to your profile. This is saved only if you confirm, and only with your consent to health data processing.",
+    "edit": "Change your focus",
+    "saved": "Saved",
+    "consent_needed": "Saving health details needs your consent to health data processing.",
+    "tile": {
+      "health_condition": {
+        "title": "A health condition",
+        "subtitle": "Diabetes, prediabetes, PCOS or high blood pressure"
+      },
+      "family": {
+        "title": "My family",
+        "subtitle": "Check food for children, parents or everyone at home"
+      },
+      "weight_loss": {
+        "title": "Losing weight",
+        "subtitle": "See sugar, salt, calories and protein for what you eat"
+      },
+      "gym": {
+        "title": "Gym and fitness",
+        "subtitle": "Track protein and compare protein products"
+      },
+      "allergy_diet": {
+        "title": "A food allergy or special diet",
+        "subtitle": "Check labels for allergens, vegetarian, vegan or Jain"
+      },
+      "eat_better": {
+        "title": "Just eating better",
+        "subtitle": "Compare products and understand labels"
+      }
+    },
+    "follow_up": {
+      "health_condition": {
+        "question": "Which of these apply?"
+      },
+      "family": {
+        "question": "Who are you checking food for?",
+        "children": "Children",
+        "parents": "Parents",
+        "partner": "Partner",
+        "others": "Others"
+      },
+      "gym": {
+        "question": "What is your main goal?",
+        "build_muscle": "Build muscle",
+        "lose_fat": "Lose fat",
+        "stay_fit": "Stay fit"
+      },
+      "allergy_diet": {
+        "allergens_question": "Which allergies should we check for?",
+        "diet_question": "Which diet do you follow?"
+      },
+      "eat_better": {
+        "question": "Ingredients you would like us to point out",
+        "hint": "For example palm oil or artificial sweeteners. You can add these now or later."
+      }
+    },
+    "not_covered": {
+      "title": "Not covered yet",
+      "body": "Thyroid, cholesterol, kidney disease and pregnancy are not covered yet, so results do not take them into account."
+    },
+    "prefill": {
+      "title": "Add these to your profile?",
+      "body": "Nothing is added unless you confirm. Information, not medical advice.",
+      "line": {
+        "conditions": "Health conditions: {values}",
+        "allergens": "Allergies: {values}",
+        "diet": "Diet: {value}",
+        "goal": "Goal: {value}",
+        "custom_alerts": "Ingredient alerts: {values}"
+      },
+      "goal_conflict": "You picked weight loss and gym. Choose one goal for your profile.",
+      "apply": "Add to profile",
+      "not_now": "Not now",
+      "nothing": "Nothing to add.",
+      "goal_neither": "Neither (keep my current goal)"
+    }
+  },
+  "modes": {
+    "name": {
+      "health_condition": "Health condition",
+      "family": "Family",
+      "weight_loss": "Weight loss",
+      "gym": "Gym and fitness",
+      "allergy_diet": "Allergy or diet",
+      "eat_better": "Eating better"
+    },
+    "switcher_label": "Mode",
+    "switch_to": "Switch to {mode}",
+    "current": "Current mode: {mode}",
+    "more": "More",
+    "more_title": "More",
+    "same_checks": "Scanning, results and allergy checks are the same in every mode."
+  },
+  "protein": {
+    "title": "Protein",
+    "progress": "{total} g of {target} g",
+    "guide": "Daily protein guide: {target} g, based on {per_kg} g per kg. Information, not medical advice.",
+    "left_today": "{left} g left today",
+    "no_target": "No daily protein guide yet. Add weight and year of birth for an adult to see one.",
+    "kidney_note": "If you have kidney disease, ask your doctor before eating more protein.",
+    "swaps_title": "Higher-protein options",
+    "swaps_empty": "We did not find a higher-protein option of this kind.",
+    "sort_higher": "Higher protein",
+    "per_serving": "Protein per serving",
+    "per_100g": "Protein per 100 g",
+    "per_100kcal": "Protein per 100 kcal",
+    "not_on_label": "Not on the label",
+    "price_per_scoop": "Price per scoop",
+    "price_label": "Price of the pack",
+    "pack_size_label": "Pack size (g)",
+    "price_note": "The price you type is used on this screen only and is never saved.",
+    "compare": {
+      "protein_serving": "Protein per serving",
+      "protein_100kcal": "Protein per 100 kcal",
+      "sugar": "Sugars",
+      "price_scoop": "Price per scoop"
+    }
+  },
+  "goal": {
+    "healthy_eating": "Eat healthier",
+    "weight_loss": "Lose weight",
+    "weight_gain": "Gain weight",
+    "build_muscle": "Build muscle"
+  },
+  "category": {
+    "supplement": "Supplement"
   }
 }

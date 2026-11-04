@@ -85,3 +85,11 @@ List<String> draftFixtureNames() =>
         .map((n) => n.replaceAll('.json', ''))
         .toList()
       ..sort();
+
+/// Golden `GET /v1/methodology` body (English).
+Methodology methodologyFixture() =>
+    Methodology.fromJson(_readJson('responses/methodology.json'));
+
+/// Golden `POST /v1/voice/ask` body ([name] is e.g. `answer_avoid`).
+VoiceAnswer voiceAnswerFixture(String name) =>
+    VoiceAnswer.fromJson(_readJson('responses/voice/$name.json'));

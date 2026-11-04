@@ -51,6 +51,12 @@ def _auth_invalid() -> ApiError:
     )
 
 
+def auth_invalid_error() -> ApiError:
+    """The 401 `auth_invalid` error, for a verified token that must still be refused (an
+    erased account's token, ruling D1/B1)."""
+    return _auth_invalid()
+
+
 async def _http_fetch(url: str) -> dict:
     async with httpx.AsyncClient(timeout=5) as client:
         response = await client.get(url)

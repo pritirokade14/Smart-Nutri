@@ -1,0 +1,9 @@
+{
+  "status": "caution",
+  "reasons": [
+    {
+      "code": "child_salt_high",
+      "severity": "caution"
+    }
+  ]
+}

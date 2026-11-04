@@ -1,0 +1,55 @@
+{
+  "allergen_statement": "Contains wheat",
+  "brand": "Acme Foods",
+  "category": "general",
+  "claims": [],
+  "confidence": 0.9,
+  "confirm": {
+    "basis_required": false,
+    "category_required": false,
+    "category_suggestion": null,
+    "columns": {
+      "per_100g": {
+        "confirm_fields": [
+          "protein_g"
+        ],
+        "printed": true,
+        "serving_required": false,
+        "shared": false,
+        "sodium_unit_required": false
+      },
+      "per_serving": null
+    }
+  },
+  "derived_from_serving": false,
+  "engine_withheld": [
+    "protein_g"
+  ],
+  "ingredients": [
+    "wheat flour",
+    "edible vegetable oil (palm)",
+    "sugar",
+    "salt"
+  ],
+  "may_contain_statement": "May contain milk",
+  "name": "Masala Crunch",
+  "per_100g": {
+    "added_sugars_g": 4.0,
+    "carbs_g": 20.0,
+    "energy_kcal": 137.0,
+    "fat_g": 5.0,
+    "fiber_g": 1.0,
+    "protein_g": 0.3,
+    "salt_g": 0.5,
+    "sat_fat_g": 2.0,
+    "sodium_mg": 200.0,
+    "sugars_g": 10.0,
+    "trans_fat_g": 0.1
+  },
+  "per_serving": null,
+  "serving_size_g": null,
+  "veg_mark": "veg",
+  "warnings": [
+    "decimal_shift:per_100g.protein_g"
+  ]
+}

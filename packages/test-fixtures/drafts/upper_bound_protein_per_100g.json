@@ -7,6 +7,7 @@
   "confirm": {
     "basis_required": false,
     "category_required": false,
+    "category_suggestion": null,
     "columns": {
       "per_100g": {
         "confirm_fields": [
@@ -49,7 +50,6 @@
   "serving_size_g": null,
   "veg_mark": "veg",
   "warnings": [
-    "energy_mismatch",
     "upper_bound:per_100g.protein_g"
   ]
 }

@@ -1,0 +1,345 @@
+{
+  "explanation": {
+    "language": "en",
+    "member_refs": {},
+    "prompt_version": "explanation_v3",
+    "source": "unavailable",
+    "text": null,
+    "tips": []
+  },
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [],
+    "image_url": null,
+    "ingredients": [
+      "toned milk",
+      "kiwi pulp (8%)",
+      "sugar",
+      "milk solids",
+      "stabiliser (ins 440)",
+      "sweetener (ins 955)",
+      "active cultures"
+    ],
+    "name": "Kiwi Yogurt",
+    "per_100g": {
+      "carbs_g": 15.0,
+      "energy_kcal": 95.0,
+      "fat_g": 2.5,
+      "fiber_g": 0.5,
+      "protein_g": 3.2,
+      "salt_g": 0.1,
+      "sat_fat_g": 1.6,
+      "sodium_mg": null,
+      "sugars_g": 12.0
+    },
+    "product_id": "3998319f-5429-5835-ae6d-d5713fafec2b",
+    "serving_size_g": 100.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "kiwi": "contains",
+      "milk": "contains"
+    },
+    "caffeine": [],
+    "claims": [],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": [
+        "milk",
+        "milk solids"
+      ]
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "C",
+      "partial": true,
+      "points": 4,
+      "reason": null
+    },
+    "protein": {
+      "per_100g": 3.2,
+      "per_100kcal": 3.4,
+      "per_serving": 3.2,
+      "serving_size_g": 100.0
+    },
+    "sodium_additives": [],
+    "sweeteners": [
+      "ins955"
+    ],
+    "veg_mark_mismatch": false
+  },
+  "scan_id": "e99c6c1f-a531-5a6a-953c-7e7dab37870d",
+  "verdicts": [
+    {
+      "is_primary": false,
+      "member_id": "d255f4a6-384b-56ed-b08b-b75d9d8e00db",
+      "member_name": "Alert Child",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "child_sugar_moderate",
+          "params": {
+            "basis": "per_serving",
+            "limit_g": 24.0,
+            "pct": 50.0
+          },
+          "severity": "caution"
+        },
+        {
+          "code": "custom_alert",
+          "params": {
+            "alert": "added_sugar",
+            "ingredients": [
+              "sugar"
+            ]
+          },
+          "severity": "caution"
+        },
+        {
+          "code": "custom_alert",
+          "params": {
+            "alert": "artificial_sweetener",
+            "ingredients": [
+              "ins955"
+            ]
+          },
+          "severity": "caution"
+        }
+      ],
+      "relation": "other",
+      "status": "caution"
+    },
+    {
+      "is_primary": false,
+      "member_id": "850fd0ae-600d-5eb2-adcb-3f758c52d829",
+      "member_name": "Alert Infant",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "infant_added_sugar",
+          "params": {
+            "ingredients": [
+              "sugar"
+            ]
+          },
+          "severity": "avoid"
+        }
+      ],
+      "relation": "other",
+      "status": "avoid"
+    },
+    {
+      "is_primary": false,
+      "member_id": "c731909f-6972-582d-99a2-86c8ac8efb2c",
+      "member_name": "Alert No Age",
+      "profile_set_up": false,
+      "reasons": [
+        {
+          "code": "age_unknown",
+          "params": {},
+          "severity": "unknown"
+        }
+      ],
+      "relation": "other",
+      "status": "unknown"
+    },
+    {
+      "is_primary": false,
+      "member_id": "1e329317-586f-5b80-aaee-d07fd72fc6d6",
+      "member_name": "BP Parent",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
+      "member_id": "7f61a9ae-c697-56ed-8f4f-f73ef1c18dcb",
+      "member_name": "Build Muscle Adult",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
+      "member_id": "03205f4c-4228-5936-93f2-d182aeb2743b",
+      "member_name": "Diabetic Adult",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "added_sugars",
+          "params": {
+            "ingredients": [
+              "sugar"
+            ]
+          },
+          "severity": "caution"
+        },
+        {
+          "code": "sugar_moderate",
+          "params": {
+            "sugars_g": 12.0
+          },
+          "severity": "caution"
+        }
+      ],
+      "relation": "other",
+      "status": "caution"
+    },
+    {
+      "is_primary": false,
+      "member_id": "1d7fee7b-8981-5115-941a-65bb357864d3",
+      "member_name": "Infant",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "infant_added_sugar",
+          "params": {
+            "ingredients": [
+              "sugar"
+            ]
+          },
+          "severity": "avoid"
+        }
+      ],
+      "relation": "other",
+      "status": "avoid"
+    },
+    {
+      "is_primary": false,
+      "member_id": "4aac1a45-e2cc-57f2-af48-8896e0b62866",
+      "member_name": "Jain Adult",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
+      "member_id": "eb5b2e4d-0169-56b0-bf07-17dd84e5713b",
+      "member_name": "Kiwi Child",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "allergen_contains",
+          "params": {
+            "allergen": "kiwi"
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "child_sugar_moderate",
+          "params": {
+            "basis": "per_serving",
+            "limit_g": 24.0,
+            "pct": 50.0
+          },
+          "severity": "caution"
+        }
+      ],
+      "relation": "other",
+      "status": "avoid"
+    },
+    {
+      "is_primary": false,
+      "member_id": "834da0b9-324c-51a2-b07a-719afc7d08f0",
+      "member_name": "Milk Allergic Child",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "allergen_contains",
+          "params": {
+            "allergen": "milk"
+          },
+          "severity": "avoid"
+        },
+        {
+          "code": "child_sugar_moderate",
+          "params": {
+            "basis": "per_serving",
+            "limit_g": 24.0,
+            "pct": 50.0
+          },
+          "severity": "caution"
+        }
+      ],
+      "relation": "other",
+      "status": "avoid"
+    },
+    {
+      "is_primary": false,
+      "member_id": "d4a4c7e7-01cc-521a-a16d-3b3002846e7c",
+      "member_name": "No Age",
+      "profile_set_up": false,
+      "reasons": [
+        {
+          "code": "age_unknown",
+          "params": {},
+          "severity": "unknown"
+        }
+      ],
+      "relation": "other",
+      "status": "unknown"
+    },
+    {
+      "is_primary": false,
+      "member_id": "bc30a168-7266-5118-81e3-bc931399d699",
+      "member_name": "Palm Alert Adult",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
+      "member_id": "defbaa80-4fb3-5075-9f8a-befcf6f78518",
+      "member_name": "Peanut Allergic",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    },
+    {
+      "is_primary": false,
+      "member_id": "4f12ed5d-c075-5b3f-8750-fd594b080946",
+      "member_name": "Vegan Adult",
+      "profile_set_up": true,
+      "reasons": [
+        {
+          "code": "diet_violation",
+          "params": {
+            "diet": "vegan",
+            "ingredients": [
+              "milk",
+              "milk solids"
+            ]
+          },
+          "severity": "avoid"
+        }
+      ],
+      "relation": "other",
+      "status": "avoid"
+    },
+    {
+      "is_primary": false,
+      "member_id": "e5e07704-c60d-5ba7-9330-5e575fb9ff36",
+      "member_name": "Weight Loss Adult",
+      "profile_set_up": true,
+      "reasons": [],
+      "relation": "other",
+      "status": "ok"
+    }
+  ]
+}

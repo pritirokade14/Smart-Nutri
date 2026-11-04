@@ -54,6 +54,9 @@ String warningText(AppLocalizations l10n, String code) => switch (code) {
   'unreadable_field' => l10n.warningUnreadableField,
   'upper_bound' => l10n.warningUpperBound,
   'derived_from_serving' => l10n.warningDerivedFromServing,
+  'fat_parts_mismatch' => l10n.warningFatPartsMismatch,
+  'decimal_shift' => l10n.warningDecimalShift,
+  'column_mismatch' => l10n.warningColumnMismatch,
   _ => l10n.confirmSubtitle,
 };
 

@@ -1,0 +1,74 @@
+{
+  "product": {
+    "attribution": null,
+    "barcode": null,
+    "brand": null,
+    "category": "general",
+    "claims": [],
+    "image_url": null,
+    "ingredients": [
+      "toned milk",
+      "kiwi pulp (8%)",
+      "sugar",
+      "milk solids",
+      "stabiliser (ins 440)",
+      "sweetener (ins 955)",
+      "active cultures"
+    ],
+    "name": "Kiwi Yogurt",
+    "per_100g": {
+      "carbs_g": 15.0,
+      "energy_kcal": 95.0,
+      "fat_g": 2.5,
+      "fiber_g": 0.5,
+      "protein_g": 3.2,
+      "salt_g": 0.1,
+      "sat_fat_g": 1.6,
+      "sodium_mg": null,
+      "sugars_g": 12.0
+    },
+    "product_id": "3998319f-5429-5835-ae6d-d5713fafec2b",
+    "serving_size_g": 100.0,
+    "source": "smartnutri"
+  },
+  "report": {
+    "allergens": {
+      "milk": "contains"
+    },
+    "caffeine": [],
+    "claims": [],
+    "diet_violations": {
+      "eggetarian": [],
+      "jain": [],
+      "non_veg": [],
+      "veg": [],
+      "vegan": [
+        "milk",
+        "milk solids"
+      ]
+    },
+    "dropped_fields": [],
+    "hidden_sugars": [],
+    "high_in": [],
+    "ingredients_known": true,
+    "nutriscore": {
+      "approximated": false,
+      "grade": "C",
+      "partial": true,
+      "points": 4,
+      "reason": null
+    },
+    "protein": {
+      "per_100g": 3.2,
+      "per_100kcal": 3.4,
+      "per_serving": 3.2,
+      "serving_size_g": 100.0
+    },
+    "sodium_additives": [],
+    "sweeteners": [
+      "ins955"
+    ],
+    "veg_mark_mismatch": false
+  },
+  "score_label": "calculated_by_smartnutri"
+}

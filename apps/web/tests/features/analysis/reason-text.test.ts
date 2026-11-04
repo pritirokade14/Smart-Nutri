@@ -80,6 +80,19 @@ const GOLDEN: Golden[] = [
   }, // three-item list
   { product: "cola", member: "no_age", index: 0 }, // age_unknown
   { product: "namkeen", member: "bp_parent", index: 0 }, // salt_high
+  { product: "sf_biscuit", member: "palm_alert_adult", index: 0 }, // custom_alert {alert}
+  { product: "kiwi_yogurt", member: "alert_child", index: 2 }, // custom_alert, INS code
+  { product: "no_ingredients", member: "alert_child", index: 0 }, // custom_alert_unknown {alerts}
+  {
+    product: "synthetic",
+    member: "synthetic",
+    index: 0,
+    reason: {
+      code: "custom_alert",
+      severity: "caution",
+      params: { alert: "artificial_sweetener", ingredients: [] },
+    },
+  }, // custom_alert flag-only (Open Food Facts sweetener flag)
 ];
 
 function resolve(g: Golden): Reason {

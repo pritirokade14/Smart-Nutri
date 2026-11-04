@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/consent/data/consent_required_interceptor.dart';
+import '../../features/consent/domain/consent_error.dart';
+import '../../features/consent/presentation/consent_providers.dart';
 import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import 'auth_interceptor.dart';
@@ -12,8 +15,17 @@ import 'auth_interceptor.dart';
 final apiClientProvider = Provider<SmartNutriApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
   final auth = ref.watch(authRepositoryProvider);
+  // Rebuilt on every sign-in and sign-out, which drops every account-scoped
+  // provider's cached data (members, consents, results) with it.
+  ref.watch(signedInProvider);
   final dio = Dio(BaseOptions(baseUrl: config.apiBaseUrl))
-    ..interceptors.add(AuthInterceptor(auth.accessToken, auth.signOut));
+    ..interceptors.add(AuthInterceptor(auth.accessToken, auth.signOut))
+    ..interceptors.add(
+      ConsentRequiredInterceptor(
+        (purposes) =>
+            ref.read(consentRequestProvider.notifier).request(purposes),
+      ),
+    );
   return SmartNutriApiClient(dio);
 });
 
@@ -42,7 +54,17 @@ String? apiErrorCode(Object error) {
 /// Maps an API error to an `error.<code>` string. Unknown codes fall back to
 /// `error.internal_error`.
 String localizedApiError(AppLocalizations l10n, Object error) =>
-    localizedErrorCode(l10n, apiErrorCode(error));
+    isRouteConsentError(error)
+    ? l10n.consentRequiredToContinue
+    : localizedErrorCode(l10n, apiErrorCode(error));
+
+/// For screens whose calls sit behind the route consent gate (scans, product
+/// create, voice): `consent_required` there means "agree to continue", and
+/// the consent screen is already open. Other codes as [localizedErrorCode].
+String localizedGatedErrorCode(AppLocalizations l10n, String? code) =>
+    code == 'consent_required'
+    ? l10n.consentRequiredToContinue
+    : localizedErrorCode(l10n, code);
 
 /// The `error.<code>` string for an API error code (or `network`). Unknown
 /// codes fall back to `error.internal_error`.
@@ -62,6 +84,7 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'network' => l10n.errorNetwork,
     'image_too_large' => l10n.errorImageTooLarge,
     'unsupported_image' => l10n.errorUnsupportedImage,
+    'image_quality_low' => l10n.errorImageQualityLow,
     'scan_image_not_found' => l10n.errorScanImageNotFound,
     'scan_not_found' => l10n.errorScanNotFound,
     'extraction_failed' => l10n.errorExtractionFailed,
@@ -74,6 +97,26 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'invalid_barcode' => l10n.errorInvalidBarcode,
     'off_unavailable' => l10n.errorOffUnavailable,
     'member_not_found' => l10n.errorMemberNotFound,
+    'member_limit' => l10n.errorMemberLimit,
+    'primary_member' => l10n.errorPrimaryMember,
+    'consent_required' => l10n.errorConsentRequired,
+    'consent_version_mismatch' => l10n.errorConsentVersionMismatch,
+    'portion_required' => l10n.errorPortionRequired,
+    'serving_size_unknown' => l10n.errorServingSizeUnknown,
+    'eaten_at_out_of_range' => l10n.errorEatenAtOutOfRange,
+    'meal_not_found' => l10n.errorMealNotFound,
+    'audio_too_long' => l10n.errorAudioTooLong,
+    'audio_too_large' => l10n.errorAudioTooLarge,
+    'audio_unsupported' => l10n.errorAudioUnsupported,
+    'voice_not_understood' => l10n.errorVoiceNotUnderstood,
+    'ai_unavailable' => l10n.errorAiUnavailable,
+    'deletion_incomplete' => l10n.errorDeletionIncomplete,
+    'phone_otp_disabled' => l10n.errorPhoneOtpDisabled,
+    'payload_too_large' => l10n.errorPayloadTooLarge,
+    'search_query_too_short' => l10n.errorSearchQueryTooShort,
+    'user_type_not_selected' => l10n.errorUserTypeNotSelected,
+    'follow_up_without_type' => l10n.errorFollowUpWithoutType,
+    'user_types_not_found' => l10n.errorUserTypesNotFound,
     'internal_error' => l10n.errorInternalError,
     _ => l10n.errorInternalError,
   };

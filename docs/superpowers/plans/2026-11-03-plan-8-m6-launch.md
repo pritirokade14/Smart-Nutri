@@ -161,7 +161,7 @@ async def delete_me(account=Depends(current_account), session=Depends(get_sessio
 ```
 
 Order:
-1. Storage `labels/{account_id}/` and `voice/{account_id}/`.
+1. Storage `labels/{account_id}/` (and, superseded by ADR 0020 on 2026-11-04, no voice folder: voice audio is never stored).
 2. In one DB transaction: meal_logs → members → scans → product_reports → consents → `UPDATE products SET created_by=NULL WHERE created_by=:id` → accounts.
 3. The auth user.
 
@@ -183,6 +183,8 @@ If step 3 fails, return **503** `deletion_incomplete` (the DB is already clean, 
 ---
 
 ### Task 3: Retention job (30-day photos, 24-hour voice)
+
+> **Note 2026-11-04 (ADR 0020):** the voice part is removed. No voice audio is stored, so the job has no voice window or bucket: `RetentionResult` is `photos_deleted, scans_nulled, tombstones_purged, ...` and there is no `--voice-hours`.
 
 **Files:**
 - Create: `apps/api/app/jobs/__init__.py`, `apps/api/app/jobs/retention.py`, `apps/api/tests/unit/test_retention.py`
@@ -326,7 +328,7 @@ async def send_sms(request: Request) -> dict   # verifies Standard Webhooks sign
   - `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`
   - `SUPABASE_DB_PASSWORD`, `DATABASE_URL` (Session pooler, `aws-0-ap-south-1`)
 
-  Run: `cd apps/api && set -a && . ./.env.production && set +a && uv run alembic upgrade head`. Expected: the migration log ends at the head revision with no errors. This includes the storage buckets `label-photos` and `voice-answers` (private) if they are created by migrations; otherwise add a migration `create_storage_buckets` (`insert into storage.buckets … on conflict do nothing`, with storage RLS policies) and rerun.
+  Run: `cd apps/api && set -a && . ./.env.production && set +a && uv run alembic upgrade head`. Expected: the migration log ends at the head revision with no errors. This includes the storage bucket `label-photos` (private; no voice bucket since ADR 0020) if it are created by migrations; otherwise add a migration `create_storage_buckets` (`insert into storage.buckets … on conflict do nothing`, with storage RLS policies) and rerun.
 - [ ] **Step 3:** Claude configures prod Auth:
   - Site URL `https://<domain>` (from Task 11; use the Cloud Run web URL until then).
   - Redirect URLs `https://<domain>/**` and `com.smartnutri.app://login-callback`.
@@ -410,7 +412,7 @@ gcloud scheduler jobs create http smartnutri-retention-daily --location asia-sou
 gcloud projects add-iam-policy-binding smartnutri-513518 --member="serviceAccount:smartnutri-api-sa@smartnutri-513518.iam.gserviceaccount.com" --role=roles/run.invoker
 ```
 
-  Expected: the execution succeeds, and the logs show `photos_deleted=0 voice_deleted=0 scans_nulled=0`.
+  Expected: the execution succeeds, and the logs show `photos_deleted=0 scans_nulled=0 tombstones_purged=0` (no voice count since ADR 0020).
 - [ ] **Step 5:** Run `uv run --with httpx python scripts/load_smoke.py --base-url https://<api-run-url> --rps 20 --seconds 60 --barcode <seeded>`. Expected: exit 0. Record the numbers in `docs/launch/RELEASE_CHECKLIST.md`.
 
 ---

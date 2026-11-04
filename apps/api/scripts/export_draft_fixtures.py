@@ -182,6 +182,12 @@ CASES: dict[str, Case] = {
             {},
         ],
     ),
+    "sodium_unit_suspect": Case(
+        'Sodium-only label printing "0.4 g", read as 0.4 mg with no salt to check it: sodium '
+        "is withheld and the user picks mg or g (EF2).",
+        _ex(per_100g=_n(_V, salt_g=None, sodium_mg=0.4)),
+        [{"sodium_unit": "g"}, {"sodium_unit": "mg"}, {}],
+    ),
     "upper_bound_protein_per_100g": Case(
         'Protein printed as "<0.5 g": stored only when ticked.',
         _ex(per_100g=_n(_V, protein_g=0.5), upper_bound_fields=["per_100g.protein_g"]),
@@ -248,6 +254,17 @@ CASES: dict[str, Case] = {
             {"pick_basis": "per_serving", "pick_category": "beverage", **_TICK_SERVING},
         ],
     ),
+    "supplement_suggested": Case(
+        "Whey protein concentrate listed (P9 safety S5): `confirm.category_suggestion` is "
+        '"supplement" and the category must be picked (never preselected); either pick is '
+        "saved as is.",
+        _ex(
+            product_name="Choco Protein Mix",
+            ingredients=["whey protein concentrate", "cocoa", "sucralose"],
+            allergen_statement="Contains milk",
+        ),
+        [{"pick_category": "supplement"}, {"pick_category": "general"}, {}],
+    ),
     "category_unknown": Case(
         "No category guess: the user must pick the category.",
         _ex(category_guess=None),
@@ -261,6 +278,38 @@ CASES: dict[str, Case] = {
         "More sugar than carbohydrate: the save is rejected until the user fixes it.",
         _ex(per_100g=_n(_V, sugars_g=40.0)),
         [{}, {"edit": {"sugars_g": 10.0}}],
+    ),
+    "energy_decimal_shift": Case(
+        "Fat read as 50 instead of 5.0: energy disagrees with the macros, fat is named as a "
+        "likely decimal slip, and every field in the energy check needs a tick (label v2).",
+        _ex(per_100g=_n(_V, fat_g=50.0)),
+        [
+            {"tick": ["energy_kcal", "protein_g", "carbs_g", "fat_g", "fiber_g"]},
+            {"edit": {"fat_g": 5.0}, "tick": ["energy_kcal", "protein_g", "carbs_g", "fiber_g"]},
+            {},
+        ],
+    ),
+    "decimal_shift_tight": Case(
+        "Protein 3.0 read as 0.3: energy is still within the loose tolerance, but protein x 10 "
+        "fits exactly, so protein alone is named and withheld until ticked or fixed (EF3).",
+        _ex(per_100g=_n(_V, energy_kcal=137.0, protein_g=0.3)),
+        [{"tick": ["protein_g"]}, {"edit": {"protein_g": 3.0}}, {}],
+    ),
+    "salt_sodium_mismatch": Case(
+        "Salt read as 5.0 next to sodium 200 mg: both are withheld until ticked (label v2).",
+        _ex(per_100g=_n(_V, salt_g=5.0)),
+        [{"tick": ["salt_g", "sodium_mg"]}, {"edit": {"salt_g": 0.5}, "tick": ["sodium_mg"]}, {}],
+    ),
+    "column_mismatch": Case(
+        "Per-serving sugars 6 g where 30 g of a 10 g/100 g food gives 3 g: the columns "
+        "disagree, so sugars is withheld whichever column is saved (label v2).",
+        _ex(basis_detected="both", per_serving=_n(_S, sugars_g=6.0), serving_size_g=30),
+        [
+            {"tick": ["sugars_g", "serving_size_g"]},
+            {"pick_basis": "per_serving", "tick": ["sugars_g", "serving_size_g"]},
+            {"pick_basis": "per_serving", **_TICK_SERVING},
+            {},
+        ],
     ),
     "devanagari": Case(
         "Hindi ingredient and allergen text: kept in its script, nothing extra to ask.",

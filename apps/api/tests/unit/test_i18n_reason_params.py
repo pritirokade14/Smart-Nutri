@@ -22,7 +22,7 @@ import pytest
 
 from app.scoring.claims import _PATTERNS
 from app.scoring.config import load_config
-from app.scoring.models import Category, Diet, Member, Nutrients, Product
+from app.scoring.models import CUSTOM_ALERT_KEYS, Category, Diet, Member, Nutrients, Product
 from app.scoring.verdict import analyze
 
 MESSAGES = Path(__file__).parents[4] / "packages" / "i18n" / "messages"
@@ -39,11 +39,20 @@ REASON_VARIANTS: dict[str, tuple[str, Callable[[Mapping[str, Any]], bool]]] = {
         lambda p: p.get("reason") == "low_confidence",
     ),
     "diet_violation_mark_only": ("diet_violation", lambda p: not p["ingredients"]),
+    # The Open Food Facts sweetener flag, with no matching ingredient term (Ruling P7).
+    "custom_alert_flag_only": ("custom_alert", lambda p: not p["ingredients"]),
 }
 
 # Params whose value is a code the client maps through a label namespace before interpolating.
 # A list value (e.g. high_in) is mapped item by item and joined by the client.
-CODE_PARAMS = {"diet": "diet", "claim": "claim", "nutrient": "nutrient", "high_in": "nutrient"}
+CODE_PARAMS = {
+    "diet": "diet",
+    "claim": "claim",
+    "nutrient": "nutrient",
+    "high_in": "nutrient",
+    "alert": "alert",
+    "alerts": "alert",
+}
 
 
 # --- minimal ICU walker (no dependency) -------------------------------------------------
@@ -213,6 +222,38 @@ PRODUCTS = [
     ),
     # Nutrients known, ingredients unknown (infant numeric rules).
     Product(name="numbers-only", per_100g=Nutrients(sugars_g=10, salt_g=0.5, energy_kcal=100)),
+    # Plan 9 protein and whey claims: below the claimed amount, another protein source,
+    # whey not listed (all contradicted), and a per-scoop claim with no serving size.
+    Product(
+        name="whey-claims",
+        per_100g=Nutrients(energy_kcal=400, protein_g=25, carbs_g=50, sugars_g=5, fat_g=8),
+        serving_size_g=30,
+        ingredients=("soy protein isolate", "cocoa"),
+        claims=("40g protein per scoop", "100% whey", "whey protein"),
+    ),
+    Product(
+        name="whey-no-serving",
+        per_100g=Nutrients(energy_kcal=400, protein_g=80, carbs_g=8, sugars_g=4, fat_g=6),
+        ingredients=("whey protein concentrate",),
+        claims=("24g protein per scoop", "90 g protein"),
+    ),
+    # Plan 9 Task 7: a supplement (supplement_child, supplement_infant, age_unknown).
+    Product(
+        name="supplement",
+        category=Category.SUPPLEMENT,
+        per_100g=Nutrients(
+            energy_kcal=400, protein_g=80, carbs_g=8, sugars_g=4, fat_g=6, sat_fat_g=3, salt_g=0.5
+        ),
+        serving_size_g=30,
+        ingredients=("whey protein concentrate", "cocoa"),
+    ),
+    # Open Food Facts sweetener flag with no sweetener term in the ingredients.
+    Product(
+        name="flagged-sweetener",
+        per_100g=Nutrients(energy_kcal=1, sugars_g=0, salt_g=0.01),
+        ingredients=("carbonated water", "acidity regulator (ins 338)"),
+        contains_sweeteners=True,
+    ),
 ]
 
 _ALLERGIES = ("milk", "peanut", "kiwi", "sesame")
@@ -233,6 +274,8 @@ MEMBERS = [
     Member(id="infant", name="I", age=1, diet=Diet.VEG),
     # No age: meant to trigger age_unknown on products with child/infant warnings.
     Member(id="no-age", name="N", diet=Diet.VEG),
+    # Every ingredient alert on: custom_alert, its flag-only variant and custom_alert_unknown.
+    Member(id="alerts", name="L", age=30, custom_alerts=CUSTOM_ALERT_KEYS),
 ]
 
 
@@ -356,6 +399,32 @@ def test_diet_violation_without_ingredients_always_has_the_brown_mark(emitted) -
     empty = [p for p in reasons["diet_violation"] if not p["ingredients"]]
     assert empty, "the mark-only case was not triggered"
     assert all(p.get("mark") == "non_veg" for p in empty)
+
+
+def test_custom_alert_codes_are_emitted_with_their_params(emitted) -> None:
+    reasons, _ = emitted
+    assert {p["alert"] for p in reasons["custom_alert"] if p["ingredients"]} >= {
+        "added_sugar",
+        "msg",
+    }
+    flag_only = [p for p in reasons["custom_alert"] if not p["ingredients"]]
+    assert flag_only, "the flag-only case was not triggered"
+    # The flag-only variant is worded for the sweetener flag only.
+    assert {p["alert"] for p in flag_only} == {"artificial_sweetener"}
+    assert reasons["custom_alert_unknown"]
+    for p in reasons["custom_alert_unknown"]:
+        assert p["alerts"] and list(p["alerts"]) == [
+            k for k in CUSTOM_ALERT_KEYS if k in p["alerts"]
+        ]
+
+
+@pytest.mark.parametrize("locale", ["en", "hi", "mr"])
+def test_custom_alert_messages_and_labels_exist(locale) -> None:
+    msgs = json.loads((MESSAGES / f"{locale}.json").read_text(encoding="utf-8"))
+    assert {"custom_alert", "custom_alert_unknown"} <= set(msgs["reason"])
+    assert "custom_alert_flag_only" in msgs["reason_variant"]
+    assert sorted(msgs["alert"]) == sorted(CUSTOM_ALERT_KEYS)
+    assert all(v.strip() for v in msgs["alert"].values())
 
 
 def test_code_params_have_label_keys(emitted, en) -> None:

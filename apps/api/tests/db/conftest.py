@@ -39,6 +39,8 @@ TABLES = {
     "product_reports",
     "rate_limit_counters",
     "explanation_cache",
+    "deleted_accounts",
+    "account_user_types",
 }
 
 _ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")
@@ -294,6 +296,14 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
         ),
         {"id": ids["report"], "p": product, "acc": ids["account"]},
     )
+    # One user-types row per account (Plan 9, P9-R1); its key is the account id.
+    await db.execute(
+        text(
+            "insert into account_user_types (account_id, types, follow_ups) "
+            """values (:acc, '{gym}', '{"gym_goal": "stay_fit"}'::jsonb)"""
+        ),
+        {"acc": ids["account"]},
+    )
     return Seed(**ids)
 
 
@@ -324,6 +334,8 @@ async def two_accounts(db: AsyncConnection) -> TwoAccounts:
         ),
         {"p": product},
     )
+    # A tombstone of some earlier, erased account (D1/B1).
+    await db.execute(text("insert into deleted_accounts (id) values (:id)"), {"id": uuid.uuid4()})
     seed_a = await _seed(db, "A", product)
     seed_b = await _seed(db, "B", product)
     return TwoAccounts(

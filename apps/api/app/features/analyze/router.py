@@ -1,4 +1,3 @@
-from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -7,11 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import Settings, get_app_settings
 from app.core.errors import ERROR_RESPONSES, ErrorEnvelope
 from app.core.ratelimit import limit
+from app.core.time import today_ist
 from app.db.session import get_session
 from app.features.analyze import service
 from app.features.analyze.schemas import AnalyzeOut, AnalyzeRequest
 from app.features.me.dependencies import CurrentAccount, current_account_row
+from app.integrations.callmissed import get_llm_provider
 from app.integrations.openfoodfacts import OffClient, get_off_client
+from app.integrations.providers import LLMProvider
 
 router = APIRouter(prefix="/v1/analyze", tags=["analyze"])
 
@@ -34,6 +36,7 @@ async def analyze_create(
     session: Annotated[AsyncSession, Depends(get_session)],
     off: Annotated[OffClient, Depends(get_off_client)],
     settings: Annotated[Settings, Depends(get_app_settings)],
+    llm: Annotated[LLMProvider, Depends(get_llm_provider)],
 ) -> AnalyzeOut:
     return await service.analyze_for_account(
         session,
@@ -41,5 +44,7 @@ async def analyze_create(
         current.ctx.account_id,
         body,
         settings=settings,
-        today=datetime.now(UTC).date(),
+        today=today_ist(),
+        llm=llm,
+        email=current.ctx.email,
     )

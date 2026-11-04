@@ -41,3 +41,14 @@ Use the **CallMissed API** as the single AI and messaging gateway:
   - `402 insufficient_credits` and `429` are handled explicitly, with credit-balance alerts.
   - Device STT and TTS remain a fallback.
 - **The `cm_` key must never leave the backend.** The browser voice widget (publishable `pk_` key and signed tokens) is a v2 option.
+
+## Amendment (2026-11-04): voice question name redaction is spelling-based
+
+- **Context:** Ruling V1 S2 replaces every account member's name in the transcribed voice question with "this member" before the question goes to the LLM (`app/features/voice/answer.py`, `redact_names`).
+- **Accepted limitation:** the redaction matches the names as stored (full name and each part, with case, Unicode form and Hindi/Marathi case endings folded). It does not catch:
+  - a transliteration (stored "Asha", spoken "आशा", or the reverse);
+  - a nickname or short form ("Ravi" stored, "Ravu" spoken);
+  - a misheard speech-to-text spelling.
+- **Why it is acceptable for v1:** the question still goes only to an India-processed model (`data_residency = "in"`), carries no member id or email, and is never stored or logged. The output guard drops any answer containing a stored member name, so a name is not spoken back from its stored spelling. Voice stays off (`VOICE_ENABLED=false`) until the 24 h retention is live and the paid probe is approved.
+- **Revisit:** before voice is enabled in production, consider transliteration-aware matching (Latin and Devanagari forms of each name) and asking users not to say names in the voice hint.
+

@@ -8,13 +8,14 @@ import hashlib
 import logging
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
 import anyio
 import sentry_sdk
-from pydantic import ValidationError
-from sqlalchemy import select, update
+from pydantic import BaseModel, ValidationError
+from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,7 +23,8 @@ from app.core.config import Settings
 from app.core.errors import ApiError
 from app.core.ratelimit import consume, refund
 from app.features.scans.api_schemas import LabelScanIn, ScanDraftOut
-from app.features.scans.images import InvalidImage, prepare_for_extraction, sniff_image_mime
+from app.features.scans.cells import extraction_schema, to_extraction
+from app.features.scans.images import InvalidImage, prepare_with_quality, sniff_image_mime
 from app.features.scans.models import SCAN_PATH_INDEX, Scan
 from app.features.scans.normalize import ProductDraft, to_draft
 from app.features.scans.schemas import NutritionExtraction
@@ -56,17 +58,19 @@ async def add_scan(
 #
 # A label scan stores its normalised draft and the raw model output in ``scans.analysis`` as
 #   {"draft": ProductDraft.model_dump(mode="json"),
-#    "extraction": NutritionExtraction.model_dump(mode="json"),
+#    "extraction": <the raw model output: NutritionExtraction (extraction_v1) or
+#                   NutritionExtractionV2 (extraction_v2, verbatim cells)>,
 #    "prompt_version": "...", "model": "<the model that produced the extraction>"}
 # Build it with ``label_scan_analysis``; read it back with ``get_label_scan``. The raw
-# extraction is the cache entry (R16): every reuse re-runs ``to_draft`` on it, so normaliser
-# safety fixes apply to old extractions too.
+# extraction is the cache entry (R16): every reuse re-parses it (``cells.to_extraction``)
+# and re-runs ``to_draft`` on it, so parser and normaliser safety fixes apply to old
+# extractions too. Its schema is the one of its ``prompt_version``.
 
 
 def label_scan_analysis(
     draft: ProductDraft,
     *,
-    extraction: NutritionExtraction,
+    extraction: BaseModel,
     prompt_version: str,
     model: str,
 ) -> dict[str, Any]:
@@ -161,17 +165,25 @@ def _cache_key(image_sha256: str, prompt_version: str, model: str) -> list[Any]:
     ]
 
 
-def _extraction_of(analysis: Any, prompt_version: str) -> NutritionExtraction | None:
+def _raw_extraction_of(analysis: Any, prompt_version: str) -> BaseModel | None:
+    """The stored raw model output, validated with its prompt version's schema (None when it
+    cannot be read)."""
     try:
-        return NutritionExtraction.model_validate(analysis["extraction"])
+        return extraction_schema(prompt_version).model_validate(analysis["extraction"])
     except (ValidationError, KeyError, TypeError):
         logger.warning("label_extraction cache_entry_invalid prompt_version=%s", prompt_version)
         return None
 
 
+def _extraction_of(analysis: Any, prompt_version: str) -> NutritionExtraction | None:
+    """The stored raw extraction, parsed for the normaliser (v2 cells -> values, in code)."""
+    raw = _raw_extraction_of(analysis, prompt_version)
+    return None if raw is None else to_extraction(raw)
+
+
 async def _cached_extraction(
     session: AsyncSession, image_sha256: str, prompt_version: str, model: str
-) -> NutritionExtraction | None:
+) -> BaseModel | None:
     """The newest raw extraction of these exact image bytes (any account), for this prompt
     version and model. Only the extraction is reused: never another account's scan id, path
     or product."""
@@ -181,7 +193,7 @@ async def _cached_extraction(
         .order_by(Scan.created_at.desc())
         .limit(1)
     )
-    return None if analysis is None else _extraction_of(analysis, prompt_version)
+    return None if analysis is None else _raw_extraction_of(analysis, prompt_version)
 
 
 async def _scan_at_path(session: AsyncSession, account_id: UUID, path: str) -> Scan | None:
@@ -216,23 +228,58 @@ async def _existing_scan_out(session: AsyncSession, scan: Scan) -> ScanDraftOut:
 
 
 async def _extract(
-    llm: LLMProvider, image: bytes, *, prompt: str, prompt_version: str, model: str
-) -> NutritionExtraction:
-    """One paid extraction. ProviderUnavailable (no paid call happened) propagates."""
+    llm: LLMProvider,
+    image: bytes,
+    *,
+    prompt: str,
+    prompt_version: str,
+    model: str,
+    fallback_model: str | None,
+    reasoning_effort: str | None,
+) -> BaseModel:
+    """One paid extraction: the raw output in the prompt version's schema (stored as is).
+    `fallback_model` is tried once if `model` fails upstream (ADR 0021).
+    ProviderUnavailable (no paid call happened) propagates."""
+    schema = extraction_schema(prompt_version)
     try:
         extraction = await llm.extract_label(
             image=image,
             mime=EXTRACTION_MIME,
             prompt=prompt,
             prompt_version=prompt_version,
-            schema=NutritionExtraction,
+            schema=schema,
             model=model,
+            fallback_model=fallback_model,
+            reasoning_effort=reasoning_effort,
         )
     except ExtractionFailed:
         raise ApiError("extraction_failed", 502) from None
-    if not isinstance(extraction, NutritionExtraction):
+    if not isinstance(extraction, schema):
         raise ApiError("extraction_failed", 502)
     return extraction
+
+
+async def _replace_stored_photo(storage: StorageClient, path: str, prepared: bytes) -> None:
+    """Overwrite the uploaded photo with its re-encode (ruling D1/S4).
+
+    The re-encode is the JPEG the model gets: EXIF orientation applied, long edge at most
+    1600 px, and no metadata (EXIF, GPS, XMP), so a phone's location is not kept for the 30
+    days of photo retention. Best effort: if storage fails, the scan still succeeds (failing
+    it would not remove the original) and the retention job deletes the photo on schedule.
+    """
+    try:
+        await storage.upload(path, prepared, EXTRACTION_MIME, upsert=True)
+    except StorageUnavailable:
+        logger.warning("label_photo_strip status=unavailable")
+
+
+async def _discard_upload(storage: StorageClient, path: str) -> None:
+    """Delete an upload that was rejected (too large, not an image, undecodable): no scan
+    refers to it, and it may carry EXIF/GPS. Best effort; the error response is unchanged."""
+    try:
+        await storage.delete_paths([path])
+    except StorageUnavailable:
+        logger.warning("label_photo_discard status=unavailable")
 
 
 async def create_label_scan(
@@ -275,12 +322,14 @@ async def create_label_scan(
     except StorageUnavailable:
         raise ApiError("storage_unavailable", 503) from None
     if len(data) > MAX_IMAGE_BYTES:
+        await _discard_upload(storage, body.path)
         raise ApiError("image_too_large", 413)
     if sniff_image_mime(data) is None:
+        await _discard_upload(storage, body.path)
         raise ApiError("unsupported_image", 415)
 
     image_sha256 = hashlib.sha256(data).hexdigest()
-    prompt, prompt_version = load_extraction_prompt()
+    prompt, prompt_version = load_extraction_prompt(settings.extraction_prompt_version)
     model = settings.callmissed_extraction_model
 
     extraction = await _cached_extraction(session, image_sha256, prompt_version, model)
@@ -289,16 +338,36 @@ async def create_label_scan(
         # Count before decode (R15): undecodable uploads cost a scan too. Nothing is staged
         # yet, so the limiter's commit only persists the counter.
         await consume(session, settings, account_id=account_id, bucket="label_scans")
-        try:
-            prepared = await anyio.to_thread.run_sync(prepare_for_extraction, data)
-        except InvalidImage:
-            raise ApiError("unsupported_image", 415) from None
+    # Decoded on a cache hit too: the stored photo is replaced either way (D1/S4).
+    try:
+        image = await anyio.to_thread.run_sync(prepare_with_quality, data)
+    except InvalidImage:
+        await _discard_upload(storage, body.path)
+        raise ApiError("unsupported_image", 415) from None
+    if extraction is None and not image.quality.ok:
+        # Label v2 quality gate: a clearly unreadable photo goes back for a retake BEFORE the
+        # paid call. Nothing was paid for, so the scan is given back; nothing is staged.
+        await refund(session, settings, account_id=account_id, bucket="label_scans")
+        await _discard_upload(storage, body.path)
+        logger.info("label_extraction quality_low reasons=%s", ",".join(image.quality.reasons))
+        raise ApiError("image_quality_low", 422, details={"reasons": list(image.quality.reasons)})
+    prepared = image.jpeg
+    await session.commit()  # release the DB connection before the storage call
+    await _replace_stored_photo(storage, body.path, prepared)
+
+    if extraction is None:
         logger.info(
             "label_extraction cached=false prompt_version=%s model=%s", prompt_version, model
         )
         try:
             extraction = await _extract(
-                llm, prepared, prompt=prompt, prompt_version=prompt_version, model=model
+                llm,
+                prepared,
+                prompt=prompt,
+                prompt_version=prompt_version,
+                model=model,
+                fallback_model=settings.callmissed_extraction_fallback_model,
+                reasoning_effort=settings.callmissed_extraction_reasoning_effort,
             )
         except ProviderUnavailable as exc:
             # Refused before any paid call: give the scan back (R16). Nothing is staged.
@@ -306,12 +375,18 @@ async def create_label_scan(
             logger.error("label_extraction unavailable reason=%s", exc.reason)
             if exc.reason == "insufficient_credits":
                 # Ops alert. No image, label content or account data in the event.
-                sentry_sdk.capture_message("callmissed insufficient_credits", level="error")
+                # The message is redacted by scrub_event (D1/S3): the tag names the alert.
+                sentry_sdk.capture_message(
+                    "callmissed insufficient_credits",
+                    level="error",
+                    tags={"alert": "callmissed_insufficient_credits"},
+                )
             raise ApiError("extraction_unavailable", 503) from None
     else:
         logger.info("label_extraction cached=true prompt_version=%s", prompt_version)
 
-    draft = to_draft(extraction)  # always the current normaliser, cached or not
+    # Always the current parser and normaliser, cached or not; the raw output is stored.
+    draft = to_draft(to_extraction(extraction))
     scan_id = uuid4()
     scan = Scan(
         id=scan_id,
@@ -327,6 +402,8 @@ async def create_label_scan(
             ),
             "cached": cached,
             "barcode": barcode,
+            # Label v2: the photo's quality signals (no image content), for calibration.
+            "quality": image.quality.as_dict(),
         },
     )
     try:
@@ -344,3 +421,21 @@ async def create_label_scan(
         return await _existing_scan_out(session, winner)
     await session.commit()
     return ScanDraftOut(scan_id=scan_id, draft=draft, cached=cached, prompt_version=prompt_version)
+
+
+async def count_analyses(
+    session: AsyncSession, account_id: UUID, start: datetime, end: datetime
+) -> int:
+    """Products checked (``POST /v1/analyze`` scans, whose analysis holds ``verdicts``) with
+    start <= created_at < end. Label-photo scans are not checks and are not counted."""
+    count = await session.scalar(
+        select(func.count())
+        .select_from(Scan)
+        .where(
+            Scan.account_id == account_id,
+            Scan.analysis.has_key("verdicts"),
+            Scan.created_at >= start,
+            Scan.created_at < end,
+        )
+    )
+    return int(count or 0)

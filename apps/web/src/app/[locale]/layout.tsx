@@ -4,6 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { clientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
+import { fontVariables } from "../fonts";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -26,8 +27,8 @@ export default async function LocaleLayout({
   // Client components get the catalogue minus the verdict/health namespaces.
   const messages = clientMessages(await getMessages());
   return (
-    <html lang={locale}>
-      <body>
+    <html lang={locale} className={fontVariables}>
+      <body className="min-h-dvh bg-surface-canvas font-sans text-text-primary antialiased">
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

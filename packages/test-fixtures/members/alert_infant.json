@@ -1,0 +1,13 @@
+{
+  "id": "alert_infant",
+  "name": "Alert Infant",
+  "age": 1,
+  "diet": "veg",
+  "allergens": [],
+  "conditions": [],
+  "goal": null,
+  "custom_alerts": [
+    "palm_oil",
+    "msg"
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "bands": {
+    "kcal": "unknown",
+    "protein_g": "unknown",
+    "salt_g": "ok",
+    "sugar_g": "over"
+  },
+  "days": [
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "ok",
+        "sugar_g": "ok"
+      },
+      "date": "2026-10-28",
+      "incomplete": {
+        "energy_kcal": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 1,
+      "totals": {
+        "energy_kcal": 155.6,
+        "protein_g": 5.2,
+        "salt_g": 0.0,
+        "sugars_g": 0.4
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "ok",
+        "sugar_g": "ok"
+      },
+      "date": "2026-10-29",
+      "incomplete": {
+        "energy_kcal": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 1,
+      "totals": {
+        "energy_kcal": 225.0,
+        "protein_g": 4.0,
+        "salt_g": 0.5,
+        "sugars_g": 1.0
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "unknown",
+        "sugar_g": "unknown"
+      },
+      "date": "2026-10-30",
+      "incomplete": {
+        "energy_kcal": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 0,
+      "totals": {
+        "energy_kcal": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "ok",
+        "sugar_g": "over"
+      },
+      "date": "2026-10-31",
+      "incomplete": {
+        "energy_kcal": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 1,
+      "totals": {
+        "energy_kcal": 138.6,
+        "protein_g": 0.0,
+        "salt_g": 0.0,
+        "sugars_g": 35.0
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "ok",
+        "sugar_g": "unknown"
+      },
+      "date": "2026-11-01",
+      "incomplete": {
+        "energy_kcal": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": true
+      },
+      "items": 1,
+      "totals": {
+        "energy_kcal": 123.0,
+        "protein_g": 3.3,
+        "salt_g": 0.4,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "unknown",
+        "sugar_g": "unknown"
+      },
+      "date": "2026-11-02",
+      "incomplete": {
+        "energy_kcal": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 0,
+      "totals": {
+        "energy_kcal": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "ok",
+        "sugar_g": "ok"
+      },
+      "date": "2026-11-03",
+      "incomplete": {
+        "energy_kcal": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 2,
+      "totals": {
+        "energy_kcal": 225.0,
+        "protein_g": 8.0,
+        "salt_g": 0.9,
+        "sugars_g": 4.9
+      }
+    }
+  ],
+  "end": "2026-11-03",
+  "incomplete": {
+    "energy_kcal": false,
+    "protein_g": false,
+    "salt_g": false,
+    "sugars_g": true
+  },
+  "limits": {
+    "kcal": null,
+    "protein_g_per_kg": 0.83,
+    "protein_target_g": 58.1,
+    "salt_g": 5.0,
+    "sugar_g": 25.0
+  },
+  "member_id": "893abc63-23d3-581a-8afe-6488a50f33df",
+  "pending_clinician_review": true,
+  "period": "week",
+  "protein_left_g": null,
+  "start": "2026-10-28",
+  "totals": {
+    "energy_kcal": 867.2,
+    "protein_g": 20.5,
+    "salt_g": 1.7,
+    "sugars_g": 41.3
+  }
+}

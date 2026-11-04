@@ -1,0 +1,13 @@
+{
+  "id": "alert_no_age",
+  "name": "Alert No Age",
+  "age": null,
+  "diet": "non_veg",
+  "allergens": [],
+  "conditions": [],
+  "goal": null,
+  "custom_alerts": [
+    "maida",
+    "msg"
+  ]
+}

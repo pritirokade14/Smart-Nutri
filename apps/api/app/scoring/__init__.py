@@ -1,6 +1,10 @@
 from app.scoring.claims import ClaimCheck
 from app.scoring.config import load_config
+from app.scoring.custom_alerts import custom_alert_reasons
+from app.scoring.daily_limits import DailyLimits, daily_limits_for, nutrient_band
+from app.scoring.methodology import methodology
 from app.scoring.models import (
+    CUSTOM_ALERT_KEYS,
     AllergenState,
     Category,
     ClaimVerdict,
@@ -8,18 +12,22 @@ from app.scoring.models import (
     Member,
     Nutrients,
     Product,
+    ProteinFacts,
     Reason,
     Status,
 )
 from app.scoring.nutriscore import NutriScoreResult
+from app.scoring.supplements import hides_supplement_suspects, supplement_suspect
 from app.scoring.verdict import AnalysisResult, MemberVerdict, ProductReport, analyze
 
 __all__ = [
+    "CUSTOM_ALERT_KEYS",
     "AllergenState",
     "AnalysisResult",
     "Category",
     "ClaimCheck",
     "ClaimVerdict",
+    "DailyLimits",
     "Diet",
     "Member",
     "MemberVerdict",
@@ -27,8 +35,15 @@ __all__ = [
     "Nutrients",
     "Product",
     "ProductReport",
+    "ProteinFacts",
     "Reason",
     "Status",
     "analyze",
+    "custom_alert_reasons",
+    "daily_limits_for",
+    "hides_supplement_suspects",
     "load_config",
+    "methodology",
+    "nutrient_band",
+    "supplement_suspect",
 ]

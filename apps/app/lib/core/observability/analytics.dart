@@ -1,20 +1,46 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../config/app_config.dart';
 
-/// Same allow-list as the API (observability.py) and web (lib/analytics.ts).
-/// No health data (conditions, allergies, diets, verdicts, names) ever.
-const Set<String> allowedEventProps = {
-  'platform',
-  'locale',
-  'screen',
-  'status_code',
-  'source',
+/// The only events the app sends, and the properties each may carry. Mirrors
+/// `ALLOWED_EVENTS` in `apps/api/app/integrations/posthog.py` exactly (and
+/// the web's `analytics.ts`). No health data ever: no conditions, allergens,
+/// diets, statuses, reasons, nutrients, names, emails or ids.
+const Map<String, Set<String>> allowedEvents = {
+  'app_opened': {},
+  'scan_started': {'method'},
+  'scan_completed': {'method', 'found'},
+  'verdicts_shown': {'member_count'},
+  'meal_logged': {},
+  'meal_queued': {},
+  'meal_log_undone': {},
+  'meal_removed': {},
+  'share_result': {},
+  'share_weekly': {},
+  'compare_opened': {},
+  'compare_viewed': {},
+  'product_search': {},
+  'voice_asked': {'language'},
+  'report_submitted': {'reason'},
+  'share_clicked': {'kind'},
+  'account_deleted': {},
 };
+
+/// Properties whose values come from a closed set (as the API's `_ENUMS`).
+const Map<String, Set<String>> _enums = {
+  'method': {'barcode', 'label', 'manual', 'search'},
+  'language': {'en', 'hi', 'mr'},
+  'reason': {'wrong_values', 'wrong_ingredients', 'wrong_product', 'other'},
+  'kind': {'link', 'image', 'whatsapp'},
+};
+const Set<String> _bools = {'found'};
+const Set<String> _counts = {'member_count'};
 
 /// Hard-coded PostHog ingest host (US cloud); no config key by design.
 const String posthogHost = 'https://us.i.posthog.com';
@@ -22,24 +48,27 @@ const String posthogHost = 'https://us.i.posthog.com';
 typedef AnalyticsSink =
     Future<void> Function(String event, Map<String, Object> props);
 
-const Set<String> _locales = {'en', 'hi', 'mr'};
-const Set<String> _platforms = {'android', 'web', 'api'};
-final RegExp _token = RegExp(r'^[a-z_]{1,40}$');
+final RegExp _token = RegExp(r'^[a-z0-9_]{1,40}$');
 
-bool _validValue(String key, Object value) => switch (key) {
-  'locale' => _locales.contains(value),
-  'platform' => _platforms.contains(value),
-  'status_code' => value is int,
-  _ => value is String && _token.hasMatch(value),
-};
+bool _validValue(String key, Object value) {
+  if (_bools.contains(key)) return value is bool;
+  if (_counts.contains(key)) return value is int && value >= 0 && value <= 1000;
+  if (value is! String || !_token.hasMatch(value)) return false;
+  return _enums[key]?.contains(value) ?? true;
+}
 
-Map<String, Object> filterProps(Map<String, Object?>? props) => {
-  for (final e in (props ?? const <String, Object?>{}).entries)
-    if (allowedEventProps.contains(e.key) &&
-        e.value != null &&
-        _validValue(e.key, e.value!))
-      e.key: e.value!,
-};
+/// The allow-listed, safely valued properties of [event]; empty for an
+/// event outside [allowedEvents].
+Map<String, Object> filterProps(String event, Map<String, Object?>? props) {
+  final allowed = allowedEvents[event] ?? const <String>{};
+  return {
+    for (final e in (props ?? const <String, Object?>{}).entries)
+      if (allowed.contains(e.key) &&
+          e.value != null &&
+          _validValue(e.key, e.value!))
+        e.key: e.value!,
+  };
+}
 
 class Analytics {
   const Analytics(AnalyticsSink this._sink);
@@ -49,10 +78,30 @@ class Analytics {
 
   final AnalyticsSink? _sink;
 
+  /// Sends [event] with its allow-listed [props]. An event outside
+  /// [allowedEvents] is dropped, with a debug-only warning that names it
+  /// (values are never logged).
   Future<void> track(String event, [Map<String, Object?>? props]) async {
+    if (!allowedEvents.containsKey(event)) {
+      assert(() {
+        debugPrint('analytics: dropped unknown event "$event"');
+        return true;
+      }());
+      return;
+    }
+    final kept = filterProps(event, props);
+    assert(() {
+      final dropped = (props?.keys ?? const <String>[]).where(
+        (k) => !kept.containsKey(k),
+      );
+      if (dropped.isNotEmpty) {
+        debugPrint('analytics: dropped props ${dropped.join(',')} on $event');
+      }
+      return true;
+    }());
     final sink = _sink;
     if (sink == null) return;
-    await sink(event, filterProps(props));
+    await sink(event, kept);
   }
 }
 

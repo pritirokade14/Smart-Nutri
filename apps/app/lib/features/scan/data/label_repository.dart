@@ -23,7 +23,12 @@ enum LabelPhase { uploading, reading }
 /// A label-scan or product-save failure, by API error code (`error.<code>`),
 /// or `network` when there was no response.
 class LabelFailure implements Exception {
-  const LabelFailure(this.code, {this.fields = const [], this.productId});
+  const LabelFailure(
+    this.code, {
+    this.fields = const [],
+    this.productId,
+    this.reasons = const [],
+  });
 
   final String code;
 
@@ -34,13 +39,18 @@ class LabelFailure implements Exception {
   /// `product_exists`: the product the caller can already see, if given.
   final String? productId;
 
+  /// `image_quality_low`: why the photo can't be read (`blur`, `glare`,
+  /// `too_small`), for the retake hints.
+  final List<String> reasons;
+
   @override
   String toString() => 'LabelFailure($code)';
 }
 
 /// Re-encodes a photo as JPEG with its longest side at most [maxUploadSide]
 /// and at most [maxUploadBytes]. EXIF orientation is applied first, so the
-/// label is upright. Throws `LabelFailure('unsupported_image')` for bytes that
+/// label is upright, and all EXIF (GPS included) is dropped. Throws
+/// `LabelFailure('unsupported_image')` for bytes that
 /// are not a decodable image.
 Future<Uint8List> compressForUpload(Uint8List bytes) async {
   final out = await compute(_compress, bytes);
@@ -59,6 +69,11 @@ Uint8List? _compress(Uint8List bytes) {
         ? img.copyResize(image, width: maxUploadSide)
         : img.copyResize(image, height: maxUploadSide);
   }
+  // The JPEG encoder writes back whatever EXIF the photo had, including the
+  // GPS position and the camera model. Stored label photos must carry none
+  // (Play data safety: no location), so drop it all; orientation is already
+  // applied to the pixels above.
+  image.exif = img.ExifData();
   var out = img.encodeJpg(image, quality: 85);
   for (final quality in const [70, 55, 40]) {
     if (out.length <= maxUploadBytes) break;
@@ -158,6 +173,7 @@ class LabelRepository {
         ? parseErrorEnvelope(error.response?.data)?.error.details
         : null;
     final fields = <String>[];
+    final reasons = <String>[];
     String? productId;
     if (details is Map) {
       final raw = details['fields'];
@@ -167,10 +183,17 @@ class LabelRepository {
           if (name != null && !fields.contains(name)) fields.add(name);
         }
       }
+      final why = details['reasons'];
+      if (why is List) reasons.addAll(why.whereType<String>());
       final id = details['product_id'];
       if (id is String && id.isNotEmpty) productId = id;
     }
-    return LabelFailure(code, fields: fields, productId: productId);
+    return LabelFailure(
+      code,
+      fields: fields,
+      productId: productId,
+      reasons: reasons,
+    );
   }
 }
 

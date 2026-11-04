@@ -40,6 +40,30 @@ def test_run_model_and_report_with_fake_llm(tmp_path):
     assert json.loads((tmp_path / "rep" / "d_m_extraction_v1.json").read_text())["photos"]
 
 
+def test_run_model_v2_parses_cells_and_keeps_the_raw_output(tmp_path):
+    from app.features.scans.schemas import CellIn, NutrientCellsIn, NutritionExtractionV2
+
+    cells = dict.fromkeys(NutrientCellsIn.model_fields) | {
+        "sugars_g": CellIn(printed="१०", unit_label="g")
+    }
+    raw = NutritionExtractionV2(
+        product_name=None, brand=None, basis_detected="per_100g",
+        per_100g=NutrientCellsIn(**cells), per_serving=None, per_100_unit="g",
+        serving_size=None, ingredients=[], allergen_statement=None,
+        may_contain_statement=None, claims=[], veg_mark=None, category_guess=None,
+        confidence=0.9, unreadable_fields=[],
+    )  # fmt: skip
+    fake = FakeLLM(raw)
+    photos = _photos(tmp_path)
+    rows = asyncio.run(label_eval.run_model(fake, photos, "m", "extraction_v2", tmp_path / "raw"))
+    assert fake.last_kwargs["schema"] is NutritionExtractionV2
+    assert rows[0]["pred"]["per_100g"]["sugars_g"] == 10.0  # scored as parsed values
+    saved = json.loads((tmp_path / "raw" / "a.json").read_text(encoding="utf-8"))
+    assert saved["per_100g"]["sugars_g"]["printed"] == "१०"  # the raw cells are kept
+    agg = label_eval.write_report("m", "extraction_v2", photos, rows, None, tmp_path / "rep", "d")
+    assert agg["metrics"]["numeric_accuracy"] == 1.0
+
+
 def test_run_model_records_failure(tmp_path):
     fake = FakeLLM(ExtractionFailed("x"))
     rows = asyncio.run(label_eval.run_model(fake, _photos(tmp_path), "m", "extraction_v1"))

@@ -77,7 +77,7 @@ async def test_barcode_found_from_off(client, wire, fake_off):
     assert body["per_100g"]["sugars_g"] == 15
     assert body["per_100g"]["sodium_mg"] is None
     assert body["ingredients"] == ["wheat flour", "sugar"]
-    assert "cache-control" not in r.headers
+    assert r.headers["cache-control"] == "no-store"  # never publicly cached
 
 
 async def test_barcode_invalid(client, wire, fake_off):
@@ -135,9 +135,13 @@ async def test_public_rejects_unknown_language(client, wire, fake_off):
 async def test_public_errors_have_no_cache_header(client, wire, fake_off_empty):
     wire(fake_off_empty, auth=False)
     r = await client.get(PUBLIC_URL)
-    assert r.status_code == 404 and "cache-control" not in r.headers
+    assert (
+        r.status_code == 404 and r.headers["cache-control"] == "no-store"
+    )  # never publicly cached
     r = await client.get("/v1/products/abc/public")
-    assert r.status_code == 422 and "cache-control" not in r.headers
+    assert (
+        r.status_code == 422 and r.headers["cache-control"] == "no-store"
+    )  # never publicly cached
 
 
 async def test_public_rate_limited(db_session, fake_off):
@@ -149,7 +153,7 @@ async def test_public_rate_limited(db_session, fake_off):
         assert (await c.get(PUBLIC_URL)).status_code == 200
         r = await c.get(PUBLIC_URL)
     assert r.status_code == 429 and r.json()["error"]["code"] == "rate_limited"
-    assert "cache-control" not in r.headers
+    assert r.headers["cache-control"] == "no-store"  # never publicly cached
 
 
 async def test_off_client_dependency_works_without_lifespan():

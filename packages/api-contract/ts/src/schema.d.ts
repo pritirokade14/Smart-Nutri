@@ -21,6 +21,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/consents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consents List */
+        get: operations["consents_list"];
+        put?: never;
+        /** Consents Record */
+        post: operations["consents_record"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -47,6 +65,221 @@ export interface paths {
         };
         /** Me Get */
         get: operations["me_get"];
+        put?: never;
+        post?: never;
+        /**
+         * Me Delete
+         * @description Permanently erase the caller's account (DPDP erasure, F11).
+         *
+         *     Order: storage objects (label photos; voice audio is never stored), then every
+         *     account-owned row in one transaction (contributed products stay with no owner), then the
+         *     Supabase auth user. The row erasure also writes a tombstone (ruling D1/B1): until it is
+         *     purged (7 days), the caller's still-valid token gets 401 `auth_invalid` everywhere else.
+         *     Idempotent: calling it again returns 204 (at most 5 calls a day, then 429). On 503
+         *     `deletion_incomplete`, retry: completed steps are skipped. Depends on `current_account`
+         *     (not `current_account_row`) so a repeat call never re-creates the account row.
+         */
+        delete: operations["me_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/user-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Me User Types Get
+         * @description The account's user types. Without an answer yet: `answered=false`, `types=[]` and the
+         *     `eat_better` mode (clients then show the picker).
+         *
+         *     `prefill` lists suggested changes to the account holder's own member, recomputed on every
+         *     call (empty once confirmed). Nothing is applied: the client sends only the confirmed ones
+         *     to `PATCH /v1/members/{member_id}`, which keeps its health_data check.
+         */
+        get: operations["me_user_types_get"];
+        /**
+         * Me User Types Put
+         * @description Save up to 3 types (tap order) and their follow-ups; `types=[]` is "Skip for now".
+         *
+         *     Presentation only: it never changes a member or a verdict. 422 `validation_error` for more
+         *     than 3 types or duplicates; 422 `follow_up_without_type` for a follow-up whose type is not
+         *     chosen. The response's `prefill` only suggests member changes; none is applied.
+         */
+        put: operations["me_user_types_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/user-types/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Me User Types Set Active
+         * @description Switch the focused mode. Needs no consent. 404 `user_types_not_found` before the first
+         *     PUT; 422 `user_type_not_selected` unless it is one of the chosen types (or `eat_better`
+         *     after "Skip for now").
+         */
+        patch: operations["me_user_types_set_active"];
+        trace?: never;
+    };
+    "/v1/meals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meals List
+         * @description A member's logs, newest first (at most 200). Default range: the last 7 IST days.
+         */
+        get: operations["meals_list"];
+        put?: never;
+        /**
+         * Meals Log
+         * @description Log "I ate this" for a member: 201 for a new log, 200 with the stored log when
+         *     ``client_id`` was already used (offline retries never duplicate).
+         */
+        post: operations["meals_log"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meals/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meals Summary
+         * @description Totals of sugar, salt, protein and kcal against the member's daily limits (pending
+         *     clinician review). A nutrient missing on any logged label sets ``incomplete`` and is never
+         *     counted as 0.
+         */
+        get: operations["meals_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meals/week_counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meals Week Counts
+         * @description Counts for the weekly share text (products checked, items logged), whole family.
+         */
+        get: operations["meals_week_counts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meals/{meal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Meals Delete */
+        delete: operations["meals_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Members List
+         * @description The account's members, the primary (account holder) first. Creates the primary if new.
+         */
+        get: operations["members_list"];
+        put?: never;
+        /** Members Create */
+        post: operations["members_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/members/{member_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Members Get */
+        get: operations["members_get"];
+        put?: never;
+        post?: never;
+        /** Members Delete */
+        delete: operations["members_delete"];
+        options?: never;
+        head?: never;
+        /** Members Update */
+        patch: operations["members_update"];
+        trace?: never;
+    };
+    "/v1/methodology": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Methodology Get
+         * @description How SmartNutri scores products: every rule's live thresholds and their sources.
+         *
+         *     Public (no token). The values come from the rules engine config, never written by hand;
+         *     `pending_clinician_review` stays true until a clinician signs the thresholds off.
+         *     Section titles and descriptions are client strings (`methodology.section.<id>.*`).
+         */
+        get: operations["methodology_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -94,6 +327,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/products/barcode/{code}/alternatives": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products Alternatives By Barcode
+         * @description Up to 5 products from the same Open Food Facts category. ``sort=grade`` (default): a strictly better Nutri-Score (calculated by SmartNutri). ``sort=protein``: strictly more protein per 100 kcal and a Nutri-Score no worse, ranked for ``member_id`` or else the primary member. ``member_status`` comes from the rules engine; a product the engine rates ``avoid`` for the member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty. For products known by barcode (Open Food Facts).
+         */
+        get: operations["products_alternatives_by_barcode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products Compare
+         * @description Two products side by side. Each side is exactly one of a product id or a barcode
+         *     (``invalid_product_ref`` otherwise). ``member_status`` comes from the rules engine.
+         */
+        get: operations["products_compare"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products Search
+         * @description Our products first (name or brand), then Open Food Facts. ``q``: 3 to 80 characters.
+         *
+         *     Open Food Facts search calls are capped for the whole server; over the cap a cached
+         *     result is served, else our own hits come back with ``off_degraded`` true, and
+         *     only with no local hits either 503 ``off_unavailable`` with Retry-After.
+         *
+         *     ``member_status`` comes from the rules engine: with ``member_id`` (404 if not this
+         *     account's), or for the primary member with ``sort=protein``, which never returns a hit
+         *     the engine rates ``avoid`` for that member.
+         */
+        get: operations["products_search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/products/{barcode}/public": {
         parameters: {
             query?: never;
@@ -105,6 +407,48 @@ export interface paths {
         get: operations["products_get_public"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/{product_id}/alternatives": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products Alternatives
+         * @description Up to 5 products from the same Open Food Facts category. ``sort=grade`` (default): a strictly better Nutri-Score (calculated by SmartNutri). ``sort=protein``: strictly more protein per 100 kcal and a Nutri-Score no worse, ranked for ``member_id`` or else the primary member. ``member_status`` comes from the rules engine; a product the engine rates ``avoid`` for the member is never suggested, and safer statuses rank first. Never an error for a product with no category: ``reason`` says why the list is empty.
+         */
+        get: operations["products_alternatives"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/products/{product_id}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reports Create
+         * @description Report a problem with a product's data, for review. 201 with the new report, or 200
+         *     with the existing one when the same reason is already open (idempotent). Rate-limited
+         *     per account per day.
+         */
+        post: operations["reports_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -157,14 +501,115 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/voice/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Voice Ask
+         * @description Answer a spoken question about one product for one family member.
+         *
+         *     Send exactly one of `product_id` (our catalogue) or `barcode` (Open Food Facts). Audio:
+         *     at most 30 s and 5 MB; m4a/AAC, WAV, WebM, Ogg or mp3, detected from the bytes. The
+         *     verdict comes only from the rules engine; `answer` starts with it. Needs the
+         *     `ai_processing` consent. Rate-limited per account per day (`rate_limited_voice`).
+         *
+         *     No voice audio is stored: the spoken answer comes back inline as base64 mp3
+         *     (`audio_base64`), or null when it would be over about 1 MB (show the text answer).
+         *
+         *     Off by default: while the server setting `VOICE_ENABLED` is false, every call answers
+         *     503 `ai_unavailable` (clients show the same "voice unavailable" message as for an outage).
+         */
+        post: operations["voice_ask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActiveTypeIn */
+        ActiveTypeIn: {
+            /**
+             * Active Type
+             * @enum {string}
+             */
+            active_type: "health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better";
+        };
+        /**
+         * AlternativeOut
+         * @description A product in the same Open Food Facts category with a strictly better Nutri-Score
+         *     (calculated by SmartNutri). Open it with ``products_get_by_barcode``.
+         */
+        AlternativeOut: {
+            /**
+             * Attribution
+             * @description "attribution.off": credit Open Food Facts
+             */
+            attribution: string | null;
+            /** Barcode */
+            barcode: string | null;
+            /** Brand */
+            brand: string | null;
+            grade: components["schemas"]["NutriScoreGrade"];
+            /** High In */
+            high_in: string[];
+            /** Image Url */
+            image_url: string | null;
+            /** @description The rules engine's verdict for member_id (only when member_id is given; with sort=protein, for member_id or else the primary member) */
+            member_status: components["schemas"]["MemberStatus"] | null;
+            /** Name */
+            name: string;
+            /** Product Id */
+            product_id: string | null;
+            /**
+             * Protein G
+             * @description Protein per 100 g/ml (report.protein.per_100g); null if not on the label
+             */
+            protein_g: number | null;
+            /**
+             * Protein Per 100Kcal
+             * @description report.protein.per_100kcal; null without protein or energy
+             */
+            protein_per_100kcal: number | null;
+            /**
+             * Sugars G
+             * @description Per 100 g/ml; null if not on the label
+             */
+            sugars_g: number | null;
+        };
+        /** AlternativesOut */
+        AlternativesOut: {
+            /**
+             * Items
+             * @description At most 5. sort=grade: best grade first, then less sugar, then name. sort=protein: strictly more protein per 100 kcal than the source and a grade no worse; ok before caution before unknown, then most protein per 100 kcal, then grade, then name. Never a product the engine rates avoid for the member (sort=grade: member_id only; sort=protein: member_id or the primary member)
+             */
+            items: components["schemas"]["AlternativeOut"][];
+            /**
+             * Reason
+             * @description no_better_found also when every better product is avoid for the member; source_protein_unknown: sort=protein and the source has no protein per 100 kcal; source_supplement: the source is a supplement (never suggested, no swaps)
+             * @enum {string}
+             */
+            reason: "ok" | "no_category" | "no_better_found" | "source_ungraded" | "source_protein_unknown" | "source_supplement";
+        };
+        /**
+         * AlternativesSort
+         * @description Alternatives order: ``grade`` (better Nutri-Score) or ``protein`` (more protein per
+         *     100 kcal, never avoid for the member, never a worse grade).
+         * @enum {string}
+         */
+        AlternativesSort: "grade" | "protein";
         /** AnalyzeOut */
         AnalyzeOut: {
-            /** Explanation */
-            explanation?: string | null;
+            explanation: components["schemas"]["ExplanationOut"];
             product: components["schemas"]["ProductOut"];
             /** Report */
             report: {
@@ -175,18 +620,14 @@ export interface components {
              * Format: uuid
              */
             scan_id: string;
-            /**
-             * Tips
-             * @default []
-             */
-            tips: string[];
             /** Verdicts */
             verdicts: components["schemas"]["VerdictOut"][];
         };
         /**
          * AnalyzeRequest
          * @description Exactly one product reference: our own ``product_id``, or a ``barcode`` (OFF products
-         *     have no product_id). With no ``member_ids`` the account's primary member is used.
+         *     have no product_id). With no ``member_ids`` every member of the account is analysed, the
+         *     primary (the account holder) first. Any unknown or foreign id is a 404.
          */
         AnalyzeRequest: {
             /** Barcode */
@@ -199,6 +640,29 @@ export interface components {
             language: "en" | "hi" | "mr";
             /** Member Ids */
             member_ids?: string[] | null;
+            /** Product Id */
+            product_id?: string | null;
+        };
+        /**
+         * BetterSide
+         * @enum {string}
+         */
+        BetterSide: "a" | "b" | "same" | "unknown";
+        /** Body_voice_ask */
+        Body_voice_ask: {
+            /**
+             * Audio
+             * Format: binary
+             */
+            audio: string;
+            /** Barcode */
+            barcode?: string | null;
+            language: components["schemas"]["VoiceLanguage"];
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
             /** Product Id */
             product_id?: string | null;
         };
@@ -229,9 +693,75 @@ export interface components {
             shared: boolean;
             /**
              * Sodium Unit Required
-             * @description Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`.
+             * @description Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`. Set when sodium was printed without a unit (`unit_unconfirmed`) or as an implausibly low mg value with no salt to check it (`sodium_unit_suspect`).
              */
             sodium_unit_required: boolean;
+        };
+        /**
+         * CompareBetter
+         * @description Which side is better: lower energy, sugars, salt and saturated fat; higher protein and
+         *     fibre; grade A best; higher protein per serving and per 100 kcal; lower sugars per serving.
+         *     ``unknown`` when either side has no value (never a win).
+         */
+        CompareBetter: {
+            energy_kcal: components["schemas"]["BetterSide"];
+            fiber_g: components["schemas"]["BetterSide"];
+            grade: components["schemas"]["BetterSide"];
+            protein_g: components["schemas"]["BetterSide"];
+            protein_per_100kcal: components["schemas"]["BetterSide"];
+            protein_per_serving_g: components["schemas"]["BetterSide"];
+            salt_g: components["schemas"]["BetterSide"];
+            sat_fat_g: components["schemas"]["BetterSide"];
+            sugars_g: components["schemas"]["BetterSide"];
+            sugars_per_serving_g: components["schemas"]["BetterSide"];
+        };
+        /** CompareOut */
+        CompareOut: {
+            a: components["schemas"]["CompareSide"];
+            b: components["schemas"]["CompareSide"];
+            better: components["schemas"]["CompareBetter"];
+        };
+        /** CompareSide */
+        CompareSide: {
+            /** Attribution */
+            attribution: string | null;
+            /** Barcode */
+            barcode: string | null;
+            /** Brand */
+            brand: string | null;
+            grade: components["schemas"]["NutriScoreGrade"] | null;
+            /** High In */
+            high_in: string[];
+            /** @description The rules engine's verdict for member_id (only when member_id is given) */
+            member_status: components["schemas"]["MemberStatus"] | null;
+            /** Name */
+            name: string;
+            per_100g: components["schemas"]["NutrientsOut"];
+            /**
+             * Product Id
+             * @description Our own product; null for Open Food Facts
+             */
+            product_id: string | null;
+            /**
+             * Protein Per 100Kcal
+             * @description report.protein.per_100kcal; null without protein or energy
+             */
+            protein_per_100kcal: number | null;
+            /**
+             * Protein Per Serving G
+             * @description report.protein.per_serving; null without a serving size or protein
+             */
+            protein_per_serving_g: number | null;
+            /**
+             * Serving Size G
+             * @description null when the label has no serving size
+             */
+            serving_size_g: number | null;
+            /**
+             * Sugars Per Serving G
+             * @description Sugars in one serving, 1 dp; null without a serving size or sugars
+             */
+            sugars_per_serving_g: number | null;
         };
         /**
          * ConfirmColumns
@@ -240,6 +770,73 @@ export interface components {
         ConfirmColumns: {
             per_100g: components["schemas"]["ColumnConfirm"] | null;
             per_serving: components["schemas"]["ColumnConfirm"] | null;
+        };
+        /** ConsentIn */
+        ConsentIn: {
+            /** Granted */
+            granted: boolean;
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "terms" | "health_data" | "ai_processing";
+            /** Version */
+            version: string;
+        };
+        /** ConsentState */
+        ConsentState: {
+            /** Current Version */
+            current_version: string;
+            /** Granted */
+            granted: boolean;
+            /**
+             * Needs Update
+             * @description True when the latest grant is unwithdrawn but at an older version: the client shows the updated text and asks again. False when never granted or withdrawn.
+             */
+            needs_update: boolean;
+            /** Purpose */
+            purpose: string;
+            /** Version */
+            version: string | null;
+        };
+        /**
+         * DailyLimitsOut
+         * @description Per DAY, from the rules engine (thresholds.yaml, pending clinician review).
+         */
+        DailyLimitsOut: {
+            /**
+             * Kcal
+             * @description Always null in v1 (no personal energy target)
+             */
+            kcal: number | null;
+            /**
+             * Protein G Per Kg
+             * @description The g per kg body weight per day the protein target was computed with (thresholds.yaml, pending clinician review), for the protein.guide copy. Null whenever protein_target_g is null. Display only; never compute a target on the client
+             */
+            protein_g_per_kg: number | null;
+            /**
+             * Protein Target G
+             * @description A target, not a limit. Adults (18+) with a weight only; null for children, adolescents, an unknown age or no weight
+             */
+            protein_target_g: number | null;
+            /** Salt G */
+            salt_g: number | null;
+            /** Sugar G */
+            sugar_g: number | null;
+        };
+        /** DaySummary */
+        DaySummary: {
+            /** @description That day's totals vs the DAILY limits */
+            bands: components["schemas"]["NutrientBands"];
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            incomplete: components["schemas"]["IncompleteNutrients"];
+            /** Items */
+            items: number;
+            totals: components["schemas"]["Totals"];
         };
         /**
          * DraftConfirm
@@ -257,6 +854,11 @@ export interface components {
              * @description Category in doubt: never preselect; the user must pick a category.
              */
             category_required: boolean;
+            /**
+             * Category Suggestion
+             * @description A deterministic hint (never an LLM, P9 safety S5): the ingredients name a whey or protein isolate/concentrate, or protein is at least 50 g per 100 g, so the pack may be a supplement. Show `confirm.category_suggestion.supplement` next to the category picker. Never preselect it: `category_required` is true whenever this is set, and the user's pick is saved as is.
+             */
+            category_suggestion: "supplement" | null;
             columns: components["schemas"]["ConfirmColumns"];
         };
         /**
@@ -313,6 +915,61 @@ export interface components {
             error: components["schemas"]["ErrorBody"];
         };
         /**
+         * ExplanationOut
+         * @description The AI explanation (F7). It explains the verdicts and never changes them.
+         *
+         *     `source == "unavailable"` (text null, no tips): no `ai_processing` consent, or the model
+         *     failed, timed out or disagreed with the engine. Clients then hide the explanation.
+         *     `text` and `tips` refer to people only as `member_1`, `member_2`, ...; clients replace
+         *     each token with that member's name (or "you") using `member_refs`.
+         */
+        ExplanationOut: {
+            /**
+             * Language
+             * @enum {string}
+             */
+            language: "en" | "hi" | "mr";
+            /**
+             * Member Refs
+             * @description `member_N` token -> member_id (a member in `verdicts`). Empty when unavailable.
+             */
+            member_refs: {
+                [key: string]: string;
+            };
+            /** Prompt Version */
+            prompt_version: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "llm" | "unavailable";
+            /** Text */
+            text: string | null;
+            /** Tips */
+            tips: string[];
+        };
+        /**
+         * FollowUps
+         * @description At most one short follow-up per type (decision 4). `weight_loss` has none.
+         *
+         *     These are the user's answers, stored as given. They never change a member: pre-fill only
+         *     suggests member changes, which the user confirms (Task 2).
+         */
+        FollowUps: {
+            /** Alerts */
+            alerts?: ("palm_oil" | "maida" | "added_sugar" | "artificial_sweetener" | "msg")[] | null;
+            /** Allergens */
+            allergens?: ("milk" | "peanut" | "gluten" | "soy" | "egg" | "tree_nut" | "sesame" | "fish" | "crustacean" | "mustard" | "sulphite")[] | null;
+            /** Conditions */
+            conditions?: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[] | null;
+            /** Diet */
+            diet?: ("veg" | "eggetarian" | "vegan" | "jain" | "non_veg") | null;
+            /** Family With */
+            family_with?: ("children" | "parents" | "partner" | "others")[] | null;
+            /** Gym Goal */
+            gym_goal?: ("build_muscle" | "lose_fat" | "stay_fit") | null;
+        };
+        /**
          * HealthOut
          * @description `ok`/`ok` (200); `degraded`/`error` when the database is unreachable (503);
          *     `unavailable`/`schema_behind` when its Alembic revision is not this build's head (503).
@@ -328,6 +985,21 @@ export interface components {
              * @enum {string}
              */
             status: "ok" | "degraded" | "unavailable";
+        };
+        /**
+         * IncompleteNutrients
+         * @description Per nutrient (Totals keys): true when a meal had no value for it. The total then counts
+         *     only the known meals and is a lower bound.
+         */
+        IncompleteNutrients: {
+            /** Energy Kcal */
+            energy_kcal: boolean;
+            /** Protein G */
+            protein_g: boolean;
+            /** Salt G */
+            salt_g: boolean;
+            /** Sugars G */
+            sugars_g: boolean;
         };
         /** LabelScanIn */
         LabelScanIn: {
@@ -358,6 +1030,312 @@ export interface components {
              */
             language: "en" | "hi" | "mr";
         };
+        /**
+         * MealIn
+         * @description Log what a member ate. Exactly one product reference (own ``product_id``, or a
+         *     ``barcode`` for Open Food Facts products) and exactly one portion (``grams`` or
+         *     ``servings``; servings need the product's serving size).
+         *
+         *     ``client_id`` makes the call idempotent: posting the same id again (an offline retry)
+         *     returns the stored log with 200 and never creates a second row.
+         */
+        MealIn: {
+            /** Barcode */
+            barcode?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Eaten At
+             * @description Timezone-aware. Default: now. At most 5 minutes ahead, at most 30 days ago.
+             */
+            eaten_at?: string | null;
+            /** Grams */
+            grams?: number | null;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Product Id */
+            product_id?: string | null;
+            /** Servings */
+            servings?: number | null;
+        };
+        /** MealOut */
+        MealOut: {
+            /**
+             * Attribution
+             * @description "attribution.off" for Open Food Facts products (credit OFF), else null
+             */
+            attribution: string | null;
+            /**
+             * Barcode
+             * @description Open Food Facts barcode; null for our products
+             */
+            barcode: string | null;
+            /** Client Id */
+            client_id: string | null;
+            /**
+             * Eaten At
+             * Format: date-time
+             */
+            eaten_at: string;
+            /** @description Nutri-Score calculated by SmartNutri at log time; null if not enough data */
+            grade: components["schemas"]["NutriScoreGrade"] | null;
+            /** Grams */
+            grams: number;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            nutrients: components["schemas"]["NutrientSnapshot"];
+            /**
+             * Product Id
+             * @description Our own product; null for Open Food Facts
+             */
+            product_id: string | null;
+            /** Product Name */
+            product_name: string;
+        };
+        /**
+         * MemberIn
+         * @description Create a family member. The account holder (relation `self`) already exists.
+         */
+        MemberIn: {
+            /**
+             * Allergens
+             * @default []
+             */
+            allergens: string[];
+            /** Birth Year */
+            birth_year: number;
+            /**
+             * Conditions
+             * @default []
+             */
+            conditions: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[];
+            /**
+             * Custom Alerts
+             * @default []
+             */
+            custom_alerts: ("palm_oil" | "maida" | "added_sugar" | "artificial_sweetener" | "msg")[];
+            /**
+             * Diet
+             * @default non_veg
+             * @enum {string}
+             */
+            diet: "veg" | "eggetarian" | "vegan" | "jain" | "non_veg";
+            /** Goal */
+            goal?: ("healthy_eating" | "weight_loss" | "weight_gain" | "build_muscle") | null;
+            /** Height Cm */
+            height_cm?: number | null;
+            /** Name */
+            name: string;
+            /**
+             * Relation
+             * @enum {string}
+             */
+            relation: "child" | "parent" | "spouse" | "other";
+            /** Sex */
+            sex?: ("female" | "male" | "other") | null;
+            /** Weight Kg */
+            weight_kg?: number | null;
+        };
+        /** MemberOut */
+        MemberOut: {
+            /** Allergens */
+            allergens: string[];
+            /** Birth Year */
+            birth_year: number | null;
+            /** Conditions */
+            conditions: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[];
+            /** Custom Alerts */
+            custom_alerts: ("palm_oil" | "maida" | "added_sugar" | "artificial_sweetener" | "msg")[];
+            /**
+             * Diet
+             * @enum {string}
+             */
+            diet: "veg" | "eggetarian" | "vegan" | "jain" | "non_veg";
+            /** Goal */
+            goal: ("healthy_eating" | "weight_loss" | "weight_gain" | "build_muscle") | null;
+            /** Height Cm */
+            height_cm: number | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Is Primary */
+            is_primary: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Relation
+             * @enum {string}
+             */
+            relation: "self" | "child" | "parent" | "spouse" | "other";
+            /** Sex */
+            sex: ("female" | "male" | "other") | null;
+            /** Weight Kg */
+            weight_kg: number | null;
+        };
+        /**
+         * MemberPatch
+         * @description Change only the fields sent. `relation` can't become `self`, or change on the primary.
+         *
+         *     `null` clears `sex`, `height_cm`, `weight_kg` and `goal`. For every other field `null`
+         *     means "unchanged" (the generated Dart client sends every field, unset ones as null), so
+         *     `birth_year` can never be cleared.
+         */
+        MemberPatch: {
+            /** Allergens */
+            allergens?: string[] | null;
+            /** Birth Year */
+            birth_year?: number | null;
+            /** Conditions */
+            conditions?: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[] | null;
+            /** Custom Alerts */
+            custom_alerts?: ("palm_oil" | "maida" | "added_sugar" | "artificial_sweetener" | "msg")[] | null;
+            /** Diet */
+            diet?: ("veg" | "eggetarian" | "vegan" | "jain" | "non_veg") | null;
+            /** Goal */
+            goal?: ("healthy_eating" | "weight_loss" | "weight_gain" | "build_muscle") | null;
+            /** Height Cm */
+            height_cm?: number | null;
+            /** Name */
+            name?: string | null;
+            /** Relation */
+            relation?: ("self" | "child" | "parent" | "spouse" | "other") | null;
+            /** Sex */
+            sex?: ("female" | "male" | "other") | null;
+            /** Weight Kg */
+            weight_kg?: number | null;
+        };
+        /**
+         * MemberStatus
+         * @description A member's verdict from the rules engine (never computed by clients).
+         * @enum {string}
+         */
+        MemberStatus: "ok" | "caution" | "unknown" | "avoid";
+        /** Methodology */
+        Methodology: {
+            language: components["schemas"]["MethodologyLanguage"];
+            /** Pending Clinician Review */
+            pending_clinician_review: boolean;
+            /** Sections */
+            sections: components["schemas"]["MethodologySection"][];
+            /** Sources */
+            sources: components["schemas"]["MethodologySource"][];
+            /**
+             * Version
+             * @description Changes whenever any shown value changes.
+             */
+            version: string;
+        };
+        /**
+         * MethodologyLanguage
+         * @enum {string}
+         */
+        MethodologyLanguage: "en" | "hi" | "mr";
+        /**
+         * MethodologySection
+         * @description One part of "How we score". Clients render `methodology.section.<id>.*` strings; the
+         *     API sends no prose.
+         */
+        MethodologySection: {
+            /** Id */
+            id: string;
+            /**
+             * Rationale Sources
+             * @description Source ids for why the rule exists. Null as for threshold_sources.
+             */
+            rationale_sources: string[] | null;
+            /**
+             * Threshold Sources
+             * @description Source ids for the numbers. Null: a member preference with nothing to cite.
+             */
+            threshold_sources: string[] | null;
+            /**
+             * Thresholds
+             * @description The live rule values from the rules engine config (shape differs per section). Never written by hand.
+             */
+            thresholds: {
+                [key: string]: unknown;
+            };
+        };
+        /** MethodologySource */
+        MethodologySource: {
+            /** Id */
+            id: string;
+            /**
+             * Title
+             * @description Document title as published (a citation, not UI prose).
+             */
+            title: string;
+            /** Url */
+            url: string | null;
+            /**
+             * Url Verified
+             * @description False until a person has checked the link. Clients must not present an unverified link as authoritative.
+             */
+            url_verified: boolean;
+        };
+        /**
+         * NutriScoreGrade
+         * @description Nutri-Score grade, calculated by SmartNutri (never an FSSAI rating).
+         * @enum {string}
+         */
+        NutriScoreGrade: "A" | "B" | "C" | "D" | "E";
+        /**
+         * NutrientBand
+         * @description Where a total stands against a limit. Never shown green unless ``ok``; ``unknown`` is
+         *     never green on any client.
+         * @enum {string}
+         */
+        NutrientBand: "ok" | "near" | "over" | "unknown";
+        /**
+         * NutrientBands
+         * @description day: total vs the daily limit. week: total vs the daily limit x the days with logged
+         *     items, and ``over`` whenever any day is ``over``. ``unknown`` when the limit is unknown
+         *     (``kcal`` always), when nothing was logged, when the total is null, or when the total is
+         *     incomplete and not already over.
+         *
+         *     ``protein_g`` is a target: ``ok`` once met, otherwise ``unknown`` (no band; never ``near``
+         *     or ``over``). Below the target, show the total against ``limits.protein_target_g``.
+         */
+        NutrientBands: {
+            kcal: components["schemas"]["NutrientBand"];
+            protein_g: components["schemas"]["NutrientBand"];
+            salt_g: components["schemas"]["NutrientBand"];
+            sugar_g: components["schemas"]["NutrientBand"];
+        };
+        /**
+         * NutrientSnapshot
+         * @description Nutrients in the portion eaten (per_100g x grams / 100, 1 dp). null = not on the label
+         *     (never counted as 0).
+         */
+        NutrientSnapshot: {
+            /** Carbs G */
+            carbs_g: number | null;
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            /** Fat G */
+            fat_g: number | null;
+            /** Protein G */
+            protein_g: number | null;
+            /** Salt G */
+            salt_g: number | null;
+            /** Sat Fat G */
+            sat_fat_g: number | null;
+            /** Sugars G */
+            sugars_g: number | null;
+        };
         /** NutrientsOut */
         NutrientsOut: {
             /** Carbs G */
@@ -378,6 +1356,67 @@ export interface components {
             sodium_mg: number | null;
             /** Sugars G */
             sugars_g: number | null;
+        };
+        /**
+         * PrefillChange
+         * @description One suggested change to the primary member. Never applied by the API: the client sends
+         *     `value` in `PATCH /v1/members/{member_id}` only if the user confirms it.
+         */
+        PrefillChange: {
+            /**
+             * Added
+             * @description List fields: what is new (display); [] for diet/goal
+             */
+            added: string[];
+            /**
+             * Current
+             * @description The primary member's value now
+             */
+            current: string[] | string | null;
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "conditions" | "allergens" | "diet" | "goal" | "custom_alerts";
+            /**
+             * Reason
+             * @description Which type suggested it (display only)
+             * @enum {string}
+             */
+            reason: "health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better";
+            /**
+             * Value
+             * @description The FULL new value to send in MemberPatch if confirmed (never a removal)
+             */
+            value: string[] | string;
+        };
+        /**
+         * PrefillSuggestion
+         * @description Suggestions for the account holder's own member, recomputed from the member on every
+         *     read, so it is empty once the user has confirmed (Task 2, P9-R9).
+         */
+        PrefillSuggestion: {
+            /**
+             * Changes
+             * @description [] means nothing to confirm: the client skips the review screen
+             */
+            changes: components["schemas"]["PrefillChange"][];
+            /**
+             * Goal Choice
+             * @description Goal conflict (weight loss and gym 'build muscle'): no goal change is in `changes`; the user picks one of these or neither
+             */
+            goal_choice: ("healthy_eating" | "weight_loss" | "weight_gain" | "build_muscle")[] | null;
+            /**
+             * Member Id
+             * Format: uuid
+             * @description Always the primary member (relation self)
+             */
+            member_id: string;
+            /**
+             * Needs Health Consent
+             * @description A change touches a health field and `health_data` is not active
+             */
+            needs_health_consent: boolean;
         };
         /**
          * PrintedNutrients
@@ -480,7 +1519,8 @@ export interface components {
          *     Scan-save rules (422 `validation_error` with `details.fields` naming the field):
          *     - `category` and `basis` are always required (the user must pick them; nothing defaults).
          *     - (R19) `sodium_unit` must be `mg` or `g` (not null) whenever the draft has ANY
-         *       `unit_unconfirmed:*.sodium_mg` warning (either column, whichever `basis` is chosen) and
+         *       `unit_unconfirmed:*.sodium_mg` or `sodium_unit_suspect:*.sodium_mg` warning (either
+         *       column, whichever `basis` is chosen; `confirm.columns.*.sodium_unit_required`) and
          *       `nutrients.sodium_mg` is not null; else 422 `["body.sodium_unit"]`. Listing `sodium_mg`
          *       in `confirmed_fields` never stands in for the unit. A non-null unit confirms sodium.
          *     - (R19) With `basis` `per_serving`, or whenever the draft was `derived_from_serving`
@@ -512,7 +1552,7 @@ export interface components {
              * @description Required: the user's explicit choice (drinks are judged on drink limits).
              * @enum {string}
              */
-            category: "general" | "beverage" | "water" | "cheese" | "fat";
+            category: "general" | "beverage" | "water" | "cheese" | "fat" | "supplement";
             /**
              * Claims
              * @default []
@@ -547,7 +1587,7 @@ export interface components {
             serving_size_g?: number | null;
             /**
              * Sodium Unit
-             * @description The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this is a manual entry in mg). `g` is converted to mg by the server. Send the user's explicit pick (`mg` or `g`, never null) whenever the scan draft has any `unit_unconfirmed:*.sodium_mg` warning (either column, whatever the basis) and sodium is not null, else 422 `body.sodium_unit` (R19). A non-null unit confirms sodium; `confirmed_fields` never replaces it.
+             * @description The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this is a manual entry in mg). `g` is converted to mg by the server. Send the user's explicit pick (`mg` or `g`, never null) whenever the scan draft has any `unit_unconfirmed:*.sodium_mg` or `sodium_unit_suspect:*.sodium_mg` warning (either column, whatever the basis; `sodium_unit_required`) and sodium is not null, else 422 `body.sodium_unit` (R19). A non-null unit confirms sodium; `confirmed_fields` never replaces it.
              */
             sodium_unit?: ("mg" | "g") | null;
             /** Veg Mark */
@@ -647,6 +1687,44 @@ export interface components {
              */
             severity: "ok" | "caution" | "unknown" | "avoid";
         };
+        /** ReportCreate */
+        ReportCreate: {
+            /** Note */
+            note?: string | null;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "wrong_values" | "wrong_ingredients" | "wrong_product" | "other";
+        };
+        /** ReportOut */
+        ReportOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "wrong_values" | "wrong_ingredients" | "wrong_product" | "other";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "resolved";
+        };
         /** ScanDraftOut */
         ScanDraftOut: {
             /** Cached */
@@ -659,6 +1737,116 @@ export interface components {
              * Format: uuid
              */
             scan_id: string;
+        };
+        /**
+         * SearchHit
+         * @description Our own products first (``product_id``), then Open Food Facts (``barcode`` only: open
+         *     with ``products_get_by_barcode``).
+         */
+        SearchHit: {
+            /**
+             * Attribution
+             * @description "attribution.off" for Open Food Facts hits
+             */
+            attribution: string | null;
+            /** Barcode */
+            barcode: string | null;
+            /** Brand */
+            brand: string | null;
+            /** @description Nutri-Score calculated by SmartNutri; null if unknown */
+            grade: components["schemas"]["NutriScoreGrade"] | null;
+            /** @description The rules engine's verdict. sort=relevance: only when member_id is given. sort=protein: for member_id or else the primary member (avoid is never returned) */
+            member_status: components["schemas"]["MemberStatus"] | null;
+            /** Name */
+            name: string;
+            /**
+             * Off Degraded
+             * @description true when the Open Food Facts search budget was spent and only our own catalogue is returned; clients show a small 'more results later' note
+             * @default false
+             */
+            off_degraded: boolean;
+            /** Product Id */
+            product_id: string | null;
+            /**
+             * Protein G
+             * @description Protein per 100 g/ml (report.protein.per_100g); null if not on the label
+             */
+            protein_g: number | null;
+            /**
+             * Protein Per 100Kcal
+             * @description report.protein.per_100kcal; null without protein or energy
+             */
+            protein_per_100kcal: number | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "ours" | "off";
+        };
+        /**
+         * SearchSort
+         * @description Search order: ``relevance`` (ours first, then Open Food Facts) or ``protein`` (most
+         *     protein per 100 kcal first, unknown last, never avoid for the member).
+         * @enum {string}
+         */
+        SearchSort: "relevance" | "protein";
+        /** Summary */
+        Summary: {
+            bands: components["schemas"]["NutrientBands"];
+            /**
+             * Days
+             * @description 1 for day, 7 for week (oldest first)
+             */
+            days: components["schemas"]["DaySummary"][];
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            incomplete: components["schemas"]["IncompleteNutrients"];
+            limits: components["schemas"]["DailyLimitsOut"];
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /**
+             * Pending Clinician Review
+             * @default true
+             */
+            pending_clinician_review: boolean;
+            period: components["schemas"]["SummaryPeriod"];
+            /**
+             * Protein Left G
+             * @description period=day only: max(0, limits.protein_target_g - totals.protein_g), 1 dp (the whole target when nothing is logged). Null when there is no target, when protein is incomplete for the day, or for period=week. A guide, not a need.
+             */
+            protein_left_g: number | null;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            totals: components["schemas"]["Totals"];
+        };
+        /**
+         * SummaryPeriod
+         * @enum {string}
+         */
+        SummaryPeriod: "day" | "week";
+        /**
+         * Totals
+         * @description Sums of the KNOWN values only; see ``Summary.incomplete``. null when no meal in the
+         *     period has a value for that nutrient (also when nothing was logged): never shown as 0.
+         */
+        Totals: {
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            /** Protein G */
+            protein_g: number | null;
+            /** Salt G */
+            salt_g: number | null;
+            /** Sugars G */
+            sugars_g: number | null;
         };
         /** UploadUrlIn */
         UploadUrlIn: {
@@ -677,8 +1865,46 @@ export interface components {
             /** Upload Url */
             upload_url: string;
         };
+        /**
+         * UserTypesIn
+         * @description `types == []` is "Skip for now" (P9-R3). The order is the user's tap order.
+         */
+        UserTypesIn: {
+            follow_ups?: components["schemas"]["FollowUps"];
+            /** Types */
+            types: ("health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better")[];
+        };
+        /** UserTypesOut */
+        UserTypesOut: {
+            /**
+             * Active Type
+             * @description Resolved: the stored value if still selected, else the highest-priority chosen type, else eat_better
+             * @enum {string}
+             */
+            active_type: "health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better";
+            /**
+             * Answered
+             * @description False until the first PUT: clients show the picker
+             */
+            answered: boolean;
+            /** Answered At */
+            answered_at: string | null;
+            follow_ups: components["schemas"]["FollowUps"];
+            /** @description Suggested changes to the primary member (null until answered) */
+            prefill: components["schemas"]["PrefillSuggestion"] | null;
+            /**
+             * Types
+             * @description The user's tap order
+             */
+            types: ("health_condition" | "family" | "weight_loss" | "gym" | "allergy_diet" | "eat_better")[];
+        };
         /** VerdictOut */
         VerdictOut: {
+            /**
+             * Is Primary
+             * @description The account holder: clients say 'for you'. Display only; never affects status.
+             */
+            is_primary: boolean;
             /**
              * Member Id
              * Format: uuid
@@ -694,10 +1920,90 @@ export interface components {
             /** Reasons */
             reasons: components["schemas"]["ReasonOut"][];
             /**
+             * Relation
+             * @description Display only (headline wording); never affects status.
+             * @enum {string}
+             */
+            relation: "self" | "child" | "parent" | "spouse" | "other";
+            /**
              * Status
              * @enum {string}
              */
             status: "ok" | "caution" | "unknown" | "avoid";
+        };
+        /**
+         * VoiceAnswer
+         * @description A spoken answer. `answer` always starts with the engine's verdict sentence for
+         *     `verdict_status`; clients show it with the "not medical advice" disclaimer and never
+         *     derive a verdict from the text.
+         */
+        VoiceAnswer: {
+            /**
+             * Answer
+             * @description Engine verdict sentence, then the explanation.
+             */
+            answer: string;
+            /**
+             * Audio Base64
+             * @description The spoken answer, base64-encoded (`audio_mime`), sent only in this response and never stored. null when the audio would be over about 1 MB: show `answer` as text.
+             */
+            audio_base64: string | null;
+            /**
+             * Audio Mime
+             * @description Media type of audio_base64 (mp3).
+             * @default audio/mpeg
+             * @constant
+             */
+            audio_mime: "audio/mpeg";
+            /**
+             * Question
+             * @description The transcribed question (never stored or logged).
+             */
+            question: string;
+            /**
+             * Source
+             * @description llm: AI explanation that passed every check; fallback: rule-based text.
+             * @enum {string}
+             */
+            source: "llm" | "fallback";
+            /**
+             * Verdict Status
+             * @enum {string}
+             */
+            verdict_status: "ok" | "caution" | "unknown" | "avoid";
+        };
+        /**
+         * VoiceLanguage
+         * @description Language of the question and of the spoken answer (a named schema, so the generated
+         *     clients get a real enum type for the multipart field).
+         * @enum {string}
+         */
+        VoiceLanguage: "en" | "hi" | "mr";
+        /**
+         * WeekCounts
+         * @description Account-wide counts for the weekly share text. Counts only, no health data.
+         */
+        WeekCounts: {
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Logged
+             * @description Meal logs in the 7 IST days, all members
+             */
+            logged: number;
+            /**
+             * Scans
+             * @description Products checked (analyses) in the 7 IST days
+             */
+            scans: number;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
         };
     };
     responses: never;
@@ -728,6 +2034,89 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalyzeOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    consents_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentState"][];
                 };
             };
             /** @description Missing or invalid access token */
@@ -775,8 +2164,68 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Open Food Facts unavailable */
-            503: {
+        };
+    };
+    consents_record: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentState"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -925,6 +2374,1116 @@ export interface operations {
             };
         };
     };
+    me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account erased (also when it was already gone) */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description deletion_incomplete: storage or sign-in removal failed; retry */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    me_user_types_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTypesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    me_user_types_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserTypesIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTypesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required (details.purposes = ['health_data']): a health-revealing type (health_condition, weight_loss, allergy_diet) or a health follow-up (conditions, allergens, diet) needs the health_data consent. Nothing is saved. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    me_user_types_set_active: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActiveTypeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTypesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_list: {
+        parameters: {
+            query: {
+                member_id: string;
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealOut"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_log: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealIn"];
+            };
+        };
+        responses: {
+            /** @description Already logged with this client_id (no new row) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_summary: {
+        parameters: {
+            query: {
+                member_id: string;
+                period?: components["schemas"]["SummaryPeriod"];
+                /** @description IST date; default today */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Summary"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_week_counts: {
+        parameters: {
+            query?: {
+                /** @description IST date; default today */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeekCounts"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Consent required: saving health fields needs the health_data consent */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                member_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                member_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    members_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                member_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Consent required: saving health fields needs the health_data consent */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    methodology_get: {
+        parameters: {
+            query?: {
+                language?: components["schemas"]["MethodologyLanguage"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Methodology"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     products_create: {
         parameters: {
             query?: never;
@@ -949,6 +3508,15 @@ export interface operations {
             };
             /** @description Missing or invalid access token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1079,6 +3647,278 @@ export interface operations {
             };
         };
     };
+    products_alternatives_by_barcode: {
+        parameters: {
+            query?: {
+                member_id?: string | null;
+                /** @description grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the member (member_id or the primary member), never a worse grade */
+                sort?: components["schemas"]["AlternativesSort"];
+            };
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlternativesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_compare: {
+        parameters: {
+            query?: {
+                /** @description Side a: our product id */
+                a?: string | null;
+                /** @description Side a: barcode */
+                a_barcode?: string | null;
+                /** @description Side b: our product id */
+                b?: string | null;
+                /** @description Side b: barcode */
+                b_barcode?: string | null;
+                member_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompareOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    products_search: {
+        parameters: {
+            query: {
+                limit?: number;
+                /** @description relevance: ours first, then Open Food Facts. protein: most protein per 100 kcal first (unknown last), never avoid for the member (member_id or the primary member) */
+                sort?: components["schemas"]["SearchSort"];
+                member_id?: string | null;
+                /** @description 3 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchHit"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description off_unavailable: the Open Food Facts search budget is used up, nothing is cached for this query and we have no local hits; retry after Retry-After seconds */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     products_get_public: {
         parameters: {
             query?: {
@@ -1157,6 +3997,175 @@ export interface operations {
             };
         };
     };
+    products_alternatives: {
+        parameters: {
+            query?: {
+                member_id?: string | null;
+                /** @description grade: better Nutri-Score. protein: more protein per 100 kcal, never avoid for the member (member_id or the primary member), never a worse grade */
+                sort?: components["schemas"]["AlternativesSort"];
+            };
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlternativesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    reports_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportCreate"];
+            };
+        };
+        responses: {
+            /** @description Same open report already exists */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     scans_create_label: {
         parameters: {
             query?: never;
@@ -1181,6 +4190,15 @@ export interface operations {
             };
             /** @description Missing or invalid access token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1215,7 +4233,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
-            /** @description Validation error */
+            /** @description Validation error, or `image_quality_low`: the photo is clearly unreadable and no extraction was attempted (not counted toward the scan limit). `details.reasons` lists `blur`, `glare` and/or `too_small`; show `image_quality.<reason>` and ask for a retake. */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -1293,6 +4311,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
             /** @description Not found */
             404: {
                 headers: {
@@ -1330,6 +4357,111 @@ export interface operations {
                 };
             };
             /** @description Storage unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    voice_ask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_voice_ask"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceAnswer"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description ai_processing consent required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Audio longer than 30 s or larger than 5 MB (audio_too_long, audio_too_large), or the whole request over 6 MB (payload_too_large) */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not an accepted audio format */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), or speech, AI or OFF is unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;

@@ -51,7 +51,7 @@ def load_member(member_id: str, base: Path | None = None) -> Member:
     _check_keys(d, _names(Member) | MEMBER_META_KEYS, path)
     kwargs = dict(d)
     kwargs["diet"] = Diet(_require(d, "diet", path))
-    for key in ("allergens", "conditions"):
+    for key in ("allergens", "conditions", "custom_alerts"):
         if key in kwargs:
             kwargs[key] = tuple(kwargs[key])
     return Member(**kwargs)

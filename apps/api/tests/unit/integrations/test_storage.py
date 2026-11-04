@@ -130,3 +130,56 @@ async def test_unconfigured_storage_is_unavailable():
     with pytest.raises(StorageUnavailable):
         await storage.download(PATH)
     await gen.aclose()
+
+
+# --- upload (label photos: the EXIF-free re-encode) ------------------------------------------
+
+
+async def test_upload_request():
+    storage, seen = make(lambda r: httpx.Response(200, json={"Key": f"label-photos/{PATH}"}))
+    await storage.upload(PATH, b"\xff\xd8\xffjpeg", "image/jpeg")
+    [req] = seen
+    assert req.method == "POST"
+    assert str(req.url) == f"{URL}/storage/v1/object/label-photos/{PATH}"
+    assert req.headers["content-type"] == "image/jpeg"
+    assert req.headers["authorization"] == f"Bearer {KEY}"
+    assert req.headers.get("x-upsert") != "true"
+    assert req.content == b"\xff\xd8\xffjpeg"
+
+
+async def test_upsert_upload_overwrites():
+    """D1/S4: the server replaces a label photo with its EXIF-free re-encode."""
+    path = "11111111-1111-1111-1111-111111111111/5b0a5e8e-8a5e-4d0e-9a39-0f9a2f6b8c11.png"
+    storage, seen = make(lambda r: httpx.Response(200, json={"Key": f"label-photos/{path}"}))
+    await storage.upload(path, b"\xff\xd8\xffjpeg", "image/jpeg", upsert=True)
+    [req] = seen
+    assert req.method == "POST"
+    assert str(req.url) == f"{URL}/storage/v1/object/label-photos/{path}"
+    assert req.headers["x-upsert"] == "true"
+    assert req.headers["content-type"] == "image/jpeg"
+
+
+@pytest.mark.parametrize("status", [400, 401, 403, 409, 500])
+async def test_upload_errors_unavailable(status):
+    storage, _ = make(lambda r: httpx.Response(status, json={"error": "boom"}))
+    with pytest.raises(StorageUnavailable):
+        await storage.upload(PATH, b"x", "image/jpeg")
+
+
+async def test_upload_network_error_unavailable():
+    def _boom(request):
+        raise httpx.ConnectError("down")
+
+    storage, _ = make(_boom)
+    with pytest.raises(StorageUnavailable):
+        await storage.upload(PATH, b"x", "image/jpeg")
+
+
+def test_no_voice_bucket_or_signed_download_urls():
+    """ADR 0020: voice audio is never stored, so there is no voice bucket and nothing to sign
+    for download."""
+    from app.integrations import storage
+
+    assert not hasattr(storage, "get_voice_storage")
+    assert not hasattr(SupabaseStorage, "create_signed_url")
+    assert "supabase_voice_bucket" not in Settings.model_fields

@@ -2,7 +2,7 @@
 
 This is the **web app** for SmartNutri AI, built with Next.js. It ships **every v1 feature** that the Android app (`apps/app`) ships (full parity), plus **public pages that Google can index**. Root rules in `../../AGENTS.md` apply first.
 
-> **Current state:** shell scaffolded (Plan 2 Task 13): locales, landing page, tokens, Biome, Vitest, Playwright. shadcn is not initialised yet; run `pnpm dlx shadcn@4.23.0 init` in the first task that needs a component.
+> **Current state:** design system and app shell in place. `src/components/ui` holds hand-built, dependency-free primitives (Button, Card, SectionHeader, EmptyState, ErrorState, Skeleton/LoadingState, DisclaimerFooter, VerdictBadge, ReasonList, NutriScoreChip, icons); `src/components/shell` holds the header, language switcher, tab bar/sidebar and footer. shadcn is not initialised. Verdict tone comes only from `data-verdict` CSS in `globals.css` (default: unknown grey). Fonts: Noto Sans + Noto Sans Devanagari via next/font (self-hosted). Dark mode follows `prefers-color-scheme` via the `color.dark.*` tokens.
 
 ## Stack (versions checked 2026-11-02)
 
@@ -62,7 +62,7 @@ apps/web/
   - Reason codes map to `reason.<code>` keys.
 - **Styling:** Tailwind with the generated token variables only. No raw hex colours. Verdict colours come from the shared tokens, and `unknown` is never green.
 - **Verdict UI:** show the engine status exactly, the member's name, the reasons, and "Information, not medical advice". Label extraction always goes through an editable confirm step before saving.
-- **Secrets:** only `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_POSTHOG_KEY`, plus the non-secret `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_FEATURE_PHONE_OTP` and `NEXT_PUBLIC_FEATURE_EMAIL_OTP`. No CallMissed key, no service-role key, not even in server code.
+- **Secrets:** only `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_POSTHOG_KEY`, plus the non-secret `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_FEATURE_PHONE_OTP`, `NEXT_PUBLIC_FEATURE_EMAIL_OTP` and `NEXT_PUBLIC_FEATURE_VOICE`. No CallMissed key, no service-role key, not even in server code.
 - **Security headers:** a strict CSP (nonce-based), `X-Frame-Options: DENY`, a Supabase cookie session (Secure in production, SameSite=Lax; readable by JS by design, ADR 0014) and HSTS.
 - **Credit Open Food Facts** wherever its data is shown, including public product pages.
 - **Parity:** each feature has an Android counterpart. Component tests use the shared cases in `packages/test-fixtures`.
@@ -79,6 +79,7 @@ apps/web/
 | `NEXT_PUBLIC_SITE_URL` | Public site origin (canonical URLs, OAuth redirect); not secret |
 | `NEXT_PUBLIC_FEATURE_PHONE_OTP` | Feature flag, `false` until WhatsApp OTP is enabled; not secret |
 | `NEXT_PUBLIC_FEATURE_EMAIL_OTP` | Feature flag, `false` until custom SMTP sends 6-digit email codes; not secret |
+| `NEXT_PUBLIC_FEATURE_VOICE` | Feature flag, `false` until the API runs with `VOICE_ENABLED=true` (push-to-talk, F10); not secret |
 | `SENTRY_DSN` / `SENTRY_AUTH_TOKEN` | Error reporting; the auth token is used only at build time in CI |
 
 `.env.local` is git-ignored. `.env.example` documents the keys.

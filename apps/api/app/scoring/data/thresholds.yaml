@@ -15,6 +15,16 @@ claims:   # verify values against FSSAI (Advertising & Claims) Regulations 2018,
   refined_sugar_terms: [sugar, cane sugar, refined sugar, sucrose, brown sugar, icing sugar]
   # Unrefined sugars are not "refined sugar": excluded before matching (Ruling R33; pending clinician review)
   unrefined_sugar_excludes: [coconut sugar, palm sugar, date sugar, jaggery, gur, khandsari, गुड़]
+  # Protein claims vs the nutrition table (Plan 9 Task 4). PENDING CLINICIAN REVIEW;
+  # SmartNutri working value (verify against the FSSAI Labelling and Display Regulations 2020
+  # tolerance). "24 g protein per scoop" is contradicted when the table shows more than this
+  # share below the claimed amount. Claim checks add no member reason (P9-R12).
+  protein_amount_shortfall_pct: 10
+  # "100% whey" / "whey protein" vs the ingredients (pending dietitian review).
+  whey_terms: [whey, whey protein, whey protein concentrate, whey protein isolate, hydrolysed whey, hydrolyzed whey, wpc, wpi, व्हे]
+  # Milk powders, milk solids, milk proteins and egg proteins are other protein sources too
+  # (P9 safety S1). Plain "soy" is deliberately absent: soy lecithin is an emulsifier.
+  other_protein_terms: [soy protein, soya protein, soy protein isolate, pea protein, rice protein, wheat protein, wheat gluten, collagen, gelatin, casein, caseinate, milk protein concentrate, milk protein isolate, milk protein, skimmed milk powder, skim milk powder, milk powder, milk solids, egg albumin, albumin, egg white, egg protein, मिल्क पाउडर, मिल्क सॉलिड्स, दूध पाउडर]
 # Member-entered condition/goal names -> canonical applies_to names (Ruling R24; pending clinician review).
 # Keys are normalised (lowercase, non-word runs -> "_"). Anything unrecognised -> condition_unrecognised (UNKNOWN).
 condition_aliases:
@@ -58,6 +68,12 @@ conditions:
     caution_energy_kcal: 400
     caution_nutriscore: [D, E]
     good_protein_g_per_100kcal: 5
+  # PENDING CLINICIAN REVIEW (Plan 9 Task 3). A goal is a preference (Ruling R34): it may add
+  # an OK-level reason (good_protein_density) only, never a caution or avoid, and a missing
+  # value adds nothing. 5 g per 100 kcal is the same SmartNutri working value as weight_loss.
+  build_muscle:
+    applies_to: [build_muscle]
+    good_protein_g_per_100kcal: 5
   child:          # infant.max_age <= age < max_age
     max_age: 13
     free_sugar_daily_limit_g: {2: 19, 7: 24, 11: 30}   # key = min age of band (NHS; 2–3 uses 4–6 value)
@@ -69,3 +85,126 @@ conditions:
     # 5 g lets plain milk (~4.7 g lactose) pass; infant formula (~7 g) would be flagged)
     avoid_sugars_g: 5.0
     avoid_salt_g: 0.3
+# Supplements (Plan 9 Task 7, P9-R10). PENDING CLINICIAN REVIEW. A supplement (the category the
+# user picks on the confirm screen, or Open Food Facts supplement tags; never the LLM) gets no
+# Nutri-Score grade; every other rule still runs. ICMR-NIN Dietary Guidelines 2024 discourage
+# protein supplements; the child caution and the infant avoid are SmartNutri working values.
+# conditions.infant.max_age <= age < child_max_age -> child_status (reason supplement_child);
+# age < conditions.infant.max_age -> infant_status (supplement_infant). An unknown age gets the
+# existing age_unknown (unknown): the supplement rule always flags at the most protective age.
+supplements:
+  child_max_age: 18
+  child_status: caution
+  infant_status: avoid
+  # Supplement-suspect hint (P9 safety S5; SmartNutri working values, PENDING CLINICIAN
+  # REVIEW). A product that is not a supplement but lists one of suspect_terms, or has at least
+  # suspect_min_protein_g protein per 100 g, gets a confirm-screen hint suggesting the
+  # supplement category, and is left out of protein-sorted search and alternatives for members
+  # under child_max_age (or of unknown age). Never sets the category and never changes a
+  # verdict. Plain "whey" / "whey powder" are deliberately absent: biscuits and chocolates list
+  # them. 50 g also catches some ordinary dry foods (soya chunks ~52 g): only a hint for them.
+  suspect_min_protein_g: 50
+  suspect_terms: [whey protein, whey protein concentrate, whey protein isolate, hydrolysed whey, hydrolyzed whey, wpc, wpi, protein isolate, protein concentrate, व्हे प्रोटीन]
+  # Naturally high-protein whole foods (P9 integration q3): legumes, soya chunks and dairy.
+  # The protein threshold alone does not flag a product whose FIRST ingredient is one of
+  # these, or whose category is in suspect_whole_food_categories, unless an ingredient names
+  # a protein (suspect_protein_words: "pea protein", "soy protein", casein, caseinate). suspect_terms (whey,
+  # isolate, concentrate) still flag them. SmartNutri working values, PENDING CLINICIAN REVIEW.
+  suspect_whole_food_terms: [soya chunks, soya chunk, soy chunks, soya nuggets, soy nuggets, soya granules, soya badi, soya flour, soy flour, defatted soya flour, defatted soy flour, soybean, soybeans, soya bean, soya beans, chana, roasted chana, chickpea, chickpeas, dal, moong, moong dal, masoor, urad, rajma, lentil, lentils, peas, besan, gram flour, peanut, peanuts, groundnut, groundnuts, paneer, cottage cheese, chhena, skyr, quark, curd, yogurt, yoghurt, greek yogurt, cheese, milk, skimmed milk, skim milk, toned milk, सोया, सोयाबीन, सोया चंक्स, सोया बड़ी, चना, दाल, मूंग, राजमा, बेसन, मूंगफली, पनीर, दही, दूध, हरभरा, डाळ, शेंगदाणे]
+  suspect_whole_food_categories: [cheese]
+  suspect_protein_words: [protein, proteins, casein, caseinate, calcium caseinate, milk protein, प्रोटीन, प्रथिने]
+# Daily limits for the meal-log summaries (Plan 6 T1). PENDING CLINICIAN REVIEW.
+# Read only by daily_limits.py, never by the verdict rules, with one exception: protein_min_age
+# also gates the OK-level good_protein_density reason (conditions.py, P9 safety S4), which never
+# changes a status. Per DAY; a week is limit x 7.
+# Summaries compare TOTAL sugars from labels with these free/added-sugar limits: labels do not
+# separate free from natural sugar, so the comparison over-warns (never under-warns).
+daily_limits:
+  # sugar 25 g: WHO conditional free-sugar recommendation (< 5 % of energy);
+  #   https://www.who.int/publications/i/item/9789241549028
+  # salt 5 g: WHO sodium guideline (< 2 g sodium a day);
+  #   https://www.who.int/publications/i/item/9789241504836
+  # protein 0.83 g/kg: WHO/FAO/UNU safe level for adults (TRS 935, 2007); a TARGET, not a limit.
+  #   https://www.who.int/publications/i/item/9789241209359
+  adult:  {sugar_g: 25, salt_g: 5, protein_g_per_kg: 0.83}
+  # The 0.83 g/kg protein target applies from this age only: it is the ADULT safe level
+  # (WHO/FAO/UNU TRS 935, 2007, above); children and adolescents have age-specific values
+  # there. Younger members, and an unknown age, get no protein target (Ruling M1 S3).
+  protein_min_age: 18
+  # Protein TARGET by goal (g per kg body weight per day), adults (protein_min_age) with a
+  # weight only. build_muscle 1.6: ISSN position stand 2017 (Jager et al., PMID 28642676),
+  # range 1.4-2.0 g/kg for exercising people. PENDING CLINICIAN REVIEW. Other goals use
+  # adult.protein_g_per_kg (weight_loss keeps 0.83, Ruling P9-R13). A guide, never a need;
+  # it never changes a verdict (read only by daily_limits.py).
+  #   https://pubmed.ncbi.nlm.nih.gov/28642676/
+  protein_g_per_kg_by_goal: {build_muscle: 1.6}
+  # key = min age of band, for infant.max_age <= age < child.max_age. Child SUGAR reuses
+  # conditions.child.free_sugar_daily_limit_g. NHS: 1-3 y 2 g, 4-6 y 3 g, 7-10 y 5 g, 11+ 6 g
+  # (Ruling P6-R1: 2-3 year olds keep NHS's own 2 g, the stricter value).
+  #   https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/
+  child_salt_g_by_min_age: {2: 2, 4: 3, 7: 5, 11: 6}
+  # Under 2 (conditions.infant.max_age): no added sugar or salt (WHO). 0 means any logged
+  # sugar or salt shows as "over" (total sugars include milk lactose, so this over-warns).
+  infant: {sugar_g: 0, salt_g: 0}
+  # "near" from this share of the limit (SmartNutri working value).
+  near_pct: 80
+# Sources shown on "How we score" (methodology(); Plan 5 T2). Read only by methodology(),
+# never by the rules. url_verified: false until a human has opened and checked each URL
+# (Ruling P5-R10); the public M5 page must not ship unverified links.
+sources:
+  nutriscore_2023: {title: "Nutri-Score 2023 update (Santé publique France)", url: "https://www.santepubliquefrance.fr/nutri-score-2023-update", url_verified: false}
+  # EF1: the two Scientific Committee reports behind the 2023 algorithm. The point tables
+  # (official, not health thresholds of ours) live in app/scoring/nutriscore.py.
+  # Foods, incl. the fats/oils/nuts/seeds table (energy from saturates, sat/fat ratio, A <= -6).
+  nutriscore_2023_foods: {title: "Update of the Nutri-Score algorithm: Scientific Committee report 2022 (foods; fats, oils, nuts and seeds)", url: "https://www.santepubliquefrance.fr/en/nutri-score", url_verified: false}
+  # Beverages, incl. milk, dairy and plant drinks as beverages; only water gets A.
+  nutriscore_2023_beverages: {title: "Update of the Nutri-Score algorithm for beverages: Scientific Committee report 2023", url: "https://www.santepubliquefrance.fr/en/nutri-score", url_verified: false}
+  # Open reference implementation every table, operator and band was checked against (E2).
+  off_nutriscore_2023: {title: "Open Food Facts: reference implementation of Nutri-Score 2023 (Nutriscore.pm)", url: "https://github.com/openfoodfacts/openfoodfacts-server/blob/main/lib/ProductOpener/Nutriscore.pm", url_verified: false}
+  uk_fsa_front_of_pack: {title: "UK FSA front-of-pack guidance (high thresholds)", url: "https://www.food.gov.uk/safety-hygiene/check-the-label", url_verified: false}
+  fssai_claims_2018: {title: "FSSAI (Advertising & Claims) Regulations 2018", url: "https://www.fssai.gov.in/upload/uploadfiles/files/Compendium_Advertising_Claims_Regulations_14_12_2022.pdf", url_verified: false}
+  fssai_labelling_2020: {title: "FSSAI Labelling & Display Regulations 2020", url: "https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php", url_verified: false}
+  icmr_nin_2024: {title: "ICMR-NIN Dietary Guidelines for Indians 2024", url: "https://www.nin.res.in/dietaryguidelines/", url_verified: false}
+  nhs_child_sugar: {title: "NHS: sugar limits for children", url: "https://www.nhs.uk/live-well/eat-well/food-types/how-does-sugar-in-our-diet-affect-our-health/", url_verified: false}
+  who_infant: {title: "WHO guidance: no added sugar or salt under 2", url: "https://www.who.int/news-room/fact-sheets/detail/healthy-diet", url_verified: false}
+  uk_sdil: {title: "UK Soft Drinks Industry Levy (5 g sugar per 100 ml)", url: "https://www.gov.uk/guidance/soft-drinks-industry-levy", url_verified: false}
+  ada_standards_of_care: {title: "American Diabetes Association: Standards of Care in Diabetes, Section 5", url: "https://diabetesjournals.org/care/issue/48/Supplement_1", url_verified: false}
+  who_free_sugars: {title: "WHO guideline: sugars intake for adults and children", url: "https://www.who.int/publications/i/item/9789241549028", url_verified: false}
+  who_sodium: {title: "WHO guideline: sodium intake for adults and children", url: "https://www.who.int/publications/i/item/9789241504836", url_verified: false}
+  who_protein_2007: {title: "WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)", url: "https://www.who.int/publications/i/item/9789241209359", url_verified: false}
+  issn_protein_2017: {title: "ISSN position stand: protein and exercise (2017)", url: "https://pubmed.ncbi.nlm.nih.gov/28642676/", url_verified: false}
+  nhs_child_salt: {title: "NHS: salt limits for children", url: "https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/", url_verified: false}
+  # Numbers SmartNutri chose itself (no external source states them). No link.
+  smartnutri_working_values: {title: "SmartNutri working values, pending clinician review", url: null, url_verified: false}
+# Section -> where its numbers come from (`thresholds`) and, optionally, why the rule exists
+# (`rationale`). Both are lists of keys from `sources` above. null = a member's own preference,
+# not a health rule, so there is nothing to cite (Ruling P7).
+section_sources:
+  nutriscore_2023: {thresholds: [nutriscore_2023, nutriscore_2023_foods, nutriscore_2023_beverages, off_nutriscore_2023]}
+  high_in:         {thresholds: [uk_fsa_front_of_pack]}
+  allergens:       {thresholds: [fssai_labelling_2020]}
+  diet:            {thresholds: [fssai_labelling_2020]}
+  # Claim limits: FSSAI 2018; the protein-amount tolerance is a SmartNutri value (Plan 9).
+  claims:          {thresholds: [fssai_claims_2018, smartnutri_working_values], rationale: [fssai_labelling_2020]}
+  # avoid/caution sugars: UK FSA high-in and FSSAI low-sugar bands; drink avoid: UK SDIL;
+  # carbs per serving (30 g): SmartNutri. ICMR-NIN and ADA are attached below as rationale
+  # only (not threshold sources); they back the cardio_high_in rule. ICMR-NIN is likewise
+  # rationale-only for hypertension and weight_loss.
+  blood_sugar:     {thresholds: [uk_fsa_front_of_pack, fssai_claims_2018, uk_sdil, smartnutri_working_values], rationale: [icmr_nin_2024, ada_standards_of_care]}
+  # avoid 1.5 g and caution 0.3 g salt per 100 g are the UK FSA high and low salt bands.
+  hypertension:    {thresholds: [uk_fsa_front_of_pack], rationale: [icmr_nin_2024]}
+  # 400 kcal and the protein density are SmartNutri values; D/E are Nutri-Score grades.
+  weight_loss:     {thresholds: [smartnutri_working_values, nutriscore_2023], rationale: [icmr_nin_2024]}
+  # The protein density is a SmartNutri value; ISSN 2017 is why protein matters for this goal.
+  build_muscle:    {thresholds: [smartnutri_working_values], rationale: [issn_protein_2017]}
+  # Daily free-sugar limits by age are NHS; the 25 % / 50 % shares are SmartNutri values.
+  child:           {thresholds: [nhs_child_sugar, smartnutri_working_values]}
+  # 5 g sugar and 0.3 g salt per 100 g are SmartNutri values (Ruling R27), NOT WHO numbers.
+  infant:          {thresholds: [smartnutri_working_values], rationale: [who_infant]}
+  # Supplement ages and statuses are SmartNutri values; ICMR-NIN 2024 is why (Plan 9).
+  supplements:     {thresholds: [smartnutri_working_values], rationale: [icmr_nin_2024]}
+  custom_alerts:   null
+  # Adult sugar and salt: WHO; protein target: WHO/FAO/UNU (build_muscle: ISSN 2017); child
+  # bands: NHS; the 80 % "near" share: SmartNutri. Infant 0 g rests on WHO's "no added sugar
+  # or salt under 2" (rationale).
+  daily_limits:    {thresholds: [who_free_sugars, who_sodium, who_protein_2007, issn_protein_2017, nhs_child_sugar, nhs_child_salt, smartnutri_working_values], rationale: [who_infant]}

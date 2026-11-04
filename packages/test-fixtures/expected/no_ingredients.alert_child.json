@@ -1,0 +1,21 @@
+{
+  "status": "unknown",
+  "reasons": [
+    {
+      "code": "custom_alert_unknown",
+      "severity": "unknown"
+    },
+    {
+      "code": "diet_unknown",
+      "severity": "unknown"
+    },
+    {
+      "code": "ingredients_missing",
+      "severity": "unknown"
+    },
+    {
+      "code": "child_sugar_moderate",
+      "severity": "caution"
+    }
+  ]
+}

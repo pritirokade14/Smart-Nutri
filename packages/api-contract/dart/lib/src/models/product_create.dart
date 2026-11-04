@@ -46,7 +46,8 @@ part 'product_create.g.dart';
 /// Scan-save rules (422 `validation_error` with `details.fields` naming the field):.
 /// - `category` and `basis` are always required (the user must pick them; nothing defaults).
 /// - (R19) `sodium_unit` must be `mg` or `g` (not null) whenever the draft has ANY.
-///   `unit_unconfirmed:*.sodium_mg` warning (either column, whichever `basis` is chosen) and.
+///   `unit_unconfirmed:*.sodium_mg` or `sodium_unit_suspect:*.sodium_mg` warning (either.
+///   column, whichever `basis` is chosen; `confirm.columns.*.sodium_unit_required`) and.
 ///   `nutrients.sodium_mg` is not null; else 422 `["body.sodium_unit"]`. Listing `sodium_mg`.
 ///   in `confirmed_fields` never stands in for the unit. A non-null unit confirms sodium.
 /// - (R19) With `basis` `per_serving`, or whenever the draft was `derived_from_serving`.
@@ -113,7 +114,7 @@ class ProductCreate {
   @JsonKey(name: 'serving_size_g')
   final num? servingSizeG;
 
-  /// The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this is a manual entry in mg). `g` is converted to mg by the server. Send the user's explicit pick (`mg` or `g`, never null) whenever the scan draft has any `unit_unconfirmed:*.sodium_mg` warning (either column, whatever the basis) and sodium is not null, else 422 `body.sodium_unit` (R19). A non-null unit confirms sodium; `confirmed_fields` never replaces it.
+  /// The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this is a manual entry in mg). `g` is converted to mg by the server. Send the user's explicit pick (`mg` or `g`, never null) whenever the scan draft has any `unit_unconfirmed:*.sodium_mg` or `sodium_unit_suspect:*.sodium_mg` warning (either column, whatever the basis; `sodium_unit_required`) and sodium is not null, else 422 `body.sodium_unit` (R19). A non-null unit confirms sodium; `confirmed_fields` never replaces it.
   @JsonKey(name: 'sodium_unit')
   final ProductCreateSodiumUnit? sodiumUnit;
   @JsonKey(name: 'veg_mark')

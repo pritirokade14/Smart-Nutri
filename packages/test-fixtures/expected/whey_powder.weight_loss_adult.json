@@ -1,0 +1,9 @@
+{
+  "status": "ok",
+  "reasons": [
+    {
+      "code": "good_protein_density",
+      "severity": "ok"
+    }
+  ]
+}

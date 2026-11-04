@@ -77,6 +77,15 @@ describe("shared confirm-screen fixtures (packages/test-fixtures/drafts)", () =>
         expect(categoryChecked.map((r) => r.value)).toEqual(
           hints.category_required ? [] : [draft.category],
         );
+        // P9 S5: the API's category hint, next to the picker, only when set.
+        const suggestion = within(
+          screen.getByTestId("choice-category"),
+        ).queryByText(c.category_suggestion.supplement);
+        if (hints.category_suggestion === "supplement") {
+          expect(suggestion).not.toBeNull();
+        } else {
+          expect(suggestion).toBeNull();
+        }
         // Never pre-ticked.
         for (const box of screen.queryAllByTestId(/^confirm-/))
           expect((box as HTMLInputElement).checked).toBe(false);

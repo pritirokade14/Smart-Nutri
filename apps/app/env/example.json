@@ -7,5 +7,7 @@
   "SENTRY_DSN": "",
   "POSTHOG_KEY": "",
   "FEATURE_PHONE_OTP": "false",
-  "FEATURE_EMAIL_OTP": "false"
+  "FEATURE_EMAIL_OTP": "false",
+  "SITE_URL": "",
+  "FEATURE_VOICE": "false"
 }

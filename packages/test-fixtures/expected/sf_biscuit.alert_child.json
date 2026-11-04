@@ -1,0 +1,9 @@
+{
+  "status": "caution",
+  "reasons": [
+    {
+      "code": "custom_alert",
+      "severity": "caution"
+    }
+  ]
+}

@@ -52,6 +52,22 @@ const cases = [
   ...publicFixtures(),
 ];
 
+describe("PublicProduct: report a problem (m3)", () => {
+  it("shows the report button when the product is ours", () => {
+    view(ownProduct);
+    expect(
+      screen.getByRole("button", { name: enMessages.report.button }),
+    ).toBeTruthy();
+  });
+
+  it("not for an Open Food Facts product (no product_id)", () => {
+    view(offProduct);
+    expect(
+      screen.queryByRole("button", { name: enMessages.report.button }),
+    ).toBeNull();
+  });
+});
+
 describe("PublicProduct", () => {
   it.each(cases)("renders $name without personal data", ({ data }) => {
     const { container } = view(data);

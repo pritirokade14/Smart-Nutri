@@ -1,0 +1,9 @@
+{
+  "status": "avoid",
+  "reasons": [
+    {
+      "code": "infant_added_sugar",
+      "severity": "avoid"
+    }
+  ]
+}
