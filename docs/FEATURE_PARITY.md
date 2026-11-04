@@ -13,7 +13,7 @@ A feature is done only when all of these hold:
 
 Status values: ⬜ not started · 🟡 code complete, waiting on a USER gate (manual check, review, deploy or eval) · ✅ done.
 
-**Honest state (2026-11-04):** F1–F20 are code complete on API, Android and web on `v1-rebuild` (API 2811, Flutter 1192, web 1083 tests). None is ✅ yet: each waits on at least one USER step (merge and deploy to dev, manual real-pack parity checks on a phone and in a browser, label eval, clinician and native-language review). Plan 4 and Plan 9 (F18–F20, PR #3) are merged to `main`.
+**Honest state (2026-11-04):** F1–F20 are code complete on API, Android and web and merged to `main`, and deployed to dev (API 3,972, Flutter 1,511, web 1,298 unit and 47 e2e tests). None is ✅ yet: each waits on at least one USER step (manual real-pack parity checks on a phone and in a browser, label eval, clinician and native-language review).
 
 | # | Feature | Milestone | API | Android (Flutter) | Web (Next.js) | Web-specific notes |
 |---|---|---|---|---|---|---|

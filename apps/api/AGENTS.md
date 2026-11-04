@@ -2,7 +2,9 @@
 
 This is the FastAPI service for SmartNutri AI. It holds the **rules engine** (`app/scoring`), the CallMissed AI and voice integration, the Open Food Facts lookup, **all database tables and RLS policies (Alembic)**, and the REST API used by **both** the Android app (`apps/app`) and the web app (`apps/web`). Root rules in `../../AGENTS.md` apply first.
 
-> **Current state:** the files here (`main.py`, `ai/`, `api/`, `database/`, `services/`, `requirements.txt`) are the **old prototype**. Plan 1 Task 1 deletes them and creates the `uv` project. Do not extend the prototype.
+> **Current state:** Plans 1–9 are built and merged to `main` (API 3,972 tests). Dev DB is at alembic head `0007_plan9_supplement_category`.
+>
+> **`.env` gotcha:** quote JSON values and values with spaces. `uv --env-file` stops parsing at the first bad line, so later settings silently go missing.
 
 ## Stack
 
@@ -81,7 +83,7 @@ A feature folder owns its route, schemas, SQLAlchemy models and service. Cross-f
 | `LOG_LEVEL` | Root log level, default `INFO` (independent of `ENVIRONMENT`) |
 | `POSTHOG_API_KEY` | Optional server-side analytics (no health data) |
 
-Model ids (`MODEL_EXTRACTION`, `MODEL_EXPLANATION`, `MODEL_STT`, `MODEL_TTS`), rate-limit values and the storage bucket name are added in Plan 2. Keep `.env.example` in sync. Never commit `.env`.
+Model ids (`MODEL_EXTRACTION`, `MODEL_EXPLANATION`, `MODEL_STT`, `MODEL_TTS`), rate-limit values and the storage bucket name are in `.env.example`. Keep it in sync. Never commit `.env`.
 
 ## Commands
 
@@ -106,8 +108,6 @@ From `apps/api`:
 **Migrate, then merge:** `/v1/health` returns 503 `schema_behind` until the database is at the Alembic head bundled with the build (`app/db/schema.py`). Apply a PR's migration to dev before merging it (see `docs/SETUP_ACCOUNTS.md`).
 
 **Migrations:** Alembic reads `DATABASE_URL`. Autogenerate does not emit RLS. Every new table needs `ENABLE` + `FORCE ROW LEVEL SECURITY` and its `TO authenticated` policies added by hand with `op.execute(...)`, plus a case in `tests/db/test_rls.py`.
-
-Commands for running the server and Docker are added by later Plan 2 tasks. Don't invent them before then.
 
 ## Conventions
 

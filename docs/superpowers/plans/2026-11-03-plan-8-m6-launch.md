@@ -419,7 +419,7 @@ gcloud projects add-iam-policy-binding smartnutri-513518 --member="serviceAccoun
 
 ### Task 11: Domain and HTTPS
 
-- [ ] **Step 1: USER:** buy the domain (e.g. `smartnutri.in`) and verify it in Google Search Console with the same Google account (pritirokade08@gmail.com). Claude gives the DNS TXT value from the Search Console screen.
+- [ ] **Step 1: USER:** buy the domain (e.g. `smartnutri.in`) and verify it in Google Search Console with the same Google account (the project owner's Google account). Claude gives the DNS TXT value from the Search Console screen.
 - [ ] **Step 2: Check Cloud Run domain-mapping support:** `CLOUDSDK_ACTIVE_CONFIG_NAME=smartnutri gcloud beta run domain-mappings create --service smartnutri-web --domain app.<domain> --region asia-south1`.
   - **If it succeeds:** also map `api.<domain>` to `smartnutri-api`. **USER** adds the printed DNS records.
   - **If it reports the region is unsupported:** use a global external Application Load Balancer:
@@ -488,7 +488,7 @@ keytool -genkeypair -v -keystore ~/smartnutri-upload.jks -keyalg RSA -keysize 40
 - [ ] **Step 1: USER:** in Google Auth Platform (project `smartnutri-513518`):
   - **Branding:** homepage `https://app.<domain>`, privacy policy URL, terms URL, authorised domain `<domain>` (verified in Task 11).
   - **Audience → Publish app.** Scopes stay `openid email profile` (non-sensitive), so no Google verification review is expected; adding a logo can trigger brand review, so skip the logo for v1.
-- [ ] **Step 2: USER:** in the CallMissed console (`prasaddhanade33@gmail.com`):
+- [ ] **Step 2: USER:** in the CallMissed console (the project's CallMissed account):
   - connect the WhatsApp Business Account (Meta Embedded Signup);
   - submit an **AUTHENTICATION** template `smartnutri_otp` with an OTP button (`one_tap` with package `com.smartnutri.app` and the app signature hash, else `copy_code`).
 

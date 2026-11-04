@@ -2,7 +2,7 @@
 
 **Scan any packaged food and see whether it's right for each person in your family**: diabetes, blood pressure, kids, allergies, Jain or vegan diets. Then log what you actually eat. In English, हिंदी and मराठी, with voice.
 
-> Status: **v1 rebuild in progress** on branch `v1-rebuild`. The original prototype is on `main`.
+> Status: all 9 v1 plans are code complete, merged to `main` and deployed to dev. Launch steps (prod, Play Store, reviews) are tracked in [CONTEXT.md](CONTEXT.md) and `docs/launch/RELEASE_CHECKLIST.md`.
 
 ## Platforms
 

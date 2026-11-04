@@ -2,7 +2,7 @@
 
 The SmartNutri AI web app: the same features as the Android app (scan, a verdict for each family member, food log, voice), plus public pages: home, "How we score", and product pages.
 
-> Not scaffolded yet. The web plan creates it with `create-next-app` (Next.js 16) and the layout in [AGENTS.md](AGENTS.md).
+> Built (Next.js 16) and merged to `main`. Layout and rules are in [AGENTS.md](AGENTS.md).
 
 ## Setup
 

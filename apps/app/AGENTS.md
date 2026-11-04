@@ -2,7 +2,11 @@
 
 This is the **Android app** for SmartNutri AI, built with Flutter. The web app is a separate Next.js project in `apps/web`, and **both ship every v1 feature** (full parity). Root rules in `../../AGENTS.md` apply first.
 
-> **Current state:** shell built (Plan 2 Task 11): `com.smartnutri.app`, Riverpod 3, `AppConfig` from `--dart-define`, theme from design tokens, generated l10n (en/hi/mr). The old prototype is deleted. New code follows the layout below.
+> **Current state:** Plans 2–9 are built and merged to `main` (1,511 tests): `com.smartnutri.app`, Riverpod 3, `AppConfig` from `--dart-define`, theme from design tokens, generated l10n (en/hi/mr).
+>
+> **Scanner gotcha (mobile_scanner 7.x):** the `MobileScanner` widget must be in the tree before `controller.start()`, or it fails with `controllerNotAttached`. The scan screen renders the preview under the spinner.
+>
+> **Real phone:** `env/dev.json` uses `10.0.2.2:8000`, which works only in the emulator. Use a git-ignored `env/dev-cloud.json`, a copy of `dev.json` with `API_BASE_URL` set to the dev Cloud Run API URL (`API_URL` in `.github/workflows/deploy-dev.yml`) and `SITE_URL` set to the dev web URL.
 
 ## Stack
 

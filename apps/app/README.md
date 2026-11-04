@@ -2,7 +2,7 @@
 
 The SmartNutri AI Android app: scan packaged food, get a verdict for each family member, and log what you eat. The web app with the same features is in [`apps/web`](../web/README.md).
 
-> The v1 rebuild is in progress. `lib/` is still the prototype until Plan 3 rebuilds it.
+> Plans 2–9 are built and merged to `main`.
 
 ## Setup
 
@@ -15,7 +15,7 @@ flutter pub get
 
 From the repo root, `just setup` also runs `just contract`, `just i18n` and `just tokens`, which generate the API client, the ARB string files and the theme tokens this app imports.
 
-Create `env/dev.json` from `env/example.json` (added in Plan 3):
+Create `env/dev.json` from `env/example.json`:
 
 ```json
 {
@@ -33,9 +33,9 @@ Create `env/dev.json` from `env/example.json` (added in Plan 3):
 }
 ```
 
-`SITE_URL` is the public web app origin. The privacy and terms links and the share link use it, and they are hidden when it is empty. `FEATURE_VOICE` shows push-to-talk; keep it `false` until the API runs with `VOICE_ENABLED=true`.
+`SITE_URL` is the public web app origin. The privacy and terms links and the share link use it, and they are hidden when it is empty. `FEATURE_VOICE` shows push-to-talk; turn it on only where the API runs with `VOICE_ENABLED=true` (dev does).
 
-On the Android emulator, `10.0.2.2` points at your computer's `localhost`.
+On the Android emulator, `10.0.2.2` points at your computer's `localhost`. On a real phone, use a git-ignored `env/dev-cloud.json`: a copy of `dev.json` with `API_BASE_URL` set to the dev Cloud Run API URL (see `API_URL` in `.github/workflows/deploy-dev.yml`) and `SITE_URL` set to the dev web URL.
 
 ## Run
 

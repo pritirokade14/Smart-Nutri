@@ -2,7 +2,7 @@
 
 FastAPI service with the SmartNutri rules engine, CallMissed AI and voice, the Open Food Facts lookup, and the database schema (Alembic). It serves both the Android app and the web app.
 
-> The v1 rebuild is in progress. The prototype files in this folder are replaced by Plan 1 (`docs/superpowers/plans/2026-11-02-plan-1-rules-engine.md`).
+> Plans 1–9 are built and merged to `main`. In `.env`, quote JSON values and values with spaces: `uv --env-file` stops at the first bad line.
 
 ## Setup
 
@@ -19,7 +19,7 @@ From the repo root, `just setup` and `just test-api` do the same.
 
 ## Configuration
 
-Copy `.env.example` to `.env` (added in Plan 2) and fill in:
+Copy `.env.example` to `.env` and fill in:
 
 - `CALLMISSED_API_KEY`: from the CallMissed console. Keep it secret, and never put it in either client.
 - `SUPABASE_URL`, `SUPABASE_JWKS_URL`, `DATABASE_URL`: from the Supabase project (Mumbai region).
