@@ -2,7 +2,11 @@
 
 This is the **web app** for SmartNutri AI, built with Next.js. It ships **every v1 feature** that the Android app (`apps/app`) ships (full parity), plus **public pages that Google can index**. Root rules in `../../AGENTS.md` apply first.
 
-> **Current state:** design system and app shell in place. `src/components/ui` holds hand-built, dependency-free primitives (Button, Card, SectionHeader, EmptyState, ErrorState, Skeleton/LoadingState, DisclaimerFooter, VerdictBadge, ReasonList, NutriScoreChip, icons); `src/components/shell` holds the header, language switcher, tab bar/sidebar and footer. shadcn is not initialised. Verdict tone comes only from `data-verdict` CSS in `globals.css` (default: unknown grey). Fonts: Noto Sans + Noto Sans Devanagari via next/font (self-hosted). Dark mode follows `prefers-color-scheme` via the `color.dark.*` tokens.
+> **Current state:** all v1 features built and merged to `main` (1,298 unit and 47 e2e tests). `robots.txt` and the sitemap exist; `og:image` share cards are not built (TODO). The long manual-entry form on mobile is a known minor UX issue.
+>
+> **CI gotcha:** `NEXT_PUBLIC_*` is inlined at build time, so the web CI build must set `NEXT_PUBLIC_SUPABASE_URL` to the e2e fake auth stub (`http://127.0.0.1:54321`).
+>
+> Design system and shell: `src/components/ui` holds hand-built, dependency-free primitives (Button, Card, SectionHeader, EmptyState, ErrorState, Skeleton/LoadingState, DisclaimerFooter, VerdictBadge, ReasonList, NutriScoreChip, icons); `src/components/shell` holds the header, language switcher, tab bar/sidebar and footer. shadcn is not initialised. Verdict tone comes only from `data-verdict` CSS in `globals.css` (default: unknown grey). Fonts: Noto Sans + Noto Sans Devanagari via next/font (self-hosted). Dark mode follows `prefers-color-scheme` via the `color.dark.*` tokens.
 
 ## Stack (versions checked 2026-11-02)
 
@@ -79,7 +83,7 @@ apps/web/
 | `NEXT_PUBLIC_SITE_URL` | Public site origin (canonical URLs, OAuth redirect); not secret |
 | `NEXT_PUBLIC_FEATURE_PHONE_OTP` | Feature flag, `false` until WhatsApp OTP is enabled; not secret |
 | `NEXT_PUBLIC_FEATURE_EMAIL_OTP` | Feature flag, `false` until custom SMTP sends 6-digit email codes; not secret |
-| `NEXT_PUBLIC_FEATURE_VOICE` | Feature flag, `false` until the API runs with `VOICE_ENABLED=true` (push-to-talk, F10); not secret |
+| `NEXT_PUBLIC_FEATURE_VOICE` | Feature flag, code default `false`; on in dev via the GitHub repo variable (push-to-talk, F10; needs API `VOICE_ENABLED=true`); not secret |
 | `SENTRY_DSN` / `SENTRY_AUTH_TOKEN` | Error reporting; the auth token is used only at build time in CI |
 
 `.env.local` is git-ignored. `.env.example` documents the keys.

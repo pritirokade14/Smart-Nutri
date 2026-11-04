@@ -12,4 +12,4 @@
   - `api-builder` (sonnet) implements plan tasks here and runs `just contract`.
   - `nutrition-safety-reviewer` (opus) must review any change to scoring, prompts, fixtures or calls that include health data.
 - After an API slice lands, `flutter-builder` and `web-builder` build the client side in parallel against the regenerated clients.
-- Active plan: `docs/superpowers/plans/2026-11-02-plan-1-rules-engine.md`. Work task by task and tick the checkboxes.
+- Plans live in `docs/superpowers/plans/` (all 9 are code complete). Follow the active plan task by task and tick the checkboxes.

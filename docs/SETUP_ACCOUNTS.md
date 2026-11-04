@@ -44,7 +44,7 @@ Why these models: [ADR 0021](adr/0021-callmissed-model-choices.md). Sources: doc
 | Speech-to-text | `saaras:v4` (`language` `en-IN` / `hi-IN` / `mr-IN`) | `whisper` (no `language`: auto-detect) | `POST /v1/audio/transcriptions`, multipart `file`, `model`, `language`; reply `{"text": ...}`; saaras at most 30 s of audio, 25 MB |
 | Text-to-speech | `bulbul:v3`, voices en `ratan`, hi `shubh`, mr `ratan` | `gnani-timbre-v3.0`, voice `Chetana` (all three) | `POST /v1/audio/speech`, JSON `model`, `input`, `voice`, `language`, `response_format: "mp3"`; bulbul at most 2,500 characters |
 
-- `sarvam-105b` stays selectable for explanations (`CALLMISSED_EXPLANATION_MODEL=sarvam-105b`, keep `CALLMISSED_EXPLANATION_REASONING_EFFORT=none`), but is not the default: it timed out at 8 s.
+- `sarvam-105b` is no longer the explanation model: it timed out at 8 s. `gemma-4-31b` is the default (ADR 0021).
 - The label eval (`label-eval` skill) should compare the three non-deprecated India vision models: `gemma-4-31b`, `glm-5.3-flash`, `deepseek-v4.1-flash-1017`.
 - `microsoft-neural-tts` is processed in India but is **voice-sessions only** (400 on `/v1/audio/speech`), so it cannot be the TTS fallback. Gnani Timbre v3 is (India, a different provider from Sarvam, Marathi supported).
 
@@ -106,7 +106,7 @@ It calls each job's primary **and** fallback (chat, vision on a drawn synthetic 
    - Prod: create it the same way at launch (Plan 8).
    - Local: the bucket comes from `supabase/config.toml`.
    - Photos are deleted after 30 days by the retention job (see "Retention job" below).
-   - **Voice answers bucket: NO LONGER NEEDED (ADR 0020, 2026-11-04).** Voice answers are returned inline in the API response and no voice audio is ever stored, so there is no `voice-answers` bucket and no `SUPABASE_VOICE_BUCKET` setting. Do not create one on prod. **Dev has an empty `voice-answers` bucket, created 2026-11-04, that nothing uses any more; USER may delete it** (Storage → `voice-answers` → Delete bucket).
+   - **Voice answers bucket: NO LONGER NEEDED (ADR 0020, 2026-11-04).** Voice answers are returned inline in the API response and no voice audio is ever stored, so there is no `voice-answers` bucket and no `SUPABASE_VOICE_BUCKET` setting. Do not create one on prod. **Dev has an unused `voice-answers` bucket that USER may delete** (Storage → `voice-answers` → Delete bucket).
 9. Create the production project, `smartnutri-prod` (Mumbai, **Pro plan**), only at launch (day 13–15).
 
 ---
@@ -144,6 +144,7 @@ gcloud artifacts repositories create smartnutri \
 - Authorised JavaScript origins: `http://localhost:3000`
 - Authorised redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`
 - Copy the **Client ID** (**public**) and **Client secret** (**SECRET**) into **Supabase → Providers → Google**.
+- **Gotcha:** web sign-in uses the OAuth code flow, so Supabase must hold the secret of *this web client*. A mismatch shows "Unable to exchange external code" on `/auth/callback` (fixed on dev 2026-11-04 by adding a new secret; the old one may be deleted). Android uses native Google ID tokens and is not affected.
 
 ### 3.5 OAuth client: Android (native Google sign-in)
 1. Get your debug SHA-1:
@@ -201,7 +202,7 @@ Deploys run on GitHub Actions (ADR 0015) with keyless Workload Identity Federati
    - `--dry-run` prints the names only.
 2. `bash scripts/setup-github-deploy.sh` (or `just setup-github-deploy`) : creates the service accounts, placeholder Cloud Run services with service-level roles, and the WIF pool and provider. Safe to re-run.
 3. GitHub repo → Settings → Secrets and variables → Actions → **Variables** → New repository variable `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the **public** publishable key). Optional variables: `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`.
-4. `just db-migrate` (head is now `0004_plan8_deleted_accounts`; migrations 0003 and 0004 must be applied to dev before Plans 5–8 reach `main`) with `apps/api/.env` pointing at the dev database (applies Alembic migrations; the URL is read by the app and never printed).
+4. `just db-migrate` (dev head is `0007_plan9_supplement_category`) with `apps/api/.env` pointing at the dev database (applies Alembic migrations; the URL is read by the app and never printed).
 5. Merge to `main` through a pull request when CI is green. The deploy runs on its own. To redeploy without a code change: `just deploy-dev` (= `gh workflow run deploy-dev.yml --ref main`).
 
 **Dev URLs (deterministic):**

@@ -2,20 +2,20 @@
 
 > Plan 8 Task 16. Status values: `DONE`, `TODO`, `USER` (only the user can do it), `BLOCKED` (waiting on something named in the note).
 > Update a line only with evidence: a commit, a command output, or a dashboard check.
-> Last updated: 2026-11-04, after the final fix batch. All plan code is complete on `v1-rebuild` (API 2811, Flutter 1192, web 1083, e2e 42 at `0c69efd`).
+> Last updated: 2026-11-04. All 9 plans are code complete, merged to `main` (PRs #3, #4, #5) and deployed to dev (API 3,972, Flutter 1,511, web 1,298, e2e 47).
 
 ## Code and review
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 1 | `just test` green (API, Android, web) | DONE (at `0c69efd`) | API 2811, Flutter 1192 + APK, web 1083, e2e 42. Re-run after the final fix batch. |
-| 2 | CI green on `v1-rebuild` | TODO | Local CI per user preference, then the PR to `main` |
-| 3 | nutrition-safety-reviewer approved (Plans 5–8) | DONE, with changes | Final review at `0c69efd`: APPROVE WITH CHANGES; the final fix batch addresses them. Plan 8 touches consent gating, the fixture-free telemetry allow-list and the clinician sheet |
+| 1 | `just test` green (API, Android, web) | DONE (2026-11-04) | API 3,972, Flutter 1,511, web 1,298, e2e 47. |
+| 2 | CI green on `v1-rebuild` | DONE (local CI) | PRs #3, #4 and #5 merged to `main` when green |
+| 3 | nutrition-safety-reviewer approved (Plans 5–8) | DONE, with changes | Final review: APPROVE WITH CHANGES; the fix batch addressed them. Plan 8 touches consent gating, the fixture-free telemetry allow-list and the clinician sheet |
 | 4 | Whole-branch code review (Opus) | TODO | |
 | 5 | gitleaks clean | DONE (API branch) | `gitleaks detect`: no leaks (187 commits). Re-run on the merged branch. |
 | 6 | F11 on all three surfaces (consent withdrawal, delete account, policy pages) | DONE (code) | API, Android and web shipped in Plan 8; manual check on prod is row 18. |
 | 7 | Disclaimer on every verdict, explanation and voice surface (Android and web tests) | DONE (code) | Client compliance tests from Plan 8 Task 6 |
-| 8 | Web security headers e2e (`security-headers.spec.ts`) | DONE (code) | Part of the 42 e2e tests |
+| 8 | Web security headers e2e (`security-headers.spec.ts`) | DONE (code) | Part of the 47 e2e tests |
 
 ## Legal and clinical
 
@@ -36,8 +36,8 @@
 | 14 | Prod migrations at head | TODO | Task 8 Step 2. The `label-photos` storage bucket (used by deletion and retention) is **not** created by migrations. There is no voice bucket (ADR 0020). Create them private in the dashboard, or add a guarded migration (see `api-report.md`). |
 | 15 | Prod secrets in Secret Manager | USER | `bash scripts/push-secrets.sh prod --dry-run`, then `! bash scripts/push-secrets.sh prod` |
 | 16 | API and web deployed (min 1, max 4) | TODO | Task 10. `ENVIRONMENT=prod` requires `ALLOWED_ORIGINS` set to https origins, or the API refuses to start. |
-| 16a | Dev migrations 0003 and 0004 applied | USER | `just db-migrate`, before merging Plans 5–8 to `main` |
-| 16b | ~~`voice-answers` bucket~~ | N/A | No longer needed: voice answers are returned inline and no voice audio is stored (ADR 0020, 2026-11-04). Do not create it on prod. Dev has an empty one (created 2026-11-04) that USER may delete. |
+| 16a | Dev migrations applied | DONE | Dev is at head `0007_plan9_supplement_category` |
+| 16b | ~~`voice-answers` bucket~~ | N/A | No longer needed: voice answers are returned inline and no voice audio is stored (ADR 0020, 2026-11-04). Do not create it on prod. Dev has an unused one that USER may delete. |
 | 17 | Retention job and scheduler (02:30 IST) | USER (deploy step is DONE in `deploy-dev.yml`) | The workflow deploys the job from `main` only. USER runs `bash scripts/setup-retention-schedule.sh setup`, then `dry-run`, then `schedule` (`docs/SETUP_ACCOUNTS.md`). `python -m app.jobs.retention`. Run `--dry-run` once first. Expect `photos_deleted=0 scans_nulled=0 tombstones_purged=0` on a new project. |
 | 18 | Consent, deletion and retention verified on prod | TODO | |
 | 19 | Sentry test error shows no PII | TODO | The event must have no body, no query, no auth header, and a hashed user id |
@@ -57,7 +57,7 @@
 | 28 | Store listing and Data safety entered | USER | Drafts: `docs/launch/store-listing.md`, `data-safety.md` |
 | 29 | Closed testing started: date ____, 14-day end date ____ | USER | 12 or more testers opted in for 14 consecutive days |
 | 30 | Phone OTP status | OFF | `PHONE_OTP_ENABLED=false` until Meta approves `smartnutri_otp` (Task 14). The CallMissed template body is unverified. |
-| 30a | Voice status | OFF | `VOICE_ENABLED=false` (`/v1/voice/ask` answers 503 `ai_unavailable`) until the user approves the paid STT/TTS probe (`scripts.probe_callmissed --yes-spend`), USER must approve the spend. The probe must also confirm CallMissed accepts `provider[data_residency]=in` on STT and `provider.data_residency` on TTS (Ruling V1). |
+| 30a | Voice status | ON in dev, OFF in prod | Dev: GitHub repo variables `VOICE_ENABLED` and `NEXT_PUBLIC_FEATURE_VOICE` are `true` (PR #4). The paid STT/TTS probe passed 2026-11-04. Code defaults stay false and prod stays off until launch. To switch off, set both variables to `false` and redeploy. USER: turn on "India-only processing" on the CallMissed key (Ruling V1). |
 | 31 | CallMissed plan and budget cap for launch | USER | Task 14 Step 4 |
 
 ## Rollback

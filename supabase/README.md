@@ -15,7 +15,7 @@ Supabase provides **Auth, Postgres and Storage** for SmartNutri. The project liv
 
 **Never create or change tables or policies here or in the Supabase dashboard.** Alembic is the only schema owner, so local, dev and prod stay identical.
 
-## Contents (planned)
+## Contents
 
 | Path | Purpose |
 |---|---|
@@ -57,4 +57,4 @@ just db-migrate       # Alembic creates tables + RLS in the local database
 
 - RLS is **on** for every table, with no exceptions. It is enforced by the Alembic migrations.
 - The service-role key is used only by `apps/api` and server-side hooks. Never use it in the Android app or the web app, including Next.js server code.
-- Storage bucket `label-photos` is private. Uploads use signed URLs. Deleting objects after 30 days is planned for Plan 8 (a retention job) and is not implemented yet.
+- Storage bucket `label-photos` is private. Uploads use signed URLs. A retention job (`python -m app.jobs.retention`) deletes objects after 30 days; its schedule is set up by the user (`docs/SETUP_ACCOUNTS.md`).

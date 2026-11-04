@@ -15,7 +15,7 @@ _Last updated: 2026-11-04_
 - **Not medical advice.** Health thresholds are *pending clinician review*.
 
 **v1 users:** blood-sugar (diabetes, prediabetes, PCOS) · family health managers (kids and elderly parents) · weight loss (including GLP-1).
-**Plan 9 (planned):** after Terms, users pick up to 3 of 6 user types (health condition, family, weight loss, gym and fitness, allergy or special diet, just eating better). Each gets a focused mode: its own Home cards and tab bar, with everything else in More. Gym users get a protein guide. The type never changes a verdict (ADR 0019).
+**Plan 9 (built):** after Terms, users pick up to 3 of 6 user types (health condition, family, weight loss, gym and fitness, allergy or special diet, just eating better). Each gets a focused mode: its own Home cards and tab bar, with everything else in More. Gym users get a protein guide. The type never changes a verdict (ADR 0019).
 **Goal:** a startup product. Build in about 15 days (started 2026-11-02). Android public release is gated by the Play closed test (12+ testers × 14 days).
 
 → [docs/PRODUCT.md](docs/PRODUCT.md) · [v1 spec](docs/superpowers/specs/2026-11-02-smartnutri-v1-design.md) · [FEATURE_PARITY](docs/FEATURE_PARITY.md)
@@ -28,12 +28,12 @@ _Last updated: 2026-11-04_
 | Web app | **Next.js 16** (TypeScript, Tailwind 4 + shadcn, next-intl, @supabase/ssr). **Full feature parity with Android** |
 | Backend | **FastAPI** (Python 3.13, uv, SQLAlchemy 2, Alembic). Feature-based layout |
 | Rules engine | `apps/api/app/scoring`: pure Python. **Decides every verdict**; the LLM only explains |
-| AI + voice | **CallMissed API** (OpenAI-compatible): vision extraction, explanations (`sarvam-105b`), speech-to-text `saaras:v4`, text-to-speech `bulbul` |
+| AI + voice | **CallMissed API** (OpenAI-compatible): vision extraction, models per ADR 0021, all India-processed: extraction and explanation `gemma-4-31b`, speech-to-text `saaras:v4`, text-to-speech `bulbul:v3` (fallbacks in `docs/SETUP_ACCOUNTS.md`) |
 | Login, database, files | **Supabase** (Mumbai): Google OAuth + email OTP now; phone OTP via WhatsApp later |
 | Hosting | **Cloud Run, asia-south1 (Mumbai)** for API + web; Google Play for Android |
 | Shared | `packages/api-contract` (generated Dart + TS clients), `i18n`, `design-tokens`, `test-fixtures` |
 
-→ [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · decisions in [docs/adr/](docs/adr/) (0001–0019)
+→ [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · decisions in [docs/adr/](docs/adr/) (0001–0021)
 
 ## 3. Repository map
 
@@ -81,7 +81,7 @@ See [AGENTS.md](AGENTS.md). In short:
 
 ## 7. Plans and build order
 
-Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 2026-11-04). Dev migrations are at `0007_plan9_supplement_category` (head) and the dev API and web are deployed and healthy.
+Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 2026-11-04). PR #4 (`4bcf1c0`) switched voice on in dev and PR #5 (`b152a49`) merged the QA fixes. The dev DB is at alembic head `0007_plan9_supplement_category`, and the dev API and web are deployed and healthy.
 
 | Plan | File | Status |
 |---|---|---|
@@ -106,33 +106,31 @@ Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 
 - **Plan 1 (rules engine): complete.** Every ruling is listed in `docs/superpowers/plans/2026-11-02-plan-1-rulings.md`. Follow-up rulings R12/R13/R25 (Plan 2 ledger) add a blood-sugar heart-health caution, an `age_unknown` guard for members without a birth year, and `unknown` when saturated fat or salt is missing for blood-sugar members.
 - **Plan 2 (foundation): code complete.** Generated clients, login on both apps, CSP/HSTS, Sentry/PostHog with health-data scrubbing, Docker images, CI and the keyless GitHub Actions dev deploy (ADR 0015). Dev API and web are deployed.
 - **Plan 3 (M1) and Plan 4 (M2):** barcode and label scan to verdict on API, Android and web. Plan 4 was merged to `main` (PR #2, `7d9fd3d`); dev migration 0002 applied.
-- **Plans 5–8 (code complete on `v1-rebuild`, head `0c69efd` + final fix batch):**
+- **Plans 5–8 (code complete, merged to `main` in PR #3):**
   - Plan 5: family members, per-member verdicts, claim checker, custom ingredient alerts, LLM explanation (consent gate G1: `terms` for core use, `health_data` to save member health fields, `ai_processing` for explanations and voice).
   - Plan 6: scan-to-log (Android offline queue, web online-only), daily and weekly totals, alternatives, compare, search, share (member statuses opt-in, off by default). ADR 0017.
-  - Plan 7: voice Q&A (STT, guarded answer, TTS), How we score, Report a problem. Voice defaults to off in code (`VOICE_ENABLED`, `NEXT_PUBLIC_FEATURE_VOICE`, `FEATURE_VOICE` on Android); dev turns it on through the GitHub repo variables `VOICE_ENABLED` and `NEXT_PUBLIC_FEATURE_VOICE` (set to `true` on 2026-11-04). Set them to `false` to switch voice off again.
+  - Plan 7: voice Q&A (STT, guarded answer, TTS), How we score, Report a problem. Voice defaults to off in code (`VOICE_ENABLED`, `NEXT_PUBLIC_FEATURE_VOICE`, `FEATURE_VOICE` on Android); dev turns it on through the GitHub repo variables `VOICE_ENABLED` (API, read in `deploy-dev.yml`) and `NEXT_PUBLIC_FEATURE_VOICE` (web build), both `true` since 2026-11-04. To switch it off, set both to `false` and redeploy. No voice audio is stored (ADR 0020).
   - Plan 8: consent and withdrawal (ADR 0018), account deletion with a tombstone (migration `0004_plan8_deleted_accounts`), retention job, EXIF stripping, telemetry allow-list, privacy policy and terms drafts, release checklist (`docs/launch/RELEASE_CHECKLIST.md`).
-  - Whole-branch nutrition-safety review: APPROVE WITH CHANGES; the final fix batch addresses them.
+  - Whole-branch nutrition-safety review: APPROVE WITH CHANGES; the fix batch addressed them.
+  - PR #5 QA fixes: Android camera/scanner attach fix, web how-we-score wrap, search `?q=`, tab highlight, Family "You" shown once on both clients, per-member accessible labels, 360px overflow sweep.
 - **Plan 9 (user types, focused modes, gym protein guide):** code complete, safety-reviewed, merged (PR #3).
-- **Test totals at `2003e9c`:** 6,738 (API 3,972, Flutter 1,473, web 1,293), plus 44 web e2e.
+- **Tests (2026-11-04):** API 3,972; Flutter 1,511; web 1,298 unit and 47 e2e. Experiments E1–E7 were re-run on `2003e9c`.
 
 **Not done, by design or waiting on the user:**
 - Android has no release signing yet and nothing is on Play. No prod project exists.
-- Robots.txt and OG share-card images are **not built** (TODO in FEATURE_PARITY). `sitemap.ts` and hreflang exist.
+- OG share-card images (`og:image`) are **not built** (TODO in FEATURE_PARITY). `robots.txt`, the sitemap and hreflang exist. The long manual-entry form on mobile is a known minor UX issue.
 - Phone OTP is OFF (needs Meta template approval). Email OTP is OFF (needs a domain and SMTP).
 - Voice is ON on dev only (repo variables). Prod stays off until the prod launch.
 
 **Next (all USER unless noted):**
-1. ~~Create the `voice-answers` bucket~~: no longer needed. Voice answers are returned inline and never stored (ADR 0020, user decision 2026-11-04). The empty dev bucket created 2026-11-04 may be deleted.
-3. Run `bash scripts/setup-retention-schedule.sh setup`, then after the deploy `dry-run`, then `schedule` (02:30 IST).
-4. ~~Approve and run the paid STT/TTS probe, then enable voice~~: probe passed 2026-11-04 (saaras STT and bulbul/gnani TTS ok in en/hi/mr, India-processed); voice enabled on dev.
-5. Run the label eval, the manual real-pack parity checks, clinician and native-language reviews, lawyer review, Play Store steps (all in section 9 and `docs/launch/RELEASE_CHECKLIST.md`).
+1. Run `bash scripts/setup-retention-schedule.sh setup`, then after the deploy `dry-run`, then `schedule` (02:30 IST).
+2. Run the label eval, the manual real-pack parity checks, clinician and native-language reviews, lawyer review, Play Store steps (all in section 9 and `docs/launch/RELEASE_CHECKLIST.md`).
 
 ## 9. Open items that only the user can do
 
 - [ ] **USER:** `scripts/push-secrets.sh prod` before the prod deploy (dev secrets are already in Secret Manager).
-- [ ] **USER (optional): delete the empty `voice-answers` bucket on dev** (created 2026-11-04). It is no longer used: voice answers come back inline in the API response and no voice audio is stored (ADR 0020). Do not create it on prod.
+- [ ] **USER (optional): delete the unused dev `voice-answers` bucket** (voice answers come back inline; ADR 0020) and the old web OAuth client secret in GCP (see `docs/SETUP_ACCOUNTS.md`).
 - [ ] **USER: retention job schedule** (`scripts/setup-retention-schedule.sh`: `setup`, `dry-run`, `schedule`).
-- [x] **Paid STT/TTS probe** approved and run 2026-11-04 (14/16 ok; the whisper hi/mr fallback was rate-limited, retry later). Voice is on in dev.
 - [ ] **USER: lawyer review** of the privacy policy and terms drafts (`docs/launch/`), including DPDP withdrawal versus erasure (ADR 0018) and children's profiles.
 - [ ] **USER: Play Store:** create the Google Play Console **personal** account ($25) and complete ID verification.
 - [ ] **USER:** recruit 12–20 closed-test testers once a usable build exists.
@@ -142,7 +140,7 @@ Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 
   - Child rules compare total sugars with a daily free-sugar limit, and ignore saturated fat.
   - Ages come from birth year only. Should infant rules (under 2) also warn about very high natural sugar (dates, raisins), and should a 13-year-old still get child caffeine warnings?
   - Serving sizes: the engine accepts any serving above 0 g and up to 5000 g. Should there be a realistic lower bound (e.g. 1 g)? A confirmed serving of 0.0001 g would inflate per-100 g values by about a million times. Post-conversion plausibility catches this, except when every value is 0.
-  - Plan 9 (once built): the `build_muscle` protein target of 1.6 g/kg (adults with a weight; should members with diabetes or BP keep it? there is no kidney field), whether weight loss should get 1.2 g/kg, the 10 % protein-claim shortfall, and supplements (caution for ages 2–17, avoid under 2).
+  - Plan 9: the `build_muscle` protein target of 1.6 g/kg (adults with a weight; should members with diabetes or BP keep it? there is no kidney field), whether weight loss should get 1.2 g/kg, the 10 % protein-claim shortfall, and supplements (caution for ages 2–17, avoid under 2).
   - Open Food Facts data is crowd-sourced; the engine treats it at confidence 0.9 (allergen rules run, so an incomplete OFF ingredient list could show `ok` for an allergic member). Is that acceptable, or should OFF products be `unknown` for allergic members unless the label is confirmed?
 - [ ] **USER: M2 label scan:**
   - (a) Photograph 40–60 label packs for the eval (checklist in `apps/api/tests/evals/labels/README.md`) and approve the CallMissed spend.
