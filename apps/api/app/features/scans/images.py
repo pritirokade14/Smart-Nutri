@@ -10,7 +10,8 @@
   for a retake before any paid call. A crop check is reported but never rejects.
 
 Quality gate (all on the prepared image, at most 1600 px; 8 x 8 tiles):
-- `too_small`: long edge < MIN_LONG_EDGE_PX or short edge < MIN_SHORT_EDGE_PX.
+- `too_small`: area < MIN_AREA_PX or short edge < MIN_SHORT_EDGE_PX (see the constants for
+  why: readable strip labels and small gallery crops must pass).
 - `blur`: even the SHARPEST tile has a Laplacian variance < BLUR_MAX_VARIANCE. One sharp
   tile anywhere (a small table on a big plain pack) is enough to pass.
 - `glare`: the frame is washed out: at least GLARE_BLOWN_ALL of the tiles are blown out
@@ -44,8 +45,19 @@ JPEG_QUALITY = 85
 _FORMATS = ("JPEG", "PNG", "WEBP")
 
 # Quality gate (see the module docstring).
-MIN_LONG_EDGE_PX = 400
-MIN_SHORT_EDGE_PX = 200
+# Size (P9 safety S6). Measured on the PREPARED image, whose long edge is capped at 1600 px, so a
+# phone photo of a wrapper strip (about 10:1) arrives at about 1600 x 160: the old "short edge
+# >= 200 px, long edge >= 400 px" rule rejected it, and also rejected small but sharp gallery
+# crops of a table (about 380 x 340). Now:
+# - MIN_AREA_PX 120k: about a 350 x 350 crop, which still holds a 9-row table at ~25 px per row;
+#   a 300 x 225 thumbnail (67k) is still rejected.
+# - MIN_SHORT_EDGE_PX 120: two or three lines of ~30 px text plus spacing, the least a strip
+#   needs. The review suggested about 240 px, but that would be stricter than the old 200 px
+#   and reject the very strips this change is for, so the readable-strip goal wins.
+# Data-quality constants, not health thresholds; re-tune on the label eval set (its README has
+# no size guidance yet). Tested with synthetic strips and crops in test_quality_gate.py.
+MIN_AREA_PX = 120_000
+MIN_SHORT_EDGE_PX = 120
 # The sharpest tile's Laplacian variance, measured on the JPEG the model gets. Sharp synthetic
 # labels measure ~3600-4300. A Gaussian blur of sigma 2 / 3 / 4 / 6 gives ~37 / 8 / 4 / 2 with
 # 20 px text, ~78 / 14 / 5.4 / 3 with 30 px text and ~132 / 28 / 9.5 / 3.8 with 44 px text;
@@ -232,7 +244,7 @@ def quality_report(img: Image.Image) -> QualityReport:
 
     reasons: list[QualityReason] = []
     soft: list[str] = []
-    if max(width, height) < MIN_LONG_EDGE_PX or min(width, height) < MIN_SHORT_EDGE_PX:
+    if width * height < MIN_AREA_PX or min(width, height) < MIN_SHORT_EDGE_PX:
         reasons.append("too_small")
     if sharpness < BLUR_MAX_VARIANCE:
         reasons.append("blur")

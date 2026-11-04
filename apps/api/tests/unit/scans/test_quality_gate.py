@@ -70,8 +70,44 @@ BAD = {
     "washed_out": (lambda: s.glare(BASE, radius=1.5), {"blur", "glare"}),
     "white_frame": (lambda: Image.new("RGB", (1600, 1200), (255, 255, 255)), {"blur", "glare"}),
     "tiny": (lambda: BASE.resize((300, 225)), {"too_small"}),
-    "thin_strip": (lambda: BASE.resize((1600, 150)), {"too_small"}),
+    "small_square": (lambda: BASE.resize((320, 320)), {"too_small"}),  # 102k px < 120k
+    "sliver": (lambda: s.strip((1600, 100), lines=1), {"too_small"}),  # short edge 100 < 120
 }
+
+
+# P9 safety S6: readable strip labels and gallery crops must pass the size check.
+STRIPS = {
+    # A 10:1 phone photo of a wrapper strip: the 1600 px cap makes it 1600 x 168.
+    "phone_strip_4000x420": lambda: s.camera(s.strip((4000, 420))),
+    "strip_1600x160": lambda: s.strip((1600, 160), lines=2),
+    "strip_1200x150": lambda: s.strip((1200, 150), lines=2),
+    "strip_900x140": lambda: s.strip((900, 140), lines=2, text_px=22),
+    "gallery_crop_380x340": lambda: s.gallery_crop(BASE),
+    "gallery_crop_360x360": lambda: s.gallery_crop(BASE, (360, 360)),
+    "gallery_crop_640x220": lambda: s.gallery_crop(BASE, (640, 220)),
+}
+
+
+@pytest.mark.parametrize("name", sorted(STRIPS))
+def test_readable_strips_and_gallery_crops_pass(name):
+    report = _report(STRIPS[name]())
+    assert "too_small" not in report.reasons, (name, report)
+    assert report.ok, (name, report)
+
+
+def test_size_limits_are_area_and_short_edge():
+    from app.features.scans.images import MIN_AREA_PX, MIN_SHORT_EDGE_PX
+
+    assert (MIN_AREA_PX, MIN_SHORT_EDGE_PX) == (120_000, 120)
+    blank = (250, 250, 248)
+    for size, small in [
+        ((347, 346), False),  # 120,062 px
+        ((346, 346), True),  # 119,716 px
+        ((1600, 120), False),
+        ((1600, 119), True),
+    ]:
+        report = quality_report(Image.new("RGB", size, blank))
+        assert ("too_small" in report.reasons) is small, size
 
 
 @pytest.mark.parametrize("name", sorted(GOOD))

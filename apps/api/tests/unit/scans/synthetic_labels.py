@@ -132,6 +132,33 @@ def scan_of_white_label(size=(1600, 1200)) -> Image.Image:
     return img
 
 
+def strip(
+    size: tuple[int, int] = (4000, 420), *, lines: int = 3, text_px: int | None = None
+) -> Image.Image:
+    """A horizontal nutrition strip (a biscuit or bar wrapper edge): the rows run across in
+    `lines` lines of readable text, not a squashed table. Shot at phone resolution by default,
+    so after the 1600 px cap it arrives at about 1600 x 170."""
+    w, h = size
+    img = Image.new("RGB", size, (250, 250, 248))
+    d = ImageDraw.Draw(img)
+    px = text_px or max(10, int(h / (lines + 1) * 0.6))
+    font = _font(px)
+    cells = [f"{name.strip()} {a}" for name, a, _ in ROWS]
+    per_line = -(-len(cells) // lines)
+    gap = h / (lines + 1)
+    for i in range(lines):
+        text = "  |  ".join(cells[i * per_line : (i + 1) * per_line])
+        y = int(gap * (i + 0.6))
+        d.text((int(w * 0.02), y), text, fill=(10, 10, 10), font=font)
+        d.line((0, y + px + 6, w, y + px + 6), fill=(60, 60, 60), width=max(1, h // 200))
+    return img
+
+
+def gallery_crop(img: Image.Image, size: tuple[int, int] = (380, 340)) -> Image.Image:
+    """A small crop of the table saved from the gallery (a screenshot or an app crop)."""
+    return tight_crop(img).resize(size, Image.LANCZOS)
+
+
 def tight_crop(img: Image.Image) -> Image.Image:
     """Cropped to the table: text and lines touch the frame on every side."""
     w, h = img.size
