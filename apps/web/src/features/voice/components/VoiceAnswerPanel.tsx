@@ -5,16 +5,20 @@ import { DisclaimerFooter } from "@/components/ui/DisclaimerFooter";
 import { VerdictBadge } from "@/components/ui/VerdictBadge";
 import { toneOf } from "@/components/ui/verdict-tone";
 import type { VoiceAnswer } from "../api/askVoice";
+import { useAnswerAudioUrl } from "../hooks/useAnswerAudioUrl";
 
 /**
  * A voice answer: the engine's status (as sent; anything unexpected is
  * unknown grey, never ok), the answer text (it starts with the engine's
  * verdict sentence), the spoken reply, and the disclaimer. The transcript is
- * shown back but never stored.
+ * shown back but never stored. The spoken reply arrives inline (base64 mp3)
+ * and is played from a Blob URL revoked when the panel closes; with no audio
+ * (over the server's inline cap) the text alone is the answer (ADR 0020).
  */
 export function VoiceAnswerPanel({ answer }: { answer: VoiceAnswer }) {
   const t = useTranslations();
   const status = toneOf(answer.verdict_status);
+  const audioUrl = useAnswerAudioUrl(answer);
   return (
     <section
       data-testid="voice-answer"
@@ -34,14 +38,16 @@ export function VoiceAnswerPanel({ answer }: { answer: VoiceAnswer }) {
           {t("explanation.source_fallback_note")}
         </p>
       ) : null}
-      {/* biome-ignore lint/a11y/useMediaCaption: the answer text above is the transcript */}
-      <audio
-        controls
-        autoPlay
-        src={answer.audio_url}
-        preload="auto"
-        className="w-full"
-      />
+      {audioUrl ? (
+        // biome-ignore lint/a11y/useMediaCaption: the answer text above is the transcript
+        <audio
+          controls
+          autoPlay
+          src={audioUrl}
+          preload="auto"
+          className="w-full"
+        />
+      ) : null}
       <DisclaimerFooter />
     </section>
   );

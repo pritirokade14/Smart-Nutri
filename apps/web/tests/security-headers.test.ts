@@ -36,9 +36,9 @@ describe("securityHeaders", () => {
     );
   });
 
-  it("lets voice answers play from Supabase Storage only (media-src)", () => {
+  it("plays voice answers from Blob URLs only (media-src; no storage origin)", () => {
     const csp = securityHeaders("n")["Content-Security-Policy"];
-    expect(csp).toContain("media-src 'self' blob: http://127.0.0.1:54321");
+    expect(csp).toContain("media-src 'self' blob:;");
     expect(securityHeaders("n")["Permissions-Policy"]).toContain(
       "microphone=(self)",
     );

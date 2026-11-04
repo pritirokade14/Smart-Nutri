@@ -77,7 +77,7 @@ function wrap(ui: React.ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  render(
+  return render(
     <QueryClientProvider client={client}>
       <NextIntlClientProvider locale="en" messages={resultMessages(en)}>
         {ui}
@@ -207,7 +207,31 @@ describe("PushToTalkButton", () => {
 });
 
 describe("VoiceAnswerPanel", () => {
-  it("VoiceAnswerPanel renders verdict token class, answer text, <audio src>, and the disclaimer", () => {
+  // The answer mp3 arrives inline (base64) and is never stored (ADR 0020): the
+  // panel plays it from a Blob URL that it revokes when it closes.
+  let created: Blob[];
+  const createObjectURL = vi.fn((blob: Blob) => {
+    created.push(blob);
+    return `blob:http://t/${created.length}`;
+  });
+  const revokeObjectURL = vi.fn();
+  const original = {
+    createObjectURL: URL.createObjectURL,
+    revokeObjectURL: URL.revokeObjectURL,
+  };
+  beforeEach(() => {
+    created = [];
+    createObjectURL.mockClear();
+    revokeObjectURL.mockClear();
+    URL.createObjectURL = createObjectURL;
+    URL.revokeObjectURL = revokeObjectURL;
+  });
+  afterEach(() => {
+    URL.createObjectURL = original.createObjectURL;
+    URL.revokeObjectURL = original.revokeObjectURL;
+  });
+
+  it("VoiceAnswerPanel renders verdict token class, answer text, <audio src>, and the disclaimer", async () => {
     const a = fixture("answer_avoid");
     wrap(<VoiceAnswerPanel answer={a} />);
     const panel = screen.getByTestId("voice-answer");
@@ -221,11 +245,66 @@ describe("VoiceAnswerPanel", () => {
         en.voice.you_asked.replace("{question}", a.question),
       ),
     ).toBeTruthy();
-    expect(panel.querySelector("audio")?.getAttribute("src")).toBe(a.audio_url);
+    await waitFor(() =>
+      expect(panel.querySelector("audio")?.getAttribute("src")).toBe(
+        "blob:http://t/1",
+      ),
+    );
     expect(within(panel).getByText(en.common.disclaimer)).toBeTruthy();
     expect(
       within(panel).queryByText(en.explanation.source_fallback_note),
     ).toBeNull();
+  });
+
+  it("plays the decoded inline mp3 from a Blob URL and revokes it on close", async () => {
+    const a = fixture("answer_avoid");
+    const { unmount } = wrap(<VoiceAnswerPanel answer={a} />);
+    await waitFor(() => expect(createObjectURL).toHaveBeenCalled());
+    const blob = created.at(-1) as Blob;
+    expect(blob.type).toBe("audio/mpeg");
+    // jsdom's Blob has no arrayBuffer(); FileReader reads it.
+    const bytes = await new Promise<Uint8Array>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () =>
+        resolve(new Uint8Array(reader.result as ArrayBuffer));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(blob);
+    });
+    const expected = Uint8Array.from(
+      Buffer.from(a.audio_base64 as string, "base64"),
+    );
+    expect(bytes).toEqual(expected);
+    const url = screen.getByTestId("voice-answer").querySelector("audio")?.src;
+    unmount();
+    expect(revokeObjectURL).toHaveBeenCalledWith(url);
+    // Every URL made was revoked (React may mount effects twice in dev).
+    expect(revokeObjectURL).toHaveBeenCalledTimes(
+      createObjectURL.mock.calls.length,
+    );
+  });
+
+  it("a text-only answer (audio null) shows the text and no player", () => {
+    const a = fixture("answer_avoid_text_only");
+    expect(a.audio_base64).toBeNull();
+    wrap(<VoiceAnswerPanel answer={a} />);
+    const panel = screen.getByTestId("voice-answer");
+    expect(within(panel).getByText(a.answer)).toBeTruthy();
+    expect(within(panel).getByText(en.common.disclaimer)).toBeTruthy();
+    expect(panel.querySelector("audio")).toBeNull();
+    expect(createObjectURL).not.toHaveBeenCalled();
+  });
+
+  it("malformed audio is skipped; the text stays", () => {
+    wrap(
+      <VoiceAnswerPanel
+        answer={{ ...fixture("answer_avoid"), audio_base64: "%%% not base64" }}
+      />,
+    );
+    const panel = screen.getByTestId("voice-answer");
+    expect(panel.querySelector("audio")).toBeNull();
+    expect(
+      within(panel).getByText(fixture("answer_avoid").answer),
+    ).toBeTruthy();
   });
 
   it("notes when the answer comes from the rules (fallback)", () => {
