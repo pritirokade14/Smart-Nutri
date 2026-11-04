@@ -1,6 +1,6 @@
 # CallMissed STT: accepted audio formats (Plan 7 Task 1)
 
-**Status: NOT YET PROBED.** The probe makes paid calls (5 STT + 1 TTS), so it needs the
+**Status: NOT YET PROBED.** The probe (`scripts.probe_callmissed`, which replaced `probe_stt_formats`) makes paid calls, so it needs the
 user's go-ahead.
 
 **Decision (security review, 2026-11-03):** the API always sends STT the 16 kHz mono WAV it
@@ -13,12 +13,12 @@ only the `wav` row below decides whether voice works. The other rows are for inf
 
 ```
 cd apps/api
-uv run python -m scripts.probe_stt_formats              # dry run, no spend
-uv run python -m scripts.probe_stt_formats --yes-spend  # 5 STT calls + 1 TTS call
+uv run python -m scripts.probe_callmissed              # dry run, no spend
+uv run python -m scripts.probe_callmissed --yes-spend  # 16 calls: chat, vision, STT, TTS
 ```
 
 The script reads `CALLMISSED_API_KEY` from `apps/api/.env` and never prints it, the
-transcripts or the response bodies. It prints only `<format>: <http status>`.
+transcripts or the response bodies. It prints only job, model, language, status and latency. It sends the 16 kHz WAV only; the per-format rows below are no longer probed.
 
 ## Results
 

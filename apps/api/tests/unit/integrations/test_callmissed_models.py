@@ -16,6 +16,7 @@ from app.core.config import Settings
 from app.features.scans.schemas import NutritionExtraction
 from app.integrations import callmissed
 from app.integrations.callmissed import (
+    DEPRECATED_MODELS,
     INDIA_PROCESSED_MODELS,
     CallMissedClient,
     speech_config,
@@ -128,7 +129,7 @@ def no_sleep(monkeypatch):
     return slept
 
 
-async def _chat(client, *, model="gpt-4o", fallback_model="gemma-4-31b", **kw):
+async def _chat(client, *, model="gemma-4-31b", fallback_model="deepseek-v4.1-flash-1017", **kw):
     return await client.chat_json(
         model=model,
         fallback_model=fallback_model,
@@ -141,7 +142,7 @@ async def _chat(client, *, model="gpt-4o", fallback_model="gemma-4-31b", **kw):
     )
 
 
-async def _extract(client, *, model="gpt-4o", fallback_model="glm-5.3-flash"):
+async def _extract(client, *, model="gemma-4-31b", fallback_model="glm-5.3-flash"):
     return await client.extract_label(
         image=b"\xff\xd8\xff\xe0jpeg",
         mime="image/jpeg",
@@ -159,10 +160,10 @@ async def _extract(client, *, model="gpt-4o", fallback_model="glm-5.3-flash"):
 
 def test_defaults_are_the_documented_india_models():
     s = Settings(_env_file=None)
-    assert s.callmissed_extraction_model == "gpt-4o"
+    assert s.callmissed_extraction_model == "gemma-4-31b"
     assert s.callmissed_extraction_fallback_model == "glm-5.3-flash"
-    assert s.callmissed_explanation_model == "gpt-4o"
-    assert s.callmissed_explanation_fallback_model == "gemma-4-31b"
+    assert s.callmissed_explanation_model == "gemma-4-31b"
+    assert s.callmissed_explanation_fallback_model == "deepseek-v4.1-flash-1017"
     assert s.callmissed_stt_model == "saaras:v4"
     assert s.callmissed_stt_fallback_model == "whisper"
     assert s.callmissed_tts_model == "bulbul:v3"
@@ -187,12 +188,44 @@ def test_every_default_model_is_india_processed():
         assert model in INDIA_PROCESSED_MODELS, model
 
 
+def test_no_default_or_fallback_is_deprecated():
+    # Ruling CM1: a deprecated or soon-deprecated model is never a default or a fallback.
+    s = Settings(_env_file=None)
+    for name, value in s.model_dump().items():
+        if name.startswith("callmissed_") and isinstance(value, str | None):
+            assert value not in DEPRECATED_MODELS, name
+    for model in (
+        s.callmissed_extraction_model,
+        s.callmissed_extraction_fallback_model,
+        s.callmissed_explanation_model,
+        s.callmissed_explanation_fallback_model,
+    ):
+        assert model not in DEPRECATED_MODELS
+
+
+def test_deprecated_models_are_listed_with_their_sunset_and_refused():
+    # GET /api/v1/models, 2026-11-04: gpt-4o has deprecated=true, sunset_date 2026-11-16.
+    assert DEPRECATED_MODELS == {"gpt-4o"}
+    assert callmissed.DEPRECATED_MODEL_SUNSETS["gpt-4o"] == "2026-11-16"
+    assert "gpt-4o" not in INDIA_PROCESSED_MODELS
+    assert callmissed._not_india("gpt-4o")
+    assert callmissed._not_india("gemma-4-31b", "gpt-4o")
+
+
+async def test_chat_refuses_a_deprecated_model_before_any_request():
+    client, mock = make([_chat_ok()])
+    with pytest.raises(ProviderUnavailable):
+        await _chat(client, model="gpt-4o")
+    with pytest.raises(ProviderUnavailable):
+        await _chat(client, fallback_model="gpt-4o")
+    assert mock.bodies() == []
+
+
 def test_allow_list_has_only_catalogue_india_models():
     # GET /api/v1/models, 2026-11-04: each of these has processing "india". Models marked
     # "india_preferred" (kimi-k2.5, gpt-6-sol, ...) may leave India, so they are not here.
     assert INDIA_PROCESSED_MODELS == frozenset(
         {
-            "gpt-4o",
             "gemma-4-31b",
             "glm-5.3-flash",
             "deepseek-v4.1-flash-1017",
@@ -291,7 +324,7 @@ async def test_chat_sends_reasoning_effort_and_residency_in_the_body():
     client, mock = make([_chat_ok()])
     await _chat(client, reasoning_effort="none")
     body = mock.bodies()[0]
-    assert body["model"] == "gpt-4o"
+    assert body["model"] == "gemma-4-31b"
     assert body["reasoning_effort"] == "none"
     assert body["provider"] == {"data_residency": "in"}
     assert body["response_format"]["type"] == "json_schema"
@@ -333,7 +366,7 @@ async def test_chat_falls_back_once_on_upstream_failure(failure):
     out = await _chat(client)
     assert isinstance(out, Answer)
     models = [b["model"] for b in mock.bodies()]
-    assert models == ["gpt-4o", "gemma-4-31b"]
+    assert models == ["gemma-4-31b", "deepseek-v4.1-flash-1017"]
     for body in mock.bodies():
         assert body["provider"] == {"data_residency": "in"}
         assert body["reasoning_effort"] == "none"
@@ -343,14 +376,14 @@ async def test_chat_fallback_is_tried_only_once():
     client, mock = make([httpx.Response(503, json={})])
     with pytest.raises(CompletionFailed):
         await _chat(client)
-    assert [b["model"] for b in mock.bodies()] == ["gpt-4o", "gemma-4-31b"]
+    assert [b["model"] for b in mock.bodies()] == ["gemma-4-31b", "deepseek-v4.1-flash-1017"]
 
 
 async def test_chat_without_fallback_keeps_retrying_the_primary():
     client, mock = make([httpx.Response(503, json={})])
     with pytest.raises(CompletionFailed):
         await _chat(client, fallback_model=None)
-    assert [b["model"] for b in mock.bodies()] == ["gpt-4o"] * 3
+    assert [b["model"] for b in mock.bodies()] == ["gemma-4-31b"] * 3
 
 
 @pytest.mark.parametrize(
@@ -380,14 +413,14 @@ async def test_chat_primary_leaves_time_for_the_fallback():
 
     async def spy(**kw):
         seen.append((kw["model"], kw["timeout"]))
-        if kw["model"] == "gpt-4o":
+        if kw["model"] == "gemma-4-31b":
             clock.now += kw["timeout"]  # the primary times out after its whole share
         return await real(**kw)
 
     client._client.chat.completions.create = spy  # type: ignore[method-assign]
     await _chat(client, timeout_s=8.0)
     (primary, t1), (fallback, t2) = seen
-    assert (primary, fallback) == ("gpt-4o", "gemma-4-31b")
+    assert (primary, fallback) == ("gemma-4-31b", "deepseek-v4.1-flash-1017")
     assert t1 < 8.0
     assert t2 > 0 and t1 + t2 <= 8.0
 
@@ -412,7 +445,7 @@ async def test_chat_fallback_is_logged_with_metadata_only(caplog):
     client, _ = make([httpx.Response(503, json={}), _chat_ok()])
     await _chat(client)
     text = caplog.text
-    assert "model=gemma-4-31b" in text and "fallback_from=gpt-4o" in text
+    assert "model=deepseek-v4.1-flash-1017" in text and "fallback_from=gemma-4-31b" in text
     assert "status=ok" in text and "tokens_in=10 tokens_out=5" in text
     assert '"fine"' not in text and SECRET not in text
 
@@ -421,14 +454,14 @@ async def test_extraction_falls_back_on_5xx():
     client, mock = make([httpx.Response(503, json={}), _extract_ok()])
     out = await _extract(client)
     assert isinstance(out, NutritionExtraction)
-    assert [b["model"] for b in mock.bodies()] == ["gpt-4o", "glm-5.3-flash"]
+    assert [b["model"] for b in mock.bodies()] == ["gemma-4-31b", "glm-5.3-flash"]
 
 
 async def test_extraction_fallback_failure_is_extraction_failed():
     client, mock = make([httpx.Response(503, json={})])
     with pytest.raises(ExtractionFailed):
         await _extract(client)
-    assert [b["model"] for b in mock.bodies()] == ["gpt-4o", "glm-5.3-flash"]
+    assert [b["model"] for b in mock.bodies()] == ["gemma-4-31b", "glm-5.3-flash"]
 
 
 # --- speech request shapes and fallback ----------------------------------------------------

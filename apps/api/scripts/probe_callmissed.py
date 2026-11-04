@@ -46,7 +46,6 @@ if TYPE_CHECKING:
 # US$ prices from GET https://api.callmissed.com/api/v1/models, read 2026-11-04 (US$1 = Rs 96,
 # per docs.callmissed.com/docs/models). (unit, input, output): tokens per 1M; hour; 10K chars.
 PRICES: dict[str, tuple[str, float, float]] = {
-    "gpt-4o": ("tokens", 2.604, 10.42),
     "gemma-4-31b": ("tokens", 0.3646, 0.9375),
     "glm-5.3-flash": ("tokens", 0.2292, 0.7604),
     "deepseek-v4.1-flash-1017": ("tokens", 0.4271, 1.771),

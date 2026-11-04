@@ -27,11 +27,11 @@ CallMissed is our AI and voice provider. It is OpenAI-compatible, so use the off
 2. **Model IDs come from config, never literals in code.** Use `settings.models.extraction`, `.explanation`, `.stt`, `.tts`.
    - Each job also has a `*_fallback_model`, tried once on a 5xx, timeout or `region_unavailable`.
    - Current choices and why: ADR 0021 and `docs/SETUP_ACCOUNTS.md` ("CallMissed AI setup").
-     - Extraction: `gpt-4o`, falling back to `glm-5.3-flash`. Compare the India vision models with the `label-eval` skill.
-     - Explanation and voice answers: `gpt-4o`, falling back to `gemma-4-31b`, with `reasoning_effort: "none"`.
+     - Extraction: `gemma-4-31b`, falling back to `glm-5.3-flash`. Compare the India vision models with the `label-eval` skill.
+     - Explanation and voice answers: `gemma-4-31b`, falling back to `deepseek-v4.1-flash-1017`, with `reasoning_effort: "none"`.
      - STT: `saaras:v4`, falling back to `whisper`.
      - TTS: `bulbul:v3` with a voice per language, falling back to `gnani-timbre-v3.0`.
-   - `gpt-4o` sunsets on 2026-11-16.
+   - `gpt-4o` is deprecated (sunset 2026-11-16): never a default or fallback; `DEPRECATED_MODELS` refuses it.
    - Health-data calls refuse models outside `INDIA_PROCESSED_MODELS`.
 3. **Health data stays in India.**
    - Any prompt that contains a member's conditions, allergies, diet or logs must pass `provider={"data_residency": "in"}` (via `extra_body`).

@@ -39,8 +39,8 @@ Use India-processed models only, with one fallback per job. All values are confi
 
 | Job | Primary | Fallback | Notes |
 |---|---|---|---|
-| Extraction | `gpt-4o` | `glm-5.3-flash` | `reasoning_effort: "none"` (glm runs "low"); 70 s budget |
-| Explanation and voice answer | `gpt-4o` | `gemma-4-31b` | `reasoning_effort: "none"`; 8 s budget; `sarvam-105b` stays selectable |
+| Extraction | `gemma-4-31b` | `glm-5.3-flash` | `reasoning_effort: "none"` (glm runs "low"); 70 s budget |
+| Explanation and voice answer | `gemma-4-31b` | `deepseek-v4.1-flash-1017` | `reasoning_effort: "none"`; 8 s budget; `sarvam-105b` stays selectable |
 | STT | `saaras:v4`, `language` en-IN / hi-IN / mr-IN | `whisper`, no `language` (auto-detect) | multipart `file`, `model`, `language` |
 | TTS | `bulbul:v3`, voices en `ratan`, hi `shubh`, mr `ratan` | `gnani-timbre-v3.0`, voice `Chetana` | `response_format: "mp3"` |
 
@@ -50,7 +50,7 @@ Use India-processed models only, with one fallback per job. All values are confi
   - 402, 401, 403 and other 4xx never fall back.
   - Without a fallback, the old retry policy applies.
 - **Residency.** Chat keeps sending `provider.data_residency = "in"`. STT and TTS keep sending it too, although it is undocumented there (dropping it could only weaken residency). The real guarantee for audio is the allow-list plus the API key's India-only setting.
-- **Probe.** `scripts/probe_callmissed.py --yes-spend` checks every primary and fallback with the API's own request shapes. It costs at most about US$0.07.
+- **Probe.** `scripts/probe_callmissed.py --yes-spend` checks every primary and fallback with the API's own request shapes. It costs at most about US$0.019 (Rs 1.80).
 
 ## Consequences
 
@@ -58,3 +58,19 @@ Use India-processed models only, with one fallback per job. All values are confi
 - **`gpt-4o` sunset.** `gpt-4o` must be replaced as primary before 2026-11-16. Until then the `region_unavailable` fallback rule keeps explanations working on `gemma-4-31b`. The label eval should pick the extraction primary from the four India vision models, and the probe should confirm that `gemma-4-31b` honours strict JSON schema, because the docs do not say so.
 - **Fallback provenance.** When the fallback answers an extraction, the scan still records and caches the primary model id. The `fallback_from=` log field shows the switch. A follow-up could store the answering model.
 - **Adding a model.** Check its catalogue `processing` is `india`, add it to `INDIA_PROCESSED_MODELS` with a test, update this ADR and `docs/SETUP_ACCOUNTS.md`, and rerun the probe.
+
+## Addendum 2026-11-04: no deprecated model (Ruling CM1)
+
+`gpt-4o` (catalogue `deprecated: true`, `sunset_date` 2026-11-16) is no longer a default or a fallback. After the sunset it is rerouted to `gpt-6-sol`, which is `india_preferred`, so it is not guaranteed to be India-processed.
+
+| Job | Primary | Fallback |
+|---|---|---|
+| Extraction (vision) | `gemma-4-31b` | `glm-5.3-flash` (documents JSON-schema output; always reasons, runs "low") |
+| Explanation and voice answer | `gemma-4-31b`, `reasoning_effort: "none"` | `deepseek-v4.1-flash-1017`, `reasoning_effort: "none"` (documented to switch thinking off; India-processed, not deprecated) |
+
+- `DEPRECATED_MODELS = {"gpt-4o"}` (sunset dates in `DEPRECATED_MODEL_SUNSETS`) in `app/integrations/callmissed.py`. `gpt-4o` is removed from `INDIA_PROCESSED_MODELS`, and the allow-list refuses any deprecated model, primary or fallback, before a request is sent.
+- A test fails if any default or fallback model is deprecated.
+- `glm-5.3-flash` is not used as an explanation fallback because it cannot turn reasoning off; `sarvam-105b` stays selectable but timed out at 8 s.
+- Strict JSON on `gemma-4-31b` and `deepseek-v4.1-flash-1017` is undocumented; pydantic validation still rejects invalid output. Confirm with the probe.
+- The probe now calls gemma and deepseek (chat), gemma and glm (vision), plus STT and TTS: 16 calls, upper-bound estimate about US$0.0188 (about Rs 1.80).
+- This supersedes the Decision table's `gpt-4o` rows and the "`gpt-4o` sunset" consequence above.

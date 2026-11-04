@@ -39,13 +39,13 @@ Why these models: [ADR 0021](adr/0021-callmissed-model-choices.md). Sources: doc
 
 | Job | Primary | Fallback (tried once) | Request |
 |---|---|---|---|
-| Label extraction (vision) | `gpt-4o` | `glm-5.3-flash` | `POST /v1/chat/completions`, text part + base64 `image_url` part, `response_format` `json_schema` strict, `reasoning_effort: "none"` |
-| Explanation and voice answer (text) | `gpt-4o` | `gemma-4-31b` (thinking off with `"none"`) | Same, plus `provider: {"data_residency": "in"}`, 8 s budget |
+| Label extraction (vision) | `gemma-4-31b` | `glm-5.3-flash` | `POST /v1/chat/completions`, text part + base64 `image_url` part, `response_format` `json_schema` strict, `reasoning_effort: "none"` |
+| Explanation and voice answer (text) | `gemma-4-31b` (thinking off with `"none"`) | `deepseek-v4.1-flash-1017` (thinking off with `"none"`) | Same, plus `provider: {"data_residency": "in"}`, 8 s budget |
 | Speech-to-text | `saaras:v4` (`language` `en-IN` / `hi-IN` / `mr-IN`) | `whisper` (no `language`: auto-detect) | `POST /v1/audio/transcriptions`, multipart `file`, `model`, `language`; reply `{"text": ...}`; saaras at most 30 s of audio, 25 MB |
 | Text-to-speech | `bulbul:v3`, voices en `ratan`, hi `shubh`, mr `ratan` | `gnani-timbre-v3.0`, voice `Chetana` (all three) | `POST /v1/audio/speech`, JSON `model`, `input`, `voice`, `language`, `response_format: "mp3"`; bulbul at most 2,500 characters |
 
 - `sarvam-105b` stays selectable for explanations (`CALLMISSED_EXPLANATION_MODEL=sarvam-105b`, keep `CALLMISSED_EXPLANATION_REASONING_EFFORT=none`), but is not the default: it timed out at 8 s.
-- The label eval (`label-eval` skill) should compare the four India vision models: `gpt-4o`, `gemma-4-31b`, `glm-5.3-flash`, `deepseek-v4.1-flash-1017`.
+- The label eval (`label-eval` skill) should compare the three non-deprecated India vision models: `gemma-4-31b`, `glm-5.3-flash`, `deepseek-v4.1-flash-1017`.
 - `microsoft-neural-tts` is processed in India but is **voice-sessions only** (400 on `/v1/audio/speech`), so it cannot be the TTS fallback. Gnani Timbre v3 is (India, a different provider from Sarvam, Marathi supported).
 
 ### Residency (health data stays in India)
@@ -62,10 +62,10 @@ Why these models: [ADR 0021](adr/0021-callmissed-model-choices.md). Sources: doc
 
 ### Plan and cost
 
-- `gpt-4o`, `gemma-4-31b`, `glm-5.3-flash`, `whisper` and `gnani-timbre-v3.0` are **paid-plan models** (Starter or higher). A Free key gets `403 model_not_available`, which the API treats as "AI unavailable". `saaras:v4`, `bulbul:v3` and `sarvam-105b` are free-tier.
-- **`gpt-4o` is deprecated, sunset 2026-11-16**; from then it is answered by `gpt-6-sol`, which is `india_preferred`, so India-only requests will be refused (`region_unavailable`) and fall back. Pick the replacement primary from the label eval and probe before that date.
-- Prices (US$, US$1 = ₹96): `gpt-4o` 2.604 in / 10.42 out per 1M tokens; `gemma-4-31b` 0.3646 / 0.9375; `glm-5.3-flash` 0.2292 / 0.7604; `saaras:v4` 0.3125 per hour; `whisper` 0.4167 per hour; `bulbul:v3` 0.3125 per 10K characters; `gnani-timbre-v3.0` 0.2813 per 10K characters.
-- Rough cost per call (estimates from those prices, not measured): explanation on `gpt-4o` about ₹0.5 to ₹1 (2,000 prompt and 300 answer tokens is about ₹0.8); label extraction on `gpt-4o` up to about ₹4; a 30 s voice question about ₹0.25 for STT plus about ₹0.9 for a 300-character spoken answer (TTS), plus the answer's LLM call.
+- `gemma-4-31b`, `glm-5.3-flash`, `deepseek-v4.1-flash-1017`, `whisper` and `gnani-timbre-v3.0` are **paid-plan models** (Starter or higher). A Free key gets `403 model_not_available`, which the API treats as "AI unavailable". `saaras:v4`, `bulbul:v3` and `sarvam-105b` are free-tier.
+- **`gpt-4o` is deprecated, sunset 2026-11-16, and is not used** (Ruling CM1). It is in `DEPRECATED_MODELS`, the allow-list refuses it, and a test fails if any default or fallback is deprecated. After the sunset it would be answered by `gpt-6-sol`, which is `india_preferred`.
+- Prices (US$, US$1 = ₹96): `gemma-4-31b` 0.3646 in / 0.9375 out per 1M tokens; `glm-5.3-flash` 0.2292 / 0.7604; `deepseek-v4.1-flash-1017` 0.4271 / 1.771; `saaras:v4` 0.3125 per hour; `whisper` 0.4167 per hour; `bulbul:v3` 0.3125 per 10K characters; `gnani-timbre-v3.0` 0.2813 per 10K characters.
+- Rough cost per call (estimates from those prices, not measured): explanation on `gemma-4-31b` about ₹0.1 (2,000 prompt and 300 answer tokens is about ₹0.1); label extraction on `gemma-4-31b` up to about ₹1; a 30 s voice question about ₹0.25 for STT plus about ₹0.9 for a 300-character spoken answer (TTS), plus the answer's LLM call.
 
 ### Probe (run once with a real key, then after any model change)
 

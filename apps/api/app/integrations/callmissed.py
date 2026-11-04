@@ -80,7 +80,6 @@ CHAT_EXTRA_BODY: dict[str, Any] = {"provider": {"data_residency": "in"}}
 INDIA_PROCESSED_MODELS: frozenset[str] = frozenset(
     {
         # chat (text and vision)
-        "gpt-4o",
         "gemma-4-31b",
         "glm-5.3-flash",
         "deepseek-v4.1-flash-1017",
@@ -94,13 +93,22 @@ INDIA_PROCESSED_MODELS: frozenset[str] = frozenset(
         "gnani-timbre-v3.0",
     }
 )
+# Deprecated models are refused even though the catalogue still says processing "india": after
+# the sunset they are answered by a successor that may not be India-processed (Ruling CM1).
+# gpt-4o: GET /api/v1/models, 2026-11-04: deprecated=true, sunset_date 2026-11-16, successor
+# gpt-6-sol (india_preferred). Never a default or a fallback (tests enforce it).
+DEPRECATED_MODEL_SUNSETS: dict[str, str] = {"gpt-4o": "2026-11-16"}
+DEPRECATED_MODELS: frozenset[str] = frozenset(DEPRECATED_MODEL_SUNSETS)
 NOT_INDIA = "model_not_india_processed"
 
 _sleep = asyncio.sleep  # module alias so tests patch this, not asyncio.sleep globally
 
 
 def _not_india(*models: str | None) -> bool:
-    return any(m is not None and m not in INDIA_PROCESSED_MODELS for m in models)
+    return any(
+        m is not None and (m in DEPRECATED_MODELS or m not in INDIA_PROCESSED_MODELS)
+        for m in models
+    )
 
 
 def _error_code(exc: openai.APIStatusError) -> str | None:
@@ -111,7 +119,7 @@ def _error_code(exc: openai.APIStatusError) -> str | None:
 def _switchable(exc: openai.APIStatusError) -> bool:
     """A primary failure that a different model may not have: 5xx, or a 400 refusal because
     the model is not processed in India (e.g. after a deprecated id starts being answered by
-    a successor that is not; gpt-4o's sunset is 2026-11-16)."""
+    a successor that is not)."""
     return exc.status_code >= 500 or (
         exc.status_code == 400 and _error_code(exc) == "region_unavailable"
     )

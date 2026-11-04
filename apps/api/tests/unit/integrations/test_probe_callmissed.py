@@ -78,7 +78,13 @@ def test_dry_run_prints_the_plan_and_cost_and_refuses(monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "--yes-spend" in out and "Estimated cost: up to US$" in out
     assert "Plan: 16 paid calls" in out
-    for model in ("gpt-4o", "gemma-4-31b", "glm-5.3-flash", "saaras:v4", "whisper"):
+    for model in (
+        "gemma-4-31b",
+        "deepseek-v4.1-flash-1017",
+        "glm-5.3-flash",
+        "saaras:v4",
+        "whisper",
+    ):
         assert model in out
     assert "bulbul:v3" in out and "gnani-timbre-v3.0" in out
     assert SECRET not in out
@@ -94,8 +100,10 @@ def test_refuses_in_ci_even_with_yes_spend(monkeypatch, capsys):
 def test_plan_covers_every_job_primary_and_fallback_in_every_language():
     calls = probe_callmissed.plan(_settings())
     jobs = {(c.job, c.model, c.language) for c in calls}
-    assert ("chat", "gpt-4o", "-") in jobs and ("chat", "gemma-4-31b", "-") in jobs
-    assert ("vision", "gpt-4o", "-") in jobs and ("vision", "glm-5.3-flash", "-") in jobs
+    assert ("chat", "gemma-4-31b", "-") in jobs
+    assert ("chat", "deepseek-v4.1-flash-1017", "-") in jobs
+    assert ("vision", "gemma-4-31b", "-") in jobs and ("vision", "glm-5.3-flash", "-") in jobs
+    assert not any(c.model == "gpt-4o" for c in calls)
     for lang in ("en", "hi", "mr"):
         assert {("stt", "saaras:v4", lang), ("stt", "whisper", lang)} <= jobs
         assert {("tts", "bulbul:v3", lang), ("tts", "gnani-timbre-v3.0", lang)} <= jobs
@@ -104,13 +112,13 @@ def test_plan_covers_every_job_primary_and_fallback_in_every_language():
 
 def test_plan_skips_a_disabled_fallback():
     calls = probe_callmissed.plan(_settings(callmissed_explanation_fallback_model=""))
-    assert [c.model for c in calls if c.job == "chat"] == ["gpt-4o"]
+    assert [c.model for c in calls if c.job == "chat"] == ["gemma-4-31b"]
 
 
 def test_estimate_is_small_and_known_for_every_default():
     costs = [probe_callmissed.estimate_usd(c) for c in probe_callmissed.plan(_settings())]
     assert None not in costs
-    assert 0 < sum(costs) < 0.10  # US$, an upper bound
+    assert 0 < sum(costs) < 0.03  # US$, an upper bound (gpt-4o's $0.07 is gone)
 
 
 def test_generated_wav_is_16k_mono_under_saaras_30s_limit():

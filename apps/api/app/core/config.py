@@ -28,9 +28,10 @@ class Settings(BaseSettings):
     # inside the same deadline, when the primary answers 5xx, times out, or is refused with
     # `region_unavailable`. An empty env value turns a fallback off.
     #
-    # Label extraction (vision, strict JSON). The label eval compares gpt-4o, gemma-4-31b,
-    # glm-5.3-flash and deepseek-v4.1-flash-1017 before the final choice.
-    callmissed_extraction_model: str = "gpt-4o"
+    # Label extraction (vision, strict JSON). The label eval compares gemma-4-31b,
+    # glm-5.3-flash and deepseek-v4.1-flash-1017 before the final choice. No deprecated model
+    # (DEPRECATED_MODELS) may be a default or a fallback (Ruling CM1).
+    callmissed_extraction_model: str = "gemma-4-31b"
     callmissed_extraction_fallback_model: str | None = "glm-5.3-flash"
     callmissed_extraction_reasoning_effort: ReasoningEffort | None = "none"
     # Label-extraction prompt (env EXTRACTION_PROMPT_VERSION). v2 returns raw cell text parsed
@@ -39,10 +40,10 @@ class Settings(BaseSettings):
     extraction_prompt_version: Literal["extraction_v1", "extraction_v2"] = "extraction_v1"
     # Explanations and voice answers (text, strict JSON, 8 s budget). sarvam-105b stays
     # selectable but is not the default: it timed out at 8 s.
-    callmissed_explanation_model: str = "gpt-4o"
-    callmissed_explanation_fallback_model: str | None = "gemma-4-31b"
+    callmissed_explanation_model: str = "gemma-4-31b"
+    callmissed_explanation_fallback_model: str | None = "deepseek-v4.1-flash-1017"
     # Sent as `reasoning_effort` (docs: api-speed). "none" switches thinking off where the
-    # model allows it (gemma-4-31b, sarvam-105b); gpt-4o ignores it; glm-5.3-flash runs "low".
+    # model allows it (gemma-4-31b, deepseek-v4.1-flash-1017, sarvam-105b); glm-5.3-flash runs "low".
     callmissed_explanation_reasoning_effort: ReasoningEffort | None = "none"
     # Speech-to-text (POST /v1/audio/transcriptions). `*_languages` maps en/hi/mr to the
     # `language` form field; a language missing from the map is left out (auto-detect).
