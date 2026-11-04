@@ -21,7 +21,7 @@ SmartNutri AI ("SmartNutri", "we") helps you check whether a packaged food suits
 | **Health data** (only with your `health_data` consent) | Allergies, health conditions (for example diabetes or PCOS), goal, height, weight | To check products against each member's needs |
 | Food data | Barcodes you scan, products you add, label values you confirm, meals you log | To show verdicts, history and summaries |
 | Label photos | Photos of food labels you take | To read the label for you |
-| Voice questions | Short recordings of your questions and our spoken answers | To answer questions about a product |
+| Voice questions | Short recordings of your questions and our spoken answers (processed, never stored) | To answer questions about a product |
 | Technical data | App version, device type, crash reports, coarse usage events | To keep the service working and secure |
 
 We never collect a member's full date of birth, and we do not collect identity documents.
@@ -48,7 +48,7 @@ Verdicts (`ok`, `caution`, `unknown`, `avoid`) are calculated by our own rules, 
 | Data | Kept for |
 |---|---|
 | Label photos | **30 days**, then deleted automatically. We keep them without location or other hidden details (EXIF): both apps remove these before upload, and our server removes them again when it reads the photo. The values you confirmed stay with the product. |
-| Voice recordings | Your recording is never stored. Our spoken answers are deleted after **24 hours**. Transcripts are never stored. |
+| Voice recordings | **Never stored.** Your recording is used only to answer your question. Our spoken answer is sent straight to your device in the reply and is not kept on our servers; the app keeps it only while the answer is open. The transcript of your question and the answer text are not stored either. |
 | Account, family profiles, health data, meal logs | Until you delete them or delete your account |
 | Consent records | Until you delete your account. Deleting your account erases them together with everything else. [Lawyer: confirm that no proof of consent must be kept after erasure under DPDP s. 6(10) and the Rules; if it must, we would keep only a minimal record and say so here.] |
 | Record that an account was deleted | **7 days** after deletion: only the account's internal ID and the time, so that a sign-in from before the deletion cannot bring the account back |
@@ -58,7 +58,7 @@ Verdicts (`ok`, `caution`, `unknown`, `avoid`) are calculated by our own rules, 
 
 - **Access and correction.** You can see and edit your family profiles in the app.
 - **Withdraw consent.** Use Profile → Privacy and consent. Withdrawal is as easy as giving consent. After you withdraw, we stop the processing that needed that consent: for example, we will not save new health details without `health_data`, and we will not use AI without `ai_processing`. Your stored profiles stay, and allergies and conditions already saved are still checked so a product is never shown as fine for someone with a saved allergy. To erase them, delete the member or your account (see below). [Lawyer: confirm against DPDP s. 8(7); see ADR 0018 and its ruling G1 amendment.]
-- **Erasure.** Profile → Delete account permanently deletes your account, family profiles, health data, scans, meal logs, label photos, voice answers and consent records. It also removes your sign-in. Products you added to the shared catalogue stay, with no link to you. You can also ask us by email: [privacy email].
+- **Erasure.** Profile → Delete account permanently deletes your account, family profiles, health data, scans, meal logs, label photos and consent records. (Voice recordings and answers are never stored, so there is nothing to delete.) It also removes your sign-in. Products you added to the shared catalogue stay, with no link to you. You can also ask us by email: [privacy email].
 - **Grievance redressal.** Our Grievance Officer is [name], [email], [phone], [address]. We reply within [7] days and resolve within [30] days. If you are not satisfied, you may complain to the Data Protection Board of India.
 - **Nominate.** You may nominate another person to exercise these rights if you die or become incapacitated. Contact the Grievance Officer.
 
@@ -84,7 +84,7 @@ Some product information comes from Open Food Facts (openfoodfacts.org), availab
 
 ## 9. Security
 
-Data is encrypted in transit (HTTPS) and at rest. Access is limited per account by row-level security. Label photos and voice answers are in private storage and reached only through short-lived links. We will tell you and the Data Protection Board about a personal data breach as the law requires.
+Data is encrypted in transit (HTTPS) and at rest. Access is limited per account by row-level security. Label photos are in private storage and reached only through short-lived links. Voice audio is never stored. We will tell you and the Data Protection Board about a personal data breach as the law requires.
 
 ## 10. Changes
 

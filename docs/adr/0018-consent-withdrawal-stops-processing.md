@@ -25,7 +25,7 @@ Withdrawal **stops processing and does not erase.**
 - **Erasure.** Erasure is explicit:
   - `DELETE /v1/me` erases the whole account (Plan 8 Task 2).
   - Deleting a member, or clearing its fields, erases that member's data.
-- **Retention.** Label photos are deleted after 30 days and voice answers after 24 hours, whatever the consent state (Plan 8 Task 3).
+- **Retention.** Label photos are deleted after 30 days, whatever the consent state (Plan 8 Task 3). Voice audio is never stored (ADR 0020).
 - **Privacy policy.** The policy (`docs/launch/privacy-policy.md`) says all of this in plain words.
 
 ## Amendment: ruling G1 (the user's decision, wave 2 integration)

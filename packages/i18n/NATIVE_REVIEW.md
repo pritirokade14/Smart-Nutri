@@ -252,3 +252,6 @@ All hi/mr strings below are machine drafts and need a native reader. Safe words 
 - [ ] **hi/mr `user_types.prefill.goal_neither`**: machine drafts. The third option in the goal-conflict radio list ("Neither (keep my current goal)"); it must read as keeping the goal unchanged, not as removing it.
 - [ ] **hi/mr `search.sort_label`, `search.sort_relevance`**: machine drafts. The sort control on search and alternatives ("Sort": "Best match" / "Higher protein").
 - Removed at P9 integration: `members.form.build_muscle_adult_only` (both clients use `members.goal.build_muscle_adults_only`).
+
+## Voice audio not stored (ADR 0020)
+- [ ] **hi/mr `settings.delete_body`**: machine edit. "Voice answers" was removed from the list of what account deletion erases, because voice answers are no longer stored. mr: the verb now agrees with "फोटो" ("कायमचे हटवले जातील"); check it reads naturally.

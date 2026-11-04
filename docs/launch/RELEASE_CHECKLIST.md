@@ -33,12 +33,12 @@
 | # | Item | Status | Notes |
 |---|---|---|---|
 | 13 | Supabase `smartnutri-prod` (Mumbai, Pro) created | USER | Task 8 Step 1 (payment) |
-| 14 | Prod migrations at head | TODO | Task 8 Step 2. The storage buckets (`label-photos` and `voice-answers`, both used by deletion and retention) are **not** created by migrations. Create them private in the dashboard, or add a guarded migration (see `api-report.md`). |
+| 14 | Prod migrations at head | TODO | Task 8 Step 2. The `label-photos` storage bucket (used by deletion and retention) is **not** created by migrations. There is no voice bucket (ADR 0020). Create them private in the dashboard, or add a guarded migration (see `api-report.md`). |
 | 15 | Prod secrets in Secret Manager | USER | `bash scripts/push-secrets.sh prod --dry-run`, then `! bash scripts/push-secrets.sh prod` |
 | 16 | API and web deployed (min 1, max 4) | TODO | Task 10. `ENVIRONMENT=prod` requires `ALLOWED_ORIGINS` set to https origins, or the API refuses to start. |
 | 16a | Dev migrations 0003 and 0004 applied | USER | `just db-migrate`, before merging Plans 5–8 to `main` |
-| 16b | `voice-answers` bucket created (private, 5 MiB, `audio/mpeg`) on dev, then prod | USER | `docs/SETUP_ACCOUNTS.md` section 2, step 8. Migrations do not create buckets. |
-| 17 | Retention job and scheduler (02:30 IST) | USER (deploy step is DONE in `deploy-dev.yml`) | The workflow deploys the job from `main` only. USER runs `bash scripts/setup-retention-schedule.sh setup`, then `dry-run`, then `schedule` (`docs/SETUP_ACCOUNTS.md`). `python -m app.jobs.retention`. Run `--dry-run` once first. Expect `photos_deleted=0 voice_deleted=0 scans_nulled=0` on a new project. |
+| 16b | ~~`voice-answers` bucket~~ | N/A | No longer needed: voice answers are returned inline and no voice audio is stored (ADR 0020, 2026-11-04). Do not create it on prod. Dev has an empty one (created 2026-11-04) that USER may delete. |
+| 17 | Retention job and scheduler (02:30 IST) | USER (deploy step is DONE in `deploy-dev.yml`) | The workflow deploys the job from `main` only. USER runs `bash scripts/setup-retention-schedule.sh setup`, then `dry-run`, then `schedule` (`docs/SETUP_ACCOUNTS.md`). `python -m app.jobs.retention`. Run `--dry-run` once first. Expect `photos_deleted=0 scans_nulled=0 tombstones_purged=0` on a new project. |
 | 18 | Consent, deletion and retention verified on prod | TODO | |
 | 19 | Sentry test error shows no PII | TODO | The event must have no body, no query, no auth header, and a hashed user id |
 | 20 | PostHog shows only allow-listed events | TODO | `ALLOWED_EVENTS` in `app/integrations/posthog.py`. The clients must mirror it. |
@@ -57,7 +57,7 @@
 | 28 | Store listing and Data safety entered | USER | Drafts: `docs/launch/store-listing.md`, `data-safety.md` |
 | 29 | Closed testing started: date ____, 14-day end date ____ | USER | 12 or more testers opted in for 14 consecutive days |
 | 30 | Phone OTP status | OFF | `PHONE_OTP_ENABLED=false` until Meta approves `smartnutri_otp` (Task 14). The CallMissed template body is unverified. |
-| 30a | Voice status | OFF | `VOICE_ENABLED=false` (`/v1/voice/ask` answers 503 `ai_unavailable`) until the 24 h voice retention is live (row 17 or a bucket lifecycle rule) AND the user approves the paid STT/TTS probe (`scripts.probe_stt_formats --yes-spend`), USER must approve the spend. The probe must also confirm CallMissed accepts `provider[data_residency]=in` on STT and `provider.data_residency` on TTS (Ruling V1). |
+| 30a | Voice status | OFF | `VOICE_ENABLED=false` (`/v1/voice/ask` answers 503 `ai_unavailable`) until the user approves the paid STT/TTS probe (`scripts.probe_stt_formats --yes-spend`), USER must approve the spend. The probe must also confirm CallMissed accepts `provider[data_residency]=in` on STT and `provider.data_residency` on TTS (Ruling V1). |
 | 31 | CallMissed plan and budget cap for launch | USER | Task 14 Step 4 |
 
 ## Rollback

@@ -24,14 +24,14 @@
 | Personal info → **Name** | Yes | No | Optional | App functionality | Member nicknames for family profiles |
 | Health and fitness → **Health info** | Yes | No | Optional (consent `health_data`) | App functionality | Allergies, conditions, diet, goal, height, weight |
 | Photos and videos → **Photos** | Yes | No | Optional | App functionality | Label photos, **deleted after 30 days** |
-| Audio → **Voice or sound recordings** | Yes | No | Optional | App functionality | The question recording is transcribed and never stored. Spoken answers are deleted after **24 hours**. |
+| Audio → **Voice or sound recordings** | Yes | No | Optional | App functionality | The question recording, its transcript and the spoken answer are processed only to answer the question and are never stored (ADR 0020). |
 | App activity → **App interactions** | Yes | No | Required | Analytics | Allow-listed events only, with no health data |
 | App activity → **Other user-generated content** | Yes | No | Optional | App functionality | Meal logs, products and label values the user confirms, problem reports |
 | App info and performance → **Crash logs** | Yes | No | Required | App functionality (stability) | Sentry, with request bodies and personal data scrubbed |
 | App info and performance → **Diagnostics** | Yes | No | Required | Analytics | |
 | Location, contacts, calendar, SMS, files, web history, financial info | **No** | | | | **Check before you answer "No" for location.** The API strips EXIF (including GPS) before extraction and, since ruling D1/S4, overwrites the stored photo with that EXIF-free re-encode when `POST /v1/scans/label` reads it (rejected uploads are deleted). An upload that is never sent to `/v1/scans/label` still stays in storage for up to 30 days with whatever EXIF the client sent. Both clients must strip EXIF before upload (Android camera and gallery, web file input). Confirm they do. |
 
-"Ephemeral processing" applies to the voice question recording. The label photo is not ephemeral: it is stored for up to 30 days.
+"Ephemeral processing" applies to the voice question recording and the spoken answer. The label photo is not ephemeral: it is stored for up to 30 days.
 
 ## Security practices
 

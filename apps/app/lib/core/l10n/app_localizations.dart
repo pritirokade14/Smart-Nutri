@@ -3859,7 +3859,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDeleteBody.
   ///
   /// In en, this message translates to:
-  /// **'This permanently deletes your account, your family profiles and health data, scans, food logs, label photos and voice answers. Products you added stay in the shared catalogue without your name. This can\'t be undone.'**
+  /// **'This permanently deletes your account, your family profiles and health data, scans, food logs and label photos. Products you added stay in the shared catalogue without your name. This can\'t be undone.'**
   String get settingsDeleteBody;
 
   /// No description provided for @settingsDeleteButton.

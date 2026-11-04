@@ -122,7 +122,7 @@ Plans 1–8 are **code complete on `v1-rebuild`** (head `0c69efd` plus the final
 
 **Next (all USER unless noted):**
 0. **Agents:** build Plan 9 (user types, focused modes, gym protein guide) with parallel agents: API Tasks 1–8 first (1 ∥ 3; scoring 3 → 4 → 6 → 7; Task 7 supplements can slip), then Android ∥ web, then the safety review. The user decided to do this before the Play closed test.
-1. Create the `voice-answers` bucket on dev (before any deploy that could enable voice).
+1. ~~Create the `voice-answers` bucket~~: no longer needed. Voice answers are returned inline and never stored (ADR 0020, user decision 2026-11-04). The empty dev bucket created 2026-11-04 may be deleted.
 2. Apply migrations 0003 and 0004 to dev (`just db-migrate`), then PR `v1-rebuild` to `main` when local checks are green. The deploy also updates the retention job once its shell exists.
 3. Run `bash scripts/setup-retention-schedule.sh setup`, then after the deploy `dry-run`, then `schedule` (02:30 IST).
 4. Approve and run the paid STT/TTS probe, then enable voice.
@@ -131,10 +131,10 @@ Plans 1–8 are **code complete on `v1-rebuild`** (head `0c69efd` plus the final
 ## 9. Open items that only the user can do
 
 - [ ] **USER:** `scripts/push-secrets.sh prod` before the prod deploy (dev secrets are already in Secret Manager).
-- [ ] **USER: create the `voice-answers` bucket** on dev (private, 5 MiB, `audio/mpeg`; `docs/SETUP_ACCOUNTS.md` section 2.8) before any deploy that could enable voice. Same on prod at launch.
+- [ ] **USER (optional): delete the empty `voice-answers` bucket on dev** (created 2026-11-04). It is no longer used: voice answers come back inline in the API response and no voice audio is stored (ADR 0020). Do not create it on prod.
 - [ ] **USER: apply dev migrations 0003 and 0004** (`just db-migrate`) before merging Plans 5–8 to `main`. After Plan 9: also 0005 (user types) and 0006 (supplement category).
 - [ ] **USER: retention job schedule** (`scripts/setup-retention-schedule.sh`: `setup`, `dry-run`, `schedule`).
-- [ ] **USER: approve the paid STT/TTS probe** (`scripts.probe_stt_formats --yes-spend`). It must also confirm CallMissed accepts the India data-residency setting on STT and TTS. Voice stays off until then and until retention is live.
+- [ ] **USER: approve the paid STT/TTS probe** (`scripts.probe_stt_formats --yes-spend`). It must also confirm CallMissed accepts the India data-residency setting on STT and TTS. Voice stays off until then. (No voice retention is needed: no voice audio is stored, ADR 0020.)
 - [ ] **USER: lawyer review** of the privacy policy and terms drafts (`docs/launch/`), including DPDP withdrawal versus erasure (ADR 0018) and children's profiles.
 - [ ] **USER: Play Store:** create the Google Play Console **personal** account ($25) and complete ID verification.
 - [ ] **USER:** recruit 12–20 closed-test testers once a usable build exists.

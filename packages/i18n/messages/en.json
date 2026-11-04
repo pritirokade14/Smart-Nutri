@@ -890,7 +890,7 @@
     "delete_button": "Delete account",
     "delete_dialog_title": "Delete your account permanently?",
     "delete_title": "Delete account",
-    "delete_body": "This permanently deletes your account, your family profiles and health data, scans, food logs, label photos and voice answers. Products you added stay in the shared catalogue without your name. This can't be undone.",
+    "delete_body": "This permanently deletes your account, your family profiles and health data, scans, food logs and label photos. Products you added stay in the shared catalogue without your name. This can't be undone.",
     "delete_confirm_word": "DELETE",
     "delete_confirm_label": "Type {word} to confirm",
     "delete_confirm": "Delete permanently",

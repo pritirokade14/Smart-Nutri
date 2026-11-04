@@ -2190,7 +2190,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDeleteBody =>
-      'This permanently deletes your account, your family profiles and health data, scans, food logs, label photos and voice answers. Products you added stay in the shared catalogue without your name. This can\'t be undone.';
+      'This permanently deletes your account, your family profiles and health data, scans, food logs and label photos. Products you added stay in the shared catalogue without your name. This can\'t be undone.';
 
   @override
   String get settingsDeleteButton => 'Delete account';

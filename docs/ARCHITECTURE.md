@@ -98,7 +98,7 @@ The flows are the same on both clients. Only the device-side step differs.
    - **Web:** `MediaRecorder` (webm/opus). The API converts the audio format if CallMissed STT needs it; verify the accepted formats in Plan 2.
 2. The API runs CallMissed STT (`saaras:v4`), then the LLM. The LLM is given the engine report as context and is told not to change the verdict.
 3. CallMissed TTS (`bulbul`) speaks the answer.
-4. The response is `{question, answer, audio_url}`.
+4. The response is `{question, answer, audio_base64, audio_mime, verdict_status, source}`: the mp3 is sent inline and never stored (ADR 0020). Over about 1 MB, `audio_base64` is null and the client shows the text only.
 
 **Public product page (web only, SEO)**
 - `/[locale]/p/[barcode]` is statically generated or ISR from `GET /v1/products/{barcode}/public`.
