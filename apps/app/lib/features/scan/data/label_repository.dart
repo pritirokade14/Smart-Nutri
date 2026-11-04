@@ -23,7 +23,12 @@ enum LabelPhase { uploading, reading }
 /// A label-scan or product-save failure, by API error code (`error.<code>`),
 /// or `network` when there was no response.
 class LabelFailure implements Exception {
-  const LabelFailure(this.code, {this.fields = const [], this.productId});
+  const LabelFailure(
+    this.code, {
+    this.fields = const [],
+    this.productId,
+    this.reasons = const [],
+  });
 
   final String code;
 
@@ -33,6 +38,10 @@ class LabelFailure implements Exception {
 
   /// `product_exists`: the product the caller can already see, if given.
   final String? productId;
+
+  /// `image_quality_low`: why the photo can't be read (`blur`, `glare`,
+  /// `too_small`), for the retake hints.
+  final List<String> reasons;
 
   @override
   String toString() => 'LabelFailure($code)';
@@ -164,6 +173,7 @@ class LabelRepository {
         ? parseErrorEnvelope(error.response?.data)?.error.details
         : null;
     final fields = <String>[];
+    final reasons = <String>[];
     String? productId;
     if (details is Map) {
       final raw = details['fields'];
@@ -173,10 +183,17 @@ class LabelRepository {
           if (name != null && !fields.contains(name)) fields.add(name);
         }
       }
+      final why = details['reasons'];
+      if (why is List) reasons.addAll(why.whereType<String>());
       final id = details['product_id'];
       if (id is String && id.isNotEmpty) productId = id;
     }
-    return LabelFailure(code, fields: fields, productId: productId);
+    return LabelFailure(
+      code,
+      fields: fields,
+      productId: productId,
+      reasons: reasons,
+    );
   }
 }
 

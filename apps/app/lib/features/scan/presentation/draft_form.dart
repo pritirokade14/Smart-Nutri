@@ -207,7 +207,13 @@ class DraftFormState extends State<DraftForm> {
       }
       if (!draft.confirm.categoryRequired) {
         final c = ProductCreateCategory.fromJson(draft.category.json ?? '');
-        _category = c == ProductCreateCategory.$unknown ? null : c;
+        // "Supplement" is never preselected: only the user picks it
+        // (P9-R10).
+        _category =
+            c == ProductCreateCategory.$unknown ||
+                c == ProductCreateCategory.supplement
+            ? null
+            : c;
       }
     }
     final veg = ProductCreateVegMark.fromJson(draft?.vegMark?.json ?? '');

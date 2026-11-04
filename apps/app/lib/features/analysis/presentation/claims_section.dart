@@ -18,6 +18,9 @@ String? claimLabel(AppLocalizations l10n, String code) => switch (code) {
   'source_of_protein' => l10n.claimSourceOfProtein,
   'no_refined_sugar' => l10n.claimNoRefinedSugar,
   'diabetic_friendly' => l10n.claimDiabeticFriendly,
+  'protein_amount' => l10n.claimProteinAmount,
+  'whey_only' => l10n.claimWheyOnly,
+  'whey_protein' => l10n.claimWheyProtein,
   _ => null,
 };
 
@@ -51,6 +54,7 @@ String? claimReasonText(AppLocalizations l10n, ClaimCheck check) {
     'sat_fat' => l10n.nutrientSatFat,
     'salt' => l10n.nutrientSalt,
     'sodium_mg' => l10n.nutrientSodiumMg,
+    'serving_size_g' => l10n.nutrientServingSizeG,
     _ => null,
   };
 
@@ -84,6 +88,20 @@ String? claimReasonText(AppLocalizations l10n, ClaimCheck check) {
       final i? => l10n.claimReasonRefinedSugarIngredient(i),
       null => null,
     },
+    'below_claimed' => switch ((
+      number('value'),
+      number('claimed'),
+      p['basis'],
+    )) {
+      (final value?, final claimed?, final String basis) =>
+        l10n.claimReasonBelowClaimed(basis, claimed, value),
+      _ => null,
+    },
+    'other_protein_source' => switch (list('ingredients')) {
+      final i? => l10n.claimReasonOtherProteinSource(i),
+      null => null,
+    },
+    'whey_not_listed' => l10n.claimReasonWheyNotListed,
     _ => null,
   };
 }

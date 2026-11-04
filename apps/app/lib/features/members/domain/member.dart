@@ -32,6 +32,9 @@ const dietKeys = ['veg', 'eggetarian', 'vegan', 'jain', 'non_veg'];
 const sexKeys = ['female', 'male', 'other'];
 const goalKeys = ['healthy_eating', 'weight_loss', 'weight_gain'];
 
+/// The protein-guide goal, offered to adults only (Plan 9).
+const buildMuscleGoal = 'build_muscle';
+
 /// Relations a new or edited non-primary member can have. Never `self`: the
 /// primary (the account holder) is created by the API.
 const newRelationKeys = ['child', 'parent', 'spouse', 'other'];

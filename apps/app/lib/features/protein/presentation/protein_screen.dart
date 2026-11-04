@@ -18,6 +18,7 @@ import '../../meals/data/meals_repository.dart';
 import '../../members/data/members_repository.dart';
 import '../../members/presentation/members_providers.dart';
 import 'protein_progress.dart';
+import 'protein_swaps.dart';
 
 /// The member whose protein is shown; null is the account holder.
 class ProteinMember extends Notifier<String?> {
@@ -152,16 +153,9 @@ class _ProteinBody extends ConsumerWidget {
             ),
           ),
         ),
-        ...proteinScreenExtras(context, ref, member),
+        ProteinSwaps(member: member),
         const DisclaimerFooter(),
       ],
     );
   }
 }
-
-/// Sections added below the progress card (Task 11: swaps and search).
-List<Widget> proteinScreenExtras(
-  BuildContext context,
-  WidgetRef ref,
-  MemberOut member,
-) => const [];

@@ -15,6 +15,9 @@ import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/nutri_score_chip.dart';
 import '../../../shared/widgets/off_attribution.dart';
 import '../../../shared/widgets/states.dart';
+import '../../../shared/widgets/verdict_badge.dart';
+import '../../scan/domain/number_text.dart';
+import 'alternatives_section.dart' show memberStatusString;
 import '../data/product_discovery_repository.dart';
 import 'discovery_routes.dart';
 import 'product_discovery_providers.dart';
@@ -29,6 +32,7 @@ class SearchScreen extends ConsumerStatefulWidget {
   final String? memberId;
 
   static const debounce = Duration(milliseconds: 600);
+  static const proteinSortKey = Key('search-sort-protein');
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
@@ -38,6 +42,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _controller = TextEditingController();
   Timer? _timer;
   String _query = '';
+
+  /// Relevance (default) or higher protein.
+  SearchSort _sort = SearchSort.relevance;
 
   @override
   void dispose() {
@@ -80,6 +87,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final theme = Theme.of(context);
     final c = SnColors.of(context);
     final q = _query;
+    final query = (q: q, sort: _sort, memberId: widget.memberId);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -110,6 +118,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               counterText: '',
             ),
           ),
+          const SizedBox(height: SnTokens.space2),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FilterChip(
+              key: SearchScreen.proteinSortKey,
+              avatar: const Icon(Icons.fitness_center_rounded),
+              label: Text(l10n.proteinSortHigher),
+              selected: _sort == SearchSort.protein,
+              onSelected: (on) => setState(
+                () => _sort = on ? SearchSort.protein : SearchSort.relevance,
+              ),
+            ),
+          ),
           const SizedBox(height: SnTokens.space3),
           if (q.isEmpty)
             const SizedBox.shrink()
@@ -122,7 +143,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             )
           else
             ref
-                .watch(productSearchProvider(q))
+                .watch(productSearchProvider(query))
                 .when(
                   skipLoadingOnRefresh: false,
                   loading: () => const LoadingSkeleton(lines: 4),
@@ -132,7 +153,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       e is DiscoveryFailure ? e.code : null,
                     ),
                     icon: Icons.cloud_off_rounded,
-                    onRetry: () => ref.invalidate(productSearchProvider(q)),
+                    onRetry: () => ref.invalidate(productSearchProvider(query)),
                   ),
                   data: (hits) => hits.isEmpty
                       ? EmptyState(
@@ -227,6 +248,19 @@ class _HitTile extends StatelessWidget {
                     ),
                 ],
               ),
+              if (hit.proteinPer100kcal case final p?)
+                Text(
+                  '${l10n.proteinPer100kcal}: ${formatForDisplay(p)}',
+                  style: theme.textTheme.bodySmall,
+                ),
+              if (memberStatusString(hit.memberStatus) case final status?)
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: SnTokens.space1),
+                    child: VerdictBadge(status: status),
+                  ),
+                ),
               if (hit.attribution != null && barcode != null)
                 OffAttribution(barcode: barcode),
             ],

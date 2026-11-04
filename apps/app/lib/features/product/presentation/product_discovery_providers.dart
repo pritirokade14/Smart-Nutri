@@ -5,7 +5,13 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../data/product_discovery_repository.dart';
 
-typedef AlternativesQuery = ({ProductRef product, String? memberId});
+typedef AlternativesQuery = ({
+  ProductRef product,
+  String? memberId,
+  AlternativesSort sort,
+});
+
+typedef SearchQuery = ({String q, SearchSort sort, String? memberId});
 
 typedef CompareQuery = ({ProductRef a, ProductRef b, String? memberId});
 
@@ -19,13 +25,15 @@ final alternativesProvider = FutureProvider.autoDispose
     .family<AlternativesOut, AlternativesQuery>(
       (ref, q) => ref
           .watch(productDiscoveryRepositoryProvider)
-          .alternatives(q.product, memberId: q.memberId),
+          .alternatives(q.product, memberId: q.memberId, sort: q.sort),
       retry: (_, _) => null,
     );
 
 final productSearchProvider = FutureProvider.autoDispose
-    .family<List<SearchHit>, String>(
-      (ref, q) => ref.watch(productDiscoveryRepositoryProvider).search(q),
+    .family<List<SearchHit>, SearchQuery>(
+      (ref, q) => ref
+          .watch(productDiscoveryRepositoryProvider)
+          .search(q.q, sort: q.sort, memberId: q.memberId),
       retry: (_, _) => null,
     );
 

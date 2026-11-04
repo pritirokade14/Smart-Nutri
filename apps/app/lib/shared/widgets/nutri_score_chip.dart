@@ -8,7 +8,16 @@ import '../../core/theme/tokens.g.dart';
 /// raised, always labelled "calculated by SmartNutri" (never an FSSAI
 /// rating). With no grade it says there was not enough label data.
 class NutriScoreChip extends StatelessWidget {
-  const NutriScoreChip({super.key, required this.grade});
+  const NutriScoreChip({
+    super.key,
+    required this.grade,
+    this.notScoredSupplement = false,
+  });
+
+  /// `report.nutriscore.reason == not_scored_supplement`: no grade is
+  /// calculated for supplements, which the chip says instead of "not enough
+  /// data".
+  final bool notScoredSupplement;
 
   static const gradeTileKey = Key('nutriscore-grade-tile');
   static const _grades = ['A', 'B', 'C', 'D', 'E'];
@@ -50,7 +59,9 @@ class NutriScoreChip extends StatelessWidget {
           const SizedBox(width: SnTokens.space2),
           Expanded(
             child: Text(
-              l10n.nutriscoreInsufficientData,
+              notScoredSupplement && grade == null
+                  ? l10n.nutriscoreNotScoredSupplement
+                  : l10n.nutriscoreInsufficientData,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: c.textSecondary,
               ),

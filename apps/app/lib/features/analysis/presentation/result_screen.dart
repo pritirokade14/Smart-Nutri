@@ -33,6 +33,7 @@ import '../domain/report.dart';
 import 'analysis_providers.dart';
 import 'claims_section.dart';
 import 'explanation_card.dart';
+import 'protein_facts.dart';
 import 'verdict_card.dart';
 
 /// Result of a barcode scan or of a product saved from a label: the product,
@@ -227,6 +228,8 @@ class _ResultView extends StatelessWidget {
             name: product.name ?? product.barcode ?? barcode ?? '',
             brand: product.brand,
             grade: nutriscoreGrade(out.report),
+            notScoredSupplement:
+                nutriscoreReason(out.report) == 'not_scored_supplement',
             highIn: highIn,
           ),
           const SizedBox(height: SnTokens.space5),
@@ -294,6 +297,14 @@ class _ResultView extends StatelessWidget {
             icon: Icons.table_rows_rounded,
           ),
           _NutritionTable(per100g: product.per100g),
+          if (proteinFacts(out.report) case final facts?) ...[
+            const SizedBox(height: SnTokens.space3),
+            ProteinFactsRow(
+              facts: facts,
+              sweeteners: sweetenersIn(out.report),
+              caffeine: caffeineIn(out.report),
+            ),
+          ],
           if (claims.isNotEmpty) ...[
             const SizedBox(height: SnTokens.space5),
             ClaimsSection(checks: claims),
@@ -348,11 +359,13 @@ class _ProductCard extends StatelessWidget {
     required this.brand,
     required this.grade,
     required this.highIn,
+    this.notScoredSupplement = false,
   });
 
   final String name;
   final String? brand;
   final String? grade;
+  final bool notScoredSupplement;
   final List<String> highIn;
 
   @override
@@ -398,7 +411,10 @@ class _ProductCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: SnTokens.space4),
-            NutriScoreChip(grade: grade),
+            NutriScoreChip(
+              grade: grade,
+              notScoredSupplement: notScoredSupplement,
+            ),
             if (highIn.isNotEmpty) ...[
               const SizedBox(height: SnTokens.space4),
               Text(l10n.resultHighInTitle, style: theme.textTheme.titleSmall),

@@ -306,6 +306,12 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
     if (_otherError == null) _other.clear();
   }
 
+  /// 18 or older this year, from the year of birth typed.
+  bool _isAdult(int thisYear) {
+    final year = int.tryParse(_birthYear.text.trim());
+    return year != null && year >= birthYearMin && thisYear - year >= 18;
+  }
+
   String? _numberError(String text, ({int min, int max}) range) {
     final parsed = parseNumber(text);
     final v = parsed.value;
@@ -433,6 +439,8 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
               helperText: l10n.membersFormBirthYearHelp,
               helperMaxLines: 2,
             ),
+            // The goals offered depend on the age (build muscle: adults).
+            onChanged: (_) => setState(() {}),
             validator: (v) {
               final year = int.tryParse(v?.trim() ?? '');
               return year == null || year < birthYearMin || year > thisYear
@@ -551,7 +559,13 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
             ),
           section(l10n.membersFormGoal),
           choices(
-            goalKeys,
+            [
+              ...goalKeys,
+              // Adults only (the API refuses it for a minor); kept visible
+              // when already chosen so it can be cleared.
+              if (_isAdult(thisYear) || _goal == buildMuscleGoal)
+                buildMuscleGoal,
+            ],
             _goal,
             (k) => goalLabel(l10n, k),
             (v) => _goal = v,

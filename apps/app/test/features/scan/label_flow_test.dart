@@ -238,6 +238,41 @@ void main() {
       expect(find.text(en.labelTakePhoto), findsOneWidget);
     });
 
+    testWidgets('image_quality_low shows a retake hint per reason', (t) async {
+      final labels = FakeLabelRepository(
+        scan: () => throw const LabelFailure(
+          'image_quality_low',
+          reasons: ['blur', 'glare'],
+        ),
+      );
+      await _pumpFlow(t, initial: '/scan/label', labels: labels);
+      await t.tap(find.text(en.labelChooseFile));
+      await t.pumpAndSettle();
+      expect(find.text(en.imageQualityTitle), findsOneWidget);
+      final message = [
+        en.errorImageQualityLow,
+        en.imageQualityBlur,
+        en.imageQualityGlare,
+      ].join('\n');
+      expect(find.text(message), findsOneWidget);
+      expect(find.text(en.labelRetake), findsOneWidget);
+      expect(find.text(en.labelEnterManually), findsOneWidget);
+    });
+
+    testWidgets('image_quality_low without known reasons shows the general '
+        'hint', (t) async {
+      final labels = FakeLabelRepository(
+        scan: () => throw const LabelFailure('image_quality_low'),
+      );
+      await _pumpFlow(t, initial: '/scan/label', labels: labels);
+      await t.tap(find.text(en.labelChooseFile));
+      await t.pumpAndSettle();
+      expect(
+        find.text('${en.errorImageQualityLow}\n${en.imageQualityHintGeneric}'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('every capture error offers retake and enter manually', (
       t,
     ) async {

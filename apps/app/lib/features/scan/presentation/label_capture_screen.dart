@@ -16,6 +16,26 @@ import '../domain/barcode.dart';
 import 'confirm_screen.dart';
 import 'label_providers.dart';
 
+/// The label-v2 quality gate's error: the photo was not read (no paid call).
+const imageQualityLow = 'image_quality_low';
+
+/// One retake hint per `details.reasons` entry (`image_quality.<reason>`),
+/// or the general hint when none is known.
+List<String> retakeHints(AppLocalizations l10n, List<String> reasons) {
+  final hints = [
+    for (final r in reasons)
+      ?switch (r) {
+        'blur' => l10n.imageQualityBlur,
+        'glare' => l10n.imageQualityGlare,
+        'too_small' => l10n.imageQualityTooSmall,
+        _ => null,
+      },
+  ];
+  return hints.isEmpty
+      ? [l10n.imageQualityHintGeneric]
+      : hints.toSet().toList();
+}
+
 /// Photograph (or choose) a label photo; the extracted draft opens the
 /// confirm screen. Every error offers Retake and Enter manually.
 class LabelCaptureScreen extends ConsumerStatefulWidget {
@@ -108,7 +128,13 @@ class _LabelCaptureScreenState extends ConsumerState<LabelCaptureScreen> {
         ],
       ),
       LabelScanFailed(:final failure) => ErrorState(
-        message: _failureText(l10n, failure.code),
+        title: failure.code == imageQualityLow ? l10n.imageQualityTitle : null,
+        message: failure.code == imageQualityLow
+            ? [
+                l10n.errorImageQualityLow,
+                ...retakeHints(l10n, failure.reasons),
+              ].join('\n')
+            : _failureText(l10n, failure.code),
         icon: failure.code == cameraPermissionDenied
             ? Icons.no_photography_outlined
             : Icons.error_outline_rounded,

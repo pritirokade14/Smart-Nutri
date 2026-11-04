@@ -38,25 +38,47 @@ class ProductDiscoveryRepository {
 
   final ProductsClient _client;
 
-  /// Healthier options in the same category (`member_id` optional).
-  Future<AlternativesOut> alternatives(ProductRef ref, {String? memberId}) {
+  /// Healthier options in the same category (`member_id` optional), by
+  /// grade or, with `sort=protein`, higher protein per 100 kcal (the API
+  /// never offers an `avoid` for the member, or a supplement).
+  Future<AlternativesOut> alternatives(
+    ProductRef ref, {
+    String? memberId,
+    AlternativesSort sort = AlternativesSort.grade,
+  }) {
     final id = ref.productId;
     final code = ref.barcode;
     return DiscoveryFailure.guard(
       () => id != null
-          ? _client.productsAlternatives(productId: id, memberId: memberId)
+          ? _client.productsAlternatives(
+              productId: id,
+              memberId: memberId,
+              sort: sort,
+            )
           : _client.productsAlternativesByBarcode(
               code: code ?? '',
               memberId: memberId,
+              sort: sort,
             ),
     );
   }
 
   /// Our catalogue plus Open Food Facts; [query] is 2–80 characters.
-  Future<List<SearchHit>> search(String query, {int limit = 20}) =>
-      DiscoveryFailure.guard(
-        () => _client.productsSearch(q: query.trim(), limit: limit),
-      );
+  /// `sort=protein` ranks by protein (for [memberId], else the account
+  /// holder).
+  Future<List<SearchHit>> search(
+    String query, {
+    int limit = 20,
+    SearchSort sort = SearchSort.relevance,
+    String? memberId,
+  }) => DiscoveryFailure.guard(
+    () => _client.productsSearch(
+      q: query.trim(),
+      limit: limit,
+      sort: sort,
+      memberId: memberId,
+    ),
+  );
 
   Future<CompareOut> compare(ProductRef a, ProductRef b, {String? memberId}) =>
       DiscoveryFailure.guard(

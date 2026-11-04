@@ -174,6 +174,7 @@ void main() {
       );
       expect(find.text(en.errorOffUnavailable), findsOneWidget);
       api.alternativesError = null;
+      await t.ensureVisible(find.text(en.commonRetry));
       await t.tap(find.text(en.commonRetry));
       await t.pumpAndSettle();
       expect(find.text(en.alternativesReasonNoBetterFound), findsOneWidget);
@@ -453,7 +454,8 @@ void main() {
       );
       expect(find.text(en.compareBetterSame), findsNWidgets(2));
       // fiber unknown, sat fat unrecognised: both "cannot compare".
-      expect(find.text(en.compareBetterUnknown), findsNWidgets(2));
+      // Fibre and sat fat, plus the three protein-guide rows (unknown here).
+      expect(find.text(en.compareBetterUnknown), findsNWidgets(5));
       // A missing value is never 0.
       expect(find.text(en.resultNotOnLabel), findsWidgets);
 

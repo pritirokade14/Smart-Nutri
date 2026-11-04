@@ -67,6 +67,10 @@ const highlightingCodes = {
   'unreadable_field',
   'upper_bound',
   'unit_unconfirmed',
+  // Label v2: the field a decimal slip or a per-100 g vs per-serving
+  // disagreement names.
+  'decimal_shift',
+  'column_mismatch',
 };
 
 /// The draft fields to highlight, from the draft's own warnings.

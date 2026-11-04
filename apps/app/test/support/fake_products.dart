@@ -71,7 +71,9 @@ CompareSide compareSide({
 /// throws.
 class FakeProductsClient implements ProductsClient {
   final alternativesCalls = <(String?, String?, String?)>[];
+  final alternativesSorts = <AlternativesSort?>[];
   final searches = <String>[];
+  final searchCalls = <({String q, SearchSort? sort, String? memberId})>[];
   final compares = <Map<String, String?>>[];
 
   AlternativesOut alternativesOut = const AlternativesOut(
@@ -91,6 +93,7 @@ class FakeProductsClient implements ProductsClient {
     String? memberId,
   }) async {
     alternativesCalls.add((productId, null, memberId));
+    alternativesSorts.add(sort);
     if (alternativesError case final e?) throw e;
     return alternativesOut;
   }
@@ -102,6 +105,7 @@ class FakeProductsClient implements ProductsClient {
     String? memberId,
   }) async {
     alternativesCalls.add((null, code, memberId));
+    alternativesSorts.add(sort);
     if (alternativesError case final e?) throw e;
     return alternativesOut;
   }
@@ -114,6 +118,7 @@ class FakeProductsClient implements ProductsClient {
     SearchSort? sort = SearchSort.relevance,
   }) async {
     searches.add(q);
+    searchCalls.add((q: q, sort: sort, memberId: memberId));
     if (searchError case final e?) throw e;
     return hits;
   }

@@ -246,6 +246,27 @@ void main() {
     );
   });
 
+  test('image_quality_low carries details.reasons', () async {
+    final scans = _FakeScans()
+      ..labelError = _apiError('image_quality_low', 422, {
+        'reasons': ['blur', 'too_small'],
+      });
+    final repo = LabelRepository(
+      scans: scans,
+      products: _FakeProducts(() async => analyzeFixture('water').product),
+      uploadDio: Dio()..httpClientAdapter = _RecordingAdapter(),
+      compress: (b) async => b,
+    );
+    await expectLater(
+      repo.scanLabel(XFile.fromData(Uint8List.fromList([1]))),
+      throwsA(
+        isA<LabelFailure>()
+            .having((f) => f.code, 'code', 'image_quality_low')
+            .having((f) => f.reasons, 'reasons', ['blur', 'too_small']),
+      ),
+    );
+  });
+
   test('a failed PUT is a storage failure (413 is image_too_large)', () async {
     Future<String> codeFor(int status) async {
       final repo = LabelRepository(

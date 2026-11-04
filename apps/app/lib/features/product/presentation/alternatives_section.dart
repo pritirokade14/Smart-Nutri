@@ -45,6 +45,8 @@ class AlternativesSection extends ConsumerStatefulWidget {
   /// The members, from the analysis (for the picker and the names only).
   final List<VerdictOut> verdicts;
 
+  static const proteinSortKey = Key('alternatives-sort-protein');
+
   @override
   ConsumerState<AlternativesSection> createState() =>
       _AlternativesSectionState();
@@ -52,6 +54,9 @@ class AlternativesSection extends ConsumerStatefulWidget {
 
 class _AlternativesSectionState extends ConsumerState<AlternativesSection> {
   late String? _memberId = _initialMember();
+
+  /// The default (better Nutri-Score) or "Higher protein".
+  AlternativesSort _sort = AlternativesSort.grade;
 
   String? _initialMember() {
     final vs = widget.verdicts;
@@ -62,7 +67,7 @@ class _AlternativesSectionState extends ConsumerState<AlternativesSection> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final query = (product: widget.product, memberId: _memberId);
+    final query = (product: widget.product, memberId: _memberId, sort: _sort);
     final result = ref.watch(alternativesProvider(query));
     final member = [
       for (final v in widget.verdicts)
@@ -92,6 +97,23 @@ class _AlternativesSectionState extends ConsumerState<AlternativesSection> {
               ],
             ),
           ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: SnTokens.space3),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FilterChip(
+              key: AlternativesSection.proteinSortKey,
+              avatar: const Icon(Icons.fitness_center_rounded),
+              label: Text(l10n.proteinSortHigher),
+              selected: _sort == AlternativesSort.protein,
+              onSelected: (on) => setState(
+                () => _sort = on
+                    ? AlternativesSort.protein
+                    : AlternativesSort.grade,
+              ),
+            ),
+          ),
+        ),
         result.when(
           skipLoadingOnRefresh: false,
           loading: () => const LoadingSkeleton(lines: 3),
@@ -120,7 +142,7 @@ class _AlternativesSectionState extends ConsumerState<AlternativesSection> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (final a in items)
-                  _AlternativeTile(
+                  AlternativeTile(
                     item: a,
                     source: widget.product,
                     memberId: _memberId,
@@ -141,12 +163,19 @@ class _AlternativesSectionState extends ConsumerState<AlternativesSection> {
         AlternativesOutReason.noCategory => l10n.alternativesReasonNoCategory,
         AlternativesOutReason.sourceUngraded =>
           l10n.alternativesReasonSourceUngraded,
+        AlternativesOutReason.sourceSupplement =>
+          l10n.alternativesReasonSourceSupplement,
+        AlternativesOutReason.sourceProteinUnknown =>
+          l10n.alternativesReasonSourceProteinUnknown,
         _ => l10n.alternativesReasonNoBetterFound,
       };
 }
 
-class _AlternativeTile extends StatelessWidget {
-  const _AlternativeTile({
+/// One suggested product with its grade, the member's status badge from the
+/// API, Compare and the Open Food Facts credit.
+class AlternativeTile extends StatelessWidget {
+  const AlternativeTile({
+    super.key,
     required this.item,
     required this.source,
     required this.memberId,
@@ -199,6 +228,12 @@ class _AlternativeTile extends StatelessWidget {
                         if (sugars != null)
                           Text(
                             l10n.alternativesSugars(formatForDisplay(sugars)),
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        if (a.proteinPer100kcal case final p?)
+                          Text(
+                            '${l10n.proteinPer100kcal}: '
+                            '${formatForDisplay(p)}',
                             style: theme.textTheme.bodySmall,
                           ),
                       ],

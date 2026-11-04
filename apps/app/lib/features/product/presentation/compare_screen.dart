@@ -16,6 +16,7 @@ import '../../../shared/widgets/nutri_score_chip.dart';
 import '../../../shared/widgets/off_attribution.dart';
 import '../../../shared/widgets/states.dart';
 import '../../../shared/widgets/verdict_badge.dart';
+import '../../protein/presentation/price_per_scoop_section.dart';
 import '../../scan/domain/number_text.dart';
 import '../data/product_discovery_repository.dart';
 import 'alternatives_section.dart';
@@ -175,6 +176,29 @@ class _CompareView extends StatelessWidget {
         b: b.fiberG,
         better: better.fiberG,
       ),
+      // The protein guide's rows, per serving and per 100 kcal, as the API
+      // calculated them (null without a serving size or energy).
+      (
+        key: 'protein_per_serving_g',
+        label: l10n.proteinCompareProteinServing,
+        a: out.a.proteinPerServingG,
+        b: out.b.proteinPerServingG,
+        better: better.proteinPerServingG,
+      ),
+      (
+        key: 'protein_per_100kcal', // gitleaks:allow (a row id)
+        label: l10n.proteinCompareProtein100kcal,
+        a: out.a.proteinPer100kcal,
+        b: out.b.proteinPer100kcal,
+        better: better.proteinPer100kcal,
+      ),
+      (
+        key: 'sugars_per_serving_g',
+        label: l10n.proteinCompareSugar,
+        a: out.a.sugarsPerServingG,
+        b: out.b.sugarsPerServingG,
+        better: better.sugarsPerServingG,
+      ),
     ];
     return SingleChildScrollView(
       padding: const EdgeInsets.all(SnTokens.space4),
@@ -207,6 +231,10 @@ class _CompareView extends StatelessWidget {
               a: _Value(r.a),
               b: _Value(r.b),
             ),
+          PricePerScoopSection(
+            servingA: out.a.servingSizeG,
+            servingB: out.b.servingSizeG,
+          ),
           const DisclaimerFooter(),
           for (final side in [out.a, out.b])
             if (side.attribution != null && side.barcode != null)
