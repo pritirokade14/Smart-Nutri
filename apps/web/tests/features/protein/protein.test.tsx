@@ -437,6 +437,15 @@ describe("protein guide (T14)", () => {
             protein_g: 30,
             sugars_g: 8,
           },
+          {
+            // Defence in depth: the API never sends this; the client drops it.
+            ...side({ name: "Avoid-for-member bar" }),
+            grade: "B",
+            image_url: null,
+            member_status: "avoid",
+            protein_g: 40,
+            sugars_g: 2,
+          },
         ],
         reason: "ok",
       });
@@ -446,6 +455,7 @@ describe("protein guide (T14)", () => {
       screen.getByRole("button", { name: en.protein.swaps_title }),
     );
     expect(await screen.findByText("Protein oat bar")).toBeTruthy();
+    expect(screen.queryByText("Avoid-for-member bar")).toBeNull();
     const call = api.callsTo("GET", `/v1/products/${SOURCE}/alternatives`)[0];
     expect(call?.query.get("sort")).toBe("protein");
     expect(call?.query.get("member_id")).toBe(PRIMARY);
