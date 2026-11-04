@@ -4,8 +4,11 @@ With extraction_v2 the vision model copies each nutrition cell as printed ("<0.5
 "१२.५ ग्रा") instead of turning it into a number. This module does the reading, in code:
 
 - digits of any script (Devanagari and Marathi ०-९ included) become ASCII digits;
-- "12,5" is 12.5; "1,883.5" is 1883.5; "1,883" alone is ambiguous (1.883 or 1883), so it
-  is unreadable, never guessed;
+- "12,5" is 12.5; "1,883.5" is 1883.5; "1,883" alone is ambiguous (1.883 or 1883), so
+  `parse_cell` calls it unreadable. Only the row decides (`to_extraction`): a lone comma with
+  exactly three digits after it is a thousands separator when the result is plausible for that
+  field and unit (the engine's per-100 bounds, the serving bound), else the cell stays
+  unreadable. It is never read as a decimal comma, so never 1000x too small;
 - "<X", "≤X" and "less than X" are X with qualifier `upper_bound`;
 - "Nil" and "शून्य" are 0 (qualifier `nil`); a printed 0 is just 0;
 - a bracketed percentage next to the value ("12.5 g (18%)") is dropped (it is %RDA);
@@ -26,6 +29,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections.abc import Callable
 from typing import Any, Literal, NamedTuple
 
 from pydantic import BaseModel
@@ -37,6 +41,12 @@ from app.features.scans.schemas import (
     NutrientsIn,
     NutritionExtraction,
     NutritionExtractionV2,
+)
+from app.scoring.models import (
+    MAX_ENERGY_KCAL_PER_100,
+    MAX_GRAMS_PER_100,
+    MAX_SERVING_SIZE_G,
+    MAX_SODIUM_MG_PER_100,
 )
 
 __all__ = [
@@ -112,8 +122,11 @@ def parse_unit(text: str | None) -> Unit | None:
     return _UNITS.get(key.lower())
 
 
-def _number(text: str) -> float | None:
-    """ASCII digits with "." or "," -> a number; None when malformed or ambiguous."""
+def _number(text: str, *, thousands: bool = False) -> float | None:
+    """ASCII digits with "." or "," -> a number; None when malformed or ambiguous. With
+    `thousands`, the ambiguous "1,883" reads as 1883 (the caller checks it is plausible)."""
+    if thousands and re.fullmatch(r"\d{1,3},\d{3}", text):
+        return float(text.replace(",", ""))
     if re.fullmatch(r"\d+(?:\.\d+)?", text):
         return float(text)
     if re.fullmatch(r"\d+,\d{1,2}", text):  # decimal comma: "12,5", "0,45"
@@ -127,6 +140,10 @@ def _number(text: str) -> float | None:
 
 def parse_cell(text: str | None) -> Cell:
     """One printed cell -> (value, unit, qualifier). Never guesses: see the module docstring."""
+    return _parse_cell(text, thousands=False)
+
+
+def _parse_cell(text: str | None, *, thousands: bool) -> Cell:
     if text is None:
         return _ABSENT
     s = _clean(text)
@@ -142,7 +159,7 @@ def parse_cell(text: str | None) -> Cell:
     m = _NUMBER_UNIT.fullmatch(low)
     if m is None:
         return _UNREADABLE
-    value = _number(m["num"])
+    value = _number(m["num"], thousands=thousands)
     unit_text = m["unit"].strip()
     unit = parse_unit(unit_text) if unit_text else None
     if value is None or (unit_text and unit is None):
@@ -161,6 +178,43 @@ _ROW_UNITS: dict[str, frozenset[Unit]] = {
 }
 _GRAMS: frozenset[Unit] = frozenset({"g"})
 _SERVING_UNITS: frozenset[Unit] = frozenset({"g", "ml"})
+
+# Upper bounds for reading an ambiguous "1,883" as thousands, by unit: the engine's per-100
+# plausibility (applied to both columns: a larger per-serving value stays unreadable and is
+# typed by the user). A cell with no unit uses its row's strictest unit.
+_KJ_PER_KCAL = 4.184
+_THOUSANDS_MAX: dict[Unit, float] = {
+    "g": MAX_GRAMS_PER_100,
+    "mg": MAX_GRAMS_PER_100 * 1000,
+    "kcal": MAX_ENERGY_KCAL_PER_100,
+    "kJ": MAX_ENERGY_KCAL_PER_100 * _KJ_PER_KCAL,
+}
+_SERVING_MAX = MAX_SERVING_SIZE_G
+
+
+def _thousands_max(field: str, unit: Unit | None, allowed: frozenset[Unit]) -> float:
+    """The largest plausible value for `field` in `unit` (None: the row's strictest unit)."""
+    if field == "sodium_mg" and unit == "mg":
+        return MAX_SODIUM_MG_PER_100
+    units = (unit,) if unit is not None else tuple(allowed)
+    return min(_THOUSANDS_MAX.get(u, 0.0) for u in units)
+
+
+def _resolve(
+    cell: CellIn, parsed: Cell, allowed: frozenset[Unit], bound: Callable[[Unit | None], float]
+) -> tuple[Cell, bool, Unit | None]:
+    """(cell, readable, unit). An ambiguous "N,NNN" the context-free parser left unreadable is
+    read as thousands only when the value is <= `bound(unit)`; otherwise it stays unreadable."""
+    readable, unit = _cell_unit(cell, parsed, allowed)
+    if parsed.qualifier != "unreadable":
+        return parsed, readable, unit
+    alt = _parse_cell(cell.printed, thousands=True)
+    if alt.qualifier == "unreadable" or alt.value is None:
+        return parsed, readable, unit
+    ok, alt_unit = _cell_unit(cell, alt, allowed)
+    if ok and alt.value <= bound(alt_unit):
+        return alt, True, alt_unit
+    return parsed, readable, unit
 
 
 def _cell_unit(cell: CellIn, parsed: Cell, allowed: frozenset[Unit]) -> tuple[bool, Unit | None]:
@@ -185,12 +239,11 @@ def _column(
     for field in NUTRIENT_FIELDS:
         cell: CellIn | None = getattr(col, field)
         parsed = parse_cell(cell.printed) if cell is not None else _ABSENT
-        if parsed.qualifier == "absent":
+        if parsed.qualifier == "absent" or cell is None:
             continue
-        readable, unit = (
-            _cell_unit(cell, parsed, _ROW_UNITS.get(field, _GRAMS))
-            if cell is not None
-            else (False, None)
+        allowed = _ROW_UNITS.get(field, _GRAMS)
+        parsed, readable, unit = _resolve(
+            cell, parsed, allowed, lambda u, f=field, a=allowed: _thousands_max(f, u, a)
         )
         if parsed.qualifier == "unreadable" or not readable:
             unreadable.append(f"{path}.{field}")
@@ -211,7 +264,7 @@ def _serving(cell: CellIn | None, unreadable: list[str]) -> tuple[float | None, 
     parsed = parse_cell(cell.printed) if cell is not None else _ABSENT
     if parsed.qualifier == "absent" or cell is None:
         return None, None
-    readable, unit = _cell_unit(cell, parsed, _SERVING_UNITS)
+    parsed, readable, unit = _resolve(cell, parsed, _SERVING_UNITS, lambda _u: _SERVING_MAX)
     if parsed.qualifier != "exact" or not readable:
         unreadable.append("serving_size_g")
         return None, None
