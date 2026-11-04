@@ -2739,6 +2739,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'नमक और सोडियम के मान आपस में मेल नहीं खा रहे। दोनों पैक पर जाँचें।';
 
   @override
+  String get warningSodiumUnitSuspect =>
+      'इस उत्पाद के लिए सोडियम बहुत कम लग रहा है। पैक पर देखें कि यह mg में छपा है या g में, और वही इकाई चुनें।';
+
+  @override
   String get warningUnitUnconfirmed =>
       'इस मान की इकाई साफ़ नहीं थी। जैसा छपा है, वैसा mg या g चुनें।';
 

@@ -2733,6 +2733,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The salt and sodium values don\'t match each other. Check both on the pack.';
 
   @override
+  String get warningSodiumUnitSuspect =>
+      'The sodium looks too low for this product. Check whether the pack prints it in mg or g, and choose that unit.';
+
+  @override
   String get warningUnitUnconfirmed =>
       'The unit for this value wasn\'t clear. Choose mg or g as printed.';
 

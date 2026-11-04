@@ -433,6 +433,7 @@
     "kcal_kj_mismatch": "The kcal and kJ values don't match each other. Check both on the pack.",
     "salt_sodium_mismatch": "The salt and sodium values don't match each other. Check both on the pack.",
     "unit_unconfirmed": "The unit for this value wasn't clear. Choose mg or g as printed.",
+    "sodium_unit_suspect": "The sodium looks too low for this product. Check whether the pack prints it in mg or g, and choose that unit.",
     "low_confidence": "The label was hard to read. Please check every value against the pack.",
     "category_unknown": "We couldn't tell what type of product this is. Choose one.",
     "category_check": "Check that the product type is right, because it changes how the values are read.",

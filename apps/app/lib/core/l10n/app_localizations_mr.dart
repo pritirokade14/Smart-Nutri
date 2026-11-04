@@ -2737,6 +2737,10 @@ class AppLocalizationsMr extends AppLocalizations {
       'मीठ आणि सोडियमची मूल्ये एकमेकांशी जुळत नाहीत. दोन्ही पॅकवर तपासा.';
 
   @override
+  String get warningSodiumUnitSuspect =>
+      'या उत्पादनासाठी सोडियम खूप कमी दिसत आहे. पॅकवर ते mg मध्ये छापले आहे की g मध्ये ते तपासा आणि तेच एकक निवडा.';
+
+  @override
   String get warningUnitUnconfirmed =>
       'या मूल्याचे एकक स्पष्ट नव्हते. जसे छापले आहे तसे mg किंवा g निवडा.';
 

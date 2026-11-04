@@ -4750,6 +4750,12 @@ abstract class AppLocalizations {
   /// **'The salt and sodium values don\'t match each other. Check both on the pack.'**
   String get warningSaltSodiumMismatch;
 
+  /// No description provided for @warningSodiumUnitSuspect.
+  ///
+  /// In en, this message translates to:
+  /// **'The sodium looks too low for this product. Check whether the pack prints it in mg or g, and choose that unit.'**
+  String get warningSodiumUnitSuspect;
+
   /// No description provided for @warningUnitUnconfirmed.
   ///
   /// In en, this message translates to:

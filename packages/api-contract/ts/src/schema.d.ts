@@ -690,7 +690,7 @@ export interface components {
             shared: boolean;
             /**
              * Sodium Unit Required
-             * @description Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`.
+             * @description Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` (never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`. Set when sodium was printed without a unit (`unit_unconfirmed`) or as an implausibly low mg value with no salt to check it (`sodium_unit_suspect`).
              */
             sodium_unit_required: boolean;
         };
@@ -1506,7 +1506,8 @@ export interface components {
          *     Scan-save rules (422 `validation_error` with `details.fields` naming the field):
          *     - `category` and `basis` are always required (the user must pick them; nothing defaults).
          *     - (R19) `sodium_unit` must be `mg` or `g` (not null) whenever the draft has ANY
-         *       `unit_unconfirmed:*.sodium_mg` warning (either column, whichever `basis` is chosen) and
+         *       `unit_unconfirmed:*.sodium_mg` or `sodium_unit_suspect:*.sodium_mg` warning (either
+         *       column, whichever `basis` is chosen; `confirm.columns.*.sodium_unit_required`) and
          *       `nutrients.sodium_mg` is not null; else 422 `["body.sodium_unit"]`. Listing `sodium_mg`
          *       in `confirmed_fields` never stands in for the unit. A non-null unit confirms sodium.
          *     - (R19) With `basis` `per_serving`, or whenever the draft was `derived_from_serving`
@@ -1573,7 +1574,7 @@ export interface components {
             serving_size_g?: number | null;
             /**
              * Sodium Unit
-             * @description The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this is a manual entry in mg). `g` is converted to mg by the server. Send the user's explicit pick (`mg` or `g`, never null) whenever the scan draft has any `unit_unconfirmed:*.sodium_mg` warning (either column, whatever the basis) and sodium is not null, else 422 `body.sodium_unit` (R19). A non-null unit confirms sodium; `confirmed_fields` never replaces it.
+             * @description The unit of `nutrients.sodium_mg`: null means mg (the unit is printed, or this is a manual entry in mg). `g` is converted to mg by the server. Send the user's explicit pick (`mg` or `g`, never null) whenever the scan draft has any `unit_unconfirmed:*.sodium_mg` or `sodium_unit_suspect:*.sodium_mg` warning (either column, whatever the basis; `sodium_unit_required`) and sodium is not null, else 422 `body.sodium_unit` (R19). A non-null unit confirms sodium; `confirmed_fields` never replaces it.
              */
             sodium_unit?: ("mg" | "g") | null;
             /** Veg Mark */

@@ -8,7 +8,8 @@ Pure: no I/O. Works on any object shaped like a `ProductDraft` (see `DraftFacts`
 normaliser can call it while building a draft without an import cycle.
 
 Rules (R14-R20):
-- `sodium_unit_unconfirmed`: sodium printed without a unit on ANY column (R19). The user must
+- `sodium_unit_unconfirmed`: sodium printed without a unit on ANY column (R19), or printed as
+  an implausibly low mg value with no salt to check it (`sodium_unit_suspect`, EF2). The user must
   pick the unit (`ProductCreate.sodium_unit`) whenever the saved sodium is not null; the pick
   confirms sodium, so sodium is never a tick.
 - `withheld_fields`: engine fields stored only when listed in `confirmed_fields` (or, for
@@ -53,6 +54,8 @@ CHECK_FIELDS: dict[str, tuple[str, ...]] = {
 }
 # "<code>:<path or field>" warnings that withhold the field they name (last path segment).
 FIELD_CHECK_CODES = ("decimal_shift", "column_mismatch")
+# "<code>:<column>.sodium_mg" warnings that make the user pick the sodium unit (mg or g).
+SODIUM_UNIT_CODES = ("unit_unconfirmed", "sodium_unit_suspect")
 
 
 class DraftFacts(Protocol):
@@ -98,7 +101,9 @@ class ColumnConfirm(BaseModel):
     sodium_unit_required: bool = Field(
         description=(
             "Show a mg/g picker for sodium: `ProductCreate.sodium_unit` must be `mg` or `g` "
-            "(never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`."
+            "(never null) whenever the saved sodium is not null, else 422 `body.sodium_unit`. "
+            "Set when sodium was printed without a unit (`unit_unconfirmed`) or as an "
+            "implausibly low mg value with no salt to check it (`sodium_unit_suspect`)."
         )
     )
     serving_required: bool = Field(
@@ -136,8 +141,12 @@ def _has_engine_values(column: object | None) -> bool:
 
 
 def sodium_unit_unconfirmed(draft: DraftFacts) -> bool:
-    """Sodium was printed without a unit on ANY column (R19)."""
-    return any(f"unit_unconfirmed:{col}.sodium_mg" in draft.warnings for col in BASES)
+    """The sodium unit must be picked: sodium was printed without a unit on ANY column (R19),
+    or printed as mg but implausibly low with no salt to check it (`sodium_unit_suspect`,
+    EF2: most likely a g value read as mg)."""
+    return any(
+        f"{code}:{col}.sodium_mg" in draft.warnings for code in SODIUM_UNIT_CODES for col in BASES
+    )
 
 
 def checked_fields(warnings: Sequence[str]) -> set[str]:

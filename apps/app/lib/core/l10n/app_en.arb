@@ -1466,6 +1466,7 @@
   "warningPer100gMissing": "The pack's per 100 g values weren't found. Check the numbers or enter them from the pack.",
   "warningPerServingIgnored": "The per-serving values on the pack weren't used. Check that the per 100 g values are right.",
   "warningSaltSodiumMismatch": "The salt and sodium values don't match each other. Check both on the pack.",
+  "warningSodiumUnitSuspect": "The sodium looks too low for this product. Check whether the pack prints it in mg or g, and choose that unit.",
   "warningUnitUnconfirmed": "The unit for this value wasn't clear. Choose mg or g as printed.",
   "warningUnreadableField": "We couldn't read this value. Enter it from the pack, or leave it blank.",
   "warningUpperBound": "The pack says 'less than' this amount. Confirm it if that's right."

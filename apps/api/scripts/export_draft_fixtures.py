@@ -182,6 +182,12 @@ CASES: dict[str, Case] = {
             {},
         ],
     ),
+    "sodium_unit_suspect": Case(
+        'Sodium-only label printing "0.4 g", read as 0.4 mg with no salt to check it: sodium '
+        "is withheld and the user picks mg or g (EF2).",
+        _ex(per_100g=_n(_V, salt_g=None, sodium_mg=0.4)),
+        [{"sodium_unit": "g"}, {"sodium_unit": "mg"}, {}],
+    ),
     "upper_bound_protein_per_100g": Case(
         'Protein printed as "<0.5 g": stored only when ticked.',
         _ex(per_100g=_n(_V, protein_g=0.5), upper_bound_fields=["per_100g.protein_g"]),
@@ -271,6 +277,12 @@ CASES: dict[str, Case] = {
             {"edit": {"fat_g": 5.0}, "tick": ["energy_kcal", "protein_g", "carbs_g", "fiber_g"]},
             {},
         ],
+    ),
+    "decimal_shift_tight": Case(
+        "Protein 3.0 read as 0.3: energy is still within the loose tolerance, but protein x 10 "
+        "fits exactly, so protein alone is named and withheld until ticked or fixed (EF3).",
+        _ex(per_100g=_n(_V, energy_kcal=137.0, protein_g=0.3)),
+        [{"tick": ["protein_g"]}, {"edit": {"protein_g": 3.0}}, {}],
     ),
     "salt_sodium_mismatch": Case(
         "Salt read as 5.0 next to sodium 200 mg: both are withheld until ticked (label v2).",
