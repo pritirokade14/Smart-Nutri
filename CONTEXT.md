@@ -51,9 +51,9 @@ Commands: `just` lists everything (`just setup`, `just test`, `just dev`, `just 
 
 | Service | Owner account | Identifiers | Plan |
 |---|---|---|---|
-| CallMissed | prasaddhanade33@gmail.com | keys `smartnutri-dev` (₹2,000 cap), `smartnutri-prod` (₹10,000 cap) | Enterprise (existing credits) |
+| CallMissed | project owner's CallMissed account (kept in local notes) | keys `smartnutri-dev` (₹2,000 cap), `smartnutri-prod` (₹10,000 cap) | Enterprise (existing credits) |
 | Supabase | GitHub `pritirokade14` | org **SmartNutri**, project **smartnutri-dev**, ref `uhjopvrewcwqvugmdhdw`, ap-south-1 | Free (spend cap on) |
-| Google Cloud | pritirokade08@gmail.com | project **smartnutri-513518**, Artifact Registry `asia-south1/smartnutri`, budget ₹1,000/month | Free trial (₹28,569 credit) |
+| Google Cloud | project owner's Google account (kept in local notes) | project **smartnutri-513518**, Artifact Registry `asia-south1/smartnutri`, budget ₹1,000/month | Free trial (₹28,569 credit) |
 | Google OAuth | same project | consent screen "SmartNutri AI" (External, testing); clients `smartnutri-web`, `smartnutri-android-debug` | — |
 | GitHub | pritirokade14 | `pritirokade14/Smart-Nutri` (public), branch `v1-rebuild` | Free |
 | Google Play | not created yet | personal account planned ($25 one-time) | — |
