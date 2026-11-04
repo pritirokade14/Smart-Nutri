@@ -99,6 +99,7 @@ export function claimReasonText(t: Translator, c: ClaimCheck): string | null {
       break;
     }
     case "whey_not_listed":
+    case "basis_unknown":
       values = {};
       break;
     case "below_claimed": {

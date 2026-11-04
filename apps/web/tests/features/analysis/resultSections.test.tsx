@@ -262,6 +262,33 @@ describe("ClaimsSection", () => {
     );
   });
 
+  it.each(LOCALES)(
+    "a protein claim with no clear basis is grey basis_unknown (%s)",
+    (locale) => {
+      const m = MESSAGES[locale];
+      const { container, errors } = intl(
+        <ClaimsSection
+          checks={readClaims({
+            claims: [
+              {
+                claim: "protein_amount",
+                verdict: "unverifiable",
+                reason_code: "basis_unknown",
+                params: {},
+              },
+            ],
+          })}
+        />,
+        locale,
+      );
+      const row = container.querySelector('[data-claim="protein_amount"]');
+      expect(row?.querySelector('[data-verdict="unknown"]')).toBeTruthy();
+      expect(row?.querySelector('[data-verdict="ok"]')).toBeNull();
+      expect(row?.textContent).toContain(m.claim_reason.basis_unknown);
+      expect(errors).toEqual([]);
+    },
+  );
+
   it("renders nothing with no claims", () => {
     const { container } = intl(<ClaimsSection checks={[]} />);
     expect(container.innerHTML).toBe("");

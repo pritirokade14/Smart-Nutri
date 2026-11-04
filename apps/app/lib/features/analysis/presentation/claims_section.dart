@@ -102,6 +102,7 @@ String? claimReasonText(AppLocalizations l10n, ClaimCheck check) {
       null => null,
     },
     'whey_not_listed' => l10n.claimReasonWheyNotListed,
+    'basis_unknown' => l10n.claimReasonBasisUnknown,
     _ => null,
   };
 }

@@ -67,6 +67,29 @@ void main() {
       );
     });
 
+    testWidgets('a protein claim with no clear basis shows basis_unknown', (
+      t,
+    ) async {
+      final check = claimChecks({
+        'claims': [
+          {
+            'claim': 'protein_amount',
+            'verdict': 'unverifiable',
+            'reason_code': 'basis_unknown',
+            'params': <String, Object?>{},
+          },
+        ],
+      }).single;
+      expect(claimReasonText(en, check), en.claimReasonBasisUnknown);
+      for (final locale in AppLocalizations.supportedLocales) {
+        final l = lookupAppLocalizations(locale);
+        expect(claimReasonText(l, check), l.claimReasonBasisUnknown);
+      }
+      await t.pumpWidget(wrap(ClaimsSection(checks: [check])));
+      expect(find.text(en.claimVerdictUnverifiable), findsOneWidget);
+      expect(find.text(en.claimReasonBasisUnknown), findsOneWidget);
+    });
+
     testWidgets('maps nutrient and joins ingredient params', (t) async {
       await t.pumpWidget(
         wrap(
