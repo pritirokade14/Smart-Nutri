@@ -1,7 +1,12 @@
 """CallMissed (OpenAI-compatible) client. Only this module talks to the SDK.
 
-Logs carry model, prompt version, latency, status and token counts. Never the image, the
-prompt or messages, the API key or the response body (extracted label content, explanations).
+Request shapes follow https://docs.callmissed.com (chat-completion, speech-to-text,
+text-to-speech, tts-voices, api-speed, gateway-controls), read 2026-11-04. Model choices and
+fallbacks: ADR 0021.
+
+Logs carry model, prompt version, latency, status, fallback and token counts. Never the image,
+the prompt or messages, the API key or the response body (extracted label content,
+explanations, transcripts, spoken text).
 """
 
 from __future__ import annotations
@@ -13,7 +18,7 @@ import logging
 import math
 import random
 import time
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 from typing import Annotated, Any
 
 import httpx
@@ -49,6 +54,9 @@ MAX_VALIDATION_ATTEMPTS = 2
 _MAX_BACKOFF_S = 30.0
 DEADLINE_S = 70.0
 SPEECH_TIMEOUT_S = 20.0  # per attempt, STT and TTS (callmissed skill)
+# With a fallback model, the primary may use this share of the budget; the rest is kept for
+# the one fallback attempt, so a slow primary cannot eat the whole deadline.
+PRIMARY_BUDGET_SHARE = 0.6
 _AUDIO_EXTENSIONS = {
     "audio/wav": "wav",
     "audio/mp4": "m4a",
@@ -59,9 +67,68 @@ _AUDIO_EXTENSIONS = {
 # Every chat_json request is processed in India (AGENTS rule 6, callmissed skill rule 3). A
 # module constant, not a setting, so it can't be configured away. Deep-copied into each request.
 # STT and TTS send it too (Ruling V1 S1): a spoken question or answer can carry health data.
+# The docs list `provider` for chat, messages, responses and embeddings only; on the audio
+# routes India-only processing is guaranteed by INDIA_PROCESSED_MODELS (and by the API key's
+# "India-only processing" switch in the console, see docs/SETUP_ACCOUNTS.md).
 CHAT_EXTRA_BODY: dict[str, Any] = {"provider": {"data_residency": "in"}}
 
+# Models whose catalogue `processing` is "india" (GET /api/v1/models, read 2026-11-04). Calls
+# that can carry member health data (chat_json, transcribe, synthesize) refuse any other model,
+# primary or fallback, before a request is sent. "india_preferred" models (kimi-k2.5, gpt-6-*,
+# gpt-oss-120b, ...) may be moved outside India, so they are not here. Keep in sync with the
+# catalogue; ADR 0021 says how to add one.
+INDIA_PROCESSED_MODELS: frozenset[str] = frozenset(
+    {
+        # chat (text and vision)
+        "gpt-4o",
+        "gemma-4-31b",
+        "glm-5.3-flash",
+        "deepseek-v4.1-flash-1017",
+        "sarvam-105b",
+        # speech-to-text (file transcription)
+        "saaras:v4",
+        "whisper",
+        # text-to-speech (valid on POST /v1/audio/speech)
+        "bulbul:v3",
+        "bulbul:v4-flash",
+        "gnani-timbre-v3.0",
+    }
+)
+NOT_INDIA = "model_not_india_processed"
+
 _sleep = asyncio.sleep  # module alias so tests patch this, not asyncio.sleep globally
+
+
+def _not_india(*models: str | None) -> bool:
+    return any(m is not None and m not in INDIA_PROCESSED_MODELS for m in models)
+
+
+def _error_code(exc: openai.APIStatusError) -> str | None:
+    code = getattr(exc, "code", None)
+    return code if isinstance(code, str) else None
+
+
+def _switchable(exc: openai.APIStatusError) -> bool:
+    """A primary failure that a different model may not have: 5xx, or a 400 refusal because
+    the model is not processed in India (e.g. after a deprecated id starts being answered by
+    a successor that is not; gpt-4o's sunset is 2026-11-16)."""
+    return exc.status_code >= 500 or (
+        exc.status_code == 400 and _error_code(exc) == "region_unavailable"
+    )
+
+
+def speech_config(settings: Settings) -> dict[str, Any]:
+    """CallMissedClient speech keyword arguments from settings."""
+    return {
+        "stt_model": settings.callmissed_stt_model,
+        "stt_fallback_model": settings.callmissed_stt_fallback_model,
+        "stt_languages": dict(settings.callmissed_stt_languages),
+        "stt_fallback_languages": dict(settings.callmissed_stt_fallback_languages),
+        "tts_model": settings.callmissed_tts_model,
+        "tts_voices": dict(settings.callmissed_tts_voices),
+        "tts_fallback_model": settings.callmissed_tts_fallback_model,
+        "tts_fallback_voices": dict(settings.callmissed_tts_fallback_voices),
+    }
 
 
 class CallMissedClient:
@@ -73,14 +140,26 @@ class CallMissedClient:
         http_client: httpx.AsyncClient | None = None,
         clock: Callable[[], float] = time.monotonic,
         stt_model: str | None = None,
+        stt_fallback_model: str | None = None,
+        stt_languages: Mapping[str, str] | None = None,
+        stt_fallback_languages: Mapping[str, str] | None = None,
         tts_model: str | None = None,
-        tts_voice: str | None = None,
+        tts_voices: Mapping[str, str] | None = None,
+        tts_fallback_model: str | None = None,
+        tts_fallback_voices: Mapping[str, str] | None = None,
     ) -> None:
         self._clock = clock
         # Speech model ids come from settings (never literals); None = speech not configured.
         self._stt_model = stt_model
+        self._stt_fallback_model = stt_fallback_model
+        self._stt_languages = dict(
+            SPEECH_LANGUAGE_CODES if stt_languages is None else stt_languages
+        )
+        self._stt_fallback_languages = dict(stt_fallback_languages or {})
         self._tts_model = tts_model
-        self._tts_voice = tts_voice
+        self._tts_voices = dict(tts_voices or {})
+        self._tts_fallback_model = tts_fallback_model
+        self._tts_fallback_voices = dict(tts_fallback_voices or {})
         key = api_key.get_secret_value() if isinstance(api_key, SecretStr) else api_key
         if not key:
             raise ProviderUnavailable("not_configured")
@@ -107,7 +186,14 @@ class CallMissedClient:
         prompt_version: str,
         schema: type[BaseModel],
         model: str,
+        fallback_model: str | None = None,
+        reasoning_effort: str | None = None,
     ) -> BaseModel:
+        """Vision extraction: a text part plus a base64 `image_url` part, strict JSON schema.
+
+        A label photo carries no member health data, so any vision model may be used (the
+        label eval compares models); the default is India-processed all the same.
+        """
         json_schema = (
             extraction_json_schema(schema)
             if schema in (NutritionExtraction, NutritionExtractionV2)
@@ -127,9 +213,11 @@ class CallMissedClient:
             "type": "json_schema",
             "json_schema": {"name": "nutrition_extraction", "strict": True, "schema": json_schema},
         }
+        extra_body = {"reasoning_effort": reasoning_effort} if reasoning_effort else None
         return await self._complete(
             event="callmissed_extract",
             model=model,
+            fallback_model=fallback_model,
             prompt_version=prompt_version,
             messages=messages,
             response_format=response_format,
@@ -137,6 +225,7 @@ class CallMissedClient:
             budget_s=DEADLINE_S,
             attempt_timeout_s=VISION_TIMEOUT_S,
             failure=ExtractionFailed,
+            extra_body=extra_body,
         )
 
     async def chat_json(
@@ -148,12 +237,21 @@ class CallMissedClient:
         schema: type[BaseModel],
         prompt_version: str,
         timeout_s: float,
+        fallback_model: str | None = None,
+        reasoning_effort: str | None = None,
     ) -> BaseModel:
-        """Strict-JSON chat at temperature 0, always with data residency "in" (AGENTS rule 6).
+        """Strict-JSON chat at temperature 0, always with data residency "in" (AGENTS rule 6),
+        and only on INDIA_PROCESSED_MODELS (primary and fallback).
 
-        `timeout_s` is the whole budget: every attempt, retry and backoff fits inside it.
-        Errors: 402 / 401 / 403 -> ProviderUnavailable; anything else -> CompletionFailed.
+        `timeout_s` is the whole budget: every attempt, retry, backoff and the one fallback
+        attempt fit inside it. `reasoning_effort` is sent as is ("none" = thinking off where
+        the model allows it).
+        Errors: 402 / 401 / 403 / a non-India model -> ProviderUnavailable; anything else ->
+        CompletionFailed.
         """
+        if _not_india(model, fallback_model):
+            logger.warning("callmissed_chat refused status=%s", NOT_INDIA)
+            raise ProviderUnavailable(NOT_INDIA)
         messages = [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
@@ -166,9 +264,13 @@ class CallMissedClient:
                 "schema": strict_json_schema(schema),
             },
         }
+        extra_body = copy.deepcopy(CHAT_EXTRA_BODY)
+        if reasoning_effort:
+            extra_body["reasoning_effort"] = reasoning_effort
         return await self._complete(
             event="callmissed_chat",
             model=model,
+            fallback_model=fallback_model,
             prompt_version=prompt_version,
             messages=messages,
             response_format=response_format,
@@ -176,7 +278,7 @@ class CallMissedClient:
             budget_s=timeout_s,
             attempt_timeout_s=CHAT_TIMEOUT_S,
             failure=CompletionFailed,
-            extra_body=copy.deepcopy(CHAT_EXTRA_BODY),
+            extra_body=extra_body,
         )
 
     async def _complete(
@@ -184,6 +286,7 @@ class CallMissedClient:
         *,
         event: str,
         model: str,
+        fallback_model: str | None,
         prompt_version: str,
         messages: list[dict[str, Any]],
         response_format: dict[str, Any],
@@ -195,30 +298,47 @@ class CallMissedClient:
     ) -> BaseModel:
         """One retrying, deadline-bound structured completion, validated with `schema`.
 
-        429, 5xx, timeouts and connection errors are retried with backoff; 402 and 401/403
+        429 is retried with backoff. 5xx, timeouts, connection errors and a `region_unavailable`
+        refusal switch to `fallback_model` once (it then gets a single try for those errors);
+        without a fallback, 5xx and timeouts are retried on the same model. 402 and 401/403
         raise ProviderUnavailable at once; everything else raises `failure`. Invalid output is
-        retried once. Logs metadata only, never the messages or the response content.
+        retried once. The server-side `models` fallback is not used: CallMissed never applies
+        it to requests with `response_format`. Logs metadata only, never the content.
         """
         start = self._clock()
         deadline = start + budget_s
+        fallback = fallback_model if fallback_model and fallback_model != model else None
+        primary_end = start + budget_s * PRIMARY_BUDGET_SHARE if fallback else deadline
+        current = model
+        switched = False
         status = "error"
         tokens: tuple[int | None, int | None] = (None, None)
+        validation_attempts = 0
+        tries_429 = 0
+        upstream_retries = 0
+
+        def switch() -> None:
+            nonlocal current, switched, upstream_retries
+            current, switched = fallback, True  # type: ignore[assignment]
+            upstream_retries = MAX_UPSTREAM_RETRIES  # the fallback is tried once
+
         try:
-            validation_attempts = 0
-            tries_429 = 0
-            upstream_retries = 0
             while True:
-                remaining = deadline - self._clock()
-                if remaining <= 0:
+                now = self._clock()
+                if deadline - now <= 0:
                     status = "deadline"
                     raise failure("deadline exceeded")
+                window = (deadline if switched else primary_end) - now
+                if window <= 0:  # the primary used its share: hand the rest to the fallback
+                    switch()
+                    continue
                 try:
                     completion = await self._client.chat.completions.create(
-                        model=model,
+                        model=current,
                         messages=messages,  # type: ignore[arg-type]
                         response_format=response_format,  # type: ignore[arg-type]
                         temperature=0,
-                        timeout=min(attempt_timeout_s, remaining),
+                        timeout=min(attempt_timeout_s, window),
                         extra_body=extra_body,
                     )
                 except openai.APIStatusError as exc:
@@ -236,6 +356,9 @@ class CallMissedClient:
                             raise failure("rate limited") from None
                         await self._pause(_backoff(tries_429, exc.response), deadline, failure)
                         continue
+                    if _switchable(exc) and fallback and not switched:
+                        switch()
+                        continue
                     if code >= 500:
                         upstream_retries += 1
                         if upstream_retries > MAX_UPSTREAM_RETRIES:
@@ -246,6 +369,9 @@ class CallMissedClient:
                     status = f"http_{code}"
                     raise failure("upstream rejected request") from None
                 except (openai.APITimeoutError, openai.APIConnectionError):
+                    if fallback and not switched:
+                        switch()
+                        continue
                     upstream_retries += 1
                     if upstream_retries > MAX_UPSTREAM_RETRIES:
                         status = "timeout"
@@ -272,12 +398,14 @@ class CallMissedClient:
                 return result
         finally:
             logger.info(
-                "%s model=%s prompt_version=%s latency_ms=%d status=%s tokens_in=%s tokens_out=%s",
+                "%s model=%s prompt_version=%s latency_ms=%d status=%s fallback_from=%s "
+                "tokens_in=%s tokens_out=%s",
                 event,
-                model,
+                current,
                 prompt_version,
                 (self._clock() - start) * 1000,
                 status,
+                model if switched else "none",
                 tokens[0],
                 tokens[1],
             )
@@ -285,78 +413,119 @@ class CallMissedClient:
     # --- speech (SpeechProvider) -----------------------------------------------------------
 
     async def transcribe(self, audio: bytes, mime: str, language: str) -> str:
-        """Speech-to-text with the configured STT model and an `<xx>-IN` language hint,
-        processed in India (data residency "in", Ruling V1 S1).
+        """Speech-to-text (POST /v1/audio/transcriptions, multipart `file`, `model`,
+        `language`) with the configured STT model, then once with the fallback on a 5xx or
+        timeout. Only INDIA_PROCESSED_MODELS (Ruling V1 S1). The response field is `text`.
 
         Logs metadata only (model, latency, status, audio byte count), never the transcript.
         """
-        hint = _speech_language(language)
-        model = self._stt_model
+        _speech_language(language)  # en / hi / mr only
+        model, fallback = self._stt_model, self._stt_fallback_model
         if not model:
             raise SpeechUnavailable("not_configured")
+        if _not_india(model, fallback):
+            logger.warning("callmissed_stt refused status=%s", NOT_INDIA)
+            raise SpeechUnavailable(NOT_INDIA)
         ext = _AUDIO_EXTENSIONS.get(mime, "bin")
 
-        async def call(timeout: float) -> str:
-            result = await self._client.audio.transcriptions.create(
-                model=model,
-                file=(f"question.{ext}", audio, mime),
-                language=hint,
-                # Multipart: the SDK sends this as the form field provider[data_residency].
-                extra_body=copy.deepcopy(CHAT_EXTRA_BODY),
-                timeout=timeout,
-            )
-            text = getattr(result, "text", None)
-            if not isinstance(text, str):
-                raise SpeechUnavailable("malformed_response")
-            return text
+        def make(target: str) -> Callable[[float], Awaitable[str]]:
+            languages = self._stt_languages if target == model else self._stt_fallback_languages
+            hint = {"language": languages[language]} if languages.get(language) else {}
 
-        return await self._speech("callmissed_stt", model, call, size=f"audio_bytes={len(audio)}")
+            async def call(timeout: float) -> str:
+                result = await self._client.audio.transcriptions.create(
+                    model=target,
+                    file=(f"question.{ext}", audio, mime),
+                    # Multipart: the SDK sends this as the form field provider[data_residency].
+                    extra_body=copy.deepcopy(CHAT_EXTRA_BODY),
+                    timeout=timeout,
+                    **hint,  # type: ignore[arg-type]
+                )
+                text = getattr(result, "text", None)
+                if not isinstance(text, str):
+                    raise SpeechUnavailable("malformed_response")
+                return text
+
+            return call
+
+        return await self._speech(
+            "callmissed_stt", model, fallback, make, size=f"audio_bytes={len(audio)}"
+        )
 
     async def synthesize(self, text: str, language: str) -> bytes:
-        """Text-to-speech (mp3) with the configured TTS model and voice, processed in India
-        (data residency "in", Ruling V1 S1).
+        """Text-to-speech (POST /v1/audio/speech, JSON `model`, `input`, `voice`, `language`,
+        `response_format: mp3`) with the configured model and the voice for `language`, then
+        once with the fallback model and its voice on a 5xx or timeout. Only
+        INDIA_PROCESSED_MODELS (Ruling V1 S1).
 
-        `text` must be at most MAX_TTS_CHARS (callers split longer answers on sentence
-        boundaries). Logs metadata only, never the text.
+        `text` must be at most MAX_TTS_CHARS (bulbul's limit; callers split longer answers on
+        sentence boundaries). Logs metadata only, never the text.
         """
         if len(text) > MAX_TTS_CHARS:
             raise ValueError(f"TTS input is limited to {MAX_TTS_CHARS} characters")
-        hint = _speech_language(language)
-        model, voice = self._tts_model, self._tts_voice
+        code = _speech_language(language)
+        model, voice = self._tts_model, self._tts_voices.get(language)
         if not model or not voice:
             raise SpeechUnavailable("not_configured")
+        fallback_voice = self._tts_fallback_voices.get(language)
+        fallback = self._tts_fallback_model if fallback_voice else None
+        if _not_india(model, fallback):
+            logger.warning("callmissed_tts refused status=%s", NOT_INDIA)
+            raise SpeechUnavailable(NOT_INDIA)
 
-        async def call(timeout: float) -> bytes:
-            response = await self._client.audio.speech.create(
-                model=model,
-                input=text,
-                voice=voice,  # type: ignore[arg-type]  # CallMissed voices are not OpenAI's
-                response_format="mp3",
-                extra_body={**copy.deepcopy(CHAT_EXTRA_BODY), "language": hint},
-                timeout=timeout,
-            )
-            audio = response.content
-            if not is_mp3(audio):
-                raise SpeechUnavailable("malformed_response")
-            return audio
+        def make(target: str) -> Callable[[float], Awaitable[bytes]]:
+            target_voice = voice if target == model else fallback_voice
 
-        return await self._speech("callmissed_tts", model, call, size=f"text_chars={len(text)}")
+            async def call(timeout: float) -> bytes:
+                response = await self._client.audio.speech.create(
+                    model=target,
+                    input=text,
+                    voice=target_voice,  # type: ignore[arg-type]  # CallMissed voices
+                    response_format="mp3",
+                    extra_body={**copy.deepcopy(CHAT_EXTRA_BODY), "language": code},
+                    timeout=timeout,
+                )
+                audio = response.content
+                if not is_mp3(audio):
+                    raise SpeechUnavailable("malformed_response")
+                return audio
+
+            return call
+
+        return await self._speech(
+            "callmissed_tts", model, fallback, make, size=f"text_chars={len(text)}"
+        )
 
     async def _speech[T](
         self,
         event: str,
         model: str,
-        call: Callable[[float], Awaitable[T]],
+        fallback: str | None,
+        make: Callable[[str], Callable[[float], Awaitable[T]]],
         *,
         size: str,
     ) -> T:
         """Run one speech call with the skill's policy: 20 s per attempt; 429 -> backoff, at
-        most 3 tries; 5xx / timeout -> at most 2 retries; 402 and other 4xx -> no retry.
-        Every failure becomes SpeechUnavailable(reason)."""
+        most 3 tries; 402 and other 4xx -> no retry. 5xx / timeout -> with a fallback model,
+        one try on it; without one, at most 2 retries. So the worst case with a fallback (two
+        attempts) is shorter than without (three). Every failure becomes
+        SpeechUnavailable(reason)."""
         start = self._clock()
         status = "error"
         tries_429 = 0
         upstream_retries = 0
+        current, switched = model, False
+        call = make(model)
+
+        def can_switch() -> bool:
+            return fallback is not None and fallback != model and not switched
+
+        def switch() -> None:
+            nonlocal current, switched, call, upstream_retries
+            current, switched = fallback, True  # type: ignore[assignment]
+            call = make(current)
+            upstream_retries = MAX_UPSTREAM_RETRIES  # the fallback is tried once
+
         try:
             while True:
                 try:
@@ -379,6 +548,9 @@ class CallMissedClient:
                             raise SpeechUnavailable("rate_limited") from None
                         await _sleep(_backoff(tries_429, exc.response))
                         continue
+                    if _switchable(exc) and can_switch():
+                        switch()
+                        continue
                     if code >= 500:
                         upstream_retries += 1
                         if upstream_retries > MAX_UPSTREAM_RETRIES:
@@ -389,6 +561,9 @@ class CallMissedClient:
                     status = f"http_{code}"
                     raise SpeechUnavailable("rejected") from None
                 except (openai.APITimeoutError, openai.APIConnectionError):
+                    if can_switch():
+                        switch()
+                        continue
                     upstream_retries += 1
                     if upstream_retries > MAX_UPSTREAM_RETRIES:
                         status = "timeout"
@@ -402,11 +577,12 @@ class CallMissedClient:
                 return result
         finally:
             logger.info(
-                "%s model=%s latency_ms=%d status=%s %s",
+                "%s model=%s latency_ms=%d status=%s fallback_from=%s %s",
                 event,
-                model,
+                current,
                 (self._clock() - start) * 1000,
                 status,
+                model if switched else "none",
                 size,
             )
 
@@ -485,20 +661,13 @@ class LazyCallMissed:
 
     A request served from the extraction cache never needs a key or a connection; a missing
     key surfaces as ProviderUnavailable("not_configured") only when a paid call is attempted.
+    `speech` takes CallMissedClient's speech keyword arguments (see `speech_config`).
     """
 
-    def __init__(
-        self,
-        *,
-        api_key: SecretStr | None,
-        base_url: str,
-        stt_model: str | None = None,
-        tts_model: str | None = None,
-        tts_voice: str | None = None,
-    ) -> None:
+    def __init__(self, *, api_key: SecretStr | None, base_url: str, **speech: Any) -> None:
         self._api_key = api_key
         self._base_url = base_url
-        self._speech = {"stt_model": stt_model, "tts_model": tts_model, "tts_voice": tts_voice}
+        self._speech = speech
         self._client: CallMissedClient | None = None
 
     def __repr__(self) -> str:
@@ -555,9 +724,7 @@ async def get_speech_provider(
     provider = LazyCallMissed(
         api_key=settings.callmissed_api_key,
         base_url=settings.callmissed_base_url,
-        stt_model=settings.callmissed_stt_model,
-        tts_model=settings.callmissed_tts_model,
-        tts_voice=settings.callmissed_tts_voice,
+        **speech_config(settings),
     )
     try:
         yield provider

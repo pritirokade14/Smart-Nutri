@@ -95,7 +95,7 @@ def family_result(product, family_rows) -> scoring.AnalysisResult:
 
 @pytest.fixture
 def settings() -> Settings:
-    return Settings(_env_file=None, environment="test", callmissed_explanation_model="expl-model")
+    return Settings(_env_file=None, environment="test", callmissed_explanation_model="sarvam-105b")
 
 
 def _echo(result: scoring.AnalysisResult, **override: str) -> list[MemberStatusEcho]:
@@ -187,7 +187,7 @@ async def test_prompt_has_no_member_names(family_result, family_rows, settings):
     ):  # fmt: skip
         assert forbidden not in sent, forbidden
     call = fake.chat_calls[0]
-    assert call["model"] == "expl-model"
+    assert call["model"] == "sarvam-105b"
     assert call["prompt_version"] == "explanation_v3"
     assert call["schema"] is ExplanationLLM
     assert call["system"] == load_prompt("explanation_v3")[0]
@@ -211,7 +211,7 @@ def _completion(content: str) -> httpx.Response:
     return httpx.Response(
         200,
         json={
-            "id": "x", "object": "chat.completion", "created": 0, "model": "expl-model",
+            "id": "x", "object": "chat.completion", "created": 0, "model": "sarvam-105b",
             "choices": [{"index": 0, "finish_reason": "stop",
                          "message": {"role": "assistant", "content": content}}],
             "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
@@ -238,7 +238,7 @@ async def test_wire_request_has_residency_strict_schema_and_no_pii(
     raw = seen[0].content.decode()
     body = json.loads(raw)
     assert body["provider"] == {"data_residency": "in"}
-    assert body["model"] == "expl-model" and body["temperature"] == 0
+    assert body["model"] == "sarvam-105b" and body["temperature"] == 0
     rf = body["response_format"]
     assert rf["type"] == "json_schema" and rf["json_schema"]["strict"] is True
     assert sorted(rf["json_schema"]["schema"]["required"]) == ["members", "text", "tips"]
@@ -599,12 +599,12 @@ def test_no_duplicate_today_ist():
 
 def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, product):
     data = build_explanation_input(family_result, family_rows, "hi", today=TODAY)
-    key = explain_mod.cache_key(data, "explanation_v3", "expl-model", "PROMPT")
+    key = explain_mod.cache_key(data, "explanation_v3", "sarvam-105b", "PROMPT")
     assert len(key) == 64 and int(key, 16) >= 0
     assert key == explain_mod.cache_key(
         build_explanation_input(family_result, family_rows, "hi", today=TODAY),
         "explanation_v3",
-        "expl-model",
+        "sarvam-105b",
         "PROMPT",
     )
     # Same anonymised family under other names and ids: same key (names never reach it).
@@ -619,7 +619,7 @@ def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, produc
         explain_mod.cache_key(
             build_explanation_input(other, renamed, "hi", today=TODAY),
             "explanation_v3",
-            "expl-model",
+            "sarvam-105b",
             "PROMPT",
         )
         == key
@@ -628,13 +628,13 @@ def test_cache_key_is_anonymous_and_versioned(family_result, family_rows, produc
     assert key != explain_mod.cache_key(
         build_explanation_input(family_result, family_rows, "en", today=TODAY),
         "explanation_v3",
-        "expl-model",
+        "sarvam-105b",
         "PROMPT",
     )
-    assert key != explain_mod.cache_key(data, "explanation_v1", "expl-model", "PROMPT")
+    assert key != explain_mod.cache_key(data, "explanation_v1", "sarvam-105b", "PROMPT")
     assert key != explain_mod.cache_key(data, "explanation_v3", "other-model", "PROMPT")
     # An in-place prompt edit (same version label) changes the key.
-    assert key != explain_mod.cache_key(data, "explanation_v3", "expl-model", "PROMPT edited")
+    assert key != explain_mod.cache_key(data, "explanation_v3", "sarvam-105b", "PROMPT edited")
 
 
 # Every engine reason code must be listed in explanation_v3.md. Exemptions: none.

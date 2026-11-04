@@ -275,6 +275,8 @@ async def answer_question(
                 schema=VoiceLLM,
                 prompt_version=version,
                 timeout_s=VOICE_LLM_BUDGET_S,
+                fallback_model=settings.callmissed_explanation_fallback_model,
+                reasoning_effort=settings.callmissed_explanation_reasoning_effort,
             )
     except ProviderUnavailable:
         raise

@@ -46,7 +46,7 @@ def _make(responses) -> MockCM:
         http_client=http,
         stt_model="saaras:v4",
         tts_model="bulbul:v3",
-        tts_voice="anushka",
+        tts_voices={"en": "anushka", "hi": "anushka", "mr": "anushka"},
     )
     mock = MockCM(client=client, responses=list(responses))
     return mock

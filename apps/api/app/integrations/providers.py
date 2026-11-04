@@ -34,7 +34,12 @@ class LLMProvider(Protocol):
         prompt_version: str,
         schema: type[BaseModel],
         model: str,
-    ) -> BaseModel: ...
+        fallback_model: str | None = None,
+        reasoning_effort: str | None = None,
+    ) -> BaseModel:
+        """Vision extraction, validated with `schema`. `fallback_model` is tried once if
+        `model` fails upstream. Raises ProviderUnavailable or ExtractionFailed."""
+        ...
 
     async def chat_json(
         self,
@@ -45,10 +50,13 @@ class LLMProvider(Protocol):
         schema: type[BaseModel],
         prompt_version: str,
         timeout_s: float,
+        fallback_model: str | None = None,
+        reasoning_effort: str | None = None,
     ) -> BaseModel:
         """Strict-JSON chat, validated with `schema`. Always processed in India (data residency
-        "in"), so it may carry anonymised member health data. `timeout_s` is the total budget,
-        retries included. Raises ProviderUnavailable or CompletionFailed."""
+        "in", India-processed models only), so it may carry anonymised member health data.
+        `timeout_s` is the total budget, retries and the one `fallback_model` try included.
+        Raises ProviderUnavailable or CompletionFailed."""
         ...
 
 

@@ -8,6 +8,10 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 from app.core.i18n import repo_messages_dir
 
+# `reasoning_effort` values CallMissed accepts on chat completions (docs: chat-completion).
+ReasoningEffort = Literal["none", "minimal", "low", "medium", "high", "xhigh"]
+SPEECH_LANGUAGES = ("en", "hi", "mr")
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
@@ -18,16 +22,47 @@ class Settings(BaseSettings):
     callmissed_api_key: SecretStr | None = None
     callmissed_base_url: str = "https://api.callmissed.com/v1"
     callmissed_resource_url: str = "https://api.callmissed.com/api/v1"
-    callmissed_extraction_model: str = "kimi-k2.5"
+    # Model ids per AI job (ADR 0021, docs/SETUP_ACCOUNTS.md "CallMissed AI setup"). Every
+    # default is processed in India (catalogue `processing: "india"`, read 2026-11-04) and is
+    # in app.integrations.callmissed.INDIA_PROCESSED_MODELS. A fallback model is tried once,
+    # inside the same deadline, when the primary answers 5xx, times out, or is refused with
+    # `region_unavailable`. An empty env value turns a fallback off.
+    #
+    # Label extraction (vision, strict JSON). The label eval compares gpt-4o, gemma-4-31b,
+    # glm-5.3-flash and deepseek-v4.1-flash-1017 before the final choice.
+    callmissed_extraction_model: str = "gpt-4o"
+    callmissed_extraction_fallback_model: str | None = "glm-5.3-flash"
+    callmissed_extraction_reasoning_effort: ReasoningEffort | None = "none"
     # Label-extraction prompt (env EXTRACTION_PROMPT_VERSION). v2 returns raw cell text parsed
     # in code (app/features/scans/cells.py); v1 stays selectable so the eval can compare them.
     # Part of the extraction cache key, so switching never reuses the other version's output.
     extraction_prompt_version: Literal["extraction_v1", "extraction_v2"] = "extraction_v1"
-    callmissed_explanation_model: str = "sarvam-105b"
+    # Explanations and voice answers (text, strict JSON, 8 s budget). sarvam-105b stays
+    # selectable but is not the default: it timed out at 8 s.
+    callmissed_explanation_model: str = "gpt-4o"
+    callmissed_explanation_fallback_model: str | None = "gemma-4-31b"
+    # Sent as `reasoning_effort` (docs: api-speed). "none" switches thinking off where the
+    # model allows it (gemma-4-31b, sarvam-105b); gpt-4o ignores it; glm-5.3-flash runs "low".
+    callmissed_explanation_reasoning_effort: ReasoningEffort | None = "none"
+    # Speech-to-text (POST /v1/audio/transcriptions). `*_languages` maps en/hi/mr to the
+    # `language` form field; a language missing from the map is left out (auto-detect).
     callmissed_stt_model: str = "saaras:v4"
+    callmissed_stt_fallback_model: str | None = "whisper"
+    callmissed_stt_languages: dict[str, str] = {"en": "en-IN", "hi": "hi-IN", "mr": "mr-IN"}
+    # Whisper's language codes are not documented by CallMissed: let it auto-detect.
+    callmissed_stt_fallback_languages: dict[str, str] = {}
+    # Text-to-speech (POST /v1/audio/speech, mp3). Voices per language, from the CallMissed
+    # voices page: bulbul:v3 recommends ratan for en-IN and mr-IN, shubh for hi-IN. Gnani
+    # Timbre v3 voices speak every Indian language; Chetana is its healthcare voice.
+    # microsoft-neural-tts is processed in India but serves voice sessions only (400 here).
     callmissed_tts_model: str = "bulbul:v3"
-    # TTS speaker id (unverified until scripts/probe_stt_formats.py runs with --yes-spend).
-    callmissed_tts_voice: str = "anushka"
+    callmissed_tts_voices: dict[str, str] = {"en": "ratan", "hi": "shubh", "mr": "ratan"}
+    callmissed_tts_fallback_model: str | None = "gnani-timbre-v3.0"
+    callmissed_tts_fallback_voices: dict[str, str] = {
+        "en": "Chetana",
+        "hi": "Chetana",
+        "mr": "Chetana",
+    }
     # packages/i18n/messages (spoken fallback answers). /app/i18n in the Docker image.
     i18n_messages_dir: Path = Field(default_factory=repo_messages_dir)
     supabase_url: str = ""
@@ -85,6 +120,27 @@ class Settings(BaseSettings):
     @classmethod
     def _upper_level(cls, v: Any) -> Any:
         return v.strip().upper() if isinstance(v, str) else v
+
+    @field_validator(
+        "callmissed_extraction_fallback_model",
+        "callmissed_explanation_fallback_model",
+        "callmissed_stt_fallback_model",
+        "callmissed_tts_fallback_model",
+        "callmissed_extraction_reasoning_effort",
+        "callmissed_explanation_reasoning_effort",
+        mode="before",
+    )
+    @classmethod
+    def _empty_is_none(cls, v: Any) -> Any:
+        return None if isinstance(v, str) and not v.strip() else v
+
+    @field_validator("callmissed_stt_languages", "callmissed_tts_voices")
+    @classmethod
+    def _every_language(cls, v: dict[str, str]) -> dict[str, str]:
+        missing = [lang for lang in SPEECH_LANGUAGES if not v.get(lang)]
+        if missing:
+            raise ValueError(f"needs a value for every language; missing {missing}")
+        return v
 
     @field_validator("allowed_origins", mode="before")
     @classmethod

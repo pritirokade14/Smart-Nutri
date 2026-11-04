@@ -601,6 +601,8 @@ async def complete(
                 schema=ExplanationLLM,
                 prompt_version=prompt_version,
                 timeout_s=budget,
+                fallback_model=settings.callmissed_explanation_fallback_model,
+                reasoning_effort=settings.callmissed_explanation_reasoning_effort,
             )
     except ProviderUnavailable as exc:
         logger.warning("explanation_unavailable reason=%s", exc.reason)

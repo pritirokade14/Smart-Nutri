@@ -228,9 +228,17 @@ async def _existing_scan_out(session: AsyncSession, scan: Scan) -> ScanDraftOut:
 
 
 async def _extract(
-    llm: LLMProvider, image: bytes, *, prompt: str, prompt_version: str, model: str
+    llm: LLMProvider,
+    image: bytes,
+    *,
+    prompt: str,
+    prompt_version: str,
+    model: str,
+    fallback_model: str | None,
+    reasoning_effort: str | None,
 ) -> BaseModel:
     """One paid extraction: the raw output in the prompt version's schema (stored as is).
+    `fallback_model` is tried once if `model` fails upstream (ADR 0021).
     ProviderUnavailable (no paid call happened) propagates."""
     schema = extraction_schema(prompt_version)
     try:
@@ -241,6 +249,8 @@ async def _extract(
             prompt_version=prompt_version,
             schema=schema,
             model=model,
+            fallback_model=fallback_model,
+            reasoning_effort=reasoning_effort,
         )
     except ExtractionFailed:
         raise ApiError("extraction_failed", 502) from None
@@ -351,7 +361,13 @@ async def create_label_scan(
         )
         try:
             extraction = await _extract(
-                llm, prepared, prompt=prompt, prompt_version=prompt_version, model=model
+                llm,
+                prepared,
+                prompt=prompt,
+                prompt_version=prompt_version,
+                model=model,
+                fallback_model=settings.callmissed_extraction_fallback_model,
+                reasoning_effort=settings.callmissed_extraction_reasoning_effort,
             )
         except ProviderUnavailable as exc:
             # Refused before any paid call: give the scan back (R16). Nothing is staged.

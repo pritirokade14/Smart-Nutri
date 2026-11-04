@@ -106,7 +106,7 @@ def no_sleep(monkeypatch):
 
 async def _call(client, timeout_s: float = 8.0):
     return await client.chat_json(
-        model="sarvam-test",
+        model="sarvam-105b",
         system=SYSTEM,
         user=USER,
         schema=Out,
@@ -167,7 +167,7 @@ async def test_request_shape_strict_schema_temperature_zero():
     result = await _call(client)
     assert isinstance(result, Out)
     body = mock.last_json()
-    assert body["model"] == "sarvam-test"
+    assert body["model"] == "sarvam-105b"
     assert body["temperature"] == 0
     assert body["messages"] == [
         {"role": "system", "content": SYSTEM},
@@ -301,7 +301,7 @@ async def test_log_has_metadata_but_no_prompt_or_output(caplog):
     await _call(client)
     text = "\n".join(r.getMessage() for r in caplog.records)
     assert "callmissed_chat" in text and "prompt_version=explanation_v1" in text
-    assert "model=sarvam-test" in text and "status=ok" in text
+    assert "model=sarvam-105b" in text and "status=ok" in text
     assert "tokens_in=21" in text and "tokens_out=9" in text
     for forbidden in (SYSTEM, "diabetes-secret", "member_1", SECRET, '"fine"'):
         assert forbidden not in text
