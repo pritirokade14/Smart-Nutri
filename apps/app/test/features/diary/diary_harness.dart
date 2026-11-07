@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_diary.dart';
+import '../../support/fake_favourites.dart';
 import '../../support/fake_foods.dart';
 import '../../support/fake_meals.dart';
 import '../../support/fake_recipes.dart';
@@ -33,12 +34,14 @@ class DiaryEnv {
     FakeFoodsClient? foods,
     FakeCustomFoodsClient? customFoods,
     FakeRecipesClient? recipes,
+    FakeFavouritesClient? favourites,
   }) : diary = FakeDiaryClient(day: day, week: week),
        slots = FakeMealSlotsClient(items: slots),
        meals = meals ?? FakeMealsClient(),
        foods = foods ?? FakeFoodsClient(),
        customFoods = customFoods ?? FakeCustomFoodsClient(),
-       recipes = recipes ?? FakeRecipesClient() {
+       recipes = recipes ?? FakeRecipesClient(),
+       favourites = favourites ?? FakeFavouritesClient() {
     this.targets = FakeTargetsClient(
       today: targets,
       settings: settings ?? goalSettingsOut(activity: 'moderate'),
@@ -51,6 +54,7 @@ class DiaryEnv {
   final FakeFoodsClient foods;
   final FakeCustomFoodsClient customFoods;
   final FakeRecipesClient recipes;
+  final FakeFavouritesClient favourites;
   final queue = MemoryMealQueue();
   late final FakeTargetsClient targets;
 
@@ -78,6 +82,7 @@ class DiaryEnv {
     foods: foods,
     customFoods: customFoods,
     recipes: recipes,
+    favourites: favourites,
   );
 }
 

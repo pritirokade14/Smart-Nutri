@@ -12,6 +12,8 @@ import '../../../shared/widgets/buttons.dart';
 import '../../../shared/widgets/source_attribution.dart';
 import '../../../shared/widgets/states.dart';
 import '../../diary/domain/slot_label.dart';
+import '../../favourites/data/favourites_repository.dart';
+import '../../favourites/presentation/favourites_providers.dart';
 import '../../diary/presentation/diary_providers.dart';
 import '../../meals/data/meals_repository.dart';
 import '../../scan/domain/number_text.dart';
@@ -108,6 +110,7 @@ class PortionPickerSheet extends ConsumerStatefulWidget {
   static const ingredientsKey = Key('portion-dish-ingredients');
   static const reviewKey = Key('portion-review-pending');
   static const saveKey = Key('portion-save');
+  static const favouriteKey = Key('portion-favourite');
 
   /// The quick fractions, as typed.
   static const fractions = {'¼': 0.25, '½': 0.5, '1': 1.0, '1½': 1.5, '2': 2.0};
@@ -120,6 +123,7 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
   final _quantity = TextEditingController(text: '1');
   String? _unit;
   String? _slot;
+  bool _favourite = false;
   bool _busy = false;
   String? _error;
 
@@ -224,6 +228,30 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
       unit: unit.code,
       slotId: slotId,
     ));
+    if (_favourite && mounted) {
+      // The chosen portion becomes the favourite's default. The log is
+      // already saved: a refusal here (limit, retired) only shows its message.
+      final l10n = AppLocalizations.of(context);
+      final messenger = ScaffoldMessenger.of(context);
+      try {
+        await ref
+            .read(favouritesRepositoryProvider)
+            .addFood(
+              widget.food,
+              memberId: widget.memberId.isEmpty ? null : widget.memberId,
+              quantity: _quantityValue,
+              unit: unit.code,
+            );
+        ref.invalidate(
+          favouritesProvider(widget.memberId.isEmpty ? null : widget.memberId),
+        );
+        messenger.showSnackBar(SnackBar(content: Text(l10n.favouritesAdded)));
+      } on FavouritesFailure catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(localizedErrorCode(l10n, e.code))),
+        );
+      }
+    }
     if (mounted) Navigator.of(context).pop(result);
   });
 
@@ -453,6 +481,14 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
         const SizedBox(height: SnTokens.space3),
         InlineErrorBanner(message: error),
       ],
+      if (!widget.ingredient)
+        SwitchListTile(
+          key: PortionPickerSheet.favouriteKey,
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.favouritesAdd),
+          value: _favourite,
+          onChanged: _busy ? null : (v) => setState(() => _favourite = v),
+        ),
       const SizedBox(height: SnTokens.space3),
       PrimaryButton(
         buttonKey: PortionPickerSheet.saveKey,

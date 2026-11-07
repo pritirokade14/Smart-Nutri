@@ -86,7 +86,7 @@ void main() {
     env.slots.error = networkError();
     await pumpDiary(t, env);
     await _open(t);
-    expect(find.byType(ChoiceChip), findsNWidgets(6)); // segments only
+    expect(find.byType(ChoiceChip), findsNWidgets(7)); // segments only
     expect(
       find.byKey(AddFoodSheet.chipKey(env.diary.day.slots.first.slotId)),
       findsNothing,
