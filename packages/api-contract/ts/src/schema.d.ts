@@ -181,6 +181,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/favourites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Favourites List
+         * @description The member's favourite foods and saved meals, newest first (at most 200, no cursor).
+         */
+        get: operations["favourites_list"];
+        put?: never;
+        /**
+         * Favourites Add
+         * @description Star a food with an optional default portion (the one a tap logs). 201 for a new
+         *     favourite, 200 with the stored one when the food is already starred. 422 `favourite_limit`
+         *     past 200, `food_retired`, `unit_grams_unknown`, `invalid_product_ref`.
+         */
+        post: operations["favourites_add"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/favourites/meals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Favourites Add Meal
+         * @description Save one meal (a slot on a day) under a name you type, exactly as typed. The entries are
+         *     kept as they were (no food is read again). 422 `copy_source_empty`, `copy_too_many` (more
+         *     than 50), `date_in_future`, `favourite_limit`; 404 `meal_slot_not_found`.
+         */
+        post: operations["favourites_add_meal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/favourites/{favourite_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Favourites Delete
+         * @description Remove a favourite. Entries already logged from it stay.
+         */
+        delete: operations["favourites_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/favourites/{favourite_id}/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Favourites Log
+         * @description Log a favourite MEAL again, from its saved entries, onto today or a day up to 30 days
+         *     back. ``client_id`` is required: a retry returns the same rows with 200 and creates
+         *     nothing. Each entry counts against the daily log limit. A food favourite is logged with
+         *     `meals_log` instead (422 `validation_error` here). 422 `food_retired` if a saved dish was
+         *     retired; a deleted custom food or recipe logs with a null reference. The response is
+         *     redacted with the member's numbers display.
+         */
+        post: operations["favourites_log"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/foods/barcode/{barcode}": {
         parameters: {
             query?: never;
@@ -1915,6 +2008,166 @@ export interface components {
             tips: string[];
         };
         /**
+         * FavouriteIn
+         * @description Star a food. Exactly one reference: ``product_id``, ``barcode`` (Open Food Facts or
+         *     your own product), ``food_id``, ``custom_food_id`` or ``recipe_id``. ``default_quantity``
+         *     with ``default_unit`` is the portion one tap logs; both or neither. A unit that cannot be
+         *     converted for this food is 422 ``unit_grams_unknown``.
+         */
+        FavouriteIn: {
+            /** Barcode */
+            barcode?: string | null;
+            /** Custom Food Id */
+            custom_food_id?: string | null;
+            /** Default Quantity */
+            default_quantity?: number | null;
+            /** Default Unit */
+            default_unit?: ("g" | "ml" | "serving" | "piece" | "piece_small" | "piece_medium" | "piece_large" | "roti" | "slice" | "katori" | "katori_small" | "katori_medium" | "katori_large" | "cup" | "glass" | "tbsp" | "tsp") | null;
+            /** Food Id */
+            food_id?: string | null;
+            /** Member Id */
+            member_id?: string | null;
+            /** Product Id */
+            product_id?: string | null;
+            /** Recipe Id */
+            recipe_id?: string | null;
+        };
+        /** FavouriteItemOut */
+        FavouriteItemOut: {
+            /** Attributions */
+            attributions?: string[];
+            /** Grams */
+            grams: number | null;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number | null;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "product" | "off" | "food" | "custom_food" | "recipe" | "quick_add";
+            /** Unit */
+            unit: string | null;
+        };
+        /**
+         * FavouriteLogIn
+         * @description Log a favourite meal again. ``client_id`` is required: each entry's own id is derived
+         *     from it, so a retry returns the same rows with 200 and creates nothing.
+         */
+        FavouriteLogIn: {
+            /**
+             * Client Id
+             * Format: uuid
+             */
+            client_id: string;
+            /**
+             * Local Date
+             * @description Log onto this local day (at most 30 days ago, not in future).
+             */
+            local_date?: string | null;
+            /**
+             * Meal Slot Id
+             * @description Default: the server's pick
+             */
+            meal_slot_id?: string | null;
+        };
+        /** FavouriteLogOut */
+        FavouriteLogOut: {
+            /**
+             * Created
+             * @description The new entries, in the saved order
+             */
+            created: components["schemas"]["MealOut"][];
+        };
+        /**
+         * FavouriteMealIn
+         * @description Save the entries of one meal slot on one day as a named favourite meal. ``name`` is
+         *     user text, 1 to 40 characters, kept exactly as typed.
+         */
+        FavouriteMealIn: {
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * From Date
+             * Format: date
+             */
+            from_date: string;
+            /**
+             * From Slot Id
+             * Format: uuid
+             */
+            from_slot_id: string;
+            /** Member Id */
+            member_id?: string | null;
+            /** Name */
+            name: string;
+        };
+        /** FavouriteOut */
+        FavouriteOut: {
+            /** Attributions */
+            attributions?: string[];
+            /** Barcode */
+            barcode: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Custom Food Id */
+            custom_food_id: string | null;
+            /** Default Quantity */
+            default_quantity: number | null;
+            /** Default Unit */
+            default_unit: string | null;
+            /** Food Id */
+            food_id: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Item Count
+             * @description 1 for a food, the number of saved entries for a meal
+             */
+            item_count: number;
+            /**
+             * Items
+             * @description The saved entries of a meal as they were; null for a food
+             */
+            items: components["schemas"]["FavouriteItemOut"][] | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "food" | "meal";
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /**
+             * Name
+             * @description A food: its name when starred. A meal: the name you typed (user text)
+             */
+            name: string;
+            /** Product Id */
+            product_id: string | null;
+            /** Recipe Id */
+            recipe_id: string | null;
+            /**
+             * Source Kind
+             * @description Null for a saved meal
+             */
+            source_kind: ("product" | "off" | "food" | "custom_food" | "recipe") | null;
+        };
+        /** FavouritesOut */
+        FavouritesOut: {
+            /** Items */
+            items: components["schemas"]["FavouriteOut"][];
+        };
+        /**
          * FollowUps
          * @description At most one short follow-up per type (decision 4). `weight_loss` has none.
          *
@@ -3223,6 +3476,11 @@ export interface components {
              * @description Your custom food; log it again with `custom_food_id`
              */
             custom_food_id?: string | null;
+            /**
+             * Favourite Id
+             * @description The member's favourite for this same food (unstar with `favourites_delete`)
+             */
+            favourite_id?: string | null;
             /**
              * Food Id
              * @description A generic food or dish; log it again with `food_id`
@@ -4747,6 +5005,429 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DiaryWeekOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_list: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouritesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FavouriteIn"];
+            };
+        };
+        responses: {
+            /** @description Already a favourite: nothing changed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_add_meal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FavouriteMealIn"];
+            };
+        };
+        responses: {
+            /** @description Already saved with this client_id */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                favourite_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_log: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                favourite_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FavouriteLogIn"];
+            };
+        };
+        responses: {
+            /** @description Every entry already existed (a retry) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteLogOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteLogOut"];
                 };
             };
             /** @description Missing or invalid access token */

@@ -2264,6 +2264,508 @@
         "title": "ExplanationOut",
         "type": "object"
       },
+      "FavouriteIn": {
+        "description": "Star a food. Exactly one reference: ``product_id``, ``barcode`` (Open Food Facts or\nyour own product), ``food_id``, ``custom_food_id`` or ``recipe_id``. ``default_quantity``\nwith ``default_unit`` is the portion one tap logs; both or neither. A unit that cannot be\nconverted for this food is 422 ``unit_grams_unknown``.",
+        "properties": {
+          "barcode": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "custom_food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Food Id"
+          },
+          "default_quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 5000.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Quantity"
+          },
+          "default_unit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "g",
+                  "ml",
+                  "serving",
+                  "piece",
+                  "piece_small",
+                  "piece_medium",
+                  "piece_large",
+                  "roti",
+                  "slice",
+                  "katori",
+                  "katori_small",
+                  "katori_medium",
+                  "katori_large",
+                  "cup",
+                  "glass",
+                  "tbsp",
+                  "tsp"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Unit"
+          },
+          "food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Food Id"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "recipe_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recipe Id"
+          }
+        },
+        "title": "FavouriteIn",
+        "type": "object"
+      },
+      "FavouriteItemOut": {
+        "properties": {
+          "attributions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Attributions",
+            "type": "array"
+          },
+          "grams": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grams"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "source_kind": {
+            "enum": [
+              "product",
+              "off",
+              "food",
+              "custom_food",
+              "recipe",
+              "quick_add"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "unit",
+          "grams",
+          "source_kind"
+        ],
+        "title": "FavouriteItemOut",
+        "type": "object"
+      },
+      "FavouriteLogIn": {
+        "description": "Log a favourite meal again. ``client_id`` is required: each entry's own id is derived\nfrom it, so a retry returns the same rows with 200 and creates nothing.",
+        "properties": {
+          "client_id": {
+            "format": "uuid",
+            "title": "Client Id",
+            "type": "string"
+          },
+          "local_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Log onto this local day (at most 30 days ago, not in future).",
+            "title": "Local Date"
+          },
+          "meal_slot_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Default: the server's pick",
+            "title": "Meal Slot Id"
+          }
+        },
+        "required": [
+          "client_id"
+        ],
+        "title": "FavouriteLogIn",
+        "type": "object"
+      },
+      "FavouriteLogOut": {
+        "properties": {
+          "created": {
+            "description": "The new entries, in the saved order",
+            "items": {
+              "$ref": "#/components/schemas/MealOut"
+            },
+            "title": "Created",
+            "type": "array"
+          }
+        },
+        "required": [
+          "created"
+        ],
+        "title": "FavouriteLogOut",
+        "type": "object"
+      },
+      "FavouriteMealIn": {
+        "description": "Save the entries of one meal slot on one day as a named favourite meal. ``name`` is\nuser text, 1 to 40 characters, kept exactly as typed.",
+        "properties": {
+          "client_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "from_date": {
+            "format": "date",
+            "title": "From Date",
+            "type": "string"
+          },
+          "from_slot_id": {
+            "format": "uuid",
+            "title": "From Slot Id",
+            "type": "string"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
+          "name": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_date",
+          "from_slot_id",
+          "name"
+        ],
+        "title": "FavouriteMealIn",
+        "type": "object"
+      },
+      "FavouriteOut": {
+        "properties": {
+          "attributions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Attributions",
+            "type": "array"
+          },
+          "barcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "custom_food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Food Id"
+          },
+          "default_quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Quantity"
+          },
+          "default_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Unit"
+          },
+          "food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Food Id"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "item_count": {
+            "description": "1 for a food, the number of saved entries for a meal",
+            "title": "Item Count",
+            "type": "integer"
+          },
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FavouriteItemOut"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The saved entries of a meal as they were; null for a food",
+            "title": "Items"
+          },
+          "kind": {
+            "enum": [
+              "food",
+              "meal"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "member_id": {
+            "format": "uuid",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "A food: its name when starred. A meal: the name you typed (user text)",
+            "title": "Name",
+            "type": "string"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "recipe_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recipe Id"
+          },
+          "source_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "product",
+                  "off",
+                  "food",
+                  "custom_food",
+                  "recipe"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null for a saved meal",
+            "title": "Source Kind"
+          }
+        },
+        "required": [
+          "id",
+          "member_id",
+          "kind",
+          "source_kind",
+          "product_id",
+          "barcode",
+          "food_id",
+          "custom_food_id",
+          "recipe_id",
+          "name",
+          "default_quantity",
+          "default_unit",
+          "item_count",
+          "items",
+          "created_at"
+        ],
+        "title": "FavouriteOut",
+        "type": "object"
+      },
+      "FavouritesOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FavouriteOut"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "FavouritesOut",
+        "type": "object"
+      },
       "FollowUps": {
         "additionalProperties": false,
         "description": "At most one short follow-up per type (decision 4). `weight_loss` has none.\n\nThese are the user's answers, stored as given. They never change a member: pre-fill only\nsuggests member changes, which the user confirms (Task 2).",
@@ -6001,6 +6503,19 @@
             "description": "Your custom food; log it again with `custom_food_id`",
             "title": "Custom Food Id"
           },
+          "favourite_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The member's favourite for this same food (unstar with `favourites_delete`)",
+            "title": "Favourite Id"
+          },
           "food_id": {
             "anyOf": [
               {
@@ -9164,6 +9679,547 @@
         "summary": "Diary Week Get",
         "tags": [
           "diary"
+        ]
+      }
+    },
+    "/v1/favourites": {
+      "get": {
+        "description": "The member's favourite foods and saved meals, newest first (at most 200, no cursor).",
+        "operationId": "favourites_list",
+        "parameters": [
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouritesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Favourites List",
+        "tags": [
+          "favourites"
+        ]
+      },
+      "post": {
+        "description": "Star a food with an optional default portion (the one a tap logs). 201 for a new\nfavourite, 200 with the stored one when the food is already starred. 422 `favourite_limit`\npast 200, `food_retired`, `unit_grams_unknown`, `invalid_product_ref`.",
+        "operationId": "favourites_add",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavouriteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteOut"
+                }
+              }
+            },
+            "description": "Already a favourite: nothing changed"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Favourites Add",
+        "tags": [
+          "favourites"
+        ]
+      }
+    },
+    "/v1/favourites/meals": {
+      "post": {
+        "description": "Save one meal (a slot on a day) under a name you type, exactly as typed. The entries are\nkept as they were (no food is read again). 422 `copy_source_empty`, `copy_too_many` (more\nthan 50), `date_in_future`, `favourite_limit`; 404 `meal_slot_not_found`.",
+        "operationId": "favourites_add_meal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavouriteMealIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteOut"
+                }
+              }
+            },
+            "description": "Already saved with this client_id"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Favourites Add Meal",
+        "tags": [
+          "favourites"
+        ]
+      }
+    },
+    "/v1/favourites/{favourite_id}": {
+      "delete": {
+        "description": "Remove a favourite. Entries already logged from it stay.",
+        "operationId": "favourites_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "favourite_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Favourite Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Favourites Delete",
+        "tags": [
+          "favourites"
+        ]
+      }
+    },
+    "/v1/favourites/{favourite_id}/log": {
+      "post": {
+        "description": "Log a favourite MEAL again, from its saved entries, onto today or a day up to 30 days\nback. ``client_id`` is required: a retry returns the same rows with 200 and creates\nnothing. Each entry counts against the daily log limit. A food favourite is logged with\n`meals_log` instead (422 `validation_error` here). 422 `food_retired` if a saved dish was\nretired; a deleted custom food or recipe logs with a null reference. The response is\nredacted with the member's numbers display.",
+        "operationId": "favourites_log",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "favourite_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Favourite Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FavouriteLogIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteLogOut"
+                }
+              }
+            },
+            "description": "Every entry already existed (a retry)"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavouriteLogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Favourites Log",
+        "tags": [
+          "favourites"
         ]
       }
     },
