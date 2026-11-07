@@ -45,7 +45,9 @@ test.describe("diary recipes", () => {
 
     await page.getByLabel("Number of servings").fill("2");
     await page.getByLabel("Cooked weight (g)").fill("400");
-    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Save recipe", exact: true })
+      .click();
 
     // 3. Fibre is known for the dal only: "At least", with the marker.
     const fibre = page.getByTestId("per-100g-fibre_g");

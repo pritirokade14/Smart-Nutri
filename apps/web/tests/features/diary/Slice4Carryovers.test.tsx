@@ -125,7 +125,7 @@ describe("portionLine", () => {
         basis: "g",
         unitSource: "portion",
       }),
-    ).toBe("2 rotis · ≈136 g");
+    ).toBe("2 rotis · ≈ 136 g");
     expect(
       portionLine(tr, {
         quantity: 1,
@@ -134,7 +134,7 @@ describe("portionLine", () => {
         basis: "ml",
         unitSource: "density",
       }),
-    ).toBe("1 glass · ≈200 ml");
+    ).toBe("1 glass · ≈ 200 ml");
     expect(portionLine(tr, { grams: 350, basis: "ml" })).toBe("350 ml");
     expect(portionLine(tr, { grams: 350 })).toBe("350 g");
     expect(
@@ -167,7 +167,7 @@ describe("entry row", () => {
       />,
     );
     expect(screen.getByTestId("entry-portion").textContent).toBe(
-      "1.5 katoris · ≈213 g",
+      "1.5 katoris · ≈ 213 g",
     );
   });
 });
@@ -176,7 +176,7 @@ describe("recents", () => {
   it("show grams like Android and the approximate mark", async () => {
     panel([RECENT]);
     expect((await screen.findByTestId("recent-item")).textContent).toContain(
-      "2 rotis · ≈136 g",
+      "2 rotis · ≈ 136 g",
     );
   });
 
@@ -318,7 +318,10 @@ describe("search groups", () => {
         attributions: ["attribution.off"],
       });
     const onPick = vi.fn();
-    renderIntl(<FoodSearch onPick={onPick} />);
+    const onBarcodeProduct = vi.fn();
+    renderIntl(
+      <FoodSearch onPick={onPick} onBarcodeProduct={onBarcodeProduct} />,
+    );
     await userEvent.type(
       screen.getByPlaceholderText(en.foods.search_placeholder),
       "8901234567890",
@@ -326,11 +329,41 @@ describe("search groups", () => {
     const code = await screen.findByTestId("barcode-hit");
     expect(code.textContent).toContain("Biscuit");
     await userEvent.click(code);
-    expect(onPick).toHaveBeenCalledWith(
-      expect.objectContaining({ kind: "off", id: "8901234567890" }),
-    );
+    // A product / OFF item keeps the verdict flow: never the portion picker.
+    expect(onPick).not.toHaveBeenCalled();
+    expect(onBarcodeProduct).toHaveBeenCalledWith("8901234567890");
     expect(api.callsTo("GET", "/v1/foods/barcode/8901234567890")).toHaveLength(
       1,
+    );
+  });
+
+  it("a typed barcode that is my own food goes to the portion picker", async () => {
+    apiStub(fetchMock)
+      .on("GET", "/v1/foods/search", {
+        items: [],
+        partial: false,
+        failed_sources: [],
+      })
+      .on("GET", "/v1/foods/barcode/8901234567891", {
+        ...dalDetail(),
+        kind: "custom_food",
+        id: "cf1",
+        name: "Ladoo",
+      });
+    const onPick = vi.fn();
+    const onBarcodeProduct = vi.fn();
+    renderIntl(
+      <FoodSearch onPick={onPick} onBarcodeProduct={onBarcodeProduct} />,
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText(en.foods.search_placeholder),
+      "8901234567891",
+    );
+    await userEvent.click(await screen.findByTestId("barcode-hit"));
+    expect(onBarcodeProduct).not.toHaveBeenCalled();
+    expect(onPick).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: "custom_food", id: "cf1" }),
+      true,
     );
   });
 

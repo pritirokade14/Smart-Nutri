@@ -20,7 +20,7 @@ export function portionLine(
 ): string | null {
   if (p.grams == null) return null;
   const ml = p.basis === "ml";
-  const amount = `${isApprox(p.unitSource) ? APPROX : ""}${formatAmount(p.grams)}`;
+  const amount = `${isApprox(p.unitSource) ? `${APPROX} ` : ""}${formatAmount(p.grams)}`;
   if (p.unit && p.unit !== "g" && p.quantity != null) {
     return t(ml ? "diary.portion_line_ml" : "diary.portion_line", {
       quantity: formatAmount(p.quantity),

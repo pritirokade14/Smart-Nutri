@@ -29,7 +29,15 @@ const KIND_KEY = {
  * answer shows its note, and "no results" only when nothing came back and
  * nothing failed.
  */
-export function FoodSearch({ onPick }: { onPick: (hit: FoodHit) => void }) {
+export function FoodSearch({
+  onPick,
+  onBarcodeProduct,
+}: {
+  /** `viaBarcode`: the hit came from a typed barcode (analytics method). */
+  onPick: (hit: FoodHit, viaBarcode?: boolean) => void;
+  /** A typed barcode that is not the user's own food: the verdict flow. */
+  onBarcodeProduct?: (code: string) => void;
+}) {
   const t = useTranslations();
   const id = useId();
   const [text, setText] = useState("");
@@ -63,19 +71,28 @@ export function FoodSearch({ onPick }: { onPick: (hit: FoodHit) => void }) {
         <button
           type="button"
           data-testid="barcode-hit"
-          onClick={() =>
-            onPick({
-              kind: byCode.data.kind,
-              id: byCode.data.id,
-              name: byCode.data.name,
-              brand: byCode.data.brand,
-              group: "packaged",
-              is_dish: false,
-              grade: null,
-              attribution: byCode.data.attribution,
-              attributions: byCode.data.attributions,
-            })
-          }
+          onClick={() => {
+            // Only the user's OWN food goes straight to the portion picker; a
+            // product or Open Food Facts item keeps the verdict flow.
+            if (byCode.data.kind !== "custom_food" && onBarcodeProduct) {
+              onBarcodeProduct(code);
+              return;
+            }
+            onPick(
+              {
+                kind: byCode.data.kind,
+                id: byCode.data.id,
+                name: byCode.data.name,
+                brand: byCode.data.brand,
+                group: byCode.data.kind === "custom_food" ? "mine" : "packaged",
+                is_dish: false,
+                grade: null,
+                attribution: byCode.data.attribution,
+                attributions: byCode.data.attributions,
+              },
+              true,
+            );
+          }}
           className="flex min-h-11 w-full cursor-pointer flex-col gap-0.5 py-2 text-left hover:bg-surface-muted"
         >
           <span className="text-md font-medium break-words text-text-primary">

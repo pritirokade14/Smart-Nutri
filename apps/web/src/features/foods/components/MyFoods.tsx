@@ -82,7 +82,7 @@ export function MyFoods() {
               disabled={foods.isFetchingNextPage}
               onClick={() => void foods.fetchNextPage()}
             >
-              {t("nav.more")}
+              {t("foods.load_more")}
             </Button>
           ) : null}
         </section>
@@ -118,7 +118,7 @@ export function MyFoods() {
               disabled={recipes.isFetchingNextPage}
               onClick={() => void recipes.fetchNextPage()}
             >
-              {t("nav.more")}
+              {t("foods.load_more")}
             </Button>
           ) : null}
         </section>

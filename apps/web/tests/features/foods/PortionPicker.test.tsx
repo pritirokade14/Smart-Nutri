@@ -173,10 +173,26 @@ describe("PortionPicker", () => {
       "170.4 kcal",
     );
     expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9 g");
-    // The same five rows as Android; nothing else.
-    expect(screen.queryByTestId("preview-fibre_g")).toBeNull();
-    expect(screen.queryByTestId("preview-sat_fat_g")).toBeNull();
-    expect(screen.queryByTestId("preview-salt_g")).toBeNull();
+    // The eight rows, in order; a missing value is "Not known", never 0.
+    expect(
+      Array.from(
+        screen
+          .getByTestId("portion-preview")
+          .querySelectorAll("[data-testid^=preview-]"),
+      ).map((e) => e.getAttribute("data-testid")),
+    ).toEqual([
+      "preview-energy_kcal",
+      "preview-protein_g",
+      "preview-carbs_g",
+      "preview-sugars_g",
+      "preview-fat_g",
+      "preview-sat_fat_g",
+      "preview-fibre_g",
+      "preview-salt_g",
+    ]);
+    expect(screen.getByTestId("preview-sat_fat_g").textContent).toBe(
+      en.foods.not_known,
+    );
     expect(screen.getByText(en.foods.preview_note)).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "1½" }));
     expect(screen.getByTestId("preview-energy_kcal").textContent).toBe(

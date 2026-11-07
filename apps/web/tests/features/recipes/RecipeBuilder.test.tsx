@@ -103,7 +103,7 @@ describe("RecipeBuilder", () => {
     );
     expect(screen.getByText(en.recipes.cooked_weight_tip)).toBeTruthy();
     await userEvent.click(
-      screen.getByRole("button", { name: en.members.form.save }),
+      screen.getByRole("button", { name: en.recipes.save }),
     );
     const fibre = await screen.findByTestId("per-100g-fibre_g");
     expect(fibre.textContent).toContain("At least");
@@ -137,7 +137,7 @@ describe("RecipeBuilder", () => {
     expect(
       (await screen.findByTestId("ingredient-unavailable")).textContent,
     ).toBe(en.recipes.ingredient_unavailable);
-    const save = screen.getByRole("button", { name: en.members.form.save });
+    const save = screen.getByRole("button", { name: en.recipes.save });
     expect((save as HTMLButtonElement).disabled).toBe(true);
     // Replacing it (remove, then add) lifts the block.
     await userEvent.click(
@@ -209,7 +209,7 @@ describe("RecipeBuilder", () => {
     await addDal();
     await screen.findAllByTestId("recipe-ingredient");
     await userEvent.click(
-      screen.getByRole("button", { name: en.members.form.save }),
+      screen.getByRole("button", { name: en.recipes.save }),
     );
     expect((await screen.findByRole("alert")).textContent).toBe(
       en.error.food_retired,

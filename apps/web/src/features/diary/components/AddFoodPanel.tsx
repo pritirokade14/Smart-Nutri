@@ -109,6 +109,7 @@ export function AddFoodPanel({
   const [picked, setPicked] = useState<string | null>(null);
   const [segment, setSegment] = useState<Segment>("recent");
   const [hit, setHit] = useState<FoodHit | null>(null);
+  const [viaBarcode, setViaBarcode] = useState(false);
   const chosen = picked ?? slotId ?? slots.data?.suggested_slot_id ?? null;
   const loaded = slots.data !== undefined && chosen !== null;
   const recents = useRecents(loaded ? (chosen ?? undefined) : undefined);
@@ -246,9 +247,19 @@ export function AddFoodPanel({
             localDate={localDate}
             onLogged={done}
             onCancel={() => setHit(null)}
+            method={viaBarcode ? "barcode" : undefined}
           />
         ) : (
-          <FoodSearch onPick={setHit} />
+          <FoodSearch
+            onPick={(h, barcode) => {
+              setViaBarcode(barcode === true);
+              setHit(h);
+            }}
+            onBarcodeProduct={(code) => {
+              leave("barcode");
+              window.location.assign(`/${locale}/result/${code}`);
+            }}
+          />
         )
       ) : segment === "quick" ? (
         <QuickAddForm

@@ -31,14 +31,17 @@ const FRACTIONS = [
   { value: "2", label: "2" },
 ] as const;
 
-// The preview rows, in Android's order: energy, protein, carbs, fat, sugars
-// (existing catalogue keys), with the unit each is shown in.
+// The preview rows (ruling: 8): energy, protein, carbs, sugars, fat, sat fat,
+// fibre, salt. Labels are the existing confirm.field.* keys.
 const ROWS = [
   ["energy_kcal", "confirm.field.energy_kcal", "energy"],
   ["protein_g", "confirm.field.protein_g", "macros"],
   ["carbs_g", "confirm.field.carbs_g", "macros"],
-  ["fat_g", "confirm.field.fat_g", "macros"],
   ["sugars_g", "confirm.field.sugars_g", "macros"],
+  ["fat_g", "confirm.field.fat_g", "macros"],
+  ["sat_fat_g", "confirm.field.sat_fat_g", "macros"],
+  ["fibre_g", "confirm.field.fiber_g", "macros"],
+  ["salt_g", "confirm.field.salt_g", "macros"],
 ] as const;
 
 // Grams can be set for these kinds of measure only (never g, ml or serving).
@@ -74,6 +77,7 @@ export function PortionPicker({
   onLogged,
   onCancel,
   ingredient,
+  method,
 }: {
   hit: Pick<FoodHit, "kind" | "id" | "name" | "is_dish">;
   slotId: string | null;
@@ -82,6 +86,8 @@ export function PortionPicker({
   onCancel: () => void;
   /** Ingredient mode (the recipe builder): choose an amount, log nothing. */
   ingredient?: (pick: IngredientPick) => void;
+  /** Analytics method override (a typed barcode: "barcode"). */
+  method?: string;
 }) {
   const t = useTranslations();
   const food = useFood(hit.kind, hit.id);
@@ -105,6 +111,7 @@ export function PortionPicker({
       onLogged={onLogged}
       onCancel={onCancel}
       ingredient={ingredient}
+      method={method}
     />
   );
 }
@@ -143,6 +150,7 @@ function Loaded({
   onLogged,
   onCancel,
   ingredient,
+  method,
 }: {
   hit: Pick<FoodHit, "kind" | "id" | "name" | "is_dish">;
   food: FoodDetailOut;
@@ -151,6 +159,7 @@ function Loaded({
   onLogged: () => void;
   onCancel: () => void;
   ingredient?: (pick: IngredientPick) => void;
+  method?: string;
 }) {
   const t = useTranslations();
   const qtyId = useId();
@@ -215,11 +224,12 @@ function Loaded({
           clientId.current = null;
           track("diary_entry_added", {
             method:
-              hit.kind === "custom_food"
+              method ??
+              (hit.kind === "custom_food"
                 ? "custom"
                 : hit.kind === "recipe"
                   ? "recipe"
-                  : "search",
+                  : "search"),
           });
           onLogged();
         },

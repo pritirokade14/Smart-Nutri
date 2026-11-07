@@ -291,11 +291,11 @@ function Builder({ saved }: { saved?: RecipeOut }) {
       ) : null}
       <div className="flex flex-wrap gap-2">
         <Button onClick={submit} disabled={save.isPending || blocked}>
-          {t("members.form.save")}
+          {t("recipes.save")}
         </Button>
         {recipeId ? (
           <Button variant="outline" onClick={() => setConfirming(true)}>
-            {t("diary.delete")}
+            {t("recipes.delete")}
           </Button>
         ) : null}
       </div>
@@ -375,7 +375,7 @@ function Builder({ saved }: { saved?: RecipeOut }) {
       {confirming && recipeId ? (
         <ConfirmDialog
           message={t("recipes.delete_confirm")}
-          confirmLabel={t("diary.delete")}
+          confirmLabel={t("recipes.delete")}
           cancelLabel={t("common.cancel")}
           busy={del.isPending}
           onCancel={() => setConfirming(false)}
