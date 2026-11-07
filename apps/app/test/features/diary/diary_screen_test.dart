@@ -264,6 +264,12 @@ void main() {
     await pumpDiary(t, DiaryEnv(day: 'day_archived_slot'));
     // The user's own label, exactly as typed.
     expect(find.text('Pre-gym'), findsOneWidget);
+    expect(find.text(en.diarySlotsRemoved), findsOneWidget);
+  });
+
+  testWidgets('the Day segment uses the view-day string', (t) async {
+    await pumpDiary(t, DiaryEnv());
+    expect(find.text(en.diaryViewDay), findsOneWidget);
   });
 
   testWidgets('history route redirects to diary', (t) async {

@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_ai/features/diary/presentation/edit_entry_sheet.dart';
 import 'package:smartnutri_ai/features/diary/presentation/entry_tile.dart';
+
+import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_meals.dart';
 import 'diary_harness.dart';
@@ -123,4 +127,35 @@ void main() {
     expect(patch.quick!.carbsG, isNull);
     expect(patch.quick!.fibreG, isNull);
   });
+
+  testWidgets(
+    'a quick add with hidden energy can be edited (energy required)',
+    (t) async {
+      final env = DiaryEnv(day: 'day_quick_add_kcal_only');
+      final j =
+          jsonDecode(jsonEncode(env.diary.day.toJson()))
+              as Map<String, Object?>;
+      for (final s in (j['slots'] as List).cast<Map<String, Object?>>()) {
+        for (final e in (s['entries'] as List).cast<Map<String, Object?>>()) {
+          (e['nutrients'] as Map<String, Object?>)['energy_kcal'] = null;
+        }
+      }
+      env.diary.day = DiaryDayOut.fromJson(j);
+      await pumpDiary(t, env);
+      final entry = env.diary.day.slots.expand((s) => s.entries).single;
+      await t.ensureVisible(find.byKey(EntryTile.tileKey(entry.id)));
+      await t.tap(find.byKey(EntryTile.tileKey(entry.id)));
+      await t.pumpAndSettle();
+      expect(find.byKey(EditEntrySheet.energyKey), findsOneWidget);
+      expect(
+        t.widget<FilledButton>(find.byKey(EditEntrySheet.saveKey)).onPressed,
+        isNull,
+      );
+      await t.enterText(find.byKey(EditEntrySheet.energyKey), '300');
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(EditEntrySheet.saveKey));
+      await t.pumpAndSettle();
+      expect(env.meals.updated.single.$2.quick!.energyKcal, 300);
+    },
+  );
 }

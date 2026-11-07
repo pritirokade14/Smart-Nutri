@@ -108,7 +108,7 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
             ),
             child: SegmentedButton<bool>(
               segments: [
-                ButtonSegment(value: false, label: Text(l10n.diaryToday)),
+                ButtonSegment(value: false, label: Text(l10n.diaryViewDay)),
                 ButtonSegment(value: true, label: Text(l10n.diaryWeekTitle)),
               ],
               selected: {_week},

@@ -32,6 +32,7 @@ class SlotSection extends StatelessWidget {
 
   static Key sectionKey(String slotId) => Key('diary-slot-$slotId');
   static Key titleKey(String slotId) => Key('diary-slot-title-$slotId');
+  static Key removedKey(String slotId) => Key('diary-slot-removed-$slotId');
   static Key addKey(String slotId) => Key('diary-slot-add-$slotId');
   static Key menuKey(String slotId) => Key('diary-slot-menu-$slotId');
 
@@ -59,10 +60,21 @@ class SlotSection extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    title,
-                    key: titleKey(slot.slotId),
-                    style: theme.textTheme.titleMedium,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        key: titleKey(slot.slotId),
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      if (slot.archived)
+                        Text(
+                          l10n.diarySlotsRemoved,
+                          key: removedKey(slot.slotId),
+                          style: theme.textTheme.bodySmall,
+                        ),
+                    ],
                   ),
                 ),
                 if (onAdd != null)

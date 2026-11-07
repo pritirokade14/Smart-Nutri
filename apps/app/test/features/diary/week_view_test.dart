@@ -74,7 +74,7 @@ void main() {
   testWidgets('incomplete averages are grey with the note', (t) async {
     await _week(t);
     // week_mixed flags every average incomplete.
-    expect(find.byIcon(Icons.info_outline_rounded), findsWidgets);
+    expect(find.textContaining('At least'), findsWidgets);
   });
 
   testWidgets('mark partial toggles and explains', (t) async {

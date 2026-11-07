@@ -31,6 +31,7 @@ class WeekView extends ConsumerWidget {
   static Key tileKey(String date) => Key('week-day-$date');
   static Key partialKey(String date) => Key('week-partial-$date');
   static Key incompleteKey(String date) => Key('week-incomplete-$date');
+  static Key atLeastKey(String label) => Key('week-at-least-$label');
   static const averageKey = Key('week-average');
   static const proteinDaysKey = Key('week-protein-days');
   static const shareKey = Key('week-share');
@@ -67,7 +68,6 @@ class _WeekBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final c = SnColors.of(context);
     final macrosHidden = week.numbersHidden.macros;
     final energyHidden = week.numbersHidden.energy;
     final anyTarget = week.days.any((d) => d.targets != null);
@@ -115,24 +115,19 @@ class _WeekBody extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(child: Text(label)),
-                    // A lower bound (some day lacked the value): grey, with
-                    // the "may be higher" note.
+                    // A lower bound (some day lacked the value): "At least".
                     Text(
-                      isEnergy ? kcalText(l10n, value) : gramsText(l10n, value),
-                      style: TextStyle(
-                        color: incomplete ? c.textSecondary : null,
-                      ),
+                      incomplete
+                          ? l10n.diaryWeekAtLeast(
+                              isEnergy
+                                  ? kcalText(l10n, value)
+                                  : gramsText(l10n, value),
+                            )
+                          : (isEnergy
+                                ? kcalText(l10n, value)
+                                : gramsText(l10n, value)),
+                      key: incomplete ? WeekView.atLeastKey(label) : null,
                     ),
-                    if (incomplete)
-                      Tooltip(
-                        message: l10n.diaryIncomplete,
-                        child: Icon(
-                          Icons.info_outline_rounded,
-                          size: SnTokens.fontSizeMd,
-                          color: c.textSecondary,
-                          semanticLabel: l10n.diaryIncomplete,
-                        ),
-                      ),
                   ],
                 ),
               ),

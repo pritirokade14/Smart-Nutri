@@ -11,6 +11,7 @@ import '../../features/consent/presentation/consent_providers.dart';
 import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import 'auth_interceptor.dart';
+import 'date_only_interceptor.dart';
 
 final apiClientProvider = Provider<SmartNutriApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
@@ -19,6 +20,7 @@ final apiClientProvider = Provider<SmartNutriApiClient>((ref) {
   // provider's cached data (members, consents, results) with it.
   ref.watch(signedInProvider);
   final dio = Dio(BaseOptions(baseUrl: config.apiBaseUrl))
+    ..interceptors.add(DateOnlyInterceptor())
     ..interceptors.add(AuthInterceptor(auth.accessToken, auth.signOut))
     ..interceptors.add(
       ConsentRequiredInterceptor(

@@ -80,10 +80,10 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
 
   bool get _quick => widget.entry.sourceKind == MealOutSourceKind.quickAdd;
 
-  /// A quick add whose energy is hidden or unknown cannot be edited here
-  /// (saving would send blanks over values we cannot see); it can be removed.
-  bool get _quickEditable =>
-      _quick && widget.entry.nutrients.energyKcal != null;
+  /// The API takes a PATCH of a quick add's own values, so a quick add whose
+  /// numbers are hidden can still be edited: the fields start blank and
+  /// energy is required again.
+  bool get _quickEditable => _quick;
 
   @override
   void dispose() {
