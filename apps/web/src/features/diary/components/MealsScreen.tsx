@@ -21,7 +21,7 @@ import {
 } from "../hooks/useMealSlots";
 import { clampLabel, MAX_LABEL, MealSlotRow } from "./MealSlotRow";
 
-const MAX_SLOTS = 6;
+const DEFAULT_MAX_SLOTS = 6;
 
 /**
  * Manage meals (spec 7.11): list, add (at most 6), rename (30 characters),
@@ -44,13 +44,17 @@ export function MealsScreen() {
   const [addError, setAddError] = useState<string | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
+  const [maxSlots, setMaxSlots] = useState(DEFAULT_MAX_SLOTS);
 
   const errorText = (e: ApiError): string => {
     if (e.code === "network") return t("meals.online_only");
     if (e.code === "meal_slot_label_duplicate")
       return t("diary.slots.duplicate");
-    if (e.code === "meal_slot_limit_reached")
-      return t("diary.slots.limit", { max: MAX_SLOTS });
+    if (e.code === "meal_slot_limit_reached") {
+      const m = e.details?.max;
+      const max = typeof m === "number" && m > 0 ? m : maxSlots;
+      return t("diary.slots.limit", { max });
+    }
     if (e.code === "meal_slot_last_active") return t("diary.slots.last_active");
     return t(errorKey(t, e));
   };
@@ -67,7 +71,7 @@ export function MealsScreen() {
   const items = [...slots.data.items]
     .filter((s) => !s.archived)
     .sort((a, b) => a.position - b.position);
-  const full = items.length >= MAX_SLOTS;
+  const full = items.length >= maxSlots;
   const busy =
     create.isPending ||
     rename.isPending ||
@@ -106,7 +110,16 @@ export function MealsScreen() {
       { custom_label: text, client_id: crypto.randomUUID() },
       {
         onSuccess: () => setLabel(""),
-        onError: (err) => setAddError(errorText(err)),
+        onError: (err) => {
+          const m = err.details?.max;
+          if (
+            err.code === "meal_slot_limit_reached" &&
+            typeof m === "number" &&
+            m > 0
+          )
+            setMaxSlots(m);
+          setAddError(errorText(err));
+        },
       },
     );
   };
@@ -128,6 +141,12 @@ export function MealsScreen() {
             onRename={(text) => patch(s.id, { custom_label: text })}
             onResetName={() => patch(s.id, { clear_custom_label: true })}
             onMove={(d) => move(i, i + d)}
+            onSetWindow={(w) =>
+              patch(
+                s.id,
+                w ? { default_time_window: w } : { clear_time_window: true },
+              )
+            }
             onRemove={() => setRemoving(s.id)}
             dragProps={{
               onDragStart: () => setDragId(s.id),
@@ -167,7 +186,7 @@ export function MealsScreen() {
           </p>
           {full ? (
             <p className={hintClass} data-testid="meal-limit">
-              {t("diary.slots.limit", { max: MAX_SLOTS })}
+              {t("diary.slots.limit", { max: maxSlots })}
             </p>
           ) : null}
           {addError ? (

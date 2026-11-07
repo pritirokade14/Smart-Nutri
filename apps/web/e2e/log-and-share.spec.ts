@@ -63,9 +63,9 @@ test("log the biscuit, then the Diary lists it and it can be removed", async ({
   for (const badge of await page.getByTestId("band-badge").all())
     await expect(badge).toHaveAttribute("data-band", "unknown");
   // The Diary shows the disclaimer exactly once (page footer).
-  await expect(
-    page.getByText("Information, not medical advice."),
-  ).toHaveCount(1);
+  await expect(page.getByText("Information, not medical advice.")).toHaveCount(
+    1,
+  );
 
   // Remove it again (asks first).
   await row.click();

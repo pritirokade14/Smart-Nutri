@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   cleanup,
+  fireEvent,
   render,
   screen,
   waitFor,
@@ -120,7 +121,11 @@ describe("MealsScreen", () => {
       "  Evening chai ",
     );
     await userEvent.click(
-      screen.getByRole("button", { name: en.members.form.save }),
+      within(
+        screen
+          .getByLabelText(en.diary.slots.rename)
+          .closest("form") as HTMLElement,
+      ).getByRole("button", { name: en.members.form.save }),
     );
     await waitFor(() =>
       expect(api.callsTo("PATCH", `/v1/meal-slots/${id(3)}`)).toHaveLength(1),
@@ -250,6 +255,75 @@ describe("MealsScreen", () => {
     );
   });
 
+  it("limit comes from details.max when present", async () => {
+    stub(FOUR).on(
+      "POST",
+      "/v1/meal-slots",
+      json(422, envelope("meal_slot_limit_reached", { max: 8 })),
+    );
+    open();
+    await screen.findAllByTestId("meal-slot-row");
+    await userEvent.type(screen.getByLabelText(en.diary.slots.add), "X");
+    await userEvent.click(
+      screen.getByRole("button", { name: en.diary.slots.add }),
+    );
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      en.diary.slots.limit.replace("{max}", "8"),
+    );
+  });
+
+  it("move buttons are named by direction and title", async () => {
+    stub(FOUR);
+    open();
+    await screen.findAllByTestId("meal-slot-row");
+    const t = en.diary.slot.snack;
+    expect(
+      screen.getByRole("button", {
+        name: en.diary.slots.move_up.replace("{title}", t),
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: en.diary.slots.move_down.replace("{title}", t),
+      }),
+    ).toBeTruthy();
+  });
+
+  it("usual time saves a window, and empty clears it", async () => {
+    const api = stub(FOUR)
+      .on("PATCH", `/v1/meal-slots/${id(1)}`, slot(1))
+      .on("PATCH", `/v1/meal-slots/${id(2)}`, slot(2));
+    open();
+    await screen.findAllByTestId("meal-slot-row");
+    const row = within(rows()[0] as HTMLElement);
+    fireEvent.change(row.getByTestId("meal-slot-start"), {
+      target: { value: "08:00" },
+    });
+    fireEvent.change(row.getByTestId("meal-slot-end"), {
+      target: { value: "10:30" },
+    });
+    await userEvent.click(
+      within(row.getByTestId("meal-slot-window")).getByRole("button"),
+    );
+    await waitFor(() =>
+      expect(api.callsTo("PATCH", `/v1/meal-slots/${id(1)}`)).toHaveLength(1),
+    );
+    expect(api.callsTo("PATCH", `/v1/meal-slots/${id(1)}`)[0]?.body).toEqual({
+      default_time_window: { start: "08:00", end: "10:30" },
+    });
+    await userEvent.click(
+      within(
+        within(rows()[1] as HTMLElement).getByTestId("meal-slot-window"),
+      ).getByRole("button"),
+    );
+    await waitFor(() =>
+      expect(api.callsTo("PATCH", `/v1/meal-slots/${id(2)}`)).toHaveLength(1),
+    );
+    expect(api.callsTo("PATCH", `/v1/meal-slots/${id(2)}`)[0]?.body).toEqual({
+      clear_time_window: true,
+    });
+  });
+
   it("remove shows the note and archives", async () => {
     const api = stub(FOUR).on("DELETE", `/v1/meal-slots/${id(3)}`, {
       result: "archived",
@@ -320,7 +394,11 @@ describe("MealsScreen", () => {
       "Snacks",
     );
     await userEvent.click(
-      screen.getByRole("button", { name: en.members.form.save }),
+      within(
+        screen
+          .getByLabelText(en.diary.slots.rename)
+          .closest("form") as HTMLElement,
+      ).getByRole("button", { name: en.members.form.save }),
     );
     const alert = await screen.findByRole("alert");
     expect(alert.textContent).toBe(en.diary.slots.duplicate);
@@ -394,7 +472,11 @@ describe("MealsScreen", () => {
       "Secret lunch",
     );
     await userEvent.click(
-      screen.getByRole("button", { name: en.members.form.save }),
+      within(
+        screen
+          .getByLabelText(en.diary.slots.rename)
+          .closest("form") as HTMLElement,
+      ).getByRole("button", { name: en.members.form.save }),
     );
     await userEvent.click(
       within(rows()[2] as HTMLElement).getByTestId("meal-slot-remove"),

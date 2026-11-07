@@ -28,6 +28,7 @@ export function MealSlotRow({
   onRename,
   onResetName,
   onMove,
+  onSetWindow,
   onRemove,
   dragProps,
 }: {
@@ -40,6 +41,7 @@ export function MealSlotRow({
   onRename: (label: string) => void;
   onResetName: () => void;
   onMove: (delta: -1 | 1) => void;
+  onSetWindow: (w: { start: string; end: string } | null) => void;
   onRemove: () => void;
   dragProps?: React.HTMLAttributes<HTMLLIElement>;
 }) {
@@ -51,6 +53,12 @@ export function MealSlotRow({
     labelKey: slot.label_key,
     customLabel: slot.custom_label,
   });
+  const hhmm = (v: string | undefined) => (v ?? "").slice(0, 5);
+  const win = slot.default_time_window;
+  const [start, setStart] = useState(hhmm(win?.start));
+  const [end, setEnd] = useState(hhmm(win?.end));
+  const windowValid =
+    (start === "" && end === "") || (start !== "" && end !== "");
   const used = [...value].length;
   const trimmed = value.trim();
   return (
@@ -72,7 +80,7 @@ export function MealSlotRow({
           <Button
             variant="ghost"
             size="sm"
-            aria-label={`${t("diary.slots.reorder")}: ${title} ↑`}
+            aria-label={t("diary.slots.move_up", { title })}
             data-testid="meal-slot-up"
             disabled={busy || index === 0}
             onClick={() => onMove(-1)}
@@ -82,7 +90,7 @@ export function MealSlotRow({
           <Button
             variant="ghost"
             size="sm"
-            aria-label={`${t("diary.slots.reorder")}: ${title} ↓`}
+            aria-label={t("diary.slots.move_down", { title })}
             data-testid="meal-slot-down"
             disabled={busy || index === count - 1}
             onClick={() => onMove(1)}
@@ -166,6 +174,50 @@ export function MealSlotRow({
           </div>
         </form>
       ) : null}
+      <form
+        className="space-y-2"
+        noValidate
+        data-testid="meal-slot-window"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!windowValid) return;
+          onSetWindow(start === "" ? null : { start, end });
+        }}
+      >
+        <fieldset className="space-y-1" disabled={busy}>
+          <legend className="text-sm text-text-secondary">
+            {t("diary.slots.time_window")}
+          </legend>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="time"
+              aria-label={t("diary.slots.time_window")}
+              data-testid="meal-slot-start"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+              className={inputClass}
+            />
+            <span aria-hidden="true">–</span>
+            <input
+              type="time"
+              aria-label={t("diary.slots.time_window")}
+              data-testid="meal-slot-end"
+              value={end}
+              onChange={(e) => setEnd(e.target.value)}
+              className={inputClass}
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              disabled={busy || !windowValid}
+            >
+              {t("members.form.save")}
+            </Button>
+          </div>
+          <p className={hintClass}>{t("diary.slots.time_window_hint")}</p>
+        </fieldset>
+      </form>
       {error ? (
         <p role="alert" className="text-sm text-text-primary">
           {error}
