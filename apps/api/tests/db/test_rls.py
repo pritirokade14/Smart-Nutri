@@ -26,6 +26,7 @@ OWNED = (
     "custom_foods",  # Plan 12 slice 4 (migration 0011)
     "recipes",
     "recipe_ingredients",
+    "favourites",  # Plan 12 slice 5 (migration 0012)
 )
 # The column that identifies a row. account_user_types has one row per account (P9-R1).
 KEY = {t: "id" for t in OWNED} | {
@@ -88,6 +89,7 @@ async def test_policies_are_exactly_as_designed(db):
         ("custom_foods", "ALL"),
         ("recipes", "ALL"),
         ("recipe_ingredients", "ALL"),
+        ("favourites", "ALL"),
         ("household_units", "SELECT"),
         ("foods", "SELECT"),
         ("food_portions", "SELECT"),
@@ -151,6 +153,7 @@ def _row_of(seed, table):
         "custom_foods": seed.custom_food,
         "recipes": seed.recipe,
         "recipe_ingredients": seed.ingredient,
+        "favourites": seed.favourite,
     }[table]
 
 
@@ -248,6 +251,12 @@ async def test_all_inserts_by_authenticated_are_denied(db, two_accounts):
                 "name, quantity, unit, grams, basis, per_100) "
                 "values (:r, :o, 5, 'custom_food', 'x', 1, 'g', 1, 'g', '{}')",
                 {"o": owner, "r": two_accounts.seed_b.recipe},
+            )
+            await _expect_denied(
+                db,
+                "insert into favourites (account_id, member_id, kind, source_kind, "
+                "custom_food_id, name) values (:o, :m, 'food', 'custom_food', :c, 'x')",
+                {"o": owner, "m": m_b, "c": two_accounts.seed_b.custom_food},
             )
 
 

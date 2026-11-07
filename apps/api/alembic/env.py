@@ -10,6 +10,7 @@ from sqlalchemy.pool import NullPool
 # Import every feature's models so autogenerate sees the full schema.
 import app.features.consents.models
 import app.features.custom_foods.models
+import app.features.favourites.models
 import app.features.me.models
 import app.features.meals.models
 import app.features.members.models

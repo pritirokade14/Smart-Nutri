@@ -16,20 +16,20 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert (
-            MigrationContext.configure(conn).get_current_revision()
-            == "0011_diary_custom_foods_recipes"
-        )
+        assert MigrationContext.configure(conn).get_current_revision() == "0012_diary_favourites"
     engine.dispose()
 
 
 def test_single_alembic_head():
-    """0006 to 0011 are chained, so there is exactly one head, 0011."""
+    """0006 to 0012 are chained, so there is exactly one head, 0012."""
     from alembic.config import Config
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(Config("alembic.ini"))
-    assert script.get_heads() == ["0011_diary_custom_foods_recipes"]
+    assert script.get_heads() == ["0012_diary_favourites"]
+    assert script.get_revision("0012_diary_favourites").down_revision == (
+        "0011_diary_custom_foods_recipes"
+    )
     assert script.get_revision("0011_diary_custom_foods_recipes").down_revision == (
         "0010_diary_foods_units"
     )
@@ -376,6 +376,43 @@ def test_0011_upgrade_downgrade(migrated):
         engine.dispose()
 
 
+def test_0012_upgrade_downgrade(migrated):
+    """Plan 12 Task 17: the downgrade drops `favourites`; the upgrade re-creates it with forced
+    RLS, its owner policy, no write grant for `authenticated` and the five partial unique
+    indexes."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0011_diary_custom_foods_recipes")
+        with engine.connect() as conn:
+            assert "favourites" not in inspect(conn).get_table_names()
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    "select relrowsecurity, relforcerowsecurity from pg_class "
+                    "where oid = 'public.favourites'::regclass"
+                )
+            ).one()
+            assert tuple(row) == (True, True)
+            policies = conn.execute(
+                text("select policyname, cmd from pg_policies where tablename = 'favourites'")
+            ).all()
+            assert [tuple(p) for p in policies] == [("favourites_owner", "ALL")]
+            for priv in ("INSERT", "UPDATE", "DELETE"):
+                granted = conn.execute(
+                    text(
+                        f"select has_table_privilege('authenticated', 'public.favourites', '{priv}')"
+                    )
+                ).scalar()
+                assert granted is False, priv
+            indexes = {i["name"] for i in inspect(conn).get_indexes("favourites")}
+            for ref in ("product_id", "off_barcode", "food_id", "custom_food_id", "recipe_id"):
+                assert f"uq_favourites_member_id_{ref}" in indexes
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
 def _insert_product(conn, category: str) -> None:
     conn.execute(
         text(
@@ -560,6 +597,7 @@ def test_orm_class_names():
     from app.features.consents.models import Consent
     from app.features.custom_foods.models import CustomFood
     from app.features.diary.models import DiaryDay
+    from app.features.favourites.models import Favourite
     from app.features.foods.models import Food, FoodPortion, HouseholdUnit
     from app.features.me.models import Account, AccountUserTypes, DeletedAccount
     from app.features.meal_slots.models import MealSlot
@@ -590,6 +628,7 @@ def test_orm_class_names():
             DiaryGoalSettings,
             MealSlot,
             DiaryDay,
+            Favourite,
             HouseholdUnit,
             Food,
             FoodPortion,
