@@ -104,6 +104,10 @@ class FakeMealSlotsClient implements MealSlotsClient {
       suggestedSlotId: suggested ?? items.first.id,
     );
   }
+
+  // Slot writes (create, rename, reorder, archive) arrive with the Meals screen (Task 15).
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 /// A recent item (what `diary_recents_list` returns).
