@@ -107,8 +107,12 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
   Future<void> _pickTime(MealSlotOut slot) async {
     final current = slot.defaultTimeWindow;
     final parts = current?.start.split(':');
-    final h = parts != null && parts.length >= 2 ? int.tryParse(parts[0]) : null;
-    final m = parts != null && parts.length >= 2 ? int.tryParse(parts[1]) : null;
+    final h = parts != null && parts.length >= 2
+        ? int.tryParse(parts[0])
+        : null;
+    final m = parts != null && parts.length >= 2
+        ? int.tryParse(parts[1])
+        : null;
     final start = await showTimePicker(
       context: context,
       initialTime: h != null && m != null && h < 24 && m < 60

@@ -264,8 +264,9 @@ class MemoryMealQueue implements MealQueue {
 
   @override
   Stream<List<PendingMeal>> watchNeedingSlot() async* {
-    List<PendingMeal> now() =>
-        rows.values.where((r) => needsSlotErrors.contains(r.lastError)).toList();
+    List<PendingMeal> now() => rows.values
+        .where((r) => needsSlotErrors.contains(r.lastError))
+        .toList();
     yield now();
     await for (final _ in _changes.stream) {
       yield now();

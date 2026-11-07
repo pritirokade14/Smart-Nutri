@@ -198,8 +198,7 @@ class DriftMealQueue implements MealQueue {
 
   @override
   Stream<int> watchFailedCount() => _count(
-    (r) =>
-        r.lastError.isNotNull() & r.lastError.isIn(needsSlotErrors).not(),
+    (r) => r.lastError.isNotNull() & r.lastError.isIn(needsSlotErrors).not(),
   );
 
   @override
@@ -222,7 +221,8 @@ class DriftMealQueue implements MealQueue {
   Future<void> clearFailed() =>
       (_db.delete(_t)..where(
             (r) =>
-                r.lastError.isNotNull() & r.lastError.isIn(needsSlotErrors).not(),
+                r.lastError.isNotNull() &
+                r.lastError.isIn(needsSlotErrors).not(),
           ))
           .go();
 
