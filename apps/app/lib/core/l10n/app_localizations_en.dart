@@ -2562,12 +2562,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get targetsFat => 'Fat';
 
   @override
+  String get targetsFieldActivity => 'Activity level';
+
+  @override
+  String get targetsFieldBirthYear => 'Birth year';
+
+  @override
+  String get targetsFieldBodyFat => 'Body fat';
+
+  @override
+  String get targetsFieldHeight => 'Height';
+
+  @override
+  String get targetsFieldSex => 'Sex';
+
+  @override
+  String get targetsFieldWeight => 'Weight';
+
+  @override
   String get targetsFlagAverageSexReference =>
       'This guide uses an in-between estimate.';
 
   @override
   String get targetsFlagCarbsBelowReference =>
       'Carbs are below the usual minimum of 130 g a day. A dietitian can help you adjust.';
+
+  @override
+  String get targetsFlagCarbsBelowReferenceHidden =>
+      'Carbs are below the usual minimum. A dietitian can help you adjust.';
 
   @override
   String get targetsFlagDeficitCapped =>
@@ -2600,7 +2622,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get targetsFlagRateCapped =>
-      'We\'ve set the pace to the safest option we offer.';
+      'We\'ve set the pace to the nearest available option.';
 
   @override
   String get targetsFlagTaperActive =>

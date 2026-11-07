@@ -62,7 +62,7 @@ class TargetsRepository {
       TargetsFailure.guard(() => _client.targetsSettingsPut(body: body));
 
   /// The eye toggle and the Numbers setting. Terms-only on the API.
-  Future<GoalSettingsOut> setDisplay(DisplayIn body) =>
+  Future<DisplayOut> setDisplay(DisplayIn body) =>
       TargetsFailure.guard(() => _client.targetsDisplayPut(body: body));
 
   /// Deletes the settings (the food log stays).

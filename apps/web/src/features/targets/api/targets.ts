@@ -5,6 +5,7 @@ import { getApi } from "@/lib/api/client";
 
 export type TargetsOut = components["schemas"]["TargetsOut"];
 export type GoalSettingsIn = components["schemas"]["GoalSettingsIn"];
+export type DisplayOut = components["schemas"]["DisplayOut"];
 export type GoalSettingsOut = components["schemas"]["GoalSettingsOut"];
 export type TargetsPreviewIn = components["schemas"]["TargetsPreviewIn"];
 export type DisplayIn = components["schemas"]["DisplayIn"];
@@ -45,7 +46,7 @@ export function putGoalSettings(body: GoalSettingsIn): Promise<TargetsOut> {
 }
 
 /** PUT /v1/targets/display: the eye toggle (terms only, never revalidates). */
-export function putDisplay(body: DisplayIn): Promise<GoalSettingsOut> {
+export function putDisplay(body: DisplayIn): Promise<DisplayOut> {
   const api = getApi();
   return call(api.PUT("/v1/targets/display", { body }));
 }

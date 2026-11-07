@@ -88,7 +88,7 @@ class FakeTargetsClient implements TargetsClient {
   }
 
   @override
-  Future<GoalSettingsOut> targetsDisplayPut({required DisplayIn body}) async {
+  Future<DisplayOut> targetsDisplayPut({required DisplayIn body}) async {
     displays.add(body);
     final s = settings ?? goalSettingsOut();
     final display = body.numbersDisplay?.json ?? s.numbersDisplay.json!;
@@ -98,7 +98,14 @@ class FakeTargetsClient implements TargetsClient {
       numbersDisplay: display,
     );
     if (todayForDisplay case final f?) today = f(display);
-    return settings!;
+    return DisplayOut(
+      memberId: settings!.memberId,
+      numbersDisplay: DisplayOutNumbersDisplay.fromJson(display),
+      summaryView: DisplayOutSummaryView.fromJson(
+        body.summaryView?.json ?? settings!.summaryView.json!,
+      ),
+      updatedAt: settings!.updatedAt,
+    );
   }
 
   @override

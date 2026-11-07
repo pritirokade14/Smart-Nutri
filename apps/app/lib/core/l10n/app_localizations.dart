@@ -4486,6 +4486,42 @@ abstract class AppLocalizations {
   /// **'Fat'**
   String get targetsFat;
 
+  /// No description provided for @targetsFieldActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity level'**
+  String get targetsFieldActivity;
+
+  /// No description provided for @targetsFieldBirthYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Birth year'**
+  String get targetsFieldBirthYear;
+
+  /// No description provided for @targetsFieldBodyFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Body fat'**
+  String get targetsFieldBodyFat;
+
+  /// No description provided for @targetsFieldHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get targetsFieldHeight;
+
+  /// No description provided for @targetsFieldSex.
+  ///
+  /// In en, this message translates to:
+  /// **'Sex'**
+  String get targetsFieldSex;
+
+  /// No description provided for @targetsFieldWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get targetsFieldWeight;
+
   /// No description provided for @targetsFlagAverageSexReference.
   ///
   /// In en, this message translates to:
@@ -4497,6 +4533,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Carbs are below the usual minimum of 130 g a day. A dietitian can help you adjust.'**
   String get targetsFlagCarbsBelowReference;
+
+  /// No description provided for @targetsFlagCarbsBelowReferenceHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs are below the usual minimum. A dietitian can help you adjust.'**
+  String get targetsFlagCarbsBelowReferenceHidden;
 
   /// No description provided for @targetsFlagDeficitCapped.
   ///
@@ -4543,7 +4585,7 @@ abstract class AppLocalizations {
   /// No description provided for @targetsFlagRateCapped.
   ///
   /// In en, this message translates to:
-  /// **'We\'ve set the pace to the safest option we offer.'**
+  /// **'We\'ve set the pace to the nearest available option.'**
   String get targetsFlagRateCapped;
 
   /// No description provided for @targetsFlagTaperActive.

@@ -29,7 +29,8 @@ class _EyeToggleState extends ConsumerState<EyeToggle> {
   Future<void> _toggle() async {
     final l10n = AppLocalizations.of(context);
     final showing =
-        widget.settings.numbersDisplay == GoalSettingsOutNumbersDisplay.valueShow;
+        widget.settings.numbersDisplay ==
+        GoalSettingsOutNumbersDisplay.valueShow;
     setState(() => _busy = true);
     try {
       await ref
@@ -57,7 +58,8 @@ class _EyeToggleState extends ConsumerState<EyeToggle> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final showing =
-        widget.settings.numbersDisplay == GoalSettingsOutNumbersDisplay.valueShow;
+        widget.settings.numbersDisplay ==
+        GoalSettingsOutNumbersDisplay.valueShow;
     return IconButton(
       key: EyeToggle.buttonKey,
       tooltip: showing ? l10n.diaryEyeHide : l10n.diaryEyeShow,

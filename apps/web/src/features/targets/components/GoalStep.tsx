@@ -84,10 +84,13 @@ export function GoalStep({
                   )}
                   onClick={() => onChange("rate", o.pct_bw_per_week)}
                 >
-                  {t("targets.rate_option", {
-                    kg: formatRate(o.kg_per_week),
-                    pct: formatRate(o.pct_bw_per_week),
-                  })}
+                  {/* kg_per_week is null when numbers are hidden: percent only */}
+                  {o.kg_per_week == null
+                    ? `${formatRate(o.pct_bw_per_week)}%`
+                    : t("targets.rate_option", {
+                        kg: formatRate(o.kg_per_week),
+                        pct: formatRate(o.pct_bw_per_week),
+                      })}
                 </button>
               );
             })}

@@ -2568,12 +2568,34 @@ class AppLocalizationsMr extends AppLocalizations {
   String get targetsFat => 'चरबी';
 
   @override
+  String get targetsFieldActivity => 'हालचालीची पातळी';
+
+  @override
+  String get targetsFieldBirthYear => 'जन्म वर्ष';
+
+  @override
+  String get targetsFieldBodyFat => 'शरीरातील चरबी';
+
+  @override
+  String get targetsFieldHeight => 'उंची';
+
+  @override
+  String get targetsFieldSex => 'लिंग';
+
+  @override
+  String get targetsFieldWeight => 'वजन';
+
+  @override
   String get targetsFlagAverageSexReference =>
       'हा मार्गदर्शक दोन्हींच्या मधला अंदाज वापरतो.';
 
   @override
   String get targetsFlagCarbsBelowReference =>
       'कार्ब्स नेहमीच्या किमान 130 ग्रॅम प्रतिदिनपेक्षा कमी आहेत. आहारतज्ज्ञ तुम्हाला ते समायोजित करण्यात मदत करू शकतात.';
+
+  @override
+  String get targetsFlagCarbsBelowReferenceHidden =>
+      'कार्ब्स नेहमीच्या किमान प्रमाणापेक्षा कमी आहेत. आहारतज्ज्ञ तुम्हाला ते समायोजित करण्यास मदत करू शकतात.';
 
   @override
   String get targetsFlagDeficitCapped => 'आम्ही रोजचा बदल सौम्य ठेवला आहे.';
@@ -2605,7 +2627,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get targetsFlagRateCapped =>
-      'आम्ही गती आमच्याकडील सर्वात सुरक्षित पर्यायावर ठेवली आहे.';
+      'आम्ही गती उपलब्ध असलेल्या सर्वात जवळच्या पर्यायावर ठेवली आहे.';
 
   @override
   String get targetsFlagTaperActive =>

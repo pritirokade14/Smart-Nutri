@@ -96,10 +96,13 @@ class GoalStep extends StatelessWidget {
                     ChoiceChip(
                       key: rateKey(i),
                       label: Text(
-                        l10n.targetsRateOption(
-                          formatDecimal(o.kgPerWeek),
-                          formatDecimal(o.pctBwPerWeek),
-                        ),
+                        // kg is null when numbers are hidden: the pace shows as a percent.
+                        o.kgPerWeek == null
+                            ? '${formatDecimal(o.pctBwPerWeek)}%'
+                            : l10n.targetsRateOption(
+                                formatDecimal(o.kgPerWeek!),
+                                formatDecimal(o.pctBwPerWeek),
+                              ),
                       ),
                       selected: current == o.pctBwPerWeek,
                       onSelected: (_) {

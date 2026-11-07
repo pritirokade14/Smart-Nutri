@@ -14,6 +14,7 @@ import {
 import type { ApiError } from "@/lib/api/errors";
 import {
   type DisplayIn,
+  type DisplayOut,
   deleteGoalSettings,
   type GoalSettingsIn,
   type GoalSettingsOut,
@@ -108,12 +109,12 @@ function useRefreshTargets() {
 
 /** The eye toggle and the Numbers setting (terms only). */
 export function useSetDisplay(): UseMutationResult<
-  GoalSettingsOut,
+  DisplayOut,
   ApiError,
   DisplayIn
 > {
   const refresh = useRefreshTargets();
-  return useMutation<GoalSettingsOut, ApiError, DisplayIn>({
+  return useMutation<DisplayOut, ApiError, DisplayIn>({
     mutationFn: putDisplay,
     retry: false,
     onSuccess: refresh,
