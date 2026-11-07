@@ -152,3 +152,47 @@ async def test_check_mode_writes_nothing(db_session, capsys):
     assert "poha: blocked" in out and "idli: needs_weighing" in out
     assert "19 portions" in out and "20 densities" in out
     assert await _count(db_session, Food) == 0
+
+
+async def test_reseed_retires_a_dish_that_left_the_seeded_set(db_session):
+    from app.features.foods.schemas import SearchKind
+    from app.features.foods.service import search_foods
+
+    await seed_foods(db_session)
+    ghost = Food(
+        source="smartnutri_recipe",
+        source_code="ghost_dish",
+        name_en="Ghost khichdi zzq",
+        search_text="ghost khichdi zzq",
+        basis="g",
+        per_100={},
+        licence="x",
+        data_version="x",
+    )
+    db_session.add(ghost)
+    await db_session.flush()
+
+    async def hits() -> list[str]:
+        out = await search_foods(
+            db_session, None, "zzq", 20, {SearchKind.FOOD}, account_id=ACC_A, settings=None
+        )
+        return [h.name for h in out.items]
+
+    assert await hits() == ["Ghost khichdi zzq"]
+    await seed_foods(db_session)
+    await db_session.refresh(ghost)
+    assert ghost.review_status == "retired"
+    assert await hits() == []
+    await seed_foods(db_session)  # idempotent
+    await db_session.refresh(ghost)
+    assert ghost.review_status == "retired"
+    assert await _count(db_session, Food) == 163
+    # A seeded dish is never retired, and one that returns is listed again.
+    foods = await _foods(db_session)
+    dal = await db_session.get(Food, foods[("smartnutri_recipe", "dal_tadka")])
+    assert dal.review_status == "pending_dietitian_review"
+    dal.review_status = "retired"
+    await db_session.flush()
+    await seed_foods(db_session)
+    await db_session.refresh(dal)
+    assert dal.review_status == "pending_dietitian_review"

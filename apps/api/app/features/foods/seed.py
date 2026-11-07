@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -353,6 +353,22 @@ async def seed_foods(session: AsyncSession, *, dry_run: bool = False) -> SeedRep
     ).returning(Food.id, Food.source, Food.source_code)
     result = await session.execute(stmt)
     ids = {(r.source, r.source_code): r.id for r in result}
+
+    # A dish that became blocked or excluded is unlisted (kept, so old diary entries still
+    # resolve); one that is seeded again is listed again. Never touches a sign-off status.
+    seeded_ids = list(ids.values())
+    await session.execute(
+        update(Food)
+        .where(
+            Food.source == DISH_SOURCE, Food.id.not_in(seeded_ids), Food.review_status != "retired"
+        )
+        .values(review_status="retired", updated_at=func.now())
+    )
+    await session.execute(
+        update(Food)
+        .where(Food.id.in_(seeded_ids), Food.review_status == "retired")
+        .values(review_status="pending_dietitian_review", updated_at=func.now())
+    )
 
     wanted = {(ids[(FDC_SOURCE, p.fdc_id)], p.unit): p for p in data.portions}
     existing = {
