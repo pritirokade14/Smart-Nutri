@@ -368,8 +368,29 @@
   "diarySlotDinner": "रात्रीचे जेवण",
   "diarySlotLunch": "दुपारचे जेवण",
   "diarySlotSnack": "स्नॅक्स",
+  "diarySlotsAdd": "जेवण जोडा",
+  "diarySlotsDuplicate": "या नावाचे जेवण तुमच्याकडे आधीच आहे.",
+  "diarySlotsLastActive": "किमान एक जेवण ठेवा.",
+  "diarySlotsLimit": "तुम्ही जास्तीत जास्त {max} जेवणे ठेवू शकता.",
+  "@diarySlotsLimit": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "diarySlotsManage": "जेवणे बदला",
+  "diarySlotsNameHint": "तुम्ही टाइप केलेली नावे जशी आहेत तशीच ठेवली जातात.",
+  "diarySlotsPickAgain": "ते जेवण काढले गेले होते. कृपया या नोंदीसाठी दुसरे जेवण निवडा.",
+  "diarySlotsRemove": "हे जेवण काढा",
+  "diarySlotsRemoveNote": "येथे तुम्ही आधीच लॉग केलेले अन्न तुमच्या डायरीत राहील.",
   "diarySlotsRemoved": "काढलेले जेवण",
+  "diarySlotsRemovedBadge": "काढलेले जेवण",
+  "diarySlotsRename": "नाव बदला",
+  "diarySlotsReorder": "क्रम बदला",
+  "diarySlotsResetName": "मूळ नाव वापरा",
+  "diarySlotsTimeWindow": "नेहमीची वेळ (ऐच्छिक)",
+  "diarySlotsTimeWindowHint": "तुम्ही अन्न जोडताना आम्ही यावरून जेवण सुचवतो.",
   "diaryTargetsConsent": "तुमचा दैनिक मार्गदर्शक पाहण्यासाठी, SmartNutri ला तुमची आरोग्य माहिती वापरण्याची परवानगी द्या.",
   "diaryTitle": "डायरी",
   "diaryToday": "आज",
@@ -442,6 +463,8 @@
   "errorInvalidProductRef": "तपासण्यासाठी एक उत्पादन निवडा.",
   "errorMealNotFound": "ही खाण्याची नोंद सापडली नाही.",
   "errorMealSlotArchived": "हे जेवण काढून टाकले आहे. दुसरे जेवण निवडा.",
+  "errorMealSlotLabelDuplicate": "या नावाचे जेवण तुमच्याकडे आधीच आहे.",
+  "errorMealSlotLastActive": "किमान एक जेवण ठेवणे आवश्यक आहे.",
   "errorMealSlotLimitReached": "जास्तीत जास्त 6 सक्रिय जेवणे ठेवता येतात. आधी एक काढा.",
   "errorMealSlotNotFound": "हे जेवण सापडले नाही.",
   "errorMemberLimit": "तुम्ही कुटुंबातील जास्तीत जास्त 10 सदस्य जोडू शकता.",
@@ -1338,6 +1361,7 @@
   "settingsDeleteTitle": "खाते हटवा",
   "settingsDeleting": "तुमचे खाते हटवले जात आहे…",
   "settingsDiaryBodyFat": "शरीरातील चरबी %",
+  "settingsDiaryMeals": "जेवणे",
   "settingsDiaryNumbersHideAll": "सर्व संख्या लपवा",
   "settingsDiaryNumbersHideEnergy": "कॅलरी लपवा",
   "settingsDiaryNumbersHideNote": "तुम्ही तरीही जेवण नोंदवू शकता. तुमचा मार्गदर्शक पार्श्वभूमीत काम करत राहतो.",
