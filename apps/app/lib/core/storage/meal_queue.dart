@@ -238,6 +238,10 @@ abstract interface class WeighInQueue {
   /// The user confirmed an unusual value: send it again with
   /// `confirm_unusual`.
   Future<void> confirmWeighIn(String clientId);
+
+  /// Forgets every queued weigh-in (the user erased their weight history,
+  /// so nothing may upload later).
+  Future<void> clearWeighIns();
 }
 
 class DriftMealQueue implements MealQueue, WeighInQueue {
@@ -334,6 +338,9 @@ class DriftMealQueue implements MealQueue, WeighInQueue {
   }
 
   $PendingWeighInsTable get _w => _db.pendingWeighIns;
+
+  @override
+  Future<void> clearWeighIns() => _db.delete(_w).go();
 
   @override
   Future<void> addWeighIn(PendingWeighIn row) => _db.transaction(() async {
