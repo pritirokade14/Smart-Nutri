@@ -1215,6 +1215,7 @@ function favouriteRoutes(method, path, b) {
         quantity: m.quantity ?? null,
         unit: m.unit ?? null,
         grams: m.grams ?? null,
+        basis: m.basis ?? "g",
         source_kind: m.source_kind,
         attributions: m.attributions ?? [],
       })),

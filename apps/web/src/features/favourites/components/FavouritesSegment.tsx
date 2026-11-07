@@ -20,6 +20,7 @@ import {
   useFavourites,
   useLogFavourite,
 } from "../hooks/useFavourites";
+import { mealItemAmount } from "../lib/mealItemLine";
 import { FavouriteStar } from "./FavouriteStar";
 
 const hitOf = (
@@ -176,6 +177,22 @@ export function FavouritesSegment({
                   >
                     {t("favourites.meal_items", { count: f.item_count })}
                   </span>
+                  {(f.items ?? []).map((it, i) => (
+                    <span
+                      // biome-ignore lint/suspicious/noArrayIndexKey: a saved snapshot, never reordered
+                      key={i}
+                      data-testid="favourite-meal-item"
+                      data-allow-digits
+                      className="block text-sm font-normal text-text-secondary"
+                    >
+                      {[
+                        it.name,
+                        mealItemAmount((k, v) => t(k as never, v as never), it),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  ))}
                   <SourceCredit keys={f.attributions ?? []} />
                 </span>
                 <span className="flex shrink-0 items-center gap-1">
