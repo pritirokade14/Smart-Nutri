@@ -73,6 +73,8 @@ class WeightTrendOut(BaseModel):
     projection: ProjectionOut | None
     projection_reason: ProjectionReasonOut
     flags: list[Literal["rapid_loss"]]
+    # The `safety.rapid_loss_pct_bw_per_week` line, for the rapid_loss card's text (not health data).
+    rapid_loss_pct: float
     numbers_hidden: bool
     pending_clinician_review: Literal[True] = True
 

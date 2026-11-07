@@ -62,3 +62,28 @@ async def test_delete_last_row_keeps_member_weight(client, consented, db_session
 async def test_delete_404(client, consented):
     r = await client.delete(f"{URL}/2026-11-07")
     assert r.status_code == 404 and _err(r)["code"] == "weight_not_found"
+
+
+async def test_delete_after_health_data_withdrawn_keeps_member_weight(
+    client, consented, db_session, grant
+):
+    """Delete needs only `terms`, so it must not rewrite the profile weight once `health_data`
+    is withdrawn; the delete itself still works."""
+    from sqlalchemy import text
+
+    from app.features.members import service as members_service
+
+    member = await members_service.get_or_create_primary(db_session, ACC_A)
+    for day, kg in (("2026-11-06", 80), ("2026-11-07", 79)):
+        assert (await client.put(f"{URL}/{day}", json=body(kg))).status_code == 200
+    await db_session.execute(
+        text(
+            "update consents set withdrawn_at = now() "
+            "where account_id = :a and purpose = 'health_data'"
+        ),
+        {"a": ACC_A},
+    )
+    await db_session.flush()
+    assert (await client.delete(f"{URL}/2026-11-07")).status_code == 204
+    assert member.weight_kg == 79  # not rewritten to 80
+    assert await db_session.scalar(select(func.count()).select_from(WeightLog)) == 1

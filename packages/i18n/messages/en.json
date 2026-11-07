@@ -1450,7 +1450,7 @@
       "reached": "You're at your target weight."
     },
     "outlier": "Left out of the trend",
-    "rapid_loss": "Your weight is going down faster than 1.5% a week. A slower pace is usually easier to keep up.",
+    "rapid_loss": "Your weight is going down faster than {pct}% a week. A slower pace is usually easier to keep up.",
     "consent": "To keep a weight log, allow SmartNutri to use your health details.",
     "empty": "No weigh-ins yet",
     "range": {

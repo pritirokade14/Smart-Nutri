@@ -93,7 +93,10 @@ async def _by_client_id(
 
 
 async def _refresh_member_weight(session: AsyncSession, member: Member) -> None:
-    """`members.weight_kg` follows the latest weigh-in (G26). Unchanged when there is none."""
+    """`members.weight_kg` follows the latest weigh-in (G26). Unchanged when there is none, and
+    while `health_data` is withdrawn (a terms-only delete must not write body data)."""
+    if not await consents_service.has_active_consent(session, member.account_id, "health_data"):
+        return
     last = await store.latest(session, member)
     if last is not None:
         member.weight_kg = float(last.weight_kg)
@@ -232,6 +235,7 @@ async def trend(session: AsyncSession, member: Member, days: int, today: date) -
         projection=projection,
         projection_reason=reason,
         flags=["rapid_loss"] if wt.rapid_loss(result, cfg) else [],
+        rapid_loss_pct=float(cfg.targets["safety"]["rapid_loss_pct_bw_per_week"]),
         numbers_hidden=hidden,
     )
 

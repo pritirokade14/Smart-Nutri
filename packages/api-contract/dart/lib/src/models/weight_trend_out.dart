@@ -24,6 +24,7 @@ class WeightTrendOut {
     required this.points,
     required this.projection,
     required this.projectionReason,
+    required this.rapidLossPct,
     required this.to,
     required this.trend,
     required this.weeklyRate,
@@ -46,6 +47,8 @@ class WeightTrendOut {
   final ProjectionOut? projection;
   @JsonKey(name: 'projection_reason')
   final WeightTrendOutProjectionReason projectionReason;
+  @JsonKey(name: 'rapid_loss_pct')
+  final num rapidLossPct;
   final DateTime to;
   final List<TrendPointOut> trend;
   @JsonKey(name: 'weekly_rate')

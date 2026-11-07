@@ -8784,6 +8784,10 @@
             "title": "Projection Reason",
             "type": "string"
           },
+          "rapid_loss_pct": {
+            "title": "Rapid Loss Pct",
+            "type": "number"
+          },
           "to": {
             "format": "date",
             "title": "To",
@@ -8818,6 +8822,7 @@
           "projection",
           "projection_reason",
           "flags",
+          "rapid_loss_pct",
           "numbers_hidden"
         ],
         "title": "WeightTrendOut",

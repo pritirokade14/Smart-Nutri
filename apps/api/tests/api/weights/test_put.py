@@ -169,3 +169,26 @@ async def test_non_primary_member_needs_family(client, consented, add_member):
     other = await add_member(ACC_A, name="Dad")
     r = await client.put(f"{URL}/{DAY}", json=body(80, member_id=str(other.id)))
     assert r.status_code == 422 and _err(r)["code"] == "diary_member_not_enabled"
+
+
+async def test_edit_keeps_client_id_so_a_late_retry_is_ignored(client, consented, db_session):
+    cid = str(uuid4())
+    assert (await client.put(f"{URL}/{DAY}", json=body(80, client_id=cid))).status_code == 200
+    # a later edit of the same day without a client_id (online edit, or a member update)
+    edit = await client.put(f"{URL}/{DAY}", json=body(79.0))
+    assert edit.status_code == 200 and edit.json()["client_id"] == cid
+    # the first put is retried late by the offline queue: the stored (edited) value stays
+    retry = await client.put(f"{URL}/{DAY}", json=body(80, client_id=cid))
+    assert retry.status_code == 200 and retry.json()["weight_kg"] == 79.0
+    stored = await db_session.scalar(select(WeightLog))
+    assert float(stored.weight_kg) == 79.0
+
+
+async def test_member_update_keeps_client_id(client, consented, db_session):
+    cid = uuid4()
+    member = await members_service.get_or_create_primary(db_session, ACC_A)
+    assert (await client.put(f"{URL}/{DAY}", json=body(80, client_id=str(cid)))).status_code == 200
+    r = await client.patch(f"/v1/members/{member.id}", json={"weight_kg": 78.5})
+    assert r.status_code == 200, r.text
+    row = await db_session.scalar(select(WeightLog).execution_options(populate_existing=True))
+    assert row.client_id == cid and float(row.weight_kg) == 78.5

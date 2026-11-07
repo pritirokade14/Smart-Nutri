@@ -33,7 +33,14 @@ async def upsert_weigh_in(
     await session.execute(
         stmt.on_conflict_do_update(
             constraint="uq_weight_logs_member_id_local_date",
-            set_={**values, "updated_at": func.now()},
+            # A replace without a client_id keeps the stored one, so a late offline retry of
+            # the first put still finds its row instead of re-saving a stale value.
+            set_={
+                "weight_kg": weight_kg,
+                "measured_at": measured_at,
+                "client_id": func.coalesce(stmt.excluded.client_id, WeightLog.client_id),
+                "updated_at": func.now(),
+            },
         )
     )
     await session.flush()

@@ -2304,7 +2304,14 @@
   "weightRange30": "30 days",
   "weightRange365": "1 year",
   "weightRange90": "90 days",
-  "weightRapidLoss": "Your weight is going down faster than 1.5% a week. A slower pace is usually easier to keep up.",
+  "weightRapidLoss": "Your weight is going down faster than {pct}% a week. A slower pace is usually easier to keep up.",
+  "@weightRapidLoss": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "weightSaveAnyway": "Save anyway",
   "weightTipSameTime": "Same time of day, for example after waking.",
   "weightTitle": "Weight",

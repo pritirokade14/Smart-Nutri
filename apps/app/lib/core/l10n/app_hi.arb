@@ -2304,7 +2304,14 @@
   "weightRange30": "30 दिन",
   "weightRange365": "1 साल",
   "weightRange90": "90 दिन",
-  "weightRapidLoss": "आपका वज़न हफ़्ते में 1.5% से ज़्यादा तेज़ी से घट रहा है। धीमी गति आमतौर पर निभाना आसान होता है।",
+  "weightRapidLoss": "आपका वज़न हफ़्ते में {pct}% से ज़्यादा तेज़ी से घट रहा है। धीमी गति आमतौर पर निभाना आसान होता है।",
+  "@weightRapidLoss": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "weightSaveAnyway": "फिर भी सहेजें",
   "weightTipSameTime": "दिन में हर बार एक ही समय पर, जैसे उठने के बाद।",
   "weightTitle": "वज़न",

@@ -1,0 +1,38 @@
+{
+  "as_of": "2026-11-07",
+  "stored": false,
+  "body": {
+    "age": 35,
+    "sex": "male",
+    "height_cm": 170,
+    "weight_kg": 80,
+    "body_fat_pct": null,
+    "goal": "weight_loss"
+  },
+  "settings": {
+    "direction": "lose",
+    "activity_level": "light",
+    "rate_pct_bw_per_week": 0.75,
+    "target_weight_kg": 75,
+    "sex_reference": null,
+    "pregnant_or_breastfeeding": false,
+    "fat_pct_energy": null,
+    "energy_mode": "formula",
+    "numbers_display": "show",
+    "summary_view": "remaining"
+  },
+  "weigh_ins": [
+    {
+      "date": "2026-11-05",
+      "weight_kg": 76.2
+    },
+    {
+      "date": "2026-11-06",
+      "weight_kg": 76.2
+    },
+    {
+      "date": "2026-11-07",
+      "weight_kg": 76.2
+    }
+  ]
+}
