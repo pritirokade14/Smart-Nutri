@@ -69,6 +69,9 @@ function reset(params = new URLSearchParams()) {
     seq: 0,
     scans: 0,
     meals: [],
+    // Custom foods and recipes (Plan 12 slice 4).
+    customFoods: [],
+    recipes: [],
     timezone: "Asia/Kolkata",
     // The meal slots (the four defaults at first); archived ones stay.
     slots: defaultSlots(),
@@ -385,6 +388,438 @@ const foodHit = (f) => ({
   attribution: f.attribution,
   attributions: f.attributions,
 });
+
+// ---- Custom foods and recipes (Plan 12 slice 4) ----------------------------
+// The stub only does the API's arithmetic on what was typed: values per 100
+// (or per serving, scaled), recipe sums of the KNOWN ingredients, and an
+// "at least" list for a nutrient any ingredient did not give.
+const CUSTOM_KEYS = [
+  "energy_kcal",
+  "protein_g",
+  "carbs_g",
+  "fat_g",
+  "sugars_g",
+  "sat_fat_g",
+  "fibre_g",
+  "salt_g",
+];
+const uuid = (n) => `b0000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+const nextId = () => {
+  state.seq += 1;
+  return uuid(state.seq);
+};
+const now = () => new Date().toISOString();
+
+function customPer100(b) {
+  const factor = b.values_per === "serving" ? 100 / Number(b.serving_g) : 1;
+  const n = b.nutrients ?? {};
+  const out = Object.fromEntries(
+    CUSTOM_KEYS.map((k) => [k, n[k] == null ? null : n[k] * factor]),
+  );
+  if (out.salt_g == null && n.sodium_mg != null)
+    out.salt_g = (n.sodium_mg * factor * 2.5) / 1000;
+  return out;
+}
+
+function customOut(f) {
+  return {
+    id: f.id,
+    name: f.name,
+    brand: f.brand ?? null,
+    basis: f.basis,
+    per_100: f.per_100,
+    entered: {
+      values_per: f.values_per,
+      serving_g: f.serving_g ?? null,
+      nutrients: f.nutrients,
+    },
+    serving_g: f.serving_g ?? null,
+    density_g_per_ml: f.density_g_per_ml ?? null,
+    barcode: f.barcode ?? null,
+    portions: f.portions ?? [],
+    created_at: f.created_at,
+    updated_at: f.updated_at,
+  };
+}
+
+function customFoodRoutes(method, path, q, b) {
+  if (path === "/v1/custom-foods" && method === "GET") {
+    const limit = Number(q.get("limit") ?? 50);
+    const start = Number(q.get("cursor") ?? 0);
+    const rows = state.customFoods.slice(start, start + limit);
+    const more = start + limit < state.customFoods.length;
+    return [
+      200,
+      {
+        items: rows.map(customOut),
+        next_cursor: more ? String(start + limit) : null,
+      },
+    ];
+  }
+  const valid = () => {
+    const n = b.nutrients ?? {};
+    const has = [n.energy_kcal, n.protein_g, n.carbs_g, n.fat_g].some(
+      (v) => v != null,
+    );
+    if (!has) return [422, envelope("custom_food_nutrients_empty")];
+    if (Object.values(n).some((v) => v > 5000))
+      return [
+        422,
+        envelope("implausible_value", {
+          fields: Object.entries(n)
+            .filter(([, v]) => v > 5000)
+            .map(([k]) => `body.nutrients.${k}`),
+        }),
+      ];
+    return null;
+  };
+  const build = (id, prior) => ({
+    id,
+    name: String(b.name).trim(),
+    brand: b.brand ?? null,
+    basis: b.basis,
+    values_per: b.values_per,
+    serving_g: b.serving_g ?? null,
+    nutrients: b.nutrients ?? {},
+    per_100: customPer100(b),
+    density_g_per_ml: b.density_g_per_ml ?? null,
+    barcode: b.barcode ?? null,
+    portions: b.portions ?? [],
+    client_id: b.client_id ?? prior?.client_id ?? null,
+    created_at: prior?.created_at ?? now(),
+    updated_at: now(),
+  });
+  if (path === "/v1/custom-foods" && method === "POST") {
+    const prior =
+      b.client_id && state.customFoods.find((f) => f.client_id === b.client_id);
+    if (prior) return [200, customOut(prior)];
+    const bad = valid();
+    if (bad) return bad;
+    const f = build(nextId());
+    state.customFoods.unshift(f);
+    return [201, customOut(f)];
+  }
+  const one = path.match(/^\/v1\/custom-foods\/([0-9a-f-]{36})$/);
+  if (one) {
+    const i = state.customFoods.findIndex((f) => f.id === one[1]);
+    if (i < 0) return [404, envelope("custom_food_not_found")];
+    if (method === "DELETE") {
+      state.customFoods.splice(i, 1);
+      return [204];
+    }
+    if (method === "PUT") {
+      const bad = valid();
+      if (bad) return bad;
+      state.customFoods[i] = build(one[1], state.customFoods[i]);
+      return [200, customOut(state.customFoods[i])];
+    }
+  }
+  return null;
+}
+
+// How the grams came from the unit: a per-food weight or a density is
+// approximate (the client shows "≈"); the rest is exact.
+const unitSource = (u) =>
+  u.source === "density"
+    ? "density"
+    : u.source === "portion_user" || u.source === "portion_global"
+      ? "portion"
+      : "grams";
+const gramUnits = (extra = []) => [massUnit, ...extra];
+
+// Resolve one recipe ingredient (a food or a custom food) to grams.
+function ingredientRow(ing, position) {
+  const food = ing.food_id
+    ? FOODS[`food:${ing.food_id}`]
+    : ing.custom_food_id
+      ? mineFood("custom_food", ing.custom_food_id)
+      : null;
+  if (!food) return { error: [404, envelope("invalid_product_ref")] };
+  const unit = food.units.find((u) => u.code === ing.unit);
+  if (!unit)
+    return {
+      error: [422, envelope("unit_grams_unknown", { position })],
+    };
+  return {
+    food,
+    row: {
+      position,
+      source_kind: ing.food_id ? "food" : "custom_food",
+      food_id: ing.food_id ?? null,
+      custom_food_id: ing.custom_food_id ?? null,
+      product_id: null,
+      barcode: null,
+      name: food.name,
+      quantity: ing.quantity,
+      unit: ing.unit,
+      grams: round1(ing.quantity * unit.grams_per_unit),
+      attribution: food.attribution ?? null,
+      available: true,
+    },
+  };
+}
+
+function recipeOut(r) {
+  const rows = r.ingredients.map((i, p) => ingredientRow(i, p));
+  const resolved = rows.map((x, p) =>
+    x.error
+      ? {
+          position: p,
+          source_kind: "custom_food",
+          food_id: null,
+          custom_food_id: r.ingredients[p].custom_food_id ?? null,
+          product_id: null,
+          barcode: null,
+          name: r.names[p],
+          quantity: r.ingredients[p].quantity,
+          unit: r.ingredients[p].unit,
+          grams: 0,
+          attribution: null,
+          available: false,
+          _per100: null,
+        }
+      : { ...x.row, _per100: x.food.per_100 },
+  );
+  const totalRaw = resolved.reduce((a, i) => a + i.grams, 0);
+  const basis = r.cooked_weight_g ?? totalRaw;
+  const sums = {};
+  const incomplete = [];
+  for (const k of CUSTOM_KEYS) {
+    const vals = resolved.map((i) => (i._per100 ? i._per100[k] : null));
+    const known = vals
+      .map((v, p) => (v == null ? null : (v * resolved[p].grams) / 100))
+      .filter((v) => v != null);
+    sums[k] = known.length ? known.reduce((a, v) => a + v, 0) : null;
+    if (known.length && known.length < vals.length) incomplete.push(k);
+  }
+  const redact = (snap) => {
+    const d = display();
+    return Object.fromEntries(
+      Object.entries(snap).map(([k, v]) => [
+        k,
+        (k === "energy_kcal" ? d !== "show" : d === "hide_all") ? null : v,
+      ]),
+    );
+  };
+  const per100 = Object.fromEntries(
+    CUSTOM_KEYS.map((k) => [
+      k,
+      sums[k] == null ? null : round1((sums[k] * 100) / basis),
+    ]),
+  );
+  const perServing = r.servings
+    ? Object.fromEntries(
+        CUSTOM_KEYS.map((k) => [
+          k,
+          sums[k] == null ? null : round1(sums[k] / r.servings),
+        ]),
+      )
+    : null;
+  const d = display();
+  return {
+    id: r.id,
+    name: r.name,
+    servings: r.servings ?? null,
+    cooked_weight_g: r.cooked_weight_g ?? null,
+    total_raw_g: round1(totalRaw),
+    basis_weight_g: round1(basis),
+    per_100g: redact(per100),
+    per_serving: perServing ? redact(perServing) : null,
+    incomplete_nutrients: incomplete,
+    attributions: [
+      ...new Set(
+        resolved.flatMap((i) => (i.attribution ? [i.attribution] : [])),
+      ),
+    ],
+    ingredients: resolved.map(({ _per100, ...rest }) => rest),
+    numbers_hidden: { energy: d !== "show", macros: d === "hide_all" },
+    updated_at: r.updated_at,
+    _strict: Object.fromEntries(
+      CUSTOM_KEYS.map((k) => [
+        k,
+        incomplete.includes(k) || sums[k] == null
+          ? null
+          : (sums[k] * 100) / basis,
+      ]),
+    ),
+  };
+}
+const publicRecipe = (r) => {
+  const { _strict, ...out } = recipeOut(r);
+  return out;
+};
+
+function recipeRoutes(method, path, q, b) {
+  if (path === "/v1/recipes" && method === "GET") {
+    const limit = Number(q.get("limit") ?? 50);
+    const start = Number(q.get("cursor") ?? 0);
+    const rows = state.recipes.slice(start, start + limit);
+    return [
+      200,
+      {
+        items: rows.map((r) => {
+          const o = publicRecipe(r);
+          return {
+            id: o.id,
+            name: o.name,
+            servings: o.servings,
+            incomplete_nutrients: o.incomplete_nutrients,
+            updated_at: o.updated_at,
+          };
+        }),
+        next_cursor:
+          start + limit < state.recipes.length ? String(start + limit) : null,
+      },
+    ];
+  }
+  const parse = (prior) => {
+    const ingredients = b.ingredients ?? [];
+    const names = [];
+    for (const [p, ing] of ingredients.entries()) {
+      const x = ingredientRow(ing, p);
+      if (x.error) return { error: x.error };
+      names.push(x.row.name);
+    }
+    if (ingredients.length === 0)
+      return { error: [422, envelope("validation_error")] };
+    return {
+      recipe: {
+        id: prior?.id ?? nextId(),
+        name: String(b.name).trim(),
+        servings: b.servings ?? null,
+        cooked_weight_g: b.cooked_weight_g ?? null,
+        ingredients,
+        names,
+        client_id: b.client_id ?? prior?.client_id ?? null,
+        updated_at: now(),
+      },
+    };
+  };
+  if (path === "/v1/recipes" && method === "POST") {
+    const prior =
+      b.client_id && state.recipes.find((r) => r.client_id === b.client_id);
+    if (prior) return [200, publicRecipe(prior)];
+    const { recipe, error } = parse();
+    if (error) return error;
+    state.recipes.unshift(recipe);
+    return [201, publicRecipe(recipe)];
+  }
+  const one = path.match(/^\/v1\/recipes\/([0-9a-f-]{36})$/);
+  if (one) {
+    const i = state.recipes.findIndex((r) => r.id === one[1]);
+    if (i < 0) return [404, envelope("recipe_not_found")];
+    if (method === "GET") return [200, publicRecipe(state.recipes[i])];
+    if (method === "DELETE") {
+      state.recipes.splice(i, 1);
+      return [204];
+    }
+    if (method === "PUT") {
+      const { recipe, error } = parse(state.recipes[i]);
+      if (error) return error;
+      state.recipes[i] = recipe;
+      return [200, publicRecipe(recipe)];
+    }
+  }
+  return null;
+}
+
+// A custom food or recipe as the food detail the portion picker reads.
+function mineFood(kind, id) {
+  if (kind === "custom_food") {
+    const f = state.customFoods.find((x) => x.id === id);
+    if (!f) return null;
+    return {
+      kind,
+      id,
+      name: f.name,
+      brand: f.brand ?? null,
+      basis: f.basis,
+      per_100: f.per_100,
+      units: gramUnits([
+        ...(f.serving_g
+          ? [
+              {
+                code: "serving",
+                kind: "count",
+                ml: null,
+                grams_per_unit: f.serving_g,
+                source: "serving",
+                user_override: false,
+              },
+            ]
+          : []),
+        ...(f.portions ?? []).map((p) => ({
+          code: p.unit,
+          kind: "count",
+          ml: null,
+          grams_per_unit: p.grams_per_unit,
+          source: "portion_user",
+          user_override: true,
+        })),
+      ]),
+      default_unit: f.serving_g ? "serving" : "g",
+      settable_units: [],
+      serving_g: f.serving_g ?? null,
+      attribution: null,
+      attributions: [],
+      licence: null,
+      dish: null,
+      review_pending: false,
+      recipe_incomplete: [],
+    };
+  }
+  if (kind === "recipe") {
+    const r = state.recipes.find((x) => x.id === id);
+    if (!r) return null;
+    const { _strict, ...o } = recipeOut(r);
+    const perServingG = o.servings
+      ? round1(o.basis_weight_g / o.servings)
+      : null;
+    return {
+      kind,
+      id,
+      name: r.name,
+      brand: null,
+      basis: "g",
+      per_100: _strict,
+      units: gramUnits(
+        perServingG
+          ? [
+              {
+                code: "serving",
+                kind: "count",
+                ml: null,
+                grams_per_unit: perServingG,
+                source: "serving",
+                user_override: false,
+              },
+            ]
+          : [],
+      ),
+      default_unit: perServingG ? "serving" : "g",
+      settable_units: [],
+      serving_g: perServingG,
+      attribution: o.attributions[0] ?? null,
+      attributions: o.attributions,
+      licence: null,
+      dish: null,
+      review_pending: false,
+      recipe_incomplete: o.incomplete_nutrients,
+    };
+  }
+  return null;
+}
+const mineHit = (kind, f) => ({
+  kind,
+  id: f.id,
+  name: f.name,
+  brand: null,
+  group: "mine",
+  is_dish: false,
+  grade: null,
+  attribution: null,
+  attributions: [],
+});
 const WEEK = read("meals/expected/week_family.dad_diabetic.json");
 const IST_MS = 330 * 60_000;
 const istDate = (iso) =>
@@ -519,18 +954,29 @@ function logMeal(b) {
         NUTRIENTS.map((k) => [k, b.quick[k] ?? null]),
       ),
     };
-  } else if (b.food_id || b.product_id === ROTI_ID) {
+  } else if (
+    b.food_id ||
+    b.custom_food_id ||
+    b.recipe_id ||
+    b.product_id === ROTI_ID
+  ) {
     const f = b.food_id
       ? FOODS[`food:${b.food_id}`]
-      : FOODS[`product:${b.product_id}`];
+      : b.custom_food_id
+        ? mineFood("custom_food", b.custom_food_id)
+        : b.recipe_id
+          ? mineFood("recipe", b.recipe_id)
+          : FOODS[`product:${b.product_id}`];
     if (!f) return [404, envelope("food_not_found")];
     const u = f.units.find((x) => x.code === b.unit);
     if (!(b.quantity > 0) || !u) return [422, envelope("unit_grams_unknown")];
     const grams = round1(b.quantity * u.grams_per_unit);
     meal = {
       ...base,
-      product_id: b.food_id ? null : f.id,
+      product_id: b.food_id || b.custom_food_id || b.recipe_id ? null : f.id,
       food_id: b.food_id ?? null,
+      custom_food_id: b.custom_food_id ?? null,
+      recipe_id: b.recipe_id ?? null,
       barcode: null,
       product_name: f.name,
       grade: null,
@@ -538,7 +984,15 @@ function logMeal(b) {
       quantity: b.quantity,
       unit: b.unit,
       basis: f.basis,
-      source_kind: b.food_id ? "food" : "product",
+      source_kind: b.food_id
+        ? "food"
+        : b.custom_food_id
+          ? "custom_food"
+          : b.recipe_id
+            ? "recipe"
+            : "product",
+      unit_source: unitSource(u),
+      _sources: Object.fromEntries(f.units.map((x) => [x.code, unitSource(x)])),
       attribution: null,
       attributions: f.attributions,
       portion_units: f.units.map((x) => ({
@@ -591,6 +1045,7 @@ function patchMeal(id, b) {
     m.quantity = b.quantity;
     m.unit = b.unit;
     m.grams = round1(b.quantity * u.grams_per_unit);
+    m.unit_source = m._sources?.[b.unit] ?? null;
     m.nutrients = scaled(m._per100, m.grams);
   }
   if (b.grams != null) {
@@ -918,13 +1373,17 @@ function diaryRecents() {
   const items = [];
   for (const m of [...state.meals].reverse()) {
     if (m.source_kind === "quick_add") continue;
-    const ref = m.food_id ?? m.product_id;
+    const ref = m.food_id ?? m.custom_food_id ?? m.recipe_id ?? m.product_id;
     if (seen.has(ref)) continue;
     seen.add(ref);
     items.push({
       source_kind: m.source_kind,
       product_id: m.product_id,
       food_id: m.food_id ?? null,
+      custom_food_id: m.custom_food_id ?? null,
+      recipe_id: m.recipe_id ?? null,
+      basis: m.basis ?? "g",
+      unit_source: m.unit_source ?? null,
       quantity: m.quantity ?? null,
       unit: m.unit ?? null,
       attributions: m.attributions ?? [],
@@ -1221,6 +1680,8 @@ function route(method, path, b, q = new URLSearchParams()) {
   if (
     (path.startsWith("/v1/meals") ||
       path.startsWith("/v1/foods") ||
+      path.startsWith("/v1/custom-foods") ||
+      path.startsWith("/v1/recipes") ||
       path.startsWith("/v1/diary") ||
       path.startsWith("/v1/meal-slots")) &&
     termsMissing()
@@ -1248,17 +1709,30 @@ function route(method, path, b, q = new URLSearchParams()) {
     const items =
       needle.length < 2
         ? null
-        : Object.values(FOODS)
-            .filter((f) => f.name.toLowerCase().includes(needle))
-            .map(foodHit);
+        : [
+            ...state.customFoods
+              .filter((f) => f.name.toLowerCase().includes(needle))
+              .map((f) => mineHit("custom_food", f)),
+            ...state.recipes
+              .filter((f) => f.name.toLowerCase().includes(needle))
+              .map((f) => mineHit("recipe", f)),
+            ...Object.values(FOODS)
+              .filter((f) => f.name.toLowerCase().includes(needle))
+              .map(foodHit),
+          ];
     if (items === null) return [422, envelope("search_query_too_short")];
     return [200, { items, partial: false, failed_sources: [] }];
   }
+  const customRoute = customFoodRoutes(method, path, q, b);
+  if (customRoute) return customRoute;
+  const recipeRoute = recipeRoutes(method, path, q, b);
+  if (recipeRoute) return recipeRoute;
   const foodGet = path.match(
-    /^\/v1\/foods\/(food|product|off)\/([0-9a-f-]{36})$/,
+    /^\/v1\/foods\/(food|product|off|custom_food|recipe)\/([0-9a-f-]{36})$/,
   );
   if (foodGet && method === "GET") {
-    const f = FOODS[`${foodGet[1]}:${foodGet[2]}`];
+    const f =
+      mineFood(foodGet[1], foodGet[2]) ?? FOODS[`${foodGet[1]}:${foodGet[2]}`];
     if (!f) return [404, envelope("food_not_found")];
     const d = display();
     const hidden = { energy: d !== "show", macros: d === "hide_all" };

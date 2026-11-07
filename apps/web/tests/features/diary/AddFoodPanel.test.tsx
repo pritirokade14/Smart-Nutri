@@ -203,7 +203,12 @@ describe("AddFoodPanel", () => {
     const hrefs = within(links)
       .getAllByRole("link")
       .map((a) => a.getAttribute("href"));
-    expect(hrefs).toEqual(["/en/scan", "/en/scan/label"]);
+    expect(hrefs).toEqual([
+      "/en/scan",
+      "/en/diary/foods/new",
+      "/en/diary/recipes/new",
+      "/en/scan/label",
+    ]);
     expect(screen.getByRole("tab", { name: en.search.title })).toBeTruthy();
   });
 });

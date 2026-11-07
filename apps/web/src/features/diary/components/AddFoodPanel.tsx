@@ -11,8 +11,7 @@ import type { FoodHit } from "@/features/foods/api/foods";
 import { FoodSearch } from "@/features/foods/components/FoodSearch";
 import { PortionPicker } from "@/features/foods/components/PortionPicker";
 import { SourceCredit } from "@/features/foods/components/SourceCredit";
-import { unitLabel } from "@/features/foods/lib/unitLabel";
-import { formatAmount } from "@/features/history/lib/summary";
+import { portionLine } from "@/features/foods/lib/portionLine";
 import type { MealIn } from "@/features/meals/api/meals";
 import { useLogMeal } from "@/features/meals/hooks/useMeals";
 import { errorKey } from "@/features/members/components/ConsentDialog";
@@ -123,9 +122,13 @@ export function AddFoodPanel({
       {
         ...(item.food_id
           ? { food_id: item.food_id }
-          : item.product_id
-            ? { product_id: item.product_id }
-            : { barcode: item.barcode }),
+          : item.custom_food_id
+            ? { custom_food_id: item.custom_food_id }
+            : item.recipe_id
+              ? { recipe_id: item.recipe_id }
+              : item.product_id
+                ? { product_id: item.product_id }
+                : { barcode: item.barcode }),
         // The last portion as it was logged: its unit, else grams (a legacy row).
         ...(item.quantity != null && item.unit
           ? {
@@ -214,6 +217,20 @@ export function AddFoodPanel({
           {t("scan.title")}
         </a>
         <a
+          href={`/${locale}/diary/foods/new`}
+          data-testid="new-food-link"
+          className={buttonClass({ variant: "outline", size: "sm" })}
+        >
+          {t("foods.new_food")}
+        </a>
+        <a
+          href={`/${locale}/diary/recipes/new`}
+          data-testid="new-recipe-link"
+          className={buttonClass({ variant: "outline", size: "sm" })}
+        >
+          {t("foods.new_recipe")}
+        </a>
+        <a
           href={`/${locale}/scan/label`}
           onClick={() => leave("label")}
           className={buttonClass({ variant: "outline", size: "sm" })}
@@ -250,7 +267,9 @@ export function AddFoodPanel({
       ) : (
         <ul className="divide-y divide-border-default" data-testid="recents">
           {(recents.data?.items ?? []).map((r) => (
-            <li key={`${r.food_id ?? r.product_id ?? r.barcode}`}>
+            <li
+              key={`${r.food_id ?? r.custom_food_id ?? r.recipe_id ?? r.product_id ?? r.barcode}`}
+            >
               <button
                 type="button"
                 data-testid="recent-item"
@@ -263,9 +282,13 @@ export function AddFoodPanel({
                   <SourceCredit keys={recentCredits(r)} />
                 </span>
                 <span className="shrink-0 text-sm text-text-secondary">
-                  {r.quantity != null && r.unit
-                    ? `${formatAmount(r.quantity)} ${unitLabel((k, v) => t(k as never, v as never), r.unit, r.quantity)}`
-                    : t("diary.grams_line", { grams: formatAmount(r.grams) })}
+                  {portionLine((k, v) => t(k as never, v as never), {
+                    quantity: r.quantity,
+                    unit: r.unit,
+                    grams: r.grams,
+                    basis: r.basis,
+                    unitSource: r.unit_source,
+                  })}
                 </span>
               </button>
             </li>

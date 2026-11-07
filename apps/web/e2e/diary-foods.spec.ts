@@ -28,7 +28,7 @@ test.describe("diary foods", () => {
     await expect(panel).toBeHidden();
     const roti = page.getByTestId("entry-row").filter({ hasText: "roti" });
     await expect(roti.getByTestId("entry-portion")).toHaveText(
-      "2 rotis · 136 g",
+      "2 rotis · ≈136 g",
     );
 
     // Dal: cooked toor dal in katori, with its size and grams.
@@ -48,14 +48,14 @@ test.describe("diary foods", () => {
     await expect(panel.getByTestId("grams-hint")).toHaveText(
       "1 katori ≈ 142 g",
     );
-    await expect(panel.getByTestId("preview-sat_fat_g")).toHaveText(
-      "Not known",
+    await expect(panel.getByTestId("preview-energy_kcal")).toHaveText(
+      "170.4 kcal",
     );
     await panel.getByRole("button", { name: "Add", exact: true }).click();
     await expect(panel).toBeHidden();
     const dal = page.getByTestId("entry-row").filter({ hasText: "dal" });
     await expect(dal.getByTestId("entry-portion")).toHaveText(
-      "1 katori · 142 g",
+      "1 katori · ≈142 g",
     );
     await expect(dal.getByTestId("source-credit")).toContainText(
       "USDA FoodData Central",
@@ -72,7 +72,7 @@ test.describe("diary foods", () => {
         .getByTestId("entry-row")
         .filter({ hasText: "roti" })
         .getByTestId("entry-portion"),
-    ).toHaveText("3 rotis · 204 g");
+    ).toHaveText("3 rotis · ≈204 g");
 
     // Delete both.
     for (let left = 2; left > 0; left--) {

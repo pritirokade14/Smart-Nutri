@@ -239,6 +239,13 @@ export function GuideSettings() {
       >
         {t("settings.diary.meals")}
       </a>
+      <a
+        href={`/${locale}/diary/my-foods`}
+        className={buttonClass({ variant: "outline" })}
+        data-testid="settings-my-foods-link"
+      >
+        {t("foods.my_foods")}
+      </a>
       <Sections
         member={primary}
         settings={settings.data ?? null}

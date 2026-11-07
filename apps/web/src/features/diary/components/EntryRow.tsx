@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { chipClass } from "@/components/ui/Chip";
 import { SourceCredit } from "@/features/foods/components/SourceCredit";
-import { unitLabel } from "@/features/foods/lib/unitLabel";
+import { portionLine } from "@/features/foods/lib/portionLine";
 import { formatAmount } from "@/features/history/lib/summary";
 import type { MealOut } from "../api/diary";
 
@@ -26,29 +26,15 @@ export function EntryRow({
       ? t("diary.quick_add_name")
       : entry.product_name;
   const kcal = entry.nutrients.energy_kcal;
-  // "2 roti · 136 g" (or ml) as the API saved it; else the older grams line.
-  const portion =
-    entry.unit &&
-    entry.unit !== "g" &&
-    entry.quantity != null &&
-    entry.grams != null
-      ? t(
-          entry.basis === "ml" ? "diary.portion_line_ml" : "diary.portion_line",
-          {
-            quantity: String(entry.quantity),
-            unit: unitLabel(
-              (k, v) => t(k as never, v as never),
-              entry.unit,
-              entry.quantity,
-            ),
-            ...(entry.basis === "ml"
-              ? { amount: String(entry.grams) }
-              : { grams: String(entry.grams) }),
-          },
-        )
-      : entry.grams != null
-        ? t("diary.grams_line", { grams: formatAmount(entry.grams) })
-        : null;
+  // "2 rotis · 136 g" (or ml) as the API saved it; "≈" when the grams came
+  // through a per-food weight or a density.
+  const portion = portionLine((k, v) => t(k as never, v as never), {
+    quantity: entry.quantity,
+    unit: entry.unit,
+    grams: entry.grams,
+    basis: entry.basis,
+    unitSource: entry.unit_source,
+  });
   const credits =
     entry.attributions && entry.attributions.length > 0
       ? entry.attributions

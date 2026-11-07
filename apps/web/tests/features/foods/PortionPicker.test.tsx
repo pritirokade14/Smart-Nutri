@@ -169,16 +169,19 @@ describe("PortionPicker", () => {
     open();
     await screen.findByTestId("portion-preview");
     // katori_cooked_dal in units/conversions.json
-    expect(screen.getByTestId("preview-energy_kcal").textContent).toBe("170.4");
-    expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9");
-    expect(screen.getByTestId("preview-fibre_g").textContent).toBe("5.7");
-    // Unknown is "Not known", never 0.0.
-    expect(screen.getByTestId("preview-sat_fat_g").textContent).toBe(
-      en.foods.not_known,
+    expect(screen.getByTestId("preview-energy_kcal").textContent).toBe(
+      "170.4 kcal",
     );
+    expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9 g");
+    // The same five rows as Android; nothing else.
+    expect(screen.queryByTestId("preview-fibre_g")).toBeNull();
+    expect(screen.queryByTestId("preview-sat_fat_g")).toBeNull();
+    expect(screen.queryByTestId("preview-salt_g")).toBeNull();
     expect(screen.getByText(en.foods.preview_note)).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "1½" }));
-    expect(screen.getByTestId("preview-energy_kcal").textContent).toBe("255.6");
+    expect(screen.getByTestId("preview-energy_kcal").textContent).toBe(
+      "255.6 kcal",
+    );
   });
 
   it("hide_all shows no preview digits", async () => {
@@ -213,7 +216,7 @@ describe("PortionPicker", () => {
     open();
     await screen.findByTestId("portion-preview");
     expect(screen.queryByTestId("preview-energy_kcal")).toBeNull();
-    expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9");
+    expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9 g");
   });
 
   it("dish shows ingredients and review note", async () => {
@@ -252,9 +255,6 @@ describe("PortionPicker", () => {
       en.foods.review_pending,
     );
     // Unknown dish values read "Not known" (never 0).
-    expect(screen.getByTestId("preview-sat_fat_g").textContent).toBe(
-      en.foods.not_known,
-    );
     expect(screen.getByTestId("preview-sugars_g").textContent).toBe(
       en.foods.not_known,
     );

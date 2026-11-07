@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { FoodDetailOut, FoodHit } from "@/features/foods/api/foods";
+import type { RecipeOut } from "@/features/recipes/api/recipes";
 
 const FIXTURES = join(process.cwd(), "../../packages/test-fixtures");
 const read = <T>(rel: string): T =>
@@ -106,3 +107,50 @@ export const DISH_HIT: FoodHit = {
   attribution: "attribution.smartnutri_recipe",
   attributions: ["attribution.smartnutri_recipe", "attribution.usda_fdc"],
 };
+
+type RecipeExpected = {
+  basis_weight_g: number;
+  incomplete_nutrients: string[];
+  per_100g: RecipeOut["per_100g"];
+  per_serving: RecipeOut["per_serving"];
+  total_raw_g: number | null;
+};
+/** A RecipeOut built from a shared recipes/expected case (the API's numbers). */
+export function recipeOut(
+  name: string,
+  over: Partial<RecipeOut> = {},
+): RecipeOut {
+  const e = read<RecipeExpected>(`recipes/expected/${name}.json`);
+  return {
+    id: "e0000000-0000-4000-8000-000000000001",
+    name: "Rice and dal",
+    servings: e.per_serving ? 2 : null,
+    cooked_weight_g: null,
+    total_raw_g: e.total_raw_g,
+    basis_weight_g: e.basis_weight_g,
+    per_100g: e.per_100g,
+    per_serving: e.per_serving,
+    incomplete_nutrients:
+      e.incomplete_nutrients as RecipeOut["incomplete_nutrients"],
+    attributions: [],
+    ingredients: [
+      {
+        position: 0,
+        source_kind: "food",
+        food_id: DAL_ID,
+        custom_food_id: null,
+        product_id: null,
+        barcode: null,
+        name: "Toor dal, cooked",
+        quantity: 1,
+        unit: "katori",
+        grams: 142,
+        attribution: "attribution.usda_fdc",
+        available: true,
+      },
+    ],
+    numbers_hidden: { energy: false, macros: false },
+    updated_at: "2026-11-07T00:00:00Z",
+    ...over,
+  };
+}
