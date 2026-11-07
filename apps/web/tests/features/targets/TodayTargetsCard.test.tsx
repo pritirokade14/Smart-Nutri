@@ -169,6 +169,35 @@ describe("TodayTargetsCard", () => {
     off();
   });
 
+  it("consent withdrawn: the eye sends hide_all, then show, tracking its last value", async () => {
+    api
+      .on(
+        "GET",
+        "/v1/targets",
+        json(403, envelope("consent_required", { purposes: ["health_data"] })),
+      )
+      .on("GET", "/v1/consents", consentStates({ terms: true }))
+      .on("PUT", "/v1/targets/display", { numbers_display: "hide_all" });
+    wrap();
+    const c = await card();
+    const eye = await within(c).findByTestId("eye-toggle");
+    await userEvent.click(eye);
+    await waitFor(() =>
+      expect(api.callsTo("PUT", "/v1/targets/display")).toHaveLength(1),
+    );
+    await waitFor(() =>
+      expect((eye as HTMLButtonElement).disabled).toBe(false),
+    );
+    await userEvent.click(eye);
+    await waitFor(() =>
+      expect(api.callsTo("PUT", "/v1/targets/display")).toHaveLength(2),
+    );
+    const bodies = api
+      .callsTo("PUT", "/v1/targets/display")
+      .map((x) => (x.body as { numbers_display: string }).numbers_display);
+    expect(bodies).toEqual(["hide_all", "show"]);
+  });
+
   it("eye toggle hides every number in one tap", async () => {
     let display = "show";
     api

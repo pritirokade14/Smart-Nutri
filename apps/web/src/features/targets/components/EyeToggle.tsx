@@ -14,8 +14,11 @@ import { anyHidden } from "../lib/status";
  */
 export function EyeToggle({
   targets,
+  onSent,
 }: {
   targets: Pick<TargetsOut, "numbers_hidden">;
+  /** Called with the value just sent (the caller may track it locally). */
+  onSent?: (next: "show" | "hide_all") => void;
 }) {
   const t = useTranslations();
   const setDisplay = useSetDisplay();
@@ -29,9 +32,11 @@ export function EyeToggle({
         aria-label={t(hidden ? "diary.eye.show" : "diary.eye.hide")}
         disabled={setDisplay.isPending}
         className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-text-secondary hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:opacity-50"
-        onClick={() =>
-          setDisplay.mutate({ numbers_display: hidden ? "show" : "hide_all" })
-        }
+        onClick={() => {
+          const next = hidden ? "show" : "hide_all";
+          onSent?.(next);
+          setDisplay.mutate({ numbers_display: next });
+        }}
       >
         <Icon />
       </button>

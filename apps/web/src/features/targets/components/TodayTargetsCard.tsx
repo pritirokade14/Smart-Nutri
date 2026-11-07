@@ -21,10 +21,19 @@ import { formatInt } from "../lib/format";
 import { anyHidden, statusMessage } from "../lib/status";
 import { EyeToggle } from "./EyeToggle";
 
-/** Consent withdrawn: the shown state is unknown, so the eye offers "hide". */
-const UNKNOWN_DISPLAY = {
-  numbers_hidden: { energy: false, macros: false },
-} as TargetsOut;
+/**
+ * Consent withdrawn: the stored display value cannot be read, so the eye
+ * starts at "hide" and then tracks the last value it sent (Android parity).
+ */
+function ConsentEye() {
+  const [hidden, setHidden] = useState(false);
+  return (
+    <EyeToggle
+      targets={{ numbers_hidden: { energy: hidden, macros: hidden } }}
+      onSent={(next) => setHidden(next === "hide_all")}
+    />
+  );
+}
 
 const SKIP_KEY = "smartnutri.targets.skip";
 
@@ -167,7 +176,7 @@ export function TodayTargetsCard({ primary }: { primary?: MemberOut }) {
   const [asking, setAsking] = useState(false);
 
   const title = t("home.cards.today_targets.title");
-  const heading = (toggle?: TargetsOut) => (
+  const heading = (toggle?: React.ReactNode) => (
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h2
         id="home-card-today_targets-title"
@@ -175,10 +184,10 @@ export function TodayTargetsCard({ primary }: { primary?: MemberOut }) {
       >
         {title}
       </h2>
-      {toggle ? <EyeToggle targets={toggle} /> : null}
+      {toggle ?? null}
     </div>
   );
-  const shell = (children: React.ReactNode, toggle?: TargetsOut) => (
+  const shell = (children: React.ReactNode, toggle?: React.ReactNode) => (
     <Card
       as="section"
       data-testid="home-card-today_targets"
@@ -209,7 +218,7 @@ export function TodayTargetsCard({ primary }: { primary?: MemberOut }) {
           ) : null}
         </div>,
         // The eye stays: the terms-only display route needs no health_data.
-        UNKNOWN_DISPLAY,
+        <ConsentEye />,
       );
     return shell(
       <ErrorState
@@ -277,6 +286,6 @@ export function TodayTargetsCard({ primary }: { primary?: MemberOut }) {
         {t("targets.pending_review")}
       </p>
     </>,
-    targets,
+    <EyeToggle targets={targets} />,
   );
 }
