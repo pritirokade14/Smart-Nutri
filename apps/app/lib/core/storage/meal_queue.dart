@@ -24,8 +24,33 @@ class PendingMeals extends Table {
   RealColumn get grams => real().nullable()();
   RealColumn get servings => real().nullable()();
 
-  /// When it was eaten (stored as UTC), sent as `eaten_at`.
+  /// When it was eaten (stored as UTC), sent as `eaten_at` (unless
+  /// [localDate] is set).
   DateTimeColumn get eatenAt => dateTime()();
+
+  // Queue schema v2 (Plan 11, Ruling E19). Rows queued by the v1 app have
+  // none of these: they sync with no slot (the API picks one) and their
+  // `eatenAt`.
+
+  /// The meal slot chosen, or null (the API picks from the clock).
+  TextColumn get mealSlotId => text().nullable()();
+
+  /// A past day (`2026-11-06`) the entry belongs to; sent as `local_date`
+  /// instead of `eaten_at`.
+  TextColumn get localDate => text().nullable()();
+
+  /// A quick add: set when [quickEnergyKcal] is. Blank fields stay null,
+  /// never 0.
+  TextColumn get quickName => text().nullable()();
+  RealColumn get quickEnergyKcal => real().nullable()();
+  RealColumn get quickProteinG => real().nullable()();
+  RealColumn get quickFatG => real().nullable()();
+  RealColumn get quickCarbsG => real().nullable()();
+  RealColumn get quickFibreG => real().nullable()();
+
+  /// The name shown on the pending row (a product name or a quick-add name).
+  /// User text: never sent to analytics.
+  TextColumn get displayName => text().nullable()();
   IntColumn get attempts => integer().withDefault(const Constant(0))();
   TextColumn get lastError => text().nullable()();
 
@@ -42,7 +67,25 @@ class MealQueueDatabase extends _$MealQueueDatabase {
       MealQueueDatabase(driftDatabase(name: 'smartnutri_meal_queue'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(pendingMeals, pendingMeals.mealSlotId);
+        await m.addColumn(pendingMeals, pendingMeals.localDate);
+        await m.addColumn(pendingMeals, pendingMeals.quickName);
+        await m.addColumn(pendingMeals, pendingMeals.quickEnergyKcal);
+        await m.addColumn(pendingMeals, pendingMeals.quickProteinG);
+        await m.addColumn(pendingMeals, pendingMeals.quickFatG);
+        await m.addColumn(pendingMeals, pendingMeals.quickCarbsG);
+        await m.addColumn(pendingMeals, pendingMeals.quickFibreG);
+        await m.addColumn(pendingMeals, pendingMeals.displayName);
+      }
+    },
+  );
 }
 
 /// The offline log queue. [DriftMealQueue] is the app's; tests may use an
@@ -60,6 +103,10 @@ abstract interface class MealQueue {
 
   /// A 4xx refusal: the row is never sent again.
   Future<void> markFailed(String clientId, String error);
+
+  /// The rows still to send, as they change (for the pending rows of the
+  /// Diary).
+  Stream<List<PendingMeal>> watchPending();
 
   /// Number of rows still to send.
   Stream<int> watchPendingCount();
@@ -121,6 +168,13 @@ class DriftMealQueue implements MealQueue {
         .map((row) => row.read(count) ?? 0)
         .watchSingle();
   }
+
+  @override
+  Stream<List<PendingMeal>> watchPending() =>
+      (_db.select(_t)
+            ..where((r) => r.lastError.isNull())
+            ..orderBy([(r) => OrderingTerm.asc(r.eatenAt)]))
+          .watch();
 
   @override
   Stream<int> watchPendingCount() => _count((r) => r.lastError.isNull());

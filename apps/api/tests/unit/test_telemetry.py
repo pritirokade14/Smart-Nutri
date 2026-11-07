@@ -222,6 +222,9 @@ def test_allowed_events_match_the_plan():
         "compare_opened": set(),
         "compare_viewed": set(),
         "product_search": set(),
+        # Plan 11 (spec 6.8): the Diary.
+        "diary_entry_added": {"method"},
+        "diary_day_viewed": set(),
     }
 
 

@@ -46,6 +46,10 @@ REQUIRED: dict[str, tuple[Purpose, ...]] = {
     # Gated per route (not by prefix): erasure and the display toggle need only terms.
     "targets": ("terms", "health_data"),
     "targets_prefs": ("terms",),
+    # The diary and its meal slots (Plan 11, Q13): they work on `terms`. The targets part of the
+    # day and week views checks `health_data` inside the handler (spec 6.6).
+    "meal_slots": ("terms",),
+    "diary": ("terms",),
 }
 
 CONSENT_RESPONSES: dict[int | str, dict[str, Any]] = {

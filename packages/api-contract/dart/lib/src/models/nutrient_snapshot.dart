@@ -14,6 +14,7 @@ class NutrientSnapshot {
     required this.carbsG,
     required this.energyKcal,
     required this.fatG,
+    required this.fibreG,
     required this.proteinG,
     required this.saltG,
     required this.satFatG,
@@ -29,6 +30,8 @@ class NutrientSnapshot {
   final num? energyKcal;
   @JsonKey(name: 'fat_g')
   final num? fatG;
+  @JsonKey(name: 'fibre_g')
+  final num? fibreG;
   @JsonKey(name: 'protein_g')
   final num? proteinG;
   @JsonKey(name: 'salt_g')

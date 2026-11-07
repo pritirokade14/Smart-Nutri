@@ -17,7 +17,7 @@ type IconType = typeof HomeIcon;
 export const DESTINATION_ICON: Readonly<Record<Destination, IconType>> = {
   home: HomeIcon,
   scan: ScanIcon,
-  history: HistoryIcon,
+  diary: HistoryIcon,
   family: FamilyIcon,
   protein: DumbbellIcon,
   compare: CompareIcon,

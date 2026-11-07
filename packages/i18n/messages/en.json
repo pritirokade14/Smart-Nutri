@@ -320,7 +320,15 @@
     "body_fat_out_of_range": "Please enter a body fat percentage between 3 and 70.",
     "diary_member_not_enabled": "Daily guides are only available for your own profile for now.",
     "date_in_future": "That date hasn't happened yet.",
-    "goal_settings_not_found": "Set up your daily guide first."
+    "goal_settings_not_found": "Set up your daily guide first.",
+    "timezone_invalid": "That time zone isn't recognised.",
+    "meal_slot_not_found": "We couldn't find that meal.",
+    "meal_slot_archived": "That meal has been removed. Pick another meal.",
+    "meal_slot_limit_reached": "You can have at most 6 active meals. Remove one first.",
+    "quick_add_energy_required": "Enter the calories to add this.",
+    "copy_source_empty": "There is nothing to copy there.",
+    "copy_too_many": "That is too many items to copy at once. Copy one meal at a time.",
+    "date_too_old": "You can only add to the last 30 days."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -592,7 +600,8 @@
     "compare": "Compare",
     "search": "Search",
     "more": "More",
-    "how_we_score": "How we score"
+    "how_we_score": "How we score",
+    "diary": "Diary"
   },
   "language": {
     "label": "Language",
@@ -1189,6 +1198,72 @@
     },
     "hidden_numbers": "Numbers are hidden. You can change this in settings.",
     "of_target": "{eaten} of {target}",
-    "incomplete": "Some items don't show this value, so the real total may be higher."
+    "incomplete": "Some items don't show this value, so the real total may be higher.",
+    "title": "Diary",
+    "today": "Today",
+    "slot": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "snack": "Snacks",
+      "dinner": "Dinner"
+    },
+    "add": "Add food",
+    "add_to_slot": "Add to {slot}",
+    "empty_day": "Nothing logged yet.",
+    "copy_yesterday": "Copy yesterday",
+    "copy_meal": "Copy this meal",
+    "copy_day": "Copy a day",
+    "copied": "{count, plural, one {# item copied} other {# items copied}}",
+    "move": "Move to another meal",
+    "mark_partial": "Mark as partly logged",
+    "partial_note": "Partly logged days are left out of weekly averages.",
+    "partial_badge": "Partly logged",
+    "remaining": "Remaining",
+    "consumed": "Eaten",
+    "left": "{value} left",
+    "over": "{value} over",
+    "quick_add_name": "Quick add",
+    "week": {
+      "title": "This week",
+      "average": "Average over {days, plural, one {# logged day} other {# logged days}}",
+      "protein_days": "Protein guide reached on {met} of {days} logged days",
+      "at_least": "At least {value}"
+    },
+    "waiting_sync": "Waiting to sync",
+    "edit": "Edit",
+    "delete": "Remove",
+    "delete_confirm": "Remove this item from your diary?",
+    "copy_to": "Copy to…",
+    "copy_pick_day": "Pick a day",
+    "copy_pick_meal": "Pick a meal",
+    "quick_add": {
+      "title": "Quick add",
+      "name_label": "Name (optional)",
+      "energy": "Calories",
+      "protein": "Protein (g)",
+      "fat": "Fat (g)",
+      "carbs": "Carbs (g)",
+      "fibre": "Fibre (g)"
+    },
+    "quick_badge": "Entered by you",
+    "grams_line": "{grams} g",
+    "servings_line": "{servings, plural, one {# serving} other {# servings}} · {grams} g",
+    "prev_day": "Previous day",
+    "next_day": "Next day",
+    "pick_date": "Pick a date",
+    "share_week": "Share this week",
+    "no_guide": "Set up your daily guide, or just log food.",
+    "view": {
+      "day": "Day"
+    },
+    "slots": {
+      "manage": "Edit meals",
+      "removed": "Removed meal"
+    }
+  },
+  "foods": {
+    "blank_is_unknown": "Leave blank if you don't know. Blank is never counted as 0.",
+    "recent": "Recent",
+    "quick_add": "Quick add"
   }
 }

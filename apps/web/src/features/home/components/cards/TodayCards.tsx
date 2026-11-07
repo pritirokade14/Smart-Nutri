@@ -157,10 +157,10 @@ export function RecentScansCard({ primary }: { primary?: MemberOut }) {
         }
       />
       <a
-        href={`/${locale}/history`}
+        href={`/${locale}/diary`}
         className="inline-flex min-h-11 items-center gap-2 text-md font-semibold text-brand-primary"
       >
-        {t("nav.history")}
+        {t("nav.diary")}
         <ArrowRightIcon className="size-4 shrink-0" />
       </a>
     </CardShell>

@@ -12,6 +12,7 @@ MeOut _$MeOutFromJson(Map<String, dynamic> json) => MeOut(
   email: json['email'] as String?,
   id: json['id'] as String,
   language: MeOutLanguage.fromJson(json['language'] as String),
+  timezone: json['timezone'] as String,
 );
 
 Map<String, dynamic> _$MeOutToJson(MeOut instance) => <String, dynamic>{
@@ -20,6 +21,7 @@ Map<String, dynamic> _$MeOutToJson(MeOut instance) => <String, dynamic>{
   'email': instance.email,
   'id': instance.id,
   'language': _$MeOutLanguageEnumMap[instance.language]!,
+  'timezone': instance.timezone,
 };
 
 const _$MeOutLanguageEnumMap = {

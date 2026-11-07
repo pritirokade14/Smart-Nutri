@@ -1,0 +1,79 @@
+{
+  "as_of": "2026-11-07",
+  "date": "2026-11-07",
+  "timezone": "Asia/Kolkata",
+  "targets_case": "g1_build_muscle",
+  "targets_status": null,
+  "numbers_display": "hide_energy",
+  "partial_logged": false,
+  "entries": [
+    {
+      "slot": "breakfast",
+      "local_time": "08:30",
+      "source_kind": "product",
+      "name": "Oats",
+      "grams": 60,
+      "nutrients": {
+        "energy_kcal": 228.0,
+        "sugars_g": 0.6,
+        "salt_g": 0.01,
+        "protein_g": 7.9,
+        "fat_g": 4.2,
+        "sat_fat_g": 0.8,
+        "carbs_g": 39.7,
+        "fibre_g": 6.0
+      }
+    },
+    {
+      "slot": "lunch",
+      "local_time": "13:15",
+      "source_kind": "product",
+      "name": "Dal rice plate",
+      "grams": 350,
+      "nutrients": {
+        "energy_kcal": 640.5,
+        "sugars_g": 4.1,
+        "salt_g": 2.2,
+        "protein_g": 21.35,
+        "fat_g": 15.2,
+        "sat_fat_g": 3.3,
+        "carbs_g": 102.6,
+        "fibre_g": 9.4
+      }
+    },
+    {
+      "slot": "snack",
+      "local_time": "17:00",
+      "source_kind": "product",
+      "name": "Biscuit",
+      "grams": 25,
+      "nutrients": {
+        "energy_kcal": 112.5,
+        "sugars_g": 0.5,
+        "salt_g": 0.45,
+        "protein_g": 1.4,
+        "fat_g": 4.0,
+        "sat_fat_g": 2.0,
+        "carbs_g": 17.2,
+        "fibre_g": 0.9
+      }
+    },
+    {
+      "slot": "dinner",
+      "local_time": "20:30",
+      "source_kind": "product",
+      "name": "Roti and sabzi",
+      "grams": 280,
+      "nutrients": {
+        "energy_kcal": 520.25,
+        "sugars_g": 5.0,
+        "salt_g": 1.8,
+        "protein_g": 14.0,
+        "fat_g": 18.5,
+        "sat_fat_g": 4.1,
+        "carbs_g": 70.3,
+        "fibre_g": 8.2
+      }
+    }
+  ]
+}

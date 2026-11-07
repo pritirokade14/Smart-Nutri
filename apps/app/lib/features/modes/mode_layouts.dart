@@ -23,7 +23,7 @@ const kDefaultType = 'eat_better';
 const kDestinations = [
   'home',
   'scan',
-  'history',
+  'diary',
   'family',
   'protein',
   'compare',
@@ -46,7 +46,7 @@ class ModeLayout {
 
 const kModeLayouts = <String, ModeLayout>{
   'health_condition': ModeLayout(
-    tabs: ['home', 'scan', 'history', 'family', 'profile'],
+    tabs: ['home', 'scan', 'diary', 'family', 'profile'],
     homeCards: [
       'today_sugar_salt',
       'claims_tip',
@@ -55,15 +55,15 @@ const kModeLayouts = <String, ModeLayout>{
     ],
   ),
   'family': ModeLayout(
-    tabs: ['home', 'scan', 'family', 'history', 'profile'],
+    tabs: ['home', 'scan', 'family', 'diary', 'profile'],
     homeCards: ['family_strip', 'weekly_family', 'recent_scans'],
   ),
   'weight_loss': ModeLayout(
-    tabs: ['home', 'scan', 'history', 'protein', 'profile'],
+    tabs: ['home', 'scan', 'diary', 'protein', 'profile'],
     homeCards: ['today_targets', 'today_sugar_salt', 'recent_scans'],
   ),
   'gym': ModeLayout(
-    tabs: ['home', 'scan', 'protein', 'compare', 'profile'],
+    tabs: ['home', 'scan', 'diary', 'protein', 'profile'],
     homeCards: [
       'today_targets',
       'today_protein',
@@ -77,7 +77,7 @@ const kModeLayouts = <String, ModeLayout>{
     homeCards: ['allergy_check', 'unknown_explainer', 'recent_scans'],
   ),
   'eat_better': ModeLayout(
-    tabs: ['home', 'scan', 'compare', 'history', 'profile'],
+    tabs: ['home', 'scan', 'compare', 'diary', 'profile'],
     homeCards: [
       'today_targets',
       'custom_alerts_setup',

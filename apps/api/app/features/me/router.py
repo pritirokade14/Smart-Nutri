@@ -11,7 +11,7 @@ from app.db.session import get_session
 from app.features.me import service
 from app.features.me.dependencies import CurrentAccount, current_account_row
 from app.features.me.models import AccountUserTypes
-from app.features.me.schemas import ActiveTypeIn, MeOut, UserTypesIn, UserTypesOut
+from app.features.me.schemas import ActiveTypeIn, MeOut, TimezoneIn, UserTypesIn, UserTypesOut
 from app.integrations.posthog import track
 from app.integrations.storage import StorageClient, StorageUnavailable, get_storage
 from app.integrations.supabase_admin import AdminUnavailable, SupabaseAdmin, get_supabase_admin
@@ -30,6 +30,34 @@ async def me_get(current: Annotated[CurrentAccount, Depends(current_account_row)
         display_name=account.display_name,
         language=account.language,  # type: ignore[arg-type]
         created_at=account.created_at,
+        timezone=account.timezone,
+    )
+
+
+@router.put(
+    "/timezone",
+    operation_id="me_timezone_put",
+    response_model=MeOut,
+    responses=ERROR_RESPONSES,
+    dependencies=[Depends(limit("diary_settings"))],  # first: it commits the session
+)
+async def me_timezone_put(
+    body: TimezoneIn,
+    current: Annotated[CurrentAccount, Depends(current_account_row)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> MeOut:
+    """Set the account's time zone (an IANA name such as `Asia/Kolkata`). Needs only sign-in:
+    it is not health data. Changing it never moves an entry already logged. 422
+    `timezone_invalid` for an unknown name."""
+    account = await service.set_timezone(session, current.account, body.timezone)
+    await session.commit()
+    return MeOut(
+        id=account.id,
+        email=current.ctx.email,
+        display_name=account.display_name,
+        language=account.language,  # type: ignore[arg-type]
+        created_at=account.created_at,
+        timezone=account.timezone,
     )
 
 

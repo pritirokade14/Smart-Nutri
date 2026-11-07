@@ -1365,7 +1365,7 @@ async def archive_slot(session, member, slot_id) -> Literal["archived", "deleted
 - [ ] **Step 1: Write the failing tests.**
   - `test_create.py`:
     - `test_add_fifth_and_sixth`
-    - `test_seventh_refused` (`meal_slot_limit`, `details.max == 6`)
+    - `test_seventh_refused` (`meal_slot_limit_reached`, `details.max == 6`)
     - `test_archived_do_not_count`
     - `test_duplicate_case_insensitive_refused`
     - `test_duplicate_of_archived_allowed`

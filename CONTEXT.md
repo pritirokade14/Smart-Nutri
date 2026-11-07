@@ -114,7 +114,8 @@ Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 
   - Whole-branch nutrition-safety review: APPROVE WITH CHANGES; the fix batch addressed them.
   - PR #5 QA fixes: Android camera/scanner attach fix, web how-we-score wrap, search `?q=`, tab highlight, Family "You" shown once on both clients, per-member accessible labels, 360px overflow sweep.
 - **Plan 9 (user types, focused modes, gym protein guide):** code complete, safety-reviewed, merged (PR #3).
-- **Plan 10 slice 1 (daily guide, hide numbers, protein basis):** built on API, Android and web and safety-reviewed (merge pending); the food diary is slice 2.
+- **Plan 10 slice 1 (daily guide, hide numbers, protein basis):** merged (PR #7, `da13412`) and live on dev; dev DB at 0008.
+- **Plan 11 slice 2 (food diary day: log by meal, quick add, copy, week view, remaining, default meal slots):** built on API, Android and web and safety-reviewed; migration 0009 (merge pending). Slice 2b (meal-slot management) is next. The Sugar Control spec and decisions are in docs/research/sugar-control/.
 - **Tests (2026-11-04):** API 3,972; Flutter 1,511; web 1,298 unit and 47 e2e. Experiments E1–E7 were re-run on `2003e9c`.
 
 **Not done, by design or waiting on the user:**

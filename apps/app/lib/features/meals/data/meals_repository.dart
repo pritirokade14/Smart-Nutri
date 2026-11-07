@@ -72,6 +72,15 @@ class MealsRepository {
       servings: draft.servings?.toDouble(),
       eatenAt: draft.eatenAt.toUtc(),
       attempts: 0,
+      mealSlotId: draft.mealSlotId,
+      localDate: draft.localDate,
+      quickName: draft.quickName,
+      quickEnergyKcal: draft.quickEnergyKcal?.toDouble(),
+      quickProteinG: draft.quickProteinG?.toDouble(),
+      quickFatG: draft.quickFatG?.toDouble(),
+      quickCarbsG: draft.quickCarbsG?.toDouble(),
+      quickFibreG: draft.quickFibreG?.toDouble(),
+      displayName: draft.displayName,
     );
     await _queue.add(row);
     try {

@@ -3,7 +3,7 @@ from enum import StrEnum
 from typing import Literal
 from uuid import UUID
 
-from pydantic import AwareDatetime, BaseModel, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, Field, field_validator, model_validator
 
 from app.core.errors import ApiError
 from app.features.products.schemas import NutriScoreGrade
@@ -16,20 +16,57 @@ MAX_SERVINGS = 200.0
 Band = Literal["ok", "near", "over", "unknown"]
 
 
+SourceKind = Literal["product", "off", "quick_add"]
+
+
+def _validation_error(*fields: str) -> ApiError:
+    return ApiError("validation_error", 422, details={"fields": [f"body.{f}" for f in fields]})
+
+
+class QuickIn(BaseModel):
+    """A quick add (Plan 11 Ruling E11): kcal and optional macros the person typed. A blank
+    stays null (never 0), so the entry is incomplete for it. ``name`` is user text: stored
+    trimmed, never sent to analytics, logs or prompts."""
+
+    name: str | None = Field(default=None, max_length=60)
+    energy_kcal: float | None = Field(default=None, gt=0, le=5000)
+    protein_g: float | None = Field(default=None, ge=0, le=500)
+    fat_g: float | None = Field(default=None, ge=0, le=500)
+    carbs_g: float | None = Field(default=None, ge=0, le=500)
+    fibre_g: float | None = Field(default=None, ge=0, le=200)
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def _trim(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.strip() or None
+        return value
+
+
 class MealIn(BaseModel):
-    """Log what a member ate. Exactly one product reference (own ``product_id``, or a
-    ``barcode`` for Open Food Facts products) and exactly one portion (``grams`` or
-    ``servings``; servings need the product's serving size).
+    """Log what a member ate. Exactly one food reference (own ``product_id``, a ``barcode``
+    for Open Food Facts products, or ``quick``) and, except for a quick add, exactly one
+    portion (``grams`` or ``servings``; servings need the product's serving size).
+
+    ``member_id`` defaults to the primary member. ``meal_slot_id`` defaults to the slot the
+    server picks from the local time. ``local_date`` logs onto a past day (``eaten_at`` becomes
+    that date at the current local clock time, capped at now); it cannot be sent together with
+    ``eaten_at``.
 
     ``client_id`` makes the call idempotent: posting the same id again (an offline retry)
     returns the stored log with 200 and never creates a second row.
     """
 
-    member_id: UUID
+    member_id: UUID | None = None
     product_id: UUID | None = None
     barcode: str | None = Field(default=None, max_length=64)
+    quick: QuickIn | None = None
     grams: float | None = Field(default=None, gt=0, le=MAX_GRAMS)
     servings: float | None = Field(default=None, gt=0, le=MAX_SERVINGS)
+    meal_slot_id: UUID | None = None
+    local_date: date | None = Field(
+        default=None, description="Log onto this local day (at most 30 days ago, not in future)."
+    )
     eaten_at: AwareDatetime | None = Field(
         default=None,
         description="Timezone-aware. Default: now. At most 5 minutes ahead, at most 30 days ago.",
@@ -38,11 +75,60 @@ class MealIn(BaseModel):
 
     @model_validator(mode="after")
     def _exactly_one(self) -> "MealIn":
-        if (self.product_id is None) == (self.barcode is None):
+        refs = sum(x is not None for x in (self.product_id, self.barcode, self.quick))
+        if refs != 1:
             raise ApiError("invalid_product_ref", 422)
-        if (self.grams is None) == (self.servings is None):
+        if self.local_date is not None and self.eaten_at is not None:
+            raise _validation_error("local_date", "eaten_at")
+        if self.quick is not None:
+            if self.grams is not None or self.servings is not None:
+                raise _validation_error(*(f for f in ("grams", "servings") if getattr(self, f)))
+            if self.quick.energy_kcal is None:
+                raise ApiError("quick_add_energy_required", 422)
+        elif (self.grams is None) == (self.servings is None):
             raise ApiError("portion_required", 422)
         return self
+
+
+class MealPatch(BaseModel):
+    """Edit an entry. ``null`` means unchanged (Ruling E10: the generated Dart client sends
+    every unset field as null). At least one field must be set. ``quick`` is for quick-add
+    entries only; the portion fields are for the others."""
+
+    grams: float | None = Field(default=None, gt=0, le=MAX_GRAMS)
+    servings: float | None = Field(default=None, gt=0, le=MAX_SERVINGS)
+    meal_slot_id: UUID | None = None
+    eaten_at: AwareDatetime | None = None
+    quick: QuickIn | None = None
+
+    @model_validator(mode="after")
+    def _valid(self) -> "MealPatch":
+        if self.grams is not None and self.servings is not None:
+            raise _validation_error("grams", "servings")
+        if all(
+            v is None
+            for v in (self.grams, self.servings, self.meal_slot_id, self.eaten_at, self.quick)
+        ):
+            raise _validation_error()
+        if self.quick is not None and self.quick.energy_kcal is None:
+            raise ApiError("quick_add_energy_required", 422)
+        return self
+
+
+class CopyIn(BaseModel):
+    """Copy one meal (``from_slot_id``) or the whole day (no ``from_slot_id``) onto another day.
+
+    ``client_id`` is required: each copy's own id is derived from it and the source entry, so a
+    retry (a lost response, a double tap) returns the same rows and creates nothing. An entry
+    whose slot has since been archived needs an explicit ``to_slot_id``.
+    """
+
+    member_id: UUID | None = None
+    from_date: date
+    from_slot_id: UUID | None = None
+    to_date: date
+    to_slot_id: UUID | None = None
+    client_id: UUID
 
 
 class NutrientSnapshot(BaseModel):
@@ -56,6 +142,7 @@ class NutrientSnapshot(BaseModel):
     fat_g: float | None
     sat_fat_g: float | None
     carbs_g: float | None
+    fibre_g: float | None
 
 
 class MealOut(BaseModel):
@@ -63,17 +150,30 @@ class MealOut(BaseModel):
     member_id: UUID
     product_id: UUID | None = Field(description="Our own product; null for Open Food Facts")
     barcode: str | None = Field(description="Open Food Facts barcode; null for our products")
-    product_name: str
+    product_name: str = Field(
+        description="The product name; the typed name (or empty) for a quick add"
+    )
     grade: NutriScoreGrade | None = Field(
         description="Nutri-Score calculated by SmartNutri at log time; null if not enough data"
     )
-    grams: float
+    grams: float | None = Field(description="The portion in grams; null for a quick add")
     eaten_at: AwareDatetime
     nutrients: NutrientSnapshot
     client_id: UUID | None
     attribution: str | None = Field(
         description='"attribution.off" for Open Food Facts products (credit OFF), else null'
     )
+    source_kind: SourceKind
+    meal_slot_id: UUID
+    local_date: date = Field(description="The day the entry belongs to, in the account's zone")
+    incomplete: list[str] = Field(
+        description="NutrientSnapshot keys that are unknown (null) on this entry, before hiding"
+    )
+    updated_at: AwareDatetime
+
+
+class CopyOut(BaseModel):
+    created: list[MealOut] = Field(description="The copies, in the order of their sources")
 
 
 # --- summaries (Plan 6 T4) ---------------------------------------------------------------
@@ -84,9 +184,12 @@ class Totals(BaseModel):
     period has a value for that nutrient (also when nothing was logged): never shown as 0."""
 
     energy_kcal: float | None
+    protein_g: float | None
+    fat_g: float | None
+    carbs_g: float | None
+    fibre_g: float | None
     sugars_g: float | None
     salt_g: float | None
-    protein_g: float | None
 
 
 class SummaryPeriod(StrEnum):
@@ -109,9 +212,12 @@ class IncompleteNutrients(BaseModel):
     only the known meals and is a lower bound."""
 
     energy_kcal: bool
+    protein_g: bool
+    fat_g: bool
+    carbs_g: bool
+    fibre_g: bool
     sugars_g: bool
     salt_g: bool
-    protein_g: bool
 
 
 class DailyLimitsOut(BaseModel):

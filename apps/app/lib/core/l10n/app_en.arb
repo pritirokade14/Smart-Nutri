@@ -266,11 +266,59 @@
   "consentUpdateNote": "We've updated this text. Please read it and agree again.",
   "consentUpdatesBanner": "We've updated some consent texts. Please review them.",
   "consentWithdraw": "Withdraw consent",
+  "diaryAdd": "Add food",
+  "diaryAddToSlot": "Add to {slot}",
+  "@diaryAddToSlot": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryConsumed": "Eaten",
+  "diaryCopied": "{count, plural, one {# item copied} other {# items copied}}",
+  "@diaryCopied": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "diaryCopyDay": "Copy a day",
+  "diaryCopyMeal": "Copy this meal",
+  "diaryCopyPickDay": "Pick a day",
+  "diaryCopyPickMeal": "Pick a meal",
+  "diaryCopyTo": "Copy to…",
+  "diaryCopyYesterday": "Copy yesterday",
+  "diaryDelete": "Remove",
+  "diaryDeleteConfirm": "Remove this item from your diary?",
   "diaryDisclaimer": "Information, not medical advice. Daily guides are estimates and are pending clinician review.",
+  "diaryEdit": "Edit",
+  "diaryEmptyDay": "Nothing logged yet.",
   "diaryEyeHide": "Hide numbers",
   "diaryEyeShow": "Show numbers",
+  "diaryGramsLine": "{grams} g",
+  "@diaryGramsLine": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
   "diaryHiddenNumbers": "Numbers are hidden. You can change this in settings.",
   "diaryIncomplete": "Some items don't show this value, so the real total may be higher.",
+  "diaryLeft": "{value} left",
+  "@diaryLeft": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryMarkPartial": "Mark as partly logged",
+  "diaryMove": "Move to another meal",
+  "diaryNextDay": "Next day",
+  "diaryNoGuide": "Set up your daily guide, or just log food.",
   "diaryOfTarget": "{eaten} of {target}",
   "@diaryOfTarget": {
     "placeholders": {
@@ -282,7 +330,79 @@
       }
     }
   },
+  "diaryOver": "{value} over",
+  "@diaryOver": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryPartialBadge": "Partly logged",
+  "diaryPartialNote": "Partly logged days are left out of weekly averages.",
+  "diaryPickDate": "Pick a date",
+  "diaryPrevDay": "Previous day",
+  "diaryQuickAddCarbs": "Carbs (g)",
+  "diaryQuickAddEnergy": "Calories",
+  "diaryQuickAddFat": "Fat (g)",
+  "diaryQuickAddFibre": "Fibre (g)",
+  "diaryQuickAddName": "Quick add",
+  "diaryQuickAddNameLabel": "Name (optional)",
+  "diaryQuickAddProtein": "Protein (g)",
+  "diaryQuickAddTitle": "Quick add",
+  "diaryQuickBadge": "Entered by you",
+  "diaryRemaining": "Remaining",
+  "diaryServingsLine": "{servings, plural, one {# serving} other {# servings}} · {grams} g",
+  "@diaryServingsLine": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "servings": {
+        "type": "num"
+      }
+    }
+  },
+  "diaryShareWeek": "Share this week",
+  "diarySlotBreakfast": "Breakfast",
+  "diarySlotDinner": "Dinner",
+  "diarySlotLunch": "Lunch",
+  "diarySlotSnack": "Snacks",
+  "diarySlotsManage": "Edit meals",
+  "diarySlotsRemoved": "Removed meal",
   "diaryTargetsConsent": "To see your daily guide, allow SmartNutri to use your health details.",
+  "diaryTitle": "Diary",
+  "diaryToday": "Today",
+  "diaryViewDay": "Day",
+  "diaryWaitingSync": "Waiting to sync",
+  "diaryWeekAtLeast": "At least {value}",
+  "@diaryWeekAtLeast": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryWeekAverage": "Average over {days, plural, one {# logged day} other {# logged days}}",
+  "@diaryWeekAverage": {
+    "placeholders": {
+      "days": {
+        "type": "num"
+      }
+    }
+  },
+  "diaryWeekProteinDays": "Protein guide reached on {met} of {days} logged days",
+  "@diaryWeekProteinDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "met": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryWeekTitle": "This week",
   "dietEggetarian": "Eggetarian",
   "dietJain": "Jain",
   "dietNonVeg": "Non-vegetarian",
@@ -298,7 +418,10 @@
   "errorBodyFatOutOfRange": "Please enter a body fat percentage between 3 and 70.",
   "errorConsentRequired": "To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.",
   "errorConsentVersionMismatch": "This consent text has been updated. Please reload and review it again.",
+  "errorCopySourceEmpty": "There is nothing to copy there.",
+  "errorCopyTooMany": "That is too many items to copy at once. Copy one meal at a time.",
   "errorDateInFuture": "That date hasn't happened yet.",
+  "errorDateTooOld": "You can only add to the last 30 days.",
   "errorDeletionIncomplete": "We could not finish deleting your account. Please try again; nothing you deleted will come back.",
   "errorDiaryMemberNotEnabled": "Daily guides are only available for your own profile for now.",
   "errorEatenAtOutOfRange": "Choose a time within the last 30 days.",
@@ -318,6 +441,9 @@
   "errorInvalidBarcode": "That doesn't look like a valid barcode.",
   "errorInvalidProductRef": "Choose a product to check.",
   "errorMealNotFound": "That food log wasn't found.",
+  "errorMealSlotArchived": "That meal has been removed. Pick another meal.",
+  "errorMealSlotLimitReached": "You can have at most 6 active meals. Remove one first.",
+  "errorMealSlotNotFound": "We couldn't find that meal.",
   "errorMemberLimit": "You can add up to 10 family members.",
   "errorMemberNotFound": "That family member wasn't found.",
   "errorMethodNotAllowed": "This action isn't supported. Please update the app.",
@@ -330,6 +456,7 @@
   "errorPrimaryMember": "Your own profile can't be removed.",
   "errorProductExists": "This product is already saved.",
   "errorProductNotFound": "We couldn't find this product yet.",
+  "errorQuickAddEnergyRequired": "Enter the calories to add this.",
   "errorRateLimited": "Too many requests. Please wait a moment.",
   "errorRateLimitedScans": "You've reached today's label-scan limit.",
   "errorRateLimitedVoice": "You've reached today's voice-question limit.",
@@ -340,6 +467,7 @@
   "errorServingSizeUnknown": "This pack doesn't show a serving size. Enter the amount in grams.",
   "errorStorageUnavailable": "We couldn't handle the photo right now. Please try again in a moment.",
   "errorTargetWeightTooLow": "Please choose a higher target weight.",
+  "errorTimezoneInvalid": "That time zone isn't recognised.",
   "errorUnauthorized": "Please sign in.",
   "errorUnsupportedImage": "Please use a JPEG, PNG or WebP photo.",
   "errorUserTypeNotSelected": "Pick one of the options you chose for yourself.",
@@ -357,6 +485,9 @@
   "familyComingSoonBody": "Add each person's age, allergies and diet to get a result for each of them.",
   "familyComingSoonTitle": "Family profiles are coming soon",
   "familyTitle": "Family",
+  "foodsBlankIsUnknown": "Leave blank if you don't know. Blank is never counted as 0.",
+  "foodsQuickAdd": "Quick add",
+  "foodsRecent": "Recent",
   "footerLinksLabel": "About SmartNutri",
   "footerTagline": "Packaged-food information for Indian families.",
   "goalBuildMuscle": "Build muscle",
@@ -741,6 +872,7 @@
   },
   "modesSwitcherLabel": "Mode",
   "navCompare": "Compare",
+  "navDiary": "Diary",
   "navFamily": "Family",
   "navHistory": "History",
   "navHome": "Home",

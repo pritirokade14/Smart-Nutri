@@ -23,6 +23,8 @@ async def _seed(db_session):
     db_session.add_all(list(family.members.values()))
     db_session.add_all(family.products)
     await db_session.flush()
+    db_session.add_all(family.slots)
+    await db_session.flush()
     db_session.add_all(family.meals)
     await db_session.flush()
     return family
@@ -57,3 +59,35 @@ async def test_week_family_logged_count_matches_share_fixture(client, db_session
     r = await client.get("/v1/meals/week_counts", params={"date": str(family.end_date)})
     share = json.loads((SHARE / "share_weekly.week_family.json").read_text(encoding="utf-8"))
     assert r.json()["logged"] == share["input"]["logged"]
+
+
+# sha256 of the committed week_family.dad_diabetic.json (sorted keys) as it was BEFORE Plan 11
+# Task 5, with the new total keys (fat_g, carbs_g, fibre_g) removed from every `totals` and
+# `incomplete` object. Pins that the regenerated file only gained keys.
+PRE_PLAN_11_SHA256 = "6f09ab90966d18b5ee62b7d07a9b3071f0c0d4c748975e212b0787ee79a84c58"
+NEW_KEYS = {"fat_g", "carbs_g", "fibre_g"}
+
+
+def _without_new_keys(node, parent=None):
+    if isinstance(node, dict):
+        return {
+            k: _without_new_keys(v, k)
+            for k, v in node.items()
+            if not (k in NEW_KEYS and parent in ("totals", "incomplete"))
+        }
+    if isinstance(node, list):
+        return [_without_new_keys(x, parent) for x in node]
+    return node
+
+
+def test_only_new_keys_changed():
+    import hashlib
+
+    expected = json.loads(
+        (MEALS / "expected" / "week_family.dad_diabetic.json").read_text(encoding="utf-8")
+    )
+    digest = hashlib.sha256(
+        json.dumps(_without_new_keys(expected), sort_keys=True).encode()
+    ).hexdigest()
+    assert digest == PRE_PLAN_11_SHA256
+    assert set(expected["totals"]) >= NEW_KEYS and set(expected["incomplete"]) >= NEW_KEYS

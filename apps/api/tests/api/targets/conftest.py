@@ -38,7 +38,8 @@ G2_SETTINGS = {
 
 
 @pytest.fixture(autouse=True)
-def today(monkeypatch):
+def today(monkeypatch, clock):
+    """The clock reads 2026-11-07 12:00 IST (the `clock` fixture)."""
     monkeypatch.setattr("app.features.targets.service.today_ist", lambda: TODAY)
     return TODAY
 

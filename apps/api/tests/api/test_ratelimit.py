@@ -146,3 +146,27 @@ async def test_windows_are_utc_aligned(rl_app, pg_url):
     hour = by["analyze"].window_start.astimezone(UTC)
     assert (hour.minute, hour.second) == (0, 0)
     assert by["label_scans"].count == 1
+
+
+async def test_consume_n(db_session):
+    """`consume(n=...)` counts each created row of a batch (Plan 11 Task 6)."""
+    from app.core.errors import ApiError
+    from app.core.ratelimit import consume
+
+    settings = Settings(_env_file=None, environment="test", rate_limit_meal_logs_per_day=5)
+    key = uuid.uuid4()
+    await consume(db_session, settings, account_id=key, bucket="meal_logs", n=3)
+    await consume(db_session, settings, account_id=key, bucket="meal_logs", n=2)  # exactly 5
+    with pytest.raises(ApiError) as exc:
+        await consume(db_session, settings, account_id=key, bucket="meal_logs")
+    assert exc.value.status == 429 and exc.value.code == "rate_limited"
+    count = await db_session.scalar(
+        text("select count from rate_limit_counters where key = :k and bucket = 'meal_logs'"),
+        {"k": f"acct:{key}"},
+    )
+    assert count == 6
+    other = uuid.uuid4()
+    with pytest.raises(ApiError):  # 6 in one go is over a limit of 5
+        await consume(db_session, settings, account_id=other, bucket="meal_logs", n=6)
+    with pytest.raises(ValueError):
+        await consume(db_session, settings, account_id=other, bucket="meal_logs", n=0)

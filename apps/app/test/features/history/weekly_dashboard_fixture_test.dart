@@ -55,13 +55,25 @@ Map<String, Object?> _summaryJson({
   'start': days.first['date'],
   'end': days.last['date'],
   'totals':
-      totals ?? {'energy_kcal': 0, 'sugars_g': 0, 'salt_g': 0, 'protein_g': 0},
+      totals ??
+      {
+        'energy_kcal': 0,
+        'sugars_g': 0,
+        'salt_g': 0,
+        'fat_g': null,
+        'carbs_g': null,
+        'fibre_g': null,
+        'protein_g': 0,
+      },
   'incomplete':
       incomplete ??
       {
         'energy_kcal': false,
         'sugars_g': false,
         'salt_g': false,
+        'fat_g': false,
+        'carbs_g': false,
+        'fibre_g': false,
         'protein_g': false,
       },
   'limits':
@@ -90,13 +102,24 @@ Map<String, Object?> _day(
   'items': items,
   'totals':
       totals ??
-      {'energy_kcal': 100, 'sugars_g': 5, 'salt_g': 1, 'protein_g': 3},
+      {
+        'energy_kcal': 100,
+        'sugars_g': 5,
+        'salt_g': 1,
+        'fat_g': null,
+        'carbs_g': null,
+        'fibre_g': null,
+        'protein_g': 3,
+      },
   'incomplete':
       incomplete ??
       {
         'energy_kcal': false,
         'sugars_g': false,
         'salt_g': false,
+        'fat_g': false,
+        'carbs_g': false,
+        'fibre_g': false,
         'protein_g': false,
       },
   'bands':
@@ -253,6 +276,9 @@ void main() {
                 'energy_kcal': 420,
                 'sugars_g': 30,
                 'salt_g': 2.5,
+                'fat_g': null,
+                'carbs_g': null,
+                'fibre_g': null,
                 'protein_g': 12,
               },
               bands: {
@@ -289,6 +315,9 @@ void main() {
                 'energy_kcal': 100,
                 'sugars_g': 1,
                 'salt_g': 0.1,
+                'fat_g': null,
+                'carbs_g': null,
+                'fibre_g': null,
                 'protein_g': 2,
               },
               bands: {

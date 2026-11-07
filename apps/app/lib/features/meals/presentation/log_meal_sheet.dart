@@ -12,6 +12,7 @@ import '../../../core/theme/tokens.g.dart';
 import '../../../shared/share/share_text.dart';
 import '../../../shared/widgets/buttons.dart';
 import '../../../shared/widgets/states.dart';
+import '../../diary/presentation/diary_providers.dart';
 import '../../scan/domain/number_text.dart';
 import '../data/meals_repository.dart';
 import '../domain/meal_draft.dart';
@@ -121,6 +122,7 @@ class _LogMealSheetState extends ConsumerState<LogMealSheet> {
       _busy = true;
       _error = null;
     });
+    final diaryContext = ref.read(diaryAddContextProvider);
     final draft = MealDraft(
       memberId: _memberId,
       productId: widget.product.productId,
@@ -128,6 +130,10 @@ class _LogMealSheetState extends ConsumerState<LogMealSheet> {
       grams: _portion == _Portion.grams ? value : null,
       servings: _portion == _Portion.servings ? value : null,
       eatenAt: DateTime.now().toUtc(),
+      // From the Diary's add-food flow: its slot and day (else the API picks).
+      mealSlotId: diaryContext?.slotId,
+      localDate: diaryContext?.localDate,
+      displayName: widget.product.name,
     );
     try {
       final result = await ref.read(mealsRepositoryProvider).log(draft);
@@ -136,6 +142,12 @@ class _LogMealSheetState extends ConsumerState<LogMealSheet> {
       await ref
           .read(analyticsProvider)
           .track(result is MealLogged ? 'meal_logged' : 'meal_queued');
+      if (diaryContext != null) {
+        // The method only (search, barcode or label).
+        await ref.read(analyticsProvider).track('diary_entry_added', {
+          'method': diaryContext.method,
+        });
+      }
       if (mounted) Navigator.of(context).pop(result);
     } on MealsFailure catch (e) {
       if (!mounted) return;

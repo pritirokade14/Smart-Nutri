@@ -7,6 +7,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/active_type_in.dart';
 import '../models/me_out.dart';
+import '../models/timezone_in.dart';
 import '../models/user_types_in.dart';
 import '../models/user_types_out.dart';
 
@@ -33,6 +34,14 @@ abstract class MeClient {
   /// Me Get
   @GET('/v1/me')
   Future<MeOut> meGet();
+
+  /// Me Timezone Put.
+  ///
+  /// Set the account's time zone (an IANA name such as `Asia/Kolkata`). Needs only sign-in:.
+  /// it is not health data. Changing it never moves an entry already logged. 422.
+  /// `timezone_invalid` for an unknown name.
+  @PUT('/v1/me/timezone')
+  Future<MeOut> meTimezonePut({@Body() required TimezoneIn body});
 
   /// Me User Types Get.
   ///

@@ -117,7 +117,8 @@ describe("result screen identical in every mode", () => {
     const first = results[0]?.snapshot ?? [];
     expect(first.some((l) => l.includes("data-verdict="))).toBe(true);
     for (const r of results) expect(r.snapshot).toEqual(first);
-    // Six different shells around the same verdicts.
-    expect(new Set(results.map((r) => r.tabs.join("|"))).size).toBe(6);
+    // Five different shells around the same verdicts (weight_loss and gym share
+    // their tabs since the Diary took Compare's place, Plan 11 spec 7.10).
+    expect(new Set(results.map((r) => r.tabs.join("|"))).size).toBe(5);
   });
 });

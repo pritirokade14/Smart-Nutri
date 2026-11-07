@@ -16,17 +16,23 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert MigrationContext.configure(conn).get_current_revision() == "0008_diary_goal_settings"
+        assert (
+            MigrationContext.configure(conn).get_current_revision()
+            == "0009_diary_days_slots_entries"
+        )
     engine.dispose()
 
 
 def test_single_alembic_head():
-    """0006, 0007 and 0008 are chained, so there is exactly one head, 0008."""
+    """0006 to 0009 are chained, so there is exactly one head, 0009."""
     from alembic.config import Config
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(Config("alembic.ini"))
-    assert script.get_heads() == ["0008_diary_goal_settings"]
+    assert script.get_heads() == ["0009_diary_days_slots_entries"]
+    assert script.get_revision("0009_diary_days_slots_entries").down_revision == (
+        "0008_diary_goal_settings"
+    )
     assert script.get_revision("0008_diary_goal_settings").down_revision == (
         "0007_plan9_supplement_category"
     )
@@ -306,7 +312,9 @@ def test_downgrade_then_upgrade_is_clean(migrated):
 
 def test_models_match_migration(migrated):
     import app.features.consents.models
+    import app.features.diary.models
     import app.features.me.models
+    import app.features.meal_slots.models
     import app.features.meals.models
     import app.features.members.models
     import app.features.products.models
@@ -337,7 +345,9 @@ def test_models_match_migration(migrated):
 
 def test_orm_class_names():
     from app.features.consents.models import Consent
+    from app.features.diary.models import DiaryDay
     from app.features.me.models import Account, AccountUserTypes, DeletedAccount
+    from app.features.meal_slots.models import MealSlot
     from app.features.meals.models import MealLog
     from app.features.members.models import Member
     from app.features.products.models import OffProductCache, Product
@@ -362,6 +372,8 @@ def test_orm_class_names():
             RateLimitCounter,
             ExplanationCache,
             DiaryGoalSettings,
+            MealSlot,
+            DiaryDay,
         )
     } == TABLES
 
@@ -385,3 +397,179 @@ def test_host_allowlist():
     ):
         with pytest.raises(RuntimeError):
             _assert_disposable(bad)
+
+
+def test_0009_backfill_slots_and_local_dates(migrated):
+    """Plan 11 Ruling E4: the back-fill puts each legacy entry in the default slot for its IST
+    wall-clock minute, sets the IST local date, and gives every member four default slots."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    times = [  # (IST wall clock, expected slot suffix)
+        ("03:59", "dinner"),
+        ("04:00", "breakfast"),
+        ("10:59", "breakfast"),
+        ("11:00", "lunch"),
+        ("15:59", "lunch"),
+        ("16:00", "snack"),
+        ("18:59", "snack"),
+        ("19:00", "dinner"),
+    ]
+    try:
+        command.downgrade(migrated, "0008_diary_goal_settings")
+        with engine.begin() as conn:
+            acc = conn.execute(
+                text("insert into accounts (id) values (gen_random_uuid()) returning id")
+            ).scalar_one()
+            member = conn.execute(
+                text(
+                    "insert into members (account_id, name, relation) "
+                    "values (:a, 'm', 'self') returning id"
+                ),
+                {"a": acc},
+            ).scalar_one()
+            family = conn.execute(
+                text(
+                    "insert into members (account_id, name, relation) "
+                    "values (:a, 'f', 'other') returning id"
+                ),
+                {"a": acc},
+            ).scalar_one()
+            product = conn.execute(
+                text(
+                    "insert into products (name, category, source) "
+                    "values ('P', 'general', 'user') returning id"
+                )
+            ).scalar_one()
+            ids = []
+            for hhmm, _ in times:
+                ids.append(
+                    conn.execute(
+                        text(
+                            "insert into meal_logs (account_id, member_id, product_id, grams, "
+                            "nutrients, eaten_at) values (:a, :m, :p, 30, '{}', "
+                            "('2026-11-05 ' || :t)::timestamp AT TIME ZONE 'Asia/Kolkata') "
+                            "returning id"
+                        ),
+                        {"a": acc, "m": member, "p": product, "t": hhmm},
+                    ).scalar_one()
+                )
+            utc_id = conn.execute(
+                text(
+                    "insert into meal_logs (account_id, member_id, product_id, grams, nutrients, "
+                    "eaten_at) values (:a, :m, :p, 30, '{}', '2026-11-05T18:30:00Z') returning id"
+                ),
+                {"a": acc, "m": member, "p": product},
+            ).scalar_one()
+            off_id = conn.execute(
+                text(
+                    "insert into meal_logs (account_id, member_id, product_id, off_barcode, grams, "
+                    "nutrients, eaten_at) values (:a, :m, null, '8901', 30, '{}', now()) "
+                    "returning id"
+                ),
+                {"a": acc, "m": family},
+            ).scalar_one()
+        command.upgrade(migrated, "head")
+        with engine.begin() as conn:
+            rows = {
+                r.id: r
+                for r in conn.execute(
+                    text(
+                        "select l.id, l.local_date, l.source_kind, s.label_key from meal_logs l "
+                        "join meal_slots s on s.id = l.meal_slot_id where l.account_id = :a"
+                    ),
+                    {"a": acc},
+                )
+            }
+            for id_, (_, slot) in zip(ids, times, strict=True):
+                assert rows[id_].label_key == f"diary.slot.{slot}", slot
+                assert rows[id_].source_kind == "product"
+            # 18:30 UTC is 00:00 IST the next day: 2026-11-06, in the dinner band (00:00-03:59).
+            assert str(rows[utc_id].local_date) == "2026-11-06"
+            assert rows[utc_id].label_key == "diary.slot.dinner"
+            assert rows[off_id].source_kind == "off"
+            for m in (member, family):  # family included
+                keys = [
+                    r[0]
+                    for r in conn.execute(
+                        text(
+                            "select label_key from meal_slots where member_id = :m order by position"
+                        ),
+                        {"m": m},
+                    )
+                ]
+                assert keys == [
+                    "diary.slot.breakfast",
+                    "diary.slot.lunch",
+                    "diary.slot.snack",
+                    "diary.slot.dinner",
+                ]
+            conn.execute(text("delete from accounts where id = :a"), {"a": acc})
+            conn.execute(text("delete from products where id = :p"), {"p": product})
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
+def test_0009_downgrades_cleanly(migrated):
+    """A quick-add row is removed; the head -> 0008 -> head round trip restores forced RLS and
+    the owner policy on both new tables."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        with engine.begin() as conn:
+            acc = conn.execute(
+                text("insert into accounts (id) values (gen_random_uuid()) returning id")
+            ).scalar_one()
+            member = conn.execute(
+                text(
+                    "insert into members (account_id, name, relation) "
+                    "values (:a, 'm', 'self') returning id"
+                ),
+                {"a": acc},
+            ).scalar_one()
+            slot = conn.execute(
+                text(
+                    "insert into meal_slots (account_id, member_id, position, label_key, "
+                    "is_default) values (:a, :m, 0, 'diary.slot.lunch', true) returning id"
+                ),
+                {"a": acc, "m": member},
+            ).scalar_one()
+            conn.execute(
+                text(
+                    "insert into meal_logs (account_id, member_id, grams, nutrients, local_date, "
+                    "meal_slot_id, source_kind) values (:a, :m, null, '{}', '2026-11-07', :s, "
+                    "'quick_add')"
+                ),
+                {"a": acc, "m": member, "s": slot},
+            )
+        command.downgrade(migrated, "0008_diary_goal_settings")
+        with engine.connect() as conn:
+            insp = inspect(conn)
+            assert {"meal_slots", "diary_days"}.isdisjoint(insp.get_table_names())
+            cols = {c["name"]: c for c in insp.get_columns("meal_logs")}
+            assert {"local_date", "meal_slot_id", "source_kind", "food_snapshot"}.isdisjoint(cols)
+            assert cols["grams"]["nullable"] is False
+            assert "timezone" not in {c["name"] for c in insp.get_columns("accounts")}
+            assert (
+                conn.execute(
+                    text("select count(*) from meal_logs where account_id = :a"), {"a": acc}
+                ).scalar()
+                == 0
+            )
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            for table in ("meal_slots", "diary_days"):
+                row = conn.execute(
+                    text(
+                        "select relrowsecurity, relforcerowsecurity from pg_class "
+                        f"where oid = 'public.{table}'::regclass"
+                    )
+                ).one()
+                assert tuple(row) == (True, True), table
+                policies = conn.execute(
+                    text("select policyname from pg_policies where tablename = :t"), {"t": table}
+                ).all()
+                assert [p[0] for p in policies] == [f"{table}_owner"]
+        with engine.begin() as conn:
+            conn.execute(text("delete from accounts where id = :a"), {"a": acc})
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()

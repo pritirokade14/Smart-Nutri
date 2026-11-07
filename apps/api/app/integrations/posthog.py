@@ -52,13 +52,30 @@ ALLOWED_EVENTS: Mapping[str, set[str]] = MappingProxyType(
         "compare_opened": set(),
         "compare_viewed": set(),
         "product_search": set(),  # never the query text
+        # Plan 11 (spec 6.8): the Diary. A closed `method`, nothing else: never a nutrient, a
+        # target, a remaining value, a hidden state, a slot label, a slot count or a quick-add name.
+        "diary_entry_added": {"method"},
+        "diary_day_viewed": set(),
     }
 )
 
 # Keys whose values come from a closed set. Other string values must be a short token.
 _ENUMS: Mapping[str, frozenset[str]] = MappingProxyType(
     {
-        "method": frozenset({"barcode", "label", "manual", "search"}),
+        "method": frozenset(
+            {
+                "barcode",
+                "label",
+                "manual",
+                "search",
+                "recent",
+                "favourite",
+                "quick_add",
+                "custom",
+                "recipe",
+                "copy",
+            }
+        ),
         "language": frozenset({"en", "hi", "mr"}),
         "reason": frozenset({"wrong_values", "wrong_ingredients", "wrong_product", "other"}),
         "kind": frozenset({"link", "image", "whatsapp"}),

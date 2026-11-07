@@ -48,6 +48,13 @@ MealOut mealOut({
   String? attribution,
   NutriScoreGrade? grade = NutriScoreGrade.d,
 }) => MealOut(
+  incomplete: const [],
+  localDate: DateTime.utc(2026, 11, 3),
+  mealSlotId: 'slot-1',
+  sourceKind: barcode == null
+      ? MealOutSourceKind.product
+      : MealOutSourceKind.off,
+  updatedAt: eatenAt ?? DateTime.utc(2026, 11, 3, 8),
   attribution: attribution,
   barcode: barcode,
   clientId: clientId,
@@ -60,6 +67,7 @@ MealOut mealOut({
     carbsG: null,
     energyKcal: 140,
     fatG: null,
+    fibreG: null,
     proteinG: 2,
     saltG: 0.3,
     satFatG: null,
@@ -105,15 +113,50 @@ class FakeMealsClient implements MealsClient {
     }
     return mealOut(
       id: 'meal-${logged.length}',
-      memberId: body.memberId,
+      memberId: body.memberId ?? 'm1',
       clientId: body.clientId,
     );
   }
 
+  final copied = <CopyIn>[];
+  final updated = <(String, MealPatch)>[];
+
+  /// What `mealsCopy` answers in order (a [CopyOut] or an error to throw);
+  /// when it runs out, one copy per call succeeds.
+  final copyResponses = <Object>[];
+
+  /// Thrown by the next `mealsUpdate` (then cleared).
+  Object? updateError;
+
+  @override
+  Future<CopyOut> mealsCopy({required CopyIn body}) async {
+    copied.add(body);
+    if (copyResponses.isNotEmpty) {
+      final r = copyResponses.removeAt(0);
+      if (r is CopyOut) return r;
+      throw r;
+    }
+    return CopyOut(created: [mealOut(id: 'copy-${copied.length}')]);
+  }
+
+  @override
+  Future<MealOut> mealsUpdate({
+    required String mealId,
+    required MealPatch body,
+  }) async {
+    updated.add((mealId, body));
+    if (updateError case final e?) {
+      updateError = null;
+      throw e;
+    }
+    return mealOut(id: mealId);
+  }
+
   @override
   Future<List<MealOut>> mealsList({
-    required String memberId,
+    String? memberId,
     DateTime? from,
+    DateTime? localDate,
     DateTime? to,
   }) async {
     final e = listError;
@@ -141,8 +184,15 @@ class FakeMealsClient implements MealsClient {
   @override
   Future<WeekCounts> mealsWeekCounts({DateTime? date}) async => weekCounts;
 
+  /// Thrown by the next `mealsDelete` (then cleared).
+  Object? deleteError;
+
   @override
   Future<void> mealsDelete({required String mealId}) async {
+    if (deleteError case final e?) {
+      deleteError = null;
+      throw e;
+    }
     deleted.add(mealId);
     meals = [
       for (final m in meals)
@@ -193,6 +243,14 @@ class MemoryMealQueue implements MealQueue {
     yield rows.values.where(test).length;
     await for (final _ in _changes.stream) {
       yield rows.values.where(test).length;
+    }
+  }
+
+  @override
+  Stream<List<PendingMeal>> watchPending() async* {
+    yield await pending();
+    await for (final _ in _changes.stream) {
+      yield await pending();
     }
   }
 

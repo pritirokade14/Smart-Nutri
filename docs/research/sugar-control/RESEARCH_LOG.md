@@ -25,3 +25,21 @@ Date: 2026-11-07. Discovery only. Nothing cloned, downloaded or analysed. Free s
 - Tidepool repo URL guessed wrong (404). Tidepool (BSD, non-profit) licence [unverified].
 - Blue Circle: repo, licence and tech stack not found [unverified].
 - Final CDSCO guidance text and any Indian classification of dose calculators: not read.
+
+## Phase 4: feature spec (design only)
+
+Date: 2026-11-07. Output: `FEATURE_SPEC.md` in this folder. No web sources were fetched in this phase; it synthesises the Phase 1 to 3 files and the repository. Nothing was built, migrated or committed.
+
+| Date | Source | What we took | Confidence |
+|---|---|---|---|
+| 2026-11-07 | `SHORTLIST.md` (DO-NOT-BUILD list) | Carried into the spec as §1.4 "Never", restated in our words, plus two additions: no glucose prediction and no variability scores | High (our own binding list) |
+| 2026-11-07 | `apps/nightscout.md`, `apps/xdrip.md` | Canonical mg/dL with the typed value kept; explicit unit on input; time-of-day pattern with wide windows and a minimum count; uuid idempotency; soft delete and restore; user-typed reminders with quiet hours. Excluded: estimated A1c, alarms, forecasts, insulin and dose maths | High (clean-room notes) |
+| 2026-11-07 | `apps/closed-apps-public.md` | App comparison (§2 of the spec); meal-plus-reading idea (mySugr), GI on the food card (Blue Circle), user-entered HbA1c (BeatO), doctor PDF/CSV (mySugr, Glucose Buddy); guidance values used only as an information card or clinician questions | Medium (public pages, several secondary) |
+| 2026-11-07 | `docs/research/food-diary/FEATURE_SPEC.md`, `DECISIONS.md` | Reused, not duplicated: meal slots, `meal_logs` entries with snapshots, local dates from `accounts.timezone`, the unknown-is-not-zero rule, hide-numbers, solo-with-family-ready keys, the ADR 0022 consent pattern | High |
+| 2026-11-07 | `apps/api/app/scoring/conditions.py`, `data/thresholds.yaml`, `app/core/consent.py`, `app/integrations/posthog.py`, `app/features/me/service.py`, `packages/test-fixtures/modes/layouts.json` | Existing blood-sugar rules (sugar bands, misleading sugar claims, hidden/added sugars, 30 g carbs per serving, cardio caution) left unchanged; consent, analytics, delete-order and mode files the spec extends | High (read in the repo) |
+
+Proposals made in the spec (all PENDING CLINICIAN REVIEW, all in a new `glucose.yaml`): conversion factor 18.016; hard limits 20–600 mg/dL; confirm band 40–400 mg/dL; very-low note below 54 mg/dL (Q3); 90-day back-entry; ±2 min duplicate window; after-meal link window 15–240 min; six 4-hour pattern windows with at least 5 readings each; insights gate 10 readings on 5 days, 3 meals on 3 days per food, +20 mg/dL difference; carb guide bounds 5–200 g with no default number; lab hard limits and conversion factors.
+
+Still unverified (listed in spec §18): the conversion factor the clinician prefers (18.016 or 18); HbA1c IFCC/NGSP equation constants and lipid factors; home-meter display limits; ADA Standards of Care Section 6 primary text (2026); ICMR-NIN 2024 Annexure III GI list (primary PDF); Atkinson GI tables reuse terms; final CDSCO guidance text; FDA policy wording; WeasyPrint Devanagari shaping and image size; `flutter_local_notifications` licence; Supabase Postgres version for `ON DELETE SET NULL (column)`.
+
+Open questions for the user: 18, in spec §16 (Q1–Q18), each multiple choice with the recommended option first.

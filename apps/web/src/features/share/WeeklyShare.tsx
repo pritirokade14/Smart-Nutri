@@ -7,7 +7,14 @@ import { ShareButton } from "./ShareButton";
 import { shareUrl, shareWeeklyText } from "./shareText";
 
 /** "Share our week": the family's counts only (GET /v1/meals/week_counts). */
-export function WeeklyShare({ today = todayIst() }: { today?: string }) {
+export function WeeklyShare({
+  today = todayIst(),
+  label,
+}: {
+  today?: string;
+  /** Button text; default "Share our week". */
+  label?: string;
+}) {
   const t = useTranslations();
   const locale = useLocale();
   const counts = useWeekCounts(today);
@@ -15,7 +22,7 @@ export function WeeklyShare({ today = todayIst() }: { today?: string }) {
   const url = shareUrl(locale, null);
   return (
     <ShareButton
-      label={t("share.weekly_button")}
+      label={label ?? t("share.weekly_button")}
       text={shareWeeklyText(t, counts.data.scans, counts.data.logged, url)}
       url={url}
       event="share_weekly"

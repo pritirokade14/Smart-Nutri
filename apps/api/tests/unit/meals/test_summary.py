@@ -4,10 +4,9 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from app.core.time import IST as FIXED_IST
 from app.features.meals.models import MealLog
 from app.features.meals.service import snapshot, to_meal_out
-from app.features.meals.summary import NUTRIENTS, summarise
+from app.features.meals.summary import NUTRIENTS, redact, summarise
 from app.scoring import DailyLimits, Nutrients, load_config
 
 IST = ZoneInfo("Asia/Kolkata")
@@ -29,6 +28,7 @@ def meal(*, eaten_at=None, day=TODAY, sugars=0.0, kcal=0.0, salt=0.0, protein=0.
         member_id=MEMBER,
         grams=50,
         eaten_at=eaten_at,
+        local_date=eaten_at.astimezone(IST).date(),
         nutrients={
             "energy_kcal": kcal,
             "sugars_g": sugars,
@@ -46,7 +46,7 @@ def meal(*, eaten_at=None, day=TODAY, sugars=0.0, kcal=0.0, salt=0.0, protein=0.
 
 def test_ist_day_boundary(cfg):
     m = meal(eaten_at=datetime(2026, 11, 3, 18, 0, tzinfo=UTC), sugars=10)  # 23:30 IST, 3 Nov
-    s = summarise([m], ADULT_LIMITS, "day", date(2026, 11, 3), IST, cfg, member_id=MEMBER)
+    s = summarise([m], ADULT_LIMITS, "day", date(2026, 11, 3), cfg, member_id=MEMBER)
     assert s.totals.sugars_g == 10 and s.days[0].date == date(2026, 11, 3)
 
 
@@ -56,7 +56,6 @@ def test_missing_nutrient_marks_incomplete(cfg):
         ADULT_LIMITS,
         "day",
         TODAY,
-        IST,
         cfg,
         member_id=MEMBER,
     )
@@ -65,16 +64,14 @@ def test_missing_nutrient_marks_incomplete(cfg):
 
 
 def test_week_has_seven_zero_filled_days(cfg):
-    s = summarise(
-        [meal(day=TODAY, sugars=30)], ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER
-    )
+    s = summarise([meal(day=TODAY, sugars=30)], ADULT_LIMITS, "week", TODAY, cfg, member_id=MEMBER)
     assert len(s.days) == 7 and s.days[-1].totals.sugars_g == 30
     # An empty day has no known value: null, never 0.0 (Ruling M1 S1).
     assert s.days[0].totals.sugars_g is None and s.days[0].items == 0
 
 
 def test_day_band_over_limit(cfg):
-    s = summarise([meal(sugars=30)], ADULT_LIMITS, "day", TODAY, IST, cfg, member_id=MEMBER)
+    s = summarise([meal(sugars=30)], ADULT_LIMITS, "day", TODAY, cfg, member_id=MEMBER)
     assert s.bands.sugar_g == "over"
 
 
@@ -82,7 +79,7 @@ def test_day_band_over_limit(cfg):
 
 
 def _day(meals, limits=ADULT_LIMITS, cfg=None):
-    return summarise(meals, limits, "day", TODAY, IST, cfg, member_id=MEMBER)
+    return summarise(meals, limits, "day", TODAY, cfg, member_id=MEMBER)
 
 
 def test_previous_ist_day_is_excluded(cfg):
@@ -91,13 +88,6 @@ def test_previous_ist_day_is_excluded(cfg):
     outside = meal(eaten_at=datetime(2026, 11, 2, 18, 29, tzinfo=UTC), sugars=7)
     s = _day([inside, outside], cfg=cfg)
     assert (s.totals.sugars_g, s.days[0].items) == (4, 1)
-
-
-def test_fixed_offset_ist_matches_zoneinfo(cfg):
-    m = meal(eaten_at=datetime(2026, 11, 3, 18, 0, tzinfo=UTC), sugars=10)
-    a = summarise([m], ADULT_LIMITS, "day", TODAY, IST, cfg, member_id=MEMBER)
-    b = summarise([m], ADULT_LIMITS, "day", TODAY, FIXED_IST, cfg, member_id=MEMBER)
-    assert a == b
 
 
 def test_incomplete_below_limit_is_unknown_never_ok(cfg):
@@ -119,7 +109,7 @@ def test_nothing_logged_is_unknown(cfg):
 
 def test_week_bands_with_every_day_logged_use_seven_times_the_limit(cfg):
     meals = [meal(day=TODAY - timedelta(days=i), sugars=20) for i in range(7)]  # 140 g
-    s = summarise(meals, ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER)
+    s = summarise(meals, ADULT_LIMITS, "week", TODAY, cfg, member_id=MEMBER)
     assert s.totals.sugars_g == 140 and s.bands.sugar_g == "near"  # 140 >= 0.8 x 175
     assert all(d.bands.sugar_g == "near" for d in s.days)  # 20 >= 0.8 x 25
     assert (s.start, s.end) == (TODAY - timedelta(days=6), TODAY)
@@ -151,7 +141,7 @@ def test_unknown_limits(cfg):
 
 
 def week(meals, limits=ADULT_LIMITS, cfg=None):
-    return summarise(meals, limits, "week", TODAY, IST, cfg, member_id=MEMBER)
+    return summarise(meals, limits, "week", TODAY, cfg, member_id=MEMBER)
 
 
 # --- Ruling M1 (nutrition-safety review of Plan 6) ----------------------------------------
@@ -243,11 +233,19 @@ def test_infant_any_sugar_is_over(cfg):
 
 def test_bad_period_rejected(cfg):
     with pytest.raises(ValueError):
-        summarise([], ADULT_LIMITS, "month", TODAY, IST, cfg, member_id=MEMBER)
+        summarise([], ADULT_LIMITS, "month", TODAY, cfg, member_id=MEMBER)
 
 
 def test_nutrient_keys():
-    assert NUTRIENTS == ("energy_kcal", "sugars_g", "salt_g", "protein_g")
+    assert NUTRIENTS == (
+        "energy_kcal",
+        "protein_g",
+        "fat_g",
+        "carbs_g",
+        "fibre_g",
+        "sugars_g",
+        "salt_g",
+    )
 
 
 # --- cleanup c1: bands compare the UNROUNDED totals -------------------------------------
@@ -255,7 +253,7 @@ def test_nutrient_keys():
 
 def test_band_uses_unrounded_total_day(cfg):
     """25.04 g shows as 25.0 g, but it is above a 25 g limit: the band is ``over``."""
-    s = summarise([meal(sugars=25.04)], ADULT_LIMITS, "day", TODAY, IST, cfg, member_id=MEMBER)
+    s = summarise([meal(sugars=25.04)], ADULT_LIMITS, "day", TODAY, cfg, member_id=MEMBER)
     assert s.totals.sugars_g == 25.0
     assert s.days[0].bands.sugar_g == "over"
     assert s.bands.sugar_g == "over"
@@ -267,7 +265,6 @@ def test_band_uses_unrounded_total_split_meals(cfg):
         ADULT_LIMITS,
         "day",
         TODAY,
-        IST,
         cfg,
         member_id=MEMBER,
     )
@@ -283,7 +280,6 @@ def test_unrounded_sum_has_no_float_drift(cfg):
         ADULT_LIMITS,
         "day",
         TODAY,
-        IST,
         cfg,
         member_id=MEMBER,
     )
@@ -294,7 +290,7 @@ def test_unrounded_sum_has_no_float_drift(cfg):
 def test_period_band_uses_unrounded_total(cfg):
     """Week: 2 logged days x 25 g = 50 g; 50.04 g rounds to 50.0 but is over."""
     meals = [meal(day=TODAY, sugars=25.0), meal(day=TODAY - timedelta(days=1), sugars=25.04)]
-    s = summarise(meals, ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER)
+    s = summarise(meals, ADULT_LIMITS, "week", TODAY, cfg, member_id=MEMBER)
     assert s.totals.sugars_g == 50.0
     assert s.bands.sugar_g == "over"
 
@@ -309,6 +305,7 @@ def _logged(per_100g: Nutrients, grams: float) -> MealLog:
         member_id=MEMBER,
         grams=grams,
         eaten_at=datetime.combine(TODAY, time(13, 0), tzinfo=IST),
+        local_date=TODAY,
         nutrients=snapshot(per_100g, grams).model_dump(),
     )
 
@@ -339,6 +336,8 @@ def test_f1_meal_out_rounds_for_display():
     row = _logged(Nutrients(energy_kcal=401.4, sugars_g=10.016, salt_g=0.9, protein_g=None), 250)
     row.product_name, row.grade, row.client_id = "Biscuit", None, None
     row.product_id, row.off_barcode = uuid4(), None
+    row.source_kind, row.meal_slot_id = "product", uuid4()
+    row.updated_at = datetime(2026, 11, 3, 8, 0, tzinfo=UTC)
     out = to_meal_out(row)
     assert (out.nutrients.energy_kcal, out.nutrients.sugars_g, out.nutrients.salt_g) == (
         1003.5,
@@ -351,7 +350,7 @@ def test_f1_meal_out_rounds_for_display():
 
 def test_protein_target_uses_unrounded_total(cfg):
     """58.06 g displays as 58.1 g but is below a 58.1 g target: no band, never ``ok``."""
-    s = summarise([meal(protein=58.06)], ADULT_LIMITS, "day", TODAY, IST, cfg, member_id=MEMBER)
+    s = summarise([meal(protein=58.06)], ADULT_LIMITS, "day", TODAY, cfg, member_id=MEMBER)
     assert s.totals.protein_g == 58.1
     assert s.days[0].bands.protein_g == "unknown"
 
@@ -363,7 +362,7 @@ def _week_with_data(cfg):
     meals = [
         meal(day=TODAY - timedelta(days=i), sugars=5, kcal=400, salt=1, protein=20) for i in (0, 1)
     ]
-    return summarise(meals, ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER)
+    return summarise(meals, ADULT_LIMITS, "week", TODAY, cfg, member_id=MEMBER)
 
 
 def test_redact_energy_only(cfg):
@@ -388,7 +387,6 @@ def test_redact_macros_hides_every_total_and_the_protein_target(cfg):
         ADULT_LIMITS,
         "day",
         TODAY,
-        IST,
         cfg,
         member_id=MEMBER,
     )
@@ -419,3 +417,39 @@ def test_redact_nothing_hidden_returns_an_equal_summary(cfg):
     s = _week_with_data(cfg)
     assert redact(s, NumbersHidden(energy=False, macros=False)) == s
     assert s.numbers_hidden.model_dump() == {"energy": False, "macros": False}
+
+
+def test_groups_by_local_date(cfg):
+    """Plan 11 Ruling E15: a row eaten at 23:30 IST on 3 Nov whose stored `local_date` is 2 Nov
+    (logged while the account zone was elsewhere) counts on the stored date, not on the IST
+    date of `eaten_at`."""
+    m = meal(eaten_at=datetime(2026, 11, 3, 18, 0, tzinfo=UTC), sugars=10)  # 23:30 IST, 3 Nov
+    m.local_date = date(2026, 11, 2)
+    on_third = summarise([m], ADULT_LIMITS, "day", date(2026, 11, 3), cfg, member_id=MEMBER)
+    on_second = summarise([m], ADULT_LIMITS, "day", date(2026, 11, 2), cfg, member_id=MEMBER)
+    assert on_third.days[0].items == 0 and on_third.totals.sugars_g is None
+    assert on_second.days[0].items == 1 and on_second.totals.sugars_g == 10
+
+
+def test_new_nutrients_in_totals(cfg):
+    """Plan 11 Ruling E15: totals and incompleteness cover fat, carbs and fibre; unknown stays
+    unknown (never 0)."""
+    a = meal(sugars=1, kcal=100, protein=2)
+    a.nutrients = {**a.nutrients, "fat_g": 3.5, "carbs_g": 10.25, "fibre_g": None}
+    b = meal(sugars=1, kcal=50, protein=1)
+    b.nutrients = {**b.nutrients, "fat_g": 1.0, "carbs_g": None, "fibre_g": None}
+    s = summarise([a, b], ADULT_LIMITS, "day", TODAY, cfg, member_id=MEMBER)
+    assert (s.totals.fat_g, s.totals.carbs_g, s.totals.fibre_g) == (4.5, 10.3, None)
+    assert (s.incomplete.fat_g, s.incomplete.carbs_g, s.incomplete.fibre_g) == (False, True, True)
+    assert s.days[0].incomplete.fibre_g is True
+
+
+def test_redact_macros_nulls_the_new_totals(cfg):
+    from app.features.targets.schemas import NumbersHidden
+
+    m = meal(sugars=1, kcal=100, protein=2)
+    m.nutrients = {**m.nutrients, "fat_g": 3.5, "carbs_g": 10.25, "fibre_g": 2.0}
+    s = summarise([m], ADULT_LIMITS, "day", TODAY, cfg, member_id=MEMBER)
+    out = redact(s, NumbersHidden(energy=True, macros=True))
+    assert all(v is None for v in out.totals.model_dump().values())
+    assert all(v is None for v in out.days[0].totals.model_dump().values())

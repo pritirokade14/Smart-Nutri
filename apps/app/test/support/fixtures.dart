@@ -116,3 +116,12 @@ List<String> targetsFixtureStems() =>
 /// `targets/direction_defaults.json`.
 Map<String, String> directionDefaultsFixture() =>
     (_readJson('targets/direction_defaults.json')).cast<String, String>();
+
+/// Golden `GET /v1/diary/day` or `/week` body (`diary/expected/<stem>.json`).
+Map<String, Object?> diaryJson(String stem) =>
+    _readJson('diary/expected/$stem.json');
+
+DiaryDayOut diaryFixture(String stem) => DiaryDayOut.fromJson(diaryJson(stem));
+
+DiaryWeekOut diaryWeekFixture(String stem) =>
+    DiaryWeekOut.fromJson(diaryJson(stem));

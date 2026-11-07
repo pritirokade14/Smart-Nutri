@@ -11,7 +11,10 @@ part 'incomplete_nutrients.g.dart';
 @JsonSerializable()
 class IncompleteNutrients {
   const IncompleteNutrients({
+    required this.carbsG,
     required this.energyKcal,
+    required this.fatG,
+    required this.fibreG,
     required this.proteinG,
     required this.saltG,
     required this.sugarsG,
@@ -20,8 +23,14 @@ class IncompleteNutrients {
   factory IncompleteNutrients.fromJson(Map<String, Object?> json) =>
       _$IncompleteNutrientsFromJson(json);
 
+  @JsonKey(name: 'carbs_g')
+  final bool carbsG;
   @JsonKey(name: 'energy_kcal')
   final bool energyKcal;
+  @JsonKey(name: 'fat_g')
+  final bool fatG;
+  @JsonKey(name: 'fibre_g')
+  final bool fibreG;
   @JsonKey(name: 'protein_g')
   final bool proteinG;
   @JsonKey(name: 'salt_g')

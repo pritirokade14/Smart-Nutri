@@ -8,7 +8,7 @@ import 'package:smartnutri_ai/core/router/app_router.dart';
 import 'package:smartnutri_ai/core/theme/app_theme.dart';
 import 'package:smartnutri_ai/features/auth/data/auth_repository.dart';
 import 'package:smartnutri_ai/features/auth/presentation/sign_in_screen.dart';
-import 'package:smartnutri_ai/features/history/presentation/history_screen.dart';
+import 'package:smartnutri_ai/features/diary/presentation/diary_screen.dart';
 import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
 import 'package:smartnutri_ai/features/members/presentation/members_list_screen.dart';
 import 'package:smartnutri_ai/features/scan/presentation/label_capture_screen.dart';
@@ -18,6 +18,7 @@ import 'package:smartnutri_ai/shared/widgets/app_shell.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../support/fake_auth.dart';
+import '../support/fake_diary.dart';
 import '../support/fake_members.dart';
 import '../support/fake_meals.dart';
 import '../support/fake_user_types.dart';
@@ -32,6 +33,10 @@ class _FakeApi implements SmartNutriApiClient {
   final MembersClient members = FakeMembersClient();
   @override
   final ConsentsClient consents = FakeConsentsClient(granted: {'terms'});
+  @override
+  final DiaryClient diary = FakeDiaryClient();
+  @override
+  final MealSlotsClient mealSlots = FakeMealSlotsClient();
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
@@ -95,7 +100,7 @@ void main() {
     for (final label in [
       en.navHome,
       en.navScan,
-      en.navHistory,
+      en.navDiary,
       en.navFamily,
       en.navProfile,
     ]) {
@@ -107,14 +112,13 @@ void main() {
   testWidgets('History shows the log; Family lists members; '
       'Profile shows consents', (t) async {
     await _pump(t);
-    await t.tap(_nav(en.navHistory));
+    await t.tap(_nav(en.navDiary));
     await t.pumpAndSettle();
-    expect(find.byType(HistoryScreen), findsOneWidget);
-    expect(find.text(en.historyComingSoonTitle), findsNothing);
+    expect(find.byType(DiaryScreen), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(AppBar),
-        matching: find.text(en.historyTitle),
+        matching: find.text(en.diaryTitle),
       ),
       findsOneWidget,
     );
@@ -143,7 +147,7 @@ void main() {
   testWidgets('the Scan tab opens the full-screen scanner; back returns to '
       'the tabs', (t) async {
     await _pump(t);
-    await t.tap(_nav(en.navHistory));
+    await t.tap(_nav(en.navDiary));
     await t.pumpAndSettle();
     await t.tap(_nav(en.navScan));
     await t.pump();
@@ -153,7 +157,7 @@ void main() {
     await t.pageBack();
     await t.pump();
     await t.pump(const Duration(seconds: 1));
-    expect(find.byType(HistoryScreen), findsOneWidget);
+    expect(find.byType(DiaryScreen), findsOneWidget);
     expect(_selected(t), 2);
   });
 

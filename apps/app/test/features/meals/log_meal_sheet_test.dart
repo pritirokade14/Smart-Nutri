@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_ai/core/l10n/app_localizations.dart';
+import 'package:smartnutri_ai/features/diary/presentation/diary_providers.dart';
 import 'package:smartnutri_ai/features/meals/data/meals_repository.dart';
 import 'package:smartnutri_ai/features/meals/presentation/log_meal_sheet.dart';
 
@@ -9,6 +10,13 @@ import '../../support/fake_meals.dart';
 import '../../support/fixtures.dart';
 
 final en = lookupAppLocalizations(const Locale('en'));
+
+class _Ctx extends DiaryAddContextNotifier {
+  _Ctx(this.c);
+  final DiaryAddContext c;
+  @override
+  DiaryAddContext? build() => c;
+}
 
 class _Harness {
   final client = FakeMealsClient();
@@ -23,6 +31,7 @@ Future<_Harness> _open(
   String? productId = 'p1',
   String? barcode,
   List<Object>? responses,
+  DiaryAddContext? diary,
 }) async {
   final h = _Harness();
   h.client.logResponses.addAll(responses ?? const []);
@@ -35,7 +44,11 @@ Future<_Harness> _open(
   );
   await t.pumpWidget(
     ProviderScope(
-      overrides: mealTestOverrides(queue: h.queue, client: h.client),
+      overrides: [
+        ...mealTestOverrides(queue: h.queue, client: h.client),
+        if (diary != null)
+          diaryAddContextProvider.overrideWith(() => _Ctx(diary)),
+      ],
       child: MaterialApp(
         locale: const Locale('en'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -171,4 +184,24 @@ void main() {
       expect(find.text(s), findsNothing);
     }
   });
+
+  testWidgets(
+    'inside the Diary add-food context it sends slot and local_date',
+    (t) async {
+      final h = await _open(
+        t,
+        diary: const DiaryAddContext(
+          method: 'barcode',
+          slotId: 'slot-lunch',
+          localDate: '2026-11-06',
+        ),
+      );
+      await t.enterText(find.byKey(LogMealSheet.amountKey), '40');
+      await t.pump();
+      await _tapSave(t);
+      final sent = h.client.logged.single;
+      expect(sent.mealSlotId, 'slot-lunch');
+      expect(sent.localDate, DateTime.utc(2026, 11, 6));
+    },
+  );
 }

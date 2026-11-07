@@ -11,9 +11,9 @@ import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/disclaimer_footer.dart';
 import '../../../shared/widgets/states.dart';
-import '../../history/presentation/history_providers.dart';
+import '../../diary/presentation/diary_providers.dart';
+import '../../diary/presentation/diary_rings.dart';
 import '../../home/presentation/cards/card_frame.dart';
-import '../../meals/domain/meal_summary.dart';
 import '../../members/presentation/consent_sheet.dart';
 import '../../members/presentation/members_providers.dart';
 import '../data/targets_repository.dart';
@@ -168,28 +168,36 @@ class _Ready extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final t = targets;
-    final primary = ref
-        .watch(membersProvider)
-        .value
-        ?.where((m) => m.isPrimary)
-        .firstOrNull;
-    final MealSummary? summary = primary == null
-        ? null
-        : ref
-              .watch(
-                mealSummaryProvider((
-                  memberId: primary.id,
-                  period: SummaryPeriod.day,
-                )),
-              )
-              .value;
-    num? eaten(SummaryNutrient n) =>
-        summary == null || summary.isHidden(n) ? null : summary.totals[n];
-    bool incomplete(SummaryNutrient n) =>
-        summary != null &&
-        summary.anyLogged &&
-        !summary.isHidden(n) &&
-        summary.incomplete[n];
+    // Eaten and remaining are `diary_day_get`'s: this card adds nothing up.
+    final day = ref.watch(diaryDayProvider(null)).value;
+    const remainingView = GoalSettingsOutSummaryView.remaining;
+    RingValue? value(RingNutrient n) =>
+        day == null ? null : ringValue(day, n, remainingView);
+    String? eaten(RingNutrient n) {
+      final d = day;
+      if (d == null || ringHidden(d, n) || ringIncomplete(d, n)) return null;
+      final total = ringTotal(d, n);
+      if (total == null) return null;
+      return n == RingNutrient.energy
+          ? kcalText(l10n, total)
+          : gramsText(l10n, total);
+    }
+
+    String? remaining(RingNutrient n) {
+      final v = value(n);
+      if (v is! RingRemaining) return null;
+      String unit(num x) =>
+          n == RingNutrient.energy ? kcalText(l10n, x) : gramsText(l10n, x);
+      return v.value < 0
+          ? l10n.diaryOver(unit(v.value.abs()))
+          : l10n.diaryLeft(unit(v.value));
+    }
+
+    bool incomplete(RingNutrient n) =>
+        day != null &&
+        day.slots.any((s) => s.entries.isNotEmpty) &&
+        !ringHidden(day, n) &&
+        ringIncomplete(day, n);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -198,32 +206,36 @@ class _Ready extends ConsumerWidget {
             name: 'energy',
             label: l10n.targetsEnergy,
             target: kcalText(l10n, t.energyKcal!),
-            eaten: eaten(SummaryNutrient.kcal) == null
-                ? null
-                : kcalText(l10n, eaten(SummaryNutrient.kcal)!),
-            incomplete: incomplete(SummaryNutrient.kcal),
+            eaten: eaten(RingNutrient.energy),
+            remaining: remaining(RingNutrient.energy),
+            incomplete: incomplete(RingNutrient.energy),
           ),
         if (t.proteinG != null)
           _TargetLine(
             name: 'protein',
             label: l10n.targetsProtein,
             target: gramsText(l10n, t.proteinG!),
-            eaten: eaten(SummaryNutrient.protein) == null
-                ? null
-                : gramsText(l10n, eaten(SummaryNutrient.protein)!),
-            incomplete: incomplete(SummaryNutrient.protein),
+            eaten: eaten(RingNutrient.protein),
+            remaining: remaining(RingNutrient.protein),
+            incomplete: incomplete(RingNutrient.protein),
           ),
         if (t.fatG != null)
           _TargetLine(
             name: 'fat',
             label: l10n.targetsFat,
             target: gramsText(l10n, t.fatG!),
+            eaten: eaten(RingNutrient.fat),
+            remaining: remaining(RingNutrient.fat),
+            incomplete: incomplete(RingNutrient.fat),
           ),
         if (t.carbsG != null)
           _TargetLine(
             name: 'carbs',
             label: l10n.targetsCarbs,
             target: gramsText(l10n, t.carbsG!),
+            eaten: eaten(RingNutrient.carbs),
+            remaining: remaining(RingNutrient.carbs),
+            incomplete: incomplete(RingNutrient.carbs),
           ),
         if (t.numbersHidden.energy || t.numbersHidden.macros)
           Padding(
@@ -254,6 +266,7 @@ class _TargetLine extends StatelessWidget {
     required this.label,
     required this.target,
     this.eaten,
+    this.remaining,
     this.incomplete = false,
   });
 
@@ -261,6 +274,9 @@ class _TargetLine extends StatelessWidget {
   final String label;
   final String target;
   final String? eaten;
+
+  /// "X left" or "X over", the API's `remaining` formatted.
+  final String? remaining;
   final bool incomplete;
 
   @override
@@ -287,6 +303,17 @@ class _TargetLine extends StatelessWidget {
               ),
             ],
           ),
+          if (remaining != null && !incomplete)
+            Padding(
+              key: Key('today-remaining-$name'),
+              padding: const EdgeInsets.only(top: SnTokens.space1),
+              child: Text(
+                remaining!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: c.textSecondary,
+                ),
+              ),
+            ),
           if (incomplete)
             Container(
               key: TodayTargetsCard.incompleteKey,

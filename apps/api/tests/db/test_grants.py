@@ -21,6 +21,8 @@ SELECT_ONLY_FOR_USERS = {
     "products",
     "account_user_types",
     "diary_goal_settings",
+    "meal_slots",
+    "diary_days",
 }
 ALL_PRIVILEGES = {
     "SELECT",

@@ -8,6 +8,7 @@ never rewrite history. Member names and nutrients never go to logs.
 from dataclasses import replace
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import delete, func, select
@@ -15,18 +16,32 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import scoring
+from app.core import time as core_time
 from app.core.config import Settings
 from app.core.errors import ApiError
-from app.core.time import IST, today_ist
+from app.core.time import IST, zone
 from app.features.consents import service as consents_service
+from app.features.diary.days import day_targets
+from app.features.me import service as me_service
+from app.features.meal_slots import service as slots_service
 from app.features.meals.models import MealLog
-from app.features.meals.schemas import MealIn, MealOut, NutrientSnapshot, Summary, WeekCounts
+from app.features.meals.schemas import (
+    MealIn,
+    MealOut,
+    MealPatch,
+    NutrientSnapshot,
+    QuickIn,
+    Summary,
+    WeekCounts,
+)
 from app.features.meals.summary import PERIOD_DAYS, annotate_protein, redact, summarise
 from app.features.members import service as members_service
+from app.features.members.models import Member
 from app.features.products import service as products_service
 from app.features.scans import service as scans_service
 from app.features.targets import mapping as targets_mapping
 from app.features.targets import service as targets_service
+from app.features.targets.schemas import NumbersHidden
 from app.integrations.openfoodfacts import OffClient
 from app.scoring import targets as engine_targets
 
@@ -69,7 +84,57 @@ def snapshot(per_100g: scoring.Nutrients, grams: float) -> NutrientSnapshot:
         fat_g=_portion(n.fat_g, grams),
         sat_fat_g=_portion(n.sat_fat_g, grams),
         carbs_g=_portion(n.carbs_g, grams),
+        fibre_g=_portion(n.fiber_g, grams),
     )
+
+
+NUTRIENT_KEYS = tuple(NutrientSnapshot.model_fields)
+
+
+def food_snapshot(
+    info_name: str,
+    brand: str | None,
+    per_100g: scoring.Nutrients,
+    serving_g: float | None,
+    attribution: str | None,
+) -> dict[str, Any]:
+    """The food as it was at log time (spec 5.1 `food_snapshot`): an edit recomputes from THIS,
+    never from the product row, so a later product edit never rewrites history. ``per_100`` is
+    after the engine's sanitiser, with salt from salt or sodium (the higher wins). Unrounded."""
+    n, _ = per_100g.sanitized()
+    return {
+        "name": info_name,
+        "brand": brand,
+        "basis": "g",
+        "per_100": {
+            "energy_kcal": n.energy_kcal,
+            "sugars_g": n.sugars_g,
+            "salt_g": n.salt(),
+            "protein_g": n.protein_g,
+            "fat_g": n.fat_g,
+            "sat_fat_g": n.sat_fat_g,
+            "carbs_g": n.carbs_g,
+            "fibre_g": n.fiber_g,
+        },
+        "units": {"serving": serving_g} if serving_g else {},
+        "attribution": attribution,
+    }
+
+
+def per_100_of(row: MealLog) -> dict[str, float | None]:
+    """Per 100 g of the entry's food: its `food_snapshot.per_100`, or, for a legacy row,
+    nutrients x 100 / grams (the exact inverse, in Decimal)."""
+    if row.food_snapshot is not None:
+        per_100 = row.food_snapshot["per_100"]
+        return {k: per_100.get(k) for k in NUTRIENT_KEYS}
+    grams = Decimal(repr(float(row.grams or 0)))
+    out: dict[str, float | None] = {}
+    for k in NUTRIENT_KEYS:
+        value = (row.nutrients or {}).get(k)
+        out[k] = (
+            None if value is None or not grams else float(Decimal(repr(float(value))) * 100 / grams)
+        )
+    return out
 
 
 def ist_day_bounds(start_day: date, end_day: date) -> tuple[datetime, datetime]:
@@ -83,9 +148,19 @@ def _display(value: float | None) -> float | None:
     return None if value is None else _round1(float(value))
 
 
-def to_meal_out(row: MealLog) -> MealOut:
+def to_meal_out(row: MealLog, hidden: NumbersHidden | None = None) -> MealOut:
     """The API shape of a log. Nutrients are rounded to 1 dp (ROUND_HALF_UP) here, for
-    display only; the stored snapshot stays unrounded (F1)."""
+    display only; the stored snapshot stays unrounded (F1).
+
+    Ruling E21: every MealOut is redacted with its member's display setting. ``hide_energy``
+    nulls ``energy_kcal``; ``hide_all`` nulls every nutrient. Portions and ``incomplete`` (which
+    nutrients are unknown, computed from the stored values) stay."""
+    raw = row.nutrients or {}
+    nutrients = {k: _display(raw.get(k)) for k in NUTRIENT_KEYS}
+    if hidden is not None and hidden.energy:
+        nutrients["energy_kcal"] = None
+    if hidden is not None and hidden.macros:
+        nutrients = dict.fromkeys(NUTRIENT_KEYS)
     return MealOut(
         id=row.id,
         member_id=row.member_id,
@@ -95,12 +170,23 @@ def to_meal_out(row: MealLog) -> MealOut:
         grade=row.grade,  # type: ignore[arg-type]  (checked by ck_meal_logs_grade)
         grams=row.grams,
         eaten_at=row.eaten_at,
-        nutrients=NutrientSnapshot(
-            **{k: _display(row.nutrients.get(k)) for k in NutrientSnapshot.model_fields}
-        ),
+        nutrients=NutrientSnapshot(**nutrients),
         client_id=row.client_id,
         attribution=OFF_ATTRIBUTION if row.off_barcode is not None else None,
+        source_kind=row.source_kind,  # type: ignore[arg-type]  (checked by ck_meal_logs_source_kind)
+        meal_slot_id=row.meal_slot_id,
+        local_date=row.local_date,
+        incomplete=[k for k in NUTRIENT_KEYS if raw.get(k) is None],
+        updated_at=row.updated_at,
     )
+
+
+async def hidden_for_member(session: AsyncSession, member: Member) -> NumbersHidden:
+    """What the member hid with the eye toggle (their settings row; none means nothing hidden)."""
+    row = await targets_service.get_settings(session, member)
+    if row is None:
+        return NumbersHidden(energy=False, macros=False)
+    return targets_mapping.hidden_for(row.numbers_display)  # type: ignore[arg-type]
 
 
 async def _by_client_id(session: AsyncSession, account_id: UUID, client_id: UUID) -> MealLog | None:
@@ -114,15 +200,54 @@ def _check_eaten_at(eaten_at: datetime, now: datetime) -> None:
         raise ApiError("eaten_at_out_of_range", 422)
 
 
-def _grams(body: MealIn, serving_size_g: float | None) -> float:
-    if body.grams is not None:
-        return body.grams
+def _grams_from(grams: float | None, servings: float | None, serving_size_g: float | None) -> float:
+    if grams is not None:
+        return grams
     if serving_size_g is None:
         raise ApiError("serving_size_unknown", 422)
-    grams = (body.servings or 0) * serving_size_g
-    if not 0 < grams <= 5000:
+    out = (servings or 0) * serving_size_g
+    if not 0 < out <= 5000:
         raise ApiError("validation_error", 422, details={"fields": ["body.servings"]})
-    return grams
+    return out
+
+
+def _grams(body: MealIn, serving_size_g: float | None) -> float:
+    return _grams_from(body.grams, body.servings, serving_size_g)
+
+
+def _quick_nutrients(quick: QuickIn) -> dict[str, float | None]:
+    """The stored nutrients of a quick add: sugars, saturated fat and salt are unknown."""
+    return {
+        "energy_kcal": quick.energy_kcal,
+        "sugars_g": None,
+        "salt_g": None,
+        "protein_g": quick.protein_g,
+        "fat_g": quick.fat_g,
+        "sat_fat_g": None,
+        "carbs_g": quick.carbs_g,
+        "fibre_g": quick.fibre_g,
+    }
+
+
+async def _member_for_log(
+    session: AsyncSession, account_id: UUID, member_id: UUID | None
+) -> Member:
+    """None -> the primary; any member of the account is accepted (family logging, Ruling E9)."""
+    if member_id is None:
+        return await members_service.get_or_create_primary(session, account_id)
+    return await members_service.get_member(session, account_id, member_id)
+
+
+def _eaten_at_for(body: MealIn, now: datetime, tz_name: str, today: date) -> datetime:
+    """Ruling E8: ``local_date`` -> that date at the current local clock time, capped at now."""
+    if body.eaten_at is not None:
+        return body.eaten_at
+    if body.local_date is None or body.local_date == today:
+        return now
+    if body.local_date > today:
+        raise ApiError("date_in_future", 422)
+    clock = core_time.local_clock(now, tz_name)
+    return min(now, datetime.combine(body.local_date, clock, tzinfo=zone(tz_name)))
 
 
 async def log_meal(
@@ -138,39 +263,75 @@ async def log_meal(
 
     A ``client_id`` already stored for the account returns that row (created=False) before
     anything else is checked, so an offline retry succeeds even if Open Food Facts is down.
-    The member is checked before the product, so a foreign member never reaches OFF.
+    Then, in order: the member (a foreign member never reaches OFF), the account zone,
+    ``eaten_at`` and its range check, the slot (the server's pick when none is sent), the
+    local date, the food (a product, an OFF barcode or a quick add), and, for today with
+    `health_data` active, today's frozen target row (Ruling E5).
     """
     if body.client_id is not None:
         existing = await _by_client_id(session, account_id, body.client_id)
         if existing is not None:
             return existing, False
 
-    now = now or datetime.now(IST)
-    eaten_at = body.eaten_at or now
+    now = now or core_time.now_utc()
+    member = await _member_for_log(session, account_id, body.member_id)
+    tz_name = await me_service.account_timezone(session, account_id)
+    today = core_time.local_today(tz_name, now)
+    eaten_at = _eaten_at_for(body, now, tz_name, today)
     _check_eaten_at(eaten_at, now)
-    member = await members_service.get_member(session, account_id, body.member_id)
-    found = await products_service.resolve_ref(
-        session,
-        off,
-        product_id=body.product_id,
-        barcode=body.barcode,
-        settings=settings,
-        account_id=account_id,
+    slot = await slots_service.slot_for_entry(
+        session, member, body.meal_slot_id, core_time.local_clock(eaten_at, tz_name)
     )
-    grams = _grams(body, found.product.serving_size_g)
-    grade = scoring.analyze(found.product, []).report.nutriscore.grade
-    row = MealLog(
-        account_id=account_id,
-        member_id=member.id,
-        product_id=found.product_id,
-        off_barcode=found.info.barcode if found.product_id is None else None,
-        product_name=found.info.name,
-        grade=grade,
-        grams=grams,
-        eaten_at=eaten_at,
-        nutrients=snapshot(found.product.per_100g, grams).model_dump(),
-        client_id=body.client_id,
-    )
+    local_date = core_time.local_date_of(eaten_at, tz_name)
+
+    common: dict[str, Any] = {
+        "account_id": account_id,
+        "member_id": member.id,
+        "eaten_at": eaten_at,
+        "client_id": body.client_id,
+        "local_date": local_date,
+        "meal_slot_id": slot.id,
+    }
+    if body.quick is not None:
+        row = MealLog(
+            **common,
+            source_kind="quick_add",
+            product_id=None,
+            off_barcode=None,
+            product_name=body.quick.name,
+            grade=None,
+            grams=None,
+            nutrients=_quick_nutrients(body.quick),
+            food_snapshot=None,
+        )
+    else:
+        found = await products_service.resolve_ref(
+            session,
+            off,
+            product_id=body.product_id,
+            barcode=body.barcode,
+            settings=settings,
+            account_id=account_id,
+        )
+        grams = _grams(body, found.product.serving_size_g)
+        grade = scoring.analyze(found.product, []).report.nutriscore.grade
+        row = MealLog(
+            **common,
+            source_kind="product" if found.product_id is not None else "off",
+            product_id=found.product_id,
+            off_barcode=found.info.barcode if found.product_id is None else None,
+            product_name=found.info.name,
+            grade=grade,
+            grams=grams,
+            nutrients=snapshot(found.product.per_100g, grams).model_dump(),
+            food_snapshot=food_snapshot(
+                found.info.name or "",
+                found.info.brand,
+                found.product.per_100g,
+                found.product.serving_size_g,
+                found.attribution,
+            ),
+        )
     try:
         async with session.begin_nested():
             session.add(row)
@@ -185,15 +346,87 @@ async def log_meal(
         if existing is None:  # pragma: no cover - the conflicting row was deleted meanwhile
             raise
         return existing, False
+    if (
+        local_date == today
+        and member.is_primary
+        and await consents_service.has_active_consent(session, account_id, "health_data")
+    ):
+        await day_targets(session, member, today, today=today)  # today's frozen row exists
     await session.commit()
     await session.refresh(row)
     return row, True
 
 
-def default_range(today: date | None = None) -> tuple[datetime, datetime]:
-    """The last ``DEFAULT_LIST_DAYS`` IST days, today included."""
-    today = today or today_ist()
-    return ist_day_bounds(today - timedelta(days=DEFAULT_LIST_DAYS - 1), today)
+async def update_meal(
+    session: AsyncSession,
+    account_id: UUID,
+    meal_id: UUID,
+    patch: MealPatch,
+    *,
+    settings: Settings | None = None,
+    now: datetime | None = None,
+) -> MealLog:
+    """Edit an entry (Ruling E10: null = unchanged). Never commits.
+
+    The entry is the account's, else 404 `meal_not_found`; another member's entry is 422
+    `diary_member_not_enabled` while Family is off. A new portion recomputes the nutrients from
+    the entry's own `food_snapshot` (or, for a legacy row, the exact inverse), never from the
+    product row. A new `eaten_at` passes the range check and recomputes `local_date` in the
+    CURRENT account zone. A new slot goes through `slot_for_entry`. `quick` replaces a quick
+    add's values. `updated_at` is bumped. No other `meal_logs` row and no `diary_days` row is
+    written.
+    """
+    row = await session.scalar(
+        select(MealLog).where(MealLog.account_id == account_id, MealLog.id == meal_id)
+    )
+    if row is None:
+        raise ApiError("meal_not_found", 404)
+    member = await members_service.get_member(session, account_id, row.member_id)
+    if not member.is_primary and not (settings is not None and settings.diary_family_enabled):
+        raise ApiError("diary_member_not_enabled", 422)
+    now = now or core_time.now_utc()
+    tz_name = await me_service.account_timezone(session, account_id)
+
+    if patch.quick is not None:
+        if row.source_kind != "quick_add":
+            raise ApiError("validation_error", 422, details={"fields": ["body.quick"]})
+        row.product_name = patch.quick.name
+        row.nutrients = _quick_nutrients(patch.quick)
+    if patch.grams is not None or patch.servings is not None:
+        if row.source_kind == "quick_add":
+            fields = ["body.grams" if patch.grams is not None else "body.servings"]
+            raise ApiError("validation_error", 422, details={"fields": fields})
+        serving = ((row.food_snapshot or {}).get("units") or {}).get("serving")
+        grams = _grams_from(patch.grams, patch.servings, serving)
+        per_100 = per_100_of(row)
+        row.nutrients = {k: _portion(per_100[k], grams) for k in NUTRIENT_KEYS}
+        row.grams = grams
+    if patch.eaten_at is not None:
+        _check_eaten_at(patch.eaten_at, now)
+        row.eaten_at = patch.eaten_at
+        row.local_date = core_time.local_date_of(patch.eaten_at, tz_name)
+    if patch.meal_slot_id is not None:
+        slot = await slots_service.slot_for_entry(
+            session, member, patch.meal_slot_id, core_time.local_clock(row.eaten_at, tz_name)
+        )
+        row.meal_slot_id = slot.id
+    row.updated_at = now
+    await session.flush()
+    return row
+
+
+async def default_range(session: AsyncSession, account_id: UUID) -> tuple[datetime, datetime]:
+    """The last ``DEFAULT_LIST_DAYS`` local days, today included, in the account's zone."""
+    tz_name = await me_service.account_timezone(session, account_id)
+    today = core_time.local_today(tz_name)
+    return core_time.local_day_bounds(today - timedelta(days=DEFAULT_LIST_DAYS - 1), today, tz_name)
+
+
+async def member_for_list(
+    session: AsyncSession, account_id: UUID, member_id: UUID | None
+) -> Member:
+    """None -> the primary (created on first use); any member of the account otherwise."""
+    return await _member_for_log(session, account_id, member_id)
 
 
 async def list_meals(
@@ -224,20 +457,47 @@ async def list_meals(
     return list(await session.scalars(query))
 
 
-async def member_summary(
-    session: AsyncSession, account_id: UUID, member_id: UUID, period: str, end_date: date
-) -> Summary:
-    """The member's summary for the ``period`` ending on ``end_date`` (IST). 404 if foreign.
+async def list_meals_by_date(
+    session: AsyncSession, account_id: UUID, member_id: UUID, start_day: date, end_day: date
+) -> list[MealLog]:
+    """The member's logs with start_day <= local_date <= end_day, newest first (no limit:
+    summaries must never drop meals). The caller has checked the member."""
+    query = (
+        select(MealLog)
+        .where(
+            MealLog.account_id == account_id,
+            MealLog.member_id == member_id,
+            MealLog.local_date >= start_day,
+            MealLog.local_date <= end_day,
+        )
+        .order_by(MealLog.eaten_at.desc(), MealLog.id)
+    )
+    return list(await session.scalars(query))
 
-    Limits come from the engine (age from the birth year as of ``end_date``). The protein
-    target comes from today's daily-targets result when the member has goal settings and
-    `health_data` is active (Plan 10, Ruling D10); otherwise from the legacy weight x g/kg
-    rule. Numbers the member hid are redacted either way, consent or not (Ruling D11).
+
+async def member_summary(
+    session: AsyncSession,
+    account_id: UUID,
+    member_id: UUID,
+    period: str,
+    end_date: date | None = None,
+) -> Summary:
+    """The member's summary for the ``period`` ending on ``end_date`` (the account's local
+    date; default today). 404 if foreign.
+
+    Days group by the stored ``local_date``. Limits come from the engine (age from the birth
+    year as of ``end_date``). The protein target comes from that day's frozen daily-targets row
+    when the member has goal settings and `health_data` is active (Plan 10 Ruling D10; Plan 11
+    Ruling E15); a past day with no row, or a future day, uses the legacy weight x g/kg rule.
+    Numbers the member hid are redacted either way, consent or not (Ruling D11).
     """
     member = await members_service.get_member(session, account_id, member_id)
+    today = await me_service.account_today(session, account_id)
+    end_date = end_date or today
     n_days = PERIOD_DAYS[period]
-    start, end = ist_day_bounds(end_date - timedelta(days=n_days - 1), end_date)
-    meals = await list_meals(session, account_id, member_id, start, end, limit=None)
+    meals = await list_meals_by_date(
+        session, account_id, member_id, end_date - timedelta(days=n_days - 1), end_date
+    )
     scoring_member = members_service.to_scoring_member(member, today=end_date)
     limits = scoring.daily_limits_for(scoring_member, member.weight_kg)
     basis: str | None = None
@@ -257,9 +517,10 @@ async def member_summary(
         limits = replace(
             limits, protein_target_g=float(ref.capped_g), protein_g_per_kg=float(ref.factor)
         )
-    if row is not None and health_ok:
-        result, _ = await targets_service.targets_for_today(session, member)
-        assert result is not None
+    result = None
+    if row is not None and health_ok and end_date <= today:
+        result = await day_targets(session, member, end_date, today=today)
+    if result is not None:
         status = result.status
         if result.status == "ready" and result.explanation is not None:
             basis = result.explanation.protein_basis
@@ -272,7 +533,7 @@ async def member_summary(
             basis = None
             limits = replace(limits, protein_target_g=None, protein_g_per_kg=None)
     summary = annotate_protein(
-        summarise(meals, limits, period, end_date, IST, member_id=member.id), basis, status
+        summarise(meals, limits, period, end_date, member_id=member.id), basis, status
     )
     hidden = targets_mapping.hidden_for(row.numbers_display) if row is not None else None  # type: ignore[arg-type]
     return summary if hidden is None else redact(summary, hidden)

@@ -16,8 +16,9 @@ from app.core.config import Settings, get_app_settings
 from app.core.consent import CONSENT_RESPONSES, gate_for
 from app.core.errors import ERROR_RESPONSES, ApiError
 from app.core.ratelimit import consume, limit
-from app.core.time import today_ist
 from app.db.session import get_session
+from app.features.diary.days import day_targets
+from app.features.me import service as me_service
 from app.features.me.dependencies import CurrentAccount, current_account_row
 from app.features.targets import service
 from app.features.targets.mapping import to_targets_out
@@ -81,11 +82,16 @@ async def targets_settings_put(
     medical advice: the numbers are estimates pending clinician review."""
     member = await service.resolve_member(session, current.account.id, body.member_id, settings)
     row = await service.put_settings(session, member, body, settings)
-    data = service.body_data(member, today_ist())
-    result = engine.compute(data, service.goal_settings(row))
+    today = await me_service.account_today(session, current.account.id)
+    result = await day_targets(session, member, today, today=today)  # refreshes today's row
+    data = service.body_data(member, today)
     out = to_targets_out(
-        member.id, today_ist(), result, row.numbers_display, unusual=_unusual(data)
-    )  # type: ignore[arg-type]
+        member.id,
+        today,
+        result,
+        row.numbers_display,  # type: ignore[arg-type]
+        unusual=_unusual(data),
+    )
     await session.commit()
     return out
 
@@ -105,9 +111,8 @@ async def targets_preview(
     member = await service.resolve_member(session, current.account.id, body.member_id, settings)
     data = service.check_input(member, body, settings, body.body)
     result = engine.compute(data, service.goal_settings(body))
-    out = to_targets_out(
-        member.id, today_ist(), result, body.numbers_display, unusual=_unusual(data)
-    )
+    today = await me_service.account_today(session, current.account.id)
+    out = to_targets_out(member.id, today, result, body.numbers_display, unusual=_unusual(data))
     await session.commit()  # the primary member may have been created
     return out
 
@@ -128,24 +133,24 @@ async def targets_get(
         date | None, Query(alias="date", description="Local date; default today")
     ] = None,
 ) -> TargetsOut:
-    """Today's targets, computed live. A past date has no stored guide in this version, so it
-    returns status `none`; a future date is 422 `date_in_future`."""
-    today = today_ist()
+    """Today's targets, computed live (and frozen for the day). A past date returns that day's
+    frozen targets, or status `none` when the day has none (it is never back-filled; the pace
+    options are not frozen, so `rate_options` is empty). A future date is 422
+    `date_in_future`. Hidden numbers use the CURRENT display setting."""
+    today = await me_service.account_today(session, current.account.id)
     day = date_ or today
     if day > today:
         raise ApiError("date_in_future", 422)
     member = await service.resolve_member(session, current.account.id, member_id, settings)
-    result, row = await service.targets_for_today(session, member)
+    row = await service.get_settings(session, member)
+    result = await day_targets(session, member, day, today=today)
     display = row.numbers_display if row is not None else "show"
-    if day < today:
-        result = None
-    data = service.body_data(member, today)
     out = to_targets_out(
         member.id,
         day,
         result,
         display,  # type: ignore[arg-type]
-        unusual=_unusual(data) if result is not None else (),
+        unusual=_unusual(service.body_data(member, today)) if day == today and result else (),
     )
     await session.commit()  # the primary member may have been created
     return out
@@ -164,6 +169,8 @@ async def targets_settings_delete(
     """Erase the member's daily-guide settings. Needs only `terms`: erasure is never gated."""
     member = await service.resolve_member(session, current.account.id, member_id, settings)
     await service.delete_settings(session, member)
+    today = await me_service.account_today(session, current.account.id)
+    await day_targets(session, member, today, today=today)  # today's row becomes `none`
     await session.commit()
     return Response(status_code=204)
 

@@ -49,7 +49,7 @@ const goldenVerdict = (product, member) => {
 };
 
 let state;
-// POST /__reset?terms=current|old&health_data=current&delete_fails=N&user_types=unanswered|<a,b>
+// POST /__reset?terms=current|old&health_data=current&delete_fails=N&user_types=unanswered|<a,b>&diary=<golden day stem>
 // seeds the signed-in state: terms agreed now or at an older text version
 // (needs_update), how many DELETE /v1/me calls answer 503
 // deletion_incomplete before one succeeds, and the account's user types
@@ -69,6 +69,18 @@ function reset(params = new URLSearchParams()) {
     seq: 0,
     scans: 0,
     meals: [],
+    timezone: "Asia/Kolkata",
+    // Days marked as partly logged (date -> true).
+    partial: {},
+    // ?diary=<stem> serves that golden day (and its week) as-is.
+    diaryDay: params.get("diary")
+      ? read(`diary/expected/${params.get("diary")}.json`)
+      : null,
+    diaryWeek: params.get("diary")
+      ? read(
+          `diary/expected/${params.get("diary") === "day_hide_all" ? "week_hide_all" : "week_mixed"}.json`,
+        )
+      : null,
     // The stored daily-guide settings (GoalSettingsOut), or null.
     goal: null,
     deleteFails: Number(params.get("delete_fails") ?? 0),
@@ -309,42 +321,387 @@ const UNKNOWN_BANDS = {
 };
 const round1 = (n) => Math.round(n * 10) / 10;
 
+const PRIMARY_ID = "a0000000-0000-4000-8000-000000000001";
+const SLOT_KEYS = ["breakfast", "lunch", "snack", "dinner"];
+const slotId = (i) => `d0000000-0000-4000-8000-00000000000${i + 1}`;
+const slotRows = () =>
+  SLOT_KEYS.map((k, i) => ({
+    id: slotId(i),
+    member_id: PRIMARY_ID,
+    position: i,
+    label_key: `diary.slot.${k}`,
+    custom_label: null,
+    default_time_window: null,
+    is_default: true,
+    archived: false,
+  }));
+// Canned: the stub's pick for the current IST hour (the real API decides).
+const suggestedSlot = () => {
+  const h = new Date(Date.now() + IST_MS).getUTCHours();
+  return slotId(h >= 4 && h < 11 ? 0 : h < 16 ? 1 : h < 19 ? 2 : 3);
+};
+const NUTRIENTS = [
+  "energy_kcal",
+  "sugars_g",
+  "salt_g",
+  "protein_g",
+  "fat_g",
+  "sat_fat_g",
+  "carbs_g",
+  "fibre_g",
+];
+const DIARY_KEYS = [
+  "energy_kcal",
+  "protein_g",
+  "fat_g",
+  "carbs_g",
+  "fibre_g",
+  "sugars_g",
+  "salt_g",
+];
+const display = () => state.goal?.numbers_display ?? "show";
+const nowIso = () => new Date().toISOString();
+const capNow = (iso) => (new Date(iso) > new Date() ? nowIso() : iso);
+
+// What the API returns for a stored meal: the stub's private fields are
+// dropped and hidden numbers are null (the API redacts every surface).
+function publicMeal(m) {
+  const d = display();
+  const out = Object.fromEntries(
+    Object.entries(m).filter(([k]) => !k.startsWith("_")),
+  );
+  out.incomplete = NUTRIENTS.filter((k) => m.nutrients[k] == null);
+  out.nutrients = Object.fromEntries(
+    NUTRIENTS.map((k) => [
+      k,
+      (k === "energy_kcal" ? d !== "show" : d === "hide_all")
+        ? null
+        : m.nutrients[k],
+    ]),
+  );
+  return out;
+}
+
+function scaled(per100, grams) {
+  const snap = (v) => (v == null ? null : round1((v * grams) / 100));
+  return Object.fromEntries(NUTRIENTS.map((k) => [k, snap(per100[k])]));
+}
+
 function logMeal(b) {
   const prior =
     b.client_id && state.meals.find((m) => m.client_id === b.client_id);
-  if (prior) return [200, prior];
-  if (!state.members.some((m) => m.id === b.member_id))
+  if (prior) return [200, publicMeal(prior)];
+  const memberId = b.member_id ?? PRIMARY_ID;
+  if (!state.members.some((m) => m.id === memberId))
     return [404, envelope("member_not_found")];
-  if (b.product_id !== SF.product_id)
-    return [404, envelope("product_not_found")];
-  const grams = b.grams ?? (b.servings ?? 0) * SF.serving_size_g;
-  if (!(grams > 0)) return [422, envelope("portion_required")];
-  const p = SF.per_100g;
-  const snap = (v) => (v == null ? null : round1((v * grams) / 100));
+  const today = istDate(nowIso());
+  if (b.local_date && b.local_date > today)
+    return [422, envelope("date_in_future")];
+  if (b.meal_slot_id && !slotRows().some((r) => r.id === b.meal_slot_id))
+    return [404, envelope("meal_slot_not_found")];
   state.seq += 1;
-  const meal = {
-    id: `c0000000-0000-4000-8000-${String(state.seq).padStart(12, "0")}`,
-    member_id: b.member_id,
-    product_id: SF.product_id,
-    barcode: null,
-    product_name: SF.name,
-    grade: "D",
-    grams,
-    eaten_at: b.eaten_at ?? new Date().toISOString(),
-    nutrients: {
-      energy_kcal: snap(p.energy_kcal),
-      sugars_g: snap(p.sugars_g),
-      salt_g: snap(p.salt_g),
-      protein_g: snap(p.protein_g),
-      fat_g: snap(p.fat_g),
-      sat_fat_g: snap(p.sat_fat_g),
-      carbs_g: snap(p.carbs_g),
-    },
+  const id = `c0000000-0000-4000-8000-${String(state.seq).padStart(12, "0")}`;
+  const when = b.local_date
+    ? capNow(`${b.local_date}T${istClock(nowIso())}+05:30`)
+    : (b.eaten_at ?? nowIso());
+  const base = {
+    id,
+    member_id: memberId,
+    eaten_at: when,
     client_id: b.client_id ?? null,
-    attribution: null,
+    meal_slot_id: b.meal_slot_id ?? suggestedSlot(),
+    local_date: istDate(when),
+    updated_at: nowIso(),
   };
+  let meal;
+  if (b.quick) {
+    if (!(b.quick.energy_kcal > 0))
+      return [422, envelope("quick_add_energy_required")];
+    meal = {
+      ...base,
+      product_id: null,
+      barcode: null,
+      product_name: b.quick.name ?? "",
+      grade: null,
+      grams: null,
+      source_kind: "quick_add",
+      attribution: null,
+      nutrients: Object.fromEntries(
+        NUTRIENTS.map((k) => [k, b.quick[k] ?? null]),
+      ),
+    };
+  } else {
+    if (b.product_id !== SF.product_id)
+      return [404, envelope("product_not_found")];
+    const grams = b.grams ?? (b.servings ?? 0) * SF.serving_size_g;
+    if (!(grams > 0)) return [422, envelope("portion_required")];
+    meal = {
+      ...base,
+      product_id: SF.product_id,
+      barcode: null,
+      product_name: SF.name,
+      grade: "D",
+      grams,
+      source_kind: "product",
+      attribution: null,
+      nutrients: scaled(SF.per_100g, grams),
+      _per100: SF.per_100g,
+    };
+  }
   state.meals.push(meal);
-  return [201, meal];
+  return [201, publicMeal(meal)];
+}
+
+const istClock = (iso) =>
+  new Date(new Date(iso).getTime() + IST_MS).toISOString().slice(11, 19);
+
+function patchMeal(id, b) {
+  const m = state.meals.find((x) => x.id === id);
+  if (!m) return [404, envelope("meal_not_found")];
+  const set = ["grams", "servings", "meal_slot_id", "eaten_at", "quick"].filter(
+    (k) => b[k] != null,
+  );
+  if (!set.length) return [422, envelope("validation_error")];
+  if (b.grams != null) {
+    if (m.source_kind === "quick_add")
+      return [422, envelope("validation_error")];
+    m.grams = b.grams;
+    m.nutrients = scaled(m._per100, b.grams);
+  }
+  if (b.quick != null) {
+    if (m.source_kind !== "quick_add")
+      return [422, envelope("validation_error")];
+    m.product_name = b.quick.name ?? "";
+    m.nutrients = Object.fromEntries(
+      NUTRIENTS.map((k) => [k, b.quick[k] ?? null]),
+    );
+  }
+  if (b.meal_slot_id != null) m.meal_slot_id = b.meal_slot_id;
+  m.updated_at = nowIso();
+  return [200, publicMeal(m)];
+}
+
+function copyMeals(b) {
+  const today = istDate(nowIso());
+  if (b.from_date > today || b.to_date > today)
+    return [422, envelope("date_in_future")];
+  const source = state.meals
+    .filter(
+      (m) =>
+        m.member_id === (b.member_id ?? PRIMARY_ID) &&
+        m.local_date === b.from_date &&
+        (!b.from_slot_id || m.meal_slot_id === b.from_slot_id),
+    )
+    .sort((x, y) => x.eaten_at.localeCompare(y.eaten_at));
+  if (!source.length) return [422, envelope("copy_source_empty")];
+  const created = [];
+  let fresh = false;
+  for (const src of source) {
+    const cid = `${b.client_id}:${src.id}`;
+    let copy = state.meals.find((m) => m.client_id === cid);
+    if (!copy) {
+      fresh = true;
+      state.seq += 1;
+      copy = {
+        ...src,
+        id: `c0000000-0000-4000-8000-${String(state.seq).padStart(12, "0")}`,
+        client_id: cid,
+        meal_slot_id: b.to_slot_id ?? src.meal_slot_id,
+        eaten_at: capNow(`${b.to_date}T${istClock(src.eaten_at)}+05:30`),
+        local_date: b.to_date,
+        updated_at: nowIso(),
+      };
+      state.meals.push(copy);
+    }
+    created.push(publicMeal(copy));
+  }
+  return [fresh ? 201 : 200, { created }];
+}
+
+// ---- Diary (e2e/diary.spec.ts) ----------------------------------------------
+// With ?diary=<stem> on /__reset the golden day (and week) is served as-is.
+// Otherwise a day is assembled from the stored meals: sums of the known
+// values only (null when none is known), never a verdict. Targets, when a
+// guide exists, are the golden TargetsOut; `remaining` and `progress` are the
+// stub's own arithmetic, only to exercise the screen.
+
+const sumKnown = (list, k) => {
+  const known = list.map((m) => m.nutrients[k]).filter((v) => v != null);
+  return known.length ? round1(known.reduce((a, v) => a + v, 0)) : null;
+};
+const totalsOf = (list) =>
+  Object.fromEntries(DIARY_KEYS.map((k) => [k, sumKnown(list, k)]));
+const incompleteOf = (list) =>
+  Object.fromEntries(
+    DIARY_KEYS.map((k) => [k, list.some((m) => m.nutrients[k] == null)]),
+  );
+const redactTotals = (t) => {
+  const d = display();
+  return Object.fromEntries(
+    DIARY_KEYS.map((k) => [
+      k,
+      (k === "energy_kcal" ? d !== "show" : d === "hide_all") ? null : t[k],
+    ]),
+  );
+};
+
+function diaryDayOut(date) {
+  if (state.diaryDay && !date) return [200, state.diaryDay];
+  const today = istDate(nowIso());
+  const day = date ?? today;
+  if (day > today) return [422, envelope("date_in_future")];
+  const d = display();
+  const hidden = { energy: d !== "show", macros: d === "hide_all" };
+  const dayMeals = state.meals
+    .filter((m) => m.member_id === PRIMARY_ID && m.local_date === day)
+    .sort((x, y) => x.eaten_at.localeCompare(y.eaten_at));
+  const consent = state.consents.health_data === null;
+  let targets = null;
+  let status = "consent_required";
+  if (!consent) {
+    const [, t] = targetsRoute("GET", "/v1/targets", {});
+    targets = t;
+    status = t.status;
+  }
+  const eaten = totalsOf(dayMeals);
+  const incomplete = incompleteOf(dayMeals);
+  const TARGET = {
+    energy_kcal: targets?.energy_kcal,
+    protein_g: targets?.protein_g,
+    fat_g: targets?.fat_g,
+    carbs_g: targets?.carbs_g,
+  };
+  const MACRO4 = ["energy_kcal", "protein_g", "fat_g", "carbs_g"];
+  const ready = status === "ready";
+  const remaining = ready
+    ? Object.fromEntries(
+        MACRO4.map((k) => [
+          k,
+          incomplete[k] || (k === "energy_kcal" ? hidden.energy : hidden.macros)
+            ? null
+            : round1(TARGET[k] - (eaten[k] ?? 0)),
+        ]),
+      )
+    : null;
+  const progress = ready
+    ? Object.fromEntries(
+        MACRO4.map((k) => [
+          k,
+          incomplete[k]
+            ? null
+            : TARGET[k]
+              ? Math.round(((eaten[k] ?? 0) / TARGET[k]) * 100) / 100
+              : 0.5,
+        ]),
+      )
+    : null;
+  return [
+    200,
+    {
+      member_id: PRIMARY_ID,
+      date: day,
+      today,
+      timezone: "Asia/Kolkata",
+      slots: slotRows().map((r) => {
+        const list = dayMeals.filter((m) => m.meal_slot_id === r.id);
+        return {
+          slot_id: r.id,
+          label_key: r.label_key,
+          custom_label: null,
+          position: r.position,
+          archived: false,
+          entries: list.map(publicMeal),
+          totals: redactTotals(totalsOf(list)),
+          incomplete: incompleteOf(list),
+        };
+      }),
+      totals: redactTotals(eaten),
+      incomplete,
+      targets,
+      targets_status: status,
+      remaining,
+      progress,
+      limits_bands: UNKNOWN_BANDS,
+      partial_logged: Boolean(state.partial[day]),
+      numbers_hidden: hidden,
+      pending_clinician_review: true,
+    },
+  ];
+}
+
+function diaryWeekOut(end) {
+  if (state.diaryWeek && !end) return [200, state.diaryWeek];
+  const today = istDate(nowIso());
+  const last = end ?? today;
+  if (last > today) return [422, envelope("date_in_future")];
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const date = addDays(last, i - 6);
+    const list = state.meals.filter(
+      (m) => m.member_id === PRIMARY_ID && m.local_date === date,
+    );
+    return {
+      date,
+      items: list.length,
+      totals: redactTotals(totalsOf(list)),
+      incomplete: incompleteOf(list),
+      targets: null,
+      progress: null,
+      partial_logged: Boolean(state.partial[date]),
+      bands: UNKNOWN_BANDS,
+    };
+  });
+  const averaged = days.filter((d) => d.items > 0 && !d.partial_logged);
+  const avg = (k) => {
+    const known = averaged.map((d) => d.totals[k]).filter((v) => v != null);
+    return known.length
+      ? round1(known.reduce((a, v) => a + v, 0) / averaged.length)
+      : null;
+  };
+  const d = display();
+  return [
+    200,
+    {
+      member_id: PRIMARY_ID,
+      start: days[0].date,
+      end: last,
+      today,
+      days,
+      averages: {
+        energy_kcal: avg("energy_kcal"),
+        protein_g: avg("protein_g"),
+        fat_g: avg("fat_g"),
+        carbs_g: avg("carbs_g"),
+      },
+      averages_incomplete: Object.fromEntries(
+        DIARY_KEYS.map((k) => [k, averaged.some((day) => day.incomplete[k])]),
+      ),
+      averaged_days: averaged.length,
+      protein_met_days: 0,
+      numbers_hidden: { energy: d !== "show", macros: d === "hide_all" },
+      pending_clinician_review: true,
+    },
+  ];
+}
+
+function diaryRecents() {
+  const seen = new Set();
+  const items = [];
+  for (const m of [...state.meals].reverse()) {
+    if (m.source_kind !== "product" || seen.has(m.product_id)) continue;
+    seen.add(m.product_id);
+    items.push({
+      source_kind: "product",
+      product_id: m.product_id,
+      barcode: null,
+      name: m.product_name,
+      grade: m.grade,
+      grams: m.grams,
+      meal_slot_id: m.meal_slot_id,
+      last_eaten_at: m.eaten_at,
+      attribution: null,
+    });
+  }
+  return [200, { items }];
 }
 
 function dayOf(memberId, date) {
@@ -515,8 +872,23 @@ function route(method, path, b, q = new URLSearchParams()) {
         display_name: null,
         language: "en",
         created_at: "2026-01-01T00:00:00Z",
+        timezone: state.timezone,
       },
     ];
+  if (method === "PUT" && path === "/v1/me/timezone") {
+    state.timezone = b.timezone;
+    return [
+      200,
+      {
+        id: E2E_USER_ID,
+        email: "e2e@example.test",
+        display_name: null,
+        language: "en",
+        created_at: "2026-01-01T00:00:00Z",
+        timezone: state.timezone,
+      },
+    ];
+  }
   if (method === "DELETE" && path === "/v1/me") {
     if (state.deleteFails > 0) {
       state.deleteFails -= 1;
@@ -610,8 +982,30 @@ function route(method, path, b, q = new URLSearchParams()) {
     return [200, analyze()];
   }
   // The meals routes share the terms gate (ruling G1).
-  if (path.startsWith("/v1/meals") && termsMissing())
+  if (
+    (path.startsWith("/v1/meals") ||
+      path.startsWith("/v1/diary") ||
+      path.startsWith("/v1/meal-slots")) &&
+    termsMissing()
+  )
     return [403, envelope("consent_required", { purposes: ["terms"] })];
+  if (method === "GET" && path === "/v1/meal-slots")
+    return [200, { items: slotRows(), suggested_slot_id: suggestedSlot() }];
+  if (method === "GET" && path === "/v1/diary/day")
+    return diaryDayOut(q.get("date"));
+  if (method === "GET" && path === "/v1/diary/week")
+    return diaryWeekOut(q.get("end"));
+  if (method === "GET" && path === "/v1/diary/recents") return diaryRecents();
+  const status = path.match(/^\/v1\/diary\/days\/(\d{4}-\d{2}-\d{2})\/status$/);
+  if (status && method === "PUT") {
+    if (status[1] > istDate(nowIso())) return [422, envelope("date_in_future")];
+    state.partial[status[1]] = Boolean(b.partial_logged);
+    return [
+      200,
+      { date: status[1], partial_logged: Boolean(b.partial_logged) },
+    ];
+  }
+  if (method === "POST" && path === "/v1/meals/copy") return copyMeals(b);
   if (method === "POST" && path === "/v1/meals") return logMeal(b);
   if (method === "GET" && path === "/v1/meals") {
     const from = new Date(q.get("from")).getTime();
@@ -622,7 +1016,8 @@ function route(method, path, b, q = new URLSearchParams()) {
         const t = new Date(m.eaten_at).getTime();
         return t >= from && t < to;
       })
-      .sort((x, y) => y.eaten_at.localeCompare(x.eaten_at));
+      .sort((x, y) => y.eaten_at.localeCompare(x.eaten_at))
+      .map(publicMeal);
     return [200, list];
   }
   if (method === "GET" && path === "/v1/meals/summary") return summary(q);
@@ -639,6 +1034,7 @@ function route(method, path, b, q = new URLSearchParams()) {
     ];
   }
   const meal = path.match(/^\/v1\/meals\/([0-9a-f-]{36})$/);
+  if (meal && method === "PATCH") return patchMeal(meal[1], b);
   if (meal && method === "DELETE") {
     const before = state.meals.length;
     state.meals = state.meals.filter((m) => m.id !== meal[1]);

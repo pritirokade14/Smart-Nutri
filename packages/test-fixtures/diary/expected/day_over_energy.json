@@ -1,0 +1,315 @@
+{
+  "date": "2026-11-07",
+  "incomplete": {
+    "carbs_g": false,
+    "energy_kcal": false,
+    "fat_g": false,
+    "fibre_g": true,
+    "protein_g": false,
+    "salt_g": true,
+    "sugars_g": true
+  },
+  "limits_bands": {
+    "kcal": "unknown",
+    "protein_g": "ok",
+    "salt_g": "unknown",
+    "sugar_g": "unknown"
+  },
+  "member_id": "b8999783-cbac-56c7-a1b7-e33471b43565",
+  "numbers_hidden": {
+    "energy": false,
+    "macros": false
+  },
+  "partial_logged": false,
+  "pending_clinician_review": true,
+  "progress": {
+    "carbs_g": 0.94,
+    "energy_kcal": 1.09,
+    "fat_g": 1.0,
+    "protein_g": 1.07
+  },
+  "remaining": {
+    "carbs_g": 25.0,
+    "energy_kcal": -250.4,
+    "fat_g": 0.0,
+    "protein_g": -8.0
+  },
+  "slots": [
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T08:00:00+05:30",
+          "grade": null,
+          "grams": 400.0,
+          "id": "57c6411e-c8a9-5e4c-bda8-2849bcbc72ef",
+          "incomplete": [
+            "sugars_g",
+            "salt_g",
+            "sat_fat_g",
+            "fibre_g"
+          ],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "4fef5c09-46a7-56cb-b267-bf0188fe6611",
+          "member_id": "b8999783-cbac-56c7-a1b7-e33471b43565",
+          "nutrients": {
+            "carbs_g": 150.0,
+            "energy_kcal": 1200.4,
+            "fat_g": 30.0,
+            "fibre_g": null,
+            "protein_g": 40.0,
+            "salt_g": null,
+            "sat_fat_g": null,
+            "sugars_g": null
+          },
+          "product_id": "acdb77be-ca87-5cc6-8fd7-d611dd2dc514",
+          "product_name": "Big breakfast",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T08:00:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": true,
+        "protein_g": false,
+        "salt_g": true,
+        "sugars_g": true
+      },
+      "label_key": "diary.slot.breakfast",
+      "position": 0,
+      "slot_id": "4fef5c09-46a7-56cb-b267-bf0188fe6611",
+      "totals": {
+        "carbs_g": 150.0,
+        "energy_kcal": 1200.4,
+        "fat_g": 30.0,
+        "fibre_g": null,
+        "protein_g": 40.0,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T13:00:00+05:30",
+          "grade": null,
+          "grams": 500.0,
+          "id": "eef98490-5867-5ed2-973d-61f01a1bd2ab",
+          "incomplete": [
+            "sugars_g",
+            "salt_g",
+            "sat_fat_g",
+            "fibre_g"
+          ],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "df09e37f-1efb-57f2-9db0-ac09cf595ea4",
+          "member_id": "b8999783-cbac-56c7-a1b7-e33471b43565",
+          "nutrients": {
+            "carbs_g": 140.0,
+            "energy_kcal": 1000.0,
+            "fat_g": 25.0,
+            "fibre_g": null,
+            "protein_g": 50.0,
+            "salt_g": null,
+            "sat_fat_g": null,
+            "sugars_g": null
+          },
+          "product_id": "14399703-d416-56bc-a6fc-b393339cc687",
+          "product_name": "Big lunch",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T13:00:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": true,
+        "protein_g": false,
+        "salt_g": true,
+        "sugars_g": true
+      },
+      "label_key": "diary.slot.lunch",
+      "position": 1,
+      "slot_id": "df09e37f-1efb-57f2-9db0-ac09cf595ea4",
+      "totals": {
+        "carbs_g": 140.0,
+        "energy_kcal": 1000.0,
+        "fat_g": 25.0,
+        "fibre_g": null,
+        "protein_g": 50.0,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.snack",
+      "position": 2,
+      "slot_id": "ec0daeb8-3bf5-5009-a421-6c48bc9f1536",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T21:00:00+05:30",
+          "grade": null,
+          "grams": 450.0,
+          "id": "c0137c84-967b-5dd4-9b57-21a6b10d9be4",
+          "incomplete": [
+            "sugars_g",
+            "salt_g",
+            "sat_fat_g",
+            "fibre_g"
+          ],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "0ceb8f32-1258-5828-9e8d-d38022792a2d",
+          "member_id": "b8999783-cbac-56c7-a1b7-e33471b43565",
+          "nutrients": {
+            "carbs_g": 90.0,
+            "energy_kcal": 810.0,
+            "fat_g": 22.0,
+            "fibre_g": null,
+            "protein_g": 30.0,
+            "salt_g": null,
+            "sat_fat_g": null,
+            "sugars_g": null
+          },
+          "product_id": "d019bf96-71da-5afb-b0f7-d92801ebb72b",
+          "product_name": "Big dinner",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T21:00:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": true,
+        "protein_g": false,
+        "salt_g": true,
+        "sugars_g": true
+      },
+      "label_key": "diary.slot.dinner",
+      "position": 3,
+      "slot_id": "0ceb8f32-1258-5828-9e8d-d38022792a2d",
+      "totals": {
+        "carbs_g": 90.0,
+        "energy_kcal": 810.0,
+        "fat_g": 22.0,
+        "fibre_g": null,
+        "protein_g": 30.0,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    }
+  ],
+  "targets": {
+    "basis": "formula",
+    "carbs_g": 405,
+    "date": "2026-11-07",
+    "direction": "gain",
+    "energy_kcal": 2760,
+    "explanation": {
+      "activity_factor": 1.55,
+      "adjustment_kcal": 193,
+      "bmr_kcal": 1659,
+      "body_fat_pct_used": null,
+      "floor_kcal": null,
+      "ibw_kg": null,
+      "maintenance_kcal": 2571,
+      "protein_basis": "actual_weight",
+      "protein_g_per_kg": 1.6,
+      "protein_reference_weight_kg": 70.0,
+      "weight_kg_used": 70.0
+    },
+    "fat_g": 77,
+    "flags": [],
+    "member_id": "b8999783-cbac-56c7-a1b7-e33471b43565",
+    "missing_fields": [],
+    "numbers_hidden": {
+      "energy": false,
+      "macros": false
+    },
+    "pending_clinician_review": true,
+    "protein_g": 112,
+    "rate": {
+      "kg_per_week": 0.18,
+      "pct_bw_per_week": 0.25
+    },
+    "rate_options": [
+      {
+        "kg_per_week": 0.07,
+        "pct_bw_per_week": 0.1
+      },
+      {
+        "kg_per_week": 0.18,
+        "pct_bw_per_week": 0.25
+      },
+      {
+        "kg_per_week": 0.35,
+        "pct_bw_per_week": 0.5
+      }
+    ],
+    "sources": [
+      "mifflin_1990",
+      "cdc_weight_loss",
+      "iom_2005_dri",
+      "issn_protein_2017",
+      "morton_2018",
+      "icmr_nin_2024",
+      "who_protein_2007",
+      "devine_1974",
+      "smartnutri_working_values"
+    ],
+    "status": "ready",
+    "unusual_fields": []
+  },
+  "targets_status": "ready",
+  "timezone": "Asia/Kolkata",
+  "today": "2026-11-07",
+  "totals": {
+    "carbs_g": 380.0,
+    "energy_kcal": 3010.4,
+    "fat_g": 77.0,
+    "fibre_g": null,
+    "protein_g": 120.0,
+    "salt_g": null,
+    "sugars_g": null
+  }
+}

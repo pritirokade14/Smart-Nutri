@@ -69,12 +69,9 @@ async def test_week_summary_for_child(client, family, sf_biscuit_product_id):
     assert s["days"][-1]["items"] == 1 and s["days"][0]["items"] == 0
     assert s["days"][0]["bands"]["sugar_g"] == "unknown"
     # Ruling M1 S1: an empty day has null totals, never 0.0.
-    assert s["days"][0]["totals"] == {
-        "energy_kcal": None,
-        "sugars_g": None,
-        "salt_g": None,
-        "protein_g": None,
-    }
+    assert s["days"][0]["totals"] == dict.fromkeys(
+        ("energy_kcal", "protein_g", "fat_g", "carbs_g", "fibre_g", "sugars_g", "salt_g")
+    )
 
 
 async def test_summary_for_a_past_date(client, family, sf_biscuit_product_id):

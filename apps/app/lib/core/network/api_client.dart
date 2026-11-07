@@ -11,6 +11,7 @@ import '../../features/consent/presentation/consent_providers.dart';
 import '../config/app_config.dart';
 import '../l10n/app_localizations.dart';
 import 'auth_interceptor.dart';
+import 'date_only_interceptor.dart';
 
 final apiClientProvider = Provider<SmartNutriApiClient>((ref) {
   final config = ref.watch(appConfigProvider);
@@ -19,6 +20,7 @@ final apiClientProvider = Provider<SmartNutriApiClient>((ref) {
   // provider's cached data (members, consents, results) with it.
   ref.watch(signedInProvider);
   final dio = Dio(BaseOptions(baseUrl: config.apiBaseUrl))
+    ..interceptors.add(DateOnlyInterceptor())
     ..interceptors.add(AuthInterceptor(auth.accessToken, auth.signOut))
     ..interceptors.add(
       ConsentRequiredInterceptor(
@@ -95,6 +97,14 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'diary_member_not_enabled' => l10n.errorDiaryMemberNotEnabled,
     'date_in_future' => l10n.errorDateInFuture,
     'goal_settings_not_found' => l10n.errorGoalSettingsNotFound,
+    'quick_add_energy_required' => l10n.errorQuickAddEnergyRequired,
+    'copy_source_empty' => l10n.errorCopySourceEmpty,
+    'copy_too_many' => l10n.errorCopyTooMany,
+    'date_too_old' => l10n.errorDateTooOld,
+    'meal_slot_not_found' => l10n.errorMealSlotNotFound,
+    'meal_slot_archived' => l10n.errorMealSlotArchived,
+    'meal_slot_limit_reached' => l10n.errorMealSlotLimitReached,
+    'timezone_invalid' => l10n.errorTimezoneInvalid,
     'scan_image_not_found' => l10n.errorScanImageNotFound,
     'scan_not_found' => l10n.errorScanNotFound,
     'extraction_failed' => l10n.errorExtractionFailed,

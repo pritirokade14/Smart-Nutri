@@ -97,15 +97,15 @@ test("first sign-in: terms, then the picker, follow-ups and a confirmed pre-fill
   await expect(nav.getByTestId("nav-tab")).toHaveText([
     "Home",
     "Scan",
+    "Diary",
     "Protein",
-    "Compare",
     "Profile",
   ]);
   // Nothing is lost: the rest is under More.
   await page.getByRole("button", { name: "More" }).click();
   await expect(page.getByTestId("more-dialog").getByRole("link")).toHaveText([
-    "History",
     "Family",
+    "Compare",
     "Search",
     "How we score",
   ]);
@@ -131,7 +131,7 @@ test("skip for now stores no types and lands on Home", async ({
 }) => {
   await request.post(`${STUB}/__reset?terms=current&user_types=unanswered`);
   await signIn(context);
-  await page.goto("/en/history");
+  await page.goto("/en/diary");
   await expect(page).toHaveURL(/\/en\/welcome$/);
   await page.getByRole("button", { name: "Skip for now" }).click();
   await expect(page).toHaveURL(/\/en\/home$/);

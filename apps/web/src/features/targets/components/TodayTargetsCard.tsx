@@ -7,9 +7,8 @@ import { Card } from "@/components/ui/Card";
 import { chipClass } from "@/components/ui/Chip";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/Skeleton";
+import { useDiaryDay } from "@/features/diary/hooks/useDiaryDay";
 import { formatAmount, shownTotal } from "@/features/history/lib/summary";
-import { todayIst } from "@/features/meals/api/meals";
-import { useSummary } from "@/features/meals/hooks/useMeals";
 import type { MemberOut } from "@/features/members/api/members";
 import {
   ConsentDialog,
@@ -48,21 +47,23 @@ function skippedThisSession(): boolean {
 type Eaten = { total: number | null; incomplete: boolean };
 
 /**
- * One target row. Energy and protein show "{eaten} of {target}" with the
- * summary's eaten total; fat and carbs show the target only (eaten arrives
- * with the diary). No client-side comparison: the row renders what the API
- * returned, whatever the eaten total is.
+ * One target row: "{eaten} of {target}" from the diary day's totals, and the
+ * day's `remaining` ("X left", or "X over" with the absolute value, neutral
+ * tone) when the API sent one. No client-side comparison or subtraction: the
+ * row renders what the API returned, whatever the eaten total is.
  */
 function TargetRow({
   label,
   target,
   eaten,
+  remaining,
   unit,
   testId,
 }: {
   label: string;
   target: number;
   eaten?: Eaten;
+  remaining?: number | null;
   unit: "targets.kcal_value" | "targets.g_value";
   testId: string;
 }) {
@@ -88,28 +89,34 @@ function TargetRow({
         <span className={chipClass} data-testid={`${testId}-incomplete`}>
           {t("diary.incomplete")}
         </span>
+      ) : typeof remaining === "number" ? (
+        <p
+          data-testid={`${testId}-remaining`}
+          className="text-sm text-text-secondary"
+        >
+          {t(remaining < 0 ? "diary.over" : "diary.left", {
+            value: t(unit, { value: formatAmount(Math.abs(remaining)) }),
+          })}
+        </p>
       ) : null}
     </li>
   );
 }
 
-function Ready({
-  targets,
-  primary,
-}: {
-  targets: TargetsOut;
-  primary?: MemberOut;
-}) {
+function Ready({ targets }: { targets: TargetsOut }) {
   const t = useTranslations();
-  const summary = useSummary(primary?.id, "day", todayIst());
-  const s = summary.data;
-  const eaten = (key: "energy_kcal" | "protein_g"): Eaten | undefined =>
-    s
+  const day = useDiaryDay();
+  const d = day.data;
+  type Key = "energy_kcal" | "protein_g" | "fat_g" | "carbs_g";
+  const eaten = (key: Key): Eaten | undefined =>
+    d
       ? {
-          total: shownTotal(s.totals?.[key], s.incomplete?.[key] === true),
-          incomplete: s.incomplete?.[key] === true,
+          total: shownTotal(d.totals[key], d.incomplete[key] === true),
+          incomplete: d.incomplete[key] === true,
         }
       : undefined;
+  // `remaining` is null as a whole unless the day's guide is ready.
+  const left = (key: Key) => d?.remaining?.[key];
   const { energy, macros } = targets.numbers_hidden;
   return (
     <>
@@ -120,6 +127,7 @@ function Ready({
             label={t("targets.energy")}
             target={targets.energy_kcal}
             eaten={eaten("energy_kcal")}
+            remaining={left("energy_kcal")}
             unit="targets.kcal_value"
           />
         ) : null}
@@ -129,6 +137,7 @@ function Ready({
             label={t("targets.protein")}
             target={targets.protein_g}
             eaten={eaten("protein_g")}
+            remaining={left("protein_g")}
             unit="targets.g_value"
           />
         ) : null}
@@ -137,6 +146,8 @@ function Ready({
             testId="target-fat"
             label={t("targets.fat")}
             target={targets.fat_g}
+            eaten={eaten("fat_g")}
+            remaining={left("fat_g")}
             unit="targets.g_value"
           />
         ) : null}
@@ -145,6 +156,8 @@ function Ready({
             testId="target-carbs"
             label={t("targets.carbs")}
             target={targets.carbs_g}
+            eaten={eaten("carbs_g")}
+            remaining={left("carbs_g")}
             unit="targets.g_value"
           />
         ) : null}
@@ -162,13 +175,12 @@ function Ready({
 }
 
 /**
- * The Today "daily guide" card (Plan 10, slice 1): the API's targets as rows
- * (no rings: remaining and progress arrive with the diary), the eaten total
- * from the meal summary, and the eye toggle. A missing health_data consent is
+ * The Today "daily guide" card: the API's targets as rows, the eaten totals
+ * and remaining from the diary day (GET /v1/diary/day), and the eye toggle. A missing health_data consent is
  * an inline card with a grant button, never a redirect. Nothing is computed
  * here; hidden numbers arrive as null and stay hidden.
  */
-export function TodayTargetsCard({ primary }: { primary?: MemberOut }) {
+export function TodayTargetsCard(_props: { primary?: MemberOut } = {}) {
   const t = useTranslations();
   const locale = useLocale();
   const query = useTodayTargets();
@@ -279,7 +291,7 @@ export function TodayTargetsCard({ primary }: { primary?: MemberOut }) {
           ) : null}
         </div>
       ) : (
-        <Ready targets={targets} primary={primary} />
+        <Ready targets={targets} />
       )}
       <p className="text-sm text-text-secondary">{t("diary.disclaimer")}</p>
       <p className="text-sm text-text-secondary">

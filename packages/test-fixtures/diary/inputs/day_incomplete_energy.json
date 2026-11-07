@@ -1,0 +1,45 @@
+{
+  "as_of": "2026-11-07",
+  "date": "2026-11-07",
+  "timezone": "Asia/Kolkata",
+  "targets_case": "g1_build_muscle",
+  "targets_status": null,
+  "numbers_display": "show",
+  "partial_logged": false,
+  "entries": [
+    {
+      "slot": "breakfast",
+      "local_time": "08:15",
+      "source_kind": "product",
+      "name": "Muesli",
+      "grams": 80,
+      "nutrients": {
+        "energy_kcal": 300.0,
+        "sugars_g": 9.0,
+        "salt_g": 0.2,
+        "protein_g": 10.0,
+        "fat_g": 8.0,
+        "sat_fat_g": 1.5,
+        "carbs_g": 45.0,
+        "fibre_g": 5.0
+      }
+    },
+    {
+      "slot": "lunch",
+      "local_time": "13:40",
+      "source_kind": "off",
+      "name": "Open Food Facts namkeen",
+      "grams": 30,
+      "nutrients": {
+        "energy_kcal": null,
+        "sugars_g": null,
+        "salt_g": null,
+        "protein_g": 12.5,
+        "fat_g": 20.0,
+        "sat_fat_g": null,
+        "carbs_g": 30.0,
+        "fibre_g": null
+      }
+    }
+  ]
+}

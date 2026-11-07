@@ -15,14 +15,20 @@
       },
       "date": "2026-10-28",
       "incomplete": {
+        "carbs_g": false,
         "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
         "protein_g": false,
         "salt_g": false,
         "sugars_g": false
       },
       "items": 1,
       "totals": {
+        "carbs_g": 26.4,
         "energy_kcal": 155.6,
+        "fat_g": 2.8,
+        "fibre_g": 4.2,
         "protein_g": 5.2,
         "salt_g": 0.0,
         "sugars_g": 0.4
@@ -37,14 +43,20 @@
       },
       "date": "2026-10-29",
       "incomplete": {
+        "carbs_g": false,
         "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
         "protein_g": false,
         "salt_g": false,
         "sugars_g": false
       },
       "items": 1,
       "totals": {
+        "carbs_g": 36.0,
         "energy_kcal": 225.0,
+        "fat_g": 7.5,
+        "fibre_g": 1.0,
         "protein_g": 4.0,
         "salt_g": 0.5,
         "sugars_g": 1.0
@@ -59,14 +71,20 @@
       },
       "date": "2026-10-30",
       "incomplete": {
+        "carbs_g": false,
         "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
         "protein_g": false,
         "salt_g": false,
         "sugars_g": false
       },
       "items": 0,
       "totals": {
+        "carbs_g": null,
         "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
         "protein_g": null,
         "salt_g": null,
         "sugars_g": null
@@ -81,14 +99,20 @@
       },
       "date": "2026-10-31",
       "incomplete": {
+        "carbs_g": false,
         "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
         "protein_g": false,
         "salt_g": false,
         "sugars_g": false
       },
       "items": 1,
       "totals": {
+        "carbs_g": 35.0,
         "energy_kcal": 138.6,
+        "fat_g": 0.0,
+        "fibre_g": 0.0,
         "protein_g": 0.0,
         "salt_g": 0.0,
         "sugars_g": 35.0
@@ -103,14 +127,20 @@
       },
       "date": "2026-11-01",
       "incomplete": {
+        "carbs_g": false,
         "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
         "protein_g": false,
         "salt_g": false,
         "sugars_g": true
       },
       "items": 1,
       "totals": {
+        "carbs_g": 19.2,
         "energy_kcal": 123.0,
+        "fat_g": 3.6,
+        "fibre_g": 1.8,
         "protein_g": 3.3,
         "salt_g": 0.4,
         "sugars_g": null
@@ -125,14 +155,20 @@
       },
       "date": "2026-11-02",
       "incomplete": {
+        "carbs_g": false,
         "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
         "protein_g": false,
         "salt_g": false,
         "sugars_g": false
       },
       "items": 0,
       "totals": {
+        "carbs_g": null,
         "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
         "protein_g": null,
         "salt_g": null,
         "sugars_g": null
@@ -147,14 +183,20 @@
       },
       "date": "2026-11-03",
       "incomplete": {
+        "carbs_g": false,
         "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
         "protein_g": false,
         "salt_g": false,
         "sugars_g": false
       },
       "items": 2,
       "totals": {
+        "carbs_g": 16.7,
         "energy_kcal": 225.0,
+        "fat_g": 13.6,
+        "fibre_g": 1.5,
         "protein_g": 8.0,
         "salt_g": 0.9,
         "sugars_g": 4.9
@@ -163,7 +205,10 @@
   ],
   "end": "2026-11-03",
   "incomplete": {
+    "carbs_g": false,
     "energy_kcal": false,
+    "fat_g": false,
+    "fibre_g": false,
     "protein_g": false,
     "salt_g": false,
     "sugars_g": true
@@ -187,7 +232,10 @@
   "protein_left_g": null,
   "start": "2026-10-28",
   "totals": {
+    "carbs_g": 133.3,
     "energy_kcal": 867.2,
+    "fat_g": 27.5,
+    "fibre_g": 8.5,
     "protein_g": 20.5,
     "salt_g": 1.7,
     "sugars_g": 41.3

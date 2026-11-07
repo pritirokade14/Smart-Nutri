@@ -13,6 +13,7 @@ from app.features.members.models import Member
 from app.features.members.service import get_or_create_primary
 from app.integrations.openfoodfacts import OffUnavailable, get_off_client
 from scripts.export_fixture_responses import fixture_product_record
+from tests.api.members.conftest import grant  # noqa: F401  (shared fixture)
 
 ACC_A = UUID("11111111-1111-1111-1111-111111111111")
 ACC_C = UUID("33333333-3333-3333-3333-333333333333")

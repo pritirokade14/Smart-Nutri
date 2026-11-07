@@ -21,11 +21,14 @@ OWNED = (
     "product_reports",
     "account_user_types",
     "diary_goal_settings",
+    "meal_slots",
+    "diary_days",
 )
 # The column that identifies a row. account_user_types has one row per account (P9-R1).
 KEY = {t: "id" for t in OWNED} | {
     "account_user_types": "account_id",
     "diary_goal_settings": "member_id",  # one row per member (Plan 10)
+    "diary_days": "member_id",  # one row per member and local day (Plan 11)
 }
 SERVER_ONLY = (
     "off_product_cache",
@@ -75,6 +78,8 @@ async def test_policies_are_exactly_as_designed(db):
         ("products", "SELECT"),
         ("account_user_types", "ALL"),
         ("diary_goal_settings", "ALL"),
+        ("diary_days", "ALL"),
+        ("meal_slots", "ALL"),
     }
     assert all(list(r.roles) == ["authenticated"] for r in rows)
 
@@ -130,6 +135,8 @@ def _row_of(seed, table):
         "product_reports": seed.report,
         "account_user_types": seed.account,
         "diary_goal_settings": seed.member,
+        "meal_slots": seed.slot,
+        "diary_days": seed.member,
     }[table]
 
 
@@ -183,9 +190,9 @@ async def test_all_inserts_by_authenticated_are_denied(db, two_accounts):
             )
             await _expect_denied(
                 db,
-                "insert into meal_logs (account_id, member_id, product_id, grams, nutrients) "
-                "values (:o, :m, :p, 10, '{}')",
-                {"o": owner, "m": m_b, "p": p},
+                "insert into meal_logs (account_id, member_id, product_id, grams, nutrients, "
+                "local_date, meal_slot_id) values (:o, :m, :p, 10, '{}', current_date, :s)",
+                {"o": owner, "m": m_b, "p": p, "s": two_accounts.seed_b.slot},
             )
             await _expect_denied(
                 db,
@@ -198,16 +205,33 @@ async def test_all_inserts_by_authenticated_are_denied(db, two_accounts):
                 "activity_level) values (:m, :o, 'maintain', 'light')",
                 {"o": owner, "m": m_b},
             )
+            await _expect_denied(
+                db,
+                "insert into meal_slots (account_id, member_id, position, custom_label) "
+                "values (:o, :m, 1, 'x')",
+                {"o": owner, "m": m_b},
+            )
+            await _expect_denied(
+                db,
+                "insert into diary_days (member_id, local_date, account_id, status) "
+                "values (:m, current_date + 1, :o, 'none')",
+                {"o": owner, "m": m_b},
+            )
 
 
 async def test_meal_logs_scoped_through_members(db, two_accounts):
     # Even a row stamped with B's account_id is hidden from B if the member is A's.
     await db.execute(
         text(
-            "insert into meal_logs (account_id, member_id, product_id, grams, nutrients) "
-            "values (:b, :m, :p, 5, '{}')"
+            "insert into meal_logs (account_id, member_id, product_id, grams, nutrients, "
+            "local_date, meal_slot_id) values (:b, :m, :p, 5, '{}', current_date, :s)"
         ),
-        {"b": two_accounts.b, "m": two_accounts.seed_a.member, "p": two_accounts.product},
+        {
+            "b": two_accounts.b,
+            "m": two_accounts.seed_a.member,
+            "p": two_accounts.product,
+            "s": two_accounts.seed_a.slot,
+        },
     )
     async with as_user(db, two_accounts.b):
         rows = (await db.execute(text("select id, member_id from meal_logs"))).all()

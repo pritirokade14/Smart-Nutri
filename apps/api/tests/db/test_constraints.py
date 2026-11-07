@@ -182,3 +182,142 @@ async def test_diary_goal_settings_defaults_and_cascade(db, two_accounts):
         {"a": two_accounts.a},
     )
     assert n == 0
+
+
+# ---- Plan 11 (migration 0009): meal slots and diary entries
+
+
+async def _slot(db, seed, **cols):
+    values = {"account_id": seed.account, "member_id": seed.member, "position": 5, **cols}
+    names = ", ".join(values)
+    params = ", ".join(f":{k}" for k in values)
+    async with db.begin_nested():
+        await db.execute(text(f"insert into meal_slots ({names}) values ({params})"), values)
+
+
+async def _entry(db, seed, product, **cols):
+    values = {
+        "account_id": seed.account,
+        "member_id": seed.member,
+        "product_id": product,
+        "grams": 30,
+        "source_kind": "product",
+        "local_date": "2026-11-07",
+        "meal_slot_id": seed.slot,
+        **cols,
+    }
+    names = ", ".join(values)
+    params = ", ".join(f":{k}" for k in values)
+    async with db.begin_nested():
+        await db.execute(
+            text(f"insert into meal_logs ({names}, nutrients) values ({params}, '{{}}')"), values
+        )
+
+
+@pytest.mark.parametrize(
+    "cols",
+    [
+        {"product_id": None},  # product without a product_id
+        {"source_kind": "off", "off_barcode": "8901"},  # off with both refs
+        {"source_kind": "quick_add", "product_id": None, "grams": 30},  # quick_add with grams
+        {"source_kind": "off", "product_id": None, "off_barcode": "8901", "grams": None},
+        {"source_kind": "mystery"},
+    ],
+)
+async def test_meal_logs_ref_per_kind(db, two_accounts, cols):
+    with pytest.raises(IntegrityError) as exc_info:
+        await _entry(db, two_accounts.seed_a, two_accounts.product, **cols)
+    assert "ck_meal_logs_ref" in str(exc_info.value) or "ck_meal_logs_source_kind" in str(
+        exc_info.value
+    )
+
+
+async def test_quick_add_row_allowed(db, two_accounts):
+    await _entry(
+        db,
+        two_accounts.seed_a,
+        None,
+        source_kind="quick_add",
+        grams=None,
+        product_name="Evening chai",
+    )
+
+
+async def test_meal_slot_label_31_chars_refused(db, two_accounts):
+    await _slot(db, two_accounts.seed_a, custom_label="x" * 30)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _slot(db, two_accounts.seed_a, position=6, custom_label="y" * 31)
+    assert "ck_meal_slots_custom_label_length" in str(exc_info.value)
+
+
+async def test_meal_slot_needs_a_label(db, two_accounts):
+    with pytest.raises(IntegrityError) as exc_info:
+        await _slot(db, two_accounts.seed_a)
+    assert "ck_meal_slots_label_present" in str(exc_info.value)
+
+
+async def test_entry_cannot_use_other_members_slot(db, two_accounts):
+    with pytest.raises(IntegrityError) as exc_info:
+        await _entry(
+            db,
+            two_accounts.seed_a,
+            two_accounts.product,
+            meal_slot_id=two_accounts.seed_b.slot,
+        )
+    assert "fk_meal_logs_meal_slot_id_meal_slots" in str(exc_info.value)
+
+
+async def test_used_slot_hard_delete_fails(db, two_accounts):
+    with pytest.raises(IntegrityError) as exc_info:
+        async with db.begin_nested():
+            await db.execute(
+                text("delete from meal_slots where id = :s"), {"s": two_accounts.seed_a.slot}
+            )
+    assert "fk_meal_logs_meal_slot_id_meal_slots" in str(exc_info.value)
+
+
+async def test_member_delete_cascades_slots_and_entries(db, two_accounts):
+    """Ruling E3: NO ACTION (not RESTRICT), so a member with entries and slots can go."""
+    m = two_accounts.seed_a.member
+    await db.execute(text("delete from members where id = :m"), {"m": m})
+    for table in ("meal_slots", "meal_logs", "diary_days"):
+        n = await db.scalar(text(f"select count(*) from {table} where member_id = :m"), {"m": m})
+        assert n == 0, table
+
+
+async def test_default_slot_unique_per_member(db, two_accounts):
+    with pytest.raises(IntegrityError) as exc_info:
+        await _slot(
+            db, two_accounts.seed_a, label_key="diary.slot.breakfast", is_default=True, position=7
+        )
+    assert "uq_meal_slots_member_default" in str(exc_info.value)
+
+
+async def test_active_label_unique_case_insensitive(db, two_accounts):
+    seed = two_accounts.seed_a
+    await _slot(db, seed, custom_label="Pre-workout")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _slot(db, seed, position=6, custom_label="PRE-WORKOUT")
+    assert "uq_meal_slots_member_label" in str(exc_info.value)
+    # An archived duplicate is allowed; so is the same label for another member.
+    await _slot(db, seed, position=7, custom_label="pre-workout", archived_at="2026-11-01")
+    await _slot(db, two_accounts.seed_b, custom_label="Pre-workout")
+
+
+async def test_diary_days_checks(db, two_accounts):
+    seed = two_accounts.seed_a
+    for col, value, name in (
+        ("status", "bad", "ck_diary_days_status"),
+        ("basis", "magic", "ck_diary_days_basis"),
+        ("direction", "up", "ck_diary_days_direction"),
+    ):
+        cols = {"status": "none", col: value}
+        names = ", ".join(["member_id", "local_date", "account_id", *cols])
+        params = ", ".join([":m", "date '2020-01-01'", ":a", *(f":{c}" for c in cols)])
+        with pytest.raises(IntegrityError) as exc_info:
+            async with db.begin_nested():
+                await db.execute(
+                    text(f"insert into diary_days ({names}) values ({params})"),
+                    {"m": seed.member, "a": seed.account, **cols},
+                )
+        assert name in str(exc_info.value)

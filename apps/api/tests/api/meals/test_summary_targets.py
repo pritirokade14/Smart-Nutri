@@ -227,3 +227,38 @@ async def test_fallback_uses_lean_mass(client, family, db_session, grant):  # no
     s = await _summary(client, family.dad)
     assert s["limits"]["protein_basis"] == "lean_mass"
     assert s["limits"]["protein_target_g"] == pytest.approx(128.0, abs=0.1)  # 80 x 0.8 x 2.0
+
+
+async def test_summary_protein_from_frozen_day(client, g11, db_session):
+    """Plan 11 Ruling E15: a past day uses that day's frozen row, not today's live settings."""
+    from datetime import date
+
+    from sqlalchemy.dialects.postgresql import insert
+
+    from app.features.diary.frozen import to_row_values
+    from app.features.diary.models import DiaryDay
+    from app.features.targets import service as targets_service
+    from app.scoring import targets as engine
+
+    me = await db_session.get(Member, g11)
+    day = date.fromisoformat("2026-11-05")
+    row = await targets_service.get_settings(db_session, me)
+    result = engine.compute(targets_service.body_data(me, day), targets_service.goal_settings(row))
+    await db_session.execute(
+        insert(DiaryDay).values(
+            member_id=me.id, local_date=day, account_id=ACC_A, **to_row_values(result)
+        )
+    )
+    await _set(db_session, g11, direction="lose", rate_pct_bw_per_week=0.5)  # today moves on
+    r = await client.get(f"/v1/meals/summary?member_id={g11}&period=day&date=2026-11-05")
+    s = r.json()
+    assert s["limits"]["protein_target_g"] == 119.0
+    assert s["limits"]["protein_target_status"] == "ready"
+    assert s["limits"]["protein_basis"] == "lean_mass"
+
+
+async def test_summary_past_day_without_row_is_legacy(client, g11):
+    r = await client.get(f"/v1/meals/summary?member_id={g11}&period=day&date=2026-11-05")
+    s = r.json()
+    assert s["limits"]["protein_target_status"] is None  # the legacy rule, no frozen day
+    assert s["limits"]["protein_target_g"] is not None

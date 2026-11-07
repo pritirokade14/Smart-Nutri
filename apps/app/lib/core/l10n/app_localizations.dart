@@ -1204,11 +1204,95 @@ abstract class AppLocalizations {
   /// **'Withdraw consent'**
   String get consentWithdraw;
 
+  /// No description provided for @diaryAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add food'**
+  String get diaryAdd;
+
+  /// No description provided for @diaryAddToSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to {slot}'**
+  String diaryAddToSlot(String slot);
+
+  /// No description provided for @diaryConsumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Eaten'**
+  String get diaryConsumed;
+
+  /// No description provided for @diaryCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {# item copied} other {# items copied}}'**
+  String diaryCopied(num count);
+
+  /// No description provided for @diaryCopyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy a day'**
+  String get diaryCopyDay;
+
+  /// No description provided for @diaryCopyMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy this meal'**
+  String get diaryCopyMeal;
+
+  /// No description provided for @diaryCopyPickDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a day'**
+  String get diaryCopyPickDay;
+
+  /// No description provided for @diaryCopyPickMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a meal'**
+  String get diaryCopyPickMeal;
+
+  /// No description provided for @diaryCopyTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy to…'**
+  String get diaryCopyTo;
+
+  /// No description provided for @diaryCopyYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy yesterday'**
+  String get diaryCopyYesterday;
+
+  /// No description provided for @diaryDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get diaryDelete;
+
+  /// No description provided for @diaryDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this item from your diary?'**
+  String get diaryDeleteConfirm;
+
   /// No description provided for @diaryDisclaimer.
   ///
   /// In en, this message translates to:
   /// **'Information, not medical advice. Daily guides are estimates and are pending clinician review.'**
   String get diaryDisclaimer;
+
+  /// No description provided for @diaryEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get diaryEdit;
+
+  /// No description provided for @diaryEmptyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged yet.'**
+  String get diaryEmptyDay;
 
   /// No description provided for @diaryEyeHide.
   ///
@@ -1222,6 +1306,12 @@ abstract class AppLocalizations {
   /// **'Show numbers'**
   String get diaryEyeShow;
 
+  /// No description provided for @diaryGramsLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{grams} g'**
+  String diaryGramsLine(String grams);
+
   /// No description provided for @diaryHiddenNumbers.
   ///
   /// In en, this message translates to:
@@ -1234,17 +1324,233 @@ abstract class AppLocalizations {
   /// **'Some items don\'t show this value, so the real total may be higher.'**
   String get diaryIncomplete;
 
+  /// No description provided for @diaryLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} left'**
+  String diaryLeft(String value);
+
+  /// No description provided for @diaryMarkPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as partly logged'**
+  String get diaryMarkPartial;
+
+  /// No description provided for @diaryMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to another meal'**
+  String get diaryMove;
+
+  /// No description provided for @diaryNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get diaryNextDay;
+
+  /// No description provided for @diaryNoGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your daily guide, or just log food.'**
+  String get diaryNoGuide;
+
   /// No description provided for @diaryOfTarget.
   ///
   /// In en, this message translates to:
   /// **'{eaten} of {target}'**
   String diaryOfTarget(String eaten, String target);
 
+  /// No description provided for @diaryOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} over'**
+  String diaryOver(String value);
+
+  /// No description provided for @diaryPartialBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly logged'**
+  String get diaryPartialBadge;
+
+  /// No description provided for @diaryPartialNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly logged days are left out of weekly averages.'**
+  String get diaryPartialNote;
+
+  /// No description provided for @diaryPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get diaryPickDate;
+
+  /// No description provided for @diaryPrevDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get diaryPrevDay;
+
+  /// No description provided for @diaryQuickAddCarbs.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs (g)'**
+  String get diaryQuickAddCarbs;
+
+  /// No description provided for @diaryQuickAddEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get diaryQuickAddEnergy;
+
+  /// No description provided for @diaryQuickAddFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Fat (g)'**
+  String get diaryQuickAddFat;
+
+  /// No description provided for @diaryQuickAddFibre.
+  ///
+  /// In en, this message translates to:
+  /// **'Fibre (g)'**
+  String get diaryQuickAddFibre;
+
+  /// No description provided for @diaryQuickAddName.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick add'**
+  String get diaryQuickAddName;
+
+  /// No description provided for @diaryQuickAddNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get diaryQuickAddNameLabel;
+
+  /// No description provided for @diaryQuickAddProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein (g)'**
+  String get diaryQuickAddProtein;
+
+  /// No description provided for @diaryQuickAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick add'**
+  String get diaryQuickAddTitle;
+
+  /// No description provided for @diaryQuickBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Entered by you'**
+  String get diaryQuickBadge;
+
+  /// No description provided for @diaryRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get diaryRemaining;
+
+  /// No description provided for @diaryServingsLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{servings, plural, one {# serving} other {# servings}} · {grams} g'**
+  String diaryServingsLine(String grams, num servings);
+
+  /// No description provided for @diaryShareWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this week'**
+  String get diaryShareWeek;
+
+  /// No description provided for @diarySlotBreakfast.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakfast'**
+  String get diarySlotBreakfast;
+
+  /// No description provided for @diarySlotDinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinner'**
+  String get diarySlotDinner;
+
+  /// No description provided for @diarySlotLunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch'**
+  String get diarySlotLunch;
+
+  /// No description provided for @diarySlotSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Snacks'**
+  String get diarySlotSnack;
+
+  /// No description provided for @diarySlotsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit meals'**
+  String get diarySlotsManage;
+
+  /// No description provided for @diarySlotsRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed meal'**
+  String get diarySlotsRemoved;
+
   /// No description provided for @diaryTargetsConsent.
   ///
   /// In en, this message translates to:
   /// **'To see your daily guide, allow SmartNutri to use your health details.'**
   String get diaryTargetsConsent;
+
+  /// No description provided for @diaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diary'**
+  String get diaryTitle;
+
+  /// No description provided for @diaryToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get diaryToday;
+
+  /// No description provided for @diaryViewDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get diaryViewDay;
+
+  /// No description provided for @diaryWaitingSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to sync'**
+  String get diaryWaitingSync;
+
+  /// No description provided for @diaryWeekAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {value}'**
+  String diaryWeekAtLeast(String value);
+
+  /// No description provided for @diaryWeekAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average over {days, plural, one {# logged day} other {# logged days}}'**
+  String diaryWeekAverage(num days);
+
+  /// No description provided for @diaryWeekProteinDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein guide reached on {met} of {days} logged days'**
+  String diaryWeekProteinDays(String days, String met);
+
+  /// No description provided for @diaryWeekTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get diaryWeekTitle;
 
   /// No description provided for @dietEggetarian.
   ///
@@ -1336,11 +1642,29 @@ abstract class AppLocalizations {
   /// **'This consent text has been updated. Please reload and review it again.'**
   String get errorConsentVersionMismatch;
 
+  /// No description provided for @errorCopySourceEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There is nothing to copy there.'**
+  String get errorCopySourceEmpty;
+
+  /// No description provided for @errorCopyTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'That is too many items to copy at once. Copy one meal at a time.'**
+  String get errorCopyTooMany;
+
   /// No description provided for @errorDateInFuture.
   ///
   /// In en, this message translates to:
   /// **'That date hasn\'t happened yet.'**
   String get errorDateInFuture;
+
+  /// No description provided for @errorDateTooOld.
+  ///
+  /// In en, this message translates to:
+  /// **'You can only add to the last 30 days.'**
+  String get errorDateTooOld;
 
   /// No description provided for @errorDeletionIncomplete.
   ///
@@ -1456,6 +1780,24 @@ abstract class AppLocalizations {
   /// **'That food log wasn\'t found.'**
   String get errorMealNotFound;
 
+  /// No description provided for @errorMealSlotArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'That meal has been removed. Pick another meal.'**
+  String get errorMealSlotArchived;
+
+  /// No description provided for @errorMealSlotLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You can have at most 6 active meals. Remove one first.'**
+  String get errorMealSlotLimitReached;
+
+  /// No description provided for @errorMealSlotNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that meal.'**
+  String get errorMealSlotNotFound;
+
   /// No description provided for @errorMemberLimit.
   ///
   /// In en, this message translates to:
@@ -1528,6 +1870,12 @@ abstract class AppLocalizations {
   /// **'We couldn\'t find this product yet.'**
   String get errorProductNotFound;
 
+  /// No description provided for @errorQuickAddEnergyRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the calories to add this.'**
+  String get errorQuickAddEnergyRequired;
+
   /// No description provided for @errorRateLimited.
   ///
   /// In en, this message translates to:
@@ -1587,6 +1935,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please choose a higher target weight.'**
   String get errorTargetWeightTooLow;
+
+  /// No description provided for @errorTimezoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That time zone isn\'t recognised.'**
+  String get errorTimezoneInvalid;
 
   /// No description provided for @errorUnauthorized.
   ///
@@ -1689,6 +2043,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Family'**
   String get familyTitle;
+
+  /// No description provided for @foodsBlankIsUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank if you don\'t know. Blank is never counted as 0.'**
+  String get foodsBlankIsUnknown;
+
+  /// No description provided for @foodsQuickAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick add'**
+  String get foodsQuickAdd;
+
+  /// No description provided for @foodsRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get foodsRecent;
 
   /// No description provided for @footerLinksLabel.
   ///
@@ -3099,6 +3471,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Compare'**
   String get navCompare;
+
+  /// No description provided for @navDiary.
+  ///
+  /// In en, this message translates to:
+  /// **'Diary'**
+  String get navDiary;
 
   /// No description provided for @navFamily.
   ///

@@ -19,7 +19,7 @@ Bands come from the engine's ``nutrient_band`` and daily limits from ``app.scori
 """
 
 from collections.abc import Sequence
-from datetime import date, timedelta, tzinfo
+from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 from uuid import UUID
@@ -40,7 +40,7 @@ from app.features.targets.schemas import NumbersHidden
 from app.scoring import DailyLimits, nutrient_band
 from app.scoring.config import ScoringConfig
 
-NUTRIENTS = ("energy_kcal", "sugars_g", "salt_g", "protein_g")
+NUTRIENTS = ("energy_kcal", "protein_g", "fat_g", "carbs_g", "fibre_g", "sugars_g", "salt_g")
 PERIOD_DAYS = {"day": 1, "week": 7}
 
 
@@ -160,13 +160,24 @@ def annotate_protein(summary: Summary, basis: str | None, status: str | None) ->
     return summary
 
 
+def redact_totals(totals: Totals, hidden: NumbersHidden) -> Totals:
+    """Null the totals the user hid, in place: ``energy`` the energy total, ``macros`` every
+    total (energy, protein, fat, carbs, fibre, sugars and salt)."""
+    if hidden.energy:
+        totals.energy_kcal = None
+    if hidden.macros:
+        for key in NUTRIENTS:
+            setattr(totals, key, None)
+    return totals
+
+
 def redact(summary: Summary, hidden: NumbersHidden) -> Summary:
     """The summary with the numbers the user hid set to null (Plan 10, Ruling D11). Pure: the
     input is not changed. Bands and ``incomplete`` are untouched, and the result says what was
     hidden in ``numbers_hidden``.
 
     - ``energy``: ``totals.energy_kcal`` and every day's ``energy_kcal``.
-    - ``macros``: every total (all four nutrients, the period and each day), the protein
+    - ``macros``: every total (all seven nutrients, the period and each day), the protein
       target, its g/kg and ``protein_left_g``.
     """
     out = summary.model_copy(deep=True)
@@ -175,10 +186,7 @@ def redact(summary: Summary, hidden: NumbersHidden) -> Summary:
         return out
     groups = [out.totals, *(d.totals for d in out.days)]
     for totals in groups:
-        if hidden.energy:
-            totals.energy_kcal = None
-        if hidden.macros:
-            totals.energy_kcal = totals.sugars_g = totals.salt_g = totals.protein_g = None
+        redact_totals(totals, hidden)
     if hidden.macros:
         out.limits.protein_target_g = None
         out.limits.protein_g_per_kg = None
@@ -191,16 +199,15 @@ def summarise(
     limits: DailyLimits,
     period: str,
     end_date: date,
-    tz: tzinfo,
     cfg: ScoringConfig | None = None,
     *,
     member_id: UUID,
 ) -> Summary:
     """Totals, incompleteness and bands for the ``period`` ending on ``end_date``.
 
-    Days are calendar days in ``tz`` (IST); a week is the 7 days ending on ``end_date``,
-    oldest first, one entry per day (an empty day has null totals). Meals outside the period
-    are ignored. Day bands compare with the daily limit; the period band with the daily limit
+    Days are the stored ``local_date`` of each entry (the account's zone at log time, ADR 0023);
+    a week is the 7 days ending on ``end_date``, oldest first, one entry per day (an empty day
+    has null totals). Meals outside the period are ignored. Day bands compare with the daily limit; the period band with the daily limit
     x the days with logged items, and is ``over`` if any day is (Ruling M1 B1).
     """
     if period not in PERIOD_DAYS:
@@ -209,7 +216,7 @@ def summarise(
     start = end_date - timedelta(days=n_days - 1)
     per_day = {start + timedelta(days=i): _Acc() for i in range(n_days)}
     for m in meals:
-        day = m.eaten_at.astimezone(tz).date()
+        day = m.local_date
         if day in per_day:
             per_day[day].add(m.nutrients or {})
 

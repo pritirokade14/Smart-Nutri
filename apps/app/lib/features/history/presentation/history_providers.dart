@@ -6,19 +6,6 @@ import 'package:smartnutri_api/src/export.dart';
 import '../../meals/domain/meal_summary.dart';
 import '../../meals/presentation/meals_providers.dart';
 
-/// The member whose history is shown; null until the user picks one (the
-/// screen then uses the account holder).
-class HistoryMember extends Notifier<String?> {
-  @override
-  String? build() => null;
-
-  void select(String memberId) => state = memberId;
-}
-
-final historyMemberProvider = NotifierProvider<HistoryMember, String?>(
-  HistoryMember.new,
-);
-
 typedef SummaryQuery = ({String memberId, SummaryPeriod period});
 
 /// Reloads whenever the stored log changes. No automatic retry: the screen

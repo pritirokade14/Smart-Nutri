@@ -1,5 +1,6 @@
 import 'package:smartnutri_api/src/export.dart';
 
+import 'fake_diary.dart';
 import 'fake_members.dart';
 import 'fake_targets.dart';
 
@@ -91,7 +92,11 @@ class FakeUserTypesMe implements MeClient {
     email: 'a@b.c',
     id: 'u1',
     language: MeOutLanguage.en,
+    timezone: 'Asia/Kolkata',
   );
+
+  @override
+  Future<MeOut> meTimezonePut({required TimezoneIn body}) async => meGet();
 
   @override
   Future<void> meDelete() async {}
@@ -140,7 +145,11 @@ class FakeUserTypesApi implements SmartNutriApiClient {
     FakeMembersClient? members,
     FakeConsentsClient? consents,
     FakeTargetsClient? targets,
+    FakeDiaryClient? diary,
+    FakeMealSlotsClient? mealSlots,
   }) : me = me ?? FakeUserTypesMe(),
+       diary = diary ?? FakeDiaryClient(),
+       mealSlots = mealSlots ?? FakeMealSlotsClient(),
        targets = targets ?? FakeTargetsClient(),
        members = members ?? FakeMembersClient(),
        consents = consents ?? FakeConsentsClient(granted: {'terms'});
@@ -153,6 +162,10 @@ class FakeUserTypesApi implements SmartNutriApiClient {
   final FakeConsentsClient consents;
   @override
   final FakeTargetsClient targets;
+  @override
+  final FakeDiaryClient diary;
+  @override
+  final FakeMealSlotsClient mealSlots;
 
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);

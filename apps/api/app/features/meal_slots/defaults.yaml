@@ -1,0 +1,11 @@
+# Default meal slots (Plan 11 Ruling E4). Presentation data, not a health threshold.
+# Windows are inclusive whole minutes, in the account's local time, and may wrap past midnight.
+# Every minute of the day falls in exactly one window. Migration 0009 copies these as constants
+# (a test keeps the two equal).
+max_active: 6
+label_max_chars: 30
+slots:
+  - {label_key: diary.slot.breakfast, start: "04:00", end: "10:59"}
+  - {label_key: diary.slot.lunch, start: "11:00", end: "15:59"}
+  - {label_key: diary.slot.snack, start: "16:00", end: "18:59"}
+  - {label_key: diary.slot.dinner, start: "19:00", end: "03:59"}

@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Sequence
+from datetime import date, datetime
 from uuid import UUID
 
 from sqlalchemy import any_, case, func, select, text, update
@@ -8,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.security import AccountContext, auth_invalid_error
-from app.core.time import today_ist
+from app.core.time import DEFAULT_TIMEZONE, is_valid_timezone, local_today, today_ist
 from app.features.consents import service as consents_service
 from app.features.me import prefill
 from app.features.me.models import Account, AccountUserTypes, DeletedAccount
@@ -75,6 +76,29 @@ async def ensure_account(session: AsyncSession, ctx: AccountContext) -> Account:
     return result.scalar_one()
 
 
+async def account_timezone(session: AsyncSession, account_id: UUID) -> str:
+    """The account's IANA zone; the default (Asia/Kolkata) for an unknown account."""
+    zone = await session.scalar(select(Account.timezone).where(Account.id == account_id))
+    return zone or DEFAULT_TIMEZONE
+
+
+async def account_today(
+    session: AsyncSession, account_id: UUID, now: datetime | None = None
+) -> date:
+    """The account's local today (its time zone; `now` is for tests)."""
+    return local_today(await account_timezone(session, account_id), now)
+
+
+async def set_timezone(session: AsyncSession, account: Account, name: str) -> Account:
+    """Set the account's zone (never commits). 422 `timezone_invalid` for a name that is not
+    an IANA zone. A stored `local_date` never moves (Ruling E7)."""
+    if not is_valid_timezone(name):
+        raise ApiError("timezone_invalid", 422)
+    account.timezone = name
+    await session.flush()
+    return account
+
+
 async def get_display_name(session: AsyncSession, account_id: UUID) -> str | None:
     return await session.scalar(select(Account.display_name).where(Account.id == account_id))
 
@@ -86,7 +110,9 @@ async def get_display_name(session: AsyncSession, account_id: UUID) -> str | Non
 # Checked at the wave 2 merge: Plans 6 and 7 add no new tables (Plan 6's migration 0003 only
 # alters meal_logs; Plan 7 reports use product_reports; voice stores no rows).
 ACCOUNT_OWNED_TABLES: tuple[str, ...] = (
-    "meal_logs",
+    "meal_logs",  # before meal_slots: the entry -> slot FK is NO ACTION (Plan 11 E3)
+    "meal_slots",  # Plan 11; before members (composite FK)
+    "diary_days",  # Plan 11; before members (composite FK)
     "diary_goal_settings",  # Plan 10; before members (composite FK)
     "members",
     "scans",

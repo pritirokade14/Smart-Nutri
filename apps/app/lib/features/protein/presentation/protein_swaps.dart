@@ -15,7 +15,7 @@ import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/states.dart';
 import '../../../shared/widgets/verdict_badge.dart';
 import '../../history/presentation/history_providers.dart';
-import '../../history/presentation/history_screen.dart' show memberOutLabel;
+import '../../members/presentation/member_labels.dart' show memberOutLabel;
 import '../../meals/data/meals_repository.dart';
 import '../../product/data/product_discovery_repository.dart';
 import '../../product/presentation/alternatives_section.dart';

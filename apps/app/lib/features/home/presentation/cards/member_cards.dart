@@ -7,7 +7,6 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/tokens.g.dart';
 import '../../../../shared/widgets/states.dart';
 import '../../../history/presentation/history_providers.dart';
-import '../../../history/presentation/history_screen.dart' show memberOutLabel;
 import '../../../members/data/members_repository.dart';
 import '../../../members/presentation/member_labels.dart';
 import '../../../members/presentation/members_providers.dart';

@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { hintClass, inputClass, labelClass } from "@/components/ui/field";
 import { InfoIcon } from "@/components/ui/icons";
+import { SlotChips } from "@/features/diary/components/AddFoodPanel";
+import { useMealSlots } from "@/features/diary/hooks/useMealSlots";
+import {
+  clearDiaryAddContext,
+  type DiaryAddContext,
+  getDiaryAddContext,
+} from "@/features/diary/lib/addContext";
 import { formatAmount } from "@/features/history/lib/summary";
 import { track } from "@/lib/analytics";
 import type { ApiError } from "@/lib/api/errors";
@@ -66,11 +73,14 @@ export function LogMealDialog({
   product,
   members,
   memberId,
+  localDate,
   onClose,
 }: {
   product: LogMealProduct;
   members: readonly LogMealMember[];
   memberId: string;
+  /** Logs onto this (past) day instead of "now"; set by the diary. */
+  localDate?: string;
   onClose: () => void;
 }) {
   const t = useTranslations();
@@ -89,6 +99,22 @@ export function LogMealDialog({
   const clientId = useRef<string | null>(null);
   const log = useLogMeal();
   const undo = useDeleteMeal();
+  // The slot comes from the server's list and suggestion (never worked out
+  // here); until the list loads, no chips show and no slot is sent.
+  const slots = useMealSlots();
+  // From the Diary's add-food flow: its day and slot (else the API picks).
+  const [ctx] = useState<DiaryAddContext | null>(() =>
+    typeof window === "undefined" ? null : getDiaryAddContext(),
+  );
+  // The diary's day and slot belong to the self member only.
+  const forSelf = members.find((x) => x.id === member)?.isPrimary === true;
+  const logDate = localDate ?? (forSelf ? ctx?.localDate : null) ?? undefined;
+  const [pickedSlot, setPickedSlot] = useState<string | null>(null);
+  const slotId =
+    pickedSlot ??
+    (forSelf ? ctx?.slotId : null) ??
+    slots.data?.suggested_slot_id ??
+    null;
 
   const who = (id: string) => {
     const m = members.find((x) => x.id === id);
@@ -117,7 +143,8 @@ export function LogMealDialog({
     }
     setInvalid(false);
     clientId.current ??= crypto.randomUUID();
-    const eatenAt = toAware(when);
+    // A past day sends local_date; local_date and eaten_at never go together.
+    const eatenAt = logDate ? null : toAware(when);
     const body: MealIn = {
       member_id: member,
       ...(product.productId
@@ -125,6 +152,8 @@ export function LogMealDialog({
         : { barcode: product.barcode }),
       ...(mode === "servings" ? { servings: n } : { grams: n }),
       ...(eatenAt ? { eaten_at: eatenAt } : {}),
+      ...(logDate ? { local_date: logDate } : {}),
+      ...(slots.data && slotId ? { meal_slot_id: slotId } : {}),
       client_id: clientId.current,
     };
     log.mutate(body, {
@@ -132,6 +161,11 @@ export function LogMealDialog({
         clientId.current = null; // the next log is a new attempt series
         setSaved(meal);
         track("meal_logged");
+        if (ctx) {
+          // The method only: no product, member or portion.
+          track("diary_entry_added", { method: ctx.method });
+          clearDiaryAddContext();
+        }
       },
     });
   }
@@ -186,9 +220,13 @@ export function LogMealDialog({
               <p className="text-md text-text-secondary">
                 {saved.product_name}
               </p>
-              <p className="text-md text-text-secondary">
-                {t("history.item_amount", { grams: formatAmount(saved.grams) })}
-              </p>
+              {saved.grams != null ? (
+                <p className="text-md text-text-secondary">
+                  {t("history.item_amount", {
+                    grams: formatAmount(saved.grams),
+                  })}
+                </p>
+              ) : null}
             </>
           )}
         </div>
@@ -294,23 +332,33 @@ export function LogMealDialog({
           </p>
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor={ids.when} className={labelClass}>
-            {t("meals.log.eaten_at")}
-          </label>
-          <input
-            id={ids.when}
-            type="datetime-local"
-            value={when}
-            max={localInputValue(now)}
-            min={localInputValue(new Date(now.getTime() - 30 * 86_400_000))}
-            onChange={(e) => setWhen(e.target.value)}
-            className={inputClass}
+        {slots.data && slotId ? (
+          <SlotChips
+            slots={slots.data.items}
+            value={slotId}
+            onChange={setPickedSlot}
           />
-          {when === "" ? (
-            <p className={hintClass}>{t("meals.log.now")}</p>
-          ) : null}
-        </div>
+        ) : null}
+
+        {logDate ? null : (
+          <div className="space-y-1">
+            <label htmlFor={ids.when} className={labelClass}>
+              {t("meals.log.eaten_at")}
+            </label>
+            <input
+              id={ids.when}
+              type="datetime-local"
+              value={when}
+              max={localInputValue(now)}
+              min={localInputValue(new Date(now.getTime() - 30 * 86_400_000))}
+              onChange={(e) => setWhen(e.target.value)}
+              className={inputClass}
+            />
+            {when === "" ? (
+              <p className={hintClass}>{t("meals.log.now")}</p>
+            ) : null}
+          </div>
+        )}
       </form>
       {log.isError ? (
         <p role="alert" className="text-md text-text-primary">
