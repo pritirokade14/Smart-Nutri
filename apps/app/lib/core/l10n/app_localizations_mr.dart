@@ -899,7 +899,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorDateInFuture => 'ती तारीख अजून आलेली नाही.';
 
   @override
-  String get errorDateTooOld => 'तुम्ही फक्त मागील ३० दिवसांत जोडू शकता.';
+  String get errorDateTooOld => 'तुम्ही फक्त मागील 30 दिवसांत जोडू शकता.';
 
   @override
   String get errorDeletionIncomplete =>
