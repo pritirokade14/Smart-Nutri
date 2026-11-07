@@ -324,7 +324,10 @@
     "timezone_invalid": "That time zone isn't recognised.",
     "meal_slot_not_found": "We couldn't find that meal.",
     "meal_slot_archived": "That meal has been removed. Pick another meal.",
-    "quick_add_energy_required": "Enter the calories to add this."
+    "quick_add_energy_required": "Enter the calories to add this.",
+    "copy_source_empty": "There is nothing to copy there.",
+    "copy_too_many": "That is too many items to copy at once. Copy one meal at a time.",
+    "date_too_old": "You can only add to the last 30 days."
   },
   "scan": {
     "title": "Scan a barcode",

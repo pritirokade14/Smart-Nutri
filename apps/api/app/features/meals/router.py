@@ -12,8 +12,11 @@ from app.core.ratelimit import limit
 from app.core.time import today_ist
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
+from app.features.meals import copy as copy_service
 from app.features.meals import service
 from app.features.meals.schemas import (
+    CopyIn,
+    CopyOut,
     MealIn,
     MealOut,
     MealPatch,
@@ -65,6 +68,36 @@ async def meals_log(
         response.status_code = 200
     member = await members_service.get_member(session, current.account.id, row.member_id)
     return service.to_meal_out(row, await service.hidden_for_member(session, member))
+
+
+@router.post(
+    "/copy",
+    operation_id="meals_copy",
+    response_model=CopyOut,
+    status_code=201,
+    responses={
+        **ERROR_RESPONSES,
+        200: {"model": CopyOut, "description": "Every copy already existed (a retry): no new rows"},
+    },
+)
+async def meals_copy(
+    body: CopyIn,
+    response: Response,
+    current: Current,
+    session: Session,
+    settings: Annotated[Settings, Depends(get_app_settings)],
+) -> CopyOut:
+    """Copy one meal (``from_slot_id``) or the whole day onto another day (today or up to 30
+    days back). Each copy keeps its source's saved food and portion, never reads the product
+    again, and counts against the daily log limit. ``client_id`` is required: a retry returns
+    the same rows with 200 and creates nothing. The response is redacted with the member's
+    numbers display."""
+    rows, created = await copy_service.copy_entries(session, current.account.id, body, settings)
+    if not created:
+        response.status_code = 200
+    member = await members_service.get_member(session, current.account.id, rows[0].member_id)
+    hidden = await service.hidden_for_member(session, member)
+    return CopyOut(created=[service.to_meal_out(r, hidden) for r in rows])
 
 
 @router.get("", operation_id="meals_list", response_model=list[MealOut])

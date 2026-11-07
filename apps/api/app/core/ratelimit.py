@@ -70,19 +70,23 @@ def _statement(window: str) -> str:
     return f"""
         WITH w AS (SELECT date_trunc('{window}', now(), 'UTC') AS start)
         INSERT INTO rate_limit_counters (key, bucket, window_start, count)
-        SELECT :key, :bucket, w.start, 1 FROM w
+        SELECT :key, :bucket, w.start, :n FROM w
         ON CONFLICT (key, bucket, window_start)
-        DO UPDATE SET count = rate_limit_counters.count + 1
+        DO UPDATE SET count = rate_limit_counters.count + :n
         RETURNING count,
             CEIL(EXTRACT(EPOCH FROM (window_start + interval '{_INTERVALS[window]}' - now())))
                 AS retry_after
     """
 
 
-async def _hit(session: AsyncSession, settings: Settings, key: str, bucket: str) -> None:
+async def _hit(
+    session: AsyncSession, settings: Settings, key: str, bucket: str, n: int = 1
+) -> None:
     window, attr = BUCKETS[bucket]
     max_count: int = getattr(settings, attr)
-    row = (await session.execute(text(_statement(window)), {"key": key, "bucket": bucket})).one()
+    row = (
+        await session.execute(text(_statement(window)), {"key": key, "bucket": bucket, "n": n})
+    ).one()
     await session.commit()
     if row.count > max_count:
         retry_after = max(1, int(row.retry_after))
@@ -95,9 +99,10 @@ async def _hit(session: AsyncSession, settings: Settings, key: str, bucket: str)
 
 
 async def consume(
-    session: AsyncSession, settings: Settings, *, account_id: UUID, bucket: str
+    session: AsyncSession, settings: Settings, *, account_id: UUID, bucket: str, n: int = 1
 ) -> None:
-    """Count one use of an account bucket from inside a service (not as a dependency).
+    """Count ``n`` uses (default 1) of an account bucket from inside a service (not as a
+    dependency). ``n`` counts each created row of a batch, such as a copied day.
 
     For routes where only some requests may count (e.g. paid label extractions, not cache
     hits). Like `limit()`, it COMMITS `session` so the count survives a later failure; to
@@ -105,7 +110,9 @@ async def consume(
     writes are staged. Call it before staging any write.
     """
     _check_account_bucket(session, bucket, "consume")
-    await _hit(session, settings, f"acct:{account_id}", bucket)
+    if n < 1:
+        raise ValueError("n must be at least 1")
+    await _hit(session, settings, f"acct:{account_id}", bucket, n)
 
 
 async def refund(

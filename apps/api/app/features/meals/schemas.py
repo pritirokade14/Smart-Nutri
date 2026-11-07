@@ -115,6 +115,22 @@ class MealPatch(BaseModel):
         return self
 
 
+class CopyIn(BaseModel):
+    """Copy one meal (``from_slot_id``) or the whole day (no ``from_slot_id``) onto another day.
+
+    ``client_id`` is required: each copy's own id is derived from it and the source entry, so a
+    retry (a lost response, a double tap) returns the same rows and creates nothing. An entry
+    whose slot has since been archived needs an explicit ``to_slot_id``.
+    """
+
+    member_id: UUID | None = None
+    from_date: date
+    from_slot_id: UUID | None = None
+    to_date: date
+    to_slot_id: UUID | None = None
+    client_id: UUID
+
+
 class NutrientSnapshot(BaseModel):
     """Nutrients in the portion eaten (per_100g x grams / 100, 1 dp). null = not on the label
     (never counted as 0)."""
@@ -154,6 +170,10 @@ class MealOut(BaseModel):
         description="NutrientSnapshot keys that are unknown (null) on this entry, before hiding"
     )
     updated_at: AwareDatetime
+
+
+class CopyOut(BaseModel):
+    created: list[MealOut] = Field(description="The copies, in the order of their sources")
 
 
 # --- summaries (Plan 6 T4) ---------------------------------------------------------------
