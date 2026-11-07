@@ -46,6 +46,7 @@ BUCKETS: dict[str, tuple[str, str]] = {
     "diary_writes": ("day", "rate_limit_diary_writes_per_day"),
     # Plan 12 slice 6: weigh-in writes.
     "weights": ("day", "rate_limit_weights_per_day"),
+    "weights_erase": ("day", "rate_limit_weights_erase_per_day"),
 }
 ERROR_CODES = {"label_scans": "rate_limited_scans", "voice": "rate_limited_voice"}
 _DEFAULT_CODE = "rate_limited"

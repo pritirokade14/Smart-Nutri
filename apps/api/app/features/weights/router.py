@@ -21,7 +21,13 @@ from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
 from app.features.targets import service as targets_service
 from app.features.weights import service
-from app.features.weights.schemas import WeightIn, WeightOut, WeightsOut, WeightTrendOut
+from app.features.weights.schemas import (
+    WeightIn,
+    WeightOut,
+    WeightsDeletedOut,
+    WeightsOut,
+    WeightTrendOut,
+)
 
 router = APIRouter(prefix="/v1/weights", tags=["weights"])
 
@@ -137,3 +143,23 @@ async def weights_delete(
     await service.delete_weigh_in(session, member, day, today)
     await session.commit()
     return Response(status_code=204)
+
+
+@router.delete(
+    "",
+    operation_id="weights_delete_all",
+    response_model=WeightsDeletedOut,
+    responses=_RESPONSES,
+    dependencies=[Depends(gate_for("weights_erase")), Depends(limit("weights_erase"))],
+)
+async def weights_delete_all(
+    current: Current, session: Session, settings: AppSettings, member_id: MemberQuery = None
+) -> WeightsDeletedOut:
+    """Delete every weigh-in of the member. Needs only `terms` (ADR 0022 addendum): erasure is
+    never gated by `health_data`, and `members.weight_kg` is not rewritten. Returns the count
+    (0 is fine, not an error)."""
+    member = await targets_service.resolve_member(session, current.account.id, member_id, settings)
+    today = await service.local_today(session, current.account.id)
+    count = await service.delete_all_weigh_ins(session, member, today)
+    await session.commit()
+    return WeightsDeletedOut(deleted=count)

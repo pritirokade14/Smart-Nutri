@@ -160,6 +160,17 @@ async def delete_weigh_in(session: AsyncSession, member: Member, day: date, toda
     await _recompute_today(session, member, today)
 
 
+async def delete_all_weigh_ins(session: AsyncSession, member: Member, today: date) -> int:
+    """Erase the member's whole weight history (terms only, never gated by `health_data`).
+    `members.weight_kg` is left as it is (the profile keeps the last known weight, like the
+    single delete when the last row goes); today's frozen targets are recomputed only while
+    `health_data` is active, and then fall back to that profile weight."""
+    count = await store.delete_all(session, member)
+    if count:
+        await _recompute_today(session, member, today)
+    return count
+
+
 async def list_range(
     session: AsyncSession, member: Member, since: date | None, until: date | None, today: date
 ) -> WeightsOut:
