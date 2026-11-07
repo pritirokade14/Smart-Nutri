@@ -20,6 +20,7 @@ import { ProteinProgress } from "@/features/protein/components/ProteinProgress";
 import { membersMessages } from "@/i18n/client-messages";
 import { MESSAGES } from "../../support/analyze-fixtures";
 import { apiStub, envelope, json } from "../../support/api-stub";
+import { targetsFixture } from "../../support/targets-fixtures";
 
 // Plan 9 Task 13: Home cards come from layouts.json, in order.
 
@@ -221,6 +222,16 @@ describe("home cards (T13)", () => {
       en.nav.search,
       en.nav.how_we_score,
     ]);
+  });
+
+  it("today_targets: weight_loss shows the daily guide card first, from the API", async () => {
+    api.on("GET", "/v1/targets", targetsFixture("g2_lose_adjusted"));
+    home("weight_loss", [member({ goal: "weight_loss" })]);
+    const card = await screen.findByTestId("home-card-today_targets");
+    expect(cardOrder()[0]).toBe("today_targets");
+    expect(
+      await within(card).findByText(/of 1,540 kcal|1,540 kcal/),
+    ).toBeTruthy();
   });
 
   it("today_protein: loading, then the API's progress and protein left", async () => {

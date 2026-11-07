@@ -19,6 +19,7 @@ import { ModeSwitcher } from "@/features/modes/components/ModeSwitcher";
 import { MoreButton } from "@/features/modes/components/MoreMenu";
 import { type HomeCard, homeCardsFor } from "@/features/modes/layouts";
 import { useActiveMode } from "@/features/modes/useActiveMode";
+import { TodayTargetsCard } from "@/features/targets/components/TodayTargetsCard";
 import { ApiError } from "@/lib/api/errors";
 import { cn } from "@/lib/cn";
 import {
@@ -62,8 +63,7 @@ function Cards() {
       case "allergy_check":
         return <AllergyCheckCard members={members} mode={mode} />;
       case "today_targets":
-        // Rendered by Task 10 (Plan 10); nothing until then.
-        return <div data-testid="home-card-today_targets" />;
+        return <TodayTargetsCard primary={primary} />;
       case "today_sugar_salt":
         return <TodaySugarSaltCard primary={primary} />;
       case "today_protein":

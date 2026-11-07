@@ -6,8 +6,10 @@ import type { DaySummary, Summary } from "@/features/meals/api/meals";
 import { cn } from "@/lib/cn";
 import {
   type Band,
+  bandOf,
   dayLabel,
   formatAmount,
+  isHidden,
   NUTRIENTS,
   type NutrientKey,
   readBand,
@@ -56,13 +58,18 @@ function NutrientWeek({
   summary: Summary;
 }) {
   const t = useTranslations("summary");
+  const root = useTranslations();
   const locale = useLocale();
   const { key, banded } = nutrient;
+  const hidden = isHidden(summary.numbers_hidden, key);
+  const hiddenText = root("diary.hidden_numbers");
   const total = shownTotal(
     readTotal(summary.totals, key),
     readFlag(summary.incomplete, key),
   );
-  const weekBand = shownBand(readBand(summary.bands, nutrient.band), total);
+  const weekBand = hidden
+    ? bandOf(readBand(summary.bands, nutrient.band))
+    : shownBand(readBand(summary.bands, nutrient.band), total);
   const incomplete =
     readFlag(summary.incomplete, key) ||
     summary.days.some((d) => readFlag(d.incomplete, key));
@@ -73,7 +80,9 @@ function NutrientWeek({
   const days = summary.days.map((day) => {
     const value = dayTotal(day, key);
     const band: Band | undefined = banded
-      ? shownBand(readBand(day.bands, nutrient.band), value)
+      ? hidden
+        ? bandOf(readBand(day.bands, nutrient.band))
+        : shownBand(readBand(day.bands, nutrient.band), value)
       : undefined;
     return { day, value, band };
   });
@@ -97,7 +106,11 @@ function NutrientWeek({
             data-testid="week-total"
             className="text-lg font-bold text-text-primary"
           >
-            {total === null ? t("band.unknown") : amount(total)}
+            {hidden
+              ? hiddenText
+              : total === null
+                ? t("band.unknown")
+                : amount(total)}
           </p>
         </div>
         {banded ? <BandBadge band={weekBand} /> : null}
@@ -109,9 +122,11 @@ function NutrientWeek({
           const text =
             day.items === 0
               ? t("nothing_logged")
-              : value === null
-                ? t("band.unknown")
-                : amount(value);
+              : hidden
+                ? hiddenText
+                : value === null
+                  ? t("band.unknown")
+                  : amount(value);
           return (
             <li
               key={day.date}
@@ -152,7 +167,7 @@ function NutrientWeek({
         })}
       </ol>
 
-      {incomplete ? (
+      {incomplete && !hidden ? (
         <p className="text-sm text-text-secondary">{t("incomplete")}</p>
       ) : null}
       {key === "sugars_g" ? (

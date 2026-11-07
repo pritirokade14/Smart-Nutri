@@ -49,10 +49,35 @@ export function ProteinProgress({
     summary.incomplete?.energy_kcal === true,
   );
   const perKg = perKgBasis(summary.limits?.protein_g_per_kg);
+  // The API nulls what the member hid; show the hidden note, never "not enough data".
+  const macrosHidden = summary.numbers_hidden?.macros === true;
+  const paused = summary.limits?.protein_target_status === "paused_pregnancy";
+  const guideKey = {
+    lean_mass: "protein.guide_lean",
+    adjusted_weight: "protein.guide_adjusted",
+    actual_weight: "protein.guide",
+  }[summary.limits?.protein_basis ?? "actual_weight"];
   const pct =
     total !== null && target !== null && target > 0
       ? Math.min(100, Math.round((total / target) * 100))
       : null;
+  if (macrosHidden)
+    return (
+      <div className="space-y-3" data-testid="protein-progress">
+        <p className="text-md font-semibold text-text-primary">
+          {t("summary.nutrient.protein_g")}
+        </p>
+        <p className="text-sm text-text-secondary">
+          {t("diary.hidden_numbers")}
+        </p>
+        {kcal !== null ? (
+          <p className="text-md text-text-primary">
+            {t("summary.kcal_total", { total: formatAmount(kcal) })}
+          </p>
+        ) : null}
+        <p className="text-sm text-text-secondary">{t("diary.disclaimer")}</p>
+      </div>
+    );
   return (
     <div className="space-y-3" data-testid="protein-progress">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -91,15 +116,15 @@ export function ProteinProgress({
       ) : null}
       {target !== null && perKg !== null ? (
         <p className="text-sm text-text-secondary">
-          {t("protein.guide", { target: formatAmount(target), per_kg: perKg })}
+          {t(guideKey, { target: formatAmount(target), per_kg: perKg })}
         </p>
       ) : null}
       {target === null ? (
         <div className="space-y-1">
           <p className="text-sm text-text-secondary">
-            {t("protein.no_target")}
+            {paused ? t("targets.pregnancy.paused") : t("protein.no_target")}
           </p>
-          {member ? (
+          {member && !paused ? (
             <a
               href={`/${locale}/members/${member.id}`}
               className="inline-flex min-h-11 items-center text-md font-semibold text-brand-primary underline-offset-4 hover:underline"
