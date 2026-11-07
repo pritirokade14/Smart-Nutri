@@ -1,0 +1,295 @@
+{
+  "averaged_days": 5,
+  "averages": {
+    "carbs_g": null,
+    "energy_kcal": null,
+    "fat_g": null,
+    "protein_g": null
+  },
+  "averages_incomplete": {
+    "carbs_g": true,
+    "energy_kcal": true,
+    "fat_g": true,
+    "fibre_g": true,
+    "protein_g": true,
+    "salt_g": true,
+    "sugars_g": true
+  },
+  "days": [
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "ok",
+        "salt_g": "ok",
+        "sugar_g": "ok"
+      },
+      "date": "2026-11-01",
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 1,
+      "partial_logged": false,
+      "progress": {
+        "carbs_g": 0.5,
+        "energy_kcal": 0.75,
+        "fat_g": 0.5,
+        "protein_g": 1.0
+      },
+      "targets": {
+        "energy_kcal": null,
+        "protein_g": null
+      },
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "ok",
+        "salt_g": "ok",
+        "sugar_g": "ok"
+      },
+      "date": "2026-11-02",
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 1,
+      "partial_logged": false,
+      "progress": {
+        "carbs_g": 1.25,
+        "energy_kcal": 1.0,
+        "fat_g": 1.0,
+        "protein_g": 1.0
+      },
+      "targets": {
+        "energy_kcal": null,
+        "protein_g": null
+      },
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "ok",
+        "sugar_g": "ok"
+      },
+      "date": "2026-11-03",
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 1,
+      "partial_logged": true,
+      "progress": {
+        "carbs_g": 0.5,
+        "energy_kcal": 0.25,
+        "fat_g": 0.5,
+        "protein_g": 0.25
+      },
+      "targets": {
+        "energy_kcal": null,
+        "protein_g": null
+      },
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "unknown",
+        "sugar_g": "unknown"
+      },
+      "date": "2026-11-04",
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 0,
+      "partial_logged": false,
+      "progress": {
+        "carbs_g": 0.0,
+        "energy_kcal": 0.0,
+        "fat_g": 0.0,
+        "protein_g": 0.0
+      },
+      "targets": {
+        "energy_kcal": null,
+        "protein_g": null
+      },
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "unknown",
+        "sugar_g": "unknown"
+      },
+      "date": "2026-11-05",
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": true,
+        "fat_g": false,
+        "fibre_g": true,
+        "protein_g": false,
+        "salt_g": true,
+        "sugars_g": true
+      },
+      "items": 2,
+      "partial_logged": false,
+      "progress": {
+        "carbs_g": 0.75,
+        "energy_kcal": null,
+        "fat_g": 0.75,
+        "protein_g": 0.5
+      },
+      "targets": {
+        "energy_kcal": null,
+        "protein_g": null
+      },
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "ok",
+        "sugar_g": "ok"
+      },
+      "date": "2026-11-06",
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "items": 1,
+      "partial_logged": false,
+      "progress": null,
+      "targets": null,
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "bands": {
+        "kcal": "unknown",
+        "protein_g": "unknown",
+        "salt_g": "unknown",
+        "sugar_g": "unknown"
+      },
+      "date": "2026-11-07",
+      "incomplete": {
+        "carbs_g": true,
+        "energy_kcal": false,
+        "fat_g": true,
+        "fibre_g": true,
+        "protein_g": true,
+        "salt_g": true,
+        "sugars_g": true
+      },
+      "items": 1,
+      "partial_logged": false,
+      "progress": {
+        "carbs_g": null,
+        "energy_kcal": 0.25,
+        "fat_g": null,
+        "protein_g": null
+      },
+      "targets": {
+        "energy_kcal": null,
+        "protein_g": null
+      },
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    }
+  ],
+  "end": "2026-11-07",
+  "member_id": "0e1b44d4-8393-5ac7-b5a3-722a29fcd0a1",
+  "numbers_hidden": {
+    "energy": true,
+    "macros": true
+  },
+  "pending_clinician_review": true,
+  "protein_met_days": 2,
+  "start": "2026-11-01",
+  "today": "2026-11-07"
+}

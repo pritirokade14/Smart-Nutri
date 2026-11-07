@@ -1,0 +1,179 @@
+{
+  "date": "2026-11-07",
+  "incomplete": {
+    "carbs_g": false,
+    "energy_kcal": false,
+    "fat_g": false,
+    "fibre_g": true,
+    "protein_g": false,
+    "salt_g": true,
+    "sugars_g": true
+  },
+  "limits_bands": {
+    "kcal": "unknown",
+    "protein_g": "unknown",
+    "salt_g": "unknown",
+    "sugar_g": "unknown"
+  },
+  "member_id": "fbf64aea-1fa8-5969-8cbb-78561aaf348a",
+  "numbers_hidden": {
+    "energy": false,
+    "macros": false
+  },
+  "partial_logged": false,
+  "pending_clinician_review": true,
+  "progress": null,
+  "remaining": null,
+  "slots": [
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T08:00:00+05:30",
+          "grade": null,
+          "grams": 150.0,
+          "id": "dd3a00f3-c0fc-5f21-9ee8-f23820a5731d",
+          "incomplete": [
+            "sugars_g",
+            "salt_g",
+            "sat_fat_g",
+            "fibre_g"
+          ],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "259870e3-8a47-5093-862e-c1be23304363",
+          "member_id": "fbf64aea-1fa8-5969-8cbb-78561aaf348a",
+          "nutrients": {
+            "carbs_g": 42.0,
+            "energy_kcal": 250.0,
+            "fat_g": 6.0,
+            "fibre_g": null,
+            "protein_g": 5.0,
+            "salt_g": null,
+            "sat_fat_g": null,
+            "sugars_g": null
+          },
+          "product_id": "cab7fdcc-a2ee-5717-972a-9c36e0a6fe8e",
+          "product_name": "Poha",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T08:00:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": true,
+        "protein_g": false,
+        "salt_g": true,
+        "sugars_g": true
+      },
+      "label_key": "diary.slot.breakfast",
+      "position": 0,
+      "slot_id": "259870e3-8a47-5093-862e-c1be23304363",
+      "totals": {
+        "carbs_g": 42.0,
+        "energy_kcal": 250.0,
+        "fat_g": 6.0,
+        "fibre_g": null,
+        "protein_g": 5.0,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.lunch",
+      "position": 1,
+      "slot_id": "bb70ae7c-031c-5f9b-87ec-e2e969a04df8",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.snack",
+      "position": 2,
+      "slot_id": "0bd2d9ca-f470-5cb9-a71b-b214f8273387",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.dinner",
+      "position": 3,
+      "slot_id": "027c34fa-0db7-5430-ab32-2927ec6b69dd",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    }
+  ],
+  "targets": null,
+  "targets_status": "consent_required",
+  "timezone": "Asia/Kolkata",
+  "today": "2026-11-07",
+  "totals": {
+    "carbs_g": 42.0,
+    "energy_kcal": 250.0,
+    "fat_g": 6.0,
+    "fibre_g": null,
+    "protein_g": 5.0,
+    "salt_g": null,
+    "sugars_g": null
+  }
+}

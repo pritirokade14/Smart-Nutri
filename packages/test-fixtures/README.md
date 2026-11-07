@@ -180,6 +180,17 @@ The protein g/kg per goal moved from `thresholds.yaml` to `apps/api/app/scoring/
 - **`direction_defaults.json`** maps each goal to the direction the setup screen preselects (build muscle and weight gain: gain; weight loss: lose; eat healthy and no goal: maintain). It equals `targets.default_direction` (tested), and each client checks its own copy against the file.
 - Clients render these numbers and flags and never compute a target, a pace in kg, a remaining value or a flag.
 
+## Diary days (Plan 11: `diary/`)
+
+`diary/inputs/<stem>.json` is hand-written; `diary/expected/<stem>.json` is **generated** by `apps/api/scripts/generate_diary_expectations.py` from the API's own `build_day` and `build_week` (`app/features/diary/aggregate.py`), then dumped with sorted keys, 2-space indent and a trailing newline. Run it from `apps/api`: `uv run python scripts/generate_diary_expectations.py` checks (exit 1 if stale), `--write` updates. `apps/api/tests/fixtures/test_diary_fixtures.py` fails when an expected file is stale and pins the hand-worked numbers. Review every change with `nutrition-safety-reviewer`; never edit an expected file by hand.
+
+- **Input (day):** `{"as_of", "date", "timezone", "targets_case", "targets_status", "numbers_display", "partial_logged", "slots"?, "entries": [{"slot", "local_time", "source_kind", "name", "grams", "nutrients": {8 keys}}]}`. `targets_case` names a `targets/inputs` stem, computed as a stored guide (`stored: true`); `null` means no target; `targets_status: "consent_required"` forces that status and no target. `slots` default to the four default slots; an explicit list gives `{key, label_key, custom_label, position, archived}`.
+- **Input (week):** `"kind": "week"` and `days: [{date, targets_case, partial_logged, entries}]`; `date` is the last day, and a day that is not listed is empty with no frozen row.
+- **Expected:** the `DiaryDayOut` or `DiaryWeekOut` JSON the API returns. Ids are `uuid5(NAMESPACE_URL, "https://smartnutri.app/test-fixtures/diary/<stem>/<key>")`.
+- **Rules the cases pin:** a total is the sum of the known values and a nutrient unknown on any entry is `incomplete` (the total is a lower bound); nothing logged is `null`, never 0. `remaining = target - eaten` (1 dp, half up; negative means over) is `null` as a whole unless the day's target is `ready`, and `null` per nutrient when incomplete or hidden; with nothing logged it equals the target. `progress = eaten / target` (2 dp; 0 with nothing logged) with the same rules, and a hidden value keeps only a shape rounded to the nearest 0.25. The week average covers days with items that are not marked partial, and an average with an unknown value on any averaged day is flagged incomplete.
+- **Cases:** `day_complete_under`, `day_over_energy`, `day_incomplete_energy`, `day_quick_add_kcal_only`, `day_empty`, `day_no_target`, `day_consent_required`, `day_paused_pregnancy`, `day_hide_energy`, `day_hide_all`, `day_half_up`, `day_archived_slot`, `week_mixed`, `week_hide_all`.
+- Clients render these numbers and never compute a total, a remaining value, a progress fraction, a date or a default slot.
+
 ## How each project uses them
 
 | Project | Test |

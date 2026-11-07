@@ -1,0 +1,328 @@
+{
+  "date": "2026-11-07",
+  "incomplete": {
+    "carbs_g": false,
+    "energy_kcal": false,
+    "fat_g": false,
+    "fibre_g": false,
+    "protein_g": false,
+    "salt_g": false,
+    "sugars_g": false
+  },
+  "limits_bands": {
+    "kcal": "unknown",
+    "protein_g": "unknown",
+    "salt_g": "near",
+    "sugar_g": "ok"
+  },
+  "member_id": "ef4a9724-e50d-5279-b39d-26fcfd49a2ba",
+  "numbers_hidden": {
+    "energy": true,
+    "macros": false
+  },
+  "partial_logged": false,
+  "pending_clinician_review": true,
+  "progress": {
+    "carbs_g": 0.57,
+    "energy_kcal": 0.5,
+    "fat_g": 0.54,
+    "protein_g": 0.4
+  },
+  "remaining": {
+    "carbs_g": 175.2,
+    "energy_kcal": null,
+    "fat_g": 35.1,
+    "protein_g": 67.4
+  },
+  "slots": [
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T08:30:00+05:30",
+          "grade": null,
+          "grams": 60.0,
+          "id": "40be62e3-2b1c-5241-91e1-6362f642f3b7",
+          "incomplete": [],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "4202f5e9-fc34-5a4c-8004-8f64d006ccbf",
+          "member_id": "ef4a9724-e50d-5279-b39d-26fcfd49a2ba",
+          "nutrients": {
+            "carbs_g": 39.7,
+            "energy_kcal": null,
+            "fat_g": 4.2,
+            "fibre_g": 6.0,
+            "protein_g": 7.9,
+            "salt_g": 0.0,
+            "sat_fat_g": 0.8,
+            "sugars_g": 0.6
+          },
+          "product_id": "7711b171-10e3-576d-befe-f4b70ed2719a",
+          "product_name": "Oats",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T08:30:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.breakfast",
+      "position": 0,
+      "slot_id": "4202f5e9-fc34-5a4c-8004-8f64d006ccbf",
+      "totals": {
+        "carbs_g": 39.7,
+        "energy_kcal": null,
+        "fat_g": 4.2,
+        "fibre_g": 6.0,
+        "protein_g": 7.9,
+        "salt_g": 0.0,
+        "sugars_g": 0.6
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T13:15:00+05:30",
+          "grade": null,
+          "grams": 350.0,
+          "id": "e022edef-ac5d-5ba9-bafd-51409d3416d5",
+          "incomplete": [],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "c4158fad-1a9b-5cbf-b00c-20a9a5ad5f62",
+          "member_id": "ef4a9724-e50d-5279-b39d-26fcfd49a2ba",
+          "nutrients": {
+            "carbs_g": 102.6,
+            "energy_kcal": null,
+            "fat_g": 15.2,
+            "fibre_g": 9.4,
+            "protein_g": 21.4,
+            "salt_g": 2.2,
+            "sat_fat_g": 3.3,
+            "sugars_g": 4.1
+          },
+          "product_id": "29814a4f-7d5c-5ddf-ba24-4e9e34239066",
+          "product_name": "Dal rice plate",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T13:15:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.lunch",
+      "position": 1,
+      "slot_id": "c4158fad-1a9b-5cbf-b00c-20a9a5ad5f62",
+      "totals": {
+        "carbs_g": 102.6,
+        "energy_kcal": null,
+        "fat_g": 15.2,
+        "fibre_g": 9.4,
+        "protein_g": 21.4,
+        "salt_g": 2.2,
+        "sugars_g": 4.1
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T17:00:00+05:30",
+          "grade": null,
+          "grams": 25.0,
+          "id": "2f21f322-3012-514b-9f17-712e20bb408e",
+          "incomplete": [],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "93b3ab00-73de-53ff-9a03-ae185d728e28",
+          "member_id": "ef4a9724-e50d-5279-b39d-26fcfd49a2ba",
+          "nutrients": {
+            "carbs_g": 17.2,
+            "energy_kcal": null,
+            "fat_g": 4.0,
+            "fibre_g": 0.9,
+            "protein_g": 1.4,
+            "salt_g": 0.5,
+            "sat_fat_g": 2.0,
+            "sugars_g": 0.5
+          },
+          "product_id": "d79e2254-596f-5c1f-9a7b-df0cd114f432",
+          "product_name": "Biscuit",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T17:00:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.snack",
+      "position": 2,
+      "slot_id": "93b3ab00-73de-53ff-9a03-ae185d728e28",
+      "totals": {
+        "carbs_g": 17.2,
+        "energy_kcal": null,
+        "fat_g": 4.0,
+        "fibre_g": 0.9,
+        "protein_g": 1.4,
+        "salt_g": 0.5,
+        "sugars_g": 0.5
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T20:30:00+05:30",
+          "grade": null,
+          "grams": 280.0,
+          "id": "c7ad9125-4975-5636-b2e6-74e92e9bf6e0",
+          "incomplete": [],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "cbcaa2df-f2a7-50de-9bf9-b567bdb2bb47",
+          "member_id": "ef4a9724-e50d-5279-b39d-26fcfd49a2ba",
+          "nutrients": {
+            "carbs_g": 70.3,
+            "energy_kcal": null,
+            "fat_g": 18.5,
+            "fibre_g": 8.2,
+            "protein_g": 14.0,
+            "salt_g": 1.8,
+            "sat_fat_g": 4.1,
+            "sugars_g": 5.0
+          },
+          "product_id": "adbf14f3-c9ec-5485-b89a-df3d29f7417e",
+          "product_name": "Roti and sabzi",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T20:30:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.dinner",
+      "position": 3,
+      "slot_id": "cbcaa2df-f2a7-50de-9bf9-b567bdb2bb47",
+      "totals": {
+        "carbs_g": 70.3,
+        "energy_kcal": null,
+        "fat_g": 18.5,
+        "fibre_g": 8.2,
+        "protein_g": 14.0,
+        "salt_g": 1.8,
+        "sugars_g": 5.0
+      }
+    }
+  ],
+  "targets": {
+    "basis": "formula",
+    "carbs_g": 405,
+    "date": "2026-11-07",
+    "direction": "gain",
+    "energy_kcal": null,
+    "explanation": {
+      "activity_factor": 1.55,
+      "adjustment_kcal": null,
+      "bmr_kcal": null,
+      "body_fat_pct_used": null,
+      "floor_kcal": null,
+      "ibw_kg": null,
+      "maintenance_kcal": null,
+      "protein_basis": "actual_weight",
+      "protein_g_per_kg": 1.6,
+      "protein_reference_weight_kg": 70.0,
+      "weight_kg_used": 70.0
+    },
+    "fat_g": 77,
+    "flags": [],
+    "member_id": "ef4a9724-e50d-5279-b39d-26fcfd49a2ba",
+    "missing_fields": [],
+    "numbers_hidden": {
+      "energy": true,
+      "macros": false
+    },
+    "pending_clinician_review": true,
+    "protein_g": 112,
+    "rate": {
+      "kg_per_week": 0.18,
+      "pct_bw_per_week": 0.25
+    },
+    "rate_options": [
+      {
+        "kg_per_week": 0.07,
+        "pct_bw_per_week": 0.1
+      },
+      {
+        "kg_per_week": 0.18,
+        "pct_bw_per_week": 0.25
+      },
+      {
+        "kg_per_week": 0.35,
+        "pct_bw_per_week": 0.5
+      }
+    ],
+    "sources": [
+      "mifflin_1990",
+      "cdc_weight_loss",
+      "iom_2005_dri",
+      "issn_protein_2017",
+      "morton_2018",
+      "icmr_nin_2024",
+      "who_protein_2007",
+      "devine_1974",
+      "smartnutri_working_values"
+    ],
+    "status": "ready",
+    "unusual_fields": []
+  },
+  "targets_status": "ready",
+  "timezone": "Asia/Kolkata",
+  "today": "2026-11-07",
+  "totals": {
+    "carbs_g": 229.8,
+    "energy_kcal": null,
+    "fat_g": 41.9,
+    "fibre_g": 24.5,
+    "protein_g": 44.7,
+    "salt_g": 4.5,
+    "sugars_g": 10.2
+  }
+}

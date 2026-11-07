@@ -164,9 +164,12 @@ class Totals(BaseModel):
     period has a value for that nutrient (also when nothing was logged): never shown as 0."""
 
     energy_kcal: float | None
+    protein_g: float | None
+    fat_g: float | None
+    carbs_g: float | None
+    fibre_g: float | None
     sugars_g: float | None
     salt_g: float | None
-    protein_g: float | None
 
 
 class SummaryPeriod(StrEnum):
@@ -189,9 +192,12 @@ class IncompleteNutrients(BaseModel):
     only the known meals and is a lower bound."""
 
     energy_kcal: bool
+    protein_g: bool
+    fat_g: bool
+    carbs_g: bool
+    fibre_g: bool
     sugars_g: bool
     salt_g: bool
-    protein_g: bool
 
 
 class DailyLimitsOut(BaseModel):

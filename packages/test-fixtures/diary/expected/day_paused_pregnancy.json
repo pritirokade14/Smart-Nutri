@@ -1,0 +1,211 @@
+{
+  "date": "2026-11-07",
+  "incomplete": {
+    "carbs_g": false,
+    "energy_kcal": false,
+    "fat_g": false,
+    "fibre_g": true,
+    "protein_g": false,
+    "salt_g": true,
+    "sugars_g": true
+  },
+  "limits_bands": {
+    "kcal": "unknown",
+    "protein_g": "unknown",
+    "salt_g": "unknown",
+    "sugar_g": "unknown"
+  },
+  "member_id": "33a77713-f0ca-51e9-a329-11f33ef6a845",
+  "numbers_hidden": {
+    "energy": false,
+    "macros": false
+  },
+  "partial_logged": false,
+  "pending_clinician_review": true,
+  "progress": null,
+  "remaining": null,
+  "slots": [
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.breakfast",
+      "position": 0,
+      "slot_id": "3e3a12af-d8af-5290-bd82-3669cac73022",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T13:00:00+05:30",
+          "grade": null,
+          "grams": 300.0,
+          "id": "df9d3624-5740-532c-b190-42753acd1080",
+          "incomplete": [
+            "sugars_g",
+            "salt_g",
+            "sat_fat_g",
+            "fibre_g"
+          ],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "d80e16d2-f048-535c-9099-247e2f203ee1",
+          "member_id": "33a77713-f0ca-51e9-a329-11f33ef6a845",
+          "nutrients": {
+            "carbs_g": 68.0,
+            "energy_kcal": 410.0,
+            "fat_g": 9.0,
+            "fibre_g": null,
+            "protein_g": 14.0,
+            "salt_g": null,
+            "sat_fat_g": null,
+            "sugars_g": null
+          },
+          "product_id": "35164ac5-4887-5a09-b020-acb4e83aa6ca",
+          "product_name": "Khichdi",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T13:00:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": true,
+        "protein_g": false,
+        "salt_g": true,
+        "sugars_g": true
+      },
+      "label_key": "diary.slot.lunch",
+      "position": 1,
+      "slot_id": "d80e16d2-f048-535c-9099-247e2f203ee1",
+      "totals": {
+        "carbs_g": 68.0,
+        "energy_kcal": 410.0,
+        "fat_g": 9.0,
+        "fibre_g": null,
+        "protein_g": 14.0,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.snack",
+      "position": 2,
+      "slot_id": "8cdec489-68fb-5eec-a5e8-b1142f67b1e5",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.dinner",
+      "position": 3,
+      "slot_id": "ceea6a13-4ff1-5a09-873c-dae151c819f7",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    }
+  ],
+  "targets": {
+    "basis": null,
+    "carbs_g": null,
+    "date": "2026-11-07",
+    "direction": null,
+    "energy_kcal": null,
+    "explanation": null,
+    "fat_g": null,
+    "flags": [],
+    "member_id": "33a77713-f0ca-51e9-a329-11f33ef6a845",
+    "missing_fields": [],
+    "numbers_hidden": {
+      "energy": false,
+      "macros": false
+    },
+    "pending_clinician_review": true,
+    "protein_g": null,
+    "rate": null,
+    "rate_options": [],
+    "sources": [
+      "mifflin_1990",
+      "cdc_weight_loss",
+      "iom_2005_dri",
+      "issn_protein_2017",
+      "morton_2018",
+      "icmr_nin_2024",
+      "who_protein_2007",
+      "devine_1974",
+      "smartnutri_working_values"
+    ],
+    "status": "paused_pregnancy",
+    "unusual_fields": []
+  },
+  "targets_status": "paused_pregnancy",
+  "timezone": "Asia/Kolkata",
+  "today": "2026-11-07",
+  "totals": {
+    "carbs_g": 68.0,
+    "energy_kcal": 410.0,
+    "fat_g": 9.0,
+    "fibre_g": null,
+    "protein_g": 14.0,
+    "salt_g": null,
+    "sugars_g": null
+  }
+}

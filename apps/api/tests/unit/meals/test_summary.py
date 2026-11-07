@@ -6,7 +6,7 @@ import pytest
 
 from app.features.meals.models import MealLog
 from app.features.meals.service import snapshot, to_meal_out
-from app.features.meals.summary import NUTRIENTS, summarise
+from app.features.meals.summary import NUTRIENTS, redact, summarise
 from app.scoring import DailyLimits, Nutrients, load_config
 
 IST = ZoneInfo("Asia/Kolkata")
@@ -237,7 +237,15 @@ def test_bad_period_rejected(cfg):
 
 
 def test_nutrient_keys():
-    assert NUTRIENTS == ("energy_kcal", "sugars_g", "salt_g", "protein_g")
+    assert NUTRIENTS == (
+        "energy_kcal",
+        "protein_g",
+        "fat_g",
+        "carbs_g",
+        "fibre_g",
+        "sugars_g",
+        "salt_g",
+    )
 
 
 # --- cleanup c1: bands compare the UNROUNDED totals -------------------------------------
@@ -421,3 +429,27 @@ def test_groups_by_local_date(cfg):
     on_second = summarise([m], ADULT_LIMITS, "day", date(2026, 11, 2), cfg, member_id=MEMBER)
     assert on_third.days[0].items == 0 and on_third.totals.sugars_g is None
     assert on_second.days[0].items == 1 and on_second.totals.sugars_g == 10
+
+
+def test_new_nutrients_in_totals(cfg):
+    """Plan 11 Ruling E15: totals and incompleteness cover fat, carbs and fibre; unknown stays
+    unknown (never 0)."""
+    a = meal(sugars=1, kcal=100, protein=2)
+    a.nutrients = {**a.nutrients, "fat_g": 3.5, "carbs_g": 10.25, "fibre_g": None}
+    b = meal(sugars=1, kcal=50, protein=1)
+    b.nutrients = {**b.nutrients, "fat_g": 1.0, "carbs_g": None, "fibre_g": None}
+    s = summarise([a, b], ADULT_LIMITS, "day", TODAY, cfg, member_id=MEMBER)
+    assert (s.totals.fat_g, s.totals.carbs_g, s.totals.fibre_g) == (4.5, 10.3, None)
+    assert (s.incomplete.fat_g, s.incomplete.carbs_g, s.incomplete.fibre_g) == (False, True, True)
+    assert s.days[0].incomplete.fibre_g is True
+
+
+def test_redact_macros_nulls_the_new_totals(cfg):
+    from app.features.targets.schemas import NumbersHidden
+
+    m = meal(sugars=1, kcal=100, protein=2)
+    m.nutrients = {**m.nutrients, "fat_g": 3.5, "carbs_g": 10.25, "fibre_g": 2.0}
+    s = summarise([m], ADULT_LIMITS, "day", TODAY, cfg, member_id=MEMBER)
+    out = redact(s, NumbersHidden(energy=True, macros=True))
+    assert all(v is None for v in out.totals.model_dump().values())
+    assert all(v is None for v in out.days[0].totals.model_dump().values())

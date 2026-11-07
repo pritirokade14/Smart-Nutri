@@ -1,0 +1,216 @@
+{
+  "date": "2026-11-07",
+  "incomplete": {
+    "carbs_g": false,
+    "energy_kcal": false,
+    "fat_g": false,
+    "fibre_g": false,
+    "protein_g": false,
+    "salt_g": false,
+    "sugars_g": false
+  },
+  "limits_bands": {
+    "kcal": "unknown",
+    "protein_g": "unknown",
+    "salt_g": "unknown",
+    "sugar_g": "unknown"
+  },
+  "member_id": "d3e195fe-81ec-5076-94a9-4a4286b507e7",
+  "numbers_hidden": {
+    "energy": false,
+    "macros": false
+  },
+  "partial_logged": false,
+  "pending_clinician_review": true,
+  "progress": {
+    "carbs_g": 0.0,
+    "energy_kcal": 0.0,
+    "fat_g": 0.0,
+    "protein_g": 0.0
+  },
+  "remaining": {
+    "carbs_g": 405.0,
+    "energy_kcal": 2760.0,
+    "fat_g": 77.0,
+    "protein_g": 112.0
+  },
+  "slots": [
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.breakfast",
+      "position": 0,
+      "slot_id": "ae96038c-8d97-571d-86ae-7ebed236a014",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.lunch",
+      "position": 1,
+      "slot_id": "21637920-dccc-5b8e-9f78-438b08067d3b",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.snack",
+      "position": 2,
+      "slot_id": "ff0d5f54-3583-5ac1-a38a-82b2fe7d2582",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.dinner",
+      "position": 3,
+      "slot_id": "f508e7fe-fb23-5a85-80a7-669a22849402",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    }
+  ],
+  "targets": {
+    "basis": "formula",
+    "carbs_g": 405,
+    "date": "2026-11-07",
+    "direction": "gain",
+    "energy_kcal": 2760,
+    "explanation": {
+      "activity_factor": 1.55,
+      "adjustment_kcal": 193,
+      "bmr_kcal": 1659,
+      "body_fat_pct_used": null,
+      "floor_kcal": null,
+      "ibw_kg": null,
+      "maintenance_kcal": 2571,
+      "protein_basis": "actual_weight",
+      "protein_g_per_kg": 1.6,
+      "protein_reference_weight_kg": 70.0,
+      "weight_kg_used": 70.0
+    },
+    "fat_g": 77,
+    "flags": [],
+    "member_id": "d3e195fe-81ec-5076-94a9-4a4286b507e7",
+    "missing_fields": [],
+    "numbers_hidden": {
+      "energy": false,
+      "macros": false
+    },
+    "pending_clinician_review": true,
+    "protein_g": 112,
+    "rate": {
+      "kg_per_week": 0.18,
+      "pct_bw_per_week": 0.25
+    },
+    "rate_options": [
+      {
+        "kg_per_week": 0.07,
+        "pct_bw_per_week": 0.1
+      },
+      {
+        "kg_per_week": 0.18,
+        "pct_bw_per_week": 0.25
+      },
+      {
+        "kg_per_week": 0.35,
+        "pct_bw_per_week": 0.5
+      }
+    ],
+    "sources": [
+      "mifflin_1990",
+      "cdc_weight_loss",
+      "iom_2005_dri",
+      "issn_protein_2017",
+      "morton_2018",
+      "icmr_nin_2024",
+      "who_protein_2007",
+      "devine_1974",
+      "smartnutri_working_values"
+    ],
+    "status": "ready",
+    "unusual_fields": []
+  },
+  "targets_status": "ready",
+  "timezone": "Asia/Kolkata",
+  "today": "2026-11-07",
+  "totals": {
+    "carbs_g": null,
+    "energy_kcal": null,
+    "fat_g": null,
+    "fibre_g": null,
+    "protein_g": null,
+    "salt_g": null,
+    "sugars_g": null
+  }
+}

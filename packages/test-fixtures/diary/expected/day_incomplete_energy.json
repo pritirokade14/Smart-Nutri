@@ -1,0 +1,278 @@
+{
+  "date": "2026-11-07",
+  "incomplete": {
+    "carbs_g": false,
+    "energy_kcal": true,
+    "fat_g": false,
+    "fibre_g": true,
+    "protein_g": false,
+    "salt_g": true,
+    "sugars_g": true
+  },
+  "limits_bands": {
+    "kcal": "unknown",
+    "protein_g": "unknown",
+    "salt_g": "unknown",
+    "sugar_g": "unknown"
+  },
+  "member_id": "899ef46b-b740-5bad-8720-6b477620ee96",
+  "numbers_hidden": {
+    "energy": false,
+    "macros": false
+  },
+  "partial_logged": false,
+  "pending_clinician_review": true,
+  "progress": {
+    "carbs_g": 0.19,
+    "energy_kcal": null,
+    "fat_g": 0.36,
+    "protein_g": 0.2
+  },
+  "remaining": {
+    "carbs_g": 330.0,
+    "energy_kcal": null,
+    "fat_g": 49.0,
+    "protein_g": 89.5
+  },
+  "slots": [
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": null,
+          "barcode": null,
+          "client_id": null,
+          "eaten_at": "2026-11-07T08:15:00+05:30",
+          "grade": null,
+          "grams": 80.0,
+          "id": "2b4f1321-9106-575b-90dc-f6dc9e25d77a",
+          "incomplete": [],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "fce91750-7720-56d2-9db3-5ae6b8d3caa7",
+          "member_id": "899ef46b-b740-5bad-8720-6b477620ee96",
+          "nutrients": {
+            "carbs_g": 45.0,
+            "energy_kcal": 300.0,
+            "fat_g": 8.0,
+            "fibre_g": 5.0,
+            "protein_g": 10.0,
+            "salt_g": 0.2,
+            "sat_fat_g": 1.5,
+            "sugars_g": 9.0
+          },
+          "product_id": "66304445-94b5-5b80-a0de-8b15f0550d97",
+          "product_name": "Muesli",
+          "source_kind": "product",
+          "updated_at": "2026-11-07T08:15:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.breakfast",
+      "position": 0,
+      "slot_id": "fce91750-7720-56d2-9db3-5ae6b8d3caa7",
+      "totals": {
+        "carbs_g": 45.0,
+        "energy_kcal": 300.0,
+        "fat_g": 8.0,
+        "fibre_g": 5.0,
+        "protein_g": 10.0,
+        "salt_g": 0.2,
+        "sugars_g": 9.0
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [
+        {
+          "attribution": "attribution.off",
+          "barcode": "8900000000000",
+          "client_id": null,
+          "eaten_at": "2026-11-07T13:40:00+05:30",
+          "grade": null,
+          "grams": 30.0,
+          "id": "5d6d76a3-d5a9-5969-bde5-10b49b462797",
+          "incomplete": [
+            "energy_kcal",
+            "sugars_g",
+            "salt_g",
+            "sat_fat_g",
+            "fibre_g"
+          ],
+          "local_date": "2026-11-07",
+          "meal_slot_id": "d65944e9-f49f-5496-8375-345088cb097f",
+          "member_id": "899ef46b-b740-5bad-8720-6b477620ee96",
+          "nutrients": {
+            "carbs_g": 30.0,
+            "energy_kcal": null,
+            "fat_g": 20.0,
+            "fibre_g": null,
+            "protein_g": 12.5,
+            "salt_g": null,
+            "sat_fat_g": null,
+            "sugars_g": null
+          },
+          "product_id": null,
+          "product_name": "Open Food Facts namkeen",
+          "source_kind": "off",
+          "updated_at": "2026-11-07T13:40:00+05:30"
+        }
+      ],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": true,
+        "fat_g": false,
+        "fibre_g": true,
+        "protein_g": false,
+        "salt_g": true,
+        "sugars_g": true
+      },
+      "label_key": "diary.slot.lunch",
+      "position": 1,
+      "slot_id": "d65944e9-f49f-5496-8375-345088cb097f",
+      "totals": {
+        "carbs_g": 30.0,
+        "energy_kcal": null,
+        "fat_g": 20.0,
+        "fibre_g": null,
+        "protein_g": 12.5,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.snack",
+      "position": 2,
+      "slot_id": "e39a7de4-6381-5367-82e4-1e8f2eb7fa87",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    },
+    {
+      "archived": false,
+      "custom_label": null,
+      "entries": [],
+      "incomplete": {
+        "carbs_g": false,
+        "energy_kcal": false,
+        "fat_g": false,
+        "fibre_g": false,
+        "protein_g": false,
+        "salt_g": false,
+        "sugars_g": false
+      },
+      "label_key": "diary.slot.dinner",
+      "position": 3,
+      "slot_id": "7dd845d2-c910-53df-8faf-f25f171055a1",
+      "totals": {
+        "carbs_g": null,
+        "energy_kcal": null,
+        "fat_g": null,
+        "fibre_g": null,
+        "protein_g": null,
+        "salt_g": null,
+        "sugars_g": null
+      }
+    }
+  ],
+  "targets": {
+    "basis": "formula",
+    "carbs_g": 405,
+    "date": "2026-11-07",
+    "direction": "gain",
+    "energy_kcal": 2760,
+    "explanation": {
+      "activity_factor": 1.55,
+      "adjustment_kcal": 193,
+      "bmr_kcal": 1659,
+      "body_fat_pct_used": null,
+      "floor_kcal": null,
+      "ibw_kg": null,
+      "maintenance_kcal": 2571,
+      "protein_basis": "actual_weight",
+      "protein_g_per_kg": 1.6,
+      "protein_reference_weight_kg": 70.0,
+      "weight_kg_used": 70.0
+    },
+    "fat_g": 77,
+    "flags": [],
+    "member_id": "899ef46b-b740-5bad-8720-6b477620ee96",
+    "missing_fields": [],
+    "numbers_hidden": {
+      "energy": false,
+      "macros": false
+    },
+    "pending_clinician_review": true,
+    "protein_g": 112,
+    "rate": {
+      "kg_per_week": 0.18,
+      "pct_bw_per_week": 0.25
+    },
+    "rate_options": [
+      {
+        "kg_per_week": 0.07,
+        "pct_bw_per_week": 0.1
+      },
+      {
+        "kg_per_week": 0.18,
+        "pct_bw_per_week": 0.25
+      },
+      {
+        "kg_per_week": 0.35,
+        "pct_bw_per_week": 0.5
+      }
+    ],
+    "sources": [
+      "mifflin_1990",
+      "cdc_weight_loss",
+      "iom_2005_dri",
+      "issn_protein_2017",
+      "morton_2018",
+      "icmr_nin_2024",
+      "who_protein_2007",
+      "devine_1974",
+      "smartnutri_working_values"
+    ],
+    "status": "ready",
+    "unusual_fields": []
+  },
+  "targets_status": "ready",
+  "timezone": "Asia/Kolkata",
+  "today": "2026-11-07",
+  "totals": {
+    "carbs_g": 75.0,
+    "energy_kcal": 300.0,
+    "fat_g": 28.0,
+    "fibre_g": 5.0,
+    "protein_g": 22.5,
+    "salt_g": 0.2,
+    "sugars_g": 9.0
+  }
+}

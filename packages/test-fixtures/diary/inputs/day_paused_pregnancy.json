@@ -1,0 +1,28 @@
+{
+  "as_of": "2026-11-07",
+  "date": "2026-11-07",
+  "timezone": "Asia/Kolkata",
+  "targets_case": "pregnancy",
+  "targets_status": null,
+  "numbers_display": "show",
+  "partial_logged": false,
+  "entries": [
+    {
+      "slot": "lunch",
+      "local_time": "13:00",
+      "source_kind": "product",
+      "name": "Khichdi",
+      "grams": 300,
+      "nutrients": {
+        "energy_kcal": 410.0,
+        "sugars_g": null,
+        "salt_g": null,
+        "protein_g": 14.0,
+        "fat_g": 9.0,
+        "sat_fat_g": null,
+        "carbs_g": 68.0,
+        "fibre_g": null
+      }
+    }
+  ]
+}
