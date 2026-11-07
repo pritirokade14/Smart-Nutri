@@ -42,6 +42,10 @@ REQUIRED: dict[str, tuple[Purpose, ...]] = {
     # allergies and conditions when member_id is given. Gated always, with or without it.
     "product_verdicts": ("terms",),
     "voice": ("terms", "ai_processing"),
+    # Daily targets (Plan 10, ADR 0022): they process body data, so they need health_data too.
+    # Gated per route (not by prefix): erasure and the display toggle need only terms.
+    "targets": ("terms", "health_data"),
+    "targets_prefs": ("terms",),
 }
 
 CONSENT_RESPONSES: dict[int | str, dict[str, Any]] = {

@@ -39,6 +39,9 @@ BUCKETS: dict[str, tuple[str, str]] = {
     "account_deletes": ("day", "rate_limit_account_deletes_per_day"),
     # m6: member create and update share one bucket. Delete is never limited (erasure).
     "member_writes": ("day", "rate_limit_member_writes_per_day"),
+    # Plan 10: goal settings and the display toggle share one bucket; the preview has its own.
+    "diary_settings": ("day", "rate_limit_diary_settings_per_day"),
+    "targets_preview": ("hour", "rate_limit_targets_preview_per_hour"),
 }
 ERROR_CODES = {"label_scans": "rate_limited_scans", "voice": "rate_limited_voice"}
 _DEFAULT_CODE = "rate_limited"
