@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'favourite_item_out_basis.dart';
 import 'favourite_item_out_source_kind.dart';
 
 part 'favourite_item_out.g.dart';
@@ -16,6 +17,7 @@ class FavouriteItemOut {
     required this.quantity,
     required this.sourceKind,
     required this.unit,
+    this.basis = FavouriteItemOutBasis.g,
     this.attributions,
   });
 
@@ -23,6 +25,9 @@ class FavouriteItemOut {
       _$FavouriteItemOutFromJson(json);
 
   final List<String>? attributions;
+
+  /// The unit of `grams`: grams or millilitres (an ml-basis food)
+  final FavouriteItemOutBasis basis;
   final num? grams;
   final String? name;
   final num? quantity;

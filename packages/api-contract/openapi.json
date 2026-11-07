@@ -2395,6 +2395,16 @@
             "title": "Attributions",
             "type": "array"
           },
+          "basis": {
+            "default": "g",
+            "description": "The unit of `grams`: grams or millilitres (an ml-basis food)",
+            "enum": [
+              "g",
+              "ml"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
           "grams": {
             "anyOf": [
               {

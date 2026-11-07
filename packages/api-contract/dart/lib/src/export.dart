@@ -174,6 +174,7 @@ export 'models/entered_out_values_per.dart';
 export 'models/explanation_out_language.dart';
 export 'models/explanation_out_source.dart';
 export 'models/favourite_in_default_unit.dart';
+export 'models/favourite_item_out_basis.dart';
 export 'models/favourite_item_out_source_kind.dart';
 export 'models/favourite_out_kind.dart';
 export 'models/favourite_out_source_kind.dart';

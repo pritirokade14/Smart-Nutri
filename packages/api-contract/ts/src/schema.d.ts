@@ -2036,6 +2036,13 @@ export interface components {
         FavouriteItemOut: {
             /** Attributions */
             attributions?: string[];
+            /**
+             * Basis
+             * @description The unit of `grams`: grams or millilitres (an ml-basis food)
+             * @default g
+             * @enum {string}
+             */
+            basis: "g" | "ml";
             /** Grams */
             grams: number | null;
             /** Name */
