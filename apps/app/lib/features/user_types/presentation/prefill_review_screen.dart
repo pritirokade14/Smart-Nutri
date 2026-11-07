@@ -50,7 +50,15 @@ class _PrefillReviewScreenState extends ConsumerState<PrefillReviewScreen> {
   bool _busy = false;
   String? _error;
 
-  void _done() => context.go(flowEnd(widget.edit));
+  void _done({List<String>? types}) {
+    final out = ref.read(userTypesProvider).value;
+    context.go(
+      flowEndFor(
+        widget.edit,
+        types ?? (out == null ? const [] : chosenTypes(out)),
+      ),
+    );
+  }
 
   Future<void> _apply(PrefillSuggestion p) async {
     final confirmed = [
@@ -109,12 +117,14 @@ class _PrefillReviewScreenState extends ConsumerState<PrefillReviewScreen> {
       rethrow;
     }
     // The suggestions are recomputed from the member (now empty).
+    final out = ref.read(userTypesProvider).value;
+    final types = out == null ? const <String>[] : chosenTypes(out);
     ref.invalidate(userTypesProvider);
     if (!mounted) return;
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context).membersSaved)),
     );
-    _done();
+    _done(types: types);
   }
 
   @override

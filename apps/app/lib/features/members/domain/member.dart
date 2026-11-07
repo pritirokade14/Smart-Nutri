@@ -63,6 +63,8 @@ class MemberDraft {
     this.conditions = const [],
     this.customAlerts = const [],
     this.goal,
+    this.bodyFatPct,
+    this.clearBodyFat = false,
     this.keepConditions = false,
     this.keepCustomAlerts = false,
   });
@@ -106,6 +108,14 @@ class MemberDraft {
   final List<String> customAlerts;
   final String? goal;
 
+  /// A body fat % to write. Null is "unchanged" (never "clear"): the API
+  /// reads a null `body_fat_pct` on PATCH as no change (Plan 10, D3), so a
+  /// draft built from a stored member leaves it null.
+  final num? bodyFatPct;
+
+  /// Clears the stored body fat (sent as `clear_body_fat_pct: true`).
+  final bool clearBodyFat;
+
   /// The stored conditions hold a value this app doesn't know: send null
   /// (unchanged) instead of a list that would drop it.
   final bool keepConditions;
@@ -128,6 +138,7 @@ class MemberDraft {
       for (final a in customAlerts) MemberInCustomAlerts.fromJson(a),
     ],
     goal: goal == null ? null : MemberInGoal.fromJson(goal!),
+    bodyFatPct: bodyFatPct,
   );
 
   /// For `PATCH /v1/members/{id}`: the full current form state, never a
@@ -149,6 +160,34 @@ class MemberDraft {
         ? null
         : [for (final a in customAlerts) MemberPatchCustomAlerts.fromJson(a)],
     goal: goal == null ? null : MemberPatchGoal.fromJson(goal!),
+    bodyFatPct: clearBodyFat ? null : bodyFatPct,
+    clearBodyFatPct: clearBodyFat,
+  );
+
+  /// The body fields the daily-guide setup edits; every other field stays.
+  MemberDraft withBody({
+    int? birthYear,
+    String? sex,
+    num? heightCm,
+    num? weightKg,
+    num? bodyFatPct,
+    bool clearBodyFat = false,
+  }) => MemberDraft(
+    name: name,
+    relation: relation,
+    birthYear: birthYear,
+    sex: sex,
+    heightCm: heightCm,
+    weightKg: weightKg,
+    diet: diet,
+    allergens: allergens,
+    conditions: conditions,
+    customAlerts: customAlerts,
+    goal: goal,
+    bodyFatPct: bodyFatPct,
+    clearBodyFat: clearBodyFat,
+    keepConditions: keepConditions,
+    keepCustomAlerts: keepCustomAlerts,
   );
 }
 
@@ -174,5 +213,6 @@ bool writesHealthData(MemberDraft draft, {MemberOut? stored}) {
       listWrites(draft.conditions, before?.conditions) ||
       scalarWrites(draft.goal, before?.goal) ||
       scalarWrites(draft.heightCm, before?.heightCm) ||
-      scalarWrites(draft.weightKg, before?.weightKg);
+      scalarWrites(draft.weightKg, before?.weightKg) ||
+      scalarWrites(draft.bodyFatPct, before?.bodyFatPct);
 }

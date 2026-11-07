@@ -1,6 +1,7 @@
 import 'package:smartnutri_api/src/export.dart';
 
 import 'fake_members.dart';
+import 'fake_targets.dart';
 
 /// Builds a [UserTypesOut] the way the API returns it.
 UserTypesOut userTypesOut({
@@ -138,7 +139,9 @@ class FakeUserTypesApi implements SmartNutriApiClient {
     FakeUserTypesMe? me,
     FakeMembersClient? members,
     FakeConsentsClient? consents,
+    FakeTargetsClient? targets,
   }) : me = me ?? FakeUserTypesMe(),
+       targets = targets ?? FakeTargetsClient(),
        members = members ?? FakeMembersClient(),
        consents = consents ?? FakeConsentsClient(granted: {'terms'});
 
@@ -148,6 +151,8 @@ class FakeUserTypesApi implements SmartNutriApiClient {
   final FakeMembersClient members;
   @override
   final FakeConsentsClient consents;
+  @override
+  final FakeTargetsClient targets;
 
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);

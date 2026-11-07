@@ -7,6 +7,7 @@ import '../../../core/network/api_client.dart';
 import '../../members/presentation/consent_sheet.dart';
 import '../../members/presentation/members_providers.dart';
 import '../data/user_types_repository.dart';
+import '../domain/user_types.dart';
 import 'user_types_providers.dart';
 
 /// `?edit=1` (opened from Profile) on the onboarding routes.
@@ -14,6 +15,16 @@ String editQuery(bool edit) => edit ? '?edit=1' : '';
 
 /// Where the flow ends: Profile when editing, else Home.
 String flowEnd(bool edit) => edit ? '/profile' : '/home';
+
+/// Types whose users are offered the daily guide right after onboarding.
+const _guideTypes = {'gym', 'weight_loss', 'eat_better'};
+
+/// Where onboarding ends for [types]: the daily-guide setup when one of them
+/// wants it (Plan 10), else [flowEnd].
+String flowEndFor(bool edit, Iterable<String> types) =>
+    !edit && types.any(_guideTypes.contains)
+    ? '/guide/setup?from=welcome'
+    : flowEnd(edit);
 
 void _snack(BuildContext context, String text) => ScaffoldMessenger.maybeOf(
   context,
@@ -60,7 +71,7 @@ Future<bool> saveUserTypes(
       context.go(
         hasPrefillToReview(out)
             ? '/welcome/review${editQuery(edit)}'
-            : flowEnd(edit),
+            : flowEndFor(edit, chosenTypes(out)),
       );
       return true;
     } on UserTypesFailure catch (e) {

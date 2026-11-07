@@ -93,3 +93,26 @@ Methodology methodologyFixture() =>
 /// Golden `POST /v1/voice/ask` body ([name] is e.g. `answer_avoid`).
 VoiceAnswer voiceAnswerFixture(String name) =>
     VoiceAnswer.fromJson(_readJson('responses/voice/$name.json'));
+
+/// Golden `GET /v1/targets` body (`targets/expected/<stem>.json`).
+Map<String, Object?> targetsJson(String stem) =>
+    _readJson('targets/expected/$stem.json');
+
+TargetsOut targetsFixture(String stem) =>
+    TargetsOut.fromJson(targetsJson(stem));
+
+/// Stems that have an `expected/<stem>.json` file with a `status` (no
+/// `error` files), sorted.
+List<String> targetsFixtureStems() =>
+    Directory('$_fixturesRoot/targets/expected')
+        .listSync()
+        .whereType<File>()
+        .map((f) => f.uri.pathSegments.last)
+        .where((n) => n.endsWith('.json'))
+        .map((n) => n.replaceAll('.json', ''))
+        .toList()
+      ..sort();
+
+/// `targets/direction_defaults.json`.
+Map<String, String> directionDefaultsFixture() =>
+    (_readJson('targets/direction_defaults.json')).cast<String, String>();

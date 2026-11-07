@@ -32,6 +32,7 @@ class ProfileScreen extends ConsumerWidget {
   static const deleteKey = Key('profile-delete-account');
   static const methodologyKey = Key('profile-how-we-score');
   static const userTypesKey = Key('profile-user-types');
+  static const guideKey = Key('profile-diary-guide');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,6 +49,16 @@ class ProfileScreen extends ConsumerWidget {
           const Card(child: MoreList()),
           const SizedBox(height: SnTokens.space4),
           const _UserTypesSection(),
+          const SizedBox(height: SnTokens.space4),
+          Card(
+            child: ListTile(
+              key: guideKey,
+              leading: const Icon(Icons.monitor_heart_outlined),
+              title: Text(l10n.settingsDiaryTitle),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push('/profile/guide'),
+            ),
+          ),
           const SizedBox(height: SnTokens.space4),
           const _LanguageSection(),
           const SizedBox(height: SnTokens.space4),
