@@ -136,6 +136,8 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'recipe_ingredient_limit' => l10n.errorRecipeIngredientLimit,
     'recipe_weight_invalid' => l10n.errorRecipeWeightInvalid,
     'food_retired' => l10n.errorFoodRetired,
+    'favourite_not_found' => l10n.errorFavouriteNotFound,
+    'favourite_limit' => l10n.errorFavouriteLimit,
     'eaten_at_out_of_range' => l10n.errorEatenAtOutOfRange,
     'meal_not_found' => l10n.errorMealNotFound,
     'audio_too_long' => l10n.errorAudioTooLong,
