@@ -5,8 +5,8 @@ import { act, cleanup, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { Suspense } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import DiaryPage from "@/app/[locale]/(app)/diary/page";
 import FamilyPage from "@/app/[locale]/(app)/family/page";
-import HistoryPage from "@/app/[locale]/(app)/history/page";
 import ProfilePage from "@/app/[locale]/(app)/profile/page";
 import { AppNav } from "@/components/shell/AppNav";
 import { LanguageSwitcher } from "@/components/shell/LanguageSwitcher";
@@ -42,7 +42,7 @@ const MODE = "health_condition" as const;
 const TABS = [
   ["home", "/en/home"],
   ["scan", "/en/scan"],
-  ["diary", "/en/history"],
+  ["diary", "/en/diary"],
   ["family", "/en/family"],
   ["profile", "/en/profile"],
 ] as const;
@@ -71,7 +71,7 @@ describe("AppNav", () => {
     ["/en/scan/label", "scan"],
     ["/en/result/8901063201089", "scan"],
     ["/en/product/7d1d2f8a-1111-4c3b-9a0e-0123456789ab", "scan"],
-    ["/en/history", "diary"],
+    ["/en/diary", "diary"],
     ["/en/family", "family"],
     ["/en/members/new", "family"],
     ["/en/members/7d1d2f8a-1111-4c3b-9a0e-0123456789ab", "family"],
@@ -152,16 +152,19 @@ describe("app pages", () => {
     expect(screen.queryByText(en.common.coming_soon)).toBeNull();
   });
 
-  it("history: the title, no coming-soon state, and the disclaimer", async () => {
+  it("diary: the title, no coming-soon state, and the disclaimer", async () => {
     await act(async () => {
       withQuery(
         <Suspense>
-          <HistoryPage params={Promise.resolve({ locale: "en" })} />
+          <DiaryPage
+            params={Promise.resolve({ locale: "en" })}
+            searchParams={Promise.resolve({})}
+          />
         </Suspense>,
       );
     });
     expect(
-      await screen.findByRole("heading", { level: 1, name: en.history.title }),
+      await screen.findByRole("heading", { level: 1, name: en.diary.title }),
     ).toBeTruthy();
     expect(screen.queryByText(en.common.coming_soon)).toBeNull();
     expect(screen.getByTestId("disclaimer")).toBeTruthy();

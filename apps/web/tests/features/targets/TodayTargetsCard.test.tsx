@@ -9,13 +9,14 @@ import {
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Summary } from "@/features/meals/api/meals";
+import type { DiaryDayOut } from "@/features/diary/api/diary";
 import type { MemberOut } from "@/features/members/api/members";
 import { TodayTargetsCard } from "@/features/targets/components/TodayTargetsCard";
 import { membersMessages } from "@/i18n/client-messages";
 import { setConsentRequiredHandler } from "@/lib/api/client";
 import { MESSAGES } from "../../support/analyze-fixtures";
 import { apiStub, consentStates, envelope, json } from "../../support/api-stub";
+import { diaryDay } from "../../support/diary-fixtures";
 import { targetsFixture } from "../../support/targets-fixtures";
 
 const nav = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
@@ -57,43 +58,43 @@ const member: MemberOut = {
   is_primary: true,
 };
 
-const summary = (over: Partial<Summary> = {}): Summary => ({
-  member_id: PRIMARY,
-  period: "day",
-  start: "2026-11-07",
-  end: "2026-11-07",
-  totals: {
-    energy_kcal: 800,
-    sugars_g: 20,
-    salt_g: 3,
-    fat_g: null,
-    carbs_g: null,
-    fibre_g: null,
-    protein_g: 40,
-  },
-  incomplete: {
-    energy_kcal: false,
-    sugars_g: false,
-    salt_g: false,
-    fat_g: false,
-    carbs_g: false,
-    fibre_g: false,
-    protein_g: false,
-  },
-  limits: {
-    kcal: null,
-    protein_target_g: 112,
-    protein_g_per_kg: 1.6,
-    salt_g: 5,
-    sugar_g: 25,
-  },
-  bands: { kcal: "unknown", protein_g: "ok", salt_g: "ok", sugar_g: "near" },
-  days: [],
-  pending_clinician_review: true,
-  protein_left_g: 72,
-  numbers_hidden: { energy: false, macros: false },
-  ...over,
-});
+type Totals = DiaryDayOut["totals"];
+type Incomplete = DiaryDayOut["incomplete"];
+const NULL_TOTALS: Totals = {
+  energy_kcal: null,
+  protein_g: null,
+  fat_g: null,
+  carbs_g: null,
+  fibre_g: null,
+  sugars_g: null,
+  salt_g: null,
+};
+// A golden diary day (GET /v1/diary/day) with the eaten totals and the API's
+// own `remaining` set for the test: the card renders them, never works them out.
+const summary = (
+  over: {
+    totals?: Partial<Totals>;
+    incomplete?: Partial<Incomplete>;
+    remaining?: DiaryDayOut["remaining"];
+    numbers_hidden?: DiaryDayOut["numbers_hidden"];
+  } = {},
+): DiaryDayOut =>
+  diaryDay("day_empty", (d) => {
+    d.totals = {
+      ...NULL_TOTALS,
+      energy_kcal: 800,
+      protein_g: 40,
+      ...over.totals,
+    };
+    d.incomplete = { ...d.incomplete, ...over.incomplete };
+    d.remaining = over.remaining ?? {
+      energy_kcal: 1960,
+      protein_g: 72,
+      fat_g: null,
+      carbs_g: null,
+    };
+    if (over.numbers_hidden) d.numbers_hidden = over.numbers_hidden;
+  });
 
 let api: ReturnType<typeof apiStub>;
 beforeEach(() => {
@@ -124,7 +125,7 @@ describe("TodayTargetsCard", () => {
   it("renders golden g1_build_muscle targets", async () => {
     api
       .on("GET", "/v1/targets", targetsFixture("g1_build_muscle"))
-      .on("GET", "/v1/meals/summary", summary());
+      .on("GET", "/v1/diary/day", summary());
     wrap();
     const c = await card();
     expect(await within(c).findByText(/of 2,760 kcal/)).toBeTruthy();
@@ -224,7 +225,7 @@ describe("TodayTargetsCard", () => {
         display = (call.body as { numbers_display: string }).numbers_display;
         return json(200, { numbers_display: display });
       })
-      .on("GET", "/v1/meals/summary", () =>
+      .on("GET", "/v1/diary/day", () =>
         json(
           200,
           display === "show"
@@ -272,7 +273,7 @@ describe("TodayTargetsCard", () => {
   it("un-hiding rate limited shows the standard error copy", async () => {
     api
       .on("GET", "/v1/targets", targetsFixture("g1_hide_all"))
-      .on("GET", "/v1/meals/summary", summary())
+      .on("GET", "/v1/diary/day", summary())
       .on("PUT", "/v1/targets/display", () =>
         json(429, {
           error: { code: "rate_limited", message_key: "error.rate_limited" },
@@ -293,7 +294,7 @@ describe("TodayTargetsCard", () => {
         json(200, targetsFixture("g1_build_muscle")),
       )
       .on("GET", "/v1/targets/settings", () => json(200, null))
-      .on("GET", "/v1/meals/summary", summary())
+      .on("GET", "/v1/diary/day", summary())
       .on("PUT", "/v1/targets/display", () => {
         display = "hide_all";
         return json(200, {
@@ -316,7 +317,7 @@ describe("TodayTargetsCard", () => {
   it("hide_energy shows macros but no kcal", async () => {
     api.on("GET", "/v1/targets", targetsFixture("g1_hide_energy")).on(
       "GET",
-      "/v1/meals/summary",
+      "/v1/diary/day",
       summary({
         totals: {
           energy_kcal: null,
@@ -341,7 +342,7 @@ describe("TodayTargetsCard", () => {
   it("incomplete energy shows the grey chip", async () => {
     api.on("GET", "/v1/targets", targetsFixture("g1_build_muscle")).on(
       "GET",
-      "/v1/meals/summary",
+      "/v1/diary/day",
       summary({
         totals: {
           energy_kcal: 0,
@@ -373,19 +374,17 @@ describe("TodayTargetsCard", () => {
     );
   });
 
-  it("over target renders the API numbers with no client comparison", async () => {
+  it("remaining comes from the diary day: left, and over with the absolute value in a neutral tone", async () => {
     api.on("GET", "/v1/targets", targetsFixture("g1_build_muscle")).on(
       "GET",
-      "/v1/meals/summary",
+      "/v1/diary/day",
       summary({
-        totals: {
-          energy_kcal: 3000,
-          sugars_g: 20,
-          salt_g: 3,
+        totals: { energy_kcal: 3000, protein_g: 40 },
+        remaining: {
+          energy_kcal: -240,
+          protein_g: 72,
           fat_g: null,
           carbs_g: null,
-          fibre_g: null,
-          protein_g: 40,
         },
       }),
     );
@@ -393,16 +392,34 @@ describe("TodayTargetsCard", () => {
     const c = await card();
     const row = await within(c).findByTestId("target-energy");
     await waitFor(() => expect(row.textContent).toContain("3,000 kcal of"));
-    expect(row.dataset.over).toBeUndefined();
     expect(row.textContent).toContain("3,000 kcal of 2,760 kcal");
-    expect(row.textContent).not.toMatch(/over/i);
-    expect(row.innerHTML).not.toMatch(/danger|error|red|warning/);
+    expect(row.textContent).toContain("240 kcal over");
+    expect(row.textContent).not.toContain("-240");
+    expect(row.innerHTML).not.toMatch(/danger|error|red|warning|verdict/);
+    expect(within(c).getByTestId("target-protein").textContent).toContain(
+      "72 g left",
+    );
+  });
+
+  it("no remaining line when the API sent none (guide not ready)", async () => {
+    api.on("GET", "/v1/targets", targetsFixture("g1_build_muscle")).on(
+      "GET",
+      "/v1/diary/day",
+      diaryDay("day_empty", (d) => {
+        d.remaining = null;
+        d.progress = null;
+      }),
+    );
+    wrap();
+    const c = await card();
+    await within(c).findByTestId("target-energy");
+    expect(c.textContent ?? "").not.toMatch(/ left| over/);
   });
 
   it("disclaimer and pending review shown", async () => {
     api
       .on("GET", "/v1/targets", targetsFixture("g1_build_muscle"))
-      .on("GET", "/v1/meals/summary", summary());
+      .on("GET", "/v1/diary/day", summary());
     wrap();
     const c = await card();
     expect(await within(c).findByText(en.diary.disclaimer)).toBeTruthy();

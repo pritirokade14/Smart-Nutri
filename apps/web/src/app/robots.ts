@@ -11,6 +11,7 @@ const APP_ROUTES = [
   "compare",
   "family",
   "history",
+  "diary",
   "members",
   "product",
   "result",

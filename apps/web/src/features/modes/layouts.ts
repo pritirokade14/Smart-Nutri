@@ -134,8 +134,7 @@ export function byPriority(types: readonly UserType[]): UserType[] {
 export const DESTINATION_PATH: Readonly<Record<Destination, string>> = {
   home: "home",
   scan: "scan",
-  // The Diary opens the existing History page at /history until Plan 11 Task 11 replaces it.
-  diary: "history",
+  diary: "diary",
   family: "family",
   protein: "protein",
   compare: "compare",
