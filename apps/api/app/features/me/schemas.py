@@ -19,6 +19,11 @@ class MeOut(BaseModel):
     display_name: str | None
     language: Literal["en", "hi", "mr"]
     created_at: datetime
+    timezone: str  # IANA zone for local diary dates (Plan 11 Ruling E7)
+
+
+class TimezoneIn(BaseModel):
+    timezone: str = Field(min_length=1, max_length=64)
 
 
 # --- user types (Plan 9 Task 1, rulings P9-R1..R4) ---------------------------------------------

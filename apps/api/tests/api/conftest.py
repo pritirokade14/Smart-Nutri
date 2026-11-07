@@ -38,3 +38,23 @@ _GATE_BYPASS_DIRS = ("analyze", "scans", "products", "meals", "discovery")
 def _bypass_consent_gate_outside_gate_tests(request):
     if request.node.path.parent.name in _GATE_BYPASS_DIRS:
         request.getfixturevalue("consents_granted")
+
+
+class Clock:
+    """Pins `app.core.time.now_utc` (Plan 11). `set("2026-11-07T06:30:00Z")` moves it."""
+
+    def __init__(self, monkeypatch, start: str) -> None:
+        self._monkeypatch = monkeypatch
+        self.set(start)
+
+    def set(self, iso: str) -> None:
+        from datetime import datetime
+
+        self.now = datetime.fromisoformat(iso)
+        self._monkeypatch.setattr("app.core.time.now_utc", lambda: self.now)
+
+
+@pytest.fixture
+def clock(monkeypatch) -> Clock:
+    """The clock, pinned to 2026-11-07 12:00 IST (06:30Z). Opt in per test or via autouse."""
+    return Clock(monkeypatch, "2026-11-07T06:30:00+00:00")

@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.security import AccountContext, auth_invalid_error
-from app.core.time import today_ist
+from app.core.time import DEFAULT_TIMEZONE, is_valid_timezone, today_ist
 from app.features.consents import service as consents_service
 from app.features.me import prefill
 from app.features.me.models import Account, AccountUserTypes, DeletedAccount
@@ -73,6 +73,22 @@ async def ensure_account(session: AsyncSession, ctx: AccountContext) -> Account:
     await session.commit()
     result = await session.execute(select(Account).where(Account.id == ctx.account_id))
     return result.scalar_one()
+
+
+async def account_timezone(session: AsyncSession, account_id: UUID) -> str:
+    """The account's IANA zone; the default (Asia/Kolkata) for an unknown account."""
+    zone = await session.scalar(select(Account.timezone).where(Account.id == account_id))
+    return zone or DEFAULT_TIMEZONE
+
+
+async def set_timezone(session: AsyncSession, account: Account, name: str) -> Account:
+    """Set the account's zone (never commits). 422 `timezone_invalid` for a name that is not
+    an IANA zone. A stored `local_date` never moves (Ruling E7)."""
+    if not is_valid_timezone(name):
+        raise ApiError("timezone_invalid", 422)
+    account.timezone = name
+    await session.flush()
+    return account
 
 
 async def get_display_name(session: AsyncSession, account_id: UUID) -> str | None:

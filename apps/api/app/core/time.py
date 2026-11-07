@@ -17,6 +17,12 @@ def today_ist(now: datetime | None = None) -> date:
     return (now or datetime.now(UTC)).astimezone(IST).date()
 
 
+def now_utc() -> datetime:
+    """The current instant. Routes and services call it as `core_time.now_utc()` (module
+    attribute), so tests pin the clock by patching `app.core.time.now_utc`."""
+    return datetime.now(UTC)
+
+
 def zone(name: str) -> ZoneInfo:
     """The zone for an IANA name. Raises KeyError for an unknown name."""
     try:
@@ -30,7 +36,7 @@ def is_valid_timezone(name: str) -> bool:
 
 
 def local_today(tz_name: str, now: datetime | None = None) -> date:
-    return (now or datetime.now(UTC)).astimezone(zone(tz_name)).date()
+    return (now or now_utc()).astimezone(zone(tz_name)).date()
 
 
 def local_date_of(at: datetime, tz_name: str) -> date:
