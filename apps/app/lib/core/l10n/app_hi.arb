@@ -42,6 +42,8 @@
   "alternativesTitle": "बेहतर विकल्प",
   "appName": "SmartNutri AI",
   "attributionOff": "डेटा: Open Food Facts (ODbL)",
+  "attributionSmartnutriRecipe": "SmartNutri की रेसिपी, USDA FoodData Central की सामग्री से। डाइटीशियन की समीक्षा लंबित।",
+  "attributionUsdaFdc": "पोषण डेटा: USDA FoodData Central (सार्वजनिक डोमेन)",
   "authChange": "बदलें",
   "authCodeLabel": "6 अंकों का कोड",
   "authEmail": "ईमेल से जारी रखें",
@@ -341,6 +343,34 @@
   "diaryPartialBadge": "आंशिक रूप से दर्ज",
   "diaryPartialNote": "आंशिक रूप से दर्ज किए दिन साप्ताहिक औसत में शामिल नहीं होते।",
   "diaryPickDate": "तारीख़ चुनें",
+  "diaryPortionLine": "{quantity} {unit} · {grams} ग्राम",
+  "@diaryPortionLine": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryPortionLineMl": "{quantity} {unit} · {amount} मिली",
+  "@diaryPortionLineMl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "diaryPrevDay": "पिछला दिन",
   "diaryQuickAddCarbs": "कार्ब्स (ग्राम)",
   "diaryQuickAddEnergy": "कैलोरी",
@@ -531,8 +561,23 @@
   "familyComingSoonTitle": "परिवार प्रोफ़ाइल जल्द आ रही हैं",
   "familyTitle": "परिवार",
   "foodsBlankIsUnknown": "पता न हो तो खाली छोड़ें। खाली को कभी 0 नहीं गिना जाता।",
+  "foodsDishIngredients": "इनसे बना",
+  "foodsGroupIndian": "भारतीय खाना",
+  "foodsGroupPackaged": "पैकेज्ड उत्पाद",
+  "foodsKindDish": "व्यंजन",
+  "foodsKindFood": "खाना",
+  "foodsKindProduct": "उत्पाद",
+  "foodsNoResults": "कोई खाना नहीं मिला। दूसरा शब्द आज़माएँ या झटपट जोड़ें।",
+  "foodsNotKnown": "पता नहीं",
+  "foodsPartialResults": "कुछ नतीजे लोड नहीं हो सके। फिर कोशिश करें।",
+  "foodsPortionQuantity": "मात्रा",
+  "foodsPortionSave": "जोड़ें",
+  "foodsPortionTitle": "कितना?",
+  "foodsPreviewNote": "अनुमान। सेव किए गए मान SmartNutri से आते हैं।",
   "foodsQuickAdd": "झटपट जोड़ें",
   "foodsRecent": "हाल के",
+  "foodsReviewPending": "घरेलू माप और भारतीय व्यंजन अभी डाइटीशियन की समीक्षा के लिए लंबित हैं।",
+  "foodsSearchPlaceholder": "खाना, व्यंजन या ब्रांड खोजें",
   "footerLinksLabel": "SmartNutri के बारे में",
   "footerTagline": "भारतीय परिवारों के लिए पैकेटबंद खाने की जानकारी।",
   "goalBuildMuscle": "मांसपेशियाँ बनाना",
@@ -844,6 +889,8 @@
   "membersTitle": "परिवार",
   "membersYouBadge": "आप",
   "methodologyBasedOn": "आधार:",
+  "methodologyFoodDataBody": "पैकेज्ड खाने के मान लेबल से आते हैं। सामान्य खाने का डेटा USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov) से है, जो सार्वजनिक डोमेन में है। कटोरी, चम्मच और कप जैसे घरेलू माप ICMR-NIN के भारतीयों के लिए आहार दिशानिर्देश 2024 (अनुलग्नक I) पर आधारित हैं; जिस माप का प्रकाशित वज़न नहीं है, उसका अंदाज़ा नहीं लगाते, बताते हैं। भारतीय व्यंजन SmartNutri उनकी सामग्री से गणना करता है और डाइटीशियन की समीक्षा लंबित है। जानकारी, चिकित्सा सलाह नहीं।",
+  "methodologyFoodDataTitle": "खाद्य डेटा और घरेलू माप",
   "methodologyIntro": "SmartNutri हर पैक्ड खाने को उसके लेबल और परिवार के हर सदस्य की प्रोफ़ाइल से तय नियमों के अनुसार जाँचता है। AI सिर्फ़ नतीजा समझाता है, कभी तय नहीं करता। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
   "methodologyMetaDescription": "SmartNutri परिवार के हर सदस्य के लिए पैकेटबंद खाने की जाँच कैसे करता है: तय नियम, उनकी सीमाएँ और स्रोत। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
   "methodologyPendingReview": "ये सीमाएँ अभी काम चलाने के मान हैं और किसी चिकित्सक की समीक्षा बाकी है।",
@@ -1752,6 +1799,184 @@
       }
     }
   },
+  "unitAmountHintMl": "1 {unit} ≈ {amount} मिली",
+  "@unitAmountHintMl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitCup": "{count, plural, one {कप} other {कप}}",
+  "@unitCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitEditGrams": "इस माप के ग्राम बदलें",
+  "unitG": "{count, plural, one {ग्राम} other {ग्राम}}",
+  "@unitG": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitGlass": "{count, plural, one {गिलास} other {गिलास}}",
+  "@unitGlass": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitGramsHint": "1 {unit} ≈ {grams} ग्राम",
+  "@unitGramsHint": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitKatori": "{count, plural, one {कटोरी} other {कटोरियाँ}}",
+  "@unitKatori": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriLarge": "{count, plural, one {बड़ी कटोरी} other {बड़ी कटोरियाँ}}",
+  "@unitKatoriLarge": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriMedium": "{count, plural, one {मध्यम कटोरी} other {मध्यम कटोरियाँ}}",
+  "@unitKatoriMedium": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriSmall": "{count, plural, one {छोटी कटोरी} other {छोटी कटोरियाँ}}",
+  "@unitKatoriSmall": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitMl": "{count, plural, one {मिली} other {मिली}}",
+  "@unitMl": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitMlHint": "{ml} मिली",
+  "@unitMlHint": {
+    "placeholders": {
+      "ml": {
+        "type": "String"
+      }
+    }
+  },
+  "unitPiece": "{count, plural, one {पीस} other {पीस}}",
+  "@unitPiece": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceLarge": "{count, plural, one {बड़ा पीस} other {बड़े पीस}}",
+  "@unitPieceLarge": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceMedium": "{count, plural, one {मध्यम पीस} other {मध्यम पीस}}",
+  "@unitPieceMedium": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceSmall": "{count, plural, one {छोटा पीस} other {छोटे पीस}}",
+  "@unitPieceSmall": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitResetGrams": "मानक मान इस्तेमाल करें",
+  "unitRoti": "{count, plural, one {रोटी} other {रोटियाँ}}",
+  "@unitRoti": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitServing": "{count, plural, one {सर्विंग} other {सर्विंग}}",
+  "@unitServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitSetGrams": "{unit} के ग्राम सेट करें",
+  "@unitSetGrams": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitSlice": "{count, plural, one {स्लाइस} other {स्लाइस}}",
+  "@unitSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitTbsp": "{count, plural, one {बड़ा चम्मच} other {बड़े चम्मच}}",
+  "@unitTbsp": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitTsp": "{count, plural, one {छोटा चम्मच} other {छोटे चम्मच}}",
+  "@unitTsp": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitUnknown": "इस माप के ग्राम हमें अभी पता नहीं हैं। ग्राम में मात्रा डालें या अपना मान सेट करें।",
+  "unitYourValue": "आपका मान",
   "userTypesChangeLater": "आप इसे प्रोफ़ाइल में बदल सकते हैं",
   "userTypesConsentNeeded": "स्वास्थ्य जानकारी सहेजने के लिए स्वास्थ्य डेटा पर आपकी सहमति ज़रूरी है।",
   "userTypesConsentNote": "इनमें से कुछ चुनने पर आपकी प्रोफ़ाइल में जानकारी जोड़ने का सुझाव आ सकता है। यह तभी सहेजा जाएगा जब आप पुष्टि करेंगे, और स्वास्थ्य डेटा के लिए आपकी सहमति होने पर ही।",

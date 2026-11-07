@@ -103,6 +103,14 @@ class AppLocalizationsHi extends AppLocalizations {
   String get attributionOff => 'डेटा: Open Food Facts (ODbL)';
 
   @override
+  String get attributionSmartnutriRecipe =>
+      'SmartNutri की रेसिपी, USDA FoodData Central की सामग्री से। डाइटीशियन की समीक्षा लंबित।';
+
+  @override
+  String get attributionUsdaFdc =>
+      'पोषण डेटा: USDA FoodData Central (सार्वजनिक डोमेन)';
+
+  @override
   String get authChange => 'बदलें';
 
   @override
@@ -730,6 +738,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get diaryPickDate => 'तारीख़ चुनें';
 
   @override
+  String diaryPortionLine(String grams, String quantity, String unit) {
+    return '$quantity $unit · $grams ग्राम';
+  }
+
+  @override
+  String diaryPortionLineMl(String amount, String quantity, String unit) {
+    return '$quantity $unit · $amount मिली';
+  }
+
+  @override
   String get diaryPrevDay => 'पिछला दिन';
 
   @override
@@ -1215,10 +1233,59 @@ class AppLocalizationsHi extends AppLocalizations {
       'पता न हो तो खाली छोड़ें। खाली को कभी 0 नहीं गिना जाता।';
 
   @override
+  String get foodsDishIngredients => 'इनसे बना';
+
+  @override
+  String get foodsGroupIndian => 'भारतीय खाना';
+
+  @override
+  String get foodsGroupPackaged => 'पैकेज्ड उत्पाद';
+
+  @override
+  String get foodsKindDish => 'व्यंजन';
+
+  @override
+  String get foodsKindFood => 'खाना';
+
+  @override
+  String get foodsKindProduct => 'उत्पाद';
+
+  @override
+  String get foodsNoResults =>
+      'कोई खाना नहीं मिला। दूसरा शब्द आज़माएँ या झटपट जोड़ें।';
+
+  @override
+  String get foodsNotKnown => 'पता नहीं';
+
+  @override
+  String get foodsPartialResults =>
+      'कुछ नतीजे लोड नहीं हो सके। फिर कोशिश करें।';
+
+  @override
+  String get foodsPortionQuantity => 'मात्रा';
+
+  @override
+  String get foodsPortionSave => 'जोड़ें';
+
+  @override
+  String get foodsPortionTitle => 'कितना?';
+
+  @override
+  String get foodsPreviewNote =>
+      'अनुमान। सेव किए गए मान SmartNutri से आते हैं।';
+
+  @override
   String get foodsQuickAdd => 'झटपट जोड़ें';
 
   @override
   String get foodsRecent => 'हाल के';
+
+  @override
+  String get foodsReviewPending =>
+      'घरेलू माप और भारतीय व्यंजन अभी डाइटीशियन की समीक्षा के लिए लंबित हैं।';
+
+  @override
+  String get foodsSearchPlaceholder => 'खाना, व्यंजन या ब्रांड खोजें';
 
   @override
   String get footerLinksLabel => 'SmartNutri के बारे में';
@@ -1844,6 +1911,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get methodologyBasedOn => 'आधार:';
+
+  @override
+  String get methodologyFoodDataBody =>
+      'पैकेज्ड खाने के मान लेबल से आते हैं। सामान्य खाने का डेटा USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov) से है, जो सार्वजनिक डोमेन में है। कटोरी, चम्मच और कप जैसे घरेलू माप ICMR-NIN के भारतीयों के लिए आहार दिशानिर्देश 2024 (अनुलग्नक I) पर आधारित हैं; जिस माप का प्रकाशित वज़न नहीं है, उसका अंदाज़ा नहीं लगाते, बताते हैं। भारतीय व्यंजन SmartNutri उनकी सामग्री से गणना करता है और डाइटीशियन की समीक्षा लंबित है। जानकारी, चिकित्सा सलाह नहीं।';
+
+  @override
+  String get methodologyFoodDataTitle => 'खाद्य डेटा और घरेलू माप';
 
   @override
   String get methodologyIntro =>
@@ -3120,6 +3194,226 @@ class AppLocalizationsHi extends AppLocalizations {
   String targetsUnusualConfirm(String fields) {
     return 'कृपया $fields जाँचें। क्या यह सही है?';
   }
+
+  @override
+  String unitAmountHintMl(String amount, String unit) {
+    return '1 $unit ≈ $amount मिली';
+  }
+
+  @override
+  String unitCup(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'कप',
+      one: 'कप',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unitEditGrams => 'इस माप के ग्राम बदलें';
+
+  @override
+  String unitG(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ग्राम',
+      one: 'ग्राम',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitGlass(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'गिलास',
+      one: 'गिलास',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitGramsHint(String grams, String unit) {
+    return '1 $unit ≈ $grams ग्राम';
+  }
+
+  @override
+  String unitKatori(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'कटोरियाँ',
+      one: 'कटोरी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitKatoriLarge(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'बड़ी कटोरियाँ',
+      one: 'बड़ी कटोरी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitKatoriMedium(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'मध्यम कटोरियाँ',
+      one: 'मध्यम कटोरी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitKatoriSmall(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'छोटी कटोरियाँ',
+      one: 'छोटी कटोरी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitMl(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'मिली',
+      one: 'मिली',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitMlHint(String ml) {
+    return '$ml मिली';
+  }
+
+  @override
+  String unitPiece(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'पीस',
+      one: 'पीस',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitPieceLarge(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'बड़े पीस',
+      one: 'बड़ा पीस',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitPieceMedium(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'मध्यम पीस',
+      one: 'मध्यम पीस',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitPieceSmall(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'छोटे पीस',
+      one: 'छोटा पीस',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unitResetGrams => 'मानक मान इस्तेमाल करें';
+
+  @override
+  String unitRoti(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'रोटियाँ',
+      one: 'रोटी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitServing(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'सर्विंग',
+      one: 'सर्विंग',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitSetGrams(String unit) {
+    return '$unit के ग्राम सेट करें';
+  }
+
+  @override
+  String unitSlice(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'स्लाइस',
+      one: 'स्लाइस',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitTbsp(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'बड़े चम्मच',
+      one: 'बड़ा चम्मच',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitTsp(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'छोटे चम्मच',
+      one: 'छोटा चम्मच',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unitUnknown =>
+      'इस माप के ग्राम हमें अभी पता नहीं हैं। ग्राम में मात्रा डालें या अपना मान सेट करें।';
+
+  @override
+  String get unitYourValue => 'आपका मान';
 
   @override
   String get userTypesChangeLater => 'आप इसे प्रोफ़ाइल में बदल सकते हैं';

@@ -268,6 +268,18 @@ abstract class AppLocalizations {
   /// **'Data from Open Food Facts (ODbL)'**
   String get attributionOff;
 
+  /// No description provided for @attributionSmartnutriRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe by SmartNutri from USDA FoodData Central ingredients. Pending dietitian review.'**
+  String get attributionSmartnutriRecipe;
+
+  /// No description provided for @attributionUsdaFdc.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition data: USDA FoodData Central (public domain)'**
+  String get attributionUsdaFdc;
+
   /// No description provided for @authChange.
   ///
   /// In en, this message translates to:
@@ -1384,6 +1396,18 @@ abstract class AppLocalizations {
   /// **'Pick a date'**
   String get diaryPickDate;
 
+  /// No description provided for @diaryPortionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{quantity} {unit} · {grams} g'**
+  String diaryPortionLine(String grams, String quantity, String unit);
+
+  /// No description provided for @diaryPortionLineMl.
+  ///
+  /// In en, this message translates to:
+  /// **'{quantity} {unit} · {amount} ml'**
+  String diaryPortionLineMl(String amount, String quantity, String unit);
+
   /// No description provided for @diaryPrevDay.
   ///
   /// In en, this message translates to:
@@ -2194,6 +2218,84 @@ abstract class AppLocalizations {
   /// **'Leave blank if you don\'t know. Blank is never counted as 0.'**
   String get foodsBlankIsUnknown;
 
+  /// No description provided for @foodsDishIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Made with'**
+  String get foodsDishIngredients;
+
+  /// No description provided for @foodsGroupIndian.
+  ///
+  /// In en, this message translates to:
+  /// **'Indian foods'**
+  String get foodsGroupIndian;
+
+  /// No description provided for @foodsGroupPackaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Packaged products'**
+  String get foodsGroupPackaged;
+
+  /// No description provided for @foodsKindDish.
+  ///
+  /// In en, this message translates to:
+  /// **'Dish'**
+  String get foodsKindDish;
+
+  /// No description provided for @foodsKindFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get foodsKindFood;
+
+  /// No description provided for @foodsKindProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get foodsKindProduct;
+
+  /// No description provided for @foodsNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No foods found. Try another word, or use quick add.'**
+  String get foodsNoResults;
+
+  /// No description provided for @foodsNotKnown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not known'**
+  String get foodsNotKnown;
+
+  /// No description provided for @foodsPartialResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Some results couldn\'t load. Try again.'**
+  String get foodsPartialResults;
+
+  /// No description provided for @foodsPortionQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get foodsPortionQuantity;
+
+  /// No description provided for @foodsPortionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get foodsPortionSave;
+
+  /// No description provided for @foodsPortionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How much?'**
+  String get foodsPortionTitle;
+
+  /// No description provided for @foodsPreviewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate. The saved values come from SmartNutri.'**
+  String get foodsPreviewNote;
+
   /// No description provided for @foodsQuickAdd.
   ///
   /// In en, this message translates to:
@@ -2205,6 +2307,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent'**
   String get foodsRecent;
+
+  /// No description provided for @foodsReviewPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Household measures and Indian dishes are pending dietitian review.'**
+  String get foodsReviewPending;
+
+  /// No description provided for @foodsSearchPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search foods, dishes or brands'**
+  String get foodsSearchPlaceholder;
 
   /// No description provided for @footerLinksLabel.
   ///
@@ -3303,6 +3417,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Based on:'**
   String get methodologyBasedOn;
+
+  /// No description provided for @methodologyFoodDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Packaged-food values come from the label. Generic foods come from USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov), which is in the public domain. Household measures such as the katori, spoon and cup follow the ICMR-NIN Dietary Guidelines for Indians 2024 (Annexure I); where a measure has no published weight we say so instead of guessing. Indian dishes are calculated by SmartNutri from their ingredients and are pending dietitian review. Information, not medical advice.'**
+  String get methodologyFoodDataBody;
+
+  /// No description provided for @methodologyFoodDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Food data and household measures'**
+  String get methodologyFoodDataTitle;
 
   /// No description provided for @methodologyIntro.
   ///
@@ -5379,6 +5505,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please check {fields}. Is this right?'**
   String targetsUnusualConfirm(String fields);
+
+  /// No description provided for @unitAmountHintMl.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {unit} ≈ {amount} ml'**
+  String unitAmountHintMl(String amount, String unit);
+
+  /// No description provided for @unitCup.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {cup} other {cups}}'**
+  String unitCup(num count);
+
+  /// No description provided for @unitEditGrams.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit grams for this measure'**
+  String get unitEditGrams;
+
+  /// No description provided for @unitG.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {g} other {g}}'**
+  String unitG(num count);
+
+  /// No description provided for @unitGlass.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {glass} other {glasses}}'**
+  String unitGlass(num count);
+
+  /// No description provided for @unitGramsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {unit} ≈ {grams} g'**
+  String unitGramsHint(String grams, String unit);
+
+  /// No description provided for @unitKatori.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {katori} other {katoris}}'**
+  String unitKatori(num count);
+
+  /// No description provided for @unitKatoriLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {large katori} other {large katoris}}'**
+  String unitKatoriLarge(num count);
+
+  /// No description provided for @unitKatoriMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {medium katori} other {medium katoris}}'**
+  String unitKatoriMedium(num count);
+
+  /// No description provided for @unitKatoriSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {small katori} other {small katoris}}'**
+  String unitKatoriSmall(num count);
+
+  /// No description provided for @unitMl.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {ml} other {ml}}'**
+  String unitMl(num count);
+
+  /// No description provided for @unitMlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{ml} ml'**
+  String unitMlHint(String ml);
+
+  /// No description provided for @unitPiece.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {piece} other {pieces}}'**
+  String unitPiece(num count);
+
+  /// No description provided for @unitPieceLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {large piece} other {large pieces}}'**
+  String unitPieceLarge(num count);
+
+  /// No description provided for @unitPieceMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {medium piece} other {medium pieces}}'**
+  String unitPieceMedium(num count);
+
+  /// No description provided for @unitPieceSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {small piece} other {small pieces}}'**
+  String unitPieceSmall(num count);
+
+  /// No description provided for @unitResetGrams.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the standard value'**
+  String get unitResetGrams;
+
+  /// No description provided for @unitRoti.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {roti} other {rotis}}'**
+  String unitRoti(num count);
+
+  /// No description provided for @unitServing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {serving} other {servings}}'**
+  String unitServing(num count);
+
+  /// No description provided for @unitSetGrams.
+  ///
+  /// In en, this message translates to:
+  /// **'Set grams for {unit}'**
+  String unitSetGrams(String unit);
+
+  /// No description provided for @unitSlice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {slice} other {slices}}'**
+  String unitSlice(num count);
+
+  /// No description provided for @unitTbsp.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {tbsp} other {tbsp}}'**
+  String unitTbsp(num count);
+
+  /// No description provided for @unitTsp.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {tsp} other {tsp}}'**
+  String unitTsp(num count);
+
+  /// No description provided for @unitUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'We don\'t know the grams for this measure yet. Enter grams, or set your own value.'**
+  String get unitUnknown;
+
+  /// No description provided for @unitYourValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Your value'**
+  String get unitYourValue;
 
   /// No description provided for @userTypesChangeLater.
   ///

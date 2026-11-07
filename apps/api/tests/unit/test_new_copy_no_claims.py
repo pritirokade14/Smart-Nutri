@@ -25,6 +25,11 @@ ERROR_CODES = {
     "meal_slot_not_found",
     "meal_slot_archived",
     "timezone_invalid",
+    # Plan 12 slice 3
+    "unit_grams_unknown",
+    "unit_not_supported",
+    "quantity_out_of_range",
+    "food_not_found",
 }
 NEW_FOODS = {"foods.blank_is_unknown", "foods.recent", "foods.quick_add"}
 
@@ -42,7 +47,8 @@ def _new(lang: str) -> dict[str, str]:
     return {
         key: value
         for key, value in _flat(data)
-        if key.startswith("diary.")
+        if key.startswith(("diary.", "unit.", "foods.", "methodology.food_data."))
+        or key in ("attribution.usda_fdc", "attribution.smartnutri_recipe")
         or key in NEW_FOODS
         or key == "nav.diary"
         or (key.startswith("error.") and key.removeprefix("error.") in ERROR_CODES)

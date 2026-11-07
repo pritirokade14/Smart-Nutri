@@ -374,7 +374,9 @@
     "not_found_body": "बारकोड नंबर जाँचें। आप साइन इन करके लेबल की फ़ोटो लेकर यह उत्पाद जोड़ भी सकते हैं।"
   },
   "attribution": {
-    "off": "डेटा: Open Food Facts (ODbL)"
+    "off": "डेटा: Open Food Facts (ODbL)",
+    "usda_fdc": "पोषण डेटा: USDA FoodData Central (सार्वजनिक डोमेन)",
+    "smartnutri_recipe": "SmartNutri की रेसिपी, USDA FoodData Central की सामग्री से। डाइटीशियन की समीक्षा लंबित।"
   },
   "label": {
     "title": "लेबल की फ़ोटो लें",
@@ -886,7 +888,11 @@
     "meta_description": "SmartNutri परिवार के हर सदस्य के लिए पैकेटबंद खाने की जाँच कैसे करता है: तय नियम, उनकी सीमाएँ और स्रोत। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
     "values": "नियम के मान",
     "based_on": "आधार:",
-    "unavailable": "हम अभी जाँच के नियम लोड नहीं कर पाए। कृपया थोड़ी देर बाद फिर से कोशिश करें।"
+    "unavailable": "हम अभी जाँच के नियम लोड नहीं कर पाए। कृपया थोड़ी देर बाद फिर से कोशिश करें।",
+    "food_data": {
+      "title": "खाद्य डेटा और घरेलू माप",
+      "body": "पैकेज्ड खाने के मान लेबल से आते हैं। सामान्य खाने का डेटा USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov) से है, जो सार्वजनिक डोमेन में है। कटोरी, चम्मच और कप जैसे घरेलू माप ICMR-NIN के भारतीयों के लिए आहार दिशानिर्देश 2024 (अनुलग्नक I) पर आधारित हैं; जिस माप का प्रकाशित वज़न नहीं है, उसका अंदाज़ा नहीं लगाते, बताते हैं। भारतीय व्यंजन SmartNutri उनकी सामग्री से गणना करता है और डाइटीशियन की समीक्षा लंबित है। जानकारी, चिकित्सा सलाह नहीं।"
+    }
   },
   "report": {
     "button": "समस्या बताएँ",
@@ -1284,11 +1290,61 @@
       "move_down": "{title} को नीचे ले जाएँ",
       "time_start": "शुरू होने का समय",
       "time_end": "खत्म होने का समय"
-    }
+    },
+    "portion_line": "{quantity} {unit} · {grams} ग्राम",
+    "portion_line_ml": "{quantity} {unit} · {amount} मिली"
   },
   "foods": {
     "blank_is_unknown": "पता न हो तो खाली छोड़ें। खाली को कभी 0 नहीं गिना जाता।",
     "recent": "हाल के",
-    "quick_add": "झटपट जोड़ें"
+    "quick_add": "झटपट जोड़ें",
+    "search_placeholder": "खाना, व्यंजन या ब्रांड खोजें",
+    "group": {
+      "indian": "भारतीय खाना",
+      "packaged": "पैकेज्ड उत्पाद"
+    },
+    "partial_results": "कुछ नतीजे लोड नहीं हो सके। फिर कोशिश करें।",
+    "no_results": "कोई खाना नहीं मिला। दूसरा शब्द आज़माएँ या झटपट जोड़ें।",
+    "kind": {
+      "food": "खाना",
+      "dish": "व्यंजन",
+      "product": "उत्पाद"
+    },
+    "dish_ingredients": "इनसे बना",
+    "review_pending": "घरेलू माप और भारतीय व्यंजन अभी डाइटीशियन की समीक्षा के लिए लंबित हैं।",
+    "preview_note": "अनुमान। सेव किए गए मान SmartNutri से आते हैं।",
+    "not_known": "पता नहीं",
+    "portion": {
+      "title": "कितना?",
+      "quantity": "मात्रा",
+      "save": "जोड़ें"
+    }
+  },
+  "unit": {
+    "g": "{count, plural, one {ग्राम} other {ग्राम}}",
+    "ml": "{count, plural, one {मिली} other {मिली}}",
+    "serving": "{count, plural, one {सर्विंग} other {सर्विंग}}",
+    "piece": "{count, plural, one {पीस} other {पीस}}",
+    "piece_small": "{count, plural, one {छोटा पीस} other {छोटे पीस}}",
+    "piece_medium": "{count, plural, one {मध्यम पीस} other {मध्यम पीस}}",
+    "piece_large": "{count, plural, one {बड़ा पीस} other {बड़े पीस}}",
+    "roti": "{count, plural, one {रोटी} other {रोटियाँ}}",
+    "slice": "{count, plural, one {स्लाइस} other {स्लाइस}}",
+    "katori": "{count, plural, one {कटोरी} other {कटोरियाँ}}",
+    "katori_small": "{count, plural, one {छोटी कटोरी} other {छोटी कटोरियाँ}}",
+    "katori_medium": "{count, plural, one {मध्यम कटोरी} other {मध्यम कटोरियाँ}}",
+    "katori_large": "{count, plural, one {बड़ी कटोरी} other {बड़ी कटोरियाँ}}",
+    "cup": "{count, plural, one {कप} other {कप}}",
+    "glass": "{count, plural, one {गिलास} other {गिलास}}",
+    "tbsp": "{count, plural, one {बड़ा चम्मच} other {बड़े चम्मच}}",
+    "tsp": "{count, plural, one {छोटा चम्मच} other {छोटे चम्मच}}",
+    "ml_hint": "{ml} मिली",
+    "grams_hint": "1 {unit} ≈ {grams} ग्राम",
+    "amount_hint_ml": "1 {unit} ≈ {amount} मिली",
+    "edit_grams": "इस माप के ग्राम बदलें",
+    "set_grams": "{unit} के ग्राम सेट करें",
+    "your_value": "आपका मान",
+    "reset_grams": "मानक मान इस्तेमाल करें",
+    "unknown": "इस माप के ग्राम हमें अभी पता नहीं हैं। ग्राम में मात्रा डालें या अपना मान सेट करें।"
   }
 }
