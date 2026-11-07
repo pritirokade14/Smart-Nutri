@@ -19,7 +19,7 @@ Bands come from the engine's ``nutrient_band`` and daily limits from ``app.scori
 """
 
 from collections.abc import Sequence
-from datetime import date, timedelta, tzinfo
+from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 from uuid import UUID
@@ -191,16 +191,15 @@ def summarise(
     limits: DailyLimits,
     period: str,
     end_date: date,
-    tz: tzinfo,
     cfg: ScoringConfig | None = None,
     *,
     member_id: UUID,
 ) -> Summary:
     """Totals, incompleteness and bands for the ``period`` ending on ``end_date``.
 
-    Days are calendar days in ``tz`` (IST); a week is the 7 days ending on ``end_date``,
-    oldest first, one entry per day (an empty day has null totals). Meals outside the period
-    are ignored. Day bands compare with the daily limit; the period band with the daily limit
+    Days are the stored ``local_date`` of each entry (the account's zone at log time, ADR 0023);
+    a week is the 7 days ending on ``end_date``, oldest first, one entry per day (an empty day
+    has null totals). Meals outside the period are ignored. Day bands compare with the daily limit; the period band with the daily limit
     x the days with logged items, and is ``over`` if any day is (Ruling M1 B1).
     """
     if period not in PERIOD_DAYS:
@@ -209,7 +208,7 @@ def summarise(
     start = end_date - timedelta(days=n_days - 1)
     per_day = {start + timedelta(days=i): _Acc() for i in range(n_days)}
     for m in meals:
-        day = m.eaten_at.astimezone(tz).date()
+        day = m.local_date
         if day in per_day:
             per_day[day].add(m.nutrients or {})
 

@@ -196,13 +196,18 @@ async def delete_settings(session: AsyncSession, member: Member) -> None:
 
 
 async def targets_for_today(
-    session: AsyncSession, member: Member, cfg: ScoringConfig | None = None
+    session: AsyncSession,
+    member: Member,
+    cfg: ScoringConfig | None = None,
+    *,
+    today: date | None = None,
 ) -> tuple[engine.TargetResult | None, DiaryGoalSettings | None]:
     """Today's targets computed live from the stored settings (None without settings). Stored
     settings that stopped validating are computed as the engine says (maintenance, minor,
-    pregnancy), never as an error. The caller has checked `health_data` consent."""
+    pregnancy), never as an error. The caller has checked `health_data` consent. ``today`` is
+    the account's local today (the age is as of that date)."""
     row = await get_settings(session, member)
     if row is None:
         return None, None
-    result = engine.compute(body_data(member, today_ist()), goal_settings(row), cfg)
+    result = engine.compute(body_data(member, today or today_ist()), goal_settings(row), cfg)
     return result, row

@@ -167,7 +167,7 @@ def week_summary(family: WeekFamily, member_key: str) -> dict[str, Any]:
         to_scoring_member(member, today=family.end_date), member.weight_kg
     )
     own = [m for m in family.meals if m.member_id == member.id]
-    s = summarise(own, limits, "week", family.end_date, IST, member_id=member.id)
+    s = summarise(own, limits, "week", family.end_date, member_id=member.id)
     # The endpoint's legacy rule (no goal settings): a target means weight x g/kg.
     annotate_protein(s, "actual_weight" if limits.protein_target_g is not None else None, None)
     return s.model_dump(mode="json")

@@ -77,15 +77,15 @@ async def meals_summary(
     member_id: Annotated[UUID, Query()],
     period: Annotated[SummaryPeriod, Query()] = SummaryPeriod.DAY,
     date_: Annotated[
-        date | None, Query(alias="date", description="IST date; default today")
+        date | None, Query(alias="date", description="Local date; default today")
     ] = None,
 ) -> Summary:
     """Totals of sugar, salt, protein and kcal against the member's daily limits (pending
     clinician review). A nutrient missing on any logged label sets ``incomplete`` and is never
     counted as 0."""
-    return await service.member_summary(
-        session, current.account.id, member_id, period, date_ or today_ist()
-    )
+    out = await service.member_summary(session, current.account.id, member_id, period, date_)
+    await session.commit()  # today's frozen target row may have been written
+    return out
 
 
 @router.get("/week_counts", operation_id="meals_week_counts", response_model=WeekCounts)

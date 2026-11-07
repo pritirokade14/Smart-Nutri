@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Sequence
+from datetime import date, datetime
 from uuid import UUID
 
 from sqlalchemy import any_, case, func, select, text, update
@@ -8,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
 from app.core.security import AccountContext, auth_invalid_error
-from app.core.time import DEFAULT_TIMEZONE, is_valid_timezone, today_ist
+from app.core.time import DEFAULT_TIMEZONE, is_valid_timezone, local_today, today_ist
 from app.features.consents import service as consents_service
 from app.features.me import prefill
 from app.features.me.models import Account, AccountUserTypes, DeletedAccount
@@ -79,6 +80,13 @@ async def account_timezone(session: AsyncSession, account_id: UUID) -> str:
     """The account's IANA zone; the default (Asia/Kolkata) for an unknown account."""
     zone = await session.scalar(select(Account.timezone).where(Account.id == account_id))
     return zone or DEFAULT_TIMEZONE
+
+
+async def account_today(
+    session: AsyncSession, account_id: UUID, now: datetime | None = None
+) -> date:
+    """The account's local today (its time zone; `now` is for tests)."""
+    return local_today(await account_timezone(session, account_id), now)
 
 
 async def set_timezone(session: AsyncSession, account: Account, name: str) -> Account:

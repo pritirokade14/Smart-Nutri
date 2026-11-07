@@ -1,4 +1,5 @@
-"""GET /v1/targets (Plan 10 Task 4; Ruling D1: past days are `none`, future is 422)."""
+"""GET /v1/targets (Plan 10 Task 4; Plan 11 Ruling E5: a past day is its frozen row, else `none`;
+future is 422)."""
 
 from tests.api.targets.conftest import G1_SETTINGS, G2_SETTINGS, URL
 
@@ -28,10 +29,48 @@ async def test_today_with_settings_is_ready(client, g1):
     assert t["status"] == "ready"
 
 
-async def test_past_date_is_none(client, g1):
+async def test_past_date_without_row_is_none(client, g1):
     await client.put(S, json=G1_SETTINGS)
     t = (await client.get(URL, params={"date": "2026-11-06"})).json()
     assert t["status"] == "none" and t["date"] == "2026-11-06" and t["energy_kcal"] is None
+
+
+async def test_past_date_returns_frozen_row(client, g1, db_session, seed_day):
+    from app.features.members import service as members_service
+    from tests.api.targets.conftest import ACC_A
+
+    member = await members_service.get_or_create_primary(db_session, ACC_A)
+    await seed_day(member, "2026-11-06", G1_SETTINGS)
+    await client.put(S, json=G2_SETTINGS)  # today moves on; yesterday stays frozen
+    t = (await client.get(URL, params={"date": "2026-11-06"})).json()
+    assert t["status"] == "ready" and t["date"] == "2026-11-06"
+    assert (t["energy_kcal"], t["protein_g"], t["fat_g"], t["carbs_g"]) == (2760, 112, 77, 405)
+    assert t["rate_options"] == [] and t["basis"] == "formula" and t["direction"] == "gain"
+    assert t["rate"] == {"pct_bw_per_week": 0.25, "kg_per_week": 0.18}
+    assert t["explanation"]["bmr_kcal"] == 1659 and t["flags"] == []
+
+
+async def test_frozen_row_redacted_with_current_display(client, g1, db_session, seed_day):
+    from app.features.members import service as members_service
+    from tests.api.targets.conftest import ACC_A
+
+    member = await members_service.get_or_create_primary(db_session, ACC_A)
+    await client.put(S, json=G1_SETTINGS)  # numbers_display "show" when yesterday froze
+    await seed_day(member, "2026-11-06", G1_SETTINGS)
+    shown = (await client.get(URL, params={"date": "2026-11-06"})).json()
+    assert shown["energy_kcal"] == 2760
+    assert (
+        await client.put(f"{URL}/display", json={"numbers_display": "hide_all"})
+    ).status_code == 200
+    t = (await client.get(URL, params={"date": "2026-11-06"})).json()
+    assert t["status"] == "ready" and t["numbers_hidden"] == {"energy": True, "macros": True}
+    for key in ("energy_kcal", "protein_g", "fat_g", "carbs_g"):
+        assert t[key] is None, key
+    assert (
+        all(v is None for k, v in t["explanation"].items() if k not in ("protein_basis",))
+        or t["explanation"]["bmr_kcal"] is None
+    )
+    assert t["explanation"]["bmr_kcal"] is None and t["rate"]["kg_per_week"] is None
 
 
 async def test_future_date_422(client, g1):

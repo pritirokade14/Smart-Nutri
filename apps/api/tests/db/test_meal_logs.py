@@ -95,7 +95,6 @@ def test_summary_identical_after_backfill(migrated):
 
     from alembic import command
     from app import scoring
-    from app.core.time import IST
     from app.features.meals.models import MealLog
     from app.features.meals.summary import summarise
     from app.features.members.service import to_scoring_member
@@ -110,7 +109,6 @@ def test_summary_identical_after_backfill(migrated):
         limits,
         "week",
         family.end_date,
-        IST,
         member_id=dad.id,
     ).model_dump(mode="json")
 
@@ -147,9 +145,9 @@ def test_summary_identical_after_backfill(migrated):
         with Session(engine) as s:
             rows = list(s.scalars(select(MealLog).where(MealLog.member_id == dad_id)))
             assert rows and all(r.meal_slot_id and r.local_date for r in rows)
-            after = summarise(
-                rows, limits, "week", family.end_date, IST, member_id=dad_id
-            ).model_dump(mode="json")
+            after = summarise(rows, limits, "week", family.end_date, member_id=dad_id).model_dump(
+                mode="json"
+            )
         assert after == before
         with Session(engine) as s, s.begin():
             s.execute(text("delete from accounts where id = :a"), {"a": WEEK_FAMILY_ACCOUNT})
