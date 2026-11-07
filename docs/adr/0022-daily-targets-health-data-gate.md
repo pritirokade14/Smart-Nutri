@@ -26,3 +26,7 @@ Daily targets are **information the API computes**; the rules engine (`app/scori
 - A user who withdraws `health_data` loses the daily guide until they consent again, but not their food log or their saved settings.
 - Targets and the weight log (a later slice) share the `targets` consent mapping, so the clients' existing `consent_required` handling needs one inline exception: the Home card must show a grant button rather than redirecting.
 - The lawyer's question from ADR 0018 (DPDP) applies here too: confirm that keeping stored settings after a withdrawal, without processing them, is acceptable.
+
+## Addendum (2026-11-08): delete all weigh-ins
+
+`DELETE /v1/weights` (`weights_delete_all`) erases every weigh-in of the self member and returns `{deleted: n}`. Like `DELETE /v1/targets/settings` and the single `DELETE /v1/weights/{day}`, it needs only `terms` (`REQUIRED["weights_erase"]`): erasure is never gated by `health_data`. It does not rewrite `members.weight_kg` (the profile keeps its last known weight), recomputes today's targets only while `health_data` is active, follows `DIARY_FAMILY_ENABLED`, and has its own bucket (`rate_limit_weights_erase_per_day`, 10 a day; single delete stays unlimited).

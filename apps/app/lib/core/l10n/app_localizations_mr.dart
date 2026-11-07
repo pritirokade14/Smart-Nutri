@@ -4070,6 +4070,16 @@ class AppLocalizationsMr extends AppLocalizations {
   String get weightDelete => 'वजन काढा';
 
   @override
+  String get weightDeleteAll => 'सर्व वजने हटवा';
+
+  @override
+  String get weightDeleteAllConfirm =>
+      'तुमची सर्व वजने हटवायची? हे परत करता येणार नाही. तुमच्या प्रोफाइलमधील वजन आहे तसेच राहील.';
+
+  @override
+  String get weightDeleteAllDone => 'सर्व वजने हटवली';
+
+  @override
   String get weightDeleteConfirm => 'हे वजन काढायचे?';
 
   @override
@@ -4122,6 +4132,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String weightRapidLoss(String pct) {
     return 'तुमचे वजन आठवड्याला $pct% पेक्षा जास्त वेगाने कमी होत आहे. हळू गती सहसा टिकवणे सोपे असते.';
   }
+
+  @override
+  String get weightRapidLossHidden =>
+      'तुमचे वजन वेगाने कमी होत आहे. हळू गती सहसा टिकवणे सोपे असते.';
 
   @override
   String get weightSaveAnyway => 'तरीही जतन करा';

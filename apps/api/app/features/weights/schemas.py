@@ -79,3 +79,7 @@ class WeightTrendOut(BaseModel):
     pending_clinician_review: Literal[True] = True
 
     model_config = ConfigDict(populate_by_name=True)
+
+
+class WeightsDeletedOut(BaseModel):
+    deleted: int

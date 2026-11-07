@@ -6760,6 +6760,24 @@ abstract class AppLocalizations {
   /// **'Delete weigh-in'**
   String get weightDelete;
 
+  /// No description provided for @weightDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all weigh-ins'**
+  String get weightDeleteAll;
+
+  /// No description provided for @weightDeleteAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all your weigh-ins? This can\'t be undone. The weight in your profile stays as it is.'**
+  String get weightDeleteAllConfirm;
+
+  /// No description provided for @weightDeleteAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All weigh-ins deleted'**
+  String get weightDeleteAllDone;
+
   /// No description provided for @weightDeleteConfirm.
   ///
   /// In en, this message translates to:
@@ -6849,6 +6867,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your weight is going down faster than {pct}% a week. A slower pace is usually easier to keep up.'**
   String weightRapidLoss(String pct);
+
+  /// No description provided for @weightRapidLossHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Your weight is going down quickly. A slower pace is usually easier to keep up.'**
+  String get weightRapidLossHidden;
 
   /// No description provided for @weightSaveAnyway.
   ///

@@ -72,6 +72,8 @@ function reset(params = new URLSearchParams()) {
     // Custom foods and recipes (Plan 12 slice 4).
     customFoods: [],
     recipes: [],
+    // Weigh-ins (Plan 12 slice 6): { date, weight_kg, client_id }, any order.
+    weights: [],
     // Favourites (Plan 12 slice 5): foods and saved meals, newest first.
     favourites: [],
     timezone: "Asia/Kolkata",
@@ -1726,6 +1728,100 @@ function targetsRoute(method, path, b) {
   return [404, envelope("not_found")];
 }
 
+// Weights (Plan 12 slice 6). The stub never decides anything about a trend:
+// it echoes the stored weigh-ins as points and trend, `y` is a plain min-max
+// scale for the chart's shape, and the reason is only "how many weigh-ins".
+// Gate: terms for all, health_data too except DELETE.
+function weightRoute(method, path, b, q) {
+  if (method !== "DELETE" && state.consents.health_data === null)
+    return [403, envelope("consent_required", { purposes: ["health_data"] })];
+  const hidden = display() === "hide_all";
+  const sorted = () =>
+    [...state.weights].sort((x, y) => x.date.localeCompare(y.date));
+  const out = (w) => ({
+    date: w.date,
+    weight_kg: hidden ? null : w.weight_kg,
+    measured_at: `${w.date}T00:00:00Z`,
+    source: "manual",
+    client_id: w.client_id ?? null,
+    numbers_hidden: hidden,
+  });
+  if (method === "GET" && path === "/v1/weights")
+    return [200, { items: sorted().map(out), numbers_hidden: hidden }];
+  if (method === "GET" && path === "/v1/weights/trend") {
+    const rows = sorted();
+    const ws = rows.map((w) => w.weight_kg);
+    const lo = Math.min(...ws);
+    const hi = Math.max(...ws);
+    const yOf = (w) => (hi === lo ? 0.5 : (w - lo) / (hi - lo));
+    const days = Number(q.get("days") ?? 90);
+    return [
+      200,
+      {
+        member_id: PRIMARY_ID,
+        days,
+        from: rows[0]?.date ?? istDate(nowIso()),
+        to: istDate(nowIso()),
+        points: rows.map((w) => ({
+          date: w.date,
+          weight_kg: hidden ? null : w.weight_kg,
+          outlier: false,
+          y: yOf(w.weight_kg),
+        })),
+        trend: rows.map((w) => ({
+          date: w.date,
+          trend_kg: hidden ? null : w.weight_kg,
+          y: yOf(w.weight_kg),
+        })),
+        weekly_rate: null,
+        projection: null,
+        projection_reason: rows.length < 3 ? "too_few_weigh_ins" : "no_target",
+        flags: [],
+        rapid_loss_pct: 1.5,
+        numbers_hidden: hidden,
+        pending_clinician_review: true,
+      },
+    ];
+  }
+  if (method === "DELETE" && path === "/v1/weights") {
+    const deleted = state.weights.length;
+    state.weights = [];
+    return [200, { deleted }];
+  }
+  const day = path.startsWith("/v1/weights/")
+    ? path.slice("/v1/weights/".length)
+    : null;
+  if (method === "PUT" && day) {
+    const kg = Number(b.weight_kg);
+    if (!(kg >= 2 && kg <= 300))
+      return [422, envelope("weight_out_of_range", { min: 2, max: 300 })];
+    if (day > istDate(nowIso())) return [422, envelope("date_in_future")];
+    const others = sorted().filter((w) => w.date !== day);
+    const prev = others.at(-1);
+    // Stub rule (the real API's is its own): outside 30-200 kg, or 10 kg or more from the last one.
+    const unusual =
+      kg < 30 || kg > 200 || (prev && Math.abs(kg - prev.weight_kg) >= 10);
+    if (unusual && !b.confirm_unusual)
+      return [
+        422,
+        envelope("weight_needs_confirm", {
+          previous: hidden || !prev ? null : prev.weight_kg,
+          previous_date: prev?.date ?? null,
+        }),
+      ];
+    const row = { date: day, weight_kg: kg, client_id: b.client_id ?? null };
+    state.weights = [...others, row];
+    return [200, out(row)];
+  }
+  if (method === "DELETE" && day) {
+    if (!state.weights.some((w) => w.date === day))
+      return [404, envelope("weight_not_found")];
+    state.weights = state.weights.filter((w) => w.date !== day);
+    return [204, undefined];
+  }
+  return [404, envelope("not_found")];
+}
+
 function route(method, path, b, q = new URLSearchParams()) {
   if (path.startsWith("/v1/targets")) return targetsRoute(method, path, b);
   if (method === "GET" && path === "/v1/me")
@@ -1854,10 +1950,12 @@ function route(method, path, b, q = new URLSearchParams()) {
       path.startsWith("/v1/favourites") ||
       path.startsWith("/v1/recipes") ||
       path.startsWith("/v1/diary") ||
+      path.startsWith("/v1/weights") ||
       path.startsWith("/v1/meal-slots")) &&
     termsMissing()
   )
     return [403, envelope("consent_required", { purposes: ["terms"] })];
+  if (path.startsWith("/v1/weights")) return weightRoute(method, path, b, q);
   if (method === "GET" && path === "/v1/meal-slots")
     return [
       200,

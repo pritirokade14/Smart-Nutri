@@ -10,6 +10,7 @@ import '../../support/fake_recipes.dart';
 import '../../support/fake_members.dart';
 import '../../support/fake_targets.dart';
 import '../../support/fake_user_types.dart';
+import '../../support/fake_weights.dart';
 import '../user_types/user_types_harness.dart';
 
 export '../user_types/user_types_harness.dart' show AppHarness, en, pumpApp;
@@ -35,13 +36,15 @@ class DiaryEnv {
     FakeCustomFoodsClient? customFoods,
     FakeRecipesClient? recipes,
     FakeFavouritesClient? favourites,
+    FakeWeightsClient? weights,
   }) : diary = FakeDiaryClient(day: day, week: week),
        slots = FakeMealSlotsClient(items: slots),
        meals = meals ?? FakeMealsClient(),
        foods = foods ?? FakeFoodsClient(),
        customFoods = customFoods ?? FakeCustomFoodsClient(),
        recipes = recipes ?? FakeRecipesClient(),
-       favourites = favourites ?? FakeFavouritesClient() {
+       favourites = favourites ?? FakeFavouritesClient(),
+       weights = weights ?? FakeWeightsClient() {
     this.targets = FakeTargetsClient(
       today: targets,
       settings: settings ?? goalSettingsOut(activity: 'moderate'),
@@ -55,6 +58,7 @@ class DiaryEnv {
   final FakeCustomFoodsClient customFoods;
   final FakeRecipesClient recipes;
   final FakeFavouritesClient favourites;
+  final FakeWeightsClient weights;
   final queue = MemoryMealQueue();
   late final FakeTargetsClient targets;
 
@@ -83,6 +87,7 @@ class DiaryEnv {
     customFoods: customFoods,
     recipes: recipes,
     favourites: favourites,
+    weights: weights,
   );
 }
 

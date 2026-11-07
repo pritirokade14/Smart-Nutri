@@ -326,6 +326,8 @@ All of these are machine drafts in hi and mr.
 ## Plan 12 slice 6 (Food Diary: weight log, trend and progress)
 All of these are machine drafts in hi and mr.
 - [ ] **hi/mr `weight.rapid_loss`**: neutral card shown when the trend falls faster than `{pct}`% a week (the API sends the line, currently 1.5, from `safety.rapid_loss_pct_bw_per_week`; "A slower pace is usually easier to keep up."). Check the tone is calm, gives no instruction to see a doctor and no medical claim, and that the `{pct}` number (Latin digits, a decimal point) reads naturally in both.
+- [ ] **hi/mr `weight.rapid_loss_hidden`**: the same neutral card as `weight.rapid_loss` but with no number, shown when the user hides numbers. Check it stays calm, has no digits and no instruction to see a doctor.
+- [ ] **hi/mr `weight.{delete_all,delete_all_confirm,delete_all_done}`**: button, confirmation and done message for erasing the whole weight history. Check the confirmation is plain and calm (no shaming, no alarm), says it cannot be undone, and that the profile weight stays.
 - [ ] **hi/mr `weight.confirm_unusual`, `weight.confirm_unusual_hidden`, `weight.save_anyway`, `error.weight_needs_confirm`**: asks the user to confirm a weigh-in far from the last one. Check it sounds like a friendly double-check, not a warning or a refusal.
 - [ ] **hi/mr `weight.weekly_rate`**: "About {kg} kg a week ({pct}% of body weight)". `{pct}` is a decimal such as 0.7 (Latin digits, a point). Check the word order and "किग्रा" / "किग्रॅ" for kg.
 - [ ] **hi/mr `weight.projection`**: "At this pace you'd reach {target} kg around {date}." `{date}` is a formatted date: check the Marathi date reads naturally (month name, Marathi numerals or not).

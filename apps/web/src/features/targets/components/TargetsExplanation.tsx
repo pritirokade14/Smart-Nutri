@@ -45,6 +45,16 @@ export function TargetsExplanation({ targets }: { targets: TargetsOut }) {
         value: formatInt(e.adjustment_kcal),
       }),
     });
+  if (e.weight_kg_used != null && e.weight_source != null)
+    lines.push({
+      id: "weight_source",
+      text: t(
+        e.weight_source === "trend"
+          ? "targets.how.weight_trend"
+          : "targets.how.weight_latest",
+        { value: formatWeight(e.weight_kg_used) },
+      ),
+    });
   if (e.protein_g_per_kg != null && e.protein_reference_weight_kg != null)
     lines.push({
       id: "protein",

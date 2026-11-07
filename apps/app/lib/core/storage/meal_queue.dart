@@ -86,7 +86,39 @@ class PendingMeals extends Table {
   Set<Column<Object>> get primaryKey => {clientId};
 }
 
-@DriftDatabase(tables: [PendingMeals])
+/// `PendingWeighIns.status`: waiting to be sent.
+class WeighInStatus {
+  static const pending = 'pending';
+
+  /// The API asked for a confirmation (`weight_needs_confirm`): the row waits
+  /// for the user.
+  static const needsConfirm = 'needs_confirm';
+
+  /// Any other refusal: never sent again.
+  static const failed = 'failed';
+}
+
+/// Weigh-ins made offline (queue schema v5, Plan 12 slice 6). One row per
+/// day: a later one replaces it, like the API's `PUT /v1/weights/{day}`.
+class PendingWeighIns extends Table {
+  TextColumn get clientId => text()();
+
+  /// The day (`2026-11-07`) as shown by the diary.
+  TextColumn get localDate => text()();
+  RealColumn get weightKg => real()();
+  BoolColumn get confirmUnusual =>
+      boolean().withDefault(const Constant(false))();
+  TextColumn get status => text().withDefault(const Constant('pending'))();
+  IntColumn get attempts => integer().withDefault(const Constant(0))();
+
+  /// The API error code of a refusal (status `failed`).
+  TextColumn get lastError => text().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {clientId};
+}
+
+@DriftDatabase(tables: [PendingMeals, PendingWeighIns])
 class MealQueueDatabase extends _$MealQueueDatabase {
   MealQueueDatabase(super.e);
 
@@ -95,7 +127,7 @@ class MealQueueDatabase extends _$MealQueueDatabase {
       MealQueueDatabase(driftDatabase(name: 'smartnutri_meal_queue'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -120,6 +152,12 @@ class MealQueueDatabase extends _$MealQueueDatabase {
       if (from < 4) {
         await m.addColumn(pendingMeals, pendingMeals.customFoodId);
         await m.addColumn(pendingMeals, pendingMeals.recipeId);
+      }
+      if (from < 5) {
+        await m.createTable(pendingWeighIns);
+      }
+      if (from == 5) {
+        await m.addColumn(pendingWeighIns, pendingWeighIns.lastError);
       }
     },
   );
@@ -167,7 +205,42 @@ abstract interface class MealQueue {
   Future<void> clearAll();
 }
 
-class DriftMealQueue implements MealQueue {
+/// The offline weigh-in queue (Plan 12 slice 6).
+abstract interface class WeighInQueue {
+  /// Stores [row]; any row for the same day is replaced.
+  Future<void> addWeighIn(PendingWeighIn row);
+
+  /// Rows still to send (status `pending`), oldest day first.
+  Future<List<PendingWeighIn>> pendingWeighIns();
+
+  /// Rows to show: `pending` and `needs_confirm`, as they change.
+  Stream<List<PendingWeighIn>> watchWeighIns();
+
+  Future<void> removeWeighIn(String clientId);
+
+  /// A 5xx, 429 or network failure: keep the row, `attempts + 1`.
+  Future<void> recordWeighInAttempt(String clientId);
+
+  Future<void> setWeighInStatus(
+    String clientId,
+    String status, {
+    String? error,
+  });
+
+  /// The error codes of the refused weigh-ins (one entry per row; `null`
+  /// when no code was stored).
+  Stream<List<String?>> watchFailedWeighIns();
+
+  /// Forgets the refused weigh-ins, kilograms included (after the user saw
+  /// the notice).
+  Future<void> clearFailedWeighIns();
+
+  /// The user confirmed an unusual value: send it again with
+  /// `confirm_unusual`.
+  Future<void> confirmWeighIn(String clientId);
+}
+
+class DriftMealQueue implements MealQueue, WeighInQueue {
   DriftMealQueue(this._db);
 
   final MealQueueDatabase _db;
@@ -255,5 +328,78 @@ class DriftMealQueue implements MealQueue {
           .go();
 
   @override
-  Future<void> clearAll() => _db.delete(_t).go();
+  Future<void> clearAll() async {
+    await _db.delete(_t).go();
+    await _db.delete(_w).go();
+  }
+
+  $PendingWeighInsTable get _w => _db.pendingWeighIns;
+
+  @override
+  Future<void> addWeighIn(PendingWeighIn row) => _db.transaction(() async {
+    await (_db.delete(
+      _w,
+    )..where((r) => r.localDate.equals(row.localDate))).go();
+    await _db.into(_w).insert(row);
+  });
+
+  @override
+  Future<List<PendingWeighIn>> pendingWeighIns() =>
+      (_db.select(_w)
+            ..where((r) => r.status.equals(WeighInStatus.pending))
+            ..orderBy([(r) => OrderingTerm.asc(r.localDate)]))
+          .get();
+
+  @override
+  Stream<List<PendingWeighIn>> watchWeighIns() =>
+      (_db.select(_w)
+            ..where(
+              (r) => r.status.isIn(const [
+                WeighInStatus.pending,
+                WeighInStatus.needsConfirm,
+              ]),
+            )
+            ..orderBy([(r) => OrderingTerm.asc(r.localDate)]))
+          .watch();
+
+  @override
+  Future<void> removeWeighIn(String clientId) =>
+      (_db.delete(_w)..where((r) => r.clientId.equals(clientId))).go();
+
+  @override
+  Future<void> recordWeighInAttempt(String clientId) => _db.customUpdate(
+    'UPDATE pending_weigh_ins SET attempts = attempts + 1 '
+    'WHERE client_id = ?',
+    variables: [Variable.withString(clientId)],
+    updates: {_w},
+  );
+
+  @override
+  Future<void> setWeighInStatus(
+    String clientId,
+    String status, {
+    String? error,
+  }) => (_db.update(_w)..where((r) => r.clientId.equals(clientId))).write(
+    PendingWeighInsCompanion(status: Value(status), lastError: Value(error)),
+  );
+
+  @override
+  Stream<List<String?>> watchFailedWeighIns() =>
+      (_db.select(_w)..where((r) => r.status.equals(WeighInStatus.failed)))
+          .watch()
+          .map((rows) => [for (final r in rows) r.lastError]);
+
+  @override
+  Future<void> clearFailedWeighIns() => (_db.delete(
+    _w,
+  )..where((r) => r.status.equals(WeighInStatus.failed))).go();
+
+  @override
+  Future<void> confirmWeighIn(String clientId) =>
+      (_db.update(_w)..where((r) => r.clientId.equals(clientId))).write(
+        const PendingWeighInsCompanion(
+          confirmUnusual: Value(true),
+          status: Value(WeighInStatus.pending),
+        ),
+      );
 }

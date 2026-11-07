@@ -2276,6 +2276,9 @@
   "weightConsent": "To keep a weight log, allow SmartNutri to use your health details.",
   "weightDate": "Date",
   "weightDelete": "Delete weigh-in",
+  "weightDeleteAll": "Delete all weigh-ins",
+  "weightDeleteAllConfirm": "Delete all your weigh-ins? This can't be undone. The weight in your profile stays as it is.",
+  "weightDeleteAllDone": "All weigh-ins deleted",
   "weightDeleteConfirm": "Delete this weigh-in?",
   "weightEdit": "Edit weigh-in",
   "weightEmpty": "No weigh-ins yet",
@@ -2315,6 +2318,7 @@
       }
     }
   },
+  "weightRapidLossHidden": "Your weight is going down quickly. A slower pace is usually easier to keep up.",
   "weightSaveAnyway": "Save anyway",
   "weightTipSameTime": "Same time of day, for example after waking.",
   "weightTitle": "Weight",

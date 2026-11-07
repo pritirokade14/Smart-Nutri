@@ -1454,6 +1454,10 @@
     },
     "outlier": "Left out of the trend",
     "rapid_loss": "Your weight is going down faster than {pct}% a week. A slower pace is usually easier to keep up.",
+    "rapid_loss_hidden": "Your weight is going down quickly. A slower pace is usually easier to keep up.",
+    "delete_all": "Delete all weigh-ins",
+    "delete_all_confirm": "Delete all your weigh-ins? This can't be undone. The weight in your profile stays as it is.",
+    "delete_all_done": "All weigh-ins deleted",
     "consent": "To keep a weight log, allow SmartNutri to use your health details.",
     "empty": "No weigh-ins yet",
     "range": {

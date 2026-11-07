@@ -21,6 +21,34 @@ class _WeightsClient implements WeightsClient {
   final ParseErrorLogger? errorLogger;
 
   @override
+  Future<WeightsDeletedOut> weightsDeleteAll({String? memberId}) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'member_id': memberId};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<WeightsDeletedOut>(
+      Options(method: 'DELETE', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/v1/weights',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late WeightsDeletedOut _value;
+    try {
+      _value = WeightsDeletedOut.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<WeightsOut> weightsList({
     String? memberId,
     DateTime? from,

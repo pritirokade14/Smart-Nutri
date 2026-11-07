@@ -2276,6 +2276,9 @@
   "weightConsent": "वजनाची नोंद ठेवण्यासाठी SmartNutri ला तुमची आरोग्य माहिती वापरू द्या.",
   "weightDate": "तारीख",
   "weightDelete": "वजन काढा",
+  "weightDeleteAll": "सर्व वजने हटवा",
+  "weightDeleteAllConfirm": "तुमची सर्व वजने हटवायची? हे परत करता येणार नाही. तुमच्या प्रोफाइलमधील वजन आहे तसेच राहील.",
+  "weightDeleteAllDone": "सर्व वजने हटवली",
   "weightDeleteConfirm": "हे वजन काढायचे?",
   "weightEdit": "वजन बदला",
   "weightEmpty": "अजून वजन नोंदवलेले नाही",
@@ -2315,6 +2318,7 @@
       }
     }
   },
+  "weightRapidLossHidden": "तुमचे वजन वेगाने कमी होत आहे. हळू गती सहसा टिकवणे सोपे असते.",
   "weightSaveAnyway": "तरीही जतन करा",
   "weightTipSameTime": "दररोज एकाच वेळी, उदाहरणार्थ उठल्यानंतर.",
   "weightTitle": "वजन",

@@ -34,6 +34,7 @@ import 'move_entry_sheet.dart';
 import 'pending_entries.dart';
 import 'pick_slot_again.dart';
 import 'week_view.dart';
+import '../../weights/presentation/progress_view.dart';
 import 'diary_providers.dart';
 import 'diary_rings.dart';
 import 'edit_entry_sheet.dart';
@@ -66,8 +67,10 @@ class DiaryScreen extends ConsumerStatefulWidget {
   ConsumerState<DiaryScreen> createState() => _DiaryScreenState();
 }
 
+enum _DiaryView { day, week, progress }
+
 class _DiaryScreenState extends ConsumerState<DiaryScreen> {
-  bool _week = false;
+  _DiaryView _view = _DiaryView.day;
 
   @override
   void initState() {
@@ -93,10 +96,11 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
             onPressed: () => context.push('/search'),
           ),
           if (settings != null) EyeToggle(settings: settings),
-          if (day.value != null && !_week) DayMenu(day: day.value!),
+          if (day.value != null && _view == _DiaryView.day)
+            DayMenu(day: day.value!),
         ],
       ),
-      floatingActionButton: day.value == null || _week
+      floatingActionButton: day.value == null || _view != _DiaryView.day
           ? null
           : FloatingActionButton.extended(
               key: DiaryScreen.addFabKey,
@@ -113,19 +117,31 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
               SnTokens.space4,
               0,
             ),
-            child: SegmentedButton<bool>(
+            child: SegmentedButton<_DiaryView>(
               segments: [
-                ButtonSegment(value: false, label: Text(l10n.diaryViewDay)),
-                ButtonSegment(value: true, label: Text(l10n.diaryWeekTitle)),
+                ButtonSegment(
+                  value: _DiaryView.day,
+                  label: Text(l10n.diaryViewDay),
+                ),
+                ButtonSegment(
+                  value: _DiaryView.week,
+                  label: Text(l10n.diaryWeekTitle),
+                ),
+                ButtonSegment(
+                  value: _DiaryView.progress,
+                  label: Text(l10n.diaryViewProgress),
+                ),
               ],
-              selected: {_week},
-              onSelectionChanged: (v) => setState(() => _week = v.single),
+              selected: {_view},
+              onSelectionChanged: (v) => setState(() => _view = v.single),
             ),
           ),
           Expanded(
-            child: _week
-                ? WeekView(end: widget.date)
-                : _dayBody(context, day, settings, l10n),
+            child: switch (_view) {
+              _DiaryView.day => _dayBody(context, day, settings, l10n),
+              _DiaryView.week => WeekView(end: widget.date),
+              _DiaryView.progress => const ProgressView(),
+            },
           ),
         ],
       ),

@@ -52,6 +52,13 @@ export default function ProfilePage({
           >
             {t("targets.title")}
           </a>
+          <a
+            href={`/${locale}/diary?view=progress`}
+            data-testid="profile-weight-link"
+            className="flex min-h-11 items-center text-md font-semibold text-brand-primary underline-offset-4 hover:underline"
+          >
+            {t("weight.title")}
+          </a>
         </Card>
       </section>
       <ConsentSettings />

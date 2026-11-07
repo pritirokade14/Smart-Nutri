@@ -11,10 +11,15 @@ export default function DiaryPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ date?: string | string[] }>;
+  searchParams: Promise<{ date?: string | string[]; view?: string | string[] }>;
 }) {
   const { locale } = use(params);
-  const { date } = use(searchParams);
+  const { date, view } = use(searchParams);
   setRequestLocale(locale);
-  return <DiaryView date={typeof date === "string" ? date : undefined} />;
+  return (
+    <DiaryView
+      date={typeof date === "string" ? date : undefined}
+      view={typeof view === "string" ? view : undefined}
+    />
+  );
 }
