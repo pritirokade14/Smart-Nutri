@@ -35,6 +35,17 @@ export function setConsentRequiredHandler(
   };
 }
 
+/**
+ * True for a /v1/targets call, whether or not the API base URL carries a path
+ * prefix (for example https://host/api).
+ */
+export function isTargetsPath(requestUrl: string, baseUrl: string): boolean {
+  const prefix = new URL(baseUrl).pathname.replace(/\/+$/, "");
+  const path = new URL(requestUrl).pathname;
+  const rest = path.startsWith(`${prefix}/`) ? path.slice(prefix.length) : path;
+  return rest === "/v1/targets" || rest.startsWith("/v1/targets/");
+}
+
 /** Browser API client; the bearer token comes from the Supabase session. */
 export function getApi(): ApiClient {
   if (!api) {
@@ -61,7 +72,7 @@ export function getApi(): ApiClient {
         if (
           response.status === 403 &&
           onConsentRequired &&
-          !new URL(request.url).pathname.startsWith("/v1/targets")
+          !isTargetsPath(request.url, baseUrl)
         ) {
           const purposes = await consentPurposes(response);
           if (purposes) onConsentRequired(purposes);

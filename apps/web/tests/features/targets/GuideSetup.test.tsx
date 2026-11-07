@@ -104,6 +104,13 @@ function setup(
 
 const step = async (id: "intro" | "about" | "activity" | "goal" | "guide") =>
   userEvent.click(await screen.findByTestId(`step-nav-${id}`));
+/** The pregnancy question starts unanswered; most flows answer "No". */
+const answerNo = async () => {
+  await step("goal");
+  await userEvent.click(
+    await screen.findByRole("radio", { name: en.targets.pregnancy.no }),
+  );
+};
 const lastPreview = () =>
   api.callsTo("POST", "/v1/targets/preview").at(-1)?.body as {
     body: Record<string, unknown>;
@@ -132,6 +139,7 @@ describe("guide setup", () => {
 
   it("blank body fat is saved as unknown", async () => {
     setup();
+    await answerNo();
     await step("guide");
     await userEvent.click(
       await screen.findByRole("button", { name: en.targets.save }),
@@ -152,6 +160,7 @@ describe("guide setup", () => {
     await step("about");
     expect((bodyFat() as HTMLInputElement).value).toBe("15");
     await userEvent.clear(bodyFat());
+    await answerNo();
     await step("guide");
     await userEvent.click(
       await screen.findByRole("button", { name: en.targets.save }),
@@ -184,7 +193,7 @@ describe("guide setup", () => {
     });
     await step("about");
     await userEvent.type(bodyFat(), "2");
-    await step("goal");
+    await answerNo();
     // The error returns the user to the field, with the API's limits.
     expect(
       await screen.findByText("Please enter a number between 3 and 70."),
@@ -194,6 +203,7 @@ describe("guide setup", () => {
 
   it("guide step renders g2_lose_adjusted", async () => {
     setup();
+    await answerNo();
     await step("guide");
     const rows = await screen.findByTestId("guide-rows");
     expect(rows.textContent).toContain("1,540 kcal");
@@ -211,6 +221,7 @@ describe("guide setup", () => {
 
   it("guide step shows lean basis for g11_lean_mass", async () => {
     setup({ preview: targetsFixture("g11_lean_mass") });
+    await answerNo();
     await step("guide");
     const how = await screen.findByTestId("targets-explanation");
     expect(how.textContent).toContain("of lean mass (59.5 kg)");
@@ -221,6 +232,7 @@ describe("guide setup", () => {
 
   it("floor note renders for g4_floor in a neutral style", async () => {
     setup({ preview: targetsFixture("g4_floor") });
+    await answerNo();
     await step("guide");
     const note = await screen.findByTestId("flag-notes");
     expect(note.textContent).toContain("1,200");
@@ -229,6 +241,7 @@ describe("guide setup", () => {
 
   it("hidden floor note for g4_hide_all has no digits", async () => {
     setup({ preview: targetsFixture("g4_hide_all") });
+    await answerNo();
     await step("guide");
     const note = await screen.findByTestId("flag-notes");
     expect(note.textContent).toContain(en.targets.flag.floor_applied_hidden);
@@ -237,6 +250,7 @@ describe("guide setup", () => {
 
   it("minor shows adults-only message", async () => {
     setup({ preview: targetsFixture("g6_minor") });
+    await answerNo();
     await step("guide");
     expect(await screen.findByText(en.targets.minor)).toBeTruthy();
     expect(
@@ -250,9 +264,22 @@ describe("guide setup", () => {
 
   it("pregnancy shows paused message", async () => {
     setup({ preview: targetsFixture("pregnancy") });
+    await answerNo();
     await step("guide");
     expect(await screen.findByText(en.targets.pregnancy.paused)).toBeTruthy();
     expect(screen.queryByTestId("guide-rows")).toBeNull();
+  });
+
+  it("pregnancy starts unanswered and no preview is asked for", async () => {
+    setup();
+    await step("goal");
+    const no = (await screen.findByRole("radio", {
+      name: en.targets.pregnancy.no,
+    })) as HTMLInputElement;
+    expect(no.checked).toBe(false);
+    await step("guide");
+    expect(await screen.findByTestId("guide-unanswered")).toBeTruthy();
+    expect(api.callsTo("POST", "/v1/targets/preview")).toHaveLength(0);
   });
 
   it("prefer not to say on pregnancy is sent as true", async () => {
@@ -273,7 +300,7 @@ describe("guide setup", () => {
           ? json(422, envelope("goal_not_allowed_underweight"))
           : json(200, targetsFixture("g3_eat_healthy")),
     });
-    await step("goal");
+    await answerNo();
     await userEvent.click(
       screen.getByRole("radio", { name: en.targets.direction.lose }),
     );
@@ -286,6 +313,7 @@ describe("guide setup", () => {
 
   it("needs_height_cm highlights height", async () => {
     setup({ preview: targetsFixture("needs_height_cm") });
+    await answerNo();
     await step("guide");
     expect(await screen.findByText(/Add .*to see a daily guide/)).toBeTruthy();
     await userEvent.click(
@@ -310,7 +338,7 @@ describe("guide setup", () => {
       rate: { kg_per_week: 0.37, pct_bw_per_week: 0.5 },
     };
     setup({ preview: fake });
-    await step("goal");
+    await answerNo();
     const chips = await screen.findAllByTestId("rate-chip");
     expect(chips).toHaveLength(2);
     expect(chips[0]?.textContent).toContain("0.37");
@@ -329,7 +357,7 @@ describe("guide setup", () => {
       rate: { kg_per_week: null, pct_bw_per_week: 0.5 },
     };
     setup({ preview: fake });
-    await step("goal");
+    await answerNo();
     const chips = await screen.findAllByTestId("rate-chip");
     expect(chips[0]?.textContent).toBe(
       en.targets.rate_option_pct.replace("{pct}", "0.5"),
@@ -339,6 +367,7 @@ describe("guide setup", () => {
 
   it("missing fields use the neutral targets.field labels", async () => {
     setup({ preview: targetsFixture("needs_height_cm") });
+    await answerNo();
     await step("guide");
     expect(
       await screen.findByText(new RegExp(en.targets.field.height)),
@@ -347,6 +376,7 @@ describe("guide setup", () => {
 
   it("g1_hide_all preview shows no digits for energy and macros", async () => {
     setup({ preview: targetsFixture("g1_hide_all") });
+    await answerNo();
     await step("guide");
     await screen.findByTestId("step-guide");
     expect(screen.queryByTestId("guide-rows")?.textContent ?? "").not.toMatch(
@@ -358,6 +388,7 @@ describe("guide setup", () => {
 
   it("missing consent opens the health-data sheet before save", async () => {
     setup({ consents: { terms: true } });
+    await answerNo();
     await step("guide");
     await userEvent.click(
       await screen.findByRole("button", { name: en.targets.save }),
@@ -374,6 +405,7 @@ describe("guide setup", () => {
         unusual_fields: ["height_cm"],
       },
     });
+    await answerNo();
     await step("guide");
     const save = (await screen.findByRole("button", {
       name: en.targets.save,
@@ -397,6 +429,7 @@ describe("guide setup", () => {
 
   it("save sends the member PATCH then the settings PUT, then goes home", async () => {
     setup();
+    await answerNo();
     await step("guide");
     await userEvent.click(
       await screen.findByRole("button", { name: en.targets.save }),

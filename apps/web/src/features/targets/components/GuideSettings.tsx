@@ -68,6 +68,7 @@ function Sections({
   }
 
   const canSave =
+    form.answered &&
     targets !== undefined &&
     (targets.status === "ready" || targets.status === "paused_pregnancy") &&
     (targets.unusual_fields.length === 0 || form.unusualConfirmed) &&
@@ -116,7 +117,9 @@ function Sections({
           onChange={(v) => {
             set("numbers_display", v);
             // The eye toggle's route: terms only, never revalidates the rest.
-            if (settings) setDisplay.mutate({ numbers_display: v });
+            // Always sent, even with no readable settings (health_data
+            // withdrawn); a 404 (no settings yet) shows neutral copy below.
+            setDisplay.mutate({ numbers_display: v });
           }}
         />
       </Card>
@@ -126,6 +129,7 @@ function Sections({
           targets={targets}
           error={preview.error}
           loading={preview.isPending}
+          unanswered={!form.answered}
           onRetry={form.retryPreview}
           onEditBody={() => window.scrollTo({ top: 0 })}
           unusualConfirmed={form.unusualConfirmed}
@@ -134,6 +138,11 @@ function Sections({
         {setDisplay.error ? (
           <p role="alert" className="text-md text-text-primary">
             {t(errorKey(t, setDisplay.error))}
+          </p>
+        ) : null}
+        {reset.error ? (
+          <p role="alert" className="text-md text-text-primary">
+            {t(errorKey(t, reset.error))}
           </p>
         ) : null}
         {saveError ? (

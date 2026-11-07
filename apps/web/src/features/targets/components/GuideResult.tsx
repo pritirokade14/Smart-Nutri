@@ -25,6 +25,7 @@ export function GuideResult({
   onEditBody,
   unusualConfirmed,
   onUnusualChange,
+  unanswered = false,
 }: {
   targets: TargetsOut | undefined;
   error: ApiError | null;
@@ -34,8 +35,16 @@ export function GuideResult({
   onEditBody: () => void;
   unusualConfirmed: boolean;
   onUnusualChange: (next: boolean) => void;
+  /** The pregnancy question is not answered yet: no preview is asked for. */
+  unanswered?: boolean;
 }) {
   const t = useTranslations();
+  if (unanswered)
+    return (
+      <p data-testid="guide-unanswered" className="text-md text-text-primary">
+        {t("targets.pregnancy.question")}
+      </p>
+    );
   if (error)
     return (
       <ErrorState

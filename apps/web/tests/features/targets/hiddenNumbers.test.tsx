@@ -91,6 +91,27 @@ describe("hidden numbers", () => {
     expect(screen.getByTestId("day-totals").textContent).not.toMatch(/\d/);
   });
 
+  it("a hidden number with an unknown band shows no chip", () => {
+    wrap(
+      <DayTotals
+        summary={summary({
+          ...HIDDEN,
+          bands: {
+            kcal: "unknown",
+            protein_g: "ok",
+            salt_g: "unknown",
+            sugar_g: "near",
+          },
+        })}
+      />,
+    );
+    const total = screen.getByTestId("day-totals").textContent ?? "";
+    expect(total).not.toContain(en.summary.band.unknown);
+    expect(screen.getByTestId("day-sugars_g").textContent).toContain(
+      en.summary.band.near,
+    );
+  });
+
   it("history week hides totals when numbers_hidden", () => {
     wrap(
       <WeeklyDashboard

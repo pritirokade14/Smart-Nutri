@@ -5,6 +5,7 @@ import {
   type GuideValues,
   initialValues,
   memberPatch,
+  pregnancyAnswered,
   previewBody,
   settingsBody,
 } from "../lib/guideForm";
@@ -35,10 +36,11 @@ export function useGuideForm({
 
   const body = useMemo(() => previewBody(values, settings), [values, settings]);
   const key = JSON.stringify(body);
+  const answered = pregnancyAnswered(values);
   // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is the serialised `body`
   useEffect(() => {
-    if (previewing) mutate(body);
-  }, [key, previewing, mutate]);
+    if (previewing && answered) mutate(body);
+  }, [key, previewing, answered, mutate]);
 
   const set = <K extends keyof GuideValues>(k: K, v: GuideValues[K]) => {
     saveGuide.reset();
@@ -46,9 +48,10 @@ export function useGuideForm({
     setValues((prev) => ({ ...prev, [k]: v }));
   };
 
-  const targets: TargetsOut | undefined = preview.data;
+  const targets: TargetsOut | undefined = answered ? preview.data : undefined;
   return {
     values,
+    answered,
     set,
     preview,
     targets,

@@ -15,12 +15,16 @@ import {
   ConsentDialog,
   errorKey,
 } from "@/features/members/components/ConsentDialog";
-import { cn } from "@/lib/cn";
 import type { TargetsOut } from "../api/targets";
 import { useTodayTargets } from "../hooks/useTargets";
 import { formatInt } from "../lib/format";
 import { anyHidden, statusMessage } from "../lib/status";
 import { EyeToggle } from "./EyeToggle";
+
+/** Consent withdrawn: the shown state is unknown, so the eye offers "hide". */
+const UNKNOWN_DISPLAY = {
+  numbers_hidden: { energy: false, macros: false },
+} as TargetsOut;
 
 const SKIP_KEY = "smartnutri.targets.skip";
 
@@ -37,8 +41,8 @@ type Eaten = { total: number | null; incomplete: boolean };
 /**
  * One target row. Energy and protein show "{eaten} of {target}" with the
  * summary's eaten total; fat and carbs show the target only (eaten arrives
- * with the diary). Over the target is the same line in a neutral tone: no
- * "X over", no danger colour (the subtraction is the API's, later).
+ * with the diary). No client-side comparison: the row renders what the API
+ * returned, whatever the eaten total is.
  */
 function TargetRow({
   label,
@@ -56,23 +60,13 @@ function TargetRow({
   const t = useTranslations();
   const fmt = (n: number) => t(unit, { value: formatInt(n) });
   const known = eaten && eaten.total !== null ? eaten.total : null;
-  const over = known !== null && known > target;
   return (
-    <li
-      data-testid={testId}
-      data-over={over ? "true" : undefined}
-      className="space-y-1 py-2"
-    >
+    <li data-testid={testId} className="space-y-1 py-2">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-sm font-semibold text-text-secondary">
           {label}
         </span>
-        <span
-          className={cn(
-            "text-md font-semibold",
-            over ? "text-text-secondary" : "text-text-primary",
-          )}
-        >
+        <span className="text-md font-semibold text-text-primary">
           {known !== null
             ? t("diary.of_target", {
                 eaten: t(unit, { value: formatAmount(known) }),
@@ -214,6 +208,8 @@ export function TodayTargetsCard({ primary }: { primary?: MemberOut }) {
             />
           ) : null}
         </div>,
+        // The eye stays: the terms-only display route needs no health_data.
+        UNKNOWN_DISPLAY,
       );
     return shell(
       <ErrorState

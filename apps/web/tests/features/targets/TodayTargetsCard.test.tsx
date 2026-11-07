@@ -165,6 +165,7 @@ describe("TodayTargetsCard", () => {
       within(c).getByRole("button", { name: en.consent.agree }),
     );
     expect(await screen.findByTestId("consent-dialog")).toBeTruthy();
+    expect(within(c).getByTestId("eye-toggle")).toBeTruthy();
     off();
   });
 
@@ -315,7 +316,7 @@ describe("TodayTargetsCard", () => {
     );
   });
 
-  it("over target uses the neutral tone", async () => {
+  it("over target renders the API numbers with no client comparison", async () => {
     api.on("GET", "/v1/targets", targetsFixture("g1_build_muscle")).on(
       "GET",
       "/v1/meals/summary",
@@ -331,7 +332,8 @@ describe("TodayTargetsCard", () => {
     wrap();
     const c = await card();
     const row = await within(c).findByTestId("target-energy");
-    await waitFor(() => expect(row.dataset.over).toBe("true"));
+    await waitFor(() => expect(row.textContent).toContain("3,000 kcal of"));
+    expect(row.dataset.over).toBeUndefined();
     expect(row.textContent).toContain("3,000 kcal of 2,760 kcal");
     expect(row.textContent).not.toMatch(/over/i);
     expect(row.innerHTML).not.toMatch(/danger|error|red|warning/);

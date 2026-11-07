@@ -93,6 +93,7 @@ function Flow({
   const index = STEPS.indexOf(step);
   const next = STEPS[index + 1];
   const canSave =
+    form.answered &&
     targets !== undefined &&
     (targets.status === "ready" || targets.status === "paused_pregnancy") &&
     (targets.unusual_fields.length === 0 || form.unusualConfirmed) &&
@@ -182,6 +183,7 @@ function Flow({
             targets={targets}
             error={preview.error}
             loading={preview.isPending}
+            unanswered={!form.answered}
             onRetry={form.retryPreview}
             onEditBody={() => setStep("about")}
             unusualConfirmed={form.unusualConfirmed}

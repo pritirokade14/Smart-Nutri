@@ -65,6 +65,7 @@ test("set up lose weight and see the guide", async ({
   await page.getByRole("radio", { name: /Lightly active/ }).check();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("radio", { name: "Lose weight slowly" }).check();
+  await page.getByRole("radio", { name: "No", exact: true }).check();
   await page.getByRole("button", { name: "Continue" }).click();
 
   // The guide, exactly as the API sent it.

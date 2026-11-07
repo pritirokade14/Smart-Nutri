@@ -27,7 +27,8 @@ export type GuideValues = {
   /** The chosen pace (pct of body weight per week), or null for the API default. */
   rate: number | null;
   target_weight: string;
-  pregnancy: PregnancyAnswer;
+  /** Starts unanswered: preview and save wait for an explicit answer. */
+  pregnancy: PregnancyAnswer | "";
   numbers_display: NumbersDisplay;
 };
 
@@ -49,9 +50,15 @@ export function initialValues(
     direction: settings?.direction ?? defaultDirection(member?.goal),
     rate: settings?.rate_pct_bw_per_week ?? null,
     target_weight: text(settings?.target_weight_kg),
-    pregnancy: settings?.pregnant_or_breastfeeding ? "yes" : "no",
+    pregnancy:
+      settings == null ? "" : settings.pregnant_or_breastfeeding ? "yes" : "no",
     numbers_display: settings?.numbers_display ?? "show",
   };
+}
+
+/** The pregnancy question has been answered (preview and save need it). */
+export function pregnancyAnswered(v: GuideValues): boolean {
+  return v.pregnancy !== "";
 }
 
 /** A typed number, or null when blank or not a number (sent as unknown, never 0). */
