@@ -21,7 +21,12 @@ export function portionLine(
   if (p.grams == null) return null;
   const ml = p.basis === "ml";
   const amount = `${isApprox(p.unitSource) ? `${APPROX} ` : ""}${formatAmount(p.grams)}`;
-  if (p.unit && p.unit !== "g" && p.quantity != null) {
+  if (
+    p.unit &&
+    p.unit !== "g" &&
+    !(ml && p.unit === "ml") &&
+    p.quantity != null
+  ) {
     return t(ml ? "diary.portion_line_ml" : "diary.portion_line", {
       quantity: formatAmount(p.quantity),
       unit: unitLabel(t, p.unit, p.quantity),

@@ -465,6 +465,11 @@ function Loaded({
               </div>
             ))}
           </dl>
+          {food.recipe_incomplete && food.recipe_incomplete.length > 0 ? (
+            <p className={hintClass} data-testid="recipe-incomplete">
+              {t("recipes.incomplete")}
+            </p>
+          ) : null}
           <p className={hintClass}>{t("foods.preview_note")}</p>
         </section>
       ) : null}

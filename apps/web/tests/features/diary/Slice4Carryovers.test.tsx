@@ -136,6 +136,9 @@ describe("portionLine", () => {
       }),
     ).toBe("1 glass · ≈ 200 ml");
     expect(portionLine(tr, { grams: 350, basis: "ml" })).toBe("350 ml");
+    expect(
+      portionLine(tr, { quantity: 200, unit: "ml", grams: 200, basis: "ml" }),
+    ).toBe("200 ml");
     expect(portionLine(tr, { grams: 350 })).toBe("350 g");
     expect(
       portionLine(tr, {
@@ -194,6 +197,29 @@ describe("recents", () => {
     expect((await screen.findByTestId("recent-item")).textContent).toContain(
       "200 ml",
     );
+  });
+
+  it("an ml recent with no unit logs millilitres, not grams", async () => {
+    const api = panel([
+      {
+        ...RECENT,
+        basis: "ml",
+        quantity: null,
+        unit: null,
+        unit_source: null,
+        grams: 200,
+      },
+    ]);
+    await userEvent.click(await screen.findByTestId("recent-item"));
+    await waitFor(() =>
+      expect(api.callsTo("POST", "/v1/meals")).toHaveLength(1),
+    );
+    const body = api.callsTo("POST", "/v1/meals")[0].body as Record<
+      string,
+      unknown
+    >;
+    expect(body).toMatchObject({ quantity: 200, unit: "ml" });
+    expect(body.grams).toBeUndefined();
   });
 
   it("a custom food and a recipe recent log by their own ids", async () => {

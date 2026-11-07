@@ -136,7 +136,10 @@ export function AddFoodPanel({
               quantity: item.quantity,
               unit: item.unit as NonNullable<MealIn["unit"]>,
             }
-          : { grams: item.grams }),
+          : item.basis === "ml"
+            ? // An ml food with no saved unit: millilitres, never grams.
+              { quantity: item.grams, unit: "ml" as const }
+            : { grams: item.grams }),
         ...(loaded && chosen ? { meal_slot_id: chosen } : {}),
         ...(localDate ? { local_date: localDate } : {}),
         client_id: clientId.current,

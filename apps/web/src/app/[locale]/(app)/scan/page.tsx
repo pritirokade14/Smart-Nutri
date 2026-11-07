@@ -29,18 +29,22 @@ export default function ScanPage() {
   // Own custom food first (it never has a verdict); anything else, or a
   // failed lookup, keeps the product + verdict flow unchanged.
   const go = async (code: string) => {
-    try {
-      const food = await client.fetchQuery({
-        queryKey: foodBarcodeKey(code),
-        queryFn: () => getFoodByBarcode(code),
-        staleTime: 0,
-      });
-      if (food.kind === "custom_food") {
-        setOwn({ id: food.id, name: food.name });
-        return;
+    // Only from the Diary add-food flow (like Android): a plain scan always
+    // shows the product and its verdict, even if a custom food shares the code.
+    if (getDiaryAddContext()?.method === "barcode") {
+      try {
+        const food = await client.fetchQuery({
+          queryKey: foodBarcodeKey(code),
+          queryFn: () => getFoodByBarcode(code),
+          staleTime: 0,
+        });
+        if (food.kind === "custom_food") {
+          setOwn({ id: food.id, name: food.name });
+          return;
+        }
+      } catch {
+        // Fall through to the verdict flow.
       }
-    } catch {
-      // Fall through to the verdict flow.
     }
     router.push(`/${locale}/result/${code}`);
   };

@@ -200,6 +200,20 @@ describe("PortionPicker", () => {
     );
   });
 
+  it("an incomplete recipe shows the at-least note", async () => {
+    apiStub(fetchMock).on(
+      "GET",
+      DAL_PATH,
+      dalDetail((d) => {
+        d.recipe_incomplete = ["fibre_g"];
+      }),
+    );
+    open();
+    expect((await screen.findByTestId("recipe-incomplete")).textContent).toBe(
+      en.recipes.incomplete,
+    );
+  });
+
   it("hide_all shows no preview digits", async () => {
     apiStub(fetchMock).on(
       "GET",

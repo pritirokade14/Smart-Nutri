@@ -2,6 +2,7 @@ import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ScanPage from "@/app/[locale]/(app)/scan/page";
+import { setDiaryAddContext } from "@/features/diary/lib/addContext";
 import { apiStub, envelope, json } from "../../support/api-stub";
 import { renderIntl } from "../../support/diary-render";
 import { dalDetail } from "../../support/foods-fixtures";
@@ -33,7 +34,9 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-async function submit() {
+async function submit(fromDiary = true) {
+  if (fromDiary)
+    setDiaryAddContext({ method: "barcode", slotId: null, localDate: null });
   renderIntl(<ScanPage />);
   await userEvent.type(screen.getByRole("textbox"), CODE);
   await userEvent.click(screen.getByRole("button"));
@@ -77,5 +80,20 @@ describe("scan page own-food lookup", () => {
     await waitFor(() =>
       expect(push).toHaveBeenCalledWith(`/en/result/${CODE}`),
     );
+  });
+
+  it("a plain scan never looks up own foods, even if one shares the code", async () => {
+    const api = apiStub(fetchMock).on("GET", `/v1/foods/barcode/${CODE}`, {
+      ...dalDetail(),
+      kind: "custom_food",
+      id: "cf1",
+      name: "Ladoo",
+    });
+    window.sessionStorage.clear();
+    await submit(false);
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith(`/en/result/${CODE}`),
+    );
+    expect(api.callsTo("GET", `/v1/foods/barcode/${CODE}`)).toHaveLength(0);
   });
 });
