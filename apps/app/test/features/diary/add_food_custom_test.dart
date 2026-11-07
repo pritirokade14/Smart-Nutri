@@ -232,6 +232,34 @@ void main() {
     });
   });
 
+  testWidgets('a retired food from search shows the copy and logs nothing', (
+    t,
+  ) async {
+    final foods = FakeFoodsClient(
+      search: FoodSearchOut(
+        failedSources: const [],
+        items: [foodHit('f1', 'Toor dal, cooked')],
+        partial: false,
+      ),
+      details: {'f1': foodDetail()},
+    );
+    final env = _env(foods: foods);
+    env.meals.logResponses.add(apiRefusal422('food_retired'));
+    await pumpDiary(t, env);
+    await _open(t);
+    await t.tap(find.byKey(AddFoodSheet.segmentKey('search')));
+    await t.pumpAndSettle();
+    await t.enterText(find.byKey(FoodSearchView.fieldKey), 'dal');
+    await t.pump(FoodSearchView.debounce);
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(FoodSearchView.hitKey(foodHit('f1', 'x'))));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(PortionPickerSheet.saveKey));
+    await t.pumpAndSettle();
+    expect(find.text(en.errorFoodRetired), findsOneWidget);
+    expect(env.queue.rows, isEmpty);
+  });
+
   testWidgets('create segment opens the custom food form and the builder', (
     t,
   ) async {
