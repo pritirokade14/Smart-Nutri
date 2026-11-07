@@ -38,9 +38,13 @@ class SlotNameEditor extends StatefulWidget {
     required this.initial,
     required this.onSave,
     required this.onCancel,
+    this.hint,
   });
 
   final String initial;
+
+  /// Shown while the field is empty (a default slot's translated name).
+  final String? hint;
   final Future<String?> Function(String label) onSave;
   final VoidCallback onCancel;
 
@@ -95,6 +99,7 @@ class _SlotNameEditorState extends State<SlotNameEditor> {
           inputFormatters: const [RuneLimitFormatter(maxSlotLabelRunes)],
           onChanged: (_) => setState(() => _error = null),
           decoration: InputDecoration(
+            hintText: widget.hint,
             helperText: l10n.diarySlotsNameHint,
             helperMaxLines: 2,
             errorText: _error,
@@ -244,7 +249,11 @@ class _MealSlotRowState extends State<MealSlotRow> {
                   horizontal: SnTokens.space2,
                 ),
                 child: SlotNameEditor(
-                  initial: slot.customLabel ?? title,
+                  // A default slot starts empty (its translated name is only a
+                  // hint), so an unchanged save can never freeze a translation
+                  // into a custom label.
+                  initial: slot.isDefault ? '' : (slot.customLabel ?? title),
+                  hint: slot.isDefault ? title : null,
                   onCancel: () => setState(() => _editing = false),
                   onSave: (label) async {
                     final err = await widget.onRename(label);

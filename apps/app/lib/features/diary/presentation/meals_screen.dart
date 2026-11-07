@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // The generated package has no top-level library file, only src/export.dart.
@@ -13,8 +14,17 @@ import '../data/diary_repository.dart';
 import 'diary_providers.dart';
 import 'meal_slot_row.dart';
 
-/// The most meals a person can have.
+/// The most meals a person can have, when the API does not say.
 const maxActiveSlots = 6;
+
+/// `details.max` of a `meal_slot_limit_reached` error, or null.
+int? slotLimitFromError(Object e) {
+  final cause = e is DiaryFailure ? e.cause : e;
+  if (cause is! DioException) return null;
+  final details = parseErrorEnvelope(cause.response?.data)?.error.details;
+  final max = details is Map ? details['max'] : null;
+  return max is num && max > 0 ? max.toInt() : null;
+}
 
 /// "Edit meals": list, add, rename, reorder and remove. Online only. It
 /// shows what the API sent; names are user text, never translated and never
@@ -39,6 +49,7 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
   List<MealSlotOut>? _local;
   bool _adding = false;
   String? _error;
+  int? _apiLimit;
 
   String _message(Object e) => localizedErrorCode(
     AppLocalizations.of(context),
@@ -57,7 +68,12 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
       _changed();
       return true;
     } on DiaryFailure catch (e) {
-      if (mounted) setState(() => _error = _message(e));
+      if (mounted) {
+        setState(() {
+          _error = _message(e);
+          _apiLimit = slotLimitFromError(e) ?? _apiLimit;
+        });
+      }
       return false;
     }
   }
@@ -69,6 +85,8 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
       _changed();
       return null;
     } on DiaryFailure catch (e) {
+      final limit = slotLimitFromError(e);
+      if (limit != null && mounted) setState(() => _apiLimit = limit);
       return _message(e);
     }
   }
@@ -87,9 +105,15 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
   }
 
   Future<void> _pickTime(MealSlotOut slot) async {
+    final current = slot.defaultTimeWindow;
+    final parts = current?.start.split(':');
+    final h = parts != null && parts.length >= 2 ? int.tryParse(parts[0]) : null;
+    final m = parts != null && parts.length >= 2 ? int.tryParse(parts[1]) : null;
     final start = await showTimePicker(
       context: context,
-      initialTime: const TimeOfDay(hour: 8, minute: 0),
+      initialTime: h != null && m != null && h < 24 && m < 60
+          ? TimeOfDay(hour: h, minute: m)
+          : const TimeOfDay(hour: 8, minute: 0),
     );
     if (start == null || !mounted) return;
     final end = await showTimePicker(context: context, initialTime: start);
@@ -156,7 +180,8 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
         ),
         data: (out) {
           final items = _local ?? out.items.where((s) => !s.archived).toList();
-          final atLimit = items.length >= maxActiveSlots;
+          final limit = _apiLimit ?? maxActiveSlots;
+          final atLimit = items.length >= limit;
           return ListView(
             padding: const EdgeInsets.all(SnTokens.space4),
             children: [
@@ -227,7 +252,7 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: SnTokens.space2),
                   child: Text(
-                    l10n.diarySlotsLimit('$maxActiveSlots'),
+                    l10n.diarySlotsLimit('$limit'),
                     key: MealsScreen.limitKey,
                   ),
                 ),

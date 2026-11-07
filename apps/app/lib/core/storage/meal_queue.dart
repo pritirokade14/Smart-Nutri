@@ -12,6 +12,12 @@ part 'meal_queue.g.dart';
 /// `lastError` of a row whose meal slot was archived before it synced.
 const mealSlotArchivedError = 'meal_slot_archived';
 
+/// `lastError` of a row whose meal slot was deleted before it synced (404).
+const mealSlotNotFoundError = 'meal_slot_not_found';
+
+/// The errors after which a row waits for the user to pick another meal.
+const needsSlotErrors = [mealSlotArchivedError, mealSlotNotFoundError];
+
 /// A row whose `lastError` is set was refused by the API (a 4xx other than
 /// 429): it is never sent again and only kept so the app can say so.
 class PendingMeals extends Table {
@@ -193,14 +199,13 @@ class DriftMealQueue implements MealQueue {
   @override
   Stream<int> watchFailedCount() => _count(
     (r) =>
-        r.lastError.isNotNull() &
-        r.lastError.equals(mealSlotArchivedError).not(),
+        r.lastError.isNotNull() & r.lastError.isIn(needsSlotErrors).not(),
   );
 
   @override
   Stream<List<PendingMeal>> watchNeedingSlot() =>
       (_db.select(_t)
-            ..where((r) => r.lastError.equals(mealSlotArchivedError))
+            ..where((r) => r.lastError.isIn(needsSlotErrors))
             ..orderBy([(r) => OrderingTerm.asc(r.eatenAt)]))
           .watch();
 
@@ -217,8 +222,7 @@ class DriftMealQueue implements MealQueue {
   Future<void> clearFailed() =>
       (_db.delete(_t)..where(
             (r) =>
-                r.lastError.isNotNull() &
-                r.lastError.equals(mealSlotArchivedError).not(),
+                r.lastError.isNotNull() & r.lastError.isIn(needsSlotErrors).not(),
           ))
           .go();
 

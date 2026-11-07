@@ -259,13 +259,13 @@ class MemoryMealQueue implements MealQueue {
 
   @override
   Stream<int> watchFailedCount() => _watch(
-    (r) => r.lastError != null && r.lastError != mealSlotArchivedError,
+    (r) => r.lastError != null && !needsSlotErrors.contains(r.lastError),
   );
 
   @override
   Stream<List<PendingMeal>> watchNeedingSlot() async* {
     List<PendingMeal> now() =>
-        rows.values.where((r) => r.lastError == mealSlotArchivedError).toList();
+        rows.values.where((r) => needsSlotErrors.contains(r.lastError)).toList();
     yield now();
     await for (final _ in _changes.stream) {
       yield now();
@@ -287,7 +287,7 @@ class MemoryMealQueue implements MealQueue {
   @override
   Future<void> clearFailed() async {
     rows.removeWhere(
-      (_, r) => r.lastError != null && r.lastError != mealSlotArchivedError,
+      (_, r) => r.lastError != null && !needsSlotErrors.contains(r.lastError),
     );
     _changed();
   }
