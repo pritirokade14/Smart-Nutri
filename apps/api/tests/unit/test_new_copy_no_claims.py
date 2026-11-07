@@ -30,6 +30,14 @@ ERROR_CODES = {
     "unit_not_supported",
     "quantity_out_of_range",
     "food_not_found",
+    # Plan 12 slice 4
+    "custom_food_not_found",
+    "custom_food_nutrients_empty",
+    "barcode_already_used",
+    "recipe_not_found",
+    "recipe_ingredient_limit",
+    "recipe_weight_invalid",
+    "food_retired",
 }
 NEW_FOODS = {"foods.blank_is_unknown", "foods.recent", "foods.quick_add"}
 
@@ -47,7 +55,9 @@ def _new(lang: str) -> dict[str, str]:
     return {
         key: value
         for key, value in _flat(data)
-        if key.startswith(("diary.", "unit.", "foods.", "methodology.food_data."))
+        if key.startswith(
+            ("diary.", "unit.", "foods.", "methodology.food_data.", "custom_food.", "recipes.")
+        )
         or key in ("attribution.usda_fdc", "attribution.smartnutri_recipe")
         or key in NEW_FOODS
         or key == "nav.diary"

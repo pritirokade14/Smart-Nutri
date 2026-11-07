@@ -2459,7 +2459,9 @@
             "enum": [
               "food",
               "product",
-              "off"
+              "off",
+              "custom_food",
+              "recipe"
             ],
             "title": "Kind",
             "type": "string"
@@ -2485,6 +2487,14 @@
           "per_100": {
             "$ref": "#/components/schemas/NutrientSnapshot",
             "description": "Per 100 g (or 100 ml), unrounded; null = unknown, or hidden by the member's numbers display"
+          },
+          "recipe_incomplete": {
+            "description": "A recipe only: the nutrients at least one ingredient does not know. They are null in `per_100`, so a logged serving never counts a partial value",
+            "items": {
+              "type": "string"
+            },
+            "title": "Recipe Incomplete",
+            "type": "array"
           },
           "review_pending": {
             "description": "Household measures and dishes are pending dietitian review",
@@ -2584,7 +2594,9 @@
             "description": "Nutri-Score calculated by SmartNutri; packaged products only, else null"
           },
           "group": {
+            "description": "`mine` (your custom foods and recipes) comes first, then `indian`, `packaged`",
             "enum": [
+              "mine",
               "indian",
               "packaged"
             ],
@@ -2605,7 +2617,9 @@
             "enum": [
               "food",
               "product",
-              "off"
+              "off",
+              "custom_food",
+              "recipe"
             ],
             "title": "Kind",
             "type": "string"
@@ -2634,7 +2648,9 @@
         "enum": [
           "food",
           "product",
-          "off"
+          "off",
+          "custom_food",
+          "recipe"
         ],
         "title": "FoodKindPath",
         "type": "string"
@@ -6825,7 +6841,9 @@
       "SearchKind": {
         "enum": [
           "food",
-          "product"
+          "product",
+          "custom_food",
+          "recipe"
         ],
         "title": "SearchKind",
         "type": "string"
@@ -9149,13 +9167,140 @@
         ]
       }
     },
+    "/v1/foods/barcode/{barcode}": {
+      "get": {
+        "description": "Look a scanned barcode up for LOGGING: your own custom food with that barcode first, then\nour product, then Open Food Facts. For the verdict use `products_get_by_barcode` and\n`analyze`: they never see custom foods. 422 `invalid_barcode`, 404 `product_not_found`, 503\n`off_unavailable`.",
+        "operationId": "foods_by_barcode",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "barcode",
+            "required": true,
+            "schema": {
+              "title": "Barcode",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodDetailOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Foods By Barcode",
+        "tags": [
+          "foods"
+        ]
+      }
+    },
     "/v1/foods/search": {
       "get": {
         "description": "Search generic foods and Indian dishes first, then packaged products (our catalogue and\nOpen Food Facts). Hits carry no nutrients. When Open Food Facts cannot answer, the other\nresults still come back with `partial: true` and `failed_sources: [\"off\"]`. USDA and\nOpen Food Facts credits ride on each hit.",
         "operationId": "foods_search",
         "parameters": [
           {
-            "description": "Which sources to search; default both (food = generic foods and dishes)",
+            "description": "Which sources to search; default all (food = generic foods and dishes; custom_food and recipe = yours, listed first)",
             "in": "query",
             "name": "kinds",
             "required": false,
@@ -9171,7 +9316,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Which sources to search; default both (food = generic foods and dishes)",
+              "description": "Which sources to search; default all (food = generic foods and dishes; custom_food and recipe = yours, listed first)",
               "title": "Kinds"
             }
           },

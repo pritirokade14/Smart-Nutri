@@ -87,7 +87,10 @@ async def foods_search(
     kinds: Annotated[
         list[SearchKind] | None,
         Query(
-            description="Which sources to search; default both (food = generic foods and dishes)"
+            description=(
+                "Which sources to search; default all (food = generic foods and dishes; "
+                "custom_food and recipe = yours, listed first)"
+            )
         ),
     ] = None,
     limit_: Annotated[int, Query(alias="limit", ge=1, le=50)] = 20,
@@ -124,6 +127,33 @@ async def foods_units_list(current: Current, session: Session) -> list[UnitOut]:
 async def _hidden(session: AsyncSession, current: CurrentAccount, member_id, settings):
     member = await targets_service.resolve_member(session, current.account.id, member_id, settings)
     return await meals_service.hidden_for_member(session, member)
+
+
+@router.get(
+    "/barcode/{barcode}",
+    operation_id="foods_by_barcode",
+    response_model=FoodDetailOut,
+    responses=_RESPONSES,
+    dependencies=[Depends(limit("product_lookups"))],
+)
+async def foods_by_barcode(
+    barcode: str,
+    current: Current,
+    session: Session,
+    off: Off,
+    settings: AppSettings,
+    member_id: MemberQuery = None,
+) -> FoodDetailOut:
+    """Look a scanned barcode up for LOGGING: your own custom food with that barcode first, then
+    our product, then Open Food Facts. For the verdict use `products_get_by_barcode` and
+    `analyze`: they never see custom foods. 422 `invalid_barcode`, 404 `product_not_found`, 503
+    `off_unavailable`."""
+    hidden = await _hidden(session, current, member_id, settings)
+    out = await service.food_by_barcode(
+        session, off, barcode, hidden, account_id=current.account.id, settings=settings
+    )
+    await session.commit()  # the primary member, or an OFF cache write
+    return out
 
 
 @router.get(

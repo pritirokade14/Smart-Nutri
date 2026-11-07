@@ -23,19 +23,25 @@ class FoodKindPath(StrEnum):
     FOOD = "food"
     PRODUCT = "product"
     OFF = "off"
+    CUSTOM_FOOD = "custom_food"
+    RECIPE = "recipe"
 
 
 class SearchKind(StrEnum):
     FOOD = "food"
     PRODUCT = "product"
+    CUSTOM_FOOD = "custom_food"
+    RECIPE = "recipe"
 
 
 class FoodHit(BaseModel):
-    kind: Literal["food", "product", "off"]
+    kind: Literal["food", "product", "off", "custom_food", "recipe"]
     id: str = Field(description="A uuid, or the barcode for kind=off")
     name: str
     brand: str | None
-    group: Literal["indian", "packaged"]
+    group: Literal["mine", "indian", "packaged"] = Field(
+        description="`mine` (your custom foods and recipes) comes first, then `indian`, `packaged`"
+    )
     is_dish: bool = Field(description="A documented Indian dish (calculated from ingredients)")
     grade: NutriScoreGrade | None = Field(
         description="Nutri-Score calculated by SmartNutri; packaged products only, else null"
@@ -85,7 +91,7 @@ class DishOut(BaseModel):
 
 
 class FoodDetailOut(BaseModel):
-    kind: Literal["food", "product", "off"]
+    kind: Literal["food", "product", "off", "custom_food", "recipe"]
     id: str
     name: str
     brand: str | None
@@ -108,6 +114,13 @@ class FoodDetailOut(BaseModel):
     dish: DishOut | None
     review_pending: bool = Field(
         description="Household measures and dishes are pending dietitian review"
+    )
+    recipe_incomplete: list[str] = Field(
+        default_factory=list,
+        description=(
+            "A recipe only: the nutrients at least one ingredient does not know. They are null in "
+            "`per_100`, so a logged serving never counts a partial value"
+        ),
     )
     numbers_hidden: NumbersHidden
 
