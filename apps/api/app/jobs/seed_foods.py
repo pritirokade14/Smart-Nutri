@@ -18,10 +18,14 @@ from collections.abc import Sequence
 
 from app.core.config import get_settings
 from app.core.logging import configure_logging
+from app.db.registry import import_all_models
 from app.db.session import build_engine, build_sessionmaker
 from app.features.foods.seed import SeedReport, load_seed_data, report_for, seed_foods
 
 logger = logging.getLogger("app.jobs.seed_foods")
+
+# Standalone job: register every mapped table so foreign keys resolve (see app/db/registry.py).
+import_all_models()
 
 
 def format_report(report: SeedReport) -> str:
