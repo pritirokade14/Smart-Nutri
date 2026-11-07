@@ -218,3 +218,20 @@ Resolved:
 
 - R12: `expected/namkeen.diabetic_adult.json` is now `caution` (`cardio_risk_high_in`): blood-sugar members get a caution when the product is high_in salt or saturated fat. `sf_biscuit.diabetic_adult` (7 g sat fat per 100 g) gains the same reason; its status stays `avoid`.
 - R13: `expected/cola.no_age.json`, `expected/namkeen.no_age.json`, `expected/no_ingredients.no_age.json` and `expected/sf_biscuit.no_age.json` are now `unknown` (`age_unknown`): with no birth year, the child and infant rules are checked at the most protective age, and any flag makes the verdict `unknown`.
+
+## Unit conversions (`units/`)
+
+`units/conversions.json`: about 20 cases for `to_grams` and the portion preview (Plan 12 slice 3). It is **generated** from the real code, never edited by hand:
+
+```
+cd apps/api && uv run python -m scripts.generate_unit_expectations          # --check (default)
+cd apps/api && uv run python -m scripts.generate_unit_expectations --write
+```
+
+Each case is `{case, food: {basis, serving_g, density_g_per_ml, global_portions, user_portions}, unit, quantity, per_100, expected: {grams_per_unit, amount, error, preview}}`.
+
+- `grams_per_unit` is the amount of ONE unit in the food's basis (grams, or ml for an ml-basis food), or `null` when the unit does not resolve (a picker never offers it).
+- `amount` is `quantity` x `grams_per_unit`, or `null` with `error` set (`unit_grams_unknown` or `quantity_out_of_range`): a unit that cannot be converted is refused, never guessed.
+- `preview` is the portion preview Android and web must reproduce: `quantity x grams_per_unit x per_100 / 100`, rounded half-up to 1 dp, in exact decimal arithmetic (so `1.15` x 100 g shows `1.2`, not the float `1.1`). A `null` nutrient stays `null`, never 0.
+- The per-100 values are synthetic test numbers, not food data. The API asserts `to_grams` and its own rounding against the file (`tests/unit/foods/test_units.py`); Android and web assert their **preview** against it.
+
