@@ -62,10 +62,10 @@ test("log the biscuit, then the Diary lists it and it can be removed", async ({
   // The stub sends no band: it reads "Not enough data" (grey), never green.
   for (const badge of await page.getByTestId("band-badge").all())
     await expect(badge).toHaveAttribute("data-band", "unknown");
-  // The Diary shows it beside the numbers and again in the page footer.
+  // The Diary shows the disclaimer exactly once (page footer).
   await expect(
-    page.getByText("Information, not medical advice.").first(),
-  ).toBeVisible();
+    page.getByText("Information, not medical advice."),
+  ).toHaveCount(1);
 
   // Remove it again (asks first).
   await row.click();
