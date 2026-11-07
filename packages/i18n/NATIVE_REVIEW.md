@@ -274,3 +274,5 @@ All of these are machine drafts in hi and mr. They sit beside health numbers, so
 - [ ] **hi/mr `targets.flag.carbs_below_reference_hidden`** (new): the same message as `carbs_below_reference` without the 130 g figure; the client shows it when macros are hidden.
 - [ ] **hi/mr `targets.flag.rate_capped`** (reworded): "nearest available option" replaces "safest option" (neutral, no safety claim). Check it reads as neutral.
 - [ ] **hi/mr `targets.field.{height,weight,birth_year,sex,activity,body_fat}`** (new): plain field names for the "needs data" and "please check" messages. No units and no "(optional)".
+
+- `targets.rate_option_pct` (hi, mr): pace shown as % only when all numbers are hidden. Machine draft.

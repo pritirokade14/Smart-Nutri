@@ -1535,6 +1535,14 @@
       }
     }
   },
+  "targetsRateOptionPct": "About {pct}% of body weight a week",
+  "@targetsRateOptionPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "targetsRateTitle": "Pace",
   "targetsSave": "Save my daily guide",
   "targetsSetupCta": "Set up your daily guide",

@@ -1535,6 +1535,14 @@
       }
     }
   },
+  "targetsRateOptionPct": "हर हफ़्ते शरीर के वज़न का लगभग {pct}%",
+  "@targetsRateOptionPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "targetsRateTitle": "गति",
   "targetsSave": "मेरी दैनिक गाइड सहेजें",
   "targetsSetupCta": "अपनी दैनिक गाइड सेट करें",

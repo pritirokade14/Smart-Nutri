@@ -4744,6 +4744,12 @@ abstract class AppLocalizations {
   /// **'About {kg} kg a week ({pct}% of body weight)'**
   String targetsRateOption(String kg, String pct);
 
+  /// No description provided for @targetsRateOptionPct.
+  ///
+  /// In en, this message translates to:
+  /// **'About {pct}% of body weight a week'**
+  String targetsRateOptionPct(String pct);
+
   /// No description provided for @targetsRateTitle.
   ///
   /// In en, this message translates to:

@@ -1113,6 +1113,7 @@
       "gain": "Gain slowly"
     },
     "rate_option": "About {kg} kg a week ({pct}% of body weight)",
+    "rate_option_pct": "About {pct}% of body weight a week",
     "rate_title": "Pace",
     "target_weight": "Target weight (optional)",
     "activity": {

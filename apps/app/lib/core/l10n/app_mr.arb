@@ -1535,6 +1535,14 @@
       }
     }
   },
+  "targetsRateOptionPct": "दर आठवड्याला शरीराच्या वजनाच्या सुमारे {pct}%",
+  "@targetsRateOptionPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "targetsRateTitle": "गती",
   "targetsSave": "माझा दैनिक मार्गदर्शक जतन करा",
   "targetsSetupCta": "तुमचा दैनिक मार्गदर्शक सेट करा",

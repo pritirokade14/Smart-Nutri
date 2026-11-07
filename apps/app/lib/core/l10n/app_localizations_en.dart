@@ -2732,6 +2732,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String targetsRateOptionPct(String pct) {
+    return 'About $pct% of body weight a week';
+  }
+
+  @override
   String get targetsRateTitle => 'Pace';
 
   @override

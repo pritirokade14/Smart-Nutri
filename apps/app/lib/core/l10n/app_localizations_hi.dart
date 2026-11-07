@@ -2741,6 +2741,11 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String targetsRateOptionPct(String pct) {
+    return 'हर हफ़्ते शरीर के वज़न का लगभग $pct%';
+  }
+
+  @override
   String get targetsRateTitle => 'गति';
 
   @override

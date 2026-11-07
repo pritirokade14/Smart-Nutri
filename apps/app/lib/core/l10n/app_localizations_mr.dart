@@ -2738,6 +2738,11 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String targetsRateOptionPct(String pct) {
+    return 'दर आठवड्याला शरीराच्या वजनाच्या सुमारे $pct%';
+  }
+
+  @override
   String get targetsRateTitle => 'गती';
 
   @override
