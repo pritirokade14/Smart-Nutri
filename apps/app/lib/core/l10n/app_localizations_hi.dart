@@ -806,6 +806,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get diarySlotsManage => 'भोजन बदलें';
 
   @override
+  String diarySlotsMoveDown(String title) {
+    return '$title को नीचे ले जाएँ';
+  }
+
+  @override
+  String diarySlotsMoveUp(String title) {
+    return '$title को ऊपर ले जाएँ';
+  }
+
+  @override
   String get diarySlotsNameHint =>
       'आप जो नाम लिखेंगे, वह ठीक वैसा ही रखा जाएगा।';
 

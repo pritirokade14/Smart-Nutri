@@ -380,6 +380,22 @@
     }
   },
   "diarySlotsManage": "Edit meals",
+  "diarySlotsMoveDown": "Move {title} down",
+  "@diarySlotsMoveDown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "diarySlotsMoveUp": "Move {title} up",
+  "@diarySlotsMoveUp": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "diarySlotsNameHint": "Names you type are kept exactly as you type them.",
   "diarySlotsPickAgain": "That meal was removed. Please pick another meal for this item.",
   "diarySlotsRemove": "Remove this meal",

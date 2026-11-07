@@ -380,6 +380,22 @@
     }
   },
   "diarySlotsManage": "जेवणे बदला",
+  "diarySlotsMoveDown": "{title} खाली हलवा",
+  "@diarySlotsMoveDown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "diarySlotsMoveUp": "{title} वर हलवा",
+  "@diarySlotsMoveUp": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "diarySlotsNameHint": "तुम्ही टाइप केलेली नावे जशी आहेत तशीच ठेवली जातात.",
   "diarySlotsPickAgain": "ते जेवण काढले गेले होते. कृपया या नोंदीसाठी दुसरे जेवण निवडा.",
   "diarySlotsRemove": "हे जेवण काढा",

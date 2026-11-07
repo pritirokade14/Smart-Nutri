@@ -1275,7 +1275,9 @@
       "limit": "You can have up to {max} meals.",
       "last_active": "Keep at least one meal.",
       "duplicate": "You already have a meal with this name.",
-      "pick_again": "That meal was removed. Please pick another meal for this item."
+      "pick_again": "That meal was removed. Please pick another meal for this item.",
+      "move_up": "Move {title} up",
+      "move_down": "Move {title} down"
     }
   },
   "foods": {

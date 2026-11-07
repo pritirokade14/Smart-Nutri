@@ -380,6 +380,22 @@
     }
   },
   "diarySlotsManage": "भोजन बदलें",
+  "diarySlotsMoveDown": "{title} को नीचे ले जाएँ",
+  "@diarySlotsMoveDown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "diarySlotsMoveUp": "{title} को ऊपर ले जाएँ",
+  "@diarySlotsMoveUp": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "diarySlotsNameHint": "आप जो नाम लिखेंगे, वह ठीक वैसा ही रखा जाएगा।",
   "diarySlotsPickAgain": "वह भोजन हटा दिया गया था। कृपया इस आइटम के लिए कोई दूसरा भोजन चुनें।",
   "diarySlotsRemove": "यह भोजन हटाएँ",

@@ -1516,6 +1516,18 @@ abstract class AppLocalizations {
   /// **'Edit meals'**
   String get diarySlotsManage;
 
+  /// No description provided for @diarySlotsMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {title} down'**
+  String diarySlotsMoveDown(String title);
+
+  /// No description provided for @diarySlotsMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {title} up'**
+  String diarySlotsMoveUp(String title);
+
   /// No description provided for @diarySlotsNameHint.
   ///
   /// In en, this message translates to:
