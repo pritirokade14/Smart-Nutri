@@ -22,6 +22,7 @@ import 'recipes/recipes_client.dart';
 import 'scans/scans_client.dart';
 import 'targets/targets_client.dart';
 import 'voice/voice_client.dart';
+import 'weights/weights_client.dart';
 
 /// SmartNutri API `v0.0.0`
 class SmartNutriApiClient {
@@ -52,6 +53,7 @@ class SmartNutriApiClient {
   ScansClient? _scans;
   TargetsClient? _targets;
   VoiceClient? _voice;
+  WeightsClient? _weights;
 
   AnalyzeClient get analyze =>
       _analyze ??= AnalyzeClient(_dio, baseUrl: _baseUrl);
@@ -99,4 +101,7 @@ class SmartNutriApiClient {
       _targets ??= TargetsClient(_dio, baseUrl: _baseUrl);
 
   VoiceClient get voice => _voice ??= VoiceClient(_dio, baseUrl: _baseUrl);
+
+  WeightsClient get weights =>
+      _weights ??= WeightsClient(_dio, baseUrl: _baseUrl);
 }
