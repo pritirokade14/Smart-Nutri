@@ -238,3 +238,80 @@ async def test_concurrent_same_client_id_returns_the_winner(
     second = await client.post("/v1/meals", json=body)
     assert (first.status_code, second.status_code) == (201, 200)
     assert second.json()["id"] == first.json()["id"] and len(calls) == 2
+
+
+async def test_list_by_local_date(client, family, sf_biscuit_product_id):
+    today = await client.post(
+        "/v1/meals",
+        json={"member_id": str(family.me), "product_id": str(sf_biscuit_product_id), "grams": 30},
+    )
+    past = await client.post(
+        "/v1/meals",
+        json={
+            "member_id": str(family.me),
+            "product_id": str(sf_biscuit_product_id),
+            "grams": 30,
+            "local_date": (datetime.now(UTC) - timedelta(days=2)).date().isoformat(),
+        },
+    )
+    day = past.json()["local_date"]
+    got = (
+        await client.get("/v1/meals", params={"member_id": str(family.me), "local_date": day})
+    ).json()
+    assert [m["id"] for m in got] == [past.json()["id"]]
+    # local_date wins over from/to.
+    got = (
+        await client.get(
+            "/v1/meals",
+            params={
+                "member_id": str(family.me),
+                "local_date": day,
+                "from": "2020-01-01T00:00:00+00:00",
+                "to": "2020-01-02T00:00:00+00:00",
+            },
+        )
+    ).json()
+    assert [m["id"] for m in got] == [past.json()["id"]]
+    assert today.json()["local_date"] != day
+
+
+@pytest.mark.parametrize(
+    ("display", "energy_hidden", "macros_hidden"),
+    [("hide_energy", True, False), ("hide_all", True, True)],
+)
+async def test_list_and_log_redacted_when_hidden(
+    client, family, sf_biscuit_product_id, db_session, display, energy_hidden, macros_hidden
+):
+    from app.features.targets.models import DiaryGoalSettings
+    from tests.api.meals.conftest import ACC_A
+
+    db_session.add(
+        DiaryGoalSettings(
+            member_id=family.me,
+            account_id=ACC_A,
+            direction="maintain",
+            activity_level="light",
+            numbers_display=display,
+        )
+    )
+    await db_session.flush()
+    posted = await client.post(
+        "/v1/meals",
+        json={"member_id": str(family.me), "product_id": str(sf_biscuit_product_id), "grams": 100},
+    )
+    listed = (await client.get("/v1/meals", params={"member_id": str(family.me)})).json()[0]
+    for j in (posted.json(), listed):
+        assert j["grams"] == 100.0  # portions stay
+        n = j["nutrients"]
+        assert (n["energy_kcal"] is None) is energy_hidden
+        for key in ("sugars_g", "salt_g", "protein_g", "fat_g", "sat_fat_g", "carbs_g", "fibre_g"):
+            if macros_hidden:
+                assert n[key] is None, key
+        if not macros_hidden:
+            assert n["sugars_g"] is not None
+    # Another member of the account is not affected.
+    dad = await client.post(
+        "/v1/meals",
+        json={"member_id": str(family.dad), "product_id": str(sf_biscuit_product_id), "grams": 100},
+    )
+    assert dad.json()["nutrients"]["energy_kcal"] is not None

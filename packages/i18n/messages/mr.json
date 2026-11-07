@@ -323,7 +323,8 @@
     "goal_settings_not_found": "आधी तुमचा दैनिक मार्गदर्शक सेट करा.",
     "timezone_invalid": "हा वेळ क्षेत्र ओळखला गेला नाही.",
     "meal_slot_not_found": "हे जेवण सापडले नाही.",
-    "meal_slot_archived": "हे जेवण काढून टाकले आहे. दुसरे जेवण निवडा."
+    "meal_slot_archived": "हे जेवण काढून टाकले आहे. दुसरे जेवण निवडा.",
+    "quick_add_energy_required": "हे जोडण्यासाठी कॅलरी भरा."
   },
   "scan": {
     "title": "बारकोड स्कॅन करा",

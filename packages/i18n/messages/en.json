@@ -323,7 +323,8 @@
     "goal_settings_not_found": "Set up your daily guide first.",
     "timezone_invalid": "That time zone isn't recognised.",
     "meal_slot_not_found": "We couldn't find that meal.",
-    "meal_slot_archived": "That meal has been removed. Pick another meal."
+    "meal_slot_archived": "That meal has been removed. Pick another meal.",
+    "quick_add_energy_required": "Enter the calories to add this."
   },
   "scan": {
     "title": "Scan a barcode",

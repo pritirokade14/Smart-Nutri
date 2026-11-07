@@ -328,6 +328,8 @@ def test_f1_meal_out_rounds_for_display():
     row = _logged(Nutrients(energy_kcal=401.4, sugars_g=10.016, salt_g=0.9, protein_g=None), 250)
     row.product_name, row.grade, row.client_id = "Biscuit", None, None
     row.product_id, row.off_barcode = uuid4(), None
+    row.source_kind, row.meal_slot_id = "product", uuid4()
+    row.updated_at = datetime(2026, 11, 3, 8, 0, tzinfo=UTC)
     out = to_meal_out(row)
     assert (out.nutrients.energy_kcal, out.nutrients.sugars_g, out.nutrients.salt_g) == (
         1003.5,
