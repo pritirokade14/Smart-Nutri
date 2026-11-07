@@ -7,6 +7,7 @@ import 'package:smartnutri_ai/core/theme/app_theme.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_foods.dart';
+import '../../support/fake_meals.dart' show mealTestOverrides;
 import '../../support/fake_user_types.dart';
 
 final en = lookupAppLocalizations(const Locale('en'));
@@ -44,3 +45,41 @@ List<String> shownTexts(WidgetTester t) => [
 ];
 
 const noFood = FoodKindPath.food;
+
+/// Pumps [screen] as a pushed page (so it can pop) over [api].
+Future<void> pumpScreen(
+  WidgetTester t,
+  FakeUserTypesApi api,
+  Widget screen, {
+  String locale = 'en',
+}) async {
+  t.view.physicalSize = const Size(900, 3600);
+  t.view.devicePixelRatio = 1;
+  addTearDown(t.view.reset);
+  await t.pumpWidget(const SizedBox());
+  await t.pumpWidget(
+    ProviderScope(
+      overrides: [
+        apiClientProvider.overrideWithValue(api),
+        ...mealTestOverrides(),
+      ],
+      child: MaterialApp(
+        theme: buildAppTheme(),
+        locale: Locale(locale),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => TextButton(
+            key: const Key('open'),
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute<void>(builder: (_) => screen)),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    ),
+  );
+  await t.tap(find.byKey(const Key('open')));
+  await t.pumpAndSettle();
+}

@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+// The generated package has no top-level library file, only src/export.dart.
+// ignore: implementation_imports
+import 'package:smartnutri_api/src/export.dart' show CustomFoodOut;
 
 import '../../features/analysis/presentation/result_screen.dart';
 import '../../features/auth/data/auth_repository.dart';
@@ -14,6 +17,9 @@ import '../../features/consent/presentation/consent_screen.dart';
 import '../../features/diary/presentation/diary_providers.dart';
 import '../../features/diary/presentation/diary_screen.dart';
 import '../../features/diary/presentation/meals_screen.dart';
+import '../../features/foods/presentation/custom_food_form.dart';
+import '../../features/foods/presentation/my_foods_screen.dart';
+import '../../features/recipes/presentation/recipe_builder_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/meals/presentation/meals_providers.dart';
 import '../../features/members/presentation/member_form_screen.dart';
@@ -155,6 +161,34 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'meals',
                     builder: (_, _) => const MealsScreen(),
+                  ),
+                  // Plan 12 slice 4: your own foods and recipes.
+                  GoRoute(
+                    path: 'my-foods',
+                    builder: (_, _) => const MyFoodsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'foods/new',
+                    builder: (_, _) => const CustomFoodFormScreen(),
+                  ),
+                  GoRoute(
+                    path: 'foods/:id',
+                    builder: (_, state) => CustomFoodFormScreen(
+                      foodId: state.pathParameters['id'],
+                      food: state.extra is CustomFoodOut
+                          ? state.extra! as CustomFoodOut
+                          : null,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'recipes/new',
+                    builder: (_, _) => const RecipeBuilderScreen(),
+                  ),
+                  GoRoute(
+                    path: 'recipes/:id',
+                    builder: (_, state) => RecipeBuilderScreen(
+                      recipeId: state.pathParameters['id'],
+                    ),
                   ),
                 ],
               ),

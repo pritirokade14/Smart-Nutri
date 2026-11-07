@@ -33,6 +33,7 @@ class ProfileScreen extends ConsumerWidget {
   static const methodologyKey = Key('profile-how-we-score');
   static const userTypesKey = Key('profile-user-types');
   static const guideKey = Key('profile-diary-guide');
+  static const myFoodsKey = Key('profile-my-foods');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,12 +52,23 @@ class ProfileScreen extends ConsumerWidget {
           const _UserTypesSection(),
           const SizedBox(height: SnTokens.space4),
           Card(
-            child: ListTile(
-              key: guideKey,
-              leading: const Icon(Icons.monitor_heart_outlined),
-              title: Text(l10n.settingsDiaryTitle),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => context.push('/profile/guide'),
+            child: Column(
+              children: [
+                ListTile(
+                  key: guideKey,
+                  leading: const Icon(Icons.monitor_heart_outlined),
+                  title: Text(l10n.settingsDiaryTitle),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/profile/guide'),
+                ),
+                ListTile(
+                  key: myFoodsKey,
+                  leading: const Icon(Icons.restaurant_menu_rounded),
+                  title: Text(l10n.foodsMyFoods),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/diary/my-foods'),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: SnTokens.space4),

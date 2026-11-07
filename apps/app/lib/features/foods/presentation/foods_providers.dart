@@ -27,3 +27,9 @@ final foodDetailProvider = FutureProvider.autoDispose
           .detail(key.food, memberId: key.memberId),
       retry: (_, _) => null,
     );
+
+/// The household units, for the custom food form's own measures.
+final foodUnitsProvider = FutureProvider.autoDispose<List<UnitOut>>(
+  (ref) => ref.watch(foodsRepositoryProvider).units(),
+  retry: (_, _) => null,
+);

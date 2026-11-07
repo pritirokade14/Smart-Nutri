@@ -10,10 +10,15 @@ import 'package:smartnutri_ai/features/analysis/presentation/result_screen.dart'
 import 'package:smartnutri_ai/features/scan/data/barcode_source.dart';
 import 'package:smartnutri_ai/features/scan/presentation/manual_barcode_field.dart';
 import 'package:smartnutri_ai/features/scan/presentation/scan_screen.dart';
+import 'package:smartnutri_ai/core/network/api_client.dart';
+import 'package:smartnutri_ai/features/diary/presentation/diary_providers.dart';
+import 'package:smartnutri_ai/features/foods/presentation/portion_picker_sheet.dart';
 import 'package:smartnutri_api/src/export.dart';
 import 'package:smartnutri_ai/core/platform/app_settings.dart';
 import '../../support/fake_app_settings.dart';
+import '../../support/fake_foods.dart';
 import '../../support/fake_meals.dart';
+import '../../support/fake_user_types.dart';
 
 class FakeBarcodeSource implements BarcodeSource {
   FakeBarcodeSource([this.status = BarcodeSourceStatus.ready]);
@@ -100,7 +105,115 @@ Widget _app(
   );
 }
 
+Widget _diaryApp(
+  FakeBarcodeSource src,
+  List<String> visited,
+  FakeFoodsClient foods,
+  List<MealIn> logged,
+) {
+  final router = GoRouter(
+    initialLocation: '/scan',
+    routes: [
+      GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
+      GoRoute(
+        path: '/result',
+        builder: (_, s) {
+          visited.add(s.uri.queryParameters['barcode']!);
+          return const Scaffold(body: Text('result'));
+        },
+      ),
+    ],
+  );
+  return ProviderScope(
+    overrides: [
+      ...mealTestOverrides(client: _LoggingMeals(logged)),
+      barcodeSourceFactoryProvider.overrideWithValue(() => src),
+      apiClientProvider.overrideWithValue(FakeUserTypesApi(foods: foods)),
+      diaryAddContextProvider.overrideWith(
+        () => _FixedAddContext(
+          const DiaryAddContext(method: 'barcode', memberId: 'm1'),
+        ),
+      ),
+    ],
+    child: MaterialApp.router(
+      routerConfig: router,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+    ),
+  );
+}
+
+class _FixedAddContext extends DiaryAddContextNotifier {
+  _FixedAddContext(this._value);
+  final DiaryAddContext _value;
+
+  @override
+  DiaryAddContext? build() => _value;
+}
+
+class _LoggingMeals extends FakeMealsClient {
+  _LoggingMeals(this.sink);
+  final List<MealIn> sink;
+
+  @override
+  Future<MealOut> mealsLog({required MealIn body}) {
+    sink.add(body);
+    return super.mealsLog(body: body);
+  }
+}
+
 void main() {
+  testWidgets(
+    'diary barcode: your own custom food goes to the portion picker',
+    (tester) async {
+      final src = FakeBarcodeSource();
+      final visited = <String>[];
+      final logged = <MealIn>[];
+      final foods = FakeFoodsClient(
+        details: {
+          'c1': foodDetail(
+            id: 'c1',
+            name: 'Homemade ladoo',
+            kind: FoodDetailOutKind.customFood,
+            defaultUnit: 'g',
+            attributions: const [],
+            units: [unitOut('g', 1, kind: FoodUnitOutKind.mass)],
+          ),
+        },
+      );
+      tester.view.physicalSize = const Size(900, 3600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_diaryApp(src, visited, foods, logged));
+      await tester.pumpAndSettle();
+      src.emit('8901063201089');
+      await tester.pumpAndSettle();
+      // The portion picker, not the verdict screen.
+      expect(find.byType(PortionPickerSheet), findsOneWidget);
+      expect(visited, isEmpty);
+      await tester.tap(find.byKey(PortionPickerSheet.saveKey));
+      await tester.pumpAndSettle();
+      expect(logged.single.customFoodId, 'c1');
+      expect(logged.single.productId, isNull);
+    },
+  );
+
+  testWidgets('diary barcode: a product keeps the usual result screen', (
+    tester,
+  ) async {
+    final src = FakeBarcodeSource();
+    final visited = <String>[];
+    final foods = FakeFoodsClient(
+      details: {'p1': foodDetail(id: 'p1', kind: FoodDetailOutKind.product)},
+    );
+    await tester.pumpWidget(_diaryApp(src, visited, foods, []));
+    await tester.pumpAndSettle();
+    src.emit('8901063201089');
+    await tester.pumpAndSettle();
+    expect(find.byType(PortionPickerSheet), findsNothing);
+    expect(visited, ['8901063201089']);
+  });
+
   testWidgets('first valid code navigates once; invalid and later ignored', (
     tester,
   ) async {

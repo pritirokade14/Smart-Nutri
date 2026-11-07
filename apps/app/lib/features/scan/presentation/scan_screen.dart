@@ -3,12 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+// The generated package has no top-level library file, only src/export.dart.
+// ignore: implementation_imports
+import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/platform/app_settings.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../shared/widgets/open_settings_button.dart';
 import '../../../core/theme/tokens.g.dart';
+import '../../diary/presentation/add_food_sheet.dart';
+import '../../diary/presentation/diary_providers.dart';
+import '../../foods/presentation/foods_providers.dart';
+import '../../foods/presentation/portion_picker_sheet.dart';
+import '../../meals/domain/meal_draft.dart';
 import '../data/barcode_source.dart';
 import '../domain/barcode.dart';
 import 'manual_barcode_field.dart';
@@ -54,7 +62,63 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     if (_handled) return;
     _handled = true;
     _sub?.cancel();
-    context.pushReplacement('/result?barcode=$code');
+    final diary = ref.read(diaryAddContextProvider);
+    if (diary != null && diary.method == 'barcode') {
+      unawaited(_diaryLookup(code, diary));
+    } else {
+      context.pushReplacement('/result?barcode=$code');
+    }
+  }
+
+  /// From the Diary: your own custom food with this barcode is logged
+  /// straight through the portion picker. Anything else (a product, an
+  /// Open Food Facts item, no match, an error) goes to the usual result
+  /// screen, so the verdict is unchanged. A custom food never has a verdict.
+  Future<void> _diaryLookup(String code, DiaryAddContext diary) async {
+    FoodDetailOut? hit;
+    try {
+      hit = await ref
+          .read(foodsRepositoryProvider)
+          .byBarcode(code, memberId: diary.memberId);
+    } on Object {
+      hit = null;
+    }
+    if (!mounted) return;
+    if (hit == null || hit.kind != FoodDetailOutKind.customFood) {
+      context.pushReplacement('/result?barcode=$code');
+      return;
+    }
+    final found = hit;
+    final router = GoRouter.of(context);
+    final result = await showPortionPicker(
+      context,
+      food: (kind: FoodKindPath.customFood, id: found.id),
+      name: found.name,
+      memberId: diary.memberId ?? '',
+      slotId: diary.slotId,
+      onSave: (c) => logDiaryEntry(
+        ref,
+        MealDraft(
+          memberId: diary.memberId ?? '',
+          customFoodId: found.id,
+          quantity: c.quantity,
+          unit: c.unit,
+          eatenAt: DateTime.now().toUtc(),
+          mealSlotId: c.slotId,
+          localDate: diary.localDate,
+          displayName: found.name,
+        ),
+        'barcode',
+      ),
+    );
+    if (!mounted) return;
+    if (result != null) {
+      router.canPop() ? router.pop() : router.go('/diary');
+    } else {
+      // Dismissed: scan again.
+      _handled = false;
+      _sub = _source.codes.listen(_onRaw);
+    }
   }
 
   @override

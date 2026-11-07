@@ -5,6 +5,7 @@ import 'package:smartnutri_api/src/export.dart';
 import '../../support/fake_diary.dart';
 import '../../support/fake_foods.dart';
 import '../../support/fake_meals.dart';
+import '../../support/fake_recipes.dart';
 import '../../support/fake_members.dart';
 import '../../support/fake_targets.dart';
 import '../../support/fake_user_types.dart';
@@ -30,10 +31,14 @@ class DiaryEnv {
     List<MealSlotOut>? slots,
     FakeMealsClient? meals,
     FakeFoodsClient? foods,
+    FakeCustomFoodsClient? customFoods,
+    FakeRecipesClient? recipes,
   }) : diary = FakeDiaryClient(day: day, week: week),
        slots = FakeMealSlotsClient(items: slots),
        meals = meals ?? FakeMealsClient(),
-       foods = foods ?? FakeFoodsClient() {
+       foods = foods ?? FakeFoodsClient(),
+       customFoods = customFoods ?? FakeCustomFoodsClient(),
+       recipes = recipes ?? FakeRecipesClient() {
     this.targets = FakeTargetsClient(
       today: targets,
       settings: settings ?? goalSettingsOut(activity: 'moderate'),
@@ -44,6 +49,8 @@ class DiaryEnv {
   final FakeMealSlotsClient slots;
   final FakeMealsClient meals;
   final FakeFoodsClient foods;
+  final FakeCustomFoodsClient customFoods;
+  final FakeRecipesClient recipes;
   final queue = MemoryMealQueue();
   late final FakeTargetsClient targets;
 
@@ -69,6 +76,8 @@ class DiaryEnv {
     diary: diary,
     mealSlots: slots,
     foods: foods,
+    customFoods: customFoods,
+    recipes: recipes,
   );
 }
 

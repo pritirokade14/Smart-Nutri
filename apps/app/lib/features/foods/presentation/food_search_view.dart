@@ -19,10 +19,19 @@ import 'foods_providers.dart';
 /// Debounced; the groups come in the API's order (Indian foods first). A tap
 /// calls [onPick].
 class FoodSearchView extends ConsumerStatefulWidget {
-  const FoodSearchView({super.key, required this.onPick, this.enabled = true});
+  const FoodSearchView({
+    super.key,
+    required this.onPick,
+    this.enabled = true,
+    this.ingredientMode = false,
+  });
 
   final void Function(FoodHit hit) onPick;
   final bool enabled;
+
+  /// Picking an ingredient for a recipe: a recipe cannot hold a recipe, so
+  /// recipe hits are left out.
+  final bool ingredientMode;
 
   static const debounce = Duration(milliseconds: 300);
   static const fieldKey = Key('food-search-field');
@@ -99,13 +108,23 @@ class _FoodSearchViewState extends ConsumerState<FoodSearchView> {
             final theme = Theme.of(context);
             // Group order is the API's (indian, then packaged); a group with
             // no hits is not drawn.
-            final indian = [
+            final items = [
               for (final h in out.items)
+                if (!(widget.ingredientMode && h.kind == FoodHitKind.recipe)) h,
+            ];
+            final mine = [
+              for (final h in items)
+                if (h.group == FoodHitGroup.mine) h,
+            ];
+            final indian = [
+              for (final h in items)
                 if (h.group == FoodHitGroup.indian) h,
             ];
             final packaged = [
-              for (final h in out.items)
-                if (h.group != FoodHitGroup.indian) h,
+              for (final h in items)
+                if (h.group != FoodHitGroup.indian &&
+                    h.group != FoodHitGroup.mine)
+                  h,
             ];
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -118,7 +137,7 @@ class _FoodSearchViewState extends ConsumerState<FoodSearchView> {
                       message: l10n.foodsPartialResults,
                     ),
                   ),
-                if (out.items.isEmpty && !out.partial)
+                if (items.isEmpty && !out.partial)
                   Padding(
                     key: FoodSearchView.emptyKey,
                     padding: const EdgeInsets.all(SnTokens.space3),
@@ -129,6 +148,7 @@ class _FoodSearchViewState extends ConsumerState<FoodSearchView> {
                       ),
                     ),
                   ),
+                if (mine.isNotEmpty) _group('mine', l10n.foodsGroupMine, mine),
                 if (indian.isNotEmpty)
                   _group('indian', l10n.foodsGroupIndian, indian),
                 if (packaged.isNotEmpty)
@@ -162,6 +182,8 @@ class _FoodSearchViewState extends ConsumerState<FoodSearchView> {
         ? l10n.foodsKindDish
         : switch (h.kind) {
             FoodHitKind.food => l10n.foodsKindFood,
+            FoodHitKind.customFood => l10n.foodsKindCustomFood,
+            FoodHitKind.recipe => l10n.foodsKindRecipe,
             _ => l10n.foodsKindProduct,
           };
     return ListTile(

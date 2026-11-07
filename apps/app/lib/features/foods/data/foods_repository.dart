@@ -37,6 +37,17 @@ class FoodsRepository {
   Future<FoodSearchOut> search(String q) =>
       FoodsFailure.guard(() => _client.foodsSearch(q: q));
 
+  /// The diary-only barcode lookup: your own custom food, else a product.
+  /// For logging; never a verdict.
+  Future<FoodDetailOut> byBarcode(String barcode, {String? memberId}) =>
+      FoodsFailure.guard(
+        () => _client.foodsByBarcode(barcode: barcode, memberId: memberId),
+      );
+
+  /// The household units, for the custom food form's own measures.
+  Future<List<UnitOut>> units() =>
+      FoodsFailure.guard(() => _client.foodsUnitsList());
+
   Future<FoodDetailOut> detail(FoodRef ref, {String? memberId}) =>
       FoodsFailure.guard(
         () => _client.foodsGet(kind: ref.kind, id: ref.id, memberId: memberId),

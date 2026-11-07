@@ -11,6 +11,8 @@ class MealDraft {
     this.grams,
     this.servings,
     this.foodId,
+    this.customFoodId,
+    this.recipeId,
     this.quantity,
     this.unit,
     this.mealSlotId,
@@ -32,6 +34,10 @@ class MealDraft {
 
   /// A generic food or dish (`foods.id`).
   final String? foodId;
+
+  /// One of the account's own custom foods or recipes.
+  final String? customFoodId;
+  final String? recipeId;
 
   /// A household-unit portion: [quantity] of [unit] (a unit code). Sent
   /// instead of grams and servings; the API converts it.

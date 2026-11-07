@@ -52,6 +52,43 @@ void main() {
     expect(find.text('2 rotis · 250 ml'), findsOneWidget);
   });
 
+  testWidgets('a density or portion amount is shown with approx', (t) async {
+    for (final source in ['density', 'portion']) {
+      await pumpOver(
+        t,
+        FakeFoodsClient(),
+        EntryTile(entry: _entry(extra: {'unit_source': source})),
+      );
+      expect(find.text('2 rotis · ≈ 136 g'), findsOneWidget, reason: source);
+    }
+  });
+
+  testWidgets('an exact amount has no approx mark', (t) async {
+    await pumpOver(
+      t,
+      FakeFoodsClient(),
+      EntryTile(entry: _entry(extra: {'unit_source': 'grams'})),
+    );
+    expect(find.text('2 rotis · 136 g'), findsOneWidget);
+    expect(find.textContaining('≈'), findsNothing);
+  });
+
+  testWidgets('an ml entry without a unit never says g', (t) async {
+    await pumpOver(
+      t,
+      FakeFoodsClient(),
+      EntryTile(
+        entry: _entry(
+          basis: 'ml',
+          grams: 200,
+          extra: {'unit': null, 'quantity': null, 'unit_source': 'density'},
+        ),
+      ),
+    );
+    expect(find.text('≈ 200 ml'), findsOneWidget);
+    expect(find.textContaining(' g'), findsNothing);
+  });
+
   testWidgets('a grams unit entry keeps the plain grams line', (t) async {
     await pumpOver(
       t,

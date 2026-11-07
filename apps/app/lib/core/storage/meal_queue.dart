@@ -71,6 +71,14 @@ class PendingMeals extends Table {
   /// of [grams] and [servings]. The API converts it.
   RealColumn get quantity => real().nullable()();
   TextColumn get unit => text().nullable()();
+  // Queue schema v4 (Plan 12 slice 4). One of your own custom foods or
+  // recipes; rows queued by older apps have none of these.
+
+  /// One of the account's custom foods (`custom_foods.id`).
+  TextColumn get customFoodId => text().nullable()();
+
+  /// One of the account's recipes (`recipes.id`).
+  TextColumn get recipeId => text().nullable()();
   IntColumn get attempts => integer().withDefault(const Constant(0))();
   TextColumn get lastError => text().nullable()();
 
@@ -87,7 +95,7 @@ class MealQueueDatabase extends _$MealQueueDatabase {
       MealQueueDatabase(driftDatabase(name: 'smartnutri_meal_queue'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -108,6 +116,10 @@ class MealQueueDatabase extends _$MealQueueDatabase {
         await m.addColumn(pendingMeals, pendingMeals.foodId);
         await m.addColumn(pendingMeals, pendingMeals.quantity);
         await m.addColumn(pendingMeals, pendingMeals.unit);
+      }
+      if (from < 4) {
+        await m.addColumn(pendingMeals, pendingMeals.customFoodId);
+        await m.addColumn(pendingMeals, pendingMeals.recipeId);
       }
     },
   );
