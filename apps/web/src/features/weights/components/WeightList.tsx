@@ -14,8 +14,9 @@ import { WeighInDialog } from "./WeighInDialog";
 
 /**
  * The recent weigh-ins, newest first, each with edit and delete. Under hidden
- * numbers a row shows its date only. Delete needs only the terms, so it keeps
- * working when health data is withdrawn.
+ * numbers a row shows its date only. Without health_data the list is gated
+ * (the Progress view shows the consent card instead); erasing everything from
+ * that card is `useDeleteAllWeights`.
  */
 export function WeightList({ today }: { today: string }) {
   const t = useTranslations();

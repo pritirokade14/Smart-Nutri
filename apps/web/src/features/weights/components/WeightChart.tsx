@@ -26,13 +26,9 @@ export function WeightChart({ trend }: { trend: WeightTrendOut }) {
   const t = useTranslations();
   const locale = useLocale();
   const hidden = trend.numbers_hidden;
-  const dates = [
-    ...trend.points.map((p) => p.date),
-    ...trend.trend.map((p) => p.date),
-  ];
-  const times = dates.map((d) => Date.parse(`${d}T00:00:00Z`));
-  const from = Math.min(...times);
-  const span = Math.max(...times) - from;
+  // x spans the requested range from..to (as on Android), not the data.
+  const from = Date.parse(`${trend.from}T00:00:00Z`);
+  const span = Date.parse(`${trend.to}T00:00:00Z`) - from;
   const line = trend.trend
     .filter((p) => p.y != null)
     .map((p) => `${xOf(p.date, from, span)},${yOf(p.y as number)}`)

@@ -1783,6 +1783,11 @@ function weightRoute(method, path, b, q) {
       },
     ];
   }
+  if (method === "DELETE" && path === "/v1/weights") {
+    const deleted = state.weights.length;
+    state.weights = [];
+    return [200, { deleted }];
+  }
   const day = path.startsWith("/v1/weights/")
     ? path.slice("/v1/weights/".length)
     : null;

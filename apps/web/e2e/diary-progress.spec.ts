@@ -141,4 +141,24 @@ test.describe("with health data agreed", () => {
     await page.getByRole("button", { name: "Day" }).click();
     await expect(page.getByTestId("day-title")).toHaveText("Today");
   });
+
+  test("delete all weigh-ins from the consent card, without consent", async ({
+    page,
+    request,
+  }) => {
+    await request.post(`${STUB}/v1/consents`, {
+      headers: AUTH,
+      data: { purpose: "health_data", granted: false, version: "2026-11-01" },
+    });
+    await page.goto("/en/diary?view=progress");
+    await page.getByTestId("weight-delete-all").click();
+    await page
+      .getByTestId("confirm-dialog")
+      .getByRole("button", { name: "Delete all weigh-ins" })
+      .click();
+    await expect(page.getByTestId("weight-delete-all-done")).toHaveText(
+      "All weigh-ins deleted",
+    );
+    await expect(page.getByTestId("weight-consent")).toBeVisible();
+  });
 });

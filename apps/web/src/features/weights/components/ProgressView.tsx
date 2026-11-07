@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ConfirmDialog } from "@/components/ui/Dialog";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { InfoIcon } from "@/components/ui/icons";
 import { LoadingState } from "@/components/ui/Skeleton";
@@ -15,7 +16,7 @@ import { useTodayTargets } from "@/features/targets/hooks/useTargets";
 import { flagMessage } from "@/features/targets/lib/flagMessages";
 import { cn } from "@/lib/cn";
 import type { TrendDays, WeightTrendOut } from "../api/weights";
-import { useWeightTrend } from "../hooks/useWeights";
+import { useDeleteAllWeights, useWeightTrend } from "../hooks/useWeights";
 import { formatDate, formatRate, formatWeight } from "../lib/format";
 import { WeighInDialog } from "./WeighInDialog";
 import { WeightChart } from "./WeightChart";
@@ -25,13 +26,63 @@ const RANGES = [30, 90, 365] as const;
 // Today's targets flags that explain the weight story (shown as the API's own notes).
 const TARGET_FLAGS = ["taper_active", "goal_weight_reached"] as const;
 
-function ConsentCard({ onAgreed }: { onAgreed: () => void }) {
+/**
+ * The erase mutation lives in ProgressView: the refetch after erasing puts the
+ * trend query back to pending, which unmounts this card, and a mutation owned
+ * here would lose its state (and its done message).
+ */
+function ConsentCard({
+  onAgreed,
+  eraseAll,
+}: {
+  onAgreed: () => void;
+  eraseAll: ReturnType<typeof useDeleteAllWeights>;
+}) {
   const t = useTranslations();
   const [asking, setAsking] = useState(false);
+  const [erasing, setErasing] = useState(false);
+  const done = eraseAll.isSuccess;
   return (
     <Card className="space-y-3" data-testid="weight-consent">
       <p className="text-md text-text-primary">{t("weight.consent")}</p>
-      <Button onClick={() => setAsking(true)}>{t("consent.agree")}</Button>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => setAsking(true)}>{t("consent.agree")}</Button>
+        <Button
+          variant="outline"
+          data-testid="weight-delete-all"
+          onClick={() => setErasing(true)}
+        >
+          {t("weight.delete_all")}
+        </Button>
+      </div>
+      {done ? (
+        <p
+          role="status"
+          data-testid="weight-delete-all-done"
+          className="text-md text-text-primary"
+        >
+          {t("weight.delete_all_done")}
+        </p>
+      ) : null}
+      {eraseAll.isError ? (
+        <p role="alert" className="text-md text-text-primary">
+          {t(errorKey(t, eraseAll.error))}
+        </p>
+      ) : null}
+      {erasing ? (
+        <ConfirmDialog
+          message={t("weight.delete_all_confirm")}
+          confirmLabel={t("weight.delete_all")}
+          cancelLabel={t("common.cancel")}
+          busy={eraseAll.isPending}
+          onCancel={() => setErasing(false)}
+          onConfirm={() =>
+            eraseAll.mutate(undefined, {
+              onSettled: () => setErasing(false),
+            })
+          }
+        />
+      ) : null}
       {asking ? (
         <ConsentDialog
           onAgreed={() => {
@@ -105,7 +156,11 @@ function Insights({ trend }: { trend: WeightTrendOut }) {
       )}
       {trend.flags.includes("rapid_loss") ? (
         <Note id="weight-rapid-loss">
-          {t("weight.rapid_loss", { pct: formatWeight(trend.rapid_loss_pct) })}
+          {shown
+            ? t("weight.rapid_loss", {
+                pct: formatWeight(trend.rapid_loss_pct),
+              })
+            : t("weight.rapid_loss_hidden")}
         </Note>
       ) : null}
       {taper.map((n) => (
@@ -127,9 +182,12 @@ export function ProgressView({ today }: { today: string | undefined }) {
   const [days, setDays] = useState<TrendDays>(90);
   const [adding, setAdding] = useState(false);
   const trend = useWeightTrend(days);
+  const eraseAll = useDeleteAllWeights();
 
   if (trend.isError && trend.error.code === "consent_required") {
-    return <ConsentCard onAgreed={() => void trend.refetch()} />;
+    return (
+      <ConsentCard onAgreed={() => void trend.refetch()} eraseAll={eraseAll} />
+    );
   }
   return (
     <div className="space-y-4" data-testid="progress-view">

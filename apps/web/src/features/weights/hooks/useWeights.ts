@@ -9,6 +9,7 @@ import { mealsKey } from "@/features/meals/api/meals";
 import { targetsKey } from "@/features/targets/api/targets";
 import type { ApiError } from "@/lib/api/errors";
 import {
+  deleteAllWeights,
   deleteWeight,
   getWeightTrend,
   listWeights,
@@ -74,6 +75,16 @@ export function useDeleteWeight(): UseMutationResult<void, ApiError, string> {
   const refresh = useRefresh();
   return useMutation<void, ApiError, string>({
     mutationFn: deleteWeight,
+    retry: false,
+    onSuccess: refresh,
+  });
+}
+
+/** Erasure needs only the terms, so it works without health_data consent. */
+export function useDeleteAllWeights(): UseMutationResult<void, ApiError, void> {
+  const refresh = useRefresh();
+  return useMutation<void, ApiError, void>({
+    mutationFn: deleteAllWeights,
     retry: false,
     onSuccess: refresh,
   });

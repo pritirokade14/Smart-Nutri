@@ -47,3 +47,9 @@ export async function deleteWeight(day: string): Promise<void> {
     }),
   );
 }
+
+/** DELETE /v1/weights (terms only, no health_data): erases every weigh-in. */
+export async function deleteAllWeights(): Promise<void> {
+  const api = getApi();
+  await call(api.DELETE("/v1/weights", { params: { query: {} } }));
+}

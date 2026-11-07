@@ -147,6 +147,60 @@ describe("ProgressView", () => {
     expect(screen.queryByTestId("weight-list")).toBeNull();
   });
 
+  it("hide_all rapid_loss shows the no-number note, no digits", async () => {
+    stub("hide_all_rapid_loss");
+    view();
+    const note = await screen.findByTestId("weight-rapid-loss");
+    expect(note.textContent).toBe(en.weight.rapid_loss_hidden);
+    expect(note.textContent).not.toMatch(/\d/);
+  });
+
+  it("deletes all weigh-ins from the consent card after confirming", async () => {
+    const api = apiStub(fetchMock)
+      .on("GET", "/v1/weights/trend", () =>
+        json(403, envelope("consent_required", { purposes: ["health_data"] })),
+      )
+      .on("GET", "/v1/consents", [])
+      .on("DELETE", "/v1/weights", { deleted: 3 });
+    void api;
+    view();
+    await userEvent.click(await screen.findByTestId("weight-delete-all"));
+    const dlg = await screen.findByTestId("confirm-dialog");
+    expect(dlg.textContent).toContain(en.weight.delete_all_confirm);
+    await userEvent.click(
+      within(dlg).getByRole("button", { name: en.weight.delete_all }),
+    );
+    expect(
+      (await screen.findByTestId("weight-delete-all-done")).textContent,
+    ).toBe(en.weight.delete_all_done);
+    expect(
+      fetchMock.mock.calls.some(
+        ([u, i]) =>
+          String(u instanceof Request ? u.url : u).endsWith("/v1/weights") &&
+          (i?.method ?? (u instanceof Request ? u.method : "")) === "DELETE",
+      ),
+    ).toBe(true);
+  });
+
+  it("chart x spans the requested from..to, not the data", async () => {
+    stub("weekly_rate_loss", [], (d) => {
+      d.from = "2026-01-01";
+      d.to = "2026-01-31";
+    });
+    view();
+    await screen.findByTestId("weight-chart");
+    const xs = screen
+      .getAllByTestId("weight-dot")
+      .map((c) => Number(c.getAttribute("cx")));
+    const dates = screen
+      .getByTestId("weight-chart-table")
+      .querySelectorAll("tbody tr");
+    expect(dates.length).toBeGreaterThan(0);
+    // Data covers fewer days than the range, so the span of x is under full width.
+    expect(Math.max(...xs) - Math.min(...xs)).toBeLessThan(320 - 24 - 1);
+    expect(Math.min(...xs)).toBeGreaterThanOrEqual(12);
+  });
+
   it("taper and goal-reached notes come from today's targets", async () => {
     stub("weekly_rate_loss", ["taper_active", "goal_weight_reached"]);
     view();
