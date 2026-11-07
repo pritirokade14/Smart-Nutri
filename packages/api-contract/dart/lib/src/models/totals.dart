@@ -11,7 +11,10 @@ part 'totals.g.dart';
 @JsonSerializable()
 class Totals {
   const Totals({
+    required this.carbsG,
     required this.energyKcal,
+    required this.fatG,
+    required this.fibreG,
     required this.proteinG,
     required this.saltG,
     required this.sugarsG,
@@ -19,8 +22,14 @@ class Totals {
 
   factory Totals.fromJson(Map<String, Object?> json) => _$TotalsFromJson(json);
 
+  @JsonKey(name: 'carbs_g')
+  final num? carbsG;
   @JsonKey(name: 'energy_kcal')
   final num? energyKcal;
+  @JsonKey(name: 'fat_g')
+  final num? fatG;
+  @JsonKey(name: 'fibre_g')
+  final num? fibreG;
   @JsonKey(name: 'protein_g')
   final num? proteinG;
   @JsonKey(name: 'salt_g')

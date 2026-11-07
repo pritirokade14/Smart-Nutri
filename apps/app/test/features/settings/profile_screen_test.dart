@@ -33,6 +33,7 @@ class _FakeMe implements MeClient {
     email: 'a@b.c',
     id: 'u1',
     language: MeOutLanguage.en,
+    timezone: 'Asia/Kolkata',
   );
 
   @override

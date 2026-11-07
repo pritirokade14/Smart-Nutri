@@ -276,3 +276,16 @@ All of these are machine drafts in hi and mr. They sit beside health numbers, so
 - [ ] **hi/mr `targets.field.{height,weight,birth_year,sex,activity,body_fat}`** (new): plain field names for the "needs data" and "please check" messages. No units and no "(optional)".
 
 - `targets.rate_option_pct` (hi, mr): pace shown as % only when all numbers are hidden. Machine draft.
+
+## Plan 11 (Food Diary slice 2: the diary day, quick add, copy)
+All of these are machine drafts in hi and mr. The diary sits beside health numbers, so the tone is neutral: information, never a judgement ("over" is a plain fact, not a warning), no streaks, no "good day" labels.
+- [ ] **hi/mr `diary.copied`, `diary.week.average`** (plural forms): `{count, plural, one {...} other {...}}` and the "average over {days} logged days" sentence. Check the singular and plural wording reads naturally, and that `#` sits where a Hindi or Marathi speaker expects the number.
+- [ ] **hi/mr `diary.over`** (tone): "{value} over" is a plain fact about the day's number, not a warning. Check "ज़्यादा" / "जास्त" does not read as scolding. Same for `diary.left`.
+- [ ] **hi/mr `diary.servings_line`**: "{servings, plural, one {# serving} other {# servings}} · {grams} g". Hindi and Marathi use one form for both; check "सर्विंग" / "सर्व्हिंग" is the word people use.
+- [ ] **hi/mr `diary.slot.{breakfast,lunch,snack,dinner}`**: the default meal names (a user can rename them). Check "दोपहर का खाना" / "दुपारचे जेवण" and "रात का खाना" / "रात्रीचे जेवण" are what families say, and that "स्नैक्स" / "स्नॅक्स" is understood.
+- [ ] **hi/mr `diary.mark_partial`, `diary.partial_badge`, `diary.partial_note`**: "partly logged" days are left out of weekly averages. Check the phrasing is clear without sounding like a fault.
+- [ ] **hi/mr `diary.week.protein_days`**: "Protein guide reached on {met} of {days} logged days". Check the word order with two numbers.
+- [ ] **hi/mr `diary.quick_add.*`, `diary.quick_add_name`, `diary.quick_badge`, `foods.blank_is_unknown`, `foods.quick_add`**: quick-add form labels. "Blank is never counted as 0" must stay clear: an empty field means "unknown".
+- [ ] **hi/mr `diary.title`, `diary.today`, `diary.add`, `diary.add_to_slot`, `diary.empty_day`, `diary.copy_*`, `diary.move`, `diary.edit`, `diary.delete`, `diary.delete_confirm`, `diary.waiting_sync`, `diary.prev_day`, `diary.next_day`, `diary.pick_date`, `diary.share_week`, `diary.no_guide`, `diary.remaining`, `diary.consumed`, `nav.diary`, `foods.recent`**: everyday UI words. `diary.add_to_slot` puts a meal name in `{slot}`; check the postposition ("में" / "मध्ये") works with a user-typed meal name.
+- [ ] **hi/mr `error.{quick_add_energy_required, copy_source_empty, copy_too_many, date_too_old, meal_slot_not_found, meal_slot_archived, timezone_invalid}`**: error messages. `date_too_old` mentions 30 days (Marathi uses ३०).
+- Note: `diary.partial_note` is shorter than the spec draft: it drops "and of learning your energy use" because the energy-learning feature does not ship in this slice. `diary.quick_add.name_label` replaces the plan's `diary.quick_add.name`, which flattens to the same ARB key as `diary.quick_add_name`.

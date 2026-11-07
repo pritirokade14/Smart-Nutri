@@ -67,6 +67,34 @@ class _MeClient implements MeClient {
   }
 
   @override
+  Future<MeOut> meTimezonePut({required TimezoneIn body}) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<MeOut>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/v1/me/timezone',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late MeOut _value;
+    try {
+      _value = MeOut.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<UserTypesOut> meUserTypesGet() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

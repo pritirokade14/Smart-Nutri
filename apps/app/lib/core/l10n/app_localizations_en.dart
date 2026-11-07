@@ -615,14 +615,71 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentWithdraw => 'Withdraw consent';
 
   @override
+  String get diaryAdd => 'Add food';
+
+  @override
+  String diaryAddToSlot(String slot) {
+    return 'Add to $slot';
+  }
+
+  @override
+  String get diaryConsumed => 'Eaten';
+
+  @override
+  String diaryCopied(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# items copied',
+      one: '# item copied',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get diaryCopyDay => 'Copy a day';
+
+  @override
+  String get diaryCopyMeal => 'Copy this meal';
+
+  @override
+  String get diaryCopyPickDay => 'Pick a day';
+
+  @override
+  String get diaryCopyPickMeal => 'Pick a meal';
+
+  @override
+  String get diaryCopyTo => 'Copy to…';
+
+  @override
+  String get diaryCopyYesterday => 'Copy yesterday';
+
+  @override
+  String get diaryDelete => 'Remove';
+
+  @override
+  String get diaryDeleteConfirm => 'Remove this item from your diary?';
+
+  @override
   String get diaryDisclaimer =>
       'Information, not medical advice. Daily guides are estimates and are pending clinician review.';
+
+  @override
+  String get diaryEdit => 'Edit';
+
+  @override
+  String get diaryEmptyDay => 'Nothing logged yet.';
 
   @override
   String get diaryEyeHide => 'Hide numbers';
 
   @override
   String get diaryEyeShow => 'Show numbers';
+
+  @override
+  String diaryGramsLine(String grams) {
+    return '$grams g';
+  }
 
   @override
   String get diaryHiddenNumbers =>
@@ -633,13 +690,132 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some items don\'t show this value, so the real total may be higher.';
 
   @override
+  String diaryLeft(String value) {
+    return '$value left';
+  }
+
+  @override
+  String get diaryMarkPartial => 'Mark as partly logged';
+
+  @override
+  String get diaryMove => 'Move to another meal';
+
+  @override
+  String get diaryNextDay => 'Next day';
+
+  @override
+  String get diaryNoGuide => 'Set up your daily guide, or just log food.';
+
+  @override
   String diaryOfTarget(String eaten, String target) {
     return '$eaten of $target';
   }
 
   @override
+  String diaryOver(String value) {
+    return '$value over';
+  }
+
+  @override
+  String get diaryPartialBadge => 'Partly logged';
+
+  @override
+  String get diaryPartialNote =>
+      'Partly logged days are left out of weekly averages.';
+
+  @override
+  String get diaryPickDate => 'Pick a date';
+
+  @override
+  String get diaryPrevDay => 'Previous day';
+
+  @override
+  String get diaryQuickAddCarbs => 'Carbs (g)';
+
+  @override
+  String get diaryQuickAddEnergy => 'Calories';
+
+  @override
+  String get diaryQuickAddFat => 'Fat (g)';
+
+  @override
+  String get diaryQuickAddFibre => 'Fibre (g)';
+
+  @override
+  String get diaryQuickAddName => 'Quick add';
+
+  @override
+  String get diaryQuickAddNameLabel => 'Name (optional)';
+
+  @override
+  String get diaryQuickAddProtein => 'Protein (g)';
+
+  @override
+  String get diaryQuickAddTitle => 'Quick add';
+
+  @override
+  String get diaryQuickBadge => 'Entered by you';
+
+  @override
+  String get diaryRemaining => 'Remaining';
+
+  @override
+  String diaryServingsLine(String grams, num servings) {
+    String _temp0 = intl.Intl.pluralLogic(
+      servings,
+      locale: localeName,
+      other: '# servings',
+      one: '# serving',
+    );
+    return '$_temp0 · $grams g';
+  }
+
+  @override
+  String get diaryShareWeek => 'Share this week';
+
+  @override
+  String get diarySlotBreakfast => 'Breakfast';
+
+  @override
+  String get diarySlotDinner => 'Dinner';
+
+  @override
+  String get diarySlotLunch => 'Lunch';
+
+  @override
+  String get diarySlotSnack => 'Snacks';
+
+  @override
   String get diaryTargetsConsent =>
       'To see your daily guide, allow SmartNutri to use your health details.';
+
+  @override
+  String get diaryTitle => 'Diary';
+
+  @override
+  String get diaryToday => 'Today';
+
+  @override
+  String get diaryWaitingSync => 'Waiting to sync';
+
+  @override
+  String diaryWeekAverage(num days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '# logged days',
+      one: '# logged day',
+    );
+    return 'Average over $_temp0';
+  }
+
+  @override
+  String diaryWeekProteinDays(String days, String met) {
+    return 'Protein guide reached on $met of $days logged days';
+  }
+
+  @override
+  String get diaryWeekTitle => 'This week';
 
   @override
   String get dietEggetarian => 'Eggetarian';
@@ -694,7 +870,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'This consent text has been updated. Please reload and review it again.';
 
   @override
+  String get errorCopySourceEmpty => 'There is nothing to copy there.';
+
+  @override
+  String get errorCopyTooMany =>
+      'That is too many items to copy at once. Copy one meal at a time.';
+
+  @override
   String get errorDateInFuture => 'That date hasn\'t happened yet.';
+
+  @override
+  String get errorDateTooOld => 'You can only add to the last 30 days.';
 
   @override
   String get errorDeletionIncomplete =>
@@ -765,6 +951,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorMealNotFound => 'That food log wasn\'t found.';
 
   @override
+  String get errorMealSlotArchived =>
+      'That meal has been removed. Pick another meal.';
+
+  @override
+  String get errorMealSlotNotFound => 'We couldn\'t find that meal.';
+
+  @override
   String get errorMemberLimit => 'You can add up to 10 family members.';
 
   @override
@@ -806,6 +999,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorProductNotFound => 'We couldn\'t find this product yet.';
 
   @override
+  String get errorQuickAddEnergyRequired => 'Enter the calories to add this.';
+
+  @override
   String get errorRateLimited => 'Too many requests. Please wait a moment.';
 
   @override
@@ -841,6 +1037,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorTargetWeightTooLow => 'Please choose a higher target weight.';
+
+  @override
+  String get errorTimezoneInvalid => 'That time zone isn\'t recognised.';
 
   @override
   String get errorUnauthorized => 'Please sign in.';
@@ -902,6 +1101,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get familyTitle => 'Family';
+
+  @override
+  String get foodsBlankIsUnknown =>
+      'Leave blank if you don\'t know. Blank is never counted as 0.';
+
+  @override
+  String get foodsQuickAdd => 'Quick add';
+
+  @override
+  String get foodsRecent => 'Recent';
 
   @override
   String get footerLinksLabel => 'About SmartNutri';
@@ -1710,6 +1919,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navCompare => 'Compare';
+
+  @override
+  String get navDiary => 'Diary';
 
   @override
   String get navFamily => 'Family';

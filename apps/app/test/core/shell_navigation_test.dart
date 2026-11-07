@@ -95,7 +95,7 @@ void main() {
     for (final label in [
       en.navHome,
       en.navScan,
-      en.navHistory,
+      en.navDiary,
       en.navFamily,
       en.navProfile,
     ]) {
@@ -107,7 +107,7 @@ void main() {
   testWidgets('History shows the log; Family lists members; '
       'Profile shows consents', (t) async {
     await _pump(t);
-    await t.tap(_nav(en.navHistory));
+    await t.tap(_nav(en.navDiary));
     await t.pumpAndSettle();
     expect(find.byType(HistoryScreen), findsOneWidget);
     expect(find.text(en.historyComingSoonTitle), findsNothing);
@@ -143,7 +143,7 @@ void main() {
   testWidgets('the Scan tab opens the full-screen scanner; back returns to '
       'the tabs', (t) async {
     await _pump(t);
-    await t.tap(_nav(en.navHistory));
+    await t.tap(_nav(en.navDiary));
     await t.pumpAndSettle();
     await t.tap(_nav(en.navScan));
     await t.pump();

@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'meal_out_source_kind.dart';
 import 'nutri_score_grade.dart';
 import 'nutrient_snapshot.dart';
 
@@ -19,10 +20,15 @@ class MealOut {
     required this.grade,
     required this.grams,
     required this.id,
+    required this.incomplete,
+    required this.localDate,
+    required this.mealSlotId,
     required this.memberId,
     required this.nutrients,
     required this.productId,
     required this.productName,
+    required this.sourceKind,
+    required this.updatedAt,
   });
 
   factory MealOut.fromJson(Map<String, Object?> json) =>
@@ -40,8 +46,19 @@ class MealOut {
 
   /// Nutri-Score calculated by SmartNutri at log time; null if not enough data
   final NutriScoreGrade? grade;
-  final num grams;
+
+  /// The portion in grams; null for a quick add
+  final num? grams;
   final String id;
+
+  /// NutrientSnapshot keys that are unknown (null) on this entry, before hiding
+  final List<String> incomplete;
+
+  /// The day the entry belongs to, in the account's zone
+  @JsonKey(name: 'local_date')
+  final DateTime localDate;
+  @JsonKey(name: 'meal_slot_id')
+  final String mealSlotId;
   @JsonKey(name: 'member_id')
   final String memberId;
   final NutrientSnapshot nutrients;
@@ -49,8 +66,14 @@ class MealOut {
   /// Our own product; null for Open Food Facts
   @JsonKey(name: 'product_id')
   final String? productId;
+
+  /// The product name; the typed name (or empty) for a quick add
   @JsonKey(name: 'product_name')
   final String productName;
+  @JsonKey(name: 'source_kind')
+  final MealOutSourceKind sourceKind;
+  @JsonKey(name: 'updated_at')
+  final DateTime updatedAt;
 
   Map<String, Object?> toJson() => _$MealOutToJson(this);
 }

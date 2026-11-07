@@ -12,7 +12,7 @@ export type UserType = components["schemas"]["UserTypesOut"]["active_type"];
 export const DESTINATIONS = [
   "home",
   "scan",
-  "history",
+  "diary",
   "family",
   "protein",
   "compare",
@@ -134,7 +134,8 @@ export function byPriority(types: readonly UserType[]): UserType[] {
 export const DESTINATION_PATH: Readonly<Record<Destination, string>> = {
   home: "home",
   scan: "scan",
-  history: "history",
+  // The Diary opens the existing History page at /history until Plan 11 Task 11 replaces it.
+  diary: "history",
   family: "family",
   protein: "protein",
   compare: "compare",

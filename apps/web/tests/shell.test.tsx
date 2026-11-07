@@ -42,7 +42,7 @@ const MODE = "health_condition" as const;
 const TABS = [
   ["home", "/en/home"],
   ["scan", "/en/scan"],
-  ["history", "/en/history"],
+  ["diary", "/en/history"],
   ["family", "/en/family"],
   ["profile", "/en/profile"],
 ] as const;
@@ -71,7 +71,7 @@ describe("AppNav", () => {
     ["/en/scan/label", "scan"],
     ["/en/result/8901063201089", "scan"],
     ["/en/product/7d1d2f8a-1111-4c3b-9a0e-0123456789ab", "scan"],
-    ["/en/history", "history"],
+    ["/en/history", "diary"],
     ["/en/family", "family"],
     ["/en/members/new", "family"],
     ["/en/members/7d1d2f8a-1111-4c3b-9a0e-0123456789ab", "family"],

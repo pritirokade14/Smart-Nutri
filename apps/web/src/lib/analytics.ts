@@ -19,6 +19,8 @@ export const ALLOWED_EVENTS: Readonly<Record<string, ReadonlySet<string>>> = {
   compare_opened: new Set(),
   compare_viewed: new Set(),
   product_search: new Set(),
+  diary_entry_added: new Set(["method"]),
+  diary_day_viewed: new Set(),
   voice_asked: new Set(["language"]),
   report_submitted: new Set(["reason"]),
   share_clicked: new Set(["kind"]),
@@ -28,7 +30,18 @@ export const ALLOWED_EVENTS: Readonly<Record<string, ReadonlySet<string>>> = {
 // Same value rules as the API: closed sets, a bool, a bounded count, else a
 // short lowercase token.
 const ENUMS: Readonly<Record<string, ReadonlySet<string>>> = {
-  method: new Set(["barcode", "label", "manual", "search"]),
+  method: new Set([
+    "barcode",
+    "label",
+    "manual",
+    "search",
+    "recent",
+    "favourite",
+    "quick_add",
+    "custom",
+    "recipe",
+    "copy",
+  ]),
   language: new Set(["en", "hi", "mr"]),
   reason: new Set([
     "wrong_values",

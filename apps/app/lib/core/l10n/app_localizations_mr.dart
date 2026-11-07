@@ -618,14 +618,71 @@ class AppLocalizationsMr extends AppLocalizations {
   String get consentWithdraw => 'संमती मागे घ्या';
 
   @override
+  String get diaryAdd => 'खाणे जोडा';
+
+  @override
+  String diaryAddToSlot(String slot) {
+    return '$slot मध्ये जोडा';
+  }
+
+  @override
+  String get diaryConsumed => 'खाल्लेले';
+
+  @override
+  String diaryCopied(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# आयटम कॉपी केले',
+      one: '# आयटम कॉपी केला',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get diaryCopyDay => 'एखादा दिवस कॉपी करा';
+
+  @override
+  String get diaryCopyMeal => 'हे जेवण कॉपी करा';
+
+  @override
+  String get diaryCopyPickDay => 'एखादा दिवस निवडा';
+
+  @override
+  String get diaryCopyPickMeal => 'एखादे जेवण निवडा';
+
+  @override
+  String get diaryCopyTo => 'येथे कॉपी करा…';
+
+  @override
+  String get diaryCopyYesterday => 'कालचे कॉपी करा';
+
+  @override
+  String get diaryDelete => 'काढून टाका';
+
+  @override
+  String get diaryDeleteConfirm => 'हा आयटम तुमच्या डायरीतून काढून टाकायचा?';
+
+  @override
   String get diaryDisclaimer =>
       'ही माहिती आहे, वैद्यकीय सल्ला नाही. दैनिक मार्गदर्शक हे अंदाज आहेत आणि डॉक्टरांच्या तपासणीसाठी प्रलंबित आहेत.';
+
+  @override
+  String get diaryEdit => 'बदला';
+
+  @override
+  String get diaryEmptyDay => 'अजून काहीही नोंदवलेले नाही.';
 
   @override
   String get diaryEyeHide => 'संख्या लपवा';
 
   @override
   String get diaryEyeShow => 'संख्या दाखवा';
+
+  @override
+  String diaryGramsLine(String grams) {
+    return '$grams ग्रॅम';
+  }
 
   @override
   String get diaryHiddenNumbers =>
@@ -636,13 +693,133 @@ class AppLocalizationsMr extends AppLocalizations {
       'काही पदार्थांमध्ये हे मूल्य दिसत नाही, म्हणून खरी बेरीज जास्त असू शकते.';
 
   @override
+  String diaryLeft(String value) {
+    return '$value उरले';
+  }
+
+  @override
+  String get diaryMarkPartial => 'अर्धवट नोंदवलेला म्हणून चिन्हांकित करा';
+
+  @override
+  String get diaryMove => 'दुसऱ्या जेवणात हलवा';
+
+  @override
+  String get diaryNextDay => 'पुढील दिवस';
+
+  @override
+  String get diaryNoGuide =>
+      'तुमचे दैनिक मार्गदर्शक सेट करा, किंवा फक्त खाणे नोंदवा.';
+
+  @override
   String diaryOfTarget(String eaten, String target) {
     return '$target पैकी $eaten';
   }
 
   @override
+  String diaryOver(String value) {
+    return '$value जास्त';
+  }
+
+  @override
+  String get diaryPartialBadge => 'अर्धवट नोंदवलेले';
+
+  @override
+  String get diaryPartialNote =>
+      'अर्धवट नोंदवलेले दिवस साप्ताहिक सरासरीत धरले जात नाहीत.';
+
+  @override
+  String get diaryPickDate => 'तारीख निवडा';
+
+  @override
+  String get diaryPrevDay => 'मागील दिवस';
+
+  @override
+  String get diaryQuickAddCarbs => 'कार्ब्स (ग्रॅम)';
+
+  @override
+  String get diaryQuickAddEnergy => 'कॅलरी';
+
+  @override
+  String get diaryQuickAddFat => 'स्निग्ध पदार्थ (ग्रॅम)';
+
+  @override
+  String get diaryQuickAddFibre => 'फायबर (ग्रॅम)';
+
+  @override
+  String get diaryQuickAddName => 'झटपट जोडा';
+
+  @override
+  String get diaryQuickAddNameLabel => 'नाव (ऐच्छिक)';
+
+  @override
+  String get diaryQuickAddProtein => 'प्रोटीन (ग्रॅम)';
+
+  @override
+  String get diaryQuickAddTitle => 'झटपट जोडा';
+
+  @override
+  String get diaryQuickBadge => 'तुम्ही स्वतः नोंदवले';
+
+  @override
+  String get diaryRemaining => 'उरलेले';
+
+  @override
+  String diaryServingsLine(String grams, num servings) {
+    String _temp0 = intl.Intl.pluralLogic(
+      servings,
+      locale: localeName,
+      other: '# सर्व्हिंग',
+      one: '# सर्व्हिंग',
+    );
+    return '$_temp0 · $grams ग्रॅम';
+  }
+
+  @override
+  String get diaryShareWeek => 'हा आठवडा शेअर करा';
+
+  @override
+  String get diarySlotBreakfast => 'नाश्ता';
+
+  @override
+  String get diarySlotDinner => 'रात्रीचे जेवण';
+
+  @override
+  String get diarySlotLunch => 'दुपारचे जेवण';
+
+  @override
+  String get diarySlotSnack => 'स्नॅक्स';
+
+  @override
   String get diaryTargetsConsent =>
       'तुमचा दैनिक मार्गदर्शक पाहण्यासाठी, SmartNutri ला तुमची आरोग्य माहिती वापरण्याची परवानगी द्या.';
+
+  @override
+  String get diaryTitle => 'डायरी';
+
+  @override
+  String get diaryToday => 'आज';
+
+  @override
+  String get diaryWaitingSync => 'सिंक होण्याची प्रतीक्षा';
+
+  @override
+  String diaryWeekAverage(num days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '# नोंदवलेल्या दिवसांची सरासरी',
+      one: '# नोंदवलेल्या दिवसाची सरासरी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String diaryWeekProteinDays(String days, String met) {
+    return '$days नोंदवलेल्या दिवसांपैकी $met दिवस प्रोटीन मार्गदर्शक गाठले';
+  }
+
+  @override
+  String get diaryWeekTitle => 'या आठवड्यात';
 
   @override
   String get dietEggetarian => 'अंडाहारी (अंडे खाणारा शाकाहारी)';
@@ -698,7 +875,17 @@ class AppLocalizationsMr extends AppLocalizations {
       'संमतीचा मजकूर अद्ययावत झाला आहे. कृपया पुन्हा लोड करून तो पुन्हा पाहा.';
 
   @override
+  String get errorCopySourceEmpty => 'तिथे कॉपी करण्यासारखे काही नाही.';
+
+  @override
+  String get errorCopyTooMany =>
+      'एकाच वेळी कॉपी करण्यासाठी खूप जास्त आयटम आहेत. एका वेळी एक जेवण कॉपी करा.';
+
+  @override
   String get errorDateInFuture => 'ती तारीख अजून आलेली नाही.';
+
+  @override
+  String get errorDateTooOld => 'तुम्ही फक्त मागील ३० दिवसांत जोडू शकता.';
 
   @override
   String get errorDeletionIncomplete =>
@@ -769,6 +956,13 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorMealNotFound => 'ही खाण्याची नोंद सापडली नाही.';
 
   @override
+  String get errorMealSlotArchived =>
+      'हे जेवण काढून टाकले आहे. दुसरे जेवण निवडा.';
+
+  @override
+  String get errorMealSlotNotFound => 'हे जेवण सापडले नाही.';
+
+  @override
   String get errorMemberLimit =>
       'तुम्ही कुटुंबातील जास्तीत जास्त 10 सदस्य जोडू शकता.';
 
@@ -811,6 +1005,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorProductNotFound => 'हे उत्पादन आम्हाला अजून सापडले नाही.';
 
   @override
+  String get errorQuickAddEnergyRequired => 'हे जोडण्यासाठी कॅलरी भरा.';
+
+  @override
   String get errorRateLimited => 'खूप जास्त विनंत्या. कृपया थोडा वेळ थांबा.';
 
   @override
@@ -846,6 +1043,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get errorTargetWeightTooLow => 'कृपया जास्त लक्ष्य वजन निवडा.';
+
+  @override
+  String get errorTimezoneInvalid => 'हा वेळ क्षेत्र ओळखला गेला नाही.';
 
   @override
   String get errorUnauthorized => 'कृपया साइन इन करा.';
@@ -907,6 +1107,16 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get familyTitle => 'कुटुंब';
+
+  @override
+  String get foodsBlankIsUnknown =>
+      'माहीत नसेल तर रिकामे ठेवा. रिकामे कधीही 0 धरले जात नाही.';
+
+  @override
+  String get foodsQuickAdd => 'झटपट जोडा';
+
+  @override
+  String get foodsRecent => 'अलीकडील';
 
   @override
   String get footerLinksLabel => 'SmartNutri विषयी';
@@ -1714,6 +1924,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get navCompare => 'तुलना';
+
+  @override
+  String get navDiary => 'डायरी';
 
   @override
   String get navFamily => 'कुटुंब';

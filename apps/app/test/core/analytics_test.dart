@@ -20,6 +20,8 @@ void main() {
       'compare_opened': <String>{},
       'compare_viewed': <String>{},
       'product_search': <String>{},
+      'diary_entry_added': {'method'},
+      'diary_day_viewed': <String>{},
       'voice_asked': {'language'},
       'report_submitted': {'reason'},
       'share_clicked': {'kind'},

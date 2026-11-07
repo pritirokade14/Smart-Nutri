@@ -370,7 +370,10 @@ class _MealTile extends ConsumerWidget {
                     children: [
                       Text(meal.productName, style: theme.textTheme.titleSmall),
                       Text(
-                        '${l10n.historyItemAmount(formatForDisplay(meal.grams))} · $time',
+                        // A quick add has no portion in grams: show only the time.
+                        meal.grams == null
+                            ? time
+                            : '${l10n.historyItemAmount(formatForDisplay(meal.grams!))} · $time',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: c.textSecondary,
                         ),

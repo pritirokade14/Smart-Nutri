@@ -48,6 +48,13 @@ MealOut mealOut({
   String? attribution,
   NutriScoreGrade? grade = NutriScoreGrade.d,
 }) => MealOut(
+  incomplete: const [],
+  localDate: DateTime.utc(2026, 11, 3),
+  mealSlotId: 'slot-1',
+  sourceKind: barcode == null
+      ? MealOutSourceKind.product
+      : MealOutSourceKind.off,
+  updatedAt: eatenAt ?? DateTime.utc(2026, 11, 3, 8),
   attribution: attribution,
   barcode: barcode,
   clientId: clientId,
@@ -60,6 +67,7 @@ MealOut mealOut({
     carbsG: null,
     energyKcal: 140,
     fatG: null,
+    fibreG: null,
     proteinG: 2,
     saltG: 0.3,
     satFatG: null,
@@ -105,15 +113,26 @@ class FakeMealsClient implements MealsClient {
     }
     return mealOut(
       id: 'meal-${logged.length}',
-      memberId: body.memberId,
+      memberId: body.memberId ?? 'm1',
       clientId: body.clientId,
     );
   }
 
   @override
+  Future<CopyOut> mealsCopy({required CopyIn body}) =>
+      throw UnimplementedError('mealsCopy is not used in these tests');
+
+  @override
+  Future<MealOut> mealsUpdate({
+    required String mealId,
+    required MealPatch body,
+  }) => throw UnimplementedError('mealsUpdate is not used in these tests');
+
+  @override
   Future<List<MealOut>> mealsList({
-    required String memberId,
+    String? memberId,
     DateTime? from,
+    DateTime? localDate,
     DateTime? to,
   }) async {
     final e = listError;

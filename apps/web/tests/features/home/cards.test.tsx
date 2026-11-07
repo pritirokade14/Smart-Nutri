@@ -79,11 +79,22 @@ const summary = (over: Partial<Summary> = {}): Summary => ({
   period: "day",
   start: "2026-11-04",
   end: "2026-11-04",
-  totals: { energy_kcal: 900, sugars_g: 20, salt_g: 3, protein_g: 40 },
+  totals: {
+    energy_kcal: 900,
+    sugars_g: 20,
+    salt_g: 3,
+    fat_g: null,
+    carbs_g: null,
+    fibre_g: null,
+    protein_g: 40,
+  },
   incomplete: {
     energy_kcal: false,
     sugars_g: false,
     salt_g: false,
+    fat_g: false,
+    carbs_g: false,
+    fibre_g: false,
     protein_g: false,
   },
   limits: {
@@ -217,8 +228,8 @@ describe("home cards (T13)", () => {
         .getAllByRole("link")
         .map((l) => l.textContent),
     ).toEqual([
-      en.nav.history,
       en.nav.family,
+      en.nav.compare,
       en.nav.search,
       en.nav.how_we_score,
     ]);
@@ -354,12 +365,18 @@ describe("home cards (T13)", () => {
             energy_kcal: null,
             sugars_g: null,
             salt_g: null,
+            fat_g: null,
+            carbs_g: null,
+            fibre_g: null,
             protein_g: null,
           },
           incomplete: {
             energy_kcal: true,
             sugars_g: true,
             salt_g: true,
+            fat_g: true,
+            carbs_g: true,
+            fibre_g: true,
             protein_g: true,
           },
           bands: {
@@ -392,7 +409,15 @@ describe("home cards (T13)", () => {
           salt_g: "unknown",
           sugar_g: "near",
         },
-        totals: { energy_kcal: 900, sugars_g: 20, salt_g: null, protein_g: 40 },
+        totals: {
+          energy_kcal: 900,
+          sugars_g: 20,
+          salt_g: null,
+          fat_g: null,
+          carbs_g: null,
+          fibre_g: null,
+          protein_g: 40,
+        },
       }),
     );
     const card = await screen.findByTestId("home-card-today_sugar_salt");

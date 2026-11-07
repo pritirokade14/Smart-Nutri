@@ -15,12 +15,31 @@ const day = (date: string, hidden: boolean): DaySummary => ({
   date,
   items: 2,
   totals: hidden
-    ? { energy_kcal: null, sugars_g: null, salt_g: null, protein_g: null }
-    : { energy_kcal: 900, sugars_g: 20, salt_g: 3, protein_g: 40 },
+    ? {
+        energy_kcal: null,
+        sugars_g: null,
+        salt_g: null,
+        fat_g: null,
+        carbs_g: null,
+        fibre_g: null,
+        protein_g: null,
+      }
+    : {
+        energy_kcal: 900,
+        sugars_g: 20,
+        salt_g: 3,
+        fat_g: null,
+        carbs_g: null,
+        fibre_g: null,
+        protein_g: 40,
+      },
   incomplete: {
     energy_kcal: false,
     sugars_g: false,
     salt_g: false,
+    fat_g: false,
+    carbs_g: false,
+    fibre_g: false,
     protein_g: false,
   },
   bands: { kcal: "unknown", protein_g: "ok", salt_g: "near", sugar_g: "ok" },
@@ -31,11 +50,22 @@ const summary = (over: Partial<Summary> = {}): Summary => ({
   period: "day",
   start: "2026-11-07",
   end: "2026-11-07",
-  totals: { energy_kcal: 900, sugars_g: 20, salt_g: 3, protein_g: 40 },
+  totals: {
+    energy_kcal: 900,
+    sugars_g: 20,
+    salt_g: 3,
+    fat_g: null,
+    carbs_g: null,
+    fibre_g: null,
+    protein_g: 40,
+  },
   incomplete: {
     energy_kcal: false,
     sugars_g: false,
     salt_g: false,
+    fat_g: false,
+    carbs_g: false,
+    fibre_g: false,
     protein_g: false,
   },
   limits: {
@@ -56,7 +86,15 @@ const summary = (over: Partial<Summary> = {}): Summary => ({
 });
 
 const HIDDEN: Partial<Summary> = {
-  totals: { energy_kcal: null, sugars_g: null, salt_g: null, protein_g: null },
+  totals: {
+    energy_kcal: null,
+    sugars_g: null,
+    salt_g: null,
+    fat_g: null,
+    carbs_g: null,
+    fibre_g: null,
+    protein_g: null,
+  },
   protein_left_g: null,
   limits: {
     kcal: null,
@@ -135,6 +173,9 @@ describe("hidden numbers", () => {
             energy_kcal: null,
             sugars_g: 20,
             salt_g: 3,
+            fat_g: null,
+            carbs_g: null,
+            fibre_g: null,
             protein_g: 40,
           },
           numbers_hidden: { energy: true, macros: false },

@@ -34,6 +34,8 @@ const API_ALLOWED_EVENTS = {
   compare_opened: [],
   compare_viewed: [],
   product_search: [],
+  diary_entry_added: ["method"],
+  diary_day_viewed: [],
   voice_asked: ["language"],
   report_submitted: ["reason"],
   share_clicked: ["kind"],

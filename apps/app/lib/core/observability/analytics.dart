@@ -26,6 +26,8 @@ const Map<String, Set<String>> allowedEvents = {
   'compare_opened': {},
   'compare_viewed': {},
   'product_search': {},
+  'diary_entry_added': {'method'},
+  'diary_day_viewed': {},
   'voice_asked': {'language'},
   'report_submitted': {'reason'},
   'share_clicked': {'kind'},
@@ -34,7 +36,18 @@ const Map<String, Set<String>> allowedEvents = {
 
 /// Properties whose values come from a closed set (as the API's `_ENUMS`).
 const Map<String, Set<String>> _enums = {
-  'method': {'barcode', 'label', 'manual', 'search'},
+  'method': {
+    'barcode',
+    'label',
+    'manual',
+    'search',
+    'recent',
+    'favourite',
+    'quick_add',
+    'custom',
+    'recipe',
+    'copy',
+  },
   'language': {'en', 'hi', 'mr'},
   'reason': {'wrong_values', 'wrong_ingredients', 'wrong_product', 'other'},
   'kind': {'link', 'image', 'whatsapp'},

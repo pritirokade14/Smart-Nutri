@@ -91,7 +91,11 @@ class FakeUserTypesMe implements MeClient {
     email: 'a@b.c',
     id: 'u1',
     language: MeOutLanguage.en,
+    timezone: 'Asia/Kolkata',
   );
+
+  @override
+  Future<MeOut> meTimezonePut({required TimezoneIn body}) async => meGet();
 
   @override
   Future<void> meDelete() async {}

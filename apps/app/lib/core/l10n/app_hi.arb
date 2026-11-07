@@ -266,11 +266,59 @@
   "consentUpdateNote": "हमने यह जानकारी अपडेट की है। कृपया इसे पढ़ें और फिर से सहमति दें।",
   "consentUpdatesBanner": "हमने कुछ सहमति की जानकारी अपडेट की है। कृपया उन्हें देखें।",
   "consentWithdraw": "सहमति वापस लें",
+  "diaryAdd": "खाना जोड़ें",
+  "diaryAddToSlot": "{slot} में जोड़ें",
+  "@diaryAddToSlot": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryConsumed": "खाया",
+  "diaryCopied": "{count, plural, one {# आइटम कॉपी हुआ} other {# आइटम कॉपी हुए}}",
+  "@diaryCopied": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "diaryCopyDay": "कोई दिन कॉपी करें",
+  "diaryCopyMeal": "यह भोजन कॉपी करें",
+  "diaryCopyPickDay": "कोई दिन चुनें",
+  "diaryCopyPickMeal": "कोई भोजन चुनें",
+  "diaryCopyTo": "यहाँ कॉपी करें…",
+  "diaryCopyYesterday": "कल का कॉपी करें",
+  "diaryDelete": "हटाएँ",
+  "diaryDeleteConfirm": "इस आइटम को अपनी डायरी से हटाएँ?",
   "diaryDisclaimer": "यह जानकारी है, चिकित्सा सलाह नहीं। दैनिक गाइड अनुमान हैं और चिकित्सक की समीक्षा के लिए लंबित हैं।",
+  "diaryEdit": "बदलें",
+  "diaryEmptyDay": "अभी कुछ दर्ज नहीं हुआ।",
   "diaryEyeHide": "संख्याएँ छिपाएँ",
   "diaryEyeShow": "संख्याएँ दिखाएँ",
+  "diaryGramsLine": "{grams} ग्राम",
+  "@diaryGramsLine": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
   "diaryHiddenNumbers": "संख्याएँ छिपी हैं। आप इसे सेटिंग्स में बदल सकते हैं।",
   "diaryIncomplete": "कुछ चीज़ों में यह मान नहीं दिखता, इसलिए असली कुल ज़्यादा हो सकता है।",
+  "diaryLeft": "{value} बचा",
+  "@diaryLeft": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryMarkPartial": "आंशिक रूप से दर्ज किया हुआ चिह्नित करें",
+  "diaryMove": "दूसरे भोजन में ले जाएँ",
+  "diaryNextDay": "अगला दिन",
+  "diaryNoGuide": "अपनी दैनिक गाइड सेट करें, या बस खाना दर्ज करें।",
   "diaryOfTarget": "{target} में से {eaten}",
   "@diaryOfTarget": {
     "placeholders": {
@@ -282,7 +330,68 @@
       }
     }
   },
+  "diaryOver": "{value} ज़्यादा",
+  "@diaryOver": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryPartialBadge": "आंशिक रूप से दर्ज",
+  "diaryPartialNote": "आंशिक रूप से दर्ज किए दिन साप्ताहिक औसत में शामिल नहीं होते।",
+  "diaryPickDate": "तारीख़ चुनें",
+  "diaryPrevDay": "पिछला दिन",
+  "diaryQuickAddCarbs": "कार्ब्स (ग्राम)",
+  "diaryQuickAddEnergy": "कैलोरी",
+  "diaryQuickAddFat": "वसा (ग्राम)",
+  "diaryQuickAddFibre": "फ़ाइबर (ग्राम)",
+  "diaryQuickAddName": "झटपट जोड़ें",
+  "diaryQuickAddNameLabel": "नाम (वैकल्पिक)",
+  "diaryQuickAddProtein": "प्रोटीन (ग्राम)",
+  "diaryQuickAddTitle": "झटपट जोड़ें",
+  "diaryQuickBadge": "आपने खुद दर्ज किया",
+  "diaryRemaining": "बचा हुआ",
+  "diaryServingsLine": "{servings, plural, one {# सर्विंग} other {# सर्विंग}} · {grams} ग्राम",
+  "@diaryServingsLine": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "servings": {
+        "type": "num"
+      }
+    }
+  },
+  "diaryShareWeek": "इस हफ़्ते को शेयर करें",
+  "diarySlotBreakfast": "नाश्ता",
+  "diarySlotDinner": "रात का खाना",
+  "diarySlotLunch": "दोपहर का खाना",
+  "diarySlotSnack": "स्नैक्स",
   "diaryTargetsConsent": "अपनी दैनिक गाइड देखने के लिए, SmartNutri को अपनी सेहत की जानकारी इस्तेमाल करने की अनुमति दें।",
+  "diaryTitle": "डायरी",
+  "diaryToday": "आज",
+  "diaryWaitingSync": "सिंक होने की प्रतीक्षा में",
+  "diaryWeekAverage": "{days, plural, one {# दर्ज किए दिन का औसत} other {# दर्ज किए दिनों का औसत}}",
+  "@diaryWeekAverage": {
+    "placeholders": {
+      "days": {
+        "type": "num"
+      }
+    }
+  },
+  "diaryWeekProteinDays": "{days} दर्ज किए दिनों में से {met} दिन प्रोटीन गाइड तक पहुँचे",
+  "@diaryWeekProteinDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "met": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryWeekTitle": "इस हफ़्ते",
   "dietEggetarian": "अंडाहारी (अंडा खाने वाला शाकाहारी)",
   "dietJain": "जैन",
   "dietNonVeg": "मांसाहारी",
@@ -298,7 +407,10 @@
   "errorBodyFatOutOfRange": "कृपया 3 से 70 के बीच शरीर में वसा प्रतिशत दर्ज करें।",
   "errorConsentRequired": "एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए, कृपया पहले स्वास्थ्य डेटा के उपयोग के लिए सहमति दें।",
   "errorConsentVersionMismatch": "सहमति का पाठ अपडेट हो गया है। कृपया पेज फिर से लोड करके उसे दोबारा देखें।",
+  "errorCopySourceEmpty": "वहाँ कॉपी करने के लिए कुछ नहीं है।",
+  "errorCopyTooMany": "एक साथ कॉपी करने के लिए बहुत ज़्यादा आइटम हैं। एक बार में एक भोजन कॉपी करें।",
   "errorDateInFuture": "वह तारीख़ अभी आई नहीं है।",
+  "errorDateTooOld": "आप सिर्फ़ पिछले 30 दिनों में जोड़ सकते हैं।",
   "errorDeletionIncomplete": "हम आपका खाता पूरी तरह हटा नहीं सके। कृपया फिर से कोशिश करें; जो हट चुका है वह वापस नहीं आएगा।",
   "errorDiaryMemberNotEnabled": "दैनिक गाइड अभी सिर्फ़ आपकी अपनी प्रोफ़ाइल के लिए उपलब्ध हैं।",
   "errorEatenAtOutOfRange": "पिछले 30 दिनों के भीतर का समय चुनें।",
@@ -318,6 +430,8 @@
   "errorInvalidBarcode": "यह सही बारकोड नहीं लगता।",
   "errorInvalidProductRef": "जाँचने के लिए एक उत्पाद चुनें।",
   "errorMealNotFound": "यह खाने की एंट्री नहीं मिली।",
+  "errorMealSlotArchived": "यह भोजन हटा दिया गया है। कोई दूसरा भोजन चुनें।",
+  "errorMealSlotNotFound": "यह भोजन नहीं मिला।",
   "errorMemberLimit": "आप परिवार के अधिकतम 10 सदस्य जोड़ सकते हैं।",
   "errorMemberNotFound": "परिवार का यह सदस्य नहीं मिला।",
   "errorMethodNotAllowed": "यह कार्य समर्थित नहीं है। कृपया ऐप अपडेट करें।",
@@ -330,6 +444,7 @@
   "errorPrimaryMember": "आपकी अपनी प्रोफ़ाइल हटाई नहीं जा सकती।",
   "errorProductExists": "यह उत्पाद पहले से सहेजा गया है।",
   "errorProductNotFound": "यह उत्पाद अभी हमें नहीं मिला।",
+  "errorQuickAddEnergyRequired": "इसे जोड़ने के लिए कैलोरी भरें।",
   "errorRateLimited": "बहुत अधिक अनुरोध। कृपया थोड़ी देर रुकें।",
   "errorRateLimitedScans": "आप आज की लेबल-स्कैन सीमा तक पहुँच गए हैं।",
   "errorRateLimitedVoice": "आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।",
@@ -340,6 +455,7 @@
   "errorServingSizeUnknown": "इस पैक पर सर्विंग का आकार नहीं लिखा है। मात्रा ग्राम में भरें।",
   "errorStorageUnavailable": "हम अभी फ़ोटो संभाल नहीं पाए। कृपया थोड़ी देर बाद फिर कोशिश करें।",
   "errorTargetWeightTooLow": "कृपया ज़्यादा लक्ष्य वज़न चुनें।",
+  "errorTimezoneInvalid": "यह समय क्षेत्र पहचाना नहीं गया।",
   "errorUnauthorized": "कृपया साइन इन करें।",
   "errorUnsupportedImage": "कृपया JPEG, PNG या WebP फ़ोटो इस्तेमाल करें।",
   "errorUserTypeNotSelected": "अपने लिए चुने गए विकल्पों में से एक चुनें।",
@@ -357,6 +473,9 @@
   "familyComingSoonBody": "हर सदस्य की उम्र, एलर्जी और आहार जोड़ें, ताकि हर किसी के लिए अलग नतीजा मिले।",
   "familyComingSoonTitle": "परिवार प्रोफ़ाइल जल्द आ रही हैं",
   "familyTitle": "परिवार",
+  "foodsBlankIsUnknown": "पता न हो तो खाली छोड़ें। खाली को कभी 0 नहीं गिना जाता।",
+  "foodsQuickAdd": "झटपट जोड़ें",
+  "foodsRecent": "हाल के",
   "footerLinksLabel": "SmartNutri के बारे में",
   "footerTagline": "भारतीय परिवारों के लिए पैकेटबंद खाने की जानकारी।",
   "goalBuildMuscle": "मांसपेशियाँ बनाना",
@@ -741,6 +860,7 @@
   },
   "modesSwitcherLabel": "मोड",
   "navCompare": "तुलना",
+  "navDiary": "डायरी",
   "navFamily": "परिवार",
   "navHistory": "इतिहास",
   "navHome": "होम",

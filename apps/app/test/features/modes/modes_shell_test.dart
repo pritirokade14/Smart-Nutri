@@ -21,7 +21,7 @@ import '../user_types/user_types_harness.dart';
 const _screens = <String, Type>{
   'home': HomeScreen,
   'scan': ScanScreen,
-  'history': HistoryScreen,
+  'diary': HistoryScreen,
   'family': MembersListScreen,
   'protein': ProteinScreen,
   'compare': CompareScreen,

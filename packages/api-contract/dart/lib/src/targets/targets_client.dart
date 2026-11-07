@@ -20,8 +20,10 @@ abstract class TargetsClient {
 
   /// Targets Get.
   ///
-  /// Today's targets, computed live. A past date has no stored guide in this version, so it.
-  /// returns status `none`; a future date is 422 `date_in_future`.
+  /// Today's targets, computed live (and frozen for the day). A past date returns that day's.
+  /// frozen targets, or status `none` when the day has none (it is never back-filled; the pace.
+  /// options are not frozen, so `rate_options` is empty). A future date is 422.
+  /// `date_in_future`. Hidden numbers use the CURRENT display setting.
   ///
   /// [memberId] - Defaults to the primary member.
   ///

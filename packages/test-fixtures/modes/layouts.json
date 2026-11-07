@@ -1,23 +1,23 @@
 {
   "priority": ["allergy_diet", "health_condition", "family", "weight_loss", "gym", "eat_better"],
   "default_type": "eat_better",
-  "destinations": ["home", "scan", "history", "family", "protein", "compare", "search", "profile", "how_we_score"],
+  "destinations": ["home", "scan", "diary", "family", "protein", "compare", "search", "profile", "how_we_score"],
   "always_first_card_when_any_member_has_allergens": "allergy_check",
   "modes": {
     "health_condition": {
-      "tabs": ["home", "scan", "history", "family", "profile"],
+      "tabs": ["home", "scan", "diary", "family", "profile"],
       "home_cards": ["today_sugar_salt", "claims_tip", "not_covered", "recent_scans"]
     },
     "family": {
-      "tabs": ["home", "scan", "family", "history", "profile"],
+      "tabs": ["home", "scan", "family", "diary", "profile"],
       "home_cards": ["family_strip", "weekly_family", "recent_scans"]
     },
     "weight_loss": {
-      "tabs": ["home", "scan", "history", "protein", "profile"],
+      "tabs": ["home", "scan", "diary", "protein", "profile"],
       "home_cards": ["today_targets", "today_sugar_salt", "recent_scans"]
     },
     "gym": {
-      "tabs": ["home", "scan", "protein", "compare", "profile"],
+      "tabs": ["home", "scan", "diary", "protein", "profile"],
       "home_cards": ["today_targets", "today_protein", "protein_swaps", "protein_claims_tip", "recent_scans"]
     },
     "allergy_diet": {
@@ -25,7 +25,7 @@
       "home_cards": ["allergy_check", "unknown_explainer", "recent_scans"]
     },
     "eat_better": {
-      "tabs": ["home", "scan", "compare", "history", "profile"],
+      "tabs": ["home", "scan", "compare", "diary", "profile"],
       "home_cards": ["today_targets", "custom_alerts_setup", "claims_tip", "recent_scans"]
     }
   }

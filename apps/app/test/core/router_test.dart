@@ -83,6 +83,7 @@ MeOut _me() => MeOut(
   email: 'a@b.c',
   id: 'u1',
   language: MeOutLanguage.values.first,
+  timezone: 'Asia/Kolkata',
 );
 
 void main() {

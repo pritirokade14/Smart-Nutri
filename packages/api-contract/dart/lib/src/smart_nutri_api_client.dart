@@ -6,8 +6,10 @@ import 'package:dio/dio.dart';
 
 import 'analyze/analyze_client.dart';
 import 'consents/consents_client.dart';
+import 'diary/diary_client.dart';
 import 'health/health_client.dart';
 import 'me/me_client.dart';
+import 'meal_slots/meal_slots_client.dart';
 import 'meals/meals_client.dart';
 import 'members/members_client.dart';
 import 'methodology/methodology_client.dart';
@@ -30,8 +32,10 @@ class SmartNutriApiClient {
 
   AnalyzeClient? _analyze;
   ConsentsClient? _consents;
+  DiaryClient? _diary;
   HealthClient? _health;
   MeClient? _me;
+  MealSlotsClient? _mealSlots;
   MealsClient? _meals;
   MembersClient? _members;
   MethodologyClient? _methodology;
@@ -47,9 +51,14 @@ class SmartNutriApiClient {
   ConsentsClient get consents =>
       _consents ??= ConsentsClient(_dio, baseUrl: _baseUrl);
 
+  DiaryClient get diary => _diary ??= DiaryClient(_dio, baseUrl: _baseUrl);
+
   HealthClient get health => _health ??= HealthClient(_dio, baseUrl: _baseUrl);
 
   MeClient get me => _me ??= MeClient(_dio, baseUrl: _baseUrl);
+
+  MealSlotsClient get mealSlots =>
+      _mealSlots ??= MealSlotsClient(_dio, baseUrl: _baseUrl);
 
   MealsClient get meals => _meals ??= MealsClient(_dio, baseUrl: _baseUrl);
 

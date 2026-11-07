@@ -4,12 +4,13 @@ import 'package:go_router/go_router.dart';
 import '../../../core/l10n/app_localizations.dart';
 
 /// The shell branches, in `StatefulShellRoute` order.
-const kShellBranches = ['home', 'history', 'family', 'protein', 'profile'];
+const kShellBranches = ['home', 'diary', 'family', 'protein', 'profile'];
 
 /// The path of each shell branch.
 const kBranchPaths = {
   'home': '/home',
-  'history': '/history',
+  // The Diary opens the existing History screen at /history until Plan 11 Task 9 replaces it.
+  'diary': '/history',
   'family': '/family',
   'protein': '/protein',
   'profile': '/profile',
@@ -27,7 +28,7 @@ const kPushedRoutes = {
 String destinationLabel(AppLocalizations l, String key) => switch (key) {
   'home' => l.navHome,
   'scan' => l.navScan,
-  'history' => l.navHistory,
+  'diary' => l.navDiary,
   'family' => l.navFamily,
   'protein' => l.navProtein,
   'compare' => l.navCompare,
@@ -40,8 +41,7 @@ String destinationLabel(AppLocalizations l, String key) => switch (key) {
 IconData destinationIcon(String key, {bool selected = false}) => switch (key) {
   'home' => selected ? Icons.home_rounded : Icons.home_outlined,
   'scan' => Icons.qr_code_scanner_rounded,
-  'history' =>
-    selected ? Icons.history_toggle_off_rounded : Icons.history_rounded,
+  'diary' => selected ? Icons.menu_book_rounded : Icons.menu_book_outlined,
   'family' => selected ? Icons.groups_rounded : Icons.groups_outlined,
   'protein' =>
     selected ? Icons.fitness_center_rounded : Icons.fitness_center_outlined,

@@ -38,12 +38,18 @@ Summary daySummary(
     'protein_g': protein,
     'salt_g': salt,
     'sugars_g': sugars,
+    'fat_g': null,
+    'carbs_g': null,
+    'fibre_g': null,
   };
   final incomplete = {
     'energy_kcal': kcal == null,
     'protein_g': protein == null,
     'salt_g': salt == null,
     'sugars_g': sugars == null,
+    'fat_g': false,
+    'carbs_g': false,
+    'fibre_g': false,
   };
   final bands = {
     'kcal': 'unknown',

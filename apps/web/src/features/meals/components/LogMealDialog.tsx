@@ -186,9 +186,13 @@ export function LogMealDialog({
               <p className="text-md text-text-secondary">
                 {saved.product_name}
               </p>
-              <p className="text-md text-text-secondary">
-                {t("history.item_amount", { grams: formatAmount(saved.grams) })}
-              </p>
+              {saved.grams != null ? (
+                <p className="text-md text-text-secondary">
+                  {t("history.item_amount", {
+                    grams: formatAmount(saved.grams),
+                  })}
+                </p>
+              ) : null}
             </>
           )}
         </div>

@@ -169,7 +169,7 @@ describe("focused modes (T13)", () => {
   });
 
   it.each([
-    ["gym", "/en/compare", "compare"],
+    ["gym", "/en/compare", "scan"], // Compare moved to More: it opens from Scan
     ["eat_better", "/en/compare", "compare"],
     ["health_condition", "/en/compare", "scan"],
     ["allergy_diet", "/en/search", "search"],

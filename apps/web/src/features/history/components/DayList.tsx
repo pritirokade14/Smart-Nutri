@@ -79,9 +79,11 @@ export function DayList({
               </p>
               <p className="flex flex-wrap gap-x-3 text-sm text-text-secondary">
                 <span>{timeLabel(m.eaten_at, locale)}</span>
-                <span>
-                  {t("history.item_amount", { grams: formatAmount(m.grams) })}
-                </span>
+                {m.grams != null ? (
+                  <span>
+                    {t("history.item_amount", { grams: formatAmount(m.grams) })}
+                  </span>
+                ) : null}
               </p>
             </div>
             <div className="flex items-center gap-2">

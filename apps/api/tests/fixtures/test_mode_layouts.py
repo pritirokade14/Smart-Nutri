@@ -38,7 +38,7 @@ def test_every_destination_reachable_in_every_mode():
 
 
 def test_scan_result_and_allergy_entry_points_in_every_mode():
-    # scan is a tab; a result opens from scan (and from history / search / the Home recent
+    # scan is a tab; a result opens from scan (and from the diary / search / the Home recent
     # list); allergies are entered on a family member (or the profile's own member).
     for name, mode in MODES.items():
         assert mode["tabs"][1] == "scan", name
@@ -47,8 +47,26 @@ def test_scan_result_and_allergy_entry_points_in_every_mode():
         assert "profile" in mode["tabs"], name
 
 
-def test_gym_more_is_history_family_search_how_we_score():
-    assert more("gym") == ["history", "family", "search", "how_we_score"]
+def test_gym_more_is_family_compare_search_how_we_score():
+    # Plan 11 (Ruling E17): the Diary takes Compare's tab in gym mode; Compare moves to More.
+    assert more("gym") == ["family", "compare", "search", "how_we_score"]
+
+
+def test_diary_replaces_history():
+    assert "diary" in LAYOUTS["destinations"] and "history" not in LAYOUTS["destinations"]
+    for name, mode in MODES.items():
+        assert "history" not in mode["tabs"], name
+    # Tabs follow spec 7.10.
+    assert {name: mode["tabs"] for name, mode in MODES.items()} == {
+        "health_condition": ["home", "scan", "diary", "family", "profile"],
+        "family": ["home", "scan", "family", "diary", "profile"],
+        "weight_loss": ["home", "scan", "diary", "protein", "profile"],
+        "gym": ["home", "scan", "diary", "protein", "profile"],
+        "allergy_diet": ["home", "scan", "family", "search", "profile"],
+        "eat_better": ["home", "scan", "compare", "diary", "profile"],
+    }
+    # allergy_diet keeps no Diary tab, so the Diary is reachable from More there.
+    assert "diary" in more("allergy_diet")
 
 
 def test_recent_scans_last():

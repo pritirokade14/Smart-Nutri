@@ -16,6 +16,7 @@ class MeOut {
     required this.email,
     required this.id,
     required this.language,
+    required this.timezone,
   });
 
   factory MeOut.fromJson(Map<String, Object?> json) => _$MeOutFromJson(json);
@@ -27,6 +28,7 @@ class MeOut {
   final String? email;
   final String id;
   final MeOutLanguage language;
+  final String timezone;
 
   Map<String, Object?> toJson() => _$MeOutToJson(this);
 }

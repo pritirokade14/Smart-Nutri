@@ -39,6 +39,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/diary/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Diary Day Get
+         * @description One local day of the diary: meal slots with their entries and totals, that day's frozen
+         *     targets, `remaining` and `progress` (all computed here; clients never compute them), and the
+         *     sugar and salt bands. Needs only `terms`: without `health_data`, `targets` is null with
+         *     `targets_status: consent_required` and the entries still load. Numbers the member hid are
+         *     null. Information, not medical advice.
+         */
+        get: operations["diary_day_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/diary/days/{day}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Diary Day Status Put
+         * @description Mark a day as not fully logged (`partial_logged: true`) or clear the mark. A marked day
+         *     is left out of the week averages. 422 `date_in_future` for a future day.
+         */
+        put: operations["diary_day_status_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/diary/recents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Diary Recents List
+         * @description Foods the member logged lately, newest first, one per product (quick adds excluded), at
+         *     most 30 from the last 90 days. Needs only `terms`.
+         */
+        get: operations["diary_recents_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/diary/week": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Diary Week Get
+         * @description The 7 local days ending at `end`, oldest first, each against that day's own frozen
+         *     targets. Averages cover days with items that are not marked partial, and an average with an
+         *     unknown value is flagged. Needs only `terms`.
+         */
+        get: operations["diary_week_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -80,6 +168,28 @@ export interface paths {
          *     (not `current_account_row`) so a repeat call never re-creates the account row.
          */
         delete: operations["me_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/timezone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Me Timezone Put
+         * @description Set the account's time zone (an IANA name such as `Asia/Kolkata`). Needs only sign-in:
+         *     it is not health data. Changing it never moves an entry already logged. 422
+         *     `timezone_invalid` for an unknown name.
+         */
+        put: operations["me_timezone_put"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -140,6 +250,29 @@ export interface paths {
         patch: operations["me_user_types_set_active"];
         trace?: never;
     };
+    "/v1/meal-slots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Meal Slots List
+         * @description The member's meal slots in order, plus `suggested_slot_id`, the server's pick for the
+         *     current moment (clients preselect it and never compute a slot). Creates the four defaults on
+         *     the first call. Needs only `terms`: slots hold no health data. 404 `member_not_found` for
+         *     another account's member; 422 `diary_member_not_enabled` for a non-primary member.
+         */
+        get: operations["meal_slots_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/meals": {
         parameters: {
             query?: never;
@@ -149,16 +282,45 @@ export interface paths {
         };
         /**
          * Meals List
-         * @description A member's logs, newest first (at most 200). Default range: the last 7 IST days.
+         * @description A member's logs, newest first (at most 200), redacted with their numbers display.
+         *     ``local_date`` returns one local day. Default range: the last 7 local days.
          */
         get: operations["meals_list"];
         put?: never;
         /**
          * Meals Log
-         * @description Log "I ate this" for a member: 201 for a new log, 200 with the stored log when
-         *     ``client_id`` was already used (offline retries never duplicate).
+         * @description Log "I ate this" for a member (default: the primary): 201 for a new log, 200 with the
+         *     stored log when ``client_id`` was already used (offline retries never duplicate).
+         *
+         *     The slot defaults to the server's pick for the local time; ``local_date`` logs onto a past
+         *     day; ``quick`` logs typed kcal and macros (blanks stay unknown). The response is redacted
+         *     with the member's numbers display.
          */
         post: operations["meals_log"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meals/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Meals Copy
+         * @description Copy one meal (``from_slot_id``) or the whole day onto another day (today or up to 30
+         *     days back). Each copy keeps its source's saved food and portion, never reads the product
+         *     again, and counts against the daily log limit. ``client_id`` is required: a retry returns
+         *     the same rows with 200 and creates nothing. The response is redacted with the member's
+         *     numbers display.
+         */
+        post: operations["meals_copy"];
         delete?: never;
         options?: never;
         head?: never;
@@ -221,7 +383,13 @@ export interface paths {
         delete: operations["meals_delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Meals Update
+         * @description Edit an entry: portion, slot, time or (quick adds only) the typed values. ``null`` means
+         *     unchanged. A new portion is recomputed from the entry's own saved food, so editing one
+         *     entry never changes another and never reads the product again.
+         */
+        patch: operations["meals_update"];
         trace?: never;
     };
     "/v1/members": {
@@ -510,8 +678,10 @@ export interface paths {
         };
         /**
          * Targets Get
-         * @description Today's targets, computed live. A past date has no stored guide in this version, so it
-         *     returns status `none`; a future date is 422 `date_in_future`.
+         * @description Today's targets, computed live (and frozen for the day). A past date returns that day's
+         *     frozen targets, or status `none` when the day has none (it is never back-filled; the pace
+         *     options are not frozen, so `rate_options` is empty). A future date is 422
+         *     `date_in_future`. Hidden numbers use the CURRENT display setting.
          */
         get: operations["targets_get"];
         put?: never;
@@ -911,6 +1081,45 @@ export interface components {
             version: string | null;
         };
         /**
+         * CopyIn
+         * @description Copy one meal (``from_slot_id``) or the whole day (no ``from_slot_id``) onto another day.
+         *
+         *     ``client_id`` is required: each copy's own id is derived from it and the source entry, so a
+         *     retry (a lost response, a double tap) returns the same rows and creates nothing. An entry
+         *     whose slot has since been archived needs an explicit ``to_slot_id``.
+         */
+        CopyIn: {
+            /**
+             * Client Id
+             * Format: uuid
+             */
+            client_id: string;
+            /**
+             * From Date
+             * Format: date
+             */
+            from_date: string;
+            /** From Slot Id */
+            from_slot_id?: string | null;
+            /** Member Id */
+            member_id?: string | null;
+            /**
+             * To Date
+             * Format: date
+             */
+            to_date: string;
+            /** To Slot Id */
+            to_slot_id?: string | null;
+        };
+        /** CopyOut */
+        CopyOut: {
+            /**
+             * Created
+             * @description The copies, in the order of their sources
+             */
+            created: components["schemas"]["MealOut"][];
+        };
+        /**
          * DailyLimitsOut
          * @description Per DAY, from the rules engine (thresholds.yaml, pending clinician review).
          */
@@ -958,6 +1167,143 @@ export interface components {
             /** Items */
             items: number;
             totals: components["schemas"]["Totals"];
+        };
+        /** DayTile */
+        DayTile: {
+            bands: components["schemas"]["NutrientBands"];
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            incomplete: components["schemas"]["IncompleteNutrients"];
+            /** Items */
+            items: number;
+            /** Partial Logged */
+            partial_logged: boolean;
+            progress: components["schemas"]["Macro4"] | null;
+            /** @description That day's frozen energy and protein targets; null without a ready target */
+            targets: components["schemas"]["DayTileTargets"] | null;
+            totals: components["schemas"]["Totals"];
+        };
+        /** DayTileTargets */
+        DayTileTargets: {
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            /** Protein G */
+            protein_g: number | null;
+        };
+        /** DiaryDayOut */
+        DiaryDayOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            incomplete: components["schemas"]["IncompleteNutrients"];
+            limits_bands: components["schemas"]["NutrientBands"];
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            numbers_hidden: components["schemas"]["NumbersHidden"];
+            /** Partial Logged */
+            partial_logged: boolean;
+            /**
+             * Pending Clinician Review
+             * @default true
+             * @constant
+             */
+            pending_clinician_review: true;
+            /** @description eaten / target, 2 dp (0 with nothing logged); same null rules as `remaining`. A hidden value is rounded to the nearest 0.25: the ring shape only */
+            progress: components["schemas"]["Macro4"] | null;
+            /** @description target - eaten, 1 dp; negative means over. null as a whole unless the day's targets are `ready`. A field is null when that nutrient is incomplete (a total with an unknown value is a lower bound) or hidden. With nothing logged it equals the target */
+            remaining: components["schemas"]["Macro4"] | null;
+            /**
+             * Slots
+             * @description The member's active slots in position order, plus an archived slot only on a day that has entries in it
+             */
+            slots: components["schemas"]["SlotDayOut"][];
+            /** @description That day's frozen targets; null when `targets_status` is consent_required */
+            targets: components["schemas"]["TargetsOut"] | null;
+            /**
+             * Targets Status
+             * @enum {string}
+             */
+            targets_status: "ready" | "none" | "needs_body_data" | "not_available_minor" | "paused_pregnancy" | "consent_required";
+            /** Timezone */
+            timezone: string;
+            /**
+             * Today
+             * Format: date
+             * @description The account's local today; clients never work out dates
+             */
+            today: string;
+            totals: components["schemas"]["Totals"];
+        };
+        /** DiaryDayStatusIn */
+        DiaryDayStatusIn: {
+            /** Member Id */
+            member_id?: string | null;
+            /** Partial Logged */
+            partial_logged: boolean;
+        };
+        /** DiaryDayStatusOut */
+        DiaryDayStatusOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Partial Logged */
+            partial_logged: boolean;
+        };
+        /** DiaryWeekOut */
+        DiaryWeekOut: {
+            /** Averaged Days */
+            averaged_days: number;
+            /** @description Per averaged day, 1 dp. Averaged days are those with items that are not marked partial; null when there are none */
+            averages: components["schemas"]["Macro4"];
+            /** @description true for a nutrient unknown on any averaged day: its average is a lower bound */
+            averages_incomplete: components["schemas"]["IncompleteNutrients"];
+            /**
+             * Days
+             * @description 7 days, oldest first
+             */
+            days: components["schemas"]["DayTile"][];
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            numbers_hidden: components["schemas"]["NumbersHidden"];
+            /**
+             * Pending Clinician Review
+             * @default true
+             * @constant
+             */
+            pending_clinician_review: true;
+            /**
+             * Protein Met Days
+             * @description Averaged days whose frozen protein target is ready and was met
+             */
+            protein_met_days: number;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
         };
         /**
          * DisplayIn
@@ -1250,8 +1596,14 @@ export interface components {
          *     only the known meals and is a lower bound.
          */
         IncompleteNutrients: {
+            /** Carbs G */
+            carbs_g: boolean;
             /** Energy Kcal */
             energy_kcal: boolean;
+            /** Fat G */
+            fat_g: boolean;
+            /** Fibre G */
+            fibre_g: boolean;
             /** Protein G */
             protein_g: boolean;
             /** Salt G */
@@ -1265,6 +1617,20 @@ export interface components {
             barcode?: string | null;
             /** Path */
             path: string;
+        };
+        /**
+         * Macro4
+         * @description Energy and the three macros a daily guide covers. null per field: not available.
+         */
+        Macro4: {
+            /** Carbs G */
+            carbs_g: number | null;
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            /** Fat G */
+            fat_g: number | null;
+            /** Protein G */
+            protein_g: number | null;
         };
         /** MeOut */
         MeOut: {
@@ -1287,12 +1653,19 @@ export interface components {
              * @enum {string}
              */
             language: "en" | "hi" | "mr";
+            /** Timezone */
+            timezone: string;
         };
         /**
          * MealIn
-         * @description Log what a member ate. Exactly one product reference (own ``product_id``, or a
-         *     ``barcode`` for Open Food Facts products) and exactly one portion (``grams`` or
-         *     ``servings``; servings need the product's serving size).
+         * @description Log what a member ate. Exactly one food reference (own ``product_id``, a ``barcode``
+         *     for Open Food Facts products, or ``quick``) and, except for a quick add, exactly one
+         *     portion (``grams`` or ``servings``; servings need the product's serving size).
+         *
+         *     ``member_id`` defaults to the primary member. ``meal_slot_id`` defaults to the slot the
+         *     server picks from the local time. ``local_date`` logs onto a past day (``eaten_at`` becomes
+         *     that date at the current local clock time, capped at now); it cannot be sent together with
+         *     ``eaten_at``.
          *
          *     ``client_id`` makes the call idempotent: posting the same id again (an offline retry)
          *     returns the stored log with 200 and never creates a second row.
@@ -1310,12 +1683,17 @@ export interface components {
             /** Grams */
             grams?: number | null;
             /**
-             * Member Id
-             * Format: uuid
+             * Local Date
+             * @description Log onto this local day (at most 30 days ago, not in future).
              */
-            member_id: string;
+            local_date?: string | null;
+            /** Meal Slot Id */
+            meal_slot_id?: string | null;
+            /** Member Id */
+            member_id?: string | null;
             /** Product Id */
             product_id?: string | null;
+            quick?: components["schemas"]["QuickIn"] | null;
             /** Servings */
             servings?: number | null;
         };
@@ -1340,13 +1718,32 @@ export interface components {
             eaten_at: string;
             /** @description Nutri-Score calculated by SmartNutri at log time; null if not enough data */
             grade: components["schemas"]["NutriScoreGrade"] | null;
-            /** Grams */
-            grams: number;
+            /**
+             * Grams
+             * @description The portion in grams; null for a quick add
+             */
+            grams: number | null;
             /**
              * Id
              * Format: uuid
              */
             id: string;
+            /**
+             * Incomplete
+             * @description NutrientSnapshot keys that are unknown (null) on this entry, before hiding
+             */
+            incomplete: string[];
+            /**
+             * Local Date
+             * Format: date
+             * @description The day the entry belongs to, in the account's zone
+             */
+            local_date: string;
+            /**
+             * Meal Slot Id
+             * Format: uuid
+             */
+            meal_slot_id: string;
             /**
              * Member Id
              * Format: uuid
@@ -1358,8 +1755,72 @@ export interface components {
              * @description Our own product; null for Open Food Facts
              */
             product_id: string | null;
-            /** Product Name */
+            /**
+             * Product Name
+             * @description The product name; the typed name (or empty) for a quick add
+             */
             product_name: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "product" | "off" | "quick_add";
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * MealPatch
+         * @description Edit an entry. ``null`` means unchanged (Ruling E10: the generated Dart client sends
+         *     every unset field as null). At least one field must be set. ``quick`` is for quick-add
+         *     entries only; the portion fields are for the others.
+         */
+        MealPatch: {
+            /** Eaten At */
+            eaten_at?: string | null;
+            /** Grams */
+            grams?: number | null;
+            /** Meal Slot Id */
+            meal_slot_id?: string | null;
+            quick?: components["schemas"]["QuickIn"] | null;
+            /** Servings */
+            servings?: number | null;
+        };
+        /** MealSlotOut */
+        MealSlotOut: {
+            /** Archived */
+            archived: boolean;
+            /** Custom Label */
+            custom_label: string | null;
+            default_time_window: components["schemas"]["TimeWindow"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Is Default */
+            is_default: boolean;
+            /** Label Key */
+            label_key: string | null;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Position */
+            position: number;
+        };
+        /** MealSlotsOut */
+        MealSlotsOut: {
+            /** Items */
+            items: components["schemas"]["MealSlotOut"][];
+            /**
+             * Suggested Slot Id
+             * Format: uuid
+             */
+            suggested_slot_id: string;
         };
         /**
          * MemberIn
@@ -1610,6 +2071,8 @@ export interface components {
             energy_kcal: number | null;
             /** Fat G */
             fat_g: number | null;
+            /** Fibre G */
+            fibre_g: number | null;
             /** Protein G */
             protein_g: number | null;
             /** Salt G */
@@ -1957,6 +2420,26 @@ export interface components {
             score_label: "calculated_by_smartnutri";
         };
         /**
+         * QuickIn
+         * @description A quick add (Plan 11 Ruling E11): kcal and optional macros the person typed. A blank
+         *     stays null (never 0), so the entry is incomplete for it. ``name`` is user text: stored
+         *     trimmed, never sent to analytics, logs or prompts.
+         */
+        QuickIn: {
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Energy Kcal */
+            energy_kcal?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+            /** Fibre G */
+            fibre_g?: number | null;
+            /** Name */
+            name?: string | null;
+            /** Protein G */
+            protein_g?: number | null;
+        };
+        /**
          * RateOut
          * @description Unsigned (`direction` carries the sign), 2 dp (Ruling D12). `kg_per_week` is null under
          *     `hide_all`: the pace shows as a percent only, so the body weight can't be worked out.
@@ -1980,6 +2463,40 @@ export interface components {
              * @enum {string}
              */
             severity: "ok" | "caution" | "unknown" | "avoid";
+        };
+        /** RecentItem */
+        RecentItem: {
+            /** Attribution */
+            attribution: string | null;
+            /** Barcode */
+            barcode: string | null;
+            grade: components["schemas"]["NutriScoreGrade"] | null;
+            /** Grams */
+            grams: number;
+            /**
+             * Last Eaten At
+             * Format: date-time
+             */
+            last_eaten_at: string;
+            /**
+             * Meal Slot Id
+             * Format: uuid
+             */
+            meal_slot_id: string;
+            /** Name */
+            name: string;
+            /** Product Id */
+            product_id: string | null;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "product" | "off";
+        };
+        /** RecentsOut */
+        RecentsOut: {
+            /** Items */
+            items: components["schemas"]["RecentItem"][];
         };
         /** ReportCreate */
         ReportCreate: {
@@ -2084,6 +2601,32 @@ export interface components {
          * @enum {string}
          */
         SearchSort: "relevance" | "protein";
+        /** SlotDayOut */
+        SlotDayOut: {
+            /** Archived */
+            archived: boolean;
+            /**
+             * Custom Label
+             * @description User text: shown as typed, never translated
+             */
+            custom_label: string | null;
+            /** Entries */
+            entries: components["schemas"]["MealOut"][];
+            incomplete: components["schemas"]["IncompleteNutrients"];
+            /**
+             * Label Key
+             * @description i18n key of a default slot's name
+             */
+            label_key: string | null;
+            /** Position */
+            position: number;
+            /**
+             * Slot Id
+             * Format: uuid
+             */
+            slot_id: string;
+            totals: components["schemas"]["Totals"];
+        };
         /** Summary */
         Summary: {
             bands: components["schemas"]["NutrientBands"];
@@ -2257,14 +2800,32 @@ export interface components {
             /** Target Weight Kg */
             target_weight_kg?: number | null;
         };
+        /** TimeWindow */
+        TimeWindow: {
+            /** End */
+            end: string;
+            /** Start */
+            start: string;
+        };
+        /** TimezoneIn */
+        TimezoneIn: {
+            /** Timezone */
+            timezone: string;
+        };
         /**
          * Totals
          * @description Sums of the KNOWN values only; see ``Summary.incomplete``. null when no meal in the
          *     period has a value for that nutrient (also when nothing was logged): never shown as 0.
          */
         Totals: {
+            /** Carbs G */
+            carbs_g: number | null;
             /** Energy Kcal */
             energy_kcal: number | null;
+            /** Fat G */
+            fat_g: number | null;
+            /** Fibre G */
+            fibre_g: number | null;
             /** Protein G */
             protein_g: number | null;
             /** Salt G */
@@ -2659,6 +3220,324 @@ export interface operations {
             };
         };
     };
+    diary_day_get: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+                /** @description Local date; default the account's today */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiaryDayOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    diary_day_status_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                day: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiaryDayStatusIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiaryDayStatusOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    diary_recents_list: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+                /** @description Its items come first */
+                slot_id?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecentsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    diary_week_get: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+                /** @description Last day; default the account's today */
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiaryWeekOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     health_get: {
         parameters: {
             query?: never;
@@ -2861,6 +3740,75 @@ export interface operations {
             };
             /** @description deletion_incomplete: storage or sign-in removal failed; retry */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    me_timezone_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TimezoneIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3082,12 +4030,92 @@ export interface operations {
             };
         };
     };
+    meal_slots_list: {
+        parameters: {
+            query?: {
+                member_id?: string | null;
+                include_archived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealSlotsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     meals_list: {
         parameters: {
-            query: {
-                member_id: string;
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
                 from?: string | null;
                 to?: string | null;
+                /** @description One local day; wins over from and to */
+                local_date?: string | null;
             };
             header?: never;
             path?: never;
@@ -3256,12 +4284,99 @@ export interface operations {
             };
         };
     };
+    meals_copy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopyIn"];
+            };
+        };
+        responses: {
+            /** @description Every copy already existed (a retry): no new rows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopyOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopyOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     meals_summary: {
         parameters: {
             query: {
                 member_id: string;
                 period?: components["schemas"]["SummaryPeriod"];
-                /** @description IST date; default today */
+                /** @description Local date; default today */
                 date?: string | null;
             };
             header?: never;
@@ -3429,6 +4544,86 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meals_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealOut"];
+                };
             };
             /** @description Missing or invalid access token */
             401: {
