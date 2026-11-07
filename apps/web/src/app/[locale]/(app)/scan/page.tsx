@@ -1,11 +1,19 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { useState } from "react";
 import { pageClass } from "@/components/shell/page";
 import { Card, cardClass } from "@/components/ui/Card";
 import { ArrowRightIcon, CameraIcon, SearchIcon } from "@/components/ui/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import {
+  clearDiaryAddContext,
+  getDiaryAddContext,
+} from "@/features/diary/lib/addContext";
+import { foodBarcodeKey, getFoodByBarcode } from "@/features/foods/api/foods";
+import { PortionPicker } from "@/features/foods/components/PortionPicker";
 import { BarcodeScanner } from "@/features/scan/components/BarcodeScanner";
 import { ManualBarcodeForm } from "@/features/scan/components/ManualBarcodeForm";
 import { cn } from "@/lib/cn";
@@ -16,7 +24,49 @@ export default function ScanPage() {
   const tSearch = useTranslations("search");
   const locale = useLocale();
   const router = useRouter();
-  const go = (code: string) => router.push(`/${locale}/result/${code}`);
+  const client = useQueryClient();
+  const [own, setOwn] = useState<{ id: string; name: string } | null>(null);
+  // Own custom food first (it never has a verdict); anything else, or a
+  // failed lookup, keeps the product + verdict flow unchanged.
+  const go = async (code: string) => {
+    try {
+      const food = await client.fetchQuery({
+        queryKey: foodBarcodeKey(code),
+        queryFn: () => getFoodByBarcode(code),
+        staleTime: 0,
+      });
+      if (food.kind === "custom_food") {
+        setOwn({ id: food.id, name: food.name });
+        return;
+      }
+    } catch {
+      // Fall through to the verdict flow.
+    }
+    router.push(`/${locale}/result/${code}`);
+  };
+  if (own) {
+    const ctx = getDiaryAddContext();
+    return (
+      <main className={pageClass}>
+        <PortionPicker
+          hit={{
+            kind: "custom_food",
+            id: own.id,
+            name: own.name,
+            is_dish: false,
+          }}
+          slotId={ctx?.slotId ?? null}
+          localDate={ctx?.localDate ?? undefined}
+          method="barcode"
+          onCancel={() => setOwn(null)}
+          onLogged={() => {
+            clearDiaryAddContext();
+            router.push(`/${locale}/diary`);
+          }}
+        />
+      </main>
+    );
+  }
   return (
     <main className={pageClass}>
       <SectionHeader as="h1" title={t("title")} description={t("subtitle")} />
