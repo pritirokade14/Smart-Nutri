@@ -626,6 +626,66 @@ class AppLocalizationsMr extends AppLocalizations {
   String get consentWithdraw => 'संमती मागे घ्या';
 
   @override
+  String get customFoodBarcode => 'बारकोड (ऐच्छिक)';
+
+  @override
+  String get customFoodBasisG => 'ग्रॅममध्ये मोजलेला';
+
+  @override
+  String get customFoodBasisMl => 'मि.ली.मध्ये मोजलेला';
+
+  @override
+  String get customFoodBrand => 'ब्रँड (ऐच्छिक)';
+
+  @override
+  String get customFoodDelete => 'पदार्थ हटवा';
+
+  @override
+  String get customFoodDeleteConfirm =>
+      'हा पदार्थ हटवायचा? तुम्ही आधी नोंदवलेल्या जेवणांची मूल्ये तशीच राहतील.';
+
+  @override
+  String get customFoodDensity => '1 मि.ली.मधील ग्रॅम (ऐच्छिक)';
+
+  @override
+  String get customFoodDensityHint =>
+      'वाटी, कप किंवा ग्लास ग्रॅममध्ये बदलण्यासाठी हवे. माहीत नसल्यास रिकामे ठेवा.';
+
+  @override
+  String get customFoodFieldSalt => 'मीठ (ग्रॅम)';
+
+  @override
+  String get customFoodFieldSatFat => 'संतृप्त स्निग्ध (ग्रॅम)';
+
+  @override
+  String get customFoodFieldSodium => 'सोडियम (मि.ग्रॅ.)';
+
+  @override
+  String get customFoodFieldSugars => 'साखर (ग्रॅम)';
+
+  @override
+  String get customFoodHistoryKept =>
+      'तुम्ही आधी नोंदवलेली जेवणे जशी होती तशीच राहतील.';
+
+  @override
+  String get customFoodName => 'नाव';
+
+  @override
+  String get customFoodPortions => 'तुमची स्वतःची मापे';
+
+  @override
+  String get customFoodSave => 'पदार्थ जतन करा';
+
+  @override
+  String get customFoodSaved => 'पदार्थ जतन केला';
+
+  @override
+  String get customFoodServingSize => 'सर्व्हिंगचा आकार';
+
+  @override
+  String get customFoodTitle => 'माझा पदार्थ';
+
+  @override
   String get diaryAdd => 'खाणे जोडा';
 
   @override
@@ -1266,7 +1326,13 @@ class AppLocalizationsMr extends AppLocalizations {
   String get foodsGroupIndian => 'भारतीय पदार्थ';
 
   @override
+  String get foodsGroupMine => 'माझे पदार्थ आणि रेसिपी';
+
+  @override
   String get foodsGroupPackaged => 'पॅकेज्ड उत्पादने';
+
+  @override
+  String get foodsKindCustomFood => 'माझा पदार्थ';
 
   @override
   String get foodsKindDish => 'पदार्थ';
@@ -1276,6 +1342,18 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get foodsKindProduct => 'उत्पादन';
+
+  @override
+  String get foodsKindRecipe => 'रेसिपी';
+
+  @override
+  String get foodsMyFoods => 'माझे पदार्थ आणि रेसिपी';
+
+  @override
+  String get foodsNewFood => 'नवीन पदार्थ';
+
+  @override
+  String get foodsNewRecipe => 'नवीन रेसिपी';
 
   @override
   String get foodsNoResults =>
@@ -1313,6 +1391,15 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get foodsSearchPlaceholder => 'अन्न, पदार्थ किंवा ब्रँड शोधा';
+
+  @override
+  String get foodsValuesPer100g => 'प्रति 100 ग्रॅमची मूल्ये';
+
+  @override
+  String get foodsValuesPer100ml => 'प्रति 100 मि.ली.ची मूल्ये';
+
+  @override
+  String get foodsValuesPerServing => 'प्रति सर्व्हिंगची मूल्ये';
 
   @override
   String get footerLinksLabel => 'SmartNutri विषयी';
@@ -2534,6 +2621,55 @@ class AppLocalizationsMr extends AppLocalizations {
   String reasonVariantNutrientMissingLowConfidence(String nutrient) {
     return 'लेबलवरील $nutrient स्पष्टपणे वाचता आले नाही, त्यामुळे ही तपासणी करता आली नाही.';
   }
+
+  @override
+  String get recipesAddIngredient => 'साहित्य जोडा';
+
+  @override
+  String get recipesCookedWeight => 'शिजवल्यानंतरचे वजन (ग्रॅम)';
+
+  @override
+  String get recipesCookedWeightTip =>
+      'सर्वात अचूक निकालासाठी शिजवल्यानंतर भांड्याचे वजन करा.';
+
+  @override
+  String get recipesDeleteConfirm =>
+      'ही रेसिपी हटवायची? तुम्ही आधी नोंदवलेल्या जेवणांची मूल्ये तशीच राहतील.';
+
+  @override
+  String get recipesEmpty => 'अजून एकही रेसिपी नाही';
+
+  @override
+  String get recipesIncomplete =>
+      'काही साहित्यात हे मूल्य दिलेले नाही, म्हणून खरे प्रमाण जास्त असू शकते.';
+
+  @override
+  String get recipesIngredientUnavailable =>
+      'हे साहित्य हटवले आहे. रेसिपी जतन करण्यासाठी ते बदला.';
+
+  @override
+  String get recipesIngredients => 'साहित्य';
+
+  @override
+  String get recipesLogServing => 'एक सर्व्हिंग नोंदवा';
+
+  @override
+  String get recipesName => 'रेसिपीचे नाव';
+
+  @override
+  String get recipesPer100g => 'प्रति 100 ग्रॅम';
+
+  @override
+  String get recipesPerServing => 'प्रति सर्व्हिंग';
+
+  @override
+  String get recipesSaved => 'रेसिपी जतन केली';
+
+  @override
+  String get recipesServings => 'सर्व्हिंगची संख्या';
+
+  @override
+  String get recipesTitle => 'रेसिपी';
 
   @override
   String get reportButton => 'समस्या कळवा';

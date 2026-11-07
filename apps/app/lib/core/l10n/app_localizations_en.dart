@@ -623,6 +623,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentWithdraw => 'Withdraw consent';
 
   @override
+  String get customFoodBarcode => 'Barcode (optional)';
+
+  @override
+  String get customFoodBasisG => 'Measured in grams';
+
+  @override
+  String get customFoodBasisMl => 'Measured in millilitres';
+
+  @override
+  String get customFoodBrand => 'Brand (optional)';
+
+  @override
+  String get customFoodDelete => 'Delete food';
+
+  @override
+  String get customFoodDeleteConfirm =>
+      'Delete this food? Meals you already logged keep their values.';
+
+  @override
+  String get customFoodDensity => 'Grams in 1 ml (optional)';
+
+  @override
+  String get customFoodDensityHint =>
+      'Needed to turn a katori, cup or glass into grams. Leave blank if you don\'t know it.';
+
+  @override
+  String get customFoodFieldSalt => 'Salt (g)';
+
+  @override
+  String get customFoodFieldSatFat => 'Saturated fat (g)';
+
+  @override
+  String get customFoodFieldSodium => 'Sodium (mg)';
+
+  @override
+  String get customFoodFieldSugars => 'Sugars (g)';
+
+  @override
+  String get customFoodHistoryKept => 'Meals you already logged are unchanged.';
+
+  @override
+  String get customFoodName => 'Name';
+
+  @override
+  String get customFoodPortions => 'Your own measures';
+
+  @override
+  String get customFoodSave => 'Save food';
+
+  @override
+  String get customFoodSaved => 'Food saved';
+
+  @override
+  String get customFoodServingSize => 'Serving size';
+
+  @override
+  String get customFoodTitle => 'My food';
+
+  @override
   String get diaryAdd => 'Add food';
 
   @override
@@ -1261,7 +1320,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get foodsGroupIndian => 'Indian foods';
 
   @override
+  String get foodsGroupMine => 'My foods and recipes';
+
+  @override
   String get foodsGroupPackaged => 'Packaged products';
+
+  @override
+  String get foodsKindCustomFood => 'My food';
 
   @override
   String get foodsKindDish => 'Dish';
@@ -1271,6 +1336,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get foodsKindProduct => 'Product';
+
+  @override
+  String get foodsKindRecipe => 'Recipe';
+
+  @override
+  String get foodsMyFoods => 'My foods and recipes';
+
+  @override
+  String get foodsNewFood => 'New food';
+
+  @override
+  String get foodsNewRecipe => 'New recipe';
 
   @override
   String get foodsNoResults =>
@@ -1307,6 +1384,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get foodsSearchPlaceholder => 'Search foods, dishes or brands';
+
+  @override
+  String get foodsValuesPer100g => 'Values per 100 g';
+
+  @override
+  String get foodsValuesPer100ml => 'Values per 100 ml';
+
+  @override
+  String get foodsValuesPerServing => 'Values per serving';
 
   @override
   String get footerLinksLabel => 'About SmartNutri';
@@ -2529,6 +2615,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String reasonVariantNutrientMissingLowConfidence(String nutrient) {
     return 'We couldn\'t read $nutrient clearly on the label, so this check could not be done.';
   }
+
+  @override
+  String get recipesAddIngredient => 'Add ingredient';
+
+  @override
+  String get recipesCookedWeight => 'Cooked weight (g)';
+
+  @override
+  String get recipesCookedWeightTip =>
+      'Weigh the pot after cooking for the best accuracy.';
+
+  @override
+  String get recipesDeleteConfirm =>
+      'Delete this recipe? Meals you already logged keep their values.';
+
+  @override
+  String get recipesEmpty => 'No recipes yet';
+
+  @override
+  String get recipesIncomplete =>
+      'Some ingredients don\'t show this value, so the real amount may be higher.';
+
+  @override
+  String get recipesIngredientUnavailable =>
+      'This ingredient was deleted. Replace it to save the recipe.';
+
+  @override
+  String get recipesIngredients => 'Ingredients';
+
+  @override
+  String get recipesLogServing => 'Log a serving';
+
+  @override
+  String get recipesName => 'Recipe name';
+
+  @override
+  String get recipesPer100g => 'Per 100 g';
+
+  @override
+  String get recipesPerServing => 'Per serving';
+
+  @override
+  String get recipesSaved => 'Recipe saved';
+
+  @override
+  String get recipesServings => 'Number of servings';
+
+  @override
+  String get recipesTitle => 'Recipe';
 
   @override
   String get reportButton => 'Report a problem';
