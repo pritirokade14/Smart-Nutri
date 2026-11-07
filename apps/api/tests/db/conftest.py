@@ -51,6 +51,7 @@ TABLES = {
     "recipes",
     "recipe_ingredients",
     "favourites",
+    "weight_logs",
 }
 
 _ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")
@@ -261,6 +262,7 @@ class Seed:
     recipe: uuid.UUID
     ingredient: uuid.UUID
     favourite: uuid.UUID
+    weigh_in: uuid.UUID
 
 
 @dataclass(frozen=True)
@@ -288,6 +290,7 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
             "recipe",
             "ingredient",
             "favourite",
+            "weigh_in",
         )
     }
     await db.execute(
@@ -407,6 +410,14 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
             "m": ids["member"],
             "cf": ids["custom_food"],
         },
+    )
+    # One weigh-in per member (Plan 12 slice 6, migration 0013).
+    await db.execute(
+        text(
+            "insert into weight_logs (id, account_id, member_id, local_date, weight_kg, "
+            "measured_at) values (:id, :acc, :m, current_date, 70, now())"
+        ),
+        {"id": ids["weigh_in"], "acc": ids["account"], "m": ids["member"]},
     )
     return Seed(**ids)
 

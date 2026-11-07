@@ -213,6 +213,13 @@ async def seed(session, account_id: UUID, storage: FakeStorage) -> dict[str, UUI
         a=account_id,
         m=member,
     )
+    await _exec(
+        session,
+        "insert into weight_logs (account_id, member_id, local_date, weight_kg, measured_at) "
+        "values (:a, :m, current_date, 70, now())",
+        a=account_id,
+        m=member,
+    )
     await session.flush()
     return {
         "product": product,
@@ -659,4 +666,17 @@ async def test_delete_me_erases_favourites(client, login, db_session, storage):
     login(A)
     assert (await client.delete("/v1/me")).status_code == 204
     assert (await counts(db_session, A))["favourites"] == 0
+    assert await counts(db_session, B) == before
+
+
+async def test_delete_me_erases_weight_logs(client, login, db_session, storage):
+    """Plan 12 slice 6: weigh-ins go; another account's stay."""
+    await seed(db_session, A, storage)
+    await seed(db_session, B, storage)
+    assert "weight_logs" in ACCOUNT_OWNED_TABLES
+    before = await counts(db_session, B)
+    assert before["weight_logs"] == 1
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    assert (await counts(db_session, A))["weight_logs"] == 0
     assert await counts(db_session, B) == before
