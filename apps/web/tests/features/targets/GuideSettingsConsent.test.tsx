@@ -78,6 +78,16 @@ function wrap() {
 }
 
 describe("guide settings after health_data is withdrawn", () => {
+  it("preselects no Numbers option", async () => {
+    wrap();
+    await screen.findByTestId("guide-settings");
+    const group = screen.getByTestId("numbers-choice");
+    for (const r of Array.from(
+      group.querySelectorAll<HTMLInputElement>("input[type=radio]"),
+    ))
+      expect(r.checked).toBe(false);
+  });
+
   it("still sends the Numbers choice to the display route", async () => {
     api.on("PUT", "/v1/targets/display", { numbers_display: "hide_all" });
     wrap();
@@ -103,9 +113,7 @@ describe("guide settings after health_data is withdrawn", () => {
     await userEvent.click(
       screen.getByRole("radio", { name: en.settings.diary.numbers.hide_all }),
     );
-    expect(
-      await screen.findByText(en.error.goal_settings_not_found),
-    ).toBeTruthy();
+    expect(await screen.findByText(en.targets.intro.body)).toBeTruthy();
   });
 
   it("reset stays reachable", async () => {

@@ -33,9 +33,12 @@ import { NumbersChoice } from "./NumbersChoice";
 function Sections({
   member,
   settings,
+  displayUnknown,
 }: {
   member: MemberOut;
   settings: GoalSettingsOut | null;
+  /** health_data withdrawn: the stored display value cannot be read. */
+  displayUnknown: boolean;
 }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -47,6 +50,7 @@ function Sections({
   const [asking, setAsking] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [picked, setPicked] = useState(false);
   const { values, set, preview, targets, saveGuide } = form;
   const error: ApiError | null = saveGuide.error ?? preview.error;
 
@@ -113,8 +117,9 @@ function Sections({
       </Card>
       <Card as="section" className="space-y-3">
         <NumbersChoice
-          value={values.numbers_display}
+          value={displayUnknown && !picked ? null : values.numbers_display}
           onChange={(v) => {
+            setPicked(true);
             set("numbers_display", v);
             // The eye toggle's route: terms only, never revalidates the rest.
             // Always sent, even with no readable settings (health_data
@@ -137,7 +142,9 @@ function Sections({
         />
         {setDisplay.error ? (
           <p role="alert" className="text-md text-text-primary">
-            {t(errorKey(t, setDisplay.error))}
+            {setDisplay.error.status === 404
+              ? t("targets.intro.body")
+              : t(errorKey(t, setDisplay.error))}
           </p>
         ) : null}
         {reset.error ? (
@@ -224,7 +231,11 @@ export function GuideSettings() {
   return (
     <div className="space-y-4">
       <SectionHeader as="h1" title={t("settings.diary.title")} />
-      <Sections member={primary} settings={settings.data ?? null} />
+      <Sections
+        member={primary}
+        settings={settings.data ?? null}
+        displayUnknown={settings.error?.code === "consent_required"}
+      />
     </div>
   );
 }

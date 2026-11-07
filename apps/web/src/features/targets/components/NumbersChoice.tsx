@@ -11,7 +11,8 @@ export function NumbersChoice({
   value,
   onChange,
 }: {
-  value: NumbersDisplay;
+  /** null: the stored choice cannot be read, so none is preselected. */
+  value: NumbersDisplay | null;
   onChange: (next: NumbersDisplay) => void;
 }) {
   const t = useTranslations();
@@ -33,7 +34,7 @@ export function NumbersChoice({
           {t(`settings.diary.numbers.${n}`)}
         </label>
       ))}
-      {value !== "show" ? (
+      {value !== null && value !== "show" ? (
         <p className="text-sm text-text-secondary">
           {t("settings.diary.numbers.hide_note")}
         </p>
