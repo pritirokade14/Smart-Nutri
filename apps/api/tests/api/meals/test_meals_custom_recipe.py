@@ -108,7 +108,7 @@ async def test_log_recipe_serving(client):
     assert (j["source_kind"], j["recipe_id"], j["unit"]) == ("recipe", recipe["id"], "serving")
     assert j["grams"] == 50.0 and j["product_name"] == "Stew"  # 200 g / 4 servings
     assert j["nutrients"]["energy_kcal"] == 200.0 and j["nutrients"]["protein_g"] == 15.0
-    assert j["unit_source"] == "grams" and j["custom_food_id"] is None
+    assert j["unit_source"] == "portion" and j["custom_food_id"] is None
     by_grams = await _log(client, recipe_id=recipe["id"], grams=100)
     assert by_grams.json()["nutrients"]["energy_kcal"] == 400.0
     no_servings = await _recipe(client, [_ing(full, 100)])
@@ -267,3 +267,29 @@ async def test_copy_carries_custom_food_and_recipe(client, clock):
         ("recipe", None, recipe["id"]),
     }
     assert ACC_A  # (the copies belong to the same account)
+
+
+async def test_ml_household_volume_and_recipe_serving_are_approximate(client):
+    shake = await _custom(client, name="Shake2", basis="ml", density_g_per_ml=1.05)
+    exact = await _log(client, custom_food_id=shake["id"], quantity=200, unit="ml")
+    assert exact.json()["unit_source"] == "grams"
+    for unit in ("katori", "cup", "glass"):
+        r = await _log(client, custom_food_id=shake["id"], quantity=1, unit=unit)
+        assert r.status_code == 201, r.text
+        assert r.json()["unit_source"] == "density", unit
+    ing = await _custom(client, name="Flour2", serving_g=None)
+    rec = await client.post(
+        "/v1/recipes",
+        json={
+            "name": "Rotla",
+            "servings": 2,
+            "cooked_weight_g": 200,
+            "ingredients": [{"custom_food_id": ing["id"], "quantity": 100, "unit": "g"}],
+        },
+    )
+    assert rec.status_code in (200, 201), rec.text
+    served = await _log(client, recipe_id=rec.json()["id"], quantity=1, unit="serving")
+    assert served.status_code == 201, served.text
+    assert served.json()["unit_source"] == "portion"
+    by_g = await _log(client, recipe_id=rec.json()["id"], quantity=100, unit="g")
+    assert by_g.json()["unit_source"] == "grams"

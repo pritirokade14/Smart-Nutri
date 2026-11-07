@@ -263,3 +263,9 @@ def test_conversions_fixture():
             for k, v in case["per_100"].items()
         }
         assert preview == exp["preview"], case["case"]
+
+
+def test_ml_basis_food_volume_stays_volume_even_with_a_density():
+    """Slice-3 fix: an ml-basis food's volume is already millilitres, so no density multiplies it."""
+    food = FoodUnits("ml", density_g_per_ml=D("1.05"))
+    assert to_grams(D(200), u("ml"), food) == D(200)

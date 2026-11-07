@@ -143,12 +143,20 @@ def food_snapshot(
     }
 
 
-def unit_source_label(source: str, basis: str) -> str:
+def unit_source_label(
+    source: str, basis: str, *, recipe: bool = False, code: str | None = None
+) -> str:
     """The client-facing kind of a resolved unit's conversion: `portion` (a per-food weight),
     `density` (a volume through a density, which includes grams of an ml-basis food), else
-    `grams` (exact: a mass, a millilitre of an ml-basis food, or a label serving)."""
+    `grams` (exact: a mass, a millilitre of an ml-basis food, or a label serving). A household
+    volume on an ml-basis food (`volume_basis`) is a nominal volume: approximate (`density`). A
+    recipe's per-serving portion is cooked weight / servings: approximate (`portion`)."""
+    if recipe and source == "serving":
+        return "portion"
     if source in ("portion_user", "portion_global"):
         return "portion"
+    if source == "volume_basis" and code != "ml":
+        return "density"  # katori, cup, glass...: a nominal volume (plain `ml` stays exact)
     if source == "density" or (source == "mass" and basis == "ml"):
         return "density"
     return "grams"
@@ -430,7 +438,12 @@ async def log_meal(
         grams, quantity, unit_code = _portion_of(body, loaded, table)
         resolved = food_units.resolve_units(loaded.units, table)
         units = {r.code: float(r.grams_per_unit) for r in resolved}
-        unit_sources = {r.code: unit_source_label(r.source, loaded.basis) for r in resolved}
+        unit_sources = {
+            r.code: unit_source_label(
+                r.source, loaded.basis, recipe=loaded.ref.kind == "recipe", code=r.code
+            )
+            for r in resolved
+        }
         serving = loaded.units.serving_g
         row = MealLog(
             **common,
