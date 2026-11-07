@@ -3,10 +3,10 @@ import 'package:smartnutri_ai/features/diary/presentation/add_food_sheet.dart';
 import 'package:smartnutri_ai/features/diary/presentation/diary_screen.dart';
 import 'package:smartnutri_ai/features/favourites/presentation/favourite_star.dart';
 import 'package:smartnutri_ai/features/foods/presentation/food_search_view.dart';
-import 'package:smartnutri_ai/features/foods/presentation/portion_picker_sheet.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_diary.dart';
+import '../../support/fake_favourites.dart';
 import '../../support/fake_foods.dart';
 import '../../support/fake_meals.dart';
 import '../diary/diary_harness.dart';
@@ -79,9 +79,10 @@ void main() {
     expect(find.text(en.errorFoodRetired), findsOneWidget);
   });
 
-  testWidgets('picker toggle stars with the chosen portion after logging', (
-    t,
-  ) async {
+  Future<DiaryEnv> openPicker(
+    WidgetTester t, {
+    List<FavouriteOut>? favs,
+  }) async {
     final foods = FakeFoodsClient(
       search: FoodSearchOut(
         failedSources: const [],
@@ -91,6 +92,7 @@ void main() {
       details: {'f1': foodDetail()},
     );
     final env = _env(foods: foods);
+    if (favs != null) env.favourites.items = favs;
     await pumpDiary(t, env);
     await _open(t);
     await t.tap(find.byKey(AddFoodSheet.segmentKey('search')));
@@ -100,14 +102,31 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.byKey(FoodSearchView.hitKey(foodHit('f1', 'x'))));
     await t.pumpAndSettle();
-    await t.tap(find.byKey(PortionPickerSheet.favouriteKey));
+    return env;
+  }
+
+  testWidgets('picker star stars with the chosen portion', (t) async {
+    final env = await openPicker(t);
+    await t.tap(find.byKey(FavouriteStar.starKey('food-f1')));
     await t.pumpAndSettle();
-    await t.tap(find.byKey(PortionPickerSheet.saveKey));
-    await t.pumpAndSettle();
-    expect(env.meals.logged.single.foodId, 'f1');
     final add = env.favourites.added.single;
     expect(add.foodId, 'f1');
     expect(add.defaultQuantity, 1);
     expect(add.defaultUnit, isNotNull);
+    expect(env.meals.logged, isEmpty);
+    // Now shown as starred: the tooltip offers removal.
+    expect(find.byTooltip(en.favouritesRemove), findsOneWidget);
+  });
+
+  testWidgets('picker shows an existing star and unstars it', (t) async {
+    final env = await openPicker(
+      t,
+      favs: [favouriteOut(id: 'fav-7', productId: null, foodId: 'f1')],
+    );
+    expect(find.byTooltip(en.favouritesRemove), findsOneWidget);
+    await t.tap(find.byKey(FavouriteStar.starKey('food-f1')));
+    await t.pumpAndSettle();
+    expect(env.favourites.deleted.single, 'fav-7');
+    expect(find.byTooltip(en.favouritesAdd), findsOneWidget);
   });
 }

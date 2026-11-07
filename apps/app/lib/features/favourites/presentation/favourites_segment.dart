@@ -12,6 +12,7 @@ import '../../foods/data/foods_repository.dart';
 import '../../foods/domain/portion_line.dart';
 import '../../foods/domain/unit_label.dart';
 import '../../scan/domain/number_text.dart';
+import '../data/favourites_repository.dart';
 import 'favourite_star.dart';
 import 'favourites_providers.dart';
 
@@ -28,6 +29,18 @@ FoodRef? favouriteFoodRef(FavouriteOut f) {
   if (f.barcode != null) return (kind: FoodKindPath.off, id: f.barcode!);
   return null;
 }
+
+/// Whether the food favourite [f] is the food [r].
+bool favouriteMatches(FavouriteOut f, FoodRef r) =>
+    f.kind == FavouriteOutKind.food &&
+    switch (r.kind) {
+      FoodKindPath.food => f.foodId == r.id,
+      FoodKindPath.product => f.productId == r.id,
+      FoodKindPath.off => f.barcode == r.id,
+      FoodKindPath.customFood => f.customFoodId == r.id,
+      FoodKindPath.recipe => f.recipeId == r.id,
+      _ => false,
+    };
 
 /// The Favourites list of the add-food sheet. It only shows; the sheet logs.
 /// A food row shows its name and default portion (no nutrient value anywhere,
@@ -51,6 +64,7 @@ class FavouritesSegment extends ConsumerWidget {
 
   static const emptyKey = Key('favourites-empty');
   static Key rowKey(String id) => Key('favourite-row-$id');
+  static Key removeKey(String id) => Key('favourite-remove-$id');
   static Key logAgainKey(String id) => Key('favourite-log-again-$id');
 
   @override
@@ -74,7 +88,7 @@ class FavouritesSegment extends ConsumerWidget {
                   children: [
                     for (final f in items)
                       f.kind == FavouriteOutKind.meal
-                          ? _meal(context, l10n, f)
+                          ? _meal(context, ref, l10n, f)
                           : _food(context, l10n, f),
                   ],
                 ),
@@ -117,6 +131,7 @@ class FavouritesSegment extends ConsumerWidget {
 
   Widget _meal(
     BuildContext context,
+    WidgetRef ref,
     AppLocalizations l10n,
     FavouriteOut f,
   ) => ListTile(
@@ -136,12 +151,43 @@ class FavouritesSegment extends ConsumerWidget {
             Text(
               '${i.name ?? ''} · ${portionLine(l10n, amount: i.grams!, ml: i.basis == FavouriteItemOutBasis.ml, quantity: i.quantity, unit: i.unit)}',
             ),
+        SourceAttribution(keys: f.attributions ?? const []),
       ],
     ),
-    trailing: TextButton(
-      key: logAgainKey(f.id),
-      onPressed: enabled ? () => onLogMeal(f) : null,
-      child: Text(l10n.favouritesLogAgain),
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextButton(
+          key: logAgainKey(f.id),
+          onPressed: enabled ? () => onLogMeal(f) : null,
+          child: Text(l10n.favouritesLogAgain),
+        ),
+        IconButton(
+          key: removeKey(f.id),
+          tooltip: l10n.favouritesRemove,
+          isSelected: true,
+          icon: const Icon(Icons.star_border_rounded),
+          selectedIcon: const Icon(Icons.star_rounded),
+          onPressed: enabled ? () => _remove(context, ref, l10n, f) : null,
+        ),
+      ],
     ),
   );
+
+  Future<void> _remove(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    FavouriteOut f,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(favouritesRepositoryProvider).delete(f.id);
+      ref.invalidate(favouritesProvider(memberId));
+    } on FavouritesFailure catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(localizedErrorCode(l10n, e.code))),
+      );
+    }
+  }
 }

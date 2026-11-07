@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_ai/features/diary/presentation/add_food_sheet.dart';
 import 'package:smartnutri_ai/features/diary/presentation/diary_screen.dart';
 import 'package:smartnutri_ai/features/favourites/presentation/favourites_segment.dart';
+import 'package:smartnutri_ai/features/foods/presentation/portion_picker_sheet.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_favourites.dart';
@@ -155,5 +156,39 @@ void main() {
     expect(find.textContaining('200 ml'), findsOneWidget);
     expect(find.textContaining('200 g'), findsNothing);
     expect(find.textContaining('40 g'), findsOneWidget);
+  });
+
+  testWidgets('food favourite without a default portion opens the picker', (
+    t,
+  ) async {
+    final env = _env(favs: [favouriteOut(quantity: null, unit: null)]);
+    await pumpDiary(t, env);
+    await _openFavourites(t);
+    await t.tap(find.byKey(FavouritesSegment.rowKey('fav-1')));
+    await t.pumpAndSettle();
+    expect(find.byType(PortionPickerSheet), findsOneWidget);
+    expect(env.meals.logged, isEmpty);
+    expect(await env.queue.pending(), isEmpty);
+  });
+
+  testWidgets('saved meal can be removed and shows its credit', (t) async {
+    final env = _env(
+      favs: [
+        favouriteOut(
+          id: 'fm',
+          name: 'मेरा नाश्ता',
+          kind: FavouriteOutKind.meal,
+          itemCount: 3,
+          attributions: ['attribution.usda_fdc'],
+        ),
+      ],
+    );
+    await pumpDiary(t, env);
+    await _openFavourites(t);
+    expect(find.text(en.attributionUsdaFdc), findsOneWidget);
+    await t.tap(find.byKey(FavouritesSegment.removeKey('fm')));
+    await t.pumpAndSettle();
+    expect(env.favourites.deleted.single, 'fm');
+    expect(find.byKey(FavouritesSegment.emptyKey), findsOneWidget);
   });
 }

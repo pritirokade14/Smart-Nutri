@@ -171,6 +171,10 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
   Future<void> _logFavouriteFood(FavouriteOut f, String? slotId) {
     final ref = favouriteFoodRef(f);
     if (ref == null) return Future.value();
+    // No default portion: nothing valid to send, so ask for one.
+    if (f.defaultQuantity == null || f.defaultUnit == null) {
+      return _pickFavouriteFood(f, slotId);
+    }
     return _log(
       MealDraft(
         memberId: widget.day.memberId,
