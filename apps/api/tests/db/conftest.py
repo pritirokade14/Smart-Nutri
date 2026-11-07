@@ -42,6 +42,8 @@ TABLES = {
     "deleted_accounts",
     "account_user_types",
     "diary_goal_settings",
+    "meal_slots",
+    "diary_days",
 }
 
 _ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")
@@ -247,6 +249,7 @@ class Seed:
     scan: uuid.UUID
     meal_log: uuid.UUID
     report: uuid.UUID
+    slot: uuid.UUID
 
 
 @dataclass(frozen=True)
@@ -260,7 +263,10 @@ class TwoAccounts:
 
 
 async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
-    ids = {k: uuid.uuid4() for k in ("account", "member", "consent", "scan", "meal_log", "report")}
+    ids = {
+        k: uuid.uuid4()
+        for k in ("account", "member", "consent", "scan", "meal_log", "report", "slot")
+    }
     await db.execute(
         text("insert into accounts (id, display_name) values (:id, :n)"),
         {"id": ids["account"], "n": f"{label} account"},
@@ -283,12 +289,27 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
         ),
         {"id": ids["scan"], "acc": ids["account"], "p": product, "sha": f"sha-{label}"},
     )
+    # One default slot per member (Plan 11, migration 0009); the entry below uses it.
     await db.execute(
         text(
-            "insert into meal_logs (id, account_id, member_id, product_id, grams, nutrients) "
-            "values (:id, :acc, :m, :p, 30, '{}'::jsonb)"
+            "insert into meal_slots (id, account_id, member_id, position, label_key, is_default) "
+            "values (:id, :acc, :m, 0, 'diary.slot.breakfast', true)"
         ),
-        {"id": ids["meal_log"], "acc": ids["account"], "m": ids["member"], "p": product},
+        {"id": ids["slot"], "acc": ids["account"], "m": ids["member"]},
+    )
+    await db.execute(
+        text(
+            "insert into meal_logs (id, account_id, member_id, product_id, grams, nutrients, "
+            "local_date, meal_slot_id) "
+            "values (:id, :acc, :m, :p, 30, '{}'::jsonb, current_date, :slot)"
+        ),
+        {
+            "id": ids["meal_log"],
+            "acc": ids["account"],
+            "m": ids["member"],
+            "p": product,
+            "slot": ids["slot"],
+        },
     )
     await db.execute(
         text(
@@ -310,6 +331,14 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
         text(
             "insert into diary_goal_settings (member_id, account_id, direction, activity_level) "
             "values (:m, :acc, 'maintain', 'light')"
+        ),
+        {"m": ids["member"], "acc": ids["account"]},
+    )
+    # One frozen day per member (Plan 11, migration 0009); its key is (member_id, local_date).
+    await db.execute(
+        text(
+            "insert into diary_days (member_id, local_date, account_id, status) "
+            "values (:m, current_date, :acc, 'none')"
         ),
         {"m": ids["member"], "acc": ids["account"]},
     )

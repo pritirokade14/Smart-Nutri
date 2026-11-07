@@ -1744,6 +1744,7 @@ dependencies = [
     { name = "sentry-sdk" },
     { name = "sqlalchemy", extra = ["asyncio"] },
     { name = "standardwebhooks" },
+    { name = "tzdata" },
 ]
 
 [package.dev-dependencies]
@@ -1768,6 +1769,7 @@ requires-dist = [
     { name = "sentry-sdk", specifier = ">=2.20" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.40" },
     { name = "standardwebhooks", specifier = ">=1.1.0" },
+    { name = "tzdata", specifier = ">=2026.6" },
 ]
 
 [package.metadata.requires-dev]

@@ -11,6 +11,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
 
 from sqlalchemy import delete, func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +20,8 @@ from app.core.config import Settings
 from app.core.errors import ApiError
 from app.core.time import IST, today_ist
 from app.features.consents import service as consents_service
+from app.features.meal_slots.defaults import DEFAULT_SLOTS
+from app.features.meal_slots.models import MealSlot
 from app.features.meals.models import MealLog
 from app.features.meals.schemas import MealIn, MealOut, NutrientSnapshot, Summary, WeekCounts
 from app.features.meals.summary import PERIOD_DAYS, annotate_protein, redact, summarise
@@ -125,6 +128,41 @@ def _grams(body: MealIn, serving_size_g: float | None) -> float:
     return grams
 
 
+async def _bridge_slot(session: AsyncSession, member, eaten_at: datetime) -> UUID:
+    """TEMPORARY (Plan 11 Task 1 only; replaced by `slot_for_entry` in Tasks 2 and 4): the
+    member's default slot for the IST clock minute of ``eaten_at``."""
+    await session.execute(
+        pg_insert(MealSlot)
+        .values(
+            [
+                {
+                    "account_id": member.account_id,
+                    "member_id": member.id,
+                    "position": d.position,
+                    "label_key": d.label_key,
+                    "default_time_window": {
+                        "start": d.start.strftime("%H:%M"),
+                        "end": d.end.strftime("%H:%M"),
+                    },
+                    "is_default": True,
+                }
+                for d in DEFAULT_SLOTS
+            ]
+        )
+        .on_conflict_do_nothing()
+    )
+    local = eaten_at.astimezone(IST)
+    minute = local.hour * 60 + local.minute
+    for d in DEFAULT_SLOTS:
+        s0, e0 = d.start.hour * 60 + d.start.minute, d.end.hour * 60 + d.end.minute
+        if (s0 <= minute <= e0) if s0 <= e0 else (minute >= s0 or minute <= e0):
+            key = d.label_key
+            break
+    return await session.scalar(
+        select(MealSlot.id).where(MealSlot.member_id == member.id, MealSlot.label_key == key)
+    )
+
+
 async def log_meal(
     session: AsyncSession,
     account_id: UUID,
@@ -170,6 +208,9 @@ async def log_meal(
         eaten_at=eaten_at,
         nutrients=snapshot(found.product.per_100g, grams).model_dump(),
         client_id=body.client_id,
+        local_date=eaten_at.astimezone(IST).date(),
+        source_kind="product" if found.product_id is not None else "off",
+        meal_slot_id=await _bridge_slot(session, member, eaten_at),
     )
     try:
         async with session.begin_nested():

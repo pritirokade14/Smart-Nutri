@@ -34,6 +34,8 @@ sys.path.insert(0, str(Path(__file__).parents[1]))
 from app import scoring
 from app.core.config import Settings
 from app.core.time import IST
+from app.features.meal_slots.defaults import DEFAULT_SLOTS
+from app.features.meal_slots.models import MealSlot
 from app.features.meals.models import MealLog
 from app.features.meals.service import snapshot
 from app.features.meals.summary import annotate_protein, summarise
@@ -66,10 +68,26 @@ class WeekFamily:
     members: dict[str, Member]  # fixture key -> row (fixed ids)
     products: list[Product]  # own catalogue rows (fixed ids)
     meals: list[MealLog]  # every meal in the file, also those outside the week
+    slots: list[MealSlot]  # the four default slots of every member (fixed ids)
 
 
 def _member_id(key: str) -> UUID:
     return fixture_id("member", f"week_family/{key}")
+
+
+def _slot_id(member_key: str, label_key: str) -> UUID:
+    return fixture_id("slot", f"week_family/{member_key}/{label_key}")
+
+
+def _slot_key_for(at: datetime) -> str:
+    """The default slot (Ruling E4 bands) for the IST wall-clock minute of ``at``."""
+    local = at.astimezone(IST)
+    minute = local.hour * 60 + local.minute
+    for d in DEFAULT_SLOTS:
+        s0, e0 = d.start.hour * 60 + d.start.minute, d.end.hour * 60 + d.end.minute
+        if (s0 <= minute <= e0) if s0 <= e0 else (minute >= s0 or minute <= e0):
+            return d.label_key
+    raise AssertionError(minute)  # pragma: no cover - the bands cover every minute
 
 
 def load_week_family(path: Path = MEALS / "week_family.json") -> WeekFamily:
@@ -103,6 +121,7 @@ def load_week_family(path: Path = MEALS / "week_family.json") -> WeekFamily:
             product = off_to_product(payload, confidence=settings.off_data_confidence)
             name, product_id, barcode = off_to_info(payload).name, None, m["barcode"]
         grams = float(m["grams"])
+        eaten_at = datetime.fromisoformat(m["eaten_at"])
         meals.append(
             MealLog(
                 id=fixture_id("meal", f"week_family/{i}"),
@@ -113,9 +132,12 @@ def load_week_family(path: Path = MEALS / "week_family.json") -> WeekFamily:
                 product_name=name,
                 grade=scoring.analyze(product, []).report.nutriscore.grade,
                 grams=grams,
-                eaten_at=datetime.fromisoformat(m["eaten_at"]),
+                eaten_at=eaten_at,
                 nutrients=snapshot(product.per_100g, grams).model_dump(),
                 client_id=None,
+                local_date=eaten_at.astimezone(IST).date(),
+                source_kind="product" if product_id is not None else "off",
+                meal_slot_id=_slot_id(m["member"], _slot_key_for(eaten_at)),
             )
         )
     return WeekFamily(
@@ -124,6 +146,18 @@ def load_week_family(path: Path = MEALS / "week_family.json") -> WeekFamily:
         members=members,
         products=list(records.values()),
         meals=meals,
+        slots=[
+            MealSlot(
+                id=_slot_id(key, d.label_key),
+                account_id=WEEK_FAMILY_ACCOUNT,
+                member_id=member.id,
+                position=d.position,
+                label_key=d.label_key,
+                is_default=True,
+            )
+            for key, member in members.items()
+            for d in DEFAULT_SLOTS
+        ],
     )
 
 

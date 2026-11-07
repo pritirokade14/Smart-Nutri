@@ -23,6 +23,8 @@ async def _seed(db_session):
     db_session.add_all(list(family.members.values()))
     db_session.add_all(family.products)
     await db_session.flush()
+    db_session.add_all(family.slots)
+    await db_session.flush()
     db_session.add_all(family.meals)
     await db_session.flush()
     return family

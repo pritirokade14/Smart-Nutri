@@ -84,13 +84,30 @@ async def seed(session, account_id: UUID, storage: FakeStorage) -> dict[str, UUI
         p=product,
         i=image,
     )
+    slot = (
+        await _exec(
+            session,
+            "insert into meal_slots (account_id, member_id, position, label_key, is_default) "
+            "values (:a, :m, 0, 'diary.slot.breakfast', true) returning id",
+            a=account_id,
+            m=member,
+        )
+    ).scalar_one()
     await _exec(
         session,
-        "insert into meal_logs (account_id, member_id, product_id, grams, nutrients) "
-        "values (:a, :m, :p, 30, '{}')",
+        "insert into meal_logs (account_id, member_id, product_id, grams, nutrients, "
+        "local_date, meal_slot_id) values (:a, :m, :p, 30, '{}', current_date, :s)",
         a=account_id,
         m=member,
         p=product,
+        s=slot,
+    )
+    await _exec(
+        session,
+        "insert into diary_days (member_id, local_date, account_id, status) "
+        "values (:m, current_date, :a, 'none')",
+        a=account_id,
+        m=member,
     )
     await _exec(
         session,
