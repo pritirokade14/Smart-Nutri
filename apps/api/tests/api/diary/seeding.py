@@ -14,7 +14,18 @@ from tests.fixtures.loader import FIXTURES
 
 OFF_BARCODE = "8900000000000"
 # Keys that differ between a seeded database and a fixture (generated ids and timestamps).
-DROP = {"id", "member_id", "slot_id", "meal_slot_id", "product_id", "updated_at", "client_id"}
+# `weight_source` (slice 6) says where the weight came from; the goldens predate it and are
+# about the day's numbers, so it is checked in tests/api/weights/test_targets_weight.py.
+DROP = {
+    "id",
+    "member_id",
+    "slot_id",
+    "meal_slot_id",
+    "product_id",
+    "updated_at",
+    "client_id",
+    "weight_source",
+}
 
 
 def load_input(stem: str) -> dict:

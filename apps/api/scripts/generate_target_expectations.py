@@ -71,12 +71,21 @@ def _settings(raw: dict) -> targets.GoalSettings:
     )
 
 
+def _dump(out) -> dict:
+    """The response as JSON. `explanation.weight_source` (slice 6) is the weight log's business
+    and these cases have no weigh-ins, so it is left out: the goldens stay byte-identical."""
+    body = out.model_dump(mode="json")
+    if body.get("explanation") is not None:
+        body["explanation"].pop("weight_source", None)
+    return body
+
+
 def expected_for(case: dict) -> dict:
     day = date.fromisoformat(case["as_of"])
     body = _body(case["body"])
     raw_settings = case["settings"]
     if raw_settings is None:
-        return to_targets_out(MEMBER_ID, day, None, "show").model_dump(mode="json")
+        return _dump(to_targets_out(MEMBER_ID, day, None, "show"))
     settings = _settings(raw_settings)
     display = raw_settings.get("numbers_display", "show")
     if not case.get("stored", False):
@@ -87,7 +96,7 @@ def expected_for(case: dict) -> dict:
             return {"error": {"code": exc.code, "details": exc.details}}
     result = targets.compute(body, settings)
     out = to_targets_out(MEMBER_ID, day, result, display, unusual=targets.unusual_fields(body))
-    return out.model_dump(mode="json")
+    return _dump(out)
 
 
 def compute(fixtures: Path = FIXTURES) -> dict[str, str]:

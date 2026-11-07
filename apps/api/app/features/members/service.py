@@ -6,13 +6,14 @@ Member names and health fields never go to logs.
 
 from collections.abc import Sequence
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
 
 from sqlalchemy import delete, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import scoring
+from app.core import time as core_time
 from app.core.errors import ApiError
 from app.core.time import today_ist
 from app.features.consents import service as consents_service
@@ -24,9 +25,11 @@ from app.features.members.schemas import (
     MemberPatch,
     goal_allowed_at_age,
 )
+from app.features.weights import store as weight_store
 from app.scoring import targets as scoring_targets
 
 MAX_MEMBERS = 10
+WEIGH_IN_MIN_KG, WEIGH_IN_MAX_KG = 2.0, 300.0  # the weight log's range (migration 0013)
 
 
 async def get_or_create_primary(session: AsyncSession, account_id: UUID) -> Member:
@@ -269,10 +272,29 @@ async def update_member(
         )
     _check_body_fat(changes.get("body_fat_pct"))
     await _require_health_consent(session, account_id, changes, member)
+    new_weight = changes.get("weight_kg")
+    log_weight = (
+        member.is_primary
+        and new_weight is not None
+        and not _same(member.weight_kg, new_weight)
+        and WEIGH_IN_MIN_KG <= float(new_weight) <= WEIGH_IN_MAX_KG  # type: ignore[arg-type]
+    )
     for field, value in changes.items():
         setattr(member, field, value)
     member.updated_at = func.clock_timestamp()
     await session.flush()
+    if log_weight:
+        # G26: the profile and the weight log never disagree. A changed primary weight is
+        # that local day's weigh-in, written in the same transaction.
+        now = core_time.now_utc()
+        today = await me_service.account_today(session, account_id, now)
+        await weight_store.upsert_weigh_in(
+            session,
+            member,
+            today,
+            Decimal(str(new_weight)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),  # type: ignore[arg-type]
+            now,
+        )
     await session.refresh(member)
     return member
 

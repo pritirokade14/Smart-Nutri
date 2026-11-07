@@ -90,6 +90,8 @@ class Explanation:
     body_fat_pct_used: Decimal | None
     ibw_kg: Decimal | None
     floor_kcal: Decimal | None  # lose only: max(floor_by_sex, BMR x min_bmr_multiple)
+    # Where `weight_kg_used` came from (G25). Set by the daily-guide service, never by `compute`.
+    weight_source: Literal["trend", "latest"] | None = None
 
 
 @dataclass(frozen=True, slots=True)
