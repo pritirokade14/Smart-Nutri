@@ -125,9 +125,11 @@ describe("DiaryView", () => {
     expect(screen.getByTestId("online-only").textContent).toBe(
       MESSAGES.en.meals.online_only,
     );
-    expect(screen.getByTestId("disclaimer")).toBeTruthy();
+    expect(screen.getAllByTestId("disclaimer")).toHaveLength(1);
+    expect(screen.getAllByText(/Information, not medical advice/)).toHaveLength(
+      1,
+    );
     const footer = screen.getByTestId("diary-target-footer");
-    expect(footer.textContent).toContain(MESSAGES.en.diary.disclaimer);
     expect(footer.textContent).toContain(MESSAGES.en.targets.pending_review);
   });
 
@@ -226,11 +228,12 @@ describe("DiaryView", () => {
     expect(screen.getByTestId("value-energy_kcal").textContent).toContain(
       "250",
     );
-    // The bands still show, so the disclaimer does too (no pending note).
-    expect(screen.getByTestId("diary-target-footer").textContent).toContain(
-      MESSAGES.en.diary.disclaimer,
+    // The bands still show, so the single page disclaimer does too.
+    expect(screen.getAllByTestId("disclaimer")).toHaveLength(1);
+    expect(screen.getAllByText(/Information, not medical advice/)).toHaveLength(
+      1,
     );
-    expect(screen.getByTestId("diary-target-footer").textContent).not.toContain(
+    expect(document.body.textContent).not.toContain(
       MESSAGES.en.targets.pending_review,
     );
     // No support link anywhere.

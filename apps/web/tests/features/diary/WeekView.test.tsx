@@ -156,7 +156,9 @@ describe("WeekView", () => {
     expect(
       await screen.findByRole("button", { name: en.diary.share_week }),
     ).toBeTruthy();
-    expect(screen.getByText(en.diary.disclaimer)).toBeTruthy();
+    expect(
+      screen.queryAllByText(/Information, not medical advice/),
+    ).toHaveLength(0);
   });
 
   it("an API error shows the localised message", async () => {

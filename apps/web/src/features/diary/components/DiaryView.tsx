@@ -113,7 +113,6 @@ function Summary({
         ))}
       </div>
       <div className="space-y-1" data-testid="diary-target-footer">
-        <p className="text-sm text-text-secondary">{t("diary.disclaimer")}</p>
         {ready ? (
           <p className="text-sm text-text-secondary">
             {t("targets.pending_review")}

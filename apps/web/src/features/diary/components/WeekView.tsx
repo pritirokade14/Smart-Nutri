@@ -202,7 +202,6 @@ export function WeekView({
       ) : null}
       <WeeklyShare today={today} label={t("diary.share_week")} />
       <div className="space-y-1">
-        <p className="text-sm text-text-secondary">{t("diary.disclaimer")}</p>
         {!hidden && w.days.some((d) => d.targets !== null) ? (
           <p className="text-sm text-text-secondary">
             {t("targets.pending_review")}
