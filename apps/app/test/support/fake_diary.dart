@@ -105,7 +105,67 @@ class FakeMealSlotsClient implements MealSlotsClient {
     );
   }
 
-  // Slot writes (create, rename, reorder, archive) arrive with the Meals screen (Task 15).
+  final created = <MealSlotCreateIn>[];
+  final renamed = <(String, MealSlotRenameIn)>[];
+  final reordered = <List<String>>[];
+  final archived = <String>[];
+
+  /// Thrown by the next write call (then cleared).
+  Object? writeError;
+
+  void _maybeThrow() {
+    if (writeError case final e?) {
+      writeError = null;
+      throw e;
+    }
+  }
+
+  @override
+  Future<MealSlotOut> mealSlotsCreate({required MealSlotCreateIn body}) async {
+    _maybeThrow();
+    created.add(body);
+    final slot = slotOut(
+      'slot-new-${created.length}',
+      '',
+      position: items.length,
+      customLabel: body.customLabel,
+    );
+    items = [...items, slot];
+    return slot;
+  }
+
+  @override
+  Future<MealSlotOut> mealSlotsRename({
+    required String slotId,
+    required MealSlotRenameIn body,
+    String? memberId,
+  }) async {
+    _maybeThrow();
+    renamed.add((slotId, body));
+    return items.firstWhere((s) => s.id == slotId);
+  }
+
+  @override
+  Future<MealSlotsListOut> mealSlotsReorder({
+    required MealSlotsOrderIn body,
+  }) async {
+    _maybeThrow();
+    reordered.add(body.ids);
+    items = [for (final id in body.ids) items.firstWhere((s) => s.id == id)];
+    return MealSlotsListOut(items: items);
+  }
+
+  @override
+  Future<ArchiveOut> mealSlotsArchive({
+    required String slotId,
+    String? memberId,
+  }) async {
+    _maybeThrow();
+    archived.add(slotId);
+    items = items.where((s) => s.id != slotId).toList();
+    return const ArchiveOut(result: ArchiveOutResult.archived);
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

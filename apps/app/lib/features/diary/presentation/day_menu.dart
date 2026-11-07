@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 // The generated package has no top-level library file, only src/export.dart.
 // ignore: implementation_imports
 import 'package:smartnutri_api/src/export.dart';
@@ -12,7 +13,7 @@ import '../domain/diary_dates.dart';
 import 'copy_sheet.dart';
 import 'diary_providers.dart';
 
-enum _DayAction { copyYesterday, copyDay, partial }
+enum _DayAction { copyYesterday, copyDay, partial, manage }
 
 /// The day menu: copy yesterday, copy a day, mark as partly logged.
 /// Everything here needs a connection (Ruling E19).
@@ -25,6 +26,7 @@ class DayMenu extends ConsumerWidget {
   static const copyYesterdayKey = Key('diary-copy-yesterday');
   static const copyDayKey = Key('diary-copy-day');
   static const partialKey = Key('diary-mark-partial');
+  static const manageKey = Key('diary-manage-meals');
 
   Future<void> _copyDay(BuildContext context) async {
     final shown = parseDateKey(dateKey(day.date))!;
@@ -79,6 +81,8 @@ class DayMenu extends ConsumerWidget {
             _copyDay(context);
           case _DayAction.partial:
             _togglePartial(context, ref);
+          case _DayAction.manage:
+            context.push('/diary/meals');
         }
       },
       itemBuilder: (_) => [
@@ -97,6 +101,11 @@ class DayMenu extends ConsumerWidget {
           value: _DayAction.partial,
           checked: day.partialLogged,
           child: Text(l10n.diaryMarkPartial),
+        ),
+        PopupMenuItem(
+          key: manageKey,
+          value: _DayAction.manage,
+          child: Text(l10n.diarySlotsManage),
         ),
       ],
     );

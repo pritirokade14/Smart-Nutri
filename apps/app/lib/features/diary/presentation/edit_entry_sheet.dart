@@ -13,6 +13,7 @@ import '../../meals/presentation/meals_providers.dart';
 import '../../scan/domain/number_text.dart';
 import '../data/diary_repository.dart';
 import 'diary_providers.dart';
+import 'move_entry_sheet.dart';
 
 /// Opens the edit sheet for [entry]. Editing and removing need a connection
 /// (Ruling E19). Returns true when something changed.
@@ -36,6 +37,7 @@ class EditEntrySheet extends ConsumerStatefulWidget {
   static const plusKey = Key('edit-entry-plus');
   static const saveKey = Key('edit-entry-save');
   static const removeKey = Key('edit-entry-remove');
+  static const moveKey = Key('edit-entry-move');
   static const nameKey = Key('edit-quick-name');
   static const energyKey = Key('edit-quick-energy');
   static const proteinKey = Key('edit-quick-protein');
@@ -180,6 +182,11 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
     await _run(() => ref.read(diaryRepositoryProvider).delete(widget.entry.id));
   }
 
+  Future<void> _move() async {
+    final moved = await showMoveEntrySheet(context, widget.entry);
+    if (moved == true && mounted) Navigator.of(context).pop(true);
+  }
+
   Widget _numberField(
     Key key,
     TextEditingController c,
@@ -301,6 +308,12 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
                 busy: _busy,
                 onPressed: _canSave ? _save : null,
               ),
+            TextButton.icon(
+              key: EditEntrySheet.moveKey,
+              icon: const Icon(Icons.drive_file_move_outlined),
+              label: Text(l10n.diaryMove),
+              onPressed: _busy ? null : _move,
+            ),
             TextButton.icon(
               key: EditEntrySheet.removeKey,
               icon: const Icon(Icons.delete_outline_rounded),

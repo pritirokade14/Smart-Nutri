@@ -31,6 +31,7 @@ class GuideSettingsScreen extends ConsumerWidget {
   const GuideSettingsScreen({super.key});
 
   static const setupKey = Key('guide-settings-setup');
+  static const mealsKey = Key('guide-settings-meals');
   static const consentKey = Key('guide-settings-consent');
   static const saveKey = Key('guide-settings-save');
   static const resetKey = Key('guide-settings-reset');
@@ -94,7 +95,18 @@ class GuideSettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.settingsDiaryTitle)),
       body: ListView(
         padding: const EdgeInsets.all(SnTokens.space4),
-        children: [body],
+        children: [
+          body,
+          const SizedBox(height: SnTokens.space3),
+          ListTile(
+            key: mealsKey,
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.restaurant_menu_rounded),
+            title: Text(l10n.settingsDiaryMeals),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/diary/meals'),
+          ),
+        ],
       ),
     );
   }

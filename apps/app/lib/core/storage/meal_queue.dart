@@ -9,6 +9,9 @@ part 'meal_queue.g.dart';
 /// deleted only once `POST /v1/meals` answered 201/200. Retries always send
 /// the stored `clientId`, so the API never stores a log twice.
 ///
+/// `lastError` of a row whose meal slot was archived before it synced.
+const mealSlotArchivedError = 'meal_slot_archived';
+
 /// A row whose `lastError` is set was refused by the API (a 4xx other than
 /// 429): it is never sent again and only kept so the app can say so.
 class PendingMeals extends Table {
@@ -111,8 +114,16 @@ abstract interface class MealQueue {
   /// Number of rows still to send.
   Stream<int> watchPendingCount();
 
-  /// Number of rows the API refused.
+  /// Number of rows the API refused (not those waiting for a new meal).
   Stream<int> watchFailedCount();
+
+  /// Rows refused because their meal was removed: they wait for the user to
+  /// pick another meal ([retryWithSlot]).
+  Stream<List<PendingMeal>> watchNeedingSlot();
+
+  /// Gives a refused row a new meal and makes it sendable again. The
+  /// `clientId` stays, so a retry never stores the entry twice.
+  Future<void> retryWithSlot(String clientId, String slotId);
 
   /// Forgets the refused rows (after the user saw the notice).
   Future<void> clearFailed();
@@ -180,11 +191,36 @@ class DriftMealQueue implements MealQueue {
   Stream<int> watchPendingCount() => _count((r) => r.lastError.isNull());
 
   @override
-  Stream<int> watchFailedCount() => _count((r) => r.lastError.isNotNull());
+  Stream<int> watchFailedCount() => _count(
+    (r) =>
+        r.lastError.isNotNull() &
+        r.lastError.equals(mealSlotArchivedError).not(),
+  );
+
+  @override
+  Stream<List<PendingMeal>> watchNeedingSlot() =>
+      (_db.select(_t)
+            ..where((r) => r.lastError.equals(mealSlotArchivedError))
+            ..orderBy([(r) => OrderingTerm.asc(r.eatenAt)]))
+          .watch();
+
+  @override
+  Future<void> retryWithSlot(String clientId, String slotId) =>
+      (_db.update(_t)..where((r) => r.clientId.equals(clientId))).write(
+        PendingMealsCompanion(
+          mealSlotId: Value(slotId),
+          lastError: const Value(null),
+        ),
+      );
 
   @override
   Future<void> clearFailed() =>
-      (_db.delete(_t)..where((r) => r.lastError.isNotNull())).go();
+      (_db.delete(_t)..where(
+            (r) =>
+                r.lastError.isNotNull() &
+                r.lastError.equals(mealSlotArchivedError).not(),
+          ))
+          .go();
 
   @override
   Future<void> clearAll() => _db.delete(_t).go();
