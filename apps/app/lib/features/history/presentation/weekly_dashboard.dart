@@ -71,6 +71,18 @@ class _NutrientWeek extends StatelessWidget {
     final theme = Theme.of(context);
     final s = summary;
     final n = nutrient;
+    if (s.isHidden(n)) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: SnTokens.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(nutrientLabel(l10n, n), style: theme.textTheme.titleSmall),
+            SummaryNote(text: l10n.diaryHiddenNumbers),
+          ],
+        ),
+      );
+    }
     final weekChip = hasLimitBand(n)
         ? shownBand(n, s.bands[n], s.totals[n])
         : null;

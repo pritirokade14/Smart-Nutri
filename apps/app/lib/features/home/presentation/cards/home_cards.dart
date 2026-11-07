@@ -8,6 +8,7 @@ import '../../../../shared/widgets/states.dart';
 import '../../../members/presentation/members_providers.dart';
 import '../../../modes/mode_layouts.dart';
 import '../../../modes/mode_providers.dart';
+import '../../../targets/presentation/today_targets_card.dart';
 import 'card_frame.dart';
 import 'member_cards.dart';
 import 'today_cards.dart';
@@ -42,8 +43,7 @@ class HomeCards extends ConsumerWidget {
     return switch (card) {
       'allergy_check' => const AllergyCheckCard(),
       'today_sugar_salt' => const TodaySugarSaltCard(),
-      // Rendered by Task 8 (Plan 10); nothing until then.
-      'today_targets' => const SizedBox.shrink(),
+      'today_targets' => const TodayTargetsCard(),
       'today_protein' => const TodayProteinCard(),
       'protein_swaps' => HomeCardFrame(
         title: l10n.homeCardsProteinSwapsTitle,

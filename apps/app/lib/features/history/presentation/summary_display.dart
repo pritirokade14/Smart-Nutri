@@ -35,6 +35,12 @@ Band? shownBand(SummaryNutrient n, Band band, num? total) {
   return hasLimitBand(n) ? band : null;
 }
 
+/// The band beside a number the API hid: its own band for sugar and salt
+/// (unless unknown), nothing otherwise. A hidden number is never "Not enough
+/// data".
+Band? hiddenBand(SummaryNutrient n, Band band) =>
+    hasLimitBand(n) && band != Band.unknown ? band : null;
+
 /// Verdict tokens for a band: ok green, near amber, over red, unknown grey.
 VerdictTone bandTone(SnColors c, Band band) => verdictTone(c, switch (band) {
   Band.ok => 'ok',

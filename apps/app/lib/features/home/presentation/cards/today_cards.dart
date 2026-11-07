@@ -75,6 +75,7 @@ class TodaySugarSaltCard extends StatelessWidget {
                 total: s.totals[n],
                 limit: s.limits[n],
                 band: s.bands[n],
+                hidden: s.isHidden(n),
               ),
           ],
         ),
@@ -89,6 +90,7 @@ class _LimitLine extends StatelessWidget {
     required this.total,
     required this.limit,
     required this.band,
+    this.hidden = false,
   });
 
   final SummaryNutrient nutrient;
@@ -96,13 +98,20 @@ class _LimitLine extends StatelessWidget {
   final num? limit;
   final Band band;
 
+  /// The API hid this number: say so, never "Not enough data".
+  final bool hidden;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final total = this.total;
     final limit = this.limit;
-    final chip = shownBand(nutrient, band, total);
-    final value = total == null
+    final chip = hidden
+        ? hiddenBand(nutrient, band)
+        : shownBand(nutrient, band, total);
+    final value = hidden
+        ? l10n.diaryHiddenNumbers
+        : total == null
         ? null
         : limit == null
         ? l10n.summaryTotalG(formatAmount(total))

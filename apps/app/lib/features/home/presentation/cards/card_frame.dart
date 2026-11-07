@@ -11,6 +11,7 @@ class HomeCardFrame extends StatelessWidget {
     required this.icon,
     required this.child,
     this.action,
+    this.trailing,
   });
 
   final String title;
@@ -19,6 +20,9 @@ class HomeCardFrame extends StatelessWidget {
 
   /// An optional call to action under the body.
   final Widget? action;
+
+  /// An optional control at the end of the header (the eye toggle).
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +42,7 @@ class HomeCardFrame extends StatelessWidget {
                 Expanded(
                   child: Text(title, style: theme.textTheme.titleMedium),
                 ),
+                ?trailing,
               ],
             ),
             const SizedBox(height: SnTokens.space2),

@@ -40,6 +40,7 @@ class DaySummaryCard extends StatelessWidget {
                   total: s.totals[n],
                   limit: s.limits[n],
                   band: s.bands[n],
+                  hidden: s.isHidden(n),
                 ),
               if (s.anyIncomplete)
                 SummaryNote(
@@ -69,12 +70,16 @@ class _NutrientLine extends StatelessWidget {
     required this.total,
     required this.limit,
     required this.band,
+    this.hidden = false,
   });
 
   final SummaryNutrient nutrient;
   final num? total;
   final num? limit;
   final Band band;
+
+  /// The API hid this number: say so, never "Not enough data".
+  final bool hidden;
 
   @override
   Widget build(BuildContext context) {
@@ -83,10 +88,14 @@ class _NutrientLine extends StatelessWidget {
     final c = SnColors.of(context);
     final total = this.total;
     final limit = this.limit;
-    final chip = shownBand(nutrient, band, total);
+    final chip = hidden
+        ? hiddenBand(nutrient, band)
+        : shownBand(nutrient, band, total);
     String? value;
     String? note;
-    if (total != null) {
+    if (hidden) {
+      value = l10n.diaryHiddenNumbers;
+    } else if (total != null) {
       final t = formatAmount(total);
       switch (nutrient) {
         case SummaryNutrient.sugars || SummaryNutrient.salt:
