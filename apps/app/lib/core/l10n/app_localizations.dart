@@ -1786,6 +1786,12 @@ abstract class AppLocalizations {
   /// **'That is too many items to copy at once. Copy one meal at a time.'**
   String get errorCopyTooMany;
 
+  /// No description provided for @errorCustomFoodNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that food of yours.'**
+  String get errorCustomFoodNotFound;
+
   /// No description provided for @errorDateInFuture.
   ///
   /// In en, this message translates to:
@@ -2055,6 +2061,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That pace isn\'t available. Please pick one of the options shown.'**
   String get errorRateNotAllowed;
+
+  /// No description provided for @errorRecipeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that recipe.'**
+  String get errorRecipeNotFound;
+
+  /// No description provided for @errorRecipeWeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipe weight doesn\'t look right. Check the cooked weight.'**
+  String get errorRecipeWeightInvalid;
 
   /// No description provided for @errorScanImageNotFound.
   ///

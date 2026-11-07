@@ -1,5 +1,5 @@
 """Load a loggable food (a generic food or dish, an own product or an OFF product) with the
-units that resolve for it (Plan 12 Task 2). Slice 4 adds the custom food and recipe kinds.
+units that resolve for it (Plan 12 Task 2). Slice 4 adds the account's custom foods and recipes.
 
 Every portion row is scoped: the global rows (ours) and THIS account's own overrides, never
 another account's. Open Food Facts data stays in `off_product_cache`; only the grams per unit
@@ -17,12 +17,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import scoring
 from app.core.config import Settings
 from app.core.errors import ApiError
+from app.features.custom_foods.models import CustomFood
+from app.features.foods import recipe_math
 from app.features.foods.models import Food, FoodPortion, HouseholdUnit
 from app.features.foods.units import Basis, FoodUnits, Unit
 from app.features.products import service as products_service
+from app.features.recipes.models import Recipe, RecipeIngredient
 from app.integrations.openfoodfacts import OffClient
 
-FoodKind = Literal["food", "product", "off"]
+FoodKind = Literal["food", "product", "off", "custom_food", "recipe"]
 ATTRIBUTION_USDA = "attribution.usda_fdc"
 ATTRIBUTION_RECIPE = "attribution.smartnutri_recipe"
 _NUTRIENT_FIELDS = tuple(scoring.Nutrients.__dataclass_fields__)
@@ -51,13 +54,28 @@ class LoadedFood:
     food_id: UUID | None
     product_id: UUID | None
     off_barcode: str | None
+    # Slice 4: the account's own custom food or recipe (never reaches a verdict).
+    custom_food_id: UUID | None = None
+    recipe_id: UUID | None = None
+    incomplete: tuple[str, ...] = ()  # a recipe's nutrients at least one ingredient lacks
 
 
-def ref_from_ids(*, food_id: UUID | None, product_id: UUID | None, barcode: str | None) -> FoodRef:
+def ref_from_ids(
+    *,
+    food_id: UUID | None,
+    product_id: UUID | None,
+    barcode: str | None,
+    custom_food_id: UUID | None = None,
+    recipe_id: UUID | None = None,
+) -> FoodRef:
     """Exactly one reference, else 422 `invalid_product_ref`."""
-    given = [x for x in (food_id, product_id, barcode) if x is not None]
+    given = [x for x in (food_id, product_id, barcode, custom_food_id, recipe_id) if x is not None]
     if len(given) != 1:
         raise ApiError("invalid_product_ref", 422)
+    if custom_food_id is not None:
+        return FoodRef("custom_food", str(custom_food_id))
+    if recipe_id is not None:
+        return FoodRef("recipe", str(recipe_id))
     if food_id is not None:
         return FoodRef("food", str(food_id))
     if product_id is not None:
@@ -88,9 +106,12 @@ async def _portions(
     food_id: UUID | None = None,
     product_id: UUID | None = None,
     off_barcode: str | None = None,
+    custom_food_id: UUID | None = None,
 ) -> tuple[dict[str, Decimal], dict[str, Decimal]]:
     """(global, this account's own) grams per unit by unit code."""
-    if food_id is not None:
+    if custom_food_id is not None:
+        ref = FoodPortion.custom_food_id == custom_food_id
+    elif food_id is not None:
         ref = FoodPortion.food_id == food_id
     elif product_id is not None:
         ref = FoodPortion.product_id == product_id
@@ -121,6 +142,99 @@ def _dish(food: Food) -> dict[str, Any] | None:
     }
 
 
+async def _load_custom_food(session: AsyncSession, ref: FoodRef, account_id: UUID) -> LoadedFood:
+    try:
+        custom_id = UUID(ref.id)
+    except ValueError:
+        raise ApiError("custom_food_not_found", 404) from None
+    row = await session.scalar(
+        select(CustomFood).where(CustomFood.id == custom_id, CustomFood.account_id == account_id)
+    )
+    if row is None:
+        raise ApiError("custom_food_not_found", 404)
+    _, mine = await _portions(session, account_id, custom_food_id=row.id)
+    return LoadedFood(
+        ref=ref,
+        name=row.name,
+        brand=row.brand,
+        basis=row.basis,  # type: ignore[arg-type]  (checked by ck_custom_foods_basis)
+        per_100=_nutrients(row.per_100),
+        units=FoodUnits(
+            basis=row.basis,  # type: ignore[arg-type]
+            serving_g=row.serving_g,
+            density_g_per_ml=row.density_g_per_ml,
+            user_portions=mine,
+        ),
+        grade=None,
+        attribution=None,
+        attributions=(),
+        licence=None,
+        source="custom_food",
+        dish=None,
+        food_id=None,
+        product_id=None,
+        off_barcode=None,
+        custom_food_id=row.id,
+    )
+
+
+async def _load_recipe(session: AsyncSession, ref: FoodRef, account_id: UUID) -> LoadedFood:
+    """A recipe is a gram-basis food. Its per-100 is STRICT: a nutrient at least one ingredient
+    does not know is None (G19), never the partial sum the recipe screen shows as "at least"."""
+    try:
+        recipe_id = UUID(ref.id)
+    except ValueError:
+        raise ApiError("recipe_not_found", 404) from None
+    row = await session.scalar(
+        select(Recipe).where(Recipe.id == recipe_id, Recipe.account_id == account_id)
+    )
+    if row is None:
+        raise ApiError("recipe_not_found", 404)
+    basis_weight = row.cooked_weight_g or row.total_raw_g
+    if basis_weight is None:  # the service refuses to store this; never divide by nothing
+        raise ApiError("recipe_weight_invalid", 422, details={"reason": "cooked_weight_required"})
+    incomplete = tuple(row.incomplete_nutrients or ())
+    stored = row.per_100g or {}
+    per_100 = {
+        k: (None if stored.get(k) is None or k in incomplete else _dec(stored[k]))
+        for k in recipe_math.NUTRIENT_KEYS
+    }
+    attributions: list[str] = []
+    for ingredient in await session.scalars(
+        select(RecipeIngredient)
+        .where(RecipeIngredient.recipe_id == row.id)
+        .order_by(RecipeIngredient.position)
+    ):
+        if ingredient.attribution and ingredient.attribution not in attributions:
+            attributions.append(ingredient.attribution)
+    return LoadedFood(
+        ref=ref,
+        name=row.name,
+        brand=None,
+        basis="g",
+        per_100=recipe_math.to_nutrients(per_100),
+        units=FoodUnits(
+            basis="g", serving_g=None if not row.servings else basis_weight / row.servings
+        ),
+        grade=None,
+        # The ODbL credit is mandatory when any ingredient came from Open Food Facts.
+        attribution=(
+            products_service.OFF_ATTRIBUTION
+            if products_service.OFF_ATTRIBUTION in attributions
+            else None
+        ),
+        attributions=tuple(attributions),
+        licence=None,
+        source="recipe",
+        dish=None,
+        food_id=None,
+        product_id=None,
+        off_barcode=None,
+        recipe_id=row.id,
+        incomplete=incomplete,
+    )
+
+
 async def load_food(
     session: AsyncSession,
     off: OffClient,
@@ -130,7 +244,13 @@ async def load_food(
     settings: Settings,
 ) -> LoadedFood:
     """404 `food_not_found` for an unknown generic food; for products and OFF the errors of
-    `products_service.resolve_ref` (`product_not_found`, `invalid_barcode`, `off_unavailable`)."""
+    `products_service.resolve_ref` (`product_not_found`, `invalid_barcode`, `off_unavailable`).
+    A custom food or recipe is the ACCOUNT's own: another account's id is 404
+    `custom_food_not_found` / `recipe_not_found`."""
+    if ref.kind == "custom_food":
+        return await _load_custom_food(session, ref, account_id)
+    if ref.kind == "recipe":
+        return await _load_recipe(session, ref, account_id)
     if ref.kind == "food":
         try:
             food_id = UUID(ref.id)

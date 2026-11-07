@@ -96,7 +96,9 @@ def _unique_per_owner(name: str, ref: str) -> Index:
 class FoodPortion(Base):
     __tablename__ = "food_portions"
     __table_args__ = (
-        CheckConstraint("num_nonnulls(food_id, product_id, off_barcode) = 1", name="ref"),
+        CheckConstraint(
+            "num_nonnulls(food_id, product_id, off_barcode, custom_food_id) = 1", name="ref"
+        ),
         CheckConstraint("grams_per_unit > 0 and grams_per_unit <= 2000", name="grams"),
         CheckConstraint(
             "source in ('smartnutri_measured', 'reference_table', 'user', 'label')",
@@ -106,6 +108,7 @@ class FoodPortion(Base):
         _unique_per_owner("uq_food_portions_food", "food_id"),
         _unique_per_owner("uq_food_portions_product", "product_id"),
         _unique_per_owner("uq_food_portions_off", "off_barcode"),
+        _unique_per_owner("uq_food_portions_custom_food", "custom_food_id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -121,6 +124,9 @@ class FoodPortion(Base):
         UUID(as_uuid=True), ForeignKey("products.id", ondelete="CASCADE")
     )
     off_barcode: Mapped[str | None] = mapped_column(Text)
+    custom_food_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("custom_foods.id", ondelete="CASCADE")
+    )  # Plan 12 slice 4 (migration 0011): the account's own grams for a custom food
     unit: Mapped[str] = mapped_column(Text, ForeignKey("household_units.code"))
     grams_per_unit: Mapped[Decimal] = mapped_column(Numeric(asdecimal=True))
     source: Mapped[str] = mapped_column(Text)

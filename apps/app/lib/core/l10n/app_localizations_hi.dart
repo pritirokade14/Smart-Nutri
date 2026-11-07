@@ -977,6 +977,9 @@ class AppLocalizationsHi extends AppLocalizations {
       'एक साथ कॉपी करने के लिए बहुत ज़्यादा आइटम हैं। एक बार में एक भोजन कॉपी करें।';
 
   @override
+  String get errorCustomFoodNotFound => 'हमें आपका वह खाना नहीं मिला।';
+
+  @override
   String get errorDateInFuture => 'वह तारीख़ अभी आई नहीं है।';
 
   @override
@@ -1132,6 +1135,13 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get errorRateNotAllowed =>
       'वह गति उपलब्ध नहीं है। कृपया दिखाए गए विकल्पों में से चुनें।';
+
+  @override
+  String get errorRecipeNotFound => 'हमें वह रेसिपी नहीं मिली।';
+
+  @override
+  String get errorRecipeWeightInvalid =>
+      'रेसिपी का वज़न ठीक नहीं लग रहा। पकने के बाद का वज़न जाँचें।';
 
   @override
   String get errorScanImageNotFound =>

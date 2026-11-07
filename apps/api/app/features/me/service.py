@@ -110,9 +110,12 @@ async def get_display_name(session: AsyncSession, account_id: UUID) -> str | Non
 # Checked at the wave 2 merge: Plans 6 and 7 add no new tables (Plan 6's migration 0003 only
 # alters meal_logs; Plan 7 reports use product_reports; voice stores no rows).
 ACCOUNT_OWNED_TABLES: tuple[str, ...] = (
+    "recipe_ingredients",  # Plan 12 slice 4; before recipes and custom_foods
     "meal_logs",  # before meal_slots: the entry -> slot FK is NO ACTION (Plan 11 E3)
     "meal_slots",  # Plan 11; before members (composite FK)
+    "recipes",  # Plan 12 slice 4
     "food_portions",  # Plan 12; the account's own portion overrides (global rows stay)
+    "custom_foods",  # Plan 12 slice 4; after food_portions and the entries that point at it
     "diary_days",  # Plan 11; before members (composite FK)
     "diary_goal_settings",  # Plan 10; before members (composite FK)
     "members",

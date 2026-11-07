@@ -334,7 +334,10 @@
     "unit_grams_unknown": "We don't know the grams for this measure yet. Enter grams, or set your own value.",
     "unit_not_supported": "That measure isn't available here. Choose another.",
     "quantity_out_of_range": "That amount is too large or too small. Check the number and try again.",
-    "food_not_found": "We couldn't find that food."
+    "food_not_found": "We couldn't find that food.",
+    "custom_food_not_found": "We couldn't find that food of yours.",
+    "recipe_not_found": "We couldn't find that recipe.",
+    "recipe_weight_invalid": "The recipe weight doesn't look right. Check the cooked weight."
   },
   "scan": {
     "title": "Scan a barcode",

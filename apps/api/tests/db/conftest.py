@@ -47,6 +47,9 @@ TABLES = {
     "household_units",
     "foods",
     "food_portions",
+    "custom_foods",
+    "recipes",
+    "recipe_ingredients",
 }
 
 _ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")
@@ -253,6 +256,9 @@ class Seed:
     meal_log: uuid.UUID
     report: uuid.UUID
     slot: uuid.UUID
+    custom_food: uuid.UUID
+    recipe: uuid.UUID
+    ingredient: uuid.UUID
 
 
 @dataclass(frozen=True)
@@ -268,7 +274,18 @@ class TwoAccounts:
 async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
     ids = {
         k: uuid.uuid4()
-        for k in ("account", "member", "consent", "scan", "meal_log", "report", "slot")
+        for k in (
+            "account",
+            "member",
+            "consent",
+            "scan",
+            "meal_log",
+            "report",
+            "slot",
+            "custom_food",
+            "recipe",
+            "ingredient",
+        )
     }
     await db.execute(
         text("insert into accounts (id, display_name) values (:id, :n)"),
@@ -344,6 +361,35 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
             "values (:m, current_date, :acc, 'none')"
         ),
         {"m": ids["member"], "acc": ids["account"]},
+    )
+    # One custom food, one recipe and one ingredient per account (Plan 12, migration 0011).
+    await db.execute(
+        text(
+            "insert into custom_foods (id, account_id, name, basis, per_100, entered) "
+            "values (:id, :acc, 'Own food', 'g', '{}'::jsonb, '{}'::jsonb)"
+        ),
+        {"id": ids["custom_food"], "acc": ids["account"]},
+    )
+    await db.execute(
+        text(
+            "insert into recipes (id, account_id, name, per_100g) "
+            "values (:id, :acc, 'Own recipe', '{}'::jsonb)"
+        ),
+        {"id": ids["recipe"], "acc": ids["account"]},
+    )
+    await db.execute(
+        text(
+            "insert into recipe_ingredients (id, recipe_id, account_id, position, source_kind, "
+            "custom_food_id, name, quantity, unit, grams, basis, per_100) "
+            "values (:id, :r, :acc, 0, 'custom_food', :cf, 'Own food', 50, 'g', 50, 'g', "
+            "'{}'::jsonb)"
+        ),
+        {
+            "id": ids["ingredient"],
+            "r": ids["recipe"],
+            "acc": ids["account"],
+            "cf": ids["custom_food"],
+        },
     )
     return Seed(**ids)
 

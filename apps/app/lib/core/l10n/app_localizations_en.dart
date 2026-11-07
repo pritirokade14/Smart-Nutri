@@ -973,6 +973,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'That is too many items to copy at once. Copy one meal at a time.';
 
   @override
+  String get errorCustomFoodNotFound => 'We couldn\'t find that food of yours.';
+
+  @override
   String get errorDateInFuture => 'That date hasn\'t happened yet.';
 
   @override
@@ -1129,6 +1132,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorRateNotAllowed =>
       'That pace isn\'t available. Please pick one of the options shown.';
+
+  @override
+  String get errorRecipeNotFound => 'We couldn\'t find that recipe.';
+
+  @override
+  String get errorRecipeWeightInvalid =>
+      'The recipe weight doesn\'t look right. Check the cooked weight.';
 
   @override
   String get errorScanImageNotFound =>

@@ -156,8 +156,56 @@ async def seed(session, account_id: UUID, storage: FakeStorage) -> dict[str, UUI
         "values (:f, 'piece', 40, 'reference_table')",
         f=food,
     )
+    custom_food = (
+        await _exec(
+            session,
+            "insert into custom_foods (account_id, name, basis, per_100, entered) "
+            "values (:a, 'Own bar', 'g', '{}', '{}') returning id",
+            a=account_id,
+        )
+    ).scalar_one()
+    recipe = (
+        await _exec(
+            session,
+            "insert into recipes (account_id, name, per_100g) values (:a, 'Stew', '{}') "
+            "returning id",
+            a=account_id,
+        )
+    ).scalar_one()
+    await _exec(
+        session,
+        "insert into recipe_ingredients (recipe_id, account_id, position, source_kind, "
+        "custom_food_id, name, quantity, unit, grams, basis, per_100) values "
+        "(:r, :a, 0, 'custom_food', :c, 'Own bar', 50, 'g', 50, 'g', '{}')",
+        a=account_id,
+        r=recipe,
+        c=custom_food,
+    )
+    await _exec(
+        session,
+        "insert into food_portions (account_id, custom_food_id, unit, grams_per_unit, source) "
+        "values (:a, :c, 'piece', 30, 'user')",
+        a=account_id,
+        c=custom_food,
+    )
+    await _exec(
+        session,
+        "insert into meal_logs (account_id, member_id, source_kind, custom_food_id, grams, "
+        "nutrients, local_date, meal_slot_id) values "
+        "(:a, :m, 'custom_food', :c, 30, '{}', current_date, :s)",
+        a=account_id,
+        m=member,
+        c=custom_food,
+        s=slot,
+    )
     await session.flush()
-    return {"product": product, "member": member, "food": food}
+    return {
+        "product": product,
+        "member": member,
+        "food": food,
+        "custom_food": custom_food,
+        "recipe": recipe,
+    }
 
 
 async def counts(session, account_id: UUID) -> dict[str, int]:
@@ -568,3 +616,19 @@ async def test_delete_me_erases_user_portions_and_keeps_global(client, login, db
     assert (
         await _exec(db_session, "select count(*) from foods where id = :f", f=seeded["food"])
     ).scalar_one() == 1
+
+
+async def test_delete_me_erases_custom_foods_and_recipes(client, login, db_session, storage):
+    """Plan 12 slice 4: custom foods, recipes and their ingredients go; another account's stay."""
+    await seed(db_session, A, storage)
+    await seed(db_session, B, storage)
+    for table in ("custom_foods", "recipes", "recipe_ingredients"):
+        assert table in ACCOUNT_OWNED_TABLES
+    before = await counts(db_session, B)
+    assert before["custom_foods"] == 1 and before["recipes"] == 1
+    assert before["recipe_ingredients"] == 1
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    after = await counts(db_session, A)
+    assert after["custom_foods"] == after["recipes"] == after["recipe_ingredients"] == 0
+    assert await counts(db_session, B) == before

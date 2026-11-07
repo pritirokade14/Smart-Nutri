@@ -9,11 +9,13 @@ from sqlalchemy.pool import NullPool
 
 # Import every feature's models so autogenerate sees the full schema.
 import app.features.consents.models
+import app.features.custom_foods.models
 import app.features.me.models
 import app.features.meals.models
 import app.features.members.models
 import app.features.products.models
 import app.features.ratelimit.models
+import app.features.recipes.models
 import app.features.reports.models
 import app.features.scans.models
 import app.features.targets.models  # noqa: F401

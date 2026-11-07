@@ -23,6 +23,9 @@ OWNED = (
     "diary_goal_settings",
     "meal_slots",
     "diary_days",
+    "custom_foods",  # Plan 12 slice 4 (migration 0011)
+    "recipes",
+    "recipe_ingredients",
 )
 # The column that identifies a row. account_user_types has one row per account (P9-R1).
 KEY = {t: "id" for t in OWNED} | {
@@ -82,6 +85,9 @@ async def test_policies_are_exactly_as_designed(db):
         ("diary_goal_settings", "ALL"),
         ("diary_days", "ALL"),
         ("meal_slots", "ALL"),
+        ("custom_foods", "ALL"),
+        ("recipes", "ALL"),
+        ("recipe_ingredients", "ALL"),
         ("household_units", "SELECT"),
         ("foods", "SELECT"),
         ("food_portions", "SELECT"),
@@ -142,6 +148,9 @@ def _row_of(seed, table):
         "diary_goal_settings": seed.member,
         "meal_slots": seed.slot,
         "diary_days": seed.member,
+        "custom_foods": seed.custom_food,
+        "recipes": seed.recipe,
+        "recipe_ingredients": seed.ingredient,
     }[table]
 
 
@@ -221,6 +230,24 @@ async def test_all_inserts_by_authenticated_are_denied(db, two_accounts):
                 "insert into diary_days (member_id, local_date, account_id, status) "
                 "values (:m, current_date + 1, :o, 'none')",
                 {"o": owner, "m": m_b},
+            )
+            await _expect_denied(
+                db,
+                "insert into custom_foods (account_id, name, basis, per_100, entered) "
+                "values (:o, 'x', 'g', '{}', '{}')",
+                {"o": owner},
+            )
+            await _expect_denied(
+                db,
+                "insert into recipes (account_id, name, per_100g) values (:o, 'x', '{}')",
+                {"o": owner},
+            )
+            await _expect_denied(
+                db,
+                "insert into recipe_ingredients (recipe_id, account_id, position, source_kind, "
+                "name, quantity, unit, grams, basis, per_100) "
+                "values (:r, :o, 5, 'custom_food', 'x', 1, 'g', 1, 'g', '{}')",
+                {"o": owner, "r": two_accounts.seed_b.recipe},
             )
 
 
