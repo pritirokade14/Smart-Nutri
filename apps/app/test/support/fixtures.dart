@@ -125,3 +125,40 @@ DiaryDayOut diaryFixture(String stem) => DiaryDayOut.fromJson(diaryJson(stem));
 
 DiaryWeekOut diaryWeekFixture(String stem) =>
     DiaryWeekOut.fromJson(diaryJson(stem));
+
+/// Golden `GET /v1/weights/trend` body (`weights/expected/<stem>.json`).
+Map<String, Object?> weightTrendJson(String stem) =>
+    _readJson('weights/expected/$stem.json');
+
+/// The golden trend; the fixture has no member or range, so they are filled.
+WeightTrendOut weightTrendFixture(String stem, {int days = 90}) {
+  final json = weightTrendJson(stem);
+  final points = (json['points'] as List).cast<Map<String, Object?>>();
+  return WeightTrendOut.fromJson({
+    'member_id': 'p1',
+    'days': days,
+    'from': points.isEmpty ? '2026-01-01' : points.first['date'],
+    'to': points.isEmpty ? '2026-01-01' : points.last['date'],
+    ...json,
+  });
+}
+
+/// `weights/inputs/<stem>.json`'s weigh-ins as the list the API would give.
+WeightsOut weightsListFixture(String stem) {
+  final input = _readJson('weights/inputs/$stem.json');
+  final hidden = weightTrendJson(stem)['numbers_hidden'] == true;
+  return WeightsOut(
+    numbersHidden: hidden,
+    items: [
+      for (final w in (input['weigh_ins'] as List).cast<Map<String, Object?>>())
+        WeightOut(
+          clientId: null,
+          date: DateTime.parse(w['date']! as String),
+          measuredAt: DateTime.parse('${w['date']}T07:00:00Z'),
+          numbersHidden: hidden,
+          source: 'manual',
+          weightKg: hidden ? null : w['weight_kg'] as num,
+        ),
+    ],
+  );
+}

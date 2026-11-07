@@ -6,6 +6,7 @@ import 'fake_foods.dart';
 import 'fake_recipes.dart';
 import 'fake_members.dart';
 import 'fake_targets.dart';
+import 'fake_weights.dart';
 
 /// Builds a [UserTypesOut] the way the API returns it.
 UserTypesOut userTypesOut({
@@ -154,12 +155,14 @@ class FakeUserTypesApi implements SmartNutriApiClient {
     FakeCustomFoodsClient? customFoods,
     FakeRecipesClient? recipes,
     FakeFavouritesClient? favourites,
+    FakeWeightsClient? weights,
   }) : me = me ?? FakeUserTypesMe(),
        diary = diary ?? FakeDiaryClient(),
        foods = foods ?? FakeFoodsClient(),
        customFoods = customFoods ?? FakeCustomFoodsClient(),
        recipes = recipes ?? FakeRecipesClient(),
        favourites = favourites ?? FakeFavouritesClient(),
+       weights = weights ?? FakeWeightsClient(),
        mealSlots = mealSlots ?? FakeMealSlotsClient(),
        targets = targets ?? FakeTargetsClient(),
        members = members ?? FakeMembersClient(),
@@ -185,6 +188,8 @@ class FakeUserTypesApi implements SmartNutriApiClient {
   final FakeRecipesClient recipes;
   @override
   final FakeFavouritesClient favourites;
+  @override
+  final FakeWeightsClient weights;
 
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
