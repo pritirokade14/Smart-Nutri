@@ -1486,6 +1486,18 @@ abstract class AppLocalizations {
   /// **'Snacks'**
   String get diarySlotSnack;
 
+  /// No description provided for @diarySlotsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage meals'**
+  String get diarySlotsManage;
+
+  /// No description provided for @diarySlotsRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed meal'**
+  String get diarySlotsRemoved;
+
   /// No description provided for @diaryTargetsConsent.
   ///
   /// In en, this message translates to:
@@ -1504,11 +1516,23 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get diaryToday;
 
+  /// No description provided for @diaryViewDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get diaryViewDay;
+
   /// No description provided for @diaryWaitingSync.
   ///
   /// In en, this message translates to:
   /// **'Waiting to sync'**
   String get diaryWaitingSync;
+
+  /// No description provided for @diaryWeekAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {value}'**
+  String diaryWeekAtLeast(String value);
 
   /// No description provided for @diaryWeekAverage.
   ///
@@ -1761,6 +1785,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That meal has been removed. Pick another meal.'**
   String get errorMealSlotArchived;
+
+  /// No description provided for @errorMealSlotLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You can have at most 6 active meals. Remove one first.'**
+  String get errorMealSlotLimitReached;
 
   /// No description provided for @errorMealSlotNotFound.
   ///

@@ -324,6 +324,7 @@
     "timezone_invalid": "That time zone isn't recognised.",
     "meal_slot_not_found": "We couldn't find that meal.",
     "meal_slot_archived": "That meal has been removed. Pick another meal.",
+    "meal_slot_limit_reached": "You can have at most 6 active meals. Remove one first.",
     "quick_add_energy_required": "Enter the calories to add this.",
     "copy_source_empty": "There is nothing to copy there.",
     "copy_too_many": "That is too many items to copy at once. Copy one meal at a time.",
@@ -1225,7 +1226,8 @@
     "week": {
       "title": "This week",
       "average": "Average over {days, plural, one {# logged day} other {# logged days}}",
-      "protein_days": "Protein guide reached on {met} of {days} logged days"
+      "protein_days": "Protein guide reached on {met} of {days} logged days",
+      "at_least": "At least {value}"
     },
     "waiting_sync": "Waiting to sync",
     "edit": "Edit",
@@ -1250,7 +1252,14 @@
     "next_day": "Next day",
     "pick_date": "Pick a date",
     "share_week": "Share this week",
-    "no_guide": "Set up your daily guide, or just log food."
+    "no_guide": "Set up your daily guide, or just log food.",
+    "view": {
+      "day": "Day"
+    },
+    "slots": {
+      "manage": "Manage meals",
+      "removed": "Removed meal"
+    }
   },
   "foods": {
     "blank_is_unknown": "Leave blank if you don't know. Blank is never counted as 0.",

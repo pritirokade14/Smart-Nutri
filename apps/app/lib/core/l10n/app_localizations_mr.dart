@@ -633,8 +633,8 @@ class AppLocalizationsMr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '# आयटम कॉपी केले',
-      one: '# आयटम कॉपी केला',
+      other: '$count आयटम कॉपी केले',
+      one: '$count आयटम कॉपी केला',
     );
     return '$_temp0';
   }
@@ -768,8 +768,8 @@ class AppLocalizationsMr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       servings,
       locale: localeName,
-      other: '# सर्व्हिंग',
-      one: '# सर्व्हिंग',
+      other: '$servings सर्व्हिंग',
+      one: '$servings सर्व्हिंग',
     );
     return '$_temp0 · $grams ग्रॅम';
   }
@@ -790,6 +790,12 @@ class AppLocalizationsMr extends AppLocalizations {
   String get diarySlotSnack => 'स्नॅक्स';
 
   @override
+  String get diarySlotsManage => 'जेवणे व्यवस्थापित करा';
+
+  @override
+  String get diarySlotsRemoved => 'काढलेले जेवण';
+
+  @override
   String get diaryTargetsConsent =>
       'तुमचा दैनिक मार्गदर्शक पाहण्यासाठी, SmartNutri ला तुमची आरोग्य माहिती वापरण्याची परवानगी द्या.';
 
@@ -800,15 +806,23 @@ class AppLocalizationsMr extends AppLocalizations {
   String get diaryToday => 'आज';
 
   @override
+  String get diaryViewDay => 'दिवस';
+
+  @override
   String get diaryWaitingSync => 'सिंक होण्याची प्रतीक्षा';
+
+  @override
+  String diaryWeekAtLeast(String value) {
+    return 'किमान $value';
+  }
 
   @override
   String diaryWeekAverage(num days) {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '# नोंदवलेल्या दिवसांची सरासरी',
-      one: '# नोंदवलेल्या दिवसाची सरासरी',
+      other: '$days नोंदवलेल्या दिवसांची सरासरी',
+      one: '$days नोंदवलेल्या दिवसाची सरासरी',
     );
     return '$_temp0';
   }
@@ -958,6 +972,10 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get errorMealSlotArchived =>
       'हे जेवण काढून टाकले आहे. दुसरे जेवण निवडा.';
+
+  @override
+  String get errorMealSlotLimitReached =>
+      'जास्तीत जास्त 6 सक्रिय जेवणे ठेवता येतात. आधी एक काढा.';
 
   @override
   String get errorMealSlotNotFound => 'हे जेवण सापडले नाही.';

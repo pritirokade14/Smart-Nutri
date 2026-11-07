@@ -786,6 +786,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diarySlotSnack => 'Snacks';
 
   @override
+  String get diarySlotsManage => 'Manage meals';
+
+  @override
+  String get diarySlotsRemoved => 'Removed meal';
+
+  @override
   String get diaryTargetsConsent =>
       'To see your daily guide, allow SmartNutri to use your health details.';
 
@@ -796,7 +802,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diaryToday => 'Today';
 
   @override
+  String get diaryViewDay => 'Day';
+
+  @override
   String get diaryWaitingSync => 'Waiting to sync';
+
+  @override
+  String diaryWeekAtLeast(String value) {
+    return 'At least $value';
+  }
 
   @override
   String diaryWeekAverage(num days) {
@@ -953,6 +967,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorMealSlotArchived =>
       'That meal has been removed. Pick another meal.';
+
+  @override
+  String get errorMealSlotLimitReached =>
+      'You can have at most 6 active meals. Remove one first.';
 
   @override
   String get errorMealSlotNotFound => 'We couldn\'t find that meal.';

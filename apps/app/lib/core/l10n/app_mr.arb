@@ -276,7 +276,7 @@
     }
   },
   "diaryConsumed": "खाल्लेले",
-  "diaryCopied": "{count, plural, one {# आयटम कॉपी केला} other {# आयटम कॉपी केले}}",
+  "diaryCopied": "{count, plural, one {{count} आयटम कॉपी केला} other {{count} आयटम कॉपी केले}}",
   "@diaryCopied": {
     "placeholders": {
       "count": {
@@ -352,7 +352,7 @@
   "diaryQuickAddTitle": "झटपट जोडा",
   "diaryQuickBadge": "तुम्ही स्वतः नोंदवले",
   "diaryRemaining": "उरलेले",
-  "diaryServingsLine": "{servings, plural, one {# सर्व्हिंग} other {# सर्व्हिंग}} · {grams} ग्रॅम",
+  "diaryServingsLine": "{servings, plural, one {{servings} सर्व्हिंग} other {{servings} सर्व्हिंग}} · {grams} ग्रॅम",
   "@diaryServingsLine": {
     "placeholders": {
       "grams": {
@@ -368,11 +368,22 @@
   "diarySlotDinner": "रात्रीचे जेवण",
   "diarySlotLunch": "दुपारचे जेवण",
   "diarySlotSnack": "स्नॅक्स",
+  "diarySlotsManage": "जेवणे व्यवस्थापित करा",
+  "diarySlotsRemoved": "काढलेले जेवण",
   "diaryTargetsConsent": "तुमचा दैनिक मार्गदर्शक पाहण्यासाठी, SmartNutri ला तुमची आरोग्य माहिती वापरण्याची परवानगी द्या.",
   "diaryTitle": "डायरी",
   "diaryToday": "आज",
+  "diaryViewDay": "दिवस",
   "diaryWaitingSync": "सिंक होण्याची प्रतीक्षा",
-  "diaryWeekAverage": "{days, plural, one {# नोंदवलेल्या दिवसाची सरासरी} other {# नोंदवलेल्या दिवसांची सरासरी}}",
+  "diaryWeekAtLeast": "किमान {value}",
+  "@diaryWeekAtLeast": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryWeekAverage": "{days, plural, one {{days} नोंदवलेल्या दिवसाची सरासरी} other {{days} नोंदवलेल्या दिवसांची सरासरी}}",
   "@diaryWeekAverage": {
     "placeholders": {
       "days": {
@@ -431,6 +442,7 @@
   "errorInvalidProductRef": "तपासण्यासाठी एक उत्पादन निवडा.",
   "errorMealNotFound": "ही खाण्याची नोंद सापडली नाही.",
   "errorMealSlotArchived": "हे जेवण काढून टाकले आहे. दुसरे जेवण निवडा.",
+  "errorMealSlotLimitReached": "जास्तीत जास्त 6 सक्रिय जेवणे ठेवता येतात. आधी एक काढा.",
   "errorMealSlotNotFound": "हे जेवण सापडले नाही.",
   "errorMemberLimit": "तुम्ही कुटुंबातील जास्तीत जास्त 10 सदस्य जोडू शकता.",
   "errorMemberNotFound": "कुटुंबातील हा सदस्य सापडला नाही.",

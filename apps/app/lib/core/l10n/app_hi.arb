@@ -368,10 +368,21 @@
   "diarySlotDinner": "रात का खाना",
   "diarySlotLunch": "दोपहर का खाना",
   "diarySlotSnack": "स्नैक्स",
+  "diarySlotsManage": "भोजन बदलें",
+  "diarySlotsRemoved": "हटाया गया भोजन",
   "diaryTargetsConsent": "अपनी दैनिक गाइड देखने के लिए, SmartNutri को अपनी सेहत की जानकारी इस्तेमाल करने की अनुमति दें।",
   "diaryTitle": "डायरी",
   "diaryToday": "आज",
+  "diaryViewDay": "दिन",
   "diaryWaitingSync": "सिंक होने की प्रतीक्षा में",
+  "diaryWeekAtLeast": "कम से कम {value}",
+  "@diaryWeekAtLeast": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "diaryWeekAverage": "{days, plural, one {# दर्ज किए दिन का औसत} other {# दर्ज किए दिनों का औसत}}",
   "@diaryWeekAverage": {
     "placeholders": {
@@ -431,6 +442,7 @@
   "errorInvalidProductRef": "जाँचने के लिए एक उत्पाद चुनें।",
   "errorMealNotFound": "यह खाने की एंट्री नहीं मिली।",
   "errorMealSlotArchived": "यह भोजन हटा दिया गया है। कोई दूसरा भोजन चुनें।",
+  "errorMealSlotLimitReached": "अधिकतम 6 सक्रिय भोजन रखे जा सकते हैं। पहले एक हटाएँ।",
   "errorMealSlotNotFound": "यह भोजन नहीं मिला।",
   "errorMemberLimit": "आप परिवार के अधिकतम 10 सदस्य जोड़ सकते हैं।",
   "errorMemberNotFound": "परिवार का यह सदस्य नहीं मिला।",

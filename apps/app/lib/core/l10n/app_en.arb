@@ -368,10 +368,21 @@
   "diarySlotDinner": "Dinner",
   "diarySlotLunch": "Lunch",
   "diarySlotSnack": "Snacks",
+  "diarySlotsManage": "Manage meals",
+  "diarySlotsRemoved": "Removed meal",
   "diaryTargetsConsent": "To see your daily guide, allow SmartNutri to use your health details.",
   "diaryTitle": "Diary",
   "diaryToday": "Today",
+  "diaryViewDay": "Day",
   "diaryWaitingSync": "Waiting to sync",
+  "diaryWeekAtLeast": "At least {value}",
+  "@diaryWeekAtLeast": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "diaryWeekAverage": "Average over {days, plural, one {# logged day} other {# logged days}}",
   "@diaryWeekAverage": {
     "placeholders": {
@@ -431,6 +442,7 @@
   "errorInvalidProductRef": "Choose a product to check.",
   "errorMealNotFound": "That food log wasn't found.",
   "errorMealSlotArchived": "That meal has been removed. Pick another meal.",
+  "errorMealSlotLimitReached": "You can have at most 6 active meals. Remove one first.",
   "errorMealSlotNotFound": "We couldn't find that meal.",
   "errorMemberLimit": "You can add up to 10 family members.",
   "errorMemberNotFound": "That family member wasn't found.",
