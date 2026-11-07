@@ -8838,6 +8838,19 @@
         "title": "WeightTrendOut",
         "type": "object"
       },
+      "WeightsDeletedOut": {
+        "properties": {
+          "deleted": {
+            "title": "Deleted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "deleted"
+        ],
+        "title": "WeightsDeletedOut",
+        "type": "object"
+      },
       "WeightsOut": {
         "properties": {
           "items": {
@@ -16471,6 +16484,112 @@
       }
     },
     "/v1/weights": {
+      "delete": {
+        "description": "Delete every weigh-in of the member. Needs only `terms` (ADR 0022 addendum): erasure is\nnever gated by `health_data`, and `members.weight_kg` is not rewritten. Returns the count\n(0 is fine, not an error).",
+        "operationId": "weights_delete_all",
+        "parameters": [
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeightsDeletedOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Weights Delete All",
+        "tags": [
+          "weights"
+        ]
+      },
       "get": {
         "description": "The member's weigh-ins, oldest first. Default the last 90 local days; a range longer\nthan 400 days is 422 `date_range_too_long`.",
         "operationId": "weights_list",

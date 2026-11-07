@@ -9,6 +9,7 @@ import '../models/days.dart';
 import '../models/weight_in.dart';
 import '../models/weight_out.dart';
 import '../models/weight_trend_out.dart';
+import '../models/weights_deleted_out.dart';
 import '../models/weights_out.dart';
 
 part 'weights_client.g.dart';
@@ -16,6 +17,18 @@ part 'weights_client.g.dart';
 @RestApi()
 abstract class WeightsClient {
   factory WeightsClient(Dio dio, {String? baseUrl}) = _WeightsClient;
+
+  /// Weights Delete All.
+  ///
+  /// Delete every weigh-in of the member. Needs only `terms` (ADR 0022 addendum): erasure is.
+  /// never gated by `health_data`, and `members.weight_kg` is not rewritten. Returns the count.
+  /// (0 is fine, not an error).
+  ///
+  /// [memberId] - Defaults to the primary member.
+  @DELETE('/v1/weights')
+  Future<WeightsDeletedOut> weightsDeleteAll({
+    @Query('member_id') String? memberId,
+  });
 
   /// Weights List.
   ///

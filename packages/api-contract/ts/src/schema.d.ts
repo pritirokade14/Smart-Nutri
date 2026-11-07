@@ -1191,7 +1191,13 @@ export interface paths {
         get: operations["weights_list"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Weights Delete All
+         * @description Delete every weigh-in of the member. Needs only `terms` (ADR 0022 addendum): erasure is
+         *     never gated by `health_data`, and `members.weight_kg` is not rewritten. Returns the count
+         *     (0 is fine, not an error).
+         */
+        delete: operations["weights_delete_all"];
         options?: never;
         head?: never;
         patch?: never;
@@ -4405,6 +4411,11 @@ export interface components {
             /** Trend */
             trend: components["schemas"]["TrendPointOut"][];
             weekly_rate: components["schemas"]["WeeklyRateOut"] | null;
+        };
+        /** WeightsDeletedOut */
+        WeightsDeletedOut: {
+            /** Deleted */
+            deleted: number;
         };
         /** WeightsOut */
         WeightsOut: {
@@ -10017,6 +10028,83 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WeightsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_delete_all: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeightsDeletedOut"];
                 };
             };
             /** @description Missing or invalid access token */

@@ -159,6 +159,7 @@ export 'models/weight_in.dart';
 export 'models/weight_out.dart';
 export 'models/weight_point_out.dart';
 export 'models/weight_trend_out.dart';
+export 'models/weights_deleted_out.dart';
 export 'models/weights_out.dart';
 export 'models/language.dart';
 export 'models/days.dart';
