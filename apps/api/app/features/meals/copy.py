@@ -6,7 +6,9 @@ double tap creates nothing twice. `eaten_at` is the target day at the source's l
 capped at now. Every created entry counts against the `meal_logs` limit. No FastAPI imports.
 """
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+from typing import Any
 from uuid import UUID, uuid5
 
 from sqlalchemy import select
@@ -51,11 +53,71 @@ def _snapshot_of(source: MealLog) -> dict | None:
     }
 
 
+def item_of(source: MealLog) -> dict[str, Any]:
+    """The entry as a plain snapshot (JSON-safe): what a copy or a favourite meal keeps. The
+    foods are never read again; ids are strings, the portion and nutrients as they were."""
+    return {
+        "source_kind": source.source_kind,
+        "product_id": None if source.product_id is None else str(source.product_id),
+        "off_barcode": source.off_barcode,
+        "food_id": None if source.food_id is None else str(source.food_id),
+        "custom_food_id": None if source.custom_food_id is None else str(source.custom_food_id),
+        "recipe_id": None if source.recipe_id is None else str(source.recipe_id),
+        "product_name": source.product_name,
+        "grade": source.grade,
+        "grams": source.grams,
+        "quantity": None if source.quantity is None else str(source.quantity),
+        "unit": source.unit,
+        "nutrients": source.nutrients,
+        "food_snapshot": _snapshot_of(source),
+    }
+
+
+def _uuid_of(value: Any) -> UUID | None:
+    return None if value is None else UUID(str(value))
+
+
+def entry_values(
+    item: dict[str, Any],
+    *,
+    account_id: UUID,
+    member_id: UUID,
+    at: datetime,
+    local_date: date,
+    slot_id: UUID,
+    client_id: UUID,
+) -> dict[str, Any]:
+    """The `meal_logs` row for one snapshot item (see `item_of`). Shared by the copy and the
+    favourite-meal log, so both keep the same snapshot semantics."""
+    quantity = item.get("quantity")
+    return {
+        "account_id": account_id,
+        "member_id": member_id,
+        "source_kind": item["source_kind"],
+        "product_id": _uuid_of(item.get("product_id")),
+        "off_barcode": item.get("off_barcode"),
+        "food_id": _uuid_of(item.get("food_id")),
+        "custom_food_id": _uuid_of(item.get("custom_food_id")),
+        "recipe_id": _uuid_of(item.get("recipe_id")),
+        "quantity": None if quantity is None else Decimal(str(quantity)),
+        "unit": item.get("unit"),
+        "product_name": item.get("product_name"),
+        "grade": item.get("grade"),
+        "grams": item.get("grams"),
+        "nutrients": item["nutrients"],
+        "food_snapshot": item.get("food_snapshot"),
+        "eaten_at": at,
+        "local_date": local_date,
+        "meal_slot_id": slot_id,
+        "client_id": client_id,
+    }
+
+
 def _derived_id(client_id: UUID, source_id: UUID) -> UUID:
     return uuid5(client_id, str(source_id))
 
 
-async def _read_back(session: AsyncSession, account_id: UUID, ids: list[UUID]) -> list[MealLog]:
+async def read_back(session: AsyncSession, account_id: UUID, ids: list[UUID]) -> list[MealLog]:
     rows = await session.scalars(
         select(MealLog)
         .where(MealLog.account_id == account_id, MealLog.client_id.in_(ids))
@@ -65,10 +127,9 @@ async def _read_back(session: AsyncSession, account_id: UUID, ids: list[UUID]) -
     return [by_client[i] for i in ids if i in by_client]
 
 
-async def _refuse_retired(session: AsyncSession, sources: list[MealLog]) -> None:
+async def refuse_retired(session: AsyncSession, food_ids: set[UUID]) -> None:
     """A dish we no longer offer is never logged anew: 422 `food_retired` (before anything is
     counted). Reading the old entry is unaffected."""
-    food_ids = {s.food_id for s in sources if s.food_id is not None}
     if not food_ids:
         return
     retired = await session.scalar(
@@ -131,12 +192,12 @@ async def copy_entries(
         raise ApiError("meal_slot_archived", 422)
 
     ids = [_derived_id(body.client_id, s.id) for s in sources]
-    stored = await _read_back(session, account_id, ids)
+    stored = await read_back(session, account_id, ids)
     stored_ids = {r.client_id for r in stored}
     todo = [(s, i) for s, i in zip(sources, ids, strict=True) if i not in stored_ids]
     if not todo:
         return stored, False  # a retry: every copy exists, nothing is counted
-    await _refuse_retired(session, [s for s, _ in todo])
+    await refuse_retired(session, {s.food_id for s, _ in todo if s.food_id is not None})
 
     planned = []
     for source, client_id in todo:
@@ -147,31 +208,18 @@ async def copy_entries(
         planned.append((source, client_id, at))
 
     await consume(session, settings, account_id=account_id, bucket="meal_logs", n=len(todo))
-    values = []
-    for source, client_id, at in planned:
-        values.append(
-            {
-                "account_id": account_id,
-                "member_id": member.id,
-                "source_kind": source.source_kind,
-                "product_id": source.product_id,
-                "off_barcode": source.off_barcode,
-                "food_id": source.food_id,
-                "custom_food_id": source.custom_food_id,
-                "recipe_id": source.recipe_id,
-                "quantity": source.quantity,
-                "unit": source.unit,
-                "product_name": source.product_name,
-                "grade": source.grade,
-                "grams": source.grams,
-                "nutrients": source.nutrients,
-                "food_snapshot": _snapshot_of(source),
-                "eaten_at": at,
-                "local_date": body.to_date,
-                "meal_slot_id": body.to_slot_id or source.meal_slot_id,
-                "client_id": client_id,
-            }
+    values = [
+        entry_values(
+            item_of(source),
+            account_id=account_id,
+            member_id=member.id,
+            at=at,
+            local_date=body.to_date,
+            slot_id=body.to_slot_id or source.meal_slot_id,
+            client_id=client_id,
         )
+        for source, client_id, at in planned
+    ]
     result = await session.execute(
         insert(MealLog)
         .values(values)
@@ -186,4 +234,4 @@ async def copy_entries(
     ):
         await day_targets(session, member, today, today=today)  # today's frozen row exists
     await session.commit()
-    return await _read_back(session, account_id, ids), created_any
+    return await read_back(session, account_id, ids), created_any

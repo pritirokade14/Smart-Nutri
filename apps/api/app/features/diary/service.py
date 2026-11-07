@@ -26,6 +26,7 @@ from app.features.diary.schemas import (
     RecentsOut,
     TargetsStatusOut,
 )
+from app.features.favourites.models import Favourite
 from app.features.me import service as me_service
 from app.features.meal_slots import service as slots_service
 from app.features.meals import service as meals_service
@@ -156,6 +157,20 @@ async def put_status(
     return DiaryDayStatusOut(date=row.local_date, partial_logged=row.partial_logged)
 
 
+def _favourite_key(fav: Favourite) -> tuple[str, str] | None:
+    """The recents key (kind, id or barcode) of a food favourite."""
+    for kind, value in (
+        ("product", fav.product_id),
+        ("food", fav.food_id),
+        ("custom_food", fav.custom_food_id),
+        ("recipe", fav.recipe_id),
+        ("off", fav.off_barcode),
+    ):
+        if value is not None:
+            return kind, str(value)
+    return None
+
+
 async def recents(
     session: AsyncSession,
     account_id: UUID,
@@ -186,6 +201,17 @@ async def recents(
         )
         .order_by(MealLog.eaten_at.desc(), MealLog.id)
     )
+    stars = {
+        key: fav.id
+        for fav in await session.scalars(
+            select(Favourite).where(
+                Favourite.account_id == account_id,
+                Favourite.member_id == member.id,
+                Favourite.kind == "food",
+            )
+        )
+        if (key := _favourite_key(fav)) is not None
+    }
     seen: set[tuple[str, str]] = set()
     items: list[RecentItem] = []
     for r in rows:
@@ -225,6 +251,7 @@ async def recents(
                 last_eaten_at=r.eaten_at,
                 attribution=meals_service.OFF_ATTRIBUTION if r.off_barcode else None,
                 attributions=meals_service._attributions(r),
+                favourite_id=stars.get(key),
             )
         )
     if slot_id is not None:

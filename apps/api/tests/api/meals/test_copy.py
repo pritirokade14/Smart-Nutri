@@ -108,7 +108,7 @@ async def test_copy_double_tap_creates_once(
     await _log(client, slots["diary.slot.breakfast"], product=sf_biscuit_product_id)
     await _log(client, slots["diary.slot.lunch"], product=sf_biscuit_product_id)
     body = _copy_body()
-    real = copy_service._read_back
+    real = copy_service.read_back
     calls = {"n": 0}
 
     async def racing(session, account_id, ids):
@@ -131,7 +131,7 @@ async def test_copy_double_tap_creates_once(
             return []  # this request did not see it yet
         return await real(session, account_id, ids)
 
-    monkeypatch.setattr(copy_service, "_read_back", racing)
+    monkeypatch.setattr(copy_service, "read_back", racing)
     r = await client.post(URL, json=body)
     assert r.status_code == 201, r.text
     assert len(r.json()["created"]) == 2

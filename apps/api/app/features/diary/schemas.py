@@ -171,6 +171,10 @@ class RecentItem(BaseModel):
     last_eaten_at: AwareDatetime
     attribution: str | None
     attributions: list[str] = Field(default_factory=list)
+    favourite_id: UUID | None = Field(
+        default=None,
+        description="The member's favourite for this same food (unstar with `favourites_delete`)",
+    )
 
 
 class RecentsOut(BaseModel):
