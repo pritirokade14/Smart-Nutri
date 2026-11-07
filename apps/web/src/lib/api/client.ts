@@ -46,6 +46,17 @@ export function isTargetsPath(requestUrl: string, baseUrl: string): boolean {
   return rest === "/v1/targets" || rest.startsWith("/v1/targets/");
 }
 
+/**
+ * True for a /v1/weights call. Like targets, a missing health_data consent is
+ * handled in place (the Progress view's consent card), never by a global dialog.
+ */
+export function isWeightsPath(requestUrl: string, baseUrl: string): boolean {
+  const prefix = new URL(baseUrl).pathname.replace(/\/+$/, "");
+  const path = new URL(requestUrl).pathname;
+  const rest = path.startsWith(`${prefix}/`) ? path.slice(prefix.length) : path;
+  return rest === "/v1/weights" || rest.startsWith("/v1/weights/");
+}
+
 /** Browser API client; the bearer token comes from the Supabase session. */
 export function getApi(): ApiClient {
   if (!api) {
@@ -72,7 +83,8 @@ export function getApi(): ApiClient {
         if (
           response.status === 403 &&
           onConsentRequired &&
-          !isTargetsPath(request.url, baseUrl)
+          !isTargetsPath(request.url, baseUrl) &&
+          !isWeightsPath(request.url, baseUrl)
         ) {
           const purposes = await consentPurposes(response);
           if (purposes) onConsentRequired(purposes);
