@@ -81,7 +81,7 @@ See [AGENTS.md](AGENTS.md). In short:
 
 ## 7. Plans and build order
 
-Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 2026-11-04). PR #4 (`4bcf1c0`) switched voice on in dev and PR #5 (`b152a49`) merged the QA fixes. The dev DB is at alembic head `0007_plan9_supplement_category`, and the dev API and web are deployed and healthy.
+Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 2026-11-04). PR #4 (`4bcf1c0`) switched voice on in dev and PR #5 (`b152a49`) merged the QA fixes. The dev DB is at alembic head `0009_diary_days_slots_entries`, and the dev API and web are deployed and healthy.
 
 | Plan | File | Status |
 |---|---|---|
@@ -94,6 +94,9 @@ Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 
 | 7. M5: voice Q&A, How we score, Report a problem | `…-plan-7-m5-voice-methodology-reports.md` | Code complete; voice is **ON on dev** (repo variables `VOICE_ENABLED` and `NEXT_PUBLIC_FEATURE_VOICE`, 2026-11-04) |
 | 8. M6: consent/DPDP, deletion, retention, release checklist | `…-plan-8-m6-launch.md` | Code complete; prod deploy, Play Store and legal are USER |
 | 9. User types, focused modes, gym protein guide | [plan-9](docs/superpowers/plans/2026-11-04-plan-9-personas.md) | Code complete, merged (PR #3), deployed to dev. Migrations 0006 (user types) and 0007 (supplement category). ADR 0019 |
+| 10. Daily guide (targets), hide numbers | `docs/superpowers/plans/` (Plan 10) | Merged (PR #7), live on dev |
+| 11. Food diary day and meal slots | `docs/superpowers/plans/` (Plan 11) | Merged (PR #9), live on dev |
+| 12. Food diary slices 3–6 | [plan-12](docs/superpowers/plans/2026-11-07-plan-12-food-diary-slices3-6.md) | This plan, not started |
 
 **How plans are executed:** `superpowers:subagent-driven-development`, with a ledger in `.superpowers/sdd/<plan>/progress.md` (git-ignored). Independent tasks run in parallel git worktrees. For each slice: the API first → `just contract` → Android ∥ web → `nutrition-safety-reviewer`.
 
@@ -114,8 +117,7 @@ Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 
   - Whole-branch nutrition-safety review: APPROVE WITH CHANGES; the fix batch addressed them.
   - PR #5 QA fixes: Android camera/scanner attach fix, web how-we-score wrap, search `?q=`, tab highlight, Family "You" shown once on both clients, per-member accessible labels, 360px overflow sweep.
 - **Plan 9 (user types, focused modes, gym protein guide):** code complete, safety-reviewed, merged (PR #3).
-- **Plan 10 slice 1 (daily guide, hide numbers, protein basis):** merged (PR #7, `da13412`) and live on dev; dev DB at 0008.
-- **Plan 11 slice 2 (food diary day: log by meal, quick add, copy, week view, remaining, default meal slots):** built on API, Android and web and safety-reviewed; migration 0009 (merge pending). Slice 2b (meal-slot management) is next. The Sugar Control spec and decisions are in docs/research/sugar-control/.
+- **Plan 10 (slice 1: daily guide, hide numbers, protein basis) and Plan 11 (slices 2 and 2b: food diary day, meal slots):** merged (PR #7 `da13412`, PR #9 `8f7f456`) and live on dev; dev DB at 0009. Slice 2b (meal-slot management) is included.
 - **Tests (2026-11-04):** API 3,972; Flutter 1,511; web 1,298 unit and 47 e2e. Experiments E1–E7 were re-run on `2003e9c`.
 
 **Not done, by design or waiting on the user:**
@@ -136,6 +138,9 @@ Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 
 - [ ] **USER: lawyer review** of the privacy policy and terms drafts (`docs/launch/`), including DPDP withdrawal versus erasure (ADR 0018) and children's profiles.
 - [ ] **USER: Play Store:** create the Google Play Console **personal** account ($25) and complete ID verification.
 - [ ] **USER:** recruit 12–20 closed-test testers once a usable build exists.
+- [ ] **USER: send the NIN permission letter** (`docs/research/food-diary/data/NIN_permission_request.md`, Q1).
+- [ ] **USER: dietitian review** of `household_units.csv`, the derived densities and `indian_dishes_recipes.md`, including weighing roti, phulka, paratha, idli, dosa, puri, vada, samosa, laddoo and besan chilla, and the katori sizes (Q6b).
+- [ ] **USER: re-verify the USDA FDC licence** before launch.
 - [ ] **USER: clinician or dietitian review** (sheet: `docs/launch/clinician-review.md`) of `apps/api/app/scoring/data/thresholds.yaml` (all values are marked PENDING CLINICIAN REVIEW). Specific questions for them:
   - Over-warning list from Plan 1: rice vermicelli / rava flagged as gluten; pistachio/almond "nuts" flagged for peanut allergy; coconut cream and butter beans flagged for milk; soya keema; chai masala / herbal tea flagged as caffeine for children; plain milk 250 ml for a 2-year-old = avoid; coconut water for diabetics; infant rice cereal salt.
   - Blood-sugar members: is CAUTION the right level for foods high in saturated fat or salt (UK FSA "high" limits: sat fat > 5 g, salt > 1.5 g per 100 g)? Is the 30 g carbs-per-serving threshold right (oats at 26 g per 40 g serving shows ok)?
