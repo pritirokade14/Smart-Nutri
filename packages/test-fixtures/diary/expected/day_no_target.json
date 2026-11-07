@@ -35,6 +35,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T08:00:00+05:30",
           "food_id": null,
           "grade": null,
@@ -68,8 +69,10 @@
           "product_id": "c51d30c8-b12e-5a27-818b-a4cc6cdc858e",
           "product_name": "Poha",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T08:00:00+05:30"
         }
       ],

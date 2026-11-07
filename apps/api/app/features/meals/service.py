@@ -107,12 +107,14 @@ def food_snapshot(
     attributions: Sequence[str] | None = None,
     licence: str | None = None,
     source: str | None = None,
+    unit_sources: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     """The food as it was at log time (spec 5.1 `food_snapshot`): an edit recomputes from THIS,
     never from the product row, a user override or the seed, so a later edit never rewrites
     history. ``per_100`` is after the engine's sanitiser, with salt from salt or sodium (the
     higher wins). Unrounded. ``units`` holds every unit that resolved at log time (code ->
-    grams, or ml, per unit); without it, just the serving."""
+    grams, or ml, per unit); without it, just the serving. ``unit_sources`` says how each unit
+    was converted (`grams`, `portion` or `density`), so an edit keeps the "approximate" marker."""
     n, _ = per_100g.sanitized()
     return {
         "name": info_name,
@@ -137,7 +139,27 @@ def food_snapshot(
         else ([attribution] if attribution else []),
         "licence": licence,
         "source": source,
+        "unit_sources": dict(unit_sources) if unit_sources is not None else {},
     }
+
+
+def unit_source_label(
+    source: str, basis: str, *, recipe: bool = False, code: str | None = None
+) -> str:
+    """The client-facing kind of a resolved unit's conversion: `portion` (a per-food weight),
+    `density` (a volume through a density, which includes grams of an ml-basis food), else
+    `grams` (exact: a mass, a millilitre of an ml-basis food, or a label serving). A household
+    volume on an ml-basis food (`volume_basis`) is a nominal volume: approximate (`density`). A
+    recipe's per-serving portion is cooked weight / servings: approximate (`portion`)."""
+    if recipe and source == "serving":
+        return "portion"
+    if source in ("portion_user", "portion_global"):
+        return "portion"
+    if source == "volume_basis" and code != "ml":
+        return "density"  # katori, cup, glass...: a nominal volume (plain `ml` stays exact)
+    if source == "density" or (source == "mass" and basis == "ml"):
+        return "density"
+    return "grams"
 
 
 def per_100_of(row: MealLog) -> dict[str, float | None]:
@@ -182,6 +204,20 @@ def _snapshot_units(row: MealLog) -> dict[str, float]:
     return units
 
 
+def _unit_source(row: MealLog) -> str | None:
+    """How the entry's unit was converted (`grams`, `portion` or `density`); null when unknown
+    (older entries, quick adds, or a unit the saved food did not record)."""
+    if row.unit is None or row.source_kind == "quick_add":
+        return None
+    snap = row.food_snapshot or {}
+    recorded = (snap.get("unit_sources") or {}).get(row.unit)
+    if recorded is not None:
+        return recorded
+    if snap.get("basis", "g") == "g" and row.unit in ("g", "serving"):
+        return "grams"  # an exact unit, recorded or not
+    return None
+
+
 def _portion_units(row: MealLog) -> list[PortionUnitOut]:
     units = _snapshot_units(row)
     return [
@@ -223,15 +259,18 @@ def to_meal_out(row: MealLog, hidden: NumbersHidden | None = None) -> MealOut:
         eaten_at=row.eaten_at,
         nutrients=NutrientSnapshot(**nutrients),
         client_id=row.client_id,
-        attribution=OFF_ATTRIBUTION if row.off_barcode is not None else None,
+        attribution=OFF_ATTRIBUTION if OFF_ATTRIBUTION in _attributions(row) else None,
         source_kind=row.source_kind,  # type: ignore[arg-type]  (checked by ck_meal_logs_source_kind)
         meal_slot_id=row.meal_slot_id,
         local_date=row.local_date,
         incomplete=[k for k in NUTRIENT_KEYS if raw.get(k) is None],
         updated_at=row.updated_at,
         food_id=row.food_id,
+        custom_food_id=row.custom_food_id,
+        recipe_id=row.recipe_id,
         quantity=None if row.quantity is None else float(row.quantity),
         unit=row.unit,
+        unit_source=_unit_source(row),  # type: ignore[arg-type]
         basis=(row.food_snapshot or {}).get("basis", "g"),  # type: ignore[arg-type]
         attributions=_attributions(row),
         portion_units=_portion_units(row),
@@ -384,27 +423,42 @@ async def log_meal(
         )
     else:
         ref = foods_resolve.ref_from_ids(
-            food_id=body.food_id, product_id=body.product_id, barcode=body.barcode
+            food_id=body.food_id,
+            product_id=body.product_id,
+            barcode=body.barcode,
+            custom_food_id=body.custom_food_id,
+            recipe_id=body.recipe_id,
         )
         loaded = await foods_resolve.load_food(
             session, off, ref, account_id=account_id, settings=settings
         )
+        if loaded.retired:  # readable (old entries keep working) but never logged anew
+            raise ApiError("food_retired", 422)
         table = await foods_resolve.unit_table(session)
         grams, quantity, unit_code = _portion_of(body, loaded, table)
-        units = {
-            r.code: float(r.grams_per_unit) for r in food_units.resolve_units(loaded.units, table)
+        resolved = food_units.resolve_units(loaded.units, table)
+        units = {r.code: float(r.grams_per_unit) for r in resolved}
+        unit_sources = {
+            r.code: unit_source_label(
+                r.source, loaded.basis, recipe=loaded.ref.kind == "recipe", code=r.code
+            )
+            for r in resolved
         }
         serving = loaded.units.serving_g
         row = MealLog(
             **common,
             source_kind=(
                 "food" if loaded.food_id is not None
+                else "custom_food" if loaded.ref.kind == "custom_food"
+                else "recipe" if loaded.ref.kind == "recipe"
                 else "product" if loaded.product_id is not None
                 else "off"
             ),
             product_id=loaded.product_id,
             off_barcode=loaded.off_barcode,
             food_id=loaded.food_id,
+            custom_food_id=loaded.custom_food_id,
+            recipe_id=loaded.recipe_id,
             product_name=loaded.name,
             grade=loaded.grade,
             grams=grams,
@@ -422,6 +476,7 @@ async def log_meal(
                 attributions=loaded.attributions,
                 licence=loaded.licence,
                 source=loaded.source,
+                unit_sources=unit_sources,
             ),
         )  # fmt: skip
     try:
@@ -449,20 +504,23 @@ async def log_meal(
     return row, True
 
 
-def _patch_portion(row: MealLog, patch: MealPatch) -> tuple[float, Decimal, str]:
+def _patch_portion(
+    row: MealLog, patch: MealPatch, *, quantity: float | None = None, unit: str | None = None
+) -> tuple[float, Decimal, str]:
     """A new quantity + unit, converted ONLY from the entry's own saved units (the ones that
     resolved when it was logged): a later portion override, density or reseed never rewrites
-    history, and a unit that did not resolve then is 422 `unit_grams_unknown`."""
-    unit_code = patch.unit or ""
+    history, and a unit that did not resolve then is 422 `unit_grams_unknown`. ``quantity`` and
+    ``unit`` override the patch's own (a grams patch on an ml-basis entry converts as `g`)."""
+    unit_code = unit if unit is not None else patch.unit or ""
     per_unit = _snapshot_units(row).get(unit_code)
     if per_unit is None:
         raise ApiError("unit_grams_unknown", 422, details={"unit": unit_code})
-    quantity = Decimal(repr(patch.quantity))
+    qty = Decimal(repr(quantity if quantity is not None else patch.quantity))
     cap = food_units.MAX_AMOUNT if unit_code in ("g", "ml") else food_units.MAX_QUANTITY
-    amount = quantity * Decimal(repr(per_unit))
-    if not 0 < quantity <= cap or not 0 < amount <= food_units.MAX_AMOUNT:
+    amount = qty * Decimal(repr(per_unit))
+    if not 0 < qty <= cap or not 0 < amount <= food_units.MAX_AMOUNT:
         raise ApiError("quantity_out_of_range", 422)
-    return float(amount), quantity, unit_code
+    return float(amount), qty, unit_code
 
 
 async def update_meal(
@@ -506,6 +564,10 @@ async def update_meal(
             raise ApiError("validation_error", 422, details={"fields": [f"body.{field}"]})
         if patch.quantity is not None:
             grams, quantity, unit_code = _patch_portion(row, patch)
+        elif patch.grams is not None and (row.food_snapshot or {}).get("basis", "g") == "ml":
+            # Grams of an ml-basis food are never millilitres: convert through the density the
+            # entry was logged with (its saved `g` unit), or refuse (422 `unit_grams_unknown`).
+            grams, quantity, unit_code = _patch_portion(row, patch, quantity=patch.grams, unit="g")
         elif patch.grams is not None:
             serving = ((row.food_snapshot or {}).get("units") or {}).get("serving")
             grams = _grams_from(patch.grams, None, serving)

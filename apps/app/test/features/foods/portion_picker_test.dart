@@ -32,6 +32,37 @@ Future<List<PortionChoice>> pumpPicker(
 }
 
 void main() {
+  testWidgets('preview shows the same eight rows as the web', (t) async {
+    await pumpPicker(t, FakeFoodsClient());
+    for (final k in const [
+      'energy_kcal',
+      'protein_g',
+      'carbs_g',
+      'sugars_g',
+      'fat_g',
+      'sat_fat_g',
+      'fibre_g',
+      'salt_g',
+    ]) {
+      expect(find.byKey(PortionPickerSheet.previewKey(k)), findsOneWidget);
+    }
+    // 1 katori of dal = 142 g: fibre 4 per 100 g -> 5.7 g; unit shown.
+    expect(
+      find.descendant(
+        of: find.byKey(PortionPickerSheet.previewKey('fibre_g')),
+        matching: find.text(en.targetsGValue('5.7')),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(PortionPickerSheet.previewKey('energy_kcal')),
+        matching: find.text(en.targetsKcalValue('170.4')),
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets("picker offers only the API's units", (t) async {
     await pumpPicker(t, FakeFoodsClient());
     expect(find.byKey(PortionPickerSheet.unitKey('g')), findsOneWidget);
@@ -197,7 +228,15 @@ void main() {
       find.byKey(PortionPickerSheet.previewKey('protein_g')),
       findsOneWidget,
     );
-    expect(find.text(en.foodsNotKnown), findsNothing);
+    // Saturated fat is a preview row now (the web's eight): unknown says so.
+    expect(
+      find.descendant(
+        of: find.byKey(PortionPickerSheet.previewKey('sat_fat_g')),
+        matching: find.text(en.foodsNotKnown),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(en.foodsNotKnown), findsOneWidget);
   });
 
   testWidgets('dish shows ingredients and review note', (t) async {

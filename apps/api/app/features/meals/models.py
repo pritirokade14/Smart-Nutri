@@ -20,7 +20,9 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+from app.features.custom_foods import models as _custom_foods_models  # noqa: F401  (FK targets)
 from app.features.foods import models as _foods_models  # noqa: F401  (FK targets)
+from app.features.recipes import models as _recipes_models  # noqa: F401  (FK targets)
 
 
 class MealLog(Base):
@@ -40,19 +42,29 @@ class MealLog(Base):
         CheckConstraint("grams is null or (grams > 0 and grams <= 5000)", name="grams"),
         CheckConstraint(
             "(source_kind = 'product' AND product_id IS NOT NULL AND off_barcode IS NULL "
-            "AND food_id IS NULL AND grams IS NOT NULL) "
+            "AND food_id IS NULL AND custom_food_id IS NULL AND recipe_id IS NULL "
+            "AND grams IS NOT NULL) "
             "OR (source_kind = 'off' AND off_barcode IS NOT NULL AND product_id IS NULL "
-            "AND food_id IS NULL AND grams IS NOT NULL) "
+            "AND food_id IS NULL AND custom_food_id IS NULL AND recipe_id IS NULL "
+            "AND grams IS NOT NULL) "
             "OR (source_kind = 'food' AND food_id IS NOT NULL AND product_id IS NULL "
-            "AND off_barcode IS NULL AND grams IS NOT NULL) "
+            "AND off_barcode IS NULL AND custom_food_id IS NULL AND recipe_id IS NULL "
+            "AND grams IS NOT NULL) "
             "OR (source_kind = 'quick_add' AND product_id IS NULL AND off_barcode IS NULL "
-            "AND food_id IS NULL AND grams IS NULL)",
+            "AND food_id IS NULL AND custom_food_id IS NULL AND recipe_id IS NULL "
+            "AND grams IS NULL) "
+            "OR (source_kind IN ('custom_food', 'recipe') AND product_id IS NULL "
+            "AND off_barcode IS NULL AND food_id IS NULL AND grams IS NOT NULL "
+            "AND num_nonnulls(custom_food_id, recipe_id) <= 1 "
+            "AND (source_kind = 'custom_food' OR custom_food_id IS NULL) "
+            "AND (source_kind = 'recipe' OR recipe_id IS NULL))",
             name="ref",
         ),
         CheckConstraint("quantity is null or (quantity > 0 and quantity <= 5000)", name="quantity"),
         CheckConstraint("num_nonnulls(quantity, unit) in (0, 2)", name="quantity_unit"),
         CheckConstraint(
-            "source_kind in ('product', 'off', 'food', 'quick_add')", name="source_kind"
+            "source_kind in ('product', 'off', 'food', 'custom_food', 'recipe', 'quick_add')",
+            name="source_kind",
         ),
         ForeignKeyConstraint(
             ["meal_slot_id", "member_id"],
@@ -97,3 +109,11 @@ class MealLog(Base):
     food_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("foods.id"))
     quantity: Mapped[Decimal | None] = mapped_column(Numeric(asdecimal=True))
     unit: Mapped[str | None] = mapped_column(Text, ForeignKey("household_units.code"))
+    # Plan 12 slice 4 (migration 0011): a custom food or recipe. NULL once it was deleted: the
+    # entry keeps its name and values in `food_snapshot`.
+    custom_food_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("custom_foods.id", ondelete="SET NULL")
+    )
+    recipe_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("recipes.id", ondelete="SET NULL")
+    )

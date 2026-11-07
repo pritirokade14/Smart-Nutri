@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 
 import 'analyze/analyze_client.dart';
 import 'consents/consents_client.dart';
+import 'custom_foods/custom_foods_client.dart';
 import 'diary/diary_client.dart';
 import 'foods/foods_client.dart';
 import 'health/health_client.dart';
@@ -16,6 +17,7 @@ import 'members/members_client.dart';
 import 'methodology/methodology_client.dart';
 import 'products/products_client.dart';
 import 'reports/reports_client.dart';
+import 'recipes/recipes_client.dart';
 import 'scans/scans_client.dart';
 import 'targets/targets_client.dart';
 import 'voice/voice_client.dart';
@@ -33,6 +35,7 @@ class SmartNutriApiClient {
 
   AnalyzeClient? _analyze;
   ConsentsClient? _consents;
+  CustomFoodsClient? _customFoods;
   DiaryClient? _diary;
   FoodsClient? _foods;
   HealthClient? _health;
@@ -43,6 +46,7 @@ class SmartNutriApiClient {
   MethodologyClient? _methodology;
   ProductsClient? _products;
   ReportsClient? _reports;
+  RecipesClient? _recipes;
   ScansClient? _scans;
   TargetsClient? _targets;
   VoiceClient? _voice;
@@ -52,6 +56,9 @@ class SmartNutriApiClient {
 
   ConsentsClient get consents =>
       _consents ??= ConsentsClient(_dio, baseUrl: _baseUrl);
+
+  CustomFoodsClient get customFoods =>
+      _customFoods ??= CustomFoodsClient(_dio, baseUrl: _baseUrl);
 
   DiaryClient get diary => _diary ??= DiaryClient(_dio, baseUrl: _baseUrl);
 
@@ -77,6 +84,9 @@ class SmartNutriApiClient {
 
   ReportsClient get reports =>
       _reports ??= ReportsClient(_dio, baseUrl: _baseUrl);
+
+  RecipesClient get recipes =>
+      _recipes ??= RecipesClient(_dio, baseUrl: _baseUrl);
 
   ScansClient get scans => _scans ??= ScansClient(_dio, baseUrl: _baseUrl);
 

@@ -11,9 +11,11 @@ import {
   type FoodDetailOut,
   type FoodKind,
   type FoodSearchOut,
+  foodBarcodeKey,
   foodKey,
   foodSearchKey,
   getFood,
+  getFoodByBarcode,
   putPortion,
   searchFoods,
 } from "../api/foods";
@@ -27,6 +29,17 @@ export function useFoodSearch(
     queryKey: foodSearchKey(q),
     queryFn: () => searchFoods(q),
     enabled: q.length >= 2,
+    ...PERSONAL,
+  });
+}
+
+export function useFoodByBarcode(
+  barcode: string | null,
+): UseQueryResult<FoodDetailOut, ApiError> {
+  return useQuery<FoodDetailOut, ApiError>({
+    queryKey: foodBarcodeKey(barcode ?? ""),
+    queryFn: () => getFoodByBarcode(barcode as string),
+    enabled: barcode !== null,
     ...PERSONAL,
   });
 }

@@ -449,3 +449,193 @@ async def test_portion_unique_per_owner_ref_unit(db, two_accounts):
     with pytest.raises(IntegrityError) as exc_info:
         await _portion(db, product_id=two_accounts.product)
     assert "uq_food_portions_product" in str(exc_info.value)
+
+
+# ---- Plan 12 slice 4 (migration 0011): custom foods, recipes, ingredients
+
+
+async def _custom_food(db, account, **cols) -> object:
+    values = {
+        "account_id": account,
+        "name": "Own bar",
+        "basis": "g",
+        "per_100": "{}",
+        "entered": "{}",
+    } | cols
+    names = ", ".join(values)
+    params = ", ".join(
+        f"CAST(:{k} AS jsonb)" if k in ("per_100", "entered") else f":{k}" for k in values
+    )
+    async with db.begin_nested():
+        return (
+            await db.execute(
+                text(f"insert into custom_foods ({names}) values ({params}) returning id"), values
+            )
+        ).scalar_one()
+
+
+async def test_custom_food_barcode_unique_per_account(db, two_accounts):
+    a, b = two_accounts.a, two_accounts.b
+    await _custom_food(db, a, barcode="8901000000017")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _custom_food(db, a, barcode="8901000000017")
+    assert "uq_custom_foods_account_id_barcode" in str(exc_info.value)
+    await _custom_food(db, b, barcode="8901000000017")  # another account: its own
+    await _custom_food(db, a)  # no barcode: never constrained
+    await _custom_food(db, a)
+
+
+async def test_custom_food_client_id_unique_per_account(db, two_accounts):
+    cid = "6d3a1c2e-0000-4000-8000-000000000001"
+    await _custom_food(db, two_accounts.a, client_id=cid)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _custom_food(db, two_accounts.a, client_id=cid)
+    assert "uq_custom_foods_account_id_client_id" in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
+    ("cols", "constraint"),
+    [
+        ({"name": ""}, "ck_custom_foods_name"),
+        ({"name": "x" * 81}, "ck_custom_foods_name"),
+        ({"basis": "kg"}, "ck_custom_foods_basis"),
+        ({"serving_g": 0}, "ck_custom_foods_serving_g"),
+        ({"density_g_per_ml": 0.19}, "ck_custom_foods_density"),
+        ({"density_g_per_ml": 2.01}, "ck_custom_foods_density"),
+    ],
+)
+async def test_custom_food_checks(db, two_accounts, cols, constraint):
+    with pytest.raises(IntegrityError) as exc_info:
+        await _custom_food(db, two_accounts.a, **cols)
+    assert constraint in str(exc_info.value)
+
+
+async def _recipe(db, account) -> object:
+    async with db.begin_nested():
+        return (
+            await db.execute(
+                text(
+                    "insert into recipes (account_id, name, per_100g) "
+                    "values (:a, 'Stew', '{}') returning id"
+                ),
+                {"a": account},
+            )
+        ).scalar_one()
+
+
+async def _ingredient(db, account, recipe, position=0, **cols) -> None:
+    values = {
+        "recipe_id": recipe,
+        "account_id": account,
+        "position": position,
+        "source_kind": "custom_food",
+        "name": "x",
+        "quantity": 1,
+        "unit": "g",
+        "grams": 10,
+        "basis": "g",
+        **cols,
+    }
+    names = ", ".join([*values, "per_100"])
+    params = ", ".join(f":{k}" for k in values)
+    async with db.begin_nested():
+        await db.execute(
+            text(f"insert into recipe_ingredients ({names}) values ({params}, '{{}}')"), values
+        )
+
+
+async def test_recipe_ingredient_ref_matches_kind(db, two_accounts):
+    a = two_accounts.a
+    recipe = await _recipe(db, a)
+    food = await _food(db)
+    cf = await _custom_food(db, a)
+    p = two_accounts.product
+    bad = (
+        {"source_kind": "product"},  # product without a product id
+        {"source_kind": "product", "product_id": p, "food_id": food},
+        {"source_kind": "off"},  # off without a barcode
+        {"source_kind": "food", "food_id": None},
+        {"source_kind": "food", "food_id": food, "custom_food_id": cf},
+        {"source_kind": "custom_food", "custom_food_id": cf, "food_id": food},
+        {"source_kind": "custom_food", "off_barcode": "8901"},
+        {"source_kind": "recipe"},  # not an ingredient kind
+    )
+    for i, cols in enumerate(bad):
+        with pytest.raises(IntegrityError) as exc_info:
+            await _ingredient(db, a, recipe, i, **cols)
+        assert "ck_recipe_ingredients_" in str(exc_info.value), cols
+    await _ingredient(db, a, recipe, 10, source_kind="product", product_id=p)
+    await _ingredient(db, a, recipe, 11, source_kind="off", off_barcode="8901")
+    await _ingredient(db, a, recipe, 12, source_kind="food", food_id=food)
+    await _ingredient(db, a, recipe, 13, source_kind="custom_food", custom_food_id=cf)
+    with pytest.raises(IntegrityError) as exc_info:  # one position per recipe
+        await _ingredient(db, a, recipe, 13, source_kind="custom_food", custom_food_id=cf)
+    assert "uq_recipe_ingredients_recipe_id_position" in str(exc_info.value)
+
+
+async def test_custom_food_delete_sets_entry_and_ingredient_null(db, two_accounts):
+    a = two_accounts.seed_a
+    cf = await _custom_food(db, a.account)
+    recipe = await _recipe(db, a.account)
+    await _ingredient(db, a.account, recipe, 0, custom_food_id=cf)
+    await _entry(db, a, None, source_kind="custom_food", custom_food_id=cf)
+    await db.execute(text("delete from custom_foods where id = :c"), {"c": cf})
+    ing = await db.scalar(
+        text("select custom_food_id from recipe_ingredients where recipe_id = :r"), {"r": recipe}
+    )
+    assert ing is None
+    row = (
+        await db.execute(
+            text(
+                "select custom_food_id, source_kind from meal_logs "
+                "where member_id = :m and source_kind = 'custom_food'"
+            ),
+            {"m": a.member},
+        )
+    ).one()
+    assert tuple(row) == (None, "custom_food")  # the entry stays
+
+
+async def test_meal_log_custom_food_null_allowed_after_delete(db, two_accounts):
+    a = two_accounts.seed_a
+    p = two_accounts.product
+    # NULL ids are allowed for the two kinds (G21), but never mixed or for the other kinds.
+    await _entry(db, a, None, source_kind="custom_food")
+    await _entry(db, a, None, source_kind="recipe")
+    cf = await _custom_food(db, a.account)
+    recipe = await _recipe(db, a.account)
+    bad = (
+        {"source_kind": "recipe", "custom_food_id": cf},  # wrong column for the kind
+        {"source_kind": "custom_food", "recipe_id": recipe},
+        {"source_kind": "custom_food", "custom_food_id": cf, "recipe_id": recipe},
+        {"source_kind": "custom_food", "grams": None},  # a portion is required
+        {"source_kind": "custom_food", "product_id": p},
+        {"source_kind": "product", "product_id": p, "custom_food_id": cf},
+        {"source_kind": "quick_add", "grams": None, "recipe_id": recipe},
+    )
+    for cols in bad:
+        values = {"product_id": None} | cols
+        with pytest.raises(IntegrityError) as exc_info:
+            await _entry(db, a, p, **values)
+        assert "ck_meal_logs_ref" in str(exc_info.value), cols
+    await _entry(db, a, None, source_kind="custom_food", custom_food_id=cf)
+    await _entry(db, a, None, source_kind="recipe", recipe_id=recipe)
+
+
+async def test_portion_custom_food_ref(db, two_accounts):
+    a, b = two_accounts.a, two_accounts.b
+    cf = await _custom_food(db, a)
+    food = await _food(db)
+    with pytest.raises(IntegrityError) as exc_info:  # two refs
+        await _portion(db, custom_food_id=cf, food_id=food, account_id=a, source="user")
+    assert "ck_food_portions_ref" in str(exc_info.value)
+    await _portion(db, custom_food_id=cf, account_id=a, source="user", unit="piece")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _portion(db, custom_food_id=cf, account_id=a, source="user", unit="piece")
+    assert "uq_food_portions_custom_food" in str(exc_info.value)
+    await _portion(db, custom_food_id=cf, account_id=b, source="user", unit="piece")
+    await db.execute(text("delete from custom_foods where id = :c"), {"c": cf})
+    n = await db.scalar(
+        text("select count(*) from food_portions where custom_food_id = :c"), {"c": cf}
+    )
+    assert n == 0  # the portions go with the food (ON DELETE CASCADE)

@@ -45,6 +45,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T08:30:00+05:30",
           "food_id": null,
           "grade": null,
@@ -73,8 +74,10 @@
           "product_id": "2fce25ba-5986-5f67-8f31-b171dbdd19c4",
           "product_name": "Oats",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T08:30:00+05:30"
         }
       ],
@@ -110,6 +113,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T13:15:00+05:30",
           "food_id": null,
           "grade": null,
@@ -138,8 +142,10 @@
           "product_id": "ed6f53b3-07e8-5744-8c81-5c47b2471730",
           "product_name": "Dal rice plate",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T13:15:00+05:30"
         }
       ],
@@ -175,6 +181,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T17:00:00+05:30",
           "food_id": null,
           "grade": null,
@@ -203,8 +210,10 @@
           "product_id": "8c301e57-5965-5852-8315-12374a31cb4e",
           "product_name": "Biscuit",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T17:00:00+05:30"
         }
       ],
@@ -240,6 +249,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T20:30:00+05:30",
           "food_id": null,
           "grade": null,
@@ -268,8 +278,10 @@
           "product_id": "c2b6efb1-c139-57e5-8c4c-ee5c0e3b8465",
           "product_name": "Roti and sabzi",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T20:30:00+05:30"
         }
       ],

@@ -32,6 +32,7 @@ class FoodDetailOut {
     required this.servingG,
     required this.settableUnits,
     required this.units,
+    this.recipeIncomplete,
   });
 
   factory FoodDetailOut.fromJson(Map<String, Object?> json) =>
@@ -54,6 +55,10 @@ class FoodDetailOut {
   /// Per 100 g (or 100 ml), unrounded; null = unknown, or hidden by the member's numbers display
   @JsonKey(name: 'per_100')
   final NutrientSnapshot per100;
+
+  /// A recipe only: the nutrients at least one ingredient does not know. They are null in `per_100`, so a logged serving never counts a partial value
+  @JsonKey(name: 'recipe_incomplete')
+  final List<String>? recipeIncomplete;
 
   /// Household measures and dishes are pending dietitian review
   @JsonKey(name: 'review_pending')

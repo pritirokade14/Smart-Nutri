@@ -45,6 +45,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T08:00:00+05:30",
           "food_id": null,
           "grade": null,
@@ -78,8 +79,10 @@
           "product_id": "c1400187-a12d-5167-b58f-6bcec3d6def1",
           "product_name": "Idli",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T08:00:00+05:30"
         }
       ],
@@ -141,6 +144,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T17:30:00+05:30",
           "food_id": null,
           "grade": null,
@@ -174,8 +178,10 @@
           "product_id": "0dd154ff-c527-5622-9511-026a9011a0ee",
           "product_name": "Banana shake",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T17:30:00+05:30"
         }
       ],

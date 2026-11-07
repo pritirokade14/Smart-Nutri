@@ -44,6 +44,7 @@ const _$NutriScoreGradeEnumMap = {
 };
 
 const _$FoodHitGroupEnumMap = {
+  FoodHitGroup.mine: 'mine',
   FoodHitGroup.indian: 'indian',
   FoodHitGroup.packaged: 'packaged',
   FoodHitGroup.$unknown: r'$unknown',
@@ -53,5 +54,7 @@ const _$FoodHitKindEnumMap = {
   FoodHitKind.food: 'food',
   FoodHitKind.product: 'product',
   FoodHitKind.off: 'off',
+  FoodHitKind.customFood: 'custom_food',
+  FoodHitKind.recipe: 'recipe',
   FoodHitKind.$unknown: r'$unknown',
 };

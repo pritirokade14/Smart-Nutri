@@ -111,6 +111,8 @@ class MealSync {
       productId: row.productId,
       barcode: row.barcode,
       foodId: row.foodId,
+      customFoodId: row.customFoodId,
+      recipeId: row.recipeId,
       grams: energy == null ? row.grams : null,
       servings: energy == null ? row.servings : null,
       quantity: energy == null ? row.quantity : null,

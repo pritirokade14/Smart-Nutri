@@ -18,6 +18,20 @@ part 'foods_client.g.dart';
 abstract class FoodsClient {
   factory FoodsClient(Dio dio, {String? baseUrl}) = _FoodsClient;
 
+  /// Foods By Barcode.
+  ///
+  /// Look a scanned barcode up for LOGGING: your own custom food with that barcode first, then.
+  /// our product, then Open Food Facts. For the verdict use `products_get_by_barcode` and.
+  /// `analyze`: they never see custom foods. 422 `invalid_barcode`, 404 `product_not_found`, 503.
+  /// `off_unavailable`.
+  ///
+  /// [memberId] - Defaults to the primary member.
+  @GET('/v1/foods/barcode/{barcode}')
+  Future<FoodDetailOut> foodsByBarcode({
+    @Path('barcode') required String barcode,
+    @Query('member_id') String? memberId,
+  });
+
   /// Foods Search.
   ///
   /// Search generic foods and Indian dishes first, then packaged products (our catalogue and.
@@ -25,7 +39,7 @@ abstract class FoodsClient {
   /// results still come back with `partial: true` and `failed_sources: ["off"]`. USDA and.
   /// Open Food Facts credits ride on each hit.
   ///
-  /// [kinds] - Which sources to search; default both (food = generic foods and dishes).
+  /// [kinds] - Which sources to search; default all (food = generic foods and dishes; custom_food and recipe = yours, listed first).
   ///
   /// [q] - 2 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short.
   @GET('/v1/foods/search')

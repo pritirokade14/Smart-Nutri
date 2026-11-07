@@ -139,15 +139,30 @@ class DiaryDayStatusOut(BaseModel):
 
 
 class RecentItem(BaseModel):
-    source_kind: Literal["product", "off", "food"]
+    source_kind: Literal["product", "off", "food", "custom_food", "recipe"]
     product_id: UUID | None
     barcode: str | None
     food_id: UUID | None = Field(
         default=None, description="A generic food or dish; log it again with `food_id`"
     )
+    custom_food_id: UUID | None = Field(
+        default=None, description="Your custom food; log it again with `custom_food_id`"
+    )
+    recipe_id: UUID | None = Field(
+        default=None, description="Your recipe; log it again with `recipe_id`"
+    )
+    basis: Literal["g", "ml"] = Field(
+        default="g", description="Whether `grams` is grams or millilitres (an ml-basis food)"
+    )
+    unit_source: Literal["grams", "portion", "density"] | None = Field(
+        default=None,
+        description="How `grams` came from the unit; `portion` and `density` are approximate (≈)",
+    )
     name: str
     grade: NutriScoreGrade | None
-    grams: float
+    grams: float = Field(
+        description="The resolved amount in the entry's basis: grams, or ml when `basis` is ml"
+    )
     quantity: float | None = Field(
         default=None, description="The portion as last logged, with `unit`; null for older entries"
     )

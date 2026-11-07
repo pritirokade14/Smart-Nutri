@@ -195,6 +195,10 @@ async def recents(
             key = ("product", str(r.product_id))
         elif r.food_id is not None:
             key = ("food", str(r.food_id))
+        elif r.custom_food_id is not None:
+            key = ("custom_food", str(r.custom_food_id))
+        elif r.recipe_id is not None:
+            key = ("recipe", str(r.recipe_id))
         elif r.off_barcode:
             key = ("off", r.off_barcode)
         else:
@@ -208,6 +212,10 @@ async def recents(
                 product_id=r.product_id,
                 barcode=r.off_barcode,
                 food_id=r.food_id,
+                custom_food_id=r.custom_food_id,
+                recipe_id=r.recipe_id,
+                basis=(r.food_snapshot or {}).get("basis", "g"),  # type: ignore[arg-type]
+                unit_source=meals_service._unit_source(r),  # type: ignore[arg-type]
                 name=r.product_name or "",
                 grade=r.grade,  # type: ignore[arg-type]
                 grams=r.grams or 0.0,

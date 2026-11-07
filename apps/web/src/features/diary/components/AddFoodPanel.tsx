@@ -11,8 +11,7 @@ import type { FoodHit } from "@/features/foods/api/foods";
 import { FoodSearch } from "@/features/foods/components/FoodSearch";
 import { PortionPicker } from "@/features/foods/components/PortionPicker";
 import { SourceCredit } from "@/features/foods/components/SourceCredit";
-import { unitLabel } from "@/features/foods/lib/unitLabel";
-import { formatAmount } from "@/features/history/lib/summary";
+import { portionLine } from "@/features/foods/lib/portionLine";
 import type { MealIn } from "@/features/meals/api/meals";
 import { useLogMeal } from "@/features/meals/hooks/useMeals";
 import { errorKey } from "@/features/members/components/ConsentDialog";
@@ -110,6 +109,7 @@ export function AddFoodPanel({
   const [picked, setPicked] = useState<string | null>(null);
   const [segment, setSegment] = useState<Segment>("recent");
   const [hit, setHit] = useState<FoodHit | null>(null);
+  const [viaBarcode, setViaBarcode] = useState(false);
   const chosen = picked ?? slotId ?? slots.data?.suggested_slot_id ?? null;
   const loaded = slots.data !== undefined && chosen !== null;
   const recents = useRecents(loaded ? (chosen ?? undefined) : undefined);
@@ -123,16 +123,23 @@ export function AddFoodPanel({
       {
         ...(item.food_id
           ? { food_id: item.food_id }
-          : item.product_id
-            ? { product_id: item.product_id }
-            : { barcode: item.barcode }),
+          : item.custom_food_id
+            ? { custom_food_id: item.custom_food_id }
+            : item.recipe_id
+              ? { recipe_id: item.recipe_id }
+              : item.product_id
+                ? { product_id: item.product_id }
+                : { barcode: item.barcode }),
         // The last portion as it was logged: its unit, else grams (a legacy row).
         ...(item.quantity != null && item.unit
           ? {
               quantity: item.quantity,
               unit: item.unit as NonNullable<MealIn["unit"]>,
             }
-          : { grams: item.grams }),
+          : item.basis === "ml"
+            ? // An ml food with no saved unit: millilitres, never grams.
+              { quantity: item.grams, unit: "ml" as const }
+            : { grams: item.grams }),
         ...(loaded && chosen ? { meal_slot_id: chosen } : {}),
         ...(localDate ? { local_date: localDate } : {}),
         client_id: clientId.current,
@@ -214,6 +221,20 @@ export function AddFoodPanel({
           {t("scan.title")}
         </a>
         <a
+          href={`/${locale}/diary/foods/new`}
+          data-testid="new-food-link"
+          className={buttonClass({ variant: "outline", size: "sm" })}
+        >
+          {t("foods.new_food")}
+        </a>
+        <a
+          href={`/${locale}/diary/recipes/new`}
+          data-testid="new-recipe-link"
+          className={buttonClass({ variant: "outline", size: "sm" })}
+        >
+          {t("foods.new_recipe")}
+        </a>
+        <a
           href={`/${locale}/scan/label`}
           onClick={() => leave("label")}
           className={buttonClass({ variant: "outline", size: "sm" })}
@@ -229,9 +250,19 @@ export function AddFoodPanel({
             localDate={localDate}
             onLogged={done}
             onCancel={() => setHit(null)}
+            method={viaBarcode ? "barcode" : undefined}
           />
         ) : (
-          <FoodSearch onPick={setHit} />
+          <FoodSearch
+            onPick={(h, barcode) => {
+              setViaBarcode(barcode === true);
+              setHit(h);
+            }}
+            onBarcodeProduct={(code) => {
+              leave("barcode");
+              window.location.assign(`/${locale}/result/${code}`);
+            }}
+          />
         )
       ) : segment === "quick" ? (
         <QuickAddForm
@@ -250,7 +281,9 @@ export function AddFoodPanel({
       ) : (
         <ul className="divide-y divide-border-default" data-testid="recents">
           {(recents.data?.items ?? []).map((r) => (
-            <li key={`${r.food_id ?? r.product_id ?? r.barcode}`}>
+            <li
+              key={`${r.food_id ?? r.custom_food_id ?? r.recipe_id ?? r.product_id ?? r.barcode}`}
+            >
               <button
                 type="button"
                 data-testid="recent-item"
@@ -263,9 +296,13 @@ export function AddFoodPanel({
                   <SourceCredit keys={recentCredits(r)} />
                 </span>
                 <span className="shrink-0 text-sm text-text-secondary">
-                  {r.quantity != null && r.unit
-                    ? `${formatAmount(r.quantity)} ${unitLabel((k, v) => t(k as never, v as never), r.unit, r.quantity)}`
-                    : t("diary.grams_line", { grams: formatAmount(r.grams) })}
+                  {portionLine((k, v) => t(k as never, v as never), {
+                    quantity: r.quantity,
+                    unit: r.unit,
+                    grams: r.grams,
+                    basis: r.basis,
+                    unitSource: r.unit_source,
+                  })}
                 </span>
               </button>
             </li>

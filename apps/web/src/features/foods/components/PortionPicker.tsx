@@ -31,7 +31,8 @@ const FRACTIONS = [
   { value: "2", label: "2" },
 ] as const;
 
-// Labels for the preview rows (existing catalogue keys), in display order.
+// The preview rows (ruling: 8): energy, protein, carbs, sugars, fat, sat fat,
+// fibre, salt. Labels are the existing confirm.field.* keys.
 const ROWS = [
   ["energy_kcal", "confirm.field.energy_kcal", "energy"],
   ["protein_g", "confirm.field.protein_g", "macros"],
@@ -45,6 +46,15 @@ const ROWS = [
 
 // Grams can be set for these kinds of measure only (never g, ml or serving).
 const NOT_SETTABLE = new Set(["g", "ml", "serving"]);
+
+/** What ingredient mode hands back: a reference and an amount, no numbers. */
+export type IngredientPick = {
+  kind: FoodHit["kind"];
+  id: string;
+  name: string;
+  quantity: number;
+  unit: UnitCode;
+};
 
 const num = (raw: string): number | null => {
   const s = raw.trim().replace(",", ".");
@@ -66,12 +76,18 @@ export function PortionPicker({
   localDate,
   onLogged,
   onCancel,
+  ingredient,
+  method,
 }: {
   hit: Pick<FoodHit, "kind" | "id" | "name" | "is_dish">;
   slotId: string | null;
   localDate?: string;
   onLogged: () => void;
   onCancel: () => void;
+  /** Ingredient mode (the recipe builder): choose an amount, log nothing. */
+  ingredient?: (pick: IngredientPick) => void;
+  /** Analytics method override (a typed barcode: "barcode"). */
+  method?: string;
 }) {
   const t = useTranslations();
   const food = useFood(hit.kind, hit.id);
@@ -94,6 +110,8 @@ export function PortionPicker({
       localDate={localDate}
       onLogged={onLogged}
       onCancel={onCancel}
+      ingredient={ingredient}
+      method={method}
     />
   );
 }
@@ -131,6 +149,8 @@ function Loaded({
   localDate,
   onLogged,
   onCancel,
+  ingredient,
+  method,
 }: {
   hit: Pick<FoodHit, "kind" | "id" | "name" | "is_dish">;
   food: FoodDetailOut;
@@ -138,6 +158,8 @@ function Loaded({
   localDate?: string;
   onLogged: () => void;
   onCancel: () => void;
+  ingredient?: (pick: IngredientPick) => void;
+  method?: string;
 }) {
   const t = useTranslations();
   const qtyId = useId();
@@ -169,6 +191,16 @@ function Loaded({
 
   function save() {
     if (!valid || !unit) return;
+    if (ingredient) {
+      ingredient({
+        kind: hit.kind,
+        id: hit.id,
+        name: hit.name,
+        quantity: q,
+        unit: unit.code as UnitCode,
+      });
+      return;
+    }
     clientId.current ??= crypto.randomUUID();
     log.mutate(
       {
@@ -176,7 +208,11 @@ function Loaded({
           ? { food_id: hit.id }
           : hit.kind === "product"
             ? { product_id: hit.id }
-            : { barcode: hit.id }),
+            : hit.kind === "custom_food"
+              ? { custom_food_id: hit.id }
+              : hit.kind === "recipe"
+                ? { recipe_id: hit.id }
+                : { barcode: hit.id }),
         quantity: q,
         unit: unit.code as UnitCode,
         ...(slotId ? { meal_slot_id: slotId } : {}),
@@ -186,7 +222,15 @@ function Loaded({
       {
         onSuccess: () => {
           clientId.current = null;
-          track("diary_entry_added", { method: "search" });
+          track("diary_entry_added", {
+            method:
+              method ??
+              (hit.kind === "custom_food"
+                ? "custom"
+                : hit.kind === "recipe"
+                  ? "recipe"
+                  : "search"),
+          });
           onLogged();
         },
       },
@@ -411,11 +455,21 @@ function Loaded({
                 >
                   {preview[key] === null || preview[key] === undefined
                     ? t("foods.not_known")
-                    : preview[key]}
+                    : t(
+                        key === "energy_kcal"
+                          ? "targets.kcal_value"
+                          : "targets.g_value",
+                        { value: preview[key] },
+                      )}
                 </dd>
               </div>
             ))}
           </dl>
+          {food.recipe_incomplete && food.recipe_incomplete.length > 0 ? (
+            <p className={hintClass} data-testid="recipe-incomplete">
+              {t("recipes.incomplete")}
+            </p>
+          ) : null}
           <p className={hintClass}>{t("foods.preview_note")}</p>
         </section>
       ) : null}

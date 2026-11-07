@@ -1216,6 +1216,120 @@ abstract class AppLocalizations {
   /// **'Withdraw consent'**
   String get consentWithdraw;
 
+  /// No description provided for @customFoodBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode (optional)'**
+  String get customFoodBarcode;
+
+  /// No description provided for @customFoodBasisG.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured in grams'**
+  String get customFoodBasisG;
+
+  /// No description provided for @customFoodBasisMl.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured in millilitres'**
+  String get customFoodBasisMl;
+
+  /// No description provided for @customFoodBrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand (optional)'**
+  String get customFoodBrand;
+
+  /// No description provided for @customFoodDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete food'**
+  String get customFoodDelete;
+
+  /// No description provided for @customFoodDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this food? Meals you already logged keep their values.'**
+  String get customFoodDeleteConfirm;
+
+  /// No description provided for @customFoodDensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Grams in 1 ml (optional)'**
+  String get customFoodDensity;
+
+  /// No description provided for @customFoodDensityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed to turn a katori, cup or glass into grams. Leave blank if you don\'t know it.'**
+  String get customFoodDensityHint;
+
+  /// No description provided for @customFoodFieldSalt.
+  ///
+  /// In en, this message translates to:
+  /// **'Salt (g)'**
+  String get customFoodFieldSalt;
+
+  /// No description provided for @customFoodFieldSatFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturated fat (g)'**
+  String get customFoodFieldSatFat;
+
+  /// No description provided for @customFoodFieldSodium.
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium (mg)'**
+  String get customFoodFieldSodium;
+
+  /// No description provided for @customFoodFieldSugars.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugars (g)'**
+  String get customFoodFieldSugars;
+
+  /// No description provided for @customFoodHistoryKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Meals you already logged are unchanged.'**
+  String get customFoodHistoryKept;
+
+  /// No description provided for @customFoodName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get customFoodName;
+
+  /// No description provided for @customFoodPortions.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own measures'**
+  String get customFoodPortions;
+
+  /// No description provided for @customFoodSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save food'**
+  String get customFoodSave;
+
+  /// No description provided for @customFoodSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Food saved'**
+  String get customFoodSaved;
+
+  /// No description provided for @customFoodServingSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Serving size'**
+  String get customFoodServingSize;
+
+  /// No description provided for @customFoodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My food'**
+  String get customFoodTitle;
+
   /// No description provided for @diaryAdd.
   ///
   /// In en, this message translates to:
@@ -1756,6 +1870,12 @@ abstract class AppLocalizations {
   /// **'Please sign in.'**
   String get errorAuthRequired;
 
+  /// No description provided for @errorBarcodeAlreadyUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a food with this barcode.'**
+  String get errorBarcodeAlreadyUsed;
+
   /// No description provided for @errorBodyFatOutOfRange.
   ///
   /// In en, this message translates to:
@@ -1785,6 +1905,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That is too many items to copy at once. Copy one meal at a time.'**
   String get errorCopyTooMany;
+
+  /// No description provided for @errorCustomFoodNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that food of yours.'**
+  String get errorCustomFoodNotFound;
+
+  /// No description provided for @errorCustomFoodNutrientsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the energy, or at least one of protein, carbs or fat.'**
+  String get errorCustomFoodNutrientsEmpty;
 
   /// No description provided for @errorDateInFuture.
   ///
@@ -1845,6 +1977,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn\'t find that food.'**
   String get errorFoodNotFound;
+
+  /// No description provided for @errorFoodRetired.
+  ///
+  /// In en, this message translates to:
+  /// **'We no longer offer this dish, so it can\'t be added again. Your earlier entries are unchanged.'**
+  String get errorFoodRetired;
 
   /// No description provided for @errorForbidden.
   ///
@@ -2056,6 +2194,24 @@ abstract class AppLocalizations {
   /// **'That pace isn\'t available. Please pick one of the options shown.'**
   String get errorRateNotAllowed;
 
+  /// No description provided for @errorRecipeIngredientLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'A recipe can have 1 to 50 ingredients.'**
+  String get errorRecipeIngredientLimit;
+
+  /// No description provided for @errorRecipeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that recipe.'**
+  String get errorRecipeNotFound;
+
+  /// No description provided for @errorRecipeWeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipe weight doesn\'t look right. Check the cooked weight.'**
+  String get errorRecipeWeightInvalid;
+
   /// No description provided for @errorScanImageNotFound.
   ///
   /// In en, this message translates to:
@@ -2230,11 +2386,23 @@ abstract class AppLocalizations {
   /// **'Indian foods'**
   String get foodsGroupIndian;
 
+  /// No description provided for @foodsGroupMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My foods and recipes'**
+  String get foodsGroupMine;
+
   /// No description provided for @foodsGroupPackaged.
   ///
   /// In en, this message translates to:
   /// **'Packaged products'**
   String get foodsGroupPackaged;
+
+  /// No description provided for @foodsKindCustomFood.
+  ///
+  /// In en, this message translates to:
+  /// **'My food'**
+  String get foodsKindCustomFood;
 
   /// No description provided for @foodsKindDish.
   ///
@@ -2253,6 +2421,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Product'**
   String get foodsKindProduct;
+
+  /// No description provided for @foodsKindRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe'**
+  String get foodsKindRecipe;
+
+  /// No description provided for @foodsLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get foodsLoadMore;
+
+  /// No description provided for @foodsMyFoods.
+  ///
+  /// In en, this message translates to:
+  /// **'My foods and recipes'**
+  String get foodsMyFoods;
+
+  /// No description provided for @foodsNewFood.
+  ///
+  /// In en, this message translates to:
+  /// **'New food'**
+  String get foodsNewFood;
+
+  /// No description provided for @foodsNewRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'New recipe'**
+  String get foodsNewRecipe;
 
   /// No description provided for @foodsNoResults.
   ///
@@ -2319,6 +2517,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search foods, dishes or brands'**
   String get foodsSearchPlaceholder;
+
+  /// No description provided for @foodsValuesPer100g.
+  ///
+  /// In en, this message translates to:
+  /// **'Values per 100 g'**
+  String get foodsValuesPer100g;
+
+  /// No description provided for @foodsValuesPer100ml.
+  ///
+  /// In en, this message translates to:
+  /// **'Values per 100 ml'**
+  String get foodsValuesPer100ml;
+
+  /// No description provided for @foodsValuesPerServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Values per serving'**
+  String get foodsValuesPerServing;
 
   /// No description provided for @footerLinksLabel.
   ///
@@ -4341,6 +4557,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn\'t read {nutrient} clearly on the label, so this check could not be done.'**
   String reasonVariantNutrientMissingLowConfidence(String nutrient);
+
+  /// No description provided for @recipesAddIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ingredient'**
+  String get recipesAddIngredient;
+
+  /// No description provided for @recipesCookedWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooked weight (g)'**
+  String get recipesCookedWeight;
+
+  /// No description provided for @recipesCookedWeightTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Weigh the pot after cooking for the best accuracy.'**
+  String get recipesCookedWeightTip;
+
+  /// No description provided for @recipesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete recipe'**
+  String get recipesDelete;
+
+  /// No description provided for @recipesDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this recipe? Meals you already logged keep their values.'**
+  String get recipesDeleteConfirm;
+
+  /// No description provided for @recipesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No recipes yet'**
+  String get recipesEmpty;
+
+  /// No description provided for @recipesIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Some ingredients don\'t show this value, so the real amount may be higher.'**
+  String get recipesIncomplete;
+
+  /// No description provided for @recipesIngredientUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This ingredient was deleted. Replace it to save the recipe.'**
+  String get recipesIngredientUnavailable;
+
+  /// No description provided for @recipesIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get recipesIngredients;
+
+  /// No description provided for @recipesLogServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a serving'**
+  String get recipesLogServing;
+
+  /// No description provided for @recipesName.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe name'**
+  String get recipesName;
+
+  /// No description provided for @recipesPer100g.
+  ///
+  /// In en, this message translates to:
+  /// **'Per 100 g'**
+  String get recipesPer100g;
+
+  /// No description provided for @recipesPerServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Per serving'**
+  String get recipesPerServing;
+
+  /// No description provided for @recipesSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save recipe'**
+  String get recipesSave;
+
+  /// No description provided for @recipesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe saved'**
+  String get recipesSaved;
+
+  /// No description provided for @recipesServings.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of servings'**
+  String get recipesServings;
+
+  /// No description provided for @recipesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe'**
+  String get recipesTitle;
 
   /// No description provided for @reportButton.
   ///

@@ -2,6 +2,7 @@ import 'package:smartnutri_api/src/export.dart';
 
 import 'fake_diary.dart';
 import 'fake_foods.dart';
+import 'fake_recipes.dart';
 import 'fake_members.dart';
 import 'fake_targets.dart';
 
@@ -149,9 +150,13 @@ class FakeUserTypesApi implements SmartNutriApiClient {
     FakeDiaryClient? diary,
     FakeMealSlotsClient? mealSlots,
     FakeFoodsClient? foods,
+    FakeCustomFoodsClient? customFoods,
+    FakeRecipesClient? recipes,
   }) : me = me ?? FakeUserTypesMe(),
        diary = diary ?? FakeDiaryClient(),
        foods = foods ?? FakeFoodsClient(),
+       customFoods = customFoods ?? FakeCustomFoodsClient(),
+       recipes = recipes ?? FakeRecipesClient(),
        mealSlots = mealSlots ?? FakeMealSlotsClient(),
        targets = targets ?? FakeTargetsClient(),
        members = members ?? FakeMembersClient(),
@@ -171,6 +176,10 @@ class FakeUserTypesApi implements SmartNutriApiClient {
   final FakeMealSlotsClient mealSlots;
   @override
   final FakeFoodsClient foods;
+  @override
+  final FakeCustomFoodsClient customFoods;
+  @override
+  final FakeRecipesClient recipes;
 
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);

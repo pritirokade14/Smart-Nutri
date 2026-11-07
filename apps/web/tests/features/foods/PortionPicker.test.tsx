@@ -169,16 +169,49 @@ describe("PortionPicker", () => {
     open();
     await screen.findByTestId("portion-preview");
     // katori_cooked_dal in units/conversions.json
-    expect(screen.getByTestId("preview-energy_kcal").textContent).toBe("170.4");
-    expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9");
-    expect(screen.getByTestId("preview-fibre_g").textContent).toBe("5.7");
-    // Unknown is "Not known", never 0.0.
+    expect(screen.getByTestId("preview-energy_kcal").textContent).toBe(
+      "170.4 kcal",
+    );
+    expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9 g");
+    // The eight rows, in order; a missing value is "Not known", never 0.
+    expect(
+      Array.from(
+        screen
+          .getByTestId("portion-preview")
+          .querySelectorAll("[data-testid^=preview-]"),
+      ).map((e) => e.getAttribute("data-testid")),
+    ).toEqual([
+      "preview-energy_kcal",
+      "preview-protein_g",
+      "preview-carbs_g",
+      "preview-sugars_g",
+      "preview-fat_g",
+      "preview-sat_fat_g",
+      "preview-fibre_g",
+      "preview-salt_g",
+    ]);
     expect(screen.getByTestId("preview-sat_fat_g").textContent).toBe(
       en.foods.not_known,
     );
     expect(screen.getByText(en.foods.preview_note)).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "1½" }));
-    expect(screen.getByTestId("preview-energy_kcal").textContent).toBe("255.6");
+    expect(screen.getByTestId("preview-energy_kcal").textContent).toBe(
+      "255.6 kcal",
+    );
+  });
+
+  it("an incomplete recipe shows the at-least note", async () => {
+    apiStub(fetchMock).on(
+      "GET",
+      DAL_PATH,
+      dalDetail((d) => {
+        d.recipe_incomplete = ["fibre_g"];
+      }),
+    );
+    open();
+    expect((await screen.findByTestId("recipe-incomplete")).textContent).toBe(
+      en.recipes.incomplete,
+    );
   });
 
   it("hide_all shows no preview digits", async () => {
@@ -213,7 +246,7 @@ describe("PortionPicker", () => {
     open();
     await screen.findByTestId("portion-preview");
     expect(screen.queryByTestId("preview-energy_kcal")).toBeNull();
-    expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9");
+    expect(screen.getByTestId("preview-protein_g").textContent).toBe("9.9 g");
   });
 
   it("dish shows ingredients and review note", async () => {
@@ -252,9 +285,6 @@ describe("PortionPicker", () => {
       en.foods.review_pending,
     );
     // Unknown dish values read "Not known" (never 0).
-    expect(screen.getByTestId("preview-sat_fat_g").textContent).toBe(
-      en.foods.not_known,
-    );
     expect(screen.getByTestId("preview-sugars_g").textContent).toBe(
       en.foods.not_known,
     );

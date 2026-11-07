@@ -20,8 +20,8 @@ import '../domain/portion_preview.dart';
 import '../domain/unit_label.dart';
 import 'foods_providers.dart';
 
-/// What the user chose in the picker. The caller builds the diary log from
-/// it; the API converts the unit.
+/// What the user chose in the picker. The caller builds the diary log (or the
+/// recipe ingredient) from it; the API converts the unit.
 typedef PortionChoice = ({
   FoodRef food,
   String name,
@@ -33,14 +33,18 @@ typedef PortionChoice = ({
 /// Opens the portion picker for [food]. [onSave] logs the choice (online or
 /// queued) and may throw [MealsFailure]; the picker shows its message and
 /// stays open. Returns what [onSave] returned, or null when closed.
-Future<MealLogResult?> showPortionPicker(
+///
+/// With [ingredient] the picker picks an amount for a recipe: no meal slot is
+/// offered and [onSave] logs nothing.
+Future<Object?> showPortionPicker(
   BuildContext context, {
   required FoodRef food,
   required String name,
   required String memberId,
   String? slotId,
-  required Future<MealLogResult> Function(PortionChoice choice) onSave,
-}) => showModalBottomSheet<MealLogResult>(
+  bool ingredient = false,
+  required Future<Object?> Function(PortionChoice choice) onSave,
+}) => showModalBottomSheet<Object>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
@@ -49,17 +53,22 @@ Future<MealLogResult?> showPortionPicker(
     name: name,
     memberId: memberId,
     slotId: slotId,
+    ingredient: ingredient,
     onSave: onSave,
   ),
 );
 
-/// The nutrient keys of the preview, in display order.
+/// The nutrient keys of the preview, in display order. The same eight rows,
+/// in the same order, as the web portion picker.
 const _previewKeys = [
   'energy_kcal',
   'protein_g',
   'carbs_g',
-  'fat_g',
   'sugars_g',
+  'fat_g',
+  'sat_fat_g',
+  'fibre_g',
+  'salt_g',
 ];
 
 class PortionPickerSheet extends ConsumerStatefulWidget {
@@ -70,14 +79,17 @@ class PortionPickerSheet extends ConsumerStatefulWidget {
     required this.memberId,
     required this.onSave,
     this.slotId,
+    this.ingredient = false,
   });
 
   final FoodRef food;
   final String name;
   final String memberId;
   final String? slotId;
-  final Future<MealLogResult> Function(PortionChoice choice) onSave;
+  final bool ingredient;
+  final Future<Object?> Function(PortionChoice choice) onSave;
 
+  static const recipeIncompleteKey = Key('portion-recipe-incomplete');
   static Key unitKey(String code) => Key('portion-unit-$code');
   static Key fractionKey(String label) => Key('portion-fraction-$label');
   static Key slotKey(String id) => Key('portion-slot-$id');
@@ -111,7 +123,10 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
   bool _busy = false;
   String? _error;
 
-  FoodDetailKey get _key => (food: widget.food, memberId: widget.memberId);
+  FoodDetailKey get _key => (
+    food: widget.food,
+    memberId: widget.memberId.isEmpty ? null : widget.memberId,
+  );
 
   @override
   void dispose() {
@@ -183,7 +198,12 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
     await _run(() async {
       await ref
           .read(foodsRepositoryProvider)
-          .putPortion(widget.food, code, value, memberId: widget.memberId);
+          .putPortion(
+            widget.food,
+            code,
+            value,
+            memberId: widget.memberId.isEmpty ? null : widget.memberId,
+          );
       setState(() => _unit = code);
       ref.invalidate(foodDetailProvider(_key));
       await ref.read(foodDetailProvider(_key).future);
@@ -254,7 +274,7 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
     final c = SnColors.of(context);
     final unit = _selected(d);
     final qty = _quantityValue;
-    final slots = ref.watch(mealSlotsProvider).value;
+    final slots = widget.ingredient ? null : ref.watch(mealSlotsProvider).value;
     final slotId = _slot ?? widget.slotId ?? slots?.suggestedSlotId;
     final error = _error;
     final count = qty ?? 1;
@@ -468,6 +488,9 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
         'carbs_g': per100.carbsG,
         'fat_g': per100.fatG,
         'sugars_g': per100.sugarsG,
+        'sat_fat_g': per100.satFatG,
+        'fibre_g': per100.fibreG,
+        'salt_g': per100.saltG,
       },
       qty,
       unit.gramsPerUnit,
@@ -475,11 +498,14 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
     final theme = Theme.of(context);
     final c = SnColors.of(context);
     String label(String k) => switch (k) {
-      'energy_kcal' => l10n.nutrientEnergyKcal,
-      'protein_g' => l10n.nutrientProteinG,
-      'carbs_g' => l10n.nutrientCarbsG,
-      'fat_g' => l10n.nutrientFatG,
-      _ => l10n.nutrientSugarsG,
+      'energy_kcal' => l10n.confirmFieldEnergyKcal,
+      'protein_g' => l10n.confirmFieldProteinG,
+      'carbs_g' => l10n.confirmFieldCarbsG,
+      'fat_g' => l10n.confirmFieldFatG,
+      'sat_fat_g' => l10n.confirmFieldSatFatG,
+      'fibre_g' => l10n.confirmFieldFiberG,
+      'salt_g' => l10n.confirmFieldSaltG,
+      _ => l10n.confirmFieldSugarsG,
     };
     return [
       const SizedBox(height: SnTokens.space3),
@@ -511,6 +537,17 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
                       style: theme.textTheme.bodyMedium,
                     ),
                 ],
+              ),
+            ),
+          if (d.recipeIncomplete?.isNotEmpty ?? false)
+            Padding(
+              padding: const EdgeInsets.only(bottom: SnTokens.space1),
+              child: Text(
+                l10n.recipesIncomplete,
+                key: PortionPickerSheet.recipeIncompleteKey,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: c.textSecondary,
+                ),
               ),
             ),
           Text(

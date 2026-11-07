@@ -26,6 +26,9 @@ SELECT_ONLY_FOR_USERS = {
     "household_units",
     "foods",
     "food_portions",
+    "custom_foods",
+    "recipes",
+    "recipe_ingredients",
 }
 ALL_PRIVILEGES = {
     "SELECT",

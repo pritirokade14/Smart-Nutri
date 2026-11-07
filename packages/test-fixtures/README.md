@@ -255,3 +255,19 @@ cd apps/api && uv run python -m scripts.generate_dish_expectations --write
 
 `{dishes: {<code>: {name_en, cooked_weight_g, serving_g | null, per_100: {energy_kcal, sugars_g, salt_g, protein_g, fat_g, sat_fat_g, carbs_g, fibre_g}}}, excluded: {<code>: status}}`. A nutrient is `null` when it is unknown on any ingredient (never a partial sum): `sat_fat_g` is `null` for every dish, and `sugars_g` is `null` for dal tadka. Every value is PENDING DIETITIAN REVIEW: the recipes and cooked weights in `docs/research/food-diary/data/indian_dishes_recipes.md` are assumptions. The API asserts the numbers (`tests/unit/foods/test_dishes.py`).
 
+
+## Recipes (`recipes/`)
+
+`recipes/inputs/<case>.json` (hand-written, synthetic ingredients) and `recipes/expected/<case>.json` (Plan 12 slice 4): how a recipe's nutrients are summed from its ingredients, including unknowns. The expected files are **generated** from the real arithmetic, never edited by hand:
+
+```
+cd apps/api && uv run python -m scripts.generate_recipe_expectations          # --check (default)
+cd apps/api && uv run python -m scripts.generate_recipe_expectations --write
+```
+
+An input is `{name, servings | null, cooked_weight_g | null, ingredients: [{name, amount, basis: "g" | "ml", density_g_per_ml | null, per_100: {energy_kcal, sugars_g, salt_g, protein_g, fat_g, sat_fat_g, carbs_g, fibre_g}}]}`, where a `null` nutrient is unknown and `amount` is in the ingredient's basis. An expected file is `{total_raw_g, basis_weight_g, per_100g, per_serving | null, incomplete_nutrients, entry_snapshot_per_100}`, or `{error: {code, details}}` for a recipe the API refuses.
+
+- `per_100g` and `per_serving` (1 dp) are the **sum of the known ingredients**; a nutrient listed in `incomplete_nutrients` is a lower bound (a screen shows "at least X"). A nutrient no ingredient knows is `null`, never 0.
+- `entry_snapshot_per_100` (4 dp) is what a diary entry keeps: every incomplete nutrient is `null`, so the day total is flagged incomplete and `remaining` is `null` for it.
+- `recipe_missing_fibre` (one of three ingredients has no fibre) is the case to read first; `recipe_ml_ingredient_no_density_needs_cooked_weight` and `recipe_weight_out_of_range` expect `recipe_weight_invalid` with `details.reason` `cooked_weight_required` or `out_of_range` (cooked weight outside 0.2 to 3 times the raw total).
+- Clients never compute a recipe sum. Only the API asserts these files (`tests/api/recipes/test_recipe_fixtures.py`, also through the real routes); Android and web render what the API returns.

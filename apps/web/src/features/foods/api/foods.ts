@@ -15,6 +15,8 @@ export type UnitCode = NonNullable<components["schemas"]["MealIn"]["unit"]>;
  */
 export const foodKey = (kind: FoodKind, id: string) =>
   ["meals", "foods", "detail", kind, id] as const;
+export const foodBarcodeKey = (barcode: string) =>
+  ["meals", "foods", "barcode", barcode] as const;
 export const foodSearchKey = (q: string) =>
   ["meals", "foods", "search", q] as const;
 
@@ -58,6 +60,19 @@ export async function deletePortion(
   await call(
     api.DELETE("/v1/foods/{kind}/{id}/portions/{unit}", {
       params: { path: { kind, id, unit } },
+    }),
+  );
+}
+
+/**
+ * GET /v1/foods/barcode/{barcode}: for LOGGING only (an own custom food, else
+ * a product, else Open Food Facts). It never feeds a verdict.
+ */
+export function getFoodByBarcode(barcode: string): Promise<FoodDetailOut> {
+  const api = getApi();
+  return call(
+    api.GET("/v1/foods/barcode/{barcode}", {
+      params: { path: { barcode } },
     }),
   );
 }

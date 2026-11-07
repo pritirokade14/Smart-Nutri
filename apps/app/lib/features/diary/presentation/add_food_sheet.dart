@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 // The generated package has no top-level library file, only src/export.dart.
 // ignore: implementation_imports
 import 'package:smartnutri_api/src/export.dart';
@@ -10,13 +11,12 @@ import '../../../core/observability/analytics.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/source_attribution.dart';
 import '../../../shared/widgets/states.dart';
-import '../../foods/domain/unit_label.dart';
+import '../../foods/domain/portion_line.dart';
 import '../../foods/presentation/food_search_view.dart';
 import '../../foods/presentation/portion_picker_sheet.dart';
 import '../../meals/data/meals_repository.dart';
 import '../../meals/domain/meal_draft.dart';
 import '../../meals/presentation/meals_providers.dart';
-import '../../scan/domain/number_text.dart';
 import '../domain/diary_dates.dart';
 import '../domain/slot_label.dart';
 import 'diary_providers.dart';
@@ -25,7 +25,7 @@ import 'quick_add_form.dart';
 /// Where the sheet sends the user next: the existing flows.
 enum AddFoodNext { barcode, label }
 
-enum _Segment { recent, search, barcode, label, quick }
+enum _Segment { recent, search, barcode, label, quick, create }
 
 /// Logs [draft] (online or queued) and sends `diary_entry_added` with the
 /// method only. Throws [MealsFailure] when the API refuses it.
@@ -65,6 +65,8 @@ class AddFoodSheet extends ConsumerStatefulWidget {
 
   static Key segmentKey(String name) => Key('add-food-segment-$name');
   static Key chipKey(String slotId) => Key('add-food-slot-$slotId');
+  static const newFoodKey = Key('add-food-new-food');
+  static const newRecipeKey = Key('add-food-new-recipe');
   static Key recentKey(String productId) => Key('add-food-recent-$productId');
 
   @override
@@ -98,6 +100,8 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
     final kind = switch (hit.kind) {
       FoodHitKind.food => FoodKindPath.food,
       FoodHitKind.product => FoodKindPath.product,
+      FoodHitKind.customFood => FoodKindPath.customFood,
+      FoodHitKind.recipe => FoodKindPath.recipe,
       _ => FoodKindPath.off,
     };
     final result = await showPortionPicker(
@@ -112,6 +116,8 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
           memberId: widget.day.memberId,
           foodId: kind == FoodKindPath.food ? hit.id : null,
           productId: kind == FoodKindPath.product ? hit.id : null,
+          customFoodId: kind == FoodKindPath.customFood ? hit.id : null,
+          recipeId: kind == FoodKindPath.recipe ? hit.id : null,
           barcode: kind == FoodKindPath.off ? hit.id : null,
           quantity: c.quantity,
           unit: c.unit,
@@ -120,7 +126,12 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
           localDate: _localDate,
           displayName: hit.name,
         ),
-        'search',
+        // Your own foods and recipes have their own method value.
+        switch (kind) {
+          FoodKindPath.customFood => 'custom',
+          FoodKindPath.recipe => 'recipe',
+          _ => 'search',
+        },
       ),
     );
     if (result == null) return;
@@ -177,6 +188,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
       _Segment.barcode: l10n.navScan,
       _Segment.label: l10n.labelTitle,
       _Segment.quick: l10n.foodsQuickAdd,
+      _Segment.create: l10n.foodsMyFoods,
     };
     return Padding(
       padding: EdgeInsets.only(
@@ -241,6 +253,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
                 enabled: !_busy,
                 onPick: (hit) => _pick(hit, slotId),
               ),
+            if (_segment == _Segment.create) _create(),
             if (_segment == _Segment.quick)
               QuickAddForm(
                 busy: _busy,
@@ -276,6 +289,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
       case _Segment.recent:
       case _Segment.search:
       case _Segment.quick:
+      case _Segment.create:
         setState(() => _segment = seg);
     }
   }
@@ -290,9 +304,39 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
             method: method,
             slotId: slotId,
             localDate: _localDate,
+            memberId: widget.day.memberId,
           ),
         );
     Navigator.of(context).pop(next);
+  }
+
+  /// A create form is a screen of its own: close the sheet, then open it.
+  void _open(String path) {
+    final router = GoRouter.of(context);
+    Navigator.of(context).pop();
+    router.push(path);
+  }
+
+  Widget _create() {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          key: AddFoodSheet.newFoodKey,
+          onPressed: () => _open('/diary/foods/new'),
+          icon: const Icon(Icons.add_rounded),
+          label: Text(l10n.foodsNewFood),
+        ),
+        const SizedBox(height: SnTokens.space2),
+        OutlinedButton.icon(
+          key: AddFoodSheet.newRecipeKey,
+          onPressed: () => _open('/diary/recipes/new'),
+          icon: const Icon(Icons.add_rounded),
+          label: Text(l10n.foodsNewRecipe),
+        ),
+      ],
+    );
   }
 
   Widget _recents(String? slotId) {
@@ -310,7 +354,12 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
               for (final r in items)
                 ListTile(
                   key: AddFoodSheet.recentKey(
-                    r.foodId ?? r.productId ?? r.barcode ?? r.name,
+                    r.foodId ??
+                        r.customFoodId ??
+                        r.recipeId ??
+                        r.productId ??
+                        r.barcode ??
+                        r.name,
                   ),
                   contentPadding: EdgeInsets.zero,
                   enabled: !_busy,
@@ -333,17 +382,24 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
   }
 
   /// A recent logs again what was last eaten: its quantity and unit, or the
-  /// grams for a row logged before household units.
+  /// resolved amount (grams, or millilitres for an ml food) for a row logged
+  /// before household units.
   MealDraft _recentDraft(RecentItem r, String? slotId) {
     final byUnit = r.unit != null && r.quantity != null;
+    final ml = r.basis == RecentItemBasis.ml;
+    final own =
+        r.foodId == null && r.customFoodId == null && r.recipeId == null;
     return MealDraft(
       memberId: widget.day.memberId,
       foodId: r.foodId,
-      productId: r.foodId == null ? r.productId : null,
-      barcode: r.foodId == null && r.productId == null ? r.barcode : null,
-      grams: byUnit ? null : r.grams,
-      quantity: byUnit ? r.quantity : null,
-      unit: byUnit ? r.unit : null,
+      customFoodId: r.customFoodId,
+      recipeId: r.recipeId,
+      productId: own ? r.productId : null,
+      barcode: own && r.productId == null ? r.barcode : null,
+      // An ml amount is sent as millilitres, never as grams.
+      grams: byUnit || ml ? null : r.grams,
+      quantity: byUnit ? r.quantity : (ml ? r.grams : null),
+      unit: byUnit ? r.unit : (ml ? 'ml' : null),
       eatenAt: DateTime.now().toUtc(),
       mealSlotId: slotId,
       localDate: _localDate,
@@ -351,18 +407,14 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
     );
   }
 
-  String _recentPortion(AppLocalizations l10n, RecentItem r) {
-    final unit = r.unit;
-    final quantity = r.quantity;
-    if (unit == null || quantity == null) {
-      return l10n.diaryGramsLine(formatForDisplay(r.grams));
-    }
-    return l10n.diaryPortionLine(
-      formatForDisplay(r.grams),
-      formatForDisplay(quantity),
-      unitLabel(l10n, unit, quantity),
-    );
-  }
+  String _recentPortion(AppLocalizations l10n, RecentItem r) => portionLine(
+    l10n,
+    amount: r.grams,
+    ml: r.basis == RecentItemBasis.ml,
+    quantity: r.quantity,
+    unit: r.unit,
+    approx: isApproxUnitSource(r.unitSource?.json),
+  );
 }
 
 /// The credit keys of a recent: its own list, else Open Food Facts when only

@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "recipe_weight_invalid",
+    "details": {
+      "reason": "cooked_weight_required"
+    }
+  }
+}

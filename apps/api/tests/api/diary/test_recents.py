@@ -191,3 +191,107 @@ async def test_legacy_rows_have_null_unit(client, g1, db_session, slot_ids, cloc
     assert item["source_kind"] == "off" and item["barcode"] == "8901"
     assert item["quantity"] is None and item["unit"] is None and item["food_id"] is None
     assert item["attributions"] == ["attribution.off"]
+
+
+# ---- Plan 12 slice 4: custom foods, recipes and the resolved amount
+
+
+async def _custom(client, **cols):
+    body = {
+        "name": "Protein bar", "basis": "g", "values_per": "100",
+        "nutrients": {"energy_kcal": 400, "protein_g": 30},
+    } | cols  # fmt: skip
+    r = await client.post("/v1/custom-foods", json=body)
+    assert r.status_code == 201, r.text
+    return r.json()
+
+
+async def test_recents_include_custom_and_recipe(client, g1, slot_ids, clock):
+    food = await _custom(client, name="Bar", density_g_per_ml=0.8)
+    recipe = (
+        await client.post(
+            "/v1/recipes",
+            json={
+                "name": "Stew", "servings": 2,
+                "ingredients": [{"custom_food_id": food["id"], "quantity": 100, "unit": "g"}],
+            },
+        )
+    ).json()  # fmt: skip
+    shake = await _custom(client, name="Shake", basis="ml")
+    for ref, portion in (
+        ({"custom_food_id": food["id"]}, {"quantity": 1, "unit": "katori"}),
+        ({"recipe_id": recipe["id"]}, {"servings": 1}),
+        ({"custom_food_id": shake["id"]}, {"quantity": 200, "unit": "ml"}),
+    ):
+        r = await client.post(
+            "/v1/meals", json={**ref, **portion, "meal_slot_id": slot_ids["lunch"]}
+        )
+        assert r.status_code == 201, r.text
+    items = (await client.get(URL)).json()["items"]
+    by = {i["name"]: i for i in items}
+    assert set(by) == {"Bar", "Stew", "Shake"}
+    bar = by["Bar"]
+    assert (bar["source_kind"], bar["custom_food_id"], bar["recipe_id"]) == (
+        "custom_food",
+        food["id"],
+        None,
+    )
+    assert (bar["unit"], bar["unit_source"], bar["basis"]) == ("katori", "density", "g")
+    assert bar["grams"] == 160.0  # resolved: "1 katori" is 160 g of this food
+    stew = by["Stew"]
+    assert (stew["source_kind"], stew["recipe_id"], stew["grams"]) == ("recipe", recipe["id"], 50.0)
+    shake_item = by["Shake"]
+    assert (shake_item["basis"], shake_item["grams"], shake_item["unit"]) == ("ml", 200.0, "ml")
+    # Log one again from its recents shape.
+    again = await client.post(
+        "/v1/meals",
+        json={
+            "custom_food_id": bar["custom_food_id"], "quantity": bar["quantity"],
+            "unit": bar["unit"], "meal_slot_id": slot_ids["dinner"],
+        },
+    )  # fmt: skip
+    assert again.status_code == 201
+
+
+async def test_recents_skip_null_refs(client, g1, slot_ids, db_session, clock):
+    food = await _custom(client)
+    recipe = (
+        await client.post(
+            "/v1/recipes",
+            json={
+                "name": "Stew", "servings": 1,
+                "ingredients": [{"custom_food_id": food["id"], "quantity": 100, "unit": "g"}],
+            },
+        )
+    ).json()  # fmt: skip
+    for ref in ({"custom_food_id": food["id"]}, {"recipe_id": recipe["id"]}):
+        r = await client.post(
+            "/v1/meals", json={**ref, "grams": 50, "meal_slot_id": slot_ids["lunch"]}
+        )
+        assert r.status_code == 201
+    assert len((await client.get(URL)).json()["items"]) == 2
+    assert (await client.delete(f"/v1/custom-foods/{food['id']}")).status_code == 204
+    assert (await client.delete(f"/v1/recipes/{recipe['id']}")).status_code == 204
+    assert (await client.get(URL)).json()["items"] == []  # nothing left to log again
+    assert len((await client.get("/v1/meals")).json()) == 2  # the entries themselves stay
+
+
+async def test_recents_basis_and_unit_source_for_foods(client, g1, slot_ids, food_ids, clock):
+    r = await client.post(
+        "/v1/meals",
+        json={
+            "food_id": food_ids["171844"],
+            "quantity": 2,
+            "unit": "roti",
+            "meal_slot_id": slot_ids["lunch"],
+        },
+    )
+    assert r.status_code == 201
+    item = (await client.get(URL)).json()["items"][0]
+    assert (item["basis"], item["unit"], item["quantity"], item["grams"]) == (
+        "g",
+        "roti",
+        2.0,
+        136.0,
+    )
+    assert item["unit_source"] == "portion"  # "2 rotis" is 136 g by a per-piece weight: approximate

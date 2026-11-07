@@ -1,0 +1,28 @@
+{
+  "basis_weight_g": 220.0,
+  "entry_snapshot_per_100": {
+    "carbs_g": 27.2727,
+    "energy_kcal": 142.2727,
+    "fat_g": 1.2045,
+    "fibre_g": null,
+    "protein_g": 4.9773,
+    "salt_g": 1.6455,
+    "sat_fat_g": 0.2727,
+    "sugars_g": 0.8409
+  },
+  "incomplete_nutrients": [
+    "fibre_g"
+  ],
+  "per_100g": {
+    "carbs_g": 27.3,
+    "energy_kcal": 142.3,
+    "fat_g": 1.2,
+    "fibre_g": 2.1,
+    "protein_g": 5.0,
+    "salt_g": 1.6,
+    "sat_fat_g": 0.3,
+    "sugars_g": 0.8
+  },
+  "per_serving": null,
+  "total_raw_g": 220.0
+}

@@ -71,6 +71,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T13:30:00+05:30",
           "food_id": null,
           "grade": null,
@@ -102,8 +103,10 @@
           "product_id": null,
           "product_name": "Office lunch",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "quick_add",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T13:30:00+05:30"
         }
       ],

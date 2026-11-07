@@ -334,7 +334,14 @@
     "unit_grams_unknown": "We don't know the grams for this measure yet. Enter grams, or set your own value.",
     "unit_not_supported": "That measure isn't available here. Choose another.",
     "quantity_out_of_range": "That amount is too large or too small. Check the number and try again.",
-    "food_not_found": "We couldn't find that food."
+    "food_not_found": "We couldn't find that food.",
+    "custom_food_not_found": "We couldn't find that food of yours.",
+    "recipe_not_found": "We couldn't find that recipe.",
+    "recipe_weight_invalid": "The recipe weight doesn't look right. Check the cooked weight.",
+    "custom_food_nutrients_empty": "Add the energy, or at least one of protein, carbs or fat.",
+    "barcode_already_used": "You already have a food with this barcode.",
+    "food_retired": "We no longer offer this dish, so it can't be added again. Your earlier entries are unchanged.",
+    "recipe_ingredient_limit": "A recipe can have 1 to 50 ingredients."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -1301,14 +1308,17 @@
     "search_placeholder": "Search foods, dishes or brands",
     "group": {
       "indian": "Indian foods",
-      "packaged": "Packaged products"
+      "packaged": "Packaged products",
+      "mine": "My foods and recipes"
     },
     "partial_results": "Some results couldn't load. Try again.",
     "no_results": "No foods found. Try another word, or use quick add.",
     "kind": {
       "food": "Food",
       "dish": "Dish",
-      "product": "Product"
+      "product": "Product",
+      "custom_food": "My food",
+      "recipe": "Recipe"
     },
     "dish_ingredients": "Made with",
     "review_pending": "Household measures and Indian dishes are pending dietitian review.",
@@ -1318,7 +1328,16 @@
       "title": "How much?",
       "quantity": "Amount",
       "save": "Add"
-    }
+    },
+    "new_food": "New food",
+    "new_recipe": "New recipe",
+    "my_foods": "My foods and recipes",
+    "values_per": {
+      "100g": "Values per 100 g",
+      "100ml": "Values per 100 ml",
+      "serving": "Values per serving"
+    },
+    "load_more": "Load more"
   },
   "unit": {
     "g": "{count, plural, one {g} other {g}}",
@@ -1346,5 +1365,47 @@
     "your_value": "Your value",
     "reset_grams": "Use the standard value",
     "unknown": "We don't know the grams for this measure yet. Enter grams, or set your own value."
+  },
+  "custom_food": {
+    "title": "My food",
+    "name": "Name",
+    "brand": "Brand (optional)",
+    "basis_g": "Measured in grams",
+    "basis_ml": "Measured in millilitres",
+    "serving_size": "Serving size",
+    "density": "Grams in 1 ml (optional)",
+    "density_hint": "Needed to turn a katori, cup or glass into grams. Leave blank if you don't know it.",
+    "barcode": "Barcode (optional)",
+    "portions": "Your own measures",
+    "save": "Save food",
+    "saved": "Food saved",
+    "delete": "Delete food",
+    "delete_confirm": "Delete this food? Meals you already logged keep their values.",
+    "history_kept": "Meals you already logged are unchanged.",
+    "field": {
+      "sugars": "Sugars (g)",
+      "sat_fat": "Saturated fat (g)",
+      "salt": "Salt (g)",
+      "sodium": "Sodium (mg)"
+    }
+  },
+  "recipes": {
+    "title": "Recipe",
+    "name": "Recipe name",
+    "ingredients": "Ingredients",
+    "add_ingredient": "Add ingredient",
+    "servings": "Number of servings",
+    "cooked_weight": "Cooked weight (g)",
+    "cooked_weight_tip": "Weigh the pot after cooking for the best accuracy.",
+    "per_serving": "Per serving",
+    "per_100g": "Per 100 g",
+    "incomplete": "Some ingredients don't show this value, so the real amount may be higher.",
+    "ingredient_unavailable": "This ingredient was deleted. Replace it to save the recipe.",
+    "log_serving": "Log a serving",
+    "delete_confirm": "Delete this recipe? Meals you already logged keep their values.",
+    "saved": "Recipe saved",
+    "empty": "No recipes yet",
+    "save": "Save recipe",
+    "delete": "Delete recipe"
   }
 }

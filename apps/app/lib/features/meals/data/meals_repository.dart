@@ -71,6 +71,8 @@ class MealsRepository {
       grams: draft.grams?.toDouble(),
       servings: draft.servings?.toDouble(),
       foodId: draft.foodId,
+      customFoodId: draft.customFoodId,
+      recipeId: draft.recipeId,
       quantity: draft.quantity?.toDouble(),
       unit: draft.unit,
       eatenAt: draft.eatenAt.toUtc(),

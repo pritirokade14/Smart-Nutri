@@ -895,6 +895,435 @@
         "title": "CopyOut",
         "type": "object"
       },
+      "CustomFoodIn": {
+        "description": "A full description of the food (`PUT` replaces it, so a nutrient left out is unknown).\n``values_per = \"serving\"`` needs ``serving_g`` (in the basis unit, g or ml); the API\nconverts to per 100 g/ml.",
+        "properties": {
+          "barcode": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "basis": {
+            "enum": [
+              "g",
+              "ml"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "density_g_per_ml": {
+            "anyOf": [
+              {
+                "maximum": 2.0,
+                "minimum": 0.2,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Grams in one ml",
+            "title": "Density G Per Ml"
+          },
+          "name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "nutrients": {
+            "$ref": "#/components/schemas/CustomNutrientsIn"
+          },
+          "portions": {
+            "items": {
+              "$ref": "#/components/schemas/CustomPortionIn"
+            },
+            "maxItems": 10,
+            "title": "Portions",
+            "type": "array"
+          },
+          "serving_g": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 5000.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Basis units per serving",
+            "title": "Serving G"
+          },
+          "values_per": {
+            "enum": [
+              "100",
+              "serving"
+            ],
+            "title": "Values Per",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "basis",
+          "values_per",
+          "nutrients"
+        ],
+        "title": "CustomFoodIn",
+        "type": "object"
+      },
+      "CustomFoodOut": {
+        "description": "Not redacted by the numbers display: it is the label the user typed and needs it to\nedit (G15).",
+        "properties": {
+          "barcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "basis": {
+            "enum": [
+              "g",
+              "ml"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "density_g_per_ml": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Density G Per Ml"
+          },
+          "entered": {
+            "$ref": "#/components/schemas/EnteredOut",
+            "description": "The values as typed"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "per_100": {
+            "$ref": "#/components/schemas/NutrientSnapshot",
+            "description": "Per 100 g (or 100 ml), unrounded; null = unknown"
+          },
+          "portions": {
+            "items": {
+              "$ref": "#/components/schemas/CustomPortionOut"
+            },
+            "title": "Portions",
+            "type": "array"
+          },
+          "serving_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serving G"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "brand",
+          "basis",
+          "per_100",
+          "entered",
+          "serving_g",
+          "density_g_per_ml",
+          "barcode",
+          "portions",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CustomFoodOut",
+        "type": "object"
+      },
+      "CustomFoodsOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CustomFoodOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Opaque; pass back as `cursor` for the next page",
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "CustomFoodsOut",
+        "type": "object"
+      },
+      "CustomNutrientsIn": {
+        "description": "What the label says, per 100 g/ml or per serving (`values_per`). A blank is `null`\n(unknown). Salt and sodium follow the engine's rule (the higher one wins).",
+        "properties": {
+          "carbs_g": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carbs G"
+          },
+          "energy_kcal": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Kcal"
+          },
+          "fat_g": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fat G"
+          },
+          "fibre_g": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fibre G"
+          },
+          "protein_g": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protein G"
+          },
+          "salt_g": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salt G"
+          },
+          "sat_fat_g": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sat Fat G"
+          },
+          "sodium_mg": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sodium Mg"
+          },
+          "sugars_g": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sugars G"
+          }
+        },
+        "title": "CustomNutrientsIn",
+        "type": "object"
+      },
+      "CustomPortionIn": {
+        "properties": {
+          "grams_per_unit": {
+            "description": "The amount of one unit in the food's basis",
+            "exclusiveMinimum": 0.0,
+            "maximum": 2000.0,
+            "title": "Grams Per Unit",
+            "type": "number"
+          },
+          "unit": {
+            "description": "A count or volume unit (never g or serving)",
+            "enum": [
+              "g",
+              "ml",
+              "serving",
+              "piece",
+              "piece_small",
+              "piece_medium",
+              "piece_large",
+              "roti",
+              "slice",
+              "katori",
+              "katori_small",
+              "katori_medium",
+              "katori_large",
+              "cup",
+              "glass",
+              "tbsp",
+              "tsp"
+            ],
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "unit",
+          "grams_per_unit"
+        ],
+        "title": "CustomPortionIn",
+        "type": "object"
+      },
+      "CustomPortionOut": {
+        "properties": {
+          "grams_per_unit": {
+            "title": "Grams Per Unit",
+            "type": "number"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "unit",
+          "grams_per_unit"
+        ],
+        "title": "CustomPortionOut",
+        "type": "object"
+      },
       "DailyLimitsOut": {
         "description": "Per DAY, from the rules engine (thresholds.yaml, pending clinician review).",
         "properties": {
@@ -1700,6 +2129,39 @@
         "title": "DraftNutrients",
         "type": "object"
       },
+      "EnteredOut": {
+        "properties": {
+          "nutrients": {
+            "$ref": "#/components/schemas/CustomNutrientsIn"
+          },
+          "serving_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serving G"
+          },
+          "values_per": {
+            "enum": [
+              "100",
+              "serving"
+            ],
+            "title": "Values Per",
+            "type": "string"
+          }
+        },
+        "required": [
+          "values_per",
+          "serving_g",
+          "nutrients"
+        ],
+        "title": "EnteredOut",
+        "type": "object"
+      },
       "ErrorBody": {
         "description": "A stable `code`; clients localise `message_key` (always `error.<code>`).",
         "properties": {
@@ -1997,7 +2459,9 @@
             "enum": [
               "food",
               "product",
-              "off"
+              "off",
+              "custom_food",
+              "recipe"
             ],
             "title": "Kind",
             "type": "string"
@@ -2023,6 +2487,14 @@
           "per_100": {
             "$ref": "#/components/schemas/NutrientSnapshot",
             "description": "Per 100 g (or 100 ml), unrounded; null = unknown, or hidden by the member's numbers display"
+          },
+          "recipe_incomplete": {
+            "description": "A recipe only: the nutrients at least one ingredient does not know. They are null in `per_100`, so a logged serving never counts a partial value",
+            "items": {
+              "type": "string"
+            },
+            "title": "Recipe Incomplete",
+            "type": "array"
           },
           "review_pending": {
             "description": "Household measures and dishes are pending dietitian review",
@@ -2122,7 +2594,9 @@
             "description": "Nutri-Score calculated by SmartNutri; packaged products only, else null"
           },
           "group": {
+            "description": "`mine` (your custom foods and recipes) comes first, then `indian`, `packaged`",
             "enum": [
+              "mine",
               "indian",
               "packaged"
             ],
@@ -2143,7 +2617,9 @@
             "enum": [
               "food",
               "product",
-              "off"
+              "off",
+              "custom_food",
+              "recipe"
             ],
             "title": "Kind",
             "type": "string"
@@ -2172,7 +2648,9 @@
         "enum": [
           "food",
           "product",
-          "off"
+          "off",
+          "custom_food",
+          "recipe"
         ],
         "title": "FoodKindPath",
         "type": "string"
@@ -2762,6 +3240,19 @@
             ],
             "title": "Client Id"
           },
+          "custom_food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "One of your own custom foods",
+            "title": "Custom Food Id"
+          },
           "eaten_at": {
             "anyOf": [
               {
@@ -2874,6 +3365,19 @@
               }
             ]
           },
+          "recipe_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "One of your own recipes",
+            "title": "Recipe Id"
+          },
           "servings": {
             "anyOf": [
               {
@@ -2977,6 +3481,19 @@
               }
             ],
             "title": "Client Id"
+          },
+          "custom_food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Your custom food; null for other entries, or once it was deleted",
+            "title": "Custom Food Id"
           },
           "eaten_at": {
             "format": "date-time",
@@ -3089,11 +3606,26 @@
             "description": "The portion as typed (with unit); null for older entries",
             "title": "Quantity"
           },
+          "recipe_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Your recipe; null for other entries, or once it was deleted",
+            "title": "Recipe Id"
+          },
           "source_kind": {
             "enum": [
               "product",
               "off",
               "food",
+              "custom_food",
+              "recipe",
               "quick_add"
             ],
             "title": "Source Kind",
@@ -3110,6 +3642,23 @@
             ],
             "description": "The household unit; null for older entries",
             "title": "Unit"
+          },
+          "unit_source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "grams",
+                  "portion",
+                  "density"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How `grams` was worked out from the unit when logged: `grams` (exact: grams, millilitres or a label serving), `portion` (a per-food weight, ours or the account's own) or `density` (a volume converted through a density). Clients mark `portion` and `density` as approximate (\u2248). null on older entries",
+            "title": "Unit Source"
           },
           "updated_at": {
             "format": "date-time",
@@ -5429,6 +5978,29 @@
             ],
             "title": "Barcode"
           },
+          "basis": {
+            "default": "g",
+            "description": "Whether `grams` is grams or millilitres (an ml-basis food)",
+            "enum": [
+              "g",
+              "ml"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "custom_food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Your custom food; log it again with `custom_food_id`",
+            "title": "Custom Food Id"
+          },
           "food_id": {
             "anyOf": [
               {
@@ -5453,6 +6025,7 @@
             ]
           },
           "grams": {
+            "description": "The resolved amount in the entry's basis: grams, or ml when `basis` is ml",
             "title": "Grams",
             "type": "number"
           },
@@ -5494,11 +6067,26 @@
             "description": "The portion as last logged, with `unit`; null for older entries",
             "title": "Quantity"
           },
+          "recipe_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Your recipe; log it again with `recipe_id`",
+            "title": "Recipe Id"
+          },
           "source_kind": {
             "enum": [
               "product",
               "off",
-              "food"
+              "food",
+              "custom_food",
+              "recipe"
             ],
             "title": "Source Kind",
             "type": "string"
@@ -5513,6 +6101,23 @@
               }
             ],
             "title": "Unit"
+          },
+          "unit_source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "grams",
+                  "portion",
+                  "density"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How `grams` came from the unit; `portion` and `density` are approximate (\u2248)",
+            "title": "Unit Source"
           }
         },
         "required": [
@@ -5543,6 +6148,459 @@
           "items"
         ],
         "title": "RecentsOut",
+        "type": "object"
+      },
+      "RecipeIn": {
+        "description": "``servings`` (optional) gives the per-serving values; ``cooked_weight_g`` (optional) is the\npot weighed after cooking, the best basis for the per-100 g values. Without it the raw\ntotal is used, which needs every ingredient to have a mass.",
+        "properties": {
+          "client_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "cooked_weight_g": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 20000.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cooked Weight G"
+          },
+          "ingredients": {
+            "description": "1 to 50, else 422 `recipe_ingredient_limit`",
+            "items": {
+              "$ref": "#/components/schemas/RecipeIngredientIn"
+            },
+            "title": "Ingredients",
+            "type": "array"
+          },
+          "name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "servings": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 100.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servings"
+          }
+        },
+        "required": [
+          "name",
+          "ingredients"
+        ],
+        "title": "RecipeIn",
+        "type": "object"
+      },
+      "RecipeIngredientIn": {
+        "description": "Exactly one reference (a generic food, one of your custom foods, one of our products or\nan Open Food Facts barcode), else 422 `invalid_product_ref`, and an amount: ``quantity`` of a\nhousehold ``unit`` (grams always work).",
+        "properties": {
+          "barcode": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "custom_food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Food Id"
+          },
+          "food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Food Id"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "quantity": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 5000.0,
+            "title": "Quantity",
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "g",
+              "ml",
+              "serving",
+              "piece",
+              "piece_small",
+              "piece_medium",
+              "piece_large",
+              "roti",
+              "slice",
+              "katori",
+              "katori_small",
+              "katori_medium",
+              "katori_large",
+              "cup",
+              "glass",
+              "tbsp",
+              "tsp"
+            ],
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quantity",
+          "unit"
+        ],
+        "title": "RecipeIngredientIn",
+        "type": "object"
+      },
+      "RecipeIngredientOut": {
+        "properties": {
+          "attribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attribution"
+          },
+          "available": {
+            "description": "false when the custom food it used was deleted: replace it before saving the recipe",
+            "title": "Available",
+            "type": "boolean"
+          },
+          "barcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barcode"
+          },
+          "custom_food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Food Id"
+          },
+          "food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Food Id"
+          },
+          "grams": {
+            "description": "The amount in the ingredient's basis (g, or ml)",
+            "title": "Grams",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "quantity": {
+            "title": "Quantity",
+            "type": "number"
+          },
+          "source_kind": {
+            "enum": [
+              "product",
+              "off",
+              "food",
+              "custom_food"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "position",
+          "source_kind",
+          "food_id",
+          "custom_food_id",
+          "product_id",
+          "barcode",
+          "name",
+          "quantity",
+          "unit",
+          "grams",
+          "attribution",
+          "available"
+        ],
+        "title": "RecipeIngredientOut",
+        "type": "object"
+      },
+      "RecipeOut": {
+        "properties": {
+          "attributions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Attributions",
+            "type": "array"
+          },
+          "basis_weight_g": {
+            "description": "The cooked weight, or else the raw total",
+            "title": "Basis Weight G",
+            "type": "number"
+          },
+          "cooked_weight_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cooked Weight G"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "incomplete_nutrients": {
+            "description": "NutrientSnapshot keys at least one ingredient does not know",
+            "items": {
+              "type": "string"
+            },
+            "title": "Incomplete Nutrients",
+            "type": "array"
+          },
+          "ingredients": {
+            "items": {
+              "$ref": "#/components/schemas/RecipeIngredientOut"
+            },
+            "title": "Ingredients",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "numbers_hidden": {
+            "$ref": "#/components/schemas/NumbersHidden"
+          },
+          "per_100g": {
+            "$ref": "#/components/schemas/NutrientSnapshot",
+            "description": "Per 100 g of the basis weight, 1 dp: the sum of the KNOWN ingredients. A nutrient listed in `incomplete_nutrients` is a lower bound (show it as 'at least'); null when no ingredient knows it, or hidden"
+          },
+          "per_serving": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NutrientSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Per serving, 1 dp, same rules; null without `servings`"
+          },
+          "servings": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servings"
+          },
+          "total_raw_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The raw total; null when an ingredient has no mass",
+            "title": "Total Raw G"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "servings",
+          "cooked_weight_g",
+          "total_raw_g",
+          "basis_weight_g",
+          "per_100g",
+          "per_serving",
+          "incomplete_nutrients",
+          "attributions",
+          "ingredients",
+          "numbers_hidden",
+          "updated_at"
+        ],
+        "title": "RecipeOut",
+        "type": "object"
+      },
+      "RecipeSummaryOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "incomplete_nutrients": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Incomplete Nutrients",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "servings": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servings"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "servings",
+          "incomplete_nutrients",
+          "updated_at"
+        ],
+        "title": "RecipeSummaryOut",
+        "type": "object"
+      },
+      "RecipesOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RecipeSummaryOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Opaque; pass back as `cursor`",
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "RecipesOut",
         "type": "object"
       },
       "ReportCreate": {
@@ -5783,7 +6841,9 @@
       "SearchKind": {
         "enum": [
           "food",
-          "product"
+          "product",
+          "custom_food",
+          "recipe"
         ],
         "title": "SearchKind",
         "type": "string"
@@ -7183,6 +8243,428 @@
         ]
       }
     },
+    "/v1/custom-foods": {
+      "get": {
+        "description": "The account's own foods, most recently changed first. `next_cursor` is opaque.",
+        "operationId": "custom_foods_list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFoodsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Custom Foods List",
+        "tags": [
+          "custom-foods"
+        ]
+      },
+      "post": {
+        "description": "Save a food from its label. A blank nutrient is unknown (never 0); energy, or one of\nprotein, carbs and fat, is required (422 `custom_food_nutrients_empty`); implausible values\nare 422 `implausible_value`; a barcode already on another of your foods is 422\n`barcode_already_used`. A repeated `client_id` returns the stored food with 200. It is never\nin the public catalogue and never reaches a verdict.",
+        "operationId": "custom_foods_create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomFoodIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFoodOut"
+                }
+              }
+            },
+            "description": "Already created with this client_id"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFoodOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Custom Foods Create",
+        "tags": [
+          "custom-foods"
+        ]
+      }
+    },
+    "/v1/custom-foods/{food_id}": {
+      "delete": {
+        "description": "Delete the food. Diary entries and recipe ingredients keep their name and values (their\nreference becomes null); recipes using it show it as unavailable.",
+        "operationId": "custom_foods_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "food_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Food Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Custom Foods Delete",
+        "tags": [
+          "custom-foods"
+        ]
+      },
+      "put": {
+        "description": "Replace the food (a nutrient left out becomes unknown; the portions are replaced). Past\ndiary entries keep the values they were logged with.",
+        "operationId": "custom_foods_update",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "food_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Food Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomFoodIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFoodOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Custom Foods Update",
+        "tags": [
+          "custom-foods"
+        ]
+      }
+    },
     "/v1/diary/day": {
       "get": {
         "description": "One local day of the diary: meal slots with their entries and totals, that day's frozen\ntargets, `remaining` and `progress` (all computed here; clients never compute them), and the\nsugar and salt bands. Needs only `terms`: without `health_data`, `targets` is null with\n`targets_status: consent_required` and the entries still load. Numbers the member hid are\nnull. Information, not medical advice.",
@@ -7685,13 +9167,140 @@
         ]
       }
     },
+    "/v1/foods/barcode/{barcode}": {
+      "get": {
+        "description": "Look a scanned barcode up for LOGGING: your own custom food with that barcode first, then\nour product, then Open Food Facts. For the verdict use `products_get_by_barcode` and\n`analyze`: they never see custom foods. 422 `invalid_barcode`, 404 `product_not_found`, 503\n`off_unavailable`.",
+        "operationId": "foods_by_barcode",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "barcode",
+            "required": true,
+            "schema": {
+              "title": "Barcode",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodDetailOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Foods By Barcode",
+        "tags": [
+          "foods"
+        ]
+      }
+    },
     "/v1/foods/search": {
       "get": {
         "description": "Search generic foods and Indian dishes first, then packaged products (our catalogue and\nOpen Food Facts). Hits carry no nutrients. When Open Food Facts cannot answer, the other\nresults still come back with `partial: true` and `failed_sources: [\"off\"]`. USDA and\nOpen Food Facts credits ride on each hit.",
         "operationId": "foods_search",
         "parameters": [
           {
-            "description": "Which sources to search; default both (food = generic foods and dishes)",
+            "description": "Which sources to search; default all (food = generic foods and dishes; custom_food and recipe = yours, listed first)",
             "in": "query",
             "name": "kinds",
             "required": false,
@@ -7707,7 +9316,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Which sources to search; default both (food = generic foods and dishes)",
+              "description": "Which sources to search; default all (food = generic foods and dishes; custom_food and recipe = yours, listed first)",
               "title": "Kinds"
             }
           },
@@ -11842,6 +13451,575 @@
         "summary": "Reports Create",
         "tags": [
           "reports"
+        ]
+      }
+    },
+    "/v1/recipes": {
+      "get": {
+        "description": "The account's recipes, most recently changed first (no nutrients: open one for those).",
+        "operationId": "recipes_list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Recipes List",
+        "tags": [
+          "recipes"
+        ]
+      },
+      "post": {
+        "description": "Build a recipe from 1 to 50 ingredients. Each is a food, one of your custom foods, one\nof our products or an Open Food Facts barcode, with a quantity and a household unit; a\nunit with no grams is 422 `unit_grams_unknown` with the ingredient's `details.position`.\nThe basis weight is the cooked weight, or else the raw total (422 `recipe_weight_invalid`:\n`cooked_weight_required` or `out_of_range`, 0.2 to 3 times the raw total). A repeated\n`client_id` returns the stored recipe with 200.",
+        "operationId": "recipes_create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipeOut"
+                }
+              }
+            },
+            "description": "Already created with this client_id"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Recipes Create",
+        "tags": [
+          "recipes"
+        ]
+      }
+    },
+    "/v1/recipes/{recipe_id}": {
+      "delete": {
+        "description": "Delete the recipe. Diary entries keep their name and values (their reference becomes\nnull).",
+        "operationId": "recipes_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recipe_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Recipe Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Recipes Delete",
+        "tags": [
+          "recipes"
+        ]
+      },
+      "get": {
+        "description": "One recipe with its ingredients. Per-100 g and per-serving values are the sum of the\nKNOWN ingredients: a nutrient in `incomplete_nutrients` is 'at least' that much. Numbers the\nmember hid are null.",
+        "operationId": "recipes_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recipe_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Recipe Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Recipes Get",
+        "tags": [
+          "recipes"
+        ]
+      },
+      "put": {
+        "description": "Replace the recipe and its ingredients. Past diary entries keep the values they were\nlogged with. An ingredient whose custom food was deleted must be replaced.",
+        "operationId": "recipes_update",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recipe_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Recipe Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Recipes Update",
+        "tags": [
+          "recipes"
         ]
       }
     },

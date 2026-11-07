@@ -1,0 +1,39 @@
+{
+  "name": "recipe_ml_ingredient_no_density_needs_cooked_weight",
+  "servings": 2,
+  "cooked_weight_g": null,
+  "ingredients": [
+    {
+      "name": "Rice",
+      "amount": 100,
+      "basis": "g",
+      "density_g_per_ml": null,
+      "per_100": {
+        "energy_kcal": 130,
+        "sugars_g": 0.1,
+        "salt_g": 0.01,
+        "protein_g": 2.7,
+        "fat_g": 0.3,
+        "sat_fat_g": 0.1,
+        "carbs_g": 28,
+        "fibre_g": 0.4
+      }
+    },
+    {
+      "name": "Milk",
+      "amount": 200,
+      "basis": "ml",
+      "density_g_per_ml": null,
+      "per_100": {
+        "energy_kcal": 61,
+        "sugars_g": 5,
+        "salt_g": 0.1,
+        "protein_g": 3.2,
+        "fat_g": 3.3,
+        "sat_fat_g": 1.9,
+        "carbs_g": 4.8,
+        "fibre_g": 0
+      }
+    }
+  ]
+}

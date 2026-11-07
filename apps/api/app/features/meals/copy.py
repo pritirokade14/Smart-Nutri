@@ -19,6 +19,7 @@ from app.core.errors import ApiError
 from app.core.ratelimit import consume
 from app.features.consents import service as consents_service
 from app.features.diary.days import day_targets
+from app.features.foods.models import Food
 from app.features.me import service as me_service
 from app.features.meal_slots import service as slots_service
 from app.features.meals import service as meals_service
@@ -62,6 +63,19 @@ async def _read_back(session: AsyncSession, account_id: UUID, ids: list[UUID]) -
     )
     by_client = {r.client_id: r for r in rows}
     return [by_client[i] for i in ids if i in by_client]
+
+
+async def _refuse_retired(session: AsyncSession, sources: list[MealLog]) -> None:
+    """A dish we no longer offer is never logged anew: 422 `food_retired` (before anything is
+    counted). Reading the old entry is unaffected."""
+    food_ids = {s.food_id for s in sources if s.food_id is not None}
+    if not food_ids:
+        return
+    retired = await session.scalar(
+        select(Food.id).where(Food.id.in_(food_ids), Food.review_status == "retired").limit(1)
+    )
+    if retired is not None:
+        raise ApiError("food_retired", 422)
 
 
 async def copy_entries(
@@ -122,6 +136,7 @@ async def copy_entries(
     todo = [(s, i) for s, i in zip(sources, ids, strict=True) if i not in stored_ids]
     if not todo:
         return stored, False  # a retry: every copy exists, nothing is counted
+    await _refuse_retired(session, [s for s, _ in todo])
 
     planned = []
     for source, client_id in todo:
@@ -142,6 +157,8 @@ async def copy_entries(
                 "product_id": source.product_id,
                 "off_barcode": source.off_barcode,
                 "food_id": source.food_id,
+                "custom_food_id": source.custom_food_id,
+                "recipe_id": source.recipe_id,
                 "quantity": source.quantity,
                 "unit": source.unit,
                 "product_name": source.product_name,

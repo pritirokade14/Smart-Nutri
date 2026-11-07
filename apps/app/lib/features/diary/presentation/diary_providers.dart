@@ -82,7 +82,12 @@ void trackDiaryDayViewed(WidgetRef ref) =>
 /// goes: set by the add-food sheet, read by the portion sheet, cleared when
 /// the user is back on the Diary.
 class DiaryAddContext {
-  const DiaryAddContext({required this.method, this.slotId, this.localDate});
+  const DiaryAddContext({
+    required this.method,
+    this.slotId,
+    this.localDate,
+    this.memberId,
+  });
 
   /// The analytics `method` (`search`, `barcode`, `label`).
   final String method;
@@ -90,6 +95,9 @@ class DiaryAddContext {
 
   /// A past day, else null.
   final String? localDate;
+
+  /// The member whose diary this is.
+  final String? memberId;
 }
 
 class DiaryAddContextNotifier extends Notifier<DiaryAddContext?> {
