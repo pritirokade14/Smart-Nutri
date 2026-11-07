@@ -4073,6 +4073,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get weightDelete => 'वज़न हटाएँ';
 
   @override
+  String get weightDeleteAll => 'सभी वज़न हटाएँ';
+
+  @override
+  String get weightDeleteAllConfirm =>
+      'अपने सभी वज़न हटाएँ? इसे वापस नहीं किया जा सकता। आपकी प्रोफ़ाइल का वज़न जैसा है वैसा ही रहेगा।';
+
+  @override
+  String get weightDeleteAllDone => 'सभी वज़न हटा दिए गए';
+
+  @override
   String get weightDeleteConfirm => 'यह वज़न हटाएँ?';
 
   @override
@@ -4126,6 +4136,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String weightRapidLoss(String pct) {
     return 'आपका वज़न हफ़्ते में $pct% से ज़्यादा तेज़ी से घट रहा है। धीमी गति आमतौर पर निभाना आसान होता है।';
   }
+
+  @override
+  String get weightRapidLossHidden =>
+      'आपका वज़न तेज़ी से घट रहा है। धीमी गति आमतौर पर निभाना आसान होता है।';
 
   @override
   String get weightSaveAnyway => 'फिर भी सहेजें';

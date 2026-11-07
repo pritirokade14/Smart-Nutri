@@ -11,6 +11,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/storage/meal_queue.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/meal_sync.dart';
+import '../../weights/presentation/weights_providers.dart';
 import '../data/meals_repository.dart';
 
 /// The on-device offline log queue (drift).
@@ -66,6 +67,14 @@ final failedMealsCountProvider = StreamProvider<int>(
   (ref) => ref.watch(mealQueueProvider).watchFailedCount(),
 );
 
+/// Error codes of the weigh-ins the API refused (shown once, then cleared).
+final failedWeighInsProvider = StreamProvider<List<String?>>((ref) {
+  final q = ref.watch(mealQueueProvider);
+  return q is WeighInQueue
+      ? (q as WeighInQueue).watchFailedWeighIns()
+      : const Stream<List<String?>>.empty();
+});
+
 /// Bumped whenever the stored log changes (a log, an undo, a sync), so the
 /// history and summaries reload.
 class MealsRevision extends Notifier<int> {
@@ -112,7 +121,17 @@ class _MealSyncScopeState extends ConsumerState<MealSyncScope>
   Future<void> _flush() async {
     try {
       final result = await ref.read(mealSyncProvider).flush();
-      if (mounted && (result.sent > 0 || result.failed > 0)) {
+      var weighIns = 0;
+      try {
+        weighIns = await ref.read(weighInSyncProvider).flush();
+      } on Object {
+        // Weigh-ins stay queued; the next trigger tries again.
+      }
+      if (mounted && (result.sent > 0 || result.failed > 0 || weighIns > 0)) {
+        if (weighIns > 0) {
+          ref.invalidate(weightTrendProvider);
+          ref.invalidate(weightListProvider);
+        }
         ref.read(mealsRevisionProvider.notifier).bump();
       }
     } on Object {

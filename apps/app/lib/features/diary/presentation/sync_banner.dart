@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/network/api_client.dart';
+import '../../../core/storage/meal_queue.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/states.dart';
@@ -19,6 +21,9 @@ class SyncBanner extends ConsumerWidget {
     final c = SnColors.of(context);
     final pending = ref.watch(pendingMealsCountProvider).value ?? 0;
     final failed = ref.watch(failedMealsCountProvider).value ?? 0;
+    final failedWeighIns =
+        ref.watch(failedWeighInsProvider).value ?? const <String?>[];
+    final codes = {...failedWeighIns}.toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -38,13 +43,22 @@ class SyncBanner extends ConsumerWidget {
               ],
             ),
           ),
-        if (failed > 0)
+        if (failed > 0 || failedWeighIns.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: SnTokens.space3),
             child: InlineErrorBanner(
-              message: l10n.mealsSyncFailed,
+              message: [
+                if (failed > 0) l10n.mealsSyncFailed,
+                for (final code in codes) localizedErrorCode(l10n, code),
+              ].join('\n'),
               action: TextButton(
-                onPressed: () => ref.read(mealQueueProvider).clearFailed(),
+                onPressed: () async {
+                  final q = ref.read(mealQueueProvider);
+                  await q.clearFailed();
+                  if (q is WeighInQueue) {
+                    await (q as WeighInQueue).clearFailedWeighIns();
+                  }
+                },
                 child: Text(MaterialLocalizations.of(context).okButtonLabel),
               ),
             ),

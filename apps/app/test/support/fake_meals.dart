@@ -202,7 +202,7 @@ class FakeMealsClient implements MealsClient {
 }
 
 /// An in-memory [MealQueue] for widget tests (no sqlite, no timers).
-class MemoryMealQueue implements MealQueue {
+class MemoryMealQueue implements MealQueue, WeighInQueue {
   final rows = <String, PendingMeal>{};
   final _changes = StreamController<void>.broadcast();
 
@@ -293,6 +293,90 @@ class MemoryMealQueue implements MealQueue {
     _changed();
   }
 
+  final weighIns = <String, PendingWeighIn>{};
+
+  @override
+  Future<void> addWeighIn(PendingWeighIn row) async {
+    weighIns.removeWhere((_, r) => r.localDate == row.localDate);
+    weighIns[row.clientId] = row;
+    _changed();
+  }
+
+  List<PendingWeighIn> _shown() =>
+      weighIns.values.where((r) => r.status != WeighInStatus.failed).toList()
+        ..sort((a, b) => a.localDate.compareTo(b.localDate));
+
+  @override
+  Future<List<PendingWeighIn>> pendingWeighIns() async => [
+    for (final r in _shown())
+      if (r.status == WeighInStatus.pending) r,
+  ];
+
+  @override
+  Stream<List<PendingWeighIn>> watchWeighIns() async* {
+    yield _shown();
+    await for (final _ in _changes.stream) {
+      yield _shown();
+    }
+  }
+
+  @override
+  Future<void> removeWeighIn(String clientId) async {
+    weighIns.remove(clientId);
+    _changed();
+  }
+
+  @override
+  Future<void> recordWeighInAttempt(String clientId) async {
+    final r = weighIns[clientId];
+    if (r != null) weighIns[clientId] = r.copyWith(attempts: r.attempts + 1);
+    _changed();
+  }
+
+  @override
+  Future<void> setWeighInStatus(
+    String clientId,
+    String status, {
+    String? error,
+  }) async {
+    final r = weighIns[clientId];
+    if (r != null) {
+      weighIns[clientId] = r.copyWith(status: status, lastError: Value(error));
+    }
+    _changed();
+  }
+
+  List<String?> _failedWeighIns() => [
+    for (final r in weighIns.values)
+      if (r.status == WeighInStatus.failed) r.lastError,
+  ];
+
+  @override
+  Stream<List<String?>> watchFailedWeighIns() async* {
+    yield _failedWeighIns();
+    await for (final _ in _changes.stream) {
+      yield _failedWeighIns();
+    }
+  }
+
+  @override
+  Future<void> clearFailedWeighIns() async {
+    weighIns.removeWhere((_, r) => r.status == WeighInStatus.failed);
+    _changed();
+  }
+
+  @override
+  Future<void> confirmWeighIn(String clientId) async {
+    final r = weighIns[clientId];
+    if (r != null) {
+      weighIns[clientId] = r.copyWith(
+        confirmUnusual: true,
+        status: WeighInStatus.pending,
+      );
+    }
+    _changed();
+  }
+
   /// Called by [clearAll], for tests that check the order of calls.
   void Function()? onClearAll;
 
@@ -300,6 +384,7 @@ class MemoryMealQueue implements MealQueue {
   Future<void> clearAll() async {
     onClearAll?.call();
     rows.clear();
+    weighIns.clear();
     _changed();
   }
 }

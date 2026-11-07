@@ -34,6 +34,7 @@ class ProfileScreen extends ConsumerWidget {
   static const userTypesKey = Key('profile-user-types');
   static const guideKey = Key('profile-diary-guide');
   static const myFoodsKey = Key('profile-my-foods');
+  static const weightKey = Key('profile-weight');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,6 +61,13 @@ class ProfileScreen extends ConsumerWidget {
                   title: Text(l10n.settingsDiaryTitle),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('/profile/guide'),
+                ),
+                ListTile(
+                  key: weightKey,
+                  leading: const Icon(Icons.monitor_weight_outlined),
+                  title: Text(l10n.weightTitle),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/diary/weight'),
                 ),
                 ListTile(
                   key: myFoodsKey,

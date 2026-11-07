@@ -29,3 +29,18 @@ describe("isTargetsPath", () => {
     expect(isTargetsPath("https://host/api/v1/meals", prefixed)).toBe(false);
   });
 });
+
+describe("isWeightsPath", () => {
+  it("matches weights routes only, with and without a base URL path", async () => {
+    const { isWeightsPath } = await import("@/lib/api/client");
+    const base = "http://api.test";
+    expect(isWeightsPath(`${base}/v1/weights`, base)).toBe(true);
+    expect(isWeightsPath(`${base}/v1/weights/trend`, base)).toBe(true);
+    expect(isWeightsPath(`${base}/v1/weights/2026-11-07`, base)).toBe(true);
+    expect(isWeightsPath(`${base}/v1/weightsx`, base)).toBe(false);
+    expect(isWeightsPath(`${base}/v1/meals`, base)).toBe(false);
+    expect(
+      isWeightsPath("https://host/api/v1/weights", "https://host/api/"),
+    ).toBe(true);
+  });
+});

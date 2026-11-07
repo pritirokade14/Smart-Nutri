@@ -88,6 +88,13 @@ async def delete_weigh_in(session: AsyncSession, member: Member, day: date) -> W
     return row
 
 
+async def delete_all(session: AsyncSession, member: Member) -> int:
+    """Delete every weigh-in of the member and return how many went."""
+    result = await session.execute(delete(WeightLog).where(*_own(member)))
+    await session.flush()
+    return result.rowcount or 0
+
+
 async def latest(session: AsyncSession, member: Member) -> WeightLog | None:
     return await session.scalar(
         select(WeightLog)

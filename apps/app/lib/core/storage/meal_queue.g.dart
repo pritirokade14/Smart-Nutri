@@ -1316,15 +1316,495 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
   }
 }
 
+class $PendingWeighInsTable extends PendingWeighIns
+    with TableInfo<$PendingWeighInsTable, PendingWeighIn> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PendingWeighInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localDateMeta = const VerificationMeta(
+    'localDate',
+  );
+  @override
+  late final GeneratedColumn<String> localDate = GeneratedColumn<String>(
+    'local_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weightKgMeta = const VerificationMeta(
+    'weightKg',
+  );
+  @override
+  late final GeneratedColumn<double> weightKg = GeneratedColumn<double>(
+    'weight_kg',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confirmUnusualMeta = const VerificationMeta(
+    'confirmUnusual',
+  );
+  @override
+  late final GeneratedColumn<bool> confirmUnusual = GeneratedColumn<bool>(
+    'confirm_unusual',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("confirm_unusual" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _attemptsMeta = const VerificationMeta(
+    'attempts',
+  );
+  @override
+  late final GeneratedColumn<int> attempts = GeneratedColumn<int>(
+    'attempts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastErrorMeta = const VerificationMeta(
+    'lastError',
+  );
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+    'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    clientId,
+    localDate,
+    weightKg,
+    confirmUnusual,
+    status,
+    attempts,
+    lastError,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pending_weigh_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PendingWeighIn> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('local_date')) {
+      context.handle(
+        _localDateMeta,
+        localDate.isAcceptableOrUnknown(data['local_date']!, _localDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localDateMeta);
+    }
+    if (data.containsKey('weight_kg')) {
+      context.handle(
+        _weightKgMeta,
+        weightKg.isAcceptableOrUnknown(data['weight_kg']!, _weightKgMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weightKgMeta);
+    }
+    if (data.containsKey('confirm_unusual')) {
+      context.handle(
+        _confirmUnusualMeta,
+        confirmUnusual.isAcceptableOrUnknown(
+          data['confirm_unusual']!,
+          _confirmUnusualMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('attempts')) {
+      context.handle(
+        _attemptsMeta,
+        attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta),
+      );
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(
+        _lastErrorMeta,
+        lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {clientId};
+  @override
+  PendingWeighIn map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PendingWeighIn(
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      localDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_date'],
+      )!,
+      weightKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight_kg'],
+      )!,
+      confirmUnusual: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}confirm_unusual'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      attempts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempts'],
+      )!,
+      lastError: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_error'],
+      ),
+    );
+  }
+
+  @override
+  $PendingWeighInsTable createAlias(String alias) {
+    return $PendingWeighInsTable(attachedDatabase, alias);
+  }
+}
+
+class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
+  final String clientId;
+
+  /// The day (`2026-11-07`) as shown by the diary.
+  final String localDate;
+  final double weightKg;
+  final bool confirmUnusual;
+  final String status;
+  final int attempts;
+
+  /// The API error code of a refusal (status `failed`).
+  final String? lastError;
+  const PendingWeighIn({
+    required this.clientId,
+    required this.localDate,
+    required this.weightKg,
+    required this.confirmUnusual,
+    required this.status,
+    required this.attempts,
+    this.lastError,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['client_id'] = Variable<String>(clientId);
+    map['local_date'] = Variable<String>(localDate);
+    map['weight_kg'] = Variable<double>(weightKg);
+    map['confirm_unusual'] = Variable<bool>(confirmUnusual);
+    map['status'] = Variable<String>(status);
+    map['attempts'] = Variable<int>(attempts);
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    return map;
+  }
+
+  PendingWeighInsCompanion toCompanion(bool nullToAbsent) {
+    return PendingWeighInsCompanion(
+      clientId: Value(clientId),
+      localDate: Value(localDate),
+      weightKg: Value(weightKg),
+      confirmUnusual: Value(confirmUnusual),
+      status: Value(status),
+      attempts: Value(attempts),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+    );
+  }
+
+  factory PendingWeighIn.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PendingWeighIn(
+      clientId: serializer.fromJson<String>(json['clientId']),
+      localDate: serializer.fromJson<String>(json['localDate']),
+      weightKg: serializer.fromJson<double>(json['weightKg']),
+      confirmUnusual: serializer.fromJson<bool>(json['confirmUnusual']),
+      status: serializer.fromJson<String>(json['status']),
+      attempts: serializer.fromJson<int>(json['attempts']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'clientId': serializer.toJson<String>(clientId),
+      'localDate': serializer.toJson<String>(localDate),
+      'weightKg': serializer.toJson<double>(weightKg),
+      'confirmUnusual': serializer.toJson<bool>(confirmUnusual),
+      'status': serializer.toJson<String>(status),
+      'attempts': serializer.toJson<int>(attempts),
+      'lastError': serializer.toJson<String?>(lastError),
+    };
+  }
+
+  PendingWeighIn copyWith({
+    String? clientId,
+    String? localDate,
+    double? weightKg,
+    bool? confirmUnusual,
+    String? status,
+    int? attempts,
+    Value<String?> lastError = const Value.absent(),
+  }) => PendingWeighIn(
+    clientId: clientId ?? this.clientId,
+    localDate: localDate ?? this.localDate,
+    weightKg: weightKg ?? this.weightKg,
+    confirmUnusual: confirmUnusual ?? this.confirmUnusual,
+    status: status ?? this.status,
+    attempts: attempts ?? this.attempts,
+    lastError: lastError.present ? lastError.value : this.lastError,
+  );
+  PendingWeighIn copyWithCompanion(PendingWeighInsCompanion data) {
+    return PendingWeighIn(
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      localDate: data.localDate.present ? data.localDate.value : this.localDate,
+      weightKg: data.weightKg.present ? data.weightKg.value : this.weightKg,
+      confirmUnusual: data.confirmUnusual.present
+          ? data.confirmUnusual.value
+          : this.confirmUnusual,
+      status: data.status.present ? data.status.value : this.status,
+      attempts: data.attempts.present ? data.attempts.value : this.attempts,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingWeighIn(')
+          ..write('clientId: $clientId, ')
+          ..write('localDate: $localDate, ')
+          ..write('weightKg: $weightKg, ')
+          ..write('confirmUnusual: $confirmUnusual, ')
+          ..write('status: $status, ')
+          ..write('attempts: $attempts, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    clientId,
+    localDate,
+    weightKg,
+    confirmUnusual,
+    status,
+    attempts,
+    lastError,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PendingWeighIn &&
+          other.clientId == this.clientId &&
+          other.localDate == this.localDate &&
+          other.weightKg == this.weightKg &&
+          other.confirmUnusual == this.confirmUnusual &&
+          other.status == this.status &&
+          other.attempts == this.attempts &&
+          other.lastError == this.lastError);
+}
+
+class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
+  final Value<String> clientId;
+  final Value<String> localDate;
+  final Value<double> weightKg;
+  final Value<bool> confirmUnusual;
+  final Value<String> status;
+  final Value<int> attempts;
+  final Value<String?> lastError;
+  final Value<int> rowid;
+  const PendingWeighInsCompanion({
+    this.clientId = const Value.absent(),
+    this.localDate = const Value.absent(),
+    this.weightKg = const Value.absent(),
+    this.confirmUnusual = const Value.absent(),
+    this.status = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PendingWeighInsCompanion.insert({
+    required String clientId,
+    required String localDate,
+    required double weightKg,
+    this.confirmUnusual = const Value.absent(),
+    this.status = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : clientId = Value(clientId),
+       localDate = Value(localDate),
+       weightKg = Value(weightKg);
+  static Insertable<PendingWeighIn> custom({
+    Expression<String>? clientId,
+    Expression<String>? localDate,
+    Expression<double>? weightKg,
+    Expression<bool>? confirmUnusual,
+    Expression<String>? status,
+    Expression<int>? attempts,
+    Expression<String>? lastError,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (clientId != null) 'client_id': clientId,
+      if (localDate != null) 'local_date': localDate,
+      if (weightKg != null) 'weight_kg': weightKg,
+      if (confirmUnusual != null) 'confirm_unusual': confirmUnusual,
+      if (status != null) 'status': status,
+      if (attempts != null) 'attempts': attempts,
+      if (lastError != null) 'last_error': lastError,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PendingWeighInsCompanion copyWith({
+    Value<String>? clientId,
+    Value<String>? localDate,
+    Value<double>? weightKg,
+    Value<bool>? confirmUnusual,
+    Value<String>? status,
+    Value<int>? attempts,
+    Value<String?>? lastError,
+    Value<int>? rowid,
+  }) {
+    return PendingWeighInsCompanion(
+      clientId: clientId ?? this.clientId,
+      localDate: localDate ?? this.localDate,
+      weightKg: weightKg ?? this.weightKg,
+      confirmUnusual: confirmUnusual ?? this.confirmUnusual,
+      status: status ?? this.status,
+      attempts: attempts ?? this.attempts,
+      lastError: lastError ?? this.lastError,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (localDate.present) {
+      map['local_date'] = Variable<String>(localDate.value);
+    }
+    if (weightKg.present) {
+      map['weight_kg'] = Variable<double>(weightKg.value);
+    }
+    if (confirmUnusual.present) {
+      map['confirm_unusual'] = Variable<bool>(confirmUnusual.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (attempts.present) {
+      map['attempts'] = Variable<int>(attempts.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingWeighInsCompanion(')
+          ..write('clientId: $clientId, ')
+          ..write('localDate: $localDate, ')
+          ..write('weightKg: $weightKg, ')
+          ..write('confirmUnusual: $confirmUnusual, ')
+          ..write('status: $status, ')
+          ..write('attempts: $attempts, ')
+          ..write('lastError: $lastError, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MealQueueDatabase extends GeneratedDatabase {
   _$MealQueueDatabase(QueryExecutor e) : super(e);
   $MealQueueDatabaseManager get managers => $MealQueueDatabaseManager(this);
   late final $PendingMealsTable pendingMeals = $PendingMealsTable(this);
+  late final $PendingWeighInsTable pendingWeighIns = $PendingWeighInsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [pendingMeals];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    pendingMeals,
+    pendingWeighIns,
+  ];
 }
 
 typedef $$PendingMealsTableCreateCompanionBuilder =
@@ -1889,10 +2369,262 @@ typedef $$PendingMealsTableProcessedTableManager =
       PendingMeal,
       PrefetchHooks Function()
     >;
+typedef $$PendingWeighInsTableCreateCompanionBuilder =
+    PendingWeighInsCompanion Function({
+      required String clientId,
+      required String localDate,
+      required double weightKg,
+      Value<bool> confirmUnusual,
+      Value<String> status,
+      Value<int> attempts,
+      Value<String?> lastError,
+      Value<int> rowid,
+    });
+typedef $$PendingWeighInsTableUpdateCompanionBuilder =
+    PendingWeighInsCompanion Function({
+      Value<String> clientId,
+      Value<String> localDate,
+      Value<double> weightKg,
+      Value<bool> confirmUnusual,
+      Value<String> status,
+      Value<int> attempts,
+      Value<String?> lastError,
+      Value<int> rowid,
+    });
+
+class $$PendingWeighInsTableFilterComposer
+    extends Composer<_$MealQueueDatabase, $PendingWeighInsTable> {
+  $$PendingWeighInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localDate => $composableBuilder(
+    column: $table.localDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weightKg => $composableBuilder(
+    column: $table.weightKg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get confirmUnusual => $composableBuilder(
+    column: $table.confirmUnusual,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get attempts => $composableBuilder(
+    column: $table.attempts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PendingWeighInsTableOrderingComposer
+    extends Composer<_$MealQueueDatabase, $PendingWeighInsTable> {
+  $$PendingWeighInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localDate => $composableBuilder(
+    column: $table.localDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weightKg => $composableBuilder(
+    column: $table.weightKg,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get confirmUnusual => $composableBuilder(
+    column: $table.confirmUnusual,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get attempts => $composableBuilder(
+    column: $table.attempts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PendingWeighInsTableAnnotationComposer
+    extends Composer<_$MealQueueDatabase, $PendingWeighInsTable> {
+  $$PendingWeighInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get localDate =>
+      $composableBuilder(column: $table.localDate, builder: (column) => column);
+
+  GeneratedColumn<double> get weightKg =>
+      $composableBuilder(column: $table.weightKg, builder: (column) => column);
+
+  GeneratedColumn<bool> get confirmUnusual => $composableBuilder(
+    column: $table.confirmUnusual,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get attempts =>
+      $composableBuilder(column: $table.attempts, builder: (column) => column);
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+}
+
+class $$PendingWeighInsTableTableManager
+    extends
+        RootTableManager<
+          _$MealQueueDatabase,
+          $PendingWeighInsTable,
+          PendingWeighIn,
+          $$PendingWeighInsTableFilterComposer,
+          $$PendingWeighInsTableOrderingComposer,
+          $$PendingWeighInsTableAnnotationComposer,
+          $$PendingWeighInsTableCreateCompanionBuilder,
+          $$PendingWeighInsTableUpdateCompanionBuilder,
+          (
+            PendingWeighIn,
+            BaseReferences<
+              _$MealQueueDatabase,
+              $PendingWeighInsTable,
+              PendingWeighIn
+            >,
+          ),
+          PendingWeighIn,
+          PrefetchHooks Function()
+        > {
+  $$PendingWeighInsTableTableManager(
+    _$MealQueueDatabase db,
+    $PendingWeighInsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PendingWeighInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PendingWeighInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PendingWeighInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> clientId = const Value.absent(),
+                Value<String> localDate = const Value.absent(),
+                Value<double> weightKg = const Value.absent(),
+                Value<bool> confirmUnusual = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> attempts = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PendingWeighInsCompanion(
+                clientId: clientId,
+                localDate: localDate,
+                weightKg: weightKg,
+                confirmUnusual: confirmUnusual,
+                status: status,
+                attempts: attempts,
+                lastError: lastError,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String clientId,
+                required String localDate,
+                required double weightKg,
+                Value<bool> confirmUnusual = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> attempts = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PendingWeighInsCompanion.insert(
+                clientId: clientId,
+                localDate: localDate,
+                weightKg: weightKg,
+                confirmUnusual: confirmUnusual,
+                status: status,
+                attempts: attempts,
+                lastError: lastError,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PendingWeighInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$MealQueueDatabase,
+      $PendingWeighInsTable,
+      PendingWeighIn,
+      $$PendingWeighInsTableFilterComposer,
+      $$PendingWeighInsTableOrderingComposer,
+      $$PendingWeighInsTableAnnotationComposer,
+      $$PendingWeighInsTableCreateCompanionBuilder,
+      $$PendingWeighInsTableUpdateCompanionBuilder,
+      (
+        PendingWeighIn,
+        BaseReferences<
+          _$MealQueueDatabase,
+          $PendingWeighInsTable,
+          PendingWeighIn
+        >,
+      ),
+      PendingWeighIn,
+      PrefetchHooks Function()
+    >;
 
 class $MealQueueDatabaseManager {
   final _$MealQueueDatabase _db;
   $MealQueueDatabaseManager(this._db);
   $$PendingMealsTableTableManager get pendingMeals =>
       $$PendingMealsTableTableManager(_db, _db.pendingMeals);
+  $$PendingWeighInsTableTableManager get pendingWeighIns =>
+      $$PendingWeighInsTableTableManager(_db, _db.pendingWeighIns);
 }

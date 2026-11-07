@@ -201,7 +201,7 @@ EXPECTED_CASES = {
     "three_constant", "gap_calendar_days", "single_outlier", "step_change_two_in_a_row",
     "too_few_for_rate", "weekly_rate_loss", "rapid_loss_three_weeks", "projection_ready",
     "projection_too_few", "projection_moving_away", "projection_too_far", "projection_reached",
-    "no_target", "hide_all", "rate_after_gap", "projection_after_gap",
+    "no_target", "hide_all", "hide_all_rapid_loss", "rate_after_gap", "projection_after_gap",
 }  # fmt: skip
 
 

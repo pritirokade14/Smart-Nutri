@@ -33,6 +33,13 @@ class TargetsExplanationTile extends StatelessWidget {
         l10n.targetsHowAdjustment(formatWhole(l10n, e.adjustmentKcal!)),
       if (e.floorKcal != null)
         l10n.targetsHowFloor(formatWhole(l10n, e.floorKcal!)),
+      // Where the weight came from; the API leaves it out under hidden macros.
+      if (e.weightKgUsed != null &&
+          e.weightSource == TargetsExplanationWeightSource.trend)
+        l10n.targetsHowWeightTrend(formatDecimal(e.weightKgUsed!))
+      else if (e.weightKgUsed != null &&
+          e.weightSource == TargetsExplanationWeightSource.latest)
+        l10n.targetsHowWeightLatest(formatDecimal(e.weightKgUsed!)),
       if (e.proteinGPerKg != null && e.proteinReferenceWeightKg != null)
         _protein(
           l10n,

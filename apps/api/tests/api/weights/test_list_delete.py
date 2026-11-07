@@ -3,7 +3,7 @@
 from sqlalchemy import func, select
 
 from app.features.weights.models import WeightLog
-from tests.api.weights.conftest import ACC_A, URL, body
+from tests.api.weights.conftest import ACC_A, ACC_B, URL, body
 
 
 def _err(r) -> dict:
@@ -87,3 +87,53 @@ async def test_delete_after_health_data_withdrawn_keeps_member_weight(
     assert (await client.delete(f"{URL}/2026-11-07")).status_code == 204
     assert member.weight_kg == 79  # not rewritten to 80
     assert await db_session.scalar(select(func.count()).select_from(WeightLog)) == 1
+
+
+async def test_delete_all_with_health_data_withdrawn(client, consented, db_session, grant):
+    from sqlalchemy import text
+
+    from app.features.members import service as members_service
+
+    member = await members_service.get_or_create_primary(db_session, ACC_A)
+    for day, kg in (("2026-11-06", 80), ("2026-11-07", 79)):
+        assert (await client.put(f"{URL}/{day}", json=body(kg))).status_code == 200
+    await db_session.execute(
+        text(
+            "update consents set withdrawn_at = now() "
+            "where account_id = :a and purpose = 'health_data'"
+        ),
+        {"a": ACC_A},
+    )
+    await db_session.flush()
+    r = await client.delete(URL)
+    assert r.status_code == 200 and r.json() == {"deleted": 2}
+    assert member.weight_kg == 79  # profile weight untouched
+    assert await db_session.scalar(select(func.count()).select_from(WeightLog)) == 0
+    assert (await client.delete(URL)).json() == {"deleted": 0}
+
+
+async def test_delete_all_leaves_other_accounts(client, consented, grant, seed_weights, db_session):
+    await grant(ACC_B)
+    await seed_weights([("2026-11-06", 80), ("2026-11-07", 79)])
+    await seed_weights([("2026-11-07", 60)], account=ACC_B)
+    r = await client.delete(URL)
+    assert r.json() == {"deleted": 2}
+    rows = (await db_session.execute(select(WeightLog.account_id))).scalars().all()
+    assert list(rows) == [ACC_B]
+
+
+async def test_delete_all_needs_terms_and_is_limited(client, app, login, grant, monkeypatch):
+    await grant(ACC_B, [])
+    login(ACC_B)
+    r = await client.delete(URL)
+    assert r.status_code == 403 and _err(r)["details"]["purposes"] == ["terms"]
+    await grant(ACC_B, ["terms"])
+    monkeypatch.setattr(app.state.settings, "rate_limit_weights_erase_per_day", 1)
+    assert (await client.delete(URL)).status_code == 200
+    assert (await client.delete(URL)).status_code == 429
+
+
+async def test_delete_all_non_primary_needs_family(client, consented, add_member):
+    other = await add_member(ACC_A, name="Dad")
+    r = await client.delete(URL, params={"member_id": str(other.id)})
+    assert r.status_code == 422 and _err(r)["code"] == "diary_member_not_enabled"

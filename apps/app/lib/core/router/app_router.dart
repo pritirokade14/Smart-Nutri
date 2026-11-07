@@ -1,3 +1,4 @@
+import '../../features/weights/presentation/progress_view.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -163,6 +164,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (_, _) => const MealsScreen(),
                   ),
                   // Plan 12 slice 4: your own foods and recipes.
+                  // Plan 12 slice 6: the weight log.
+                  GoRoute(
+                    path: 'weight',
+                    builder: (_, _) => const ProgressScreen(),
+                  ),
                   GoRoute(
                     path: 'my-foods',
                     builder: (_, _) => const MyFoodsScreen(),

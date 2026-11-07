@@ -4063,6 +4063,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weightDelete => 'Delete weigh-in';
 
   @override
+  String get weightDeleteAll => 'Delete all weigh-ins';
+
+  @override
+  String get weightDeleteAllConfirm =>
+      'Delete all your weigh-ins? This can\'t be undone. The weight in your profile stays as it is.';
+
+  @override
+  String get weightDeleteAllDone => 'All weigh-ins deleted';
+
+  @override
   String get weightDeleteConfirm => 'Delete this weigh-in?';
 
   @override
@@ -4116,6 +4126,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String weightRapidLoss(String pct) {
     return 'Your weight is going down faster than $pct% a week. A slower pace is usually easier to keep up.';
   }
+
+  @override
+  String get weightRapidLossHidden =>
+      'Your weight is going down quickly. A slower pace is usually easier to keep up.';
 
   @override
   String get weightSaveAnyway => 'Save anyway';

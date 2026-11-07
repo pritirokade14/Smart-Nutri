@@ -30,6 +30,7 @@ import {
   useSetDisplay,
 } from "@/features/targets/hooks/useTargets";
 import { statusMessage } from "@/features/targets/lib/status";
+import { ProgressView } from "@/features/weights/components/ProgressView";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
 import type { DiaryDayOut, MealOut } from "../api/diary";
@@ -152,9 +153,12 @@ function ConsentCard({ onAgreed }: { onAgreed: () => void }) {
  */
 export function DiaryView({
   date: initialDate,
+  view: initialView,
 }: {
   /** From the page's `?date=`; anything but YYYY-MM-DD means the account's today. */
   date?: string;
+  /** From the page's `?view=progress`; anything else opens the Day. */
+  view?: string;
 }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -162,7 +166,9 @@ export function DiaryView({
     initialDate && isIsoDate(initialDate) ? initialDate : undefined,
   );
   const [editing, setEditing] = useState<MealOut | null>(null);
-  const [view, setViewMode] = useState<"day" | "week">("day");
+  const [view, setViewMode] = useState<"day" | "week" | "progress">(
+    initialView === "progress" ? "progress" : "day",
+  );
   const [adding, setAdding] = useState<{ slotId?: string } | null>(null);
   const [copying, setCopying] = useState<CopyKind | null>(null);
   const [savingMeal, setSavingMeal] = useState<{
@@ -405,7 +411,7 @@ export function DiaryView({
         data-testid="diary-view-switch"
       >
         <legend className="sr-only">{t("diary.title")}</legend>
-        {(["day", "week"] as const).map((v) => (
+        {(["day", "week", "progress"] as const).map((v) => (
           <button
             key={v}
             type="button"
@@ -418,7 +424,11 @@ export function DiaryView({
                 : "bg-surface-muted text-text-primary",
             )}
           >
-            {v === "day" ? t("diary.view.day") : t("diary.week.title")}
+            {v === "day"
+              ? t("diary.view.day")
+              : v === "week"
+                ? t("diary.week.title")
+                : t("diary.view.progress")}
           </button>
         ))}
       </fieldset>
@@ -430,6 +440,8 @@ export function DiaryView({
             setViewMode("day");
           }}
         />
+      ) : view === "progress" ? (
+        <ProgressView today={day.data?.today} />
       ) : (
         body
       )}
