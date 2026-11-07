@@ -266,11 +266,66 @@ export interface paths {
          */
         get: operations["meal_slots_list"];
         put?: never;
+        /**
+         * Meal Slots Create
+         * @description Add a custom meal (at most 6 active; 422 `meal_slot_limit_reached` with `details.max`).
+         *     The label is user text: 1 to 30 characters, trimmed, no control characters, unique
+         *     case-insensitively among active meals (422 `meal_slot_label_duplicate`, label not echoed).
+         *     A repeated `client_id` returns the stored meal with 200.
+         */
+        post: operations["meal_slots_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meal-slots/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Meal Slots Reorder
+         * @description Set the order. `ids` must be every active meal exactly once (else 422
+         *     `validation_error`, `fields: ["body.ids"]`); an unknown id is 404 `meal_slot_not_found`.
+         */
+        put: operations["meal_slots_reorder"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/v1/meal-slots/{slot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Meal Slots Archive
+         * @description Remove a meal. One with logged entries is archived (they stay on their day); one
+         *     without is deleted. Repeating it is a no-op. 422 `meal_slot_last_active` for the last one.
+         */
+        delete: operations["meal_slots_archive"];
+        options?: never;
+        head?: never;
+        /**
+         * Meal Slots Rename
+         * @description Rename a meal or change its usual time. Null fields are unchanged; use
+         *     `clear_custom_label` (default meals only) or `clear_time_window` to remove. Entries keep
+         *     their meal. 422 `meal_slot_archived` for a removed meal.
+         */
+        patch: operations["meal_slots_rename"];
         trace?: never;
     };
     "/v1/meals": {
@@ -906,6 +961,14 @@ export interface components {
             member_ids?: string[] | null;
             /** Product Id */
             product_id?: string | null;
+        };
+        /** ArchiveOut */
+        ArchiveOut: {
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "archived" | "deleted";
         };
         /**
          * BetterSide
@@ -1788,6 +1851,16 @@ export interface components {
             /** Servings */
             servings?: number | null;
         };
+        /** MealSlotCreateIn */
+        MealSlotCreateIn: {
+            /** Client Id */
+            client_id?: string | null;
+            /** Custom Label */
+            custom_label: string;
+            default_time_window?: components["schemas"]["TimeWindow"] | null;
+            /** Member Id */
+            member_id?: string | null;
+        };
         /** MealSlotOut */
         MealSlotOut: {
             /** Archived */
@@ -1811,6 +1884,37 @@ export interface components {
             member_id: string;
             /** Position */
             position: number;
+        };
+        /**
+         * MealSlotRenameIn
+         * @description Partial update: null means unchanged (Ruling E10); use the clear flags to remove.
+         */
+        MealSlotRenameIn: {
+            /**
+             * Clear Custom Label
+             * @default false
+             */
+            clear_custom_label: boolean;
+            /**
+             * Clear Time Window
+             * @default false
+             */
+            clear_time_window: boolean;
+            /** Custom Label */
+            custom_label?: string | null;
+            default_time_window?: components["schemas"]["TimeWindow"] | null;
+        };
+        /** MealSlotsListOut */
+        MealSlotsListOut: {
+            /** Items */
+            items: components["schemas"]["MealSlotOut"][];
+        };
+        /** MealSlotsOrderIn */
+        MealSlotsOrderIn: {
+            /** Ids */
+            ids: string[];
+            /** Member Id */
+            member_id?: string | null;
         };
         /** MealSlotsOut */
         MealSlotsOut: {
@@ -4049,6 +4153,331 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MealSlotsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meal_slots_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealSlotCreateIn"];
+            };
+        };
+        responses: {
+            /** @description Already created with this client_id */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealSlotOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealSlotOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meal_slots_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealSlotsOrderIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealSlotsListOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meal_slots_archive: {
+        parameters: {
+            query?: {
+                member_id?: string | null;
+            };
+            header?: never;
+            path: {
+                slot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchiveOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    meal_slots_rename: {
+        parameters: {
+            query?: {
+                member_id?: string | null;
+            };
+            header?: never;
+            path: {
+                slot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealSlotRenameIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealSlotOut"];
                 };
             };
             /** @description Missing or invalid access token */

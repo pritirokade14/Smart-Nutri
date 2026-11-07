@@ -15,6 +15,7 @@ class SlotSection extends StatelessWidget {
     super.key,
     required this.slot,
     this.onEntryTap,
+    this.onEntryMove,
     this.onAdd,
     this.menu,
     this.pending = const [],
@@ -22,6 +23,9 @@ class SlotSection extends StatelessWidget {
 
   final SlotDayOut slot;
   final void Function(MealOut entry)? onEntryTap;
+
+  /// Offered only on a removed meal: move the entry to an active one.
+  final void Function(MealOut entry)? onEntryMove;
   final VoidCallback? onAdd;
 
   /// A trailing menu (copy this meal, ...).
@@ -91,6 +95,9 @@ class SlotSection extends StatelessWidget {
               EntryTile(
                 entry: e,
                 onTap: onEntryTap == null ? null : () => onEntryTap!(e),
+                onMove: slot.archived && onEntryMove != null
+                    ? () => onEntryMove!(e)
+                    : null,
               ),
             ...pending,
           ],

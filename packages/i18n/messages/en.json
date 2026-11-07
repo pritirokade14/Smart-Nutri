@@ -328,7 +328,9 @@
     "quick_add_energy_required": "Enter the calories to add this.",
     "copy_source_empty": "There is nothing to copy there.",
     "copy_too_many": "That is too many items to copy at once. Copy one meal at a time.",
-    "date_too_old": "You can only add to the last 30 days."
+    "date_too_old": "You can only add to the last 30 days.",
+    "meal_slot_last_active": "You need at least one meal.",
+    "meal_slot_label_duplicate": "You already have a meal with this name."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -936,7 +938,8 @@
       },
       "reset": "Reset daily guide",
       "reset_confirm": "Reset your daily guide? Your food log stays.",
-      "body_fat": "Body fat %"
+      "body_fat": "Body fat %",
+      "meals": "Meals"
     }
   },
   "goodbye": {
@@ -1258,7 +1261,21 @@
     },
     "slots": {
       "manage": "Edit meals",
-      "removed": "Removed meal"
+      "removed": "Removed meal",
+      "add": "Add a meal",
+      "rename": "Rename",
+      "reset_name": "Use the original name",
+      "name_hint": "Names you type are kept exactly as you type them.",
+      "time_window": "Usual time (optional)",
+      "time_window_hint": "We use this to suggest a meal when you add food.",
+      "reorder": "Change order",
+      "remove": "Remove this meal",
+      "remove_note": "Food you already logged here stays in your diary.",
+      "removed_badge": "Removed meal",
+      "limit": "You can have up to {max} meals.",
+      "last_active": "Keep at least one meal.",
+      "duplicate": "You already have a meal with this name.",
+      "pick_again": "That meal was removed. Please pick another meal for this item."
     }
   },
   "foods": {

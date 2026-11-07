@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { errorKey } from "@/features/members/components/ConsentDialog";
@@ -10,7 +10,7 @@ import { useSetPartial } from "../hooks/useDiaryDay";
 /**
  * The day menu: Copy yesterday, Copy a day, and "Mark as partly logged" (a
  * switch, with its explanation: a partly logged day is left out of the weekly
- * averages). Managing meals is slice 2b.
+ * averages), and "Edit meals" (the Meals screen).
  */
 export function DayMenu({
   day,
@@ -22,6 +22,7 @@ export function DayMenu({
   onCopyDay: () => void;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const partial = useSetPartial();
   return (
@@ -61,6 +62,13 @@ export function DayMenu({
           >
             {t("diary.copy_day")}
           </button>
+          <a
+            role="menuitem"
+            href={`/${locale}/diary/meals`}
+            className="flex min-h-11 w-full cursor-pointer items-center rounded-md px-3 text-left text-md hover:bg-surface-muted"
+          >
+            {t("diary.slots.manage")}
+          </a>
           <div className="space-y-1 px-3 py-2">
             <label className="flex min-h-11 cursor-pointer items-center gap-3 text-md">
               <input

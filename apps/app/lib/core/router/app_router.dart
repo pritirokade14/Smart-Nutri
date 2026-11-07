@@ -13,6 +13,7 @@ import '../../features/consent/presentation/consent_providers.dart';
 import '../../features/consent/presentation/consent_screen.dart';
 import '../../features/diary/presentation/diary_providers.dart';
 import '../../features/diary/presentation/diary_screen.dart';
+import '../../features/diary/presentation/meals_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/meals/presentation/meals_providers.dart';
 import '../../features/members/presentation/member_form_screen.dart';
@@ -150,6 +151,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/diary',
                 builder: (_, state) =>
                     DiaryScreen(date: state.uri.queryParameters['date']),
+                routes: [
+                  GoRoute(
+                    path: 'meals',
+                    builder: (_, _) => const MealsScreen(),
+                  ),
+                ],
               ),
             ],
           ),

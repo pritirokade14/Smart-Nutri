@@ -258,11 +258,37 @@ class MemoryMealQueue implements MealQueue {
   Stream<int> watchPendingCount() => _watch((r) => r.lastError == null);
 
   @override
-  Stream<int> watchFailedCount() => _watch((r) => r.lastError != null);
+  Stream<int> watchFailedCount() => _watch(
+    (r) => r.lastError != null && r.lastError != mealSlotArchivedError,
+  );
+
+  @override
+  Stream<List<PendingMeal>> watchNeedingSlot() async* {
+    List<PendingMeal> now() =>
+        rows.values.where((r) => r.lastError == mealSlotArchivedError).toList();
+    yield now();
+    await for (final _ in _changes.stream) {
+      yield now();
+    }
+  }
+
+  @override
+  Future<void> retryWithSlot(String clientId, String slotId) async {
+    final r = rows[clientId];
+    if (r != null) {
+      rows[clientId] = r.copyWith(
+        mealSlotId: Value(slotId),
+        lastError: const Value(null),
+      );
+    }
+    _changed();
+  }
 
   @override
   Future<void> clearFailed() async {
-    rows.removeWhere((_, r) => r.lastError != null);
+    rows.removeWhere(
+      (_, r) => r.lastError != null && r.lastError != mealSlotArchivedError,
+    );
     _changed();
   }
 

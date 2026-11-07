@@ -214,6 +214,11 @@ export function EditEntryDialog({
                 onChange={(e) => setSlot(e.target.value)}
                 className={inputClass}
               >
+                {slots.some((s) => s.id === entry.meal_slot_id) ? null : (
+                  <option value={entry.meal_slot_id} disabled>
+                    {t("diary.slots.removed")}
+                  </option>
+                )}
                 {slots.map((s) => (
                   <option key={s.id} value={s.id}>
                     {slotLabel((k) => t(k), {
