@@ -96,11 +96,13 @@ Plans 1–9 are **code complete and merged to `main`** (PR #3, merge `6a9735f`, 
 | 9. User types, focused modes, gym protein guide | [plan-9](docs/superpowers/plans/2026-11-04-plan-9-personas.md) | Code complete, merged (PR #3), deployed to dev. Migrations 0006 (user types) and 0007 (supplement category). ADR 0019 |
 | 10. Daily guide (targets), hide numbers | `docs/superpowers/plans/` (Plan 10) | Merged (PR #7), live on dev |
 | 11. Food diary day and meal slots | `docs/superpowers/plans/` (Plan 11) | Merged (PR #9), live on dev |
-| 12. Food diary slices 3–6 | [plan-12](docs/superpowers/plans/2026-11-07-plan-12-food-diary-slices3-6.md) | This plan, not started |
+| 12. Food diary slices 3–6 | [plan-12](docs/superpowers/plans/2026-11-07-plan-12-food-diary-slices3-6.md) | Built: slices 3–5 merged (PRs #10, #11, #12), slice 6 in PR #13 (pending). Dev at alembic 0013 |
 
 **How plans are executed:** `superpowers:subagent-driven-development`, with a ledger in `.superpowers/sdd/<plan>/progress.md` (git-ignored). Independent tasks run in parallel git worktrees. For each slice: the API first → `just contract` → Android ∥ web → `nutrition-safety-reviewer`.
 
 ## 8. Status
+
+**Latest (2026-11-08):** Food diary slices 1–6 are built on API, Android and web, with dev at alembic 0013 (PR #13 for slice 6 is pending). Next: slice 7, adaptive TDEE behind a flag that stays off, and the Sugar Control slices from `docs/research/sugar-control/`. User to-dos kept: send the NIN letter, and the dietitian review of units and dishes.
 
 **Done:**
 - Research on users, competitors, tech, regulation and CallMissed (`docs/research/`).
