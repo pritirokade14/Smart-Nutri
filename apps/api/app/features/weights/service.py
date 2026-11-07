@@ -246,7 +246,9 @@ async def trend(session: AsyncSession, member: Member, days: int, today: date) -
         projection=projection,
         projection_reason=reason,
         flags=["rapid_loss"] if wt.rapid_loss(result, cfg) else [],
-        rapid_loss_pct=float(cfg.targets["safety"]["rapid_loss_pct_bw_per_week"]),
+        rapid_loss_pct=None
+        if hidden
+        else float(cfg.targets["safety"]["rapid_loss_pct_bw_per_week"]),
         numbers_hidden=hidden,
     )
 

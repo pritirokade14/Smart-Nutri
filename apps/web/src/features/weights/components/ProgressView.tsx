@@ -156,7 +156,7 @@ function Insights({ trend }: { trend: WeightTrendOut }) {
       )}
       {trend.flags.includes("rapid_loss") ? (
         <Note id="weight-rapid-loss">
-          {shown
+          {shown && trend.rapid_loss_pct != null
             ? t("weight.rapid_loss", {
                 pct: formatWeight(trend.rapid_loss_pct),
               })

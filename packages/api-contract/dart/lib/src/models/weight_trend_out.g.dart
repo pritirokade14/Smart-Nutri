@@ -22,7 +22,7 @@ WeightTrendOut _$WeightTrendOutFromJson(Map<String, dynamic> json) =>
       projectionReason: WeightTrendOutProjectionReason.fromJson(
         json['projection_reason'] as String,
       ),
-      rapidLossPct: json['rapid_loss_pct'] as num,
+      rapidLossPct: json['rapid_loss_pct'] as num?,
       to: DateTime.parse(json['to'] as String),
       trend: (json['trend'] as List<dynamic>)
           .map((e) => TrendPointOut.fromJson(e as Map<String, dynamic>))

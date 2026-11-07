@@ -226,9 +226,9 @@ class _Body extends ConsumerWidget {
           _Note(
             key: ProgressView.rapidLossKey,
             // Hidden numbers: the same note without the percentage.
-            text: hidden
+            text: hidden || trend.rapidLossPct == null
                 ? l10n.weightRapidLossHidden
-                : l10n.weightRapidLoss(formatDecimal(trend.rapidLossPct)),
+                : l10n.weightRapidLoss(formatDecimal(trend.rapidLossPct!)),
           ),
         // The taper and goal-reached notes come from today's targets.
         if (targets != null)

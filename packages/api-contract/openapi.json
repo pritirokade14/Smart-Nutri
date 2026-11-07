@@ -8795,8 +8795,15 @@
             "type": "string"
           },
           "rapid_loss_pct": {
-            "title": "Rapid Loss Pct",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rapid Loss Pct"
           },
           "to": {
             "format": "date",

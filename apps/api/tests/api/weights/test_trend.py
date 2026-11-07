@@ -90,6 +90,7 @@ async def test_weights_hidden_every_surface(client, g5, put_settings_row, seed_w
     assert all(i["weight_kg"] is None and i["numbers_hidden"] for i in listing["items"])
     trend = (await client.get(TREND)).json()
     assert trend["numbers_hidden"] is True and trend["weekly_rate"] is None
+    assert trend["rapid_loss_pct"] is None  # a policy threshold, never shown when hidden
     assert all(p["weight_kg"] is None and p["y"] is not None for p in trend["points"])
     assert all(t["trend_kg"] is None and t["y"] is not None for t in trend["trend"])
     if trend["projection"] is not None:
