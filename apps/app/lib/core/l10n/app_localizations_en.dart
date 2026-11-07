@@ -954,6 +954,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthRequired => 'Please sign in.';
 
   @override
+  String get errorBarcodeAlreadyUsed =>
+      'You already have a food with this barcode.';
+
+  @override
   String get errorBodyFatOutOfRange =>
       'Please enter a body fat percentage between 3 and 70.';
 
@@ -974,6 +978,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorCustomFoodNotFound => 'We couldn\'t find that food of yours.';
+
+  @override
+  String get errorCustomFoodNutrientsEmpty =>
+      'Add the energy, or at least one of protein, carbs or fat.';
 
   @override
   String get errorDateInFuture => 'That date hasn\'t happened yet.';

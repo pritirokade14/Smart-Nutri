@@ -337,7 +337,9 @@
     "food_not_found": "We couldn't find that food.",
     "custom_food_not_found": "We couldn't find that food of yours.",
     "recipe_not_found": "We couldn't find that recipe.",
-    "recipe_weight_invalid": "The recipe weight doesn't look right. Check the cooked weight."
+    "recipe_weight_invalid": "The recipe weight doesn't look right. Check the cooked weight.",
+    "custom_food_nutrients_empty": "Add the energy, or at least one of protein, carbs or fat.",
+    "barcode_already_used": "You already have a food with this barcode."
   },
   "scan": {
     "title": "Scan a barcode",

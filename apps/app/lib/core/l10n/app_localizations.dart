@@ -1756,6 +1756,12 @@ abstract class AppLocalizations {
   /// **'Please sign in.'**
   String get errorAuthRequired;
 
+  /// No description provided for @errorBarcodeAlreadyUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a food with this barcode.'**
+  String get errorBarcodeAlreadyUsed;
+
   /// No description provided for @errorBodyFatOutOfRange.
   ///
   /// In en, this message translates to:
@@ -1791,6 +1797,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn\'t find that food of yours.'**
   String get errorCustomFoodNotFound;
+
+  /// No description provided for @errorCustomFoodNutrientsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the energy, or at least one of protein, carbs or fat.'**
+  String get errorCustomFoodNutrientsEmpty;
 
   /// No description provided for @errorDateInFuture.
   ///

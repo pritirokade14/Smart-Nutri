@@ -958,6 +958,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करें।';
 
   @override
+  String get errorBarcodeAlreadyUsed =>
+      'इस बारकोड वाला खाना आपके पास पहले से है।';
+
+  @override
   String get errorBodyFatOutOfRange =>
       'कृपया 3 से 70 के बीच शरीर में वसा प्रतिशत दर्ज करें।';
 
@@ -978,6 +982,10 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get errorCustomFoodNotFound => 'हमें आपका वह खाना नहीं मिला।';
+
+  @override
+  String get errorCustomFoodNutrientsEmpty =>
+      'ऊर्जा डालें, या प्रोटीन, कार्ब्स या फैट में से कम से कम एक डालें।';
 
   @override
   String get errorDateInFuture => 'वह तारीख़ अभी आई नहीं है।';
