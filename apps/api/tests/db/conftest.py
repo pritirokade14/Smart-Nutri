@@ -50,6 +50,7 @@ TABLES = {
     "custom_foods",
     "recipes",
     "recipe_ingredients",
+    "favourites",
 }
 
 _ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")
@@ -259,6 +260,7 @@ class Seed:
     custom_food: uuid.UUID
     recipe: uuid.UUID
     ingredient: uuid.UUID
+    favourite: uuid.UUID
 
 
 @dataclass(frozen=True)
@@ -285,6 +287,7 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
             "custom_food",
             "recipe",
             "ingredient",
+            "favourite",
         )
     }
     await db.execute(
@@ -388,6 +391,20 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
             "id": ids["ingredient"],
             "r": ids["recipe"],
             "acc": ids["account"],
+            "cf": ids["custom_food"],
+        },
+    )
+    # One favourite food per member (Plan 12 slice 5, migration 0012).
+    await db.execute(
+        text(
+            "insert into favourites (id, account_id, member_id, kind, source_kind, "
+            "custom_food_id, name) "
+            "values (:id, :acc, :m, 'food', 'custom_food', :cf, 'Own food')"
+        ),
+        {
+            "id": ids["favourite"],
+            "acc": ids["account"],
+            "m": ids["member"],
             "cf": ids["custom_food"],
         },
     )

@@ -1,5 +1,7 @@
 """Cascade behaviour on account deletion and member range checks."""
 
+import uuid
+
 import pytest
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
@@ -639,3 +641,121 @@ async def test_portion_custom_food_ref(db, two_accounts):
         text("select count(*) from food_portions where custom_food_id = :c"), {"c": cf}
     )
     assert n == 0  # the portions go with the food (ON DELETE CASCADE)
+
+
+# ---- Plan 12 slice 5 (migration 0012): favourites
+
+
+async def _favourite(db, seed, **cols) -> object:
+    values = {
+        "account_id": seed.account,
+        "member_id": seed.member,
+        "kind": "food",
+        "name": "Fav",
+        **cols,
+    }
+    names = ", ".join(values)
+    params = ", ".join(f":{k}" for k in values)
+    async with db.begin_nested():
+        return (
+            await db.execute(
+                text(f"insert into favourites ({names}) values ({params}) returning id"), values
+            )
+        ).scalar_one()
+
+
+async def test_food_favourite_exactly_one_ref(db, two_accounts):
+    a = two_accounts.seed_a
+    cf = await _custom_food(db, a.account)
+    food = await _food(db)
+    bad = (
+        {"source_kind": "custom_food"},  # no ref
+        {"source_kind": "custom_food", "custom_food_id": cf, "food_id": food},  # two refs
+        {"source_kind": "food", "custom_food_id": cf},  # ref does not match the kind
+        {"source_kind": None, "custom_food_id": cf},  # a food needs its source kind
+        {"source_kind": "mystery", "custom_food_id": cf},
+        {"source_kind": "custom_food", "custom_food_id": cf, "items": "[]"},  # a food has no items
+        {"source_kind": "custom_food", "custom_food_id": cf, "default_quantity": 1},  # no unit
+        {
+            "source_kind": "custom_food",
+            "custom_food_id": cf,
+            "default_quantity": 0,
+            "default_unit": "g",
+        },
+    )
+    for cols in bad:
+        with pytest.raises(IntegrityError) as exc_info:
+            await _favourite(db, a, **cols)
+        assert "ck_favourites_" in str(exc_info.value), cols
+    await _favourite(db, a, source_kind="custom_food", custom_food_id=cf)
+    await _favourite(db, a, source_kind="food", food_id=food, default_quantity=2, default_unit="g")
+    await _favourite(db, a, source_kind="off", off_barcode="8901")
+
+
+async def test_meal_favourite_has_items_no_ref(db, two_accounts):
+    a = two_accounts.seed_a
+    cf = await _custom_food(db, a.account)
+    bad = (
+        {"kind": "meal"},  # no items
+        {"kind": "meal", "items": "[]", "custom_food_id": cf},  # a ref
+        {"kind": "meal", "items": "[]", "source_kind": "custom_food"},
+        {"kind": "meal", "items": "[]", "default_quantity": 1, "default_unit": "g"},
+    )
+    for cols in bad:
+        with pytest.raises(IntegrityError) as exc_info:
+            await _favourite(db, a, **cols)
+        assert "ck_favourites_" in str(exc_info.value), cols
+    await _favourite(db, a, kind="meal", items="[]")
+    await _favourite(db, a, kind="meal", items="[]")  # meals are not unique
+
+
+async def test_unique_food_favourite_per_member(db, two_accounts):
+    a, b = two_accounts.seed_a, two_accounts.seed_b
+    p = two_accounts.product
+    await _favourite(db, a, source_kind="product", product_id=p)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _favourite(db, a, source_kind="product", product_id=p)
+    assert "uq_favourites_member_id_product_id" in str(exc_info.value)
+    await _favourite(db, b, source_kind="product", product_id=p)  # another member: its own
+    await _favourite(db, a, source_kind="off", off_barcode="8901")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _favourite(db, a, source_kind="off", off_barcode="8901")
+    assert "uq_favourites_member_id_off_barcode" in str(exc_info.value)
+
+
+async def test_custom_food_delete_cascades_favourite(db, two_accounts):
+    a = two_accounts.seed_a
+    cf = await _custom_food(db, a.account)
+    recipe = await _recipe(db, a.account)
+    await _favourite(db, a, source_kind="custom_food", custom_food_id=cf)
+    await _favourite(db, a, source_kind="recipe", recipe_id=recipe)
+    await db.execute(text("delete from custom_foods where id = :c"), {"c": cf})
+    await db.execute(text("delete from recipes where id = :r"), {"r": recipe})
+    n = await db.scalar(
+        text("select count(*) from favourites where custom_food_id = :c or recipe_id = :r"),
+        {"c": cf, "r": recipe},
+    )
+    assert n == 0
+
+
+async def test_favourite_client_id_unique_per_account(db, two_accounts):
+    a = two_accounts.seed_a
+    cid = uuid.uuid4()
+    await _favourite(db, a, kind="meal", items="[]", client_id=cid)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _favourite(db, a, kind="meal", items="[]", client_id=cid)
+    assert "uq_favourites_account_id_client_id" in str(exc_info.value)
+
+
+async def test_favourite_goes_with_its_member(db, two_accounts):
+    a = two_accounts.seed_a
+    await _favourite(db, a, kind="meal", items="[]")
+    await db.execute(text("delete from meal_logs where member_id = :m"), {"m": a.member})
+    await db.execute(text("delete from meal_slots where member_id = :m"), {"m": a.member})
+    await db.execute(text("delete from diary_days where member_id = :m"), {"m": a.member})
+    await db.execute(text("delete from diary_goal_settings where member_id = :m"), {"m": a.member})
+    await db.execute(text("delete from members where id = :m"), {"m": a.member})
+    n = await db.scalar(
+        text("select count(*) from favourites where member_id = :m"), {"m": a.member}
+    )
+    assert n == 0

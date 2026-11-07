@@ -519,6 +519,8 @@
   "errorExtractionFailed": "आम्हाला हे लेबल वाचता आले नाही. दुसरा फोटो वापरून पाहा किंवा माहिती स्वतः भरा.",
   "errorExtractionUnavailable": "लेबल वाचण्याची सुविधा सध्या उपलब्ध नाही. नंतर पुन्हा प्रयत्न करा किंवा माहिती स्वतः भरा.",
   "errorFatPctOutOfRange": "कृपया कॅलरीतील चरबीचा वाटा 20% ते 30% दरम्यान निवडा.",
+  "errorFavouriteLimit": "तुम्ही २०० पर्यंत आवडते ठेवू शकता. नवीन जोडण्यासाठी एक काढा.",
+  "errorFavouriteNotFound": "ते आवडते सापडले नाही.",
   "errorFollowUpWithoutType": "कृपया तुमची उत्तरे तपासा आणि पुन्हा प्रयत्न करा.",
   "errorFoodNotFound": "आम्हाला तो पदार्थ सापडला नाही.",
   "errorFoodRetired": "हा पदार्थ आता उपलब्ध नाही, म्हणून तो पुन्हा जोडता येत नाही. तुमच्या आधीच्या नोंदी जशाच्या तशा राहतील.",
@@ -586,8 +588,26 @@
   "familyComingSoonBody": "प्रत्येकाचे वय, ॲलर्जी आणि आहार जोडा, म्हणजे प्रत्येकासाठी वेगळा निकाल मिळेल.",
   "familyComingSoonTitle": "कुटुंब प्रोफाइल लवकरच येत आहेत",
   "familyTitle": "कुटुंब",
+  "favouritesAdd": "आवडत्यांमध्ये जोडा",
+  "favouritesAdded": "आवडत्यांमध्ये जोडले",
+  "favouritesEmpty": "अजून आवडते नाहीत",
+  "favouritesLimit": "तुम्ही २०० पर्यंत आवडते ठेवू शकता.",
+  "favouritesLogAgain": "पुन्हा नोंदवा",
+  "favouritesMealItems": "{count, plural, one {{count} आयटम} other {{count} आयटम}}",
+  "@favouritesMealItems": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "favouritesMealName": "जेवणाचे नाव",
+  "favouritesMealNameHint": "तुम्ही लिहिलेली नावे जशीच्या तशी ठेवली जातात.",
+  "favouritesRemove": "आवडत्यांमधून काढा",
+  "favouritesSaveMeal": "आवडते जेवण म्हणून जतन करा",
   "foodsBlankIsUnknown": "माहीत नसेल तर रिकामे ठेवा. रिकामे कधीही 0 धरले जात नाही.",
   "foodsDishIngredients": "यापासून बनलेले",
+  "foodsFavourites": "आवडते",
   "foodsGroupIndian": "भारतीय पदार्थ",
   "foodsGroupMine": "माझे पदार्थ आणि रेसिपी",
   "foodsGroupPackaged": "पॅकेज्ड उत्पादने",

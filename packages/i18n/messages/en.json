@@ -341,7 +341,9 @@
     "custom_food_nutrients_empty": "Add the energy, or at least one of protein, carbs or fat.",
     "barcode_already_used": "You already have a food with this barcode.",
     "food_retired": "We no longer offer this dish, so it can't be added again. Your earlier entries are unchanged.",
-    "recipe_ingredient_limit": "A recipe can have 1 to 50 ingredients."
+    "recipe_ingredient_limit": "A recipe can have 1 to 50 ingredients.",
+    "favourite_not_found": "We couldn't find that favourite.",
+    "favourite_limit": "You can keep up to 200 favourites. Remove one to add another."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -1337,7 +1339,8 @@
       "100ml": "Values per 100 ml",
       "serving": "Values per serving"
     },
-    "load_more": "Load more"
+    "load_more": "Load more",
+    "favourites": "Favourites"
   },
   "unit": {
     "g": "{count, plural, one {g} other {g}}",
@@ -1407,5 +1410,17 @@
     "empty": "No recipes yet",
     "save": "Save recipe",
     "delete": "Delete recipe"
+  },
+  "favourites": {
+    "add": "Add to favourites",
+    "remove": "Remove from favourites",
+    "added": "Added to favourites",
+    "save_meal": "Save as favourite meal",
+    "meal_name": "Meal name",
+    "meal_name_hint": "Names you type are kept exactly as you type them.",
+    "meal_items": "{count, plural, one {# item} other {# items}}",
+    "log_again": "Log again",
+    "empty": "No favourites yet",
+    "limit": "You can keep up to 200 favourites."
   }
 }

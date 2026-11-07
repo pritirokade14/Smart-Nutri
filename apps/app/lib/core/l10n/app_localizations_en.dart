@@ -1072,6 +1072,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please choose a share of calories from fat between 20% and 30%.';
 
   @override
+  String get errorFavouriteLimit =>
+      'You can keep up to 200 favourites. Remove one to add another.';
+
+  @override
+  String get errorFavouriteNotFound => 'We couldn\'t find that favourite.';
+
+  @override
   String get errorFollowUpWithoutType =>
       'Please check your answers and try again.';
 
@@ -1310,11 +1317,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get familyTitle => 'Family';
 
   @override
+  String get favouritesAdd => 'Add to favourites';
+
+  @override
+  String get favouritesAdded => 'Added to favourites';
+
+  @override
+  String get favouritesEmpty => 'No favourites yet';
+
+  @override
+  String get favouritesLimit => 'You can keep up to 200 favourites.';
+
+  @override
+  String get favouritesLogAgain => 'Log again';
+
+  @override
+  String favouritesMealItems(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# items',
+      one: '# item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get favouritesMealName => 'Meal name';
+
+  @override
+  String get favouritesMealNameHint =>
+      'Names you type are kept exactly as you type them.';
+
+  @override
+  String get favouritesRemove => 'Remove from favourites';
+
+  @override
+  String get favouritesSaveMeal => 'Save as favourite meal';
+
+  @override
   String get foodsBlankIsUnknown =>
       'Leave blank if you don\'t know. Blank is never counted as 0.';
 
   @override
   String get foodsDishIngredients => 'Made with';
+
+  @override
+  String get foodsFavourites => 'Favourites';
 
   @override
   String get foodsGroupIndian => 'Indian foods';

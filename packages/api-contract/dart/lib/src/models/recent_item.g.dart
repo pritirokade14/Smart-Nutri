@@ -25,6 +25,7 @@ RecentItem _$RecentItemFromJson(Map<String, dynamic> json) => RecentItem(
       ?.map((e) => e as String)
       .toList(),
   customFoodId: json['custom_food_id'] as String?,
+  favouriteId: json['favourite_id'] as String?,
   foodId: json['food_id'] as String?,
   quantity: json['quantity'] as num?,
   recipeId: json['recipe_id'] as String?,
@@ -41,6 +42,7 @@ Map<String, dynamic> _$RecentItemToJson(RecentItem instance) =>
       'barcode': instance.barcode,
       'basis': _$RecentItemBasisEnumMap[instance.basis]!,
       'custom_food_id': instance.customFoodId,
+      'favourite_id': instance.favouriteId,
       'food_id': instance.foodId,
       'grade': _$NutriScoreGradeEnumMap[instance.grade],
       'grams': instance.grams,

@@ -26,6 +26,7 @@ class RecentItem {
     this.basis = RecentItemBasis.g,
     this.attributions,
     this.customFoodId,
+    this.favouriteId,
     this.foodId,
     this.quantity,
     this.recipeId,
@@ -46,6 +47,10 @@ class RecentItem {
   /// Your custom food; log it again with `custom_food_id`
   @JsonKey(name: 'custom_food_id')
   final String? customFoodId;
+
+  /// The member's favourite for this same food (unstar with `favourites_delete`)
+  @JsonKey(name: 'favourite_id')
+  final String? favouriteId;
 
   /// A generic food or dish; log it again with `food_id`
   @JsonKey(name: 'food_id')
