@@ -1914,7 +1914,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get methodologyFoodDataBody =>
-      'पैकेज्ड खाने के मान लेबल से आते हैं। सामान्य खाने का डेटा USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov) से है, जो सार्वजनिक डोमेन में है। कटोरी, चम्मच और कप जैसे घरेलू माप ICMR-NIN के भारतीयों के लिए आहार दिशानिर्देश 2024 (अनुलग्नक I) पर आधारित हैं; जिस माप का प्रकाशित वज़न नहीं है, उसका अंदाज़ा नहीं लगाते, बताते हैं। भारतीय व्यंजन SmartNutri उनकी सामग्री से गणना करता है और डाइटीशियन की समीक्षा लंबित है। जानकारी, चिकित्सा सलाह नहीं।';
+      'पैकेज्ड खाने के मान लेबल से आते हैं। सामान्य खाने का डेटा USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov) से है, जो सार्वजनिक डोमेन में है। कटोरी के आकार ICMR-NIN के भारतीयों के लिए आहार दिशानिर्देश 2024 (अनुलग्नक I) के अनुसार हैं। कप पर आधारित कुछ रूपांतरण USDA के कप-वज़न से निकाले गए हैं और अनुमानित के रूप में चिह्नित हैं। गिलास और अन्य मान हमारा अपना संदर्भ सेट हैं, जिनकी डाइटीशियन समीक्षा लंबित है। जो मान पता नहीं है, उसे हम अज्ञात ही रखते हैं, अंदाज़ा नहीं लगाते। भारतीय व्यंजन SmartNutri उनकी सामग्री से गणना करता है और डाइटीशियन की समीक्षा लंबित है। जानकारी, चिकित्सा सलाह नहीं।';
 
   @override
   String get methodologyFoodDataTitle => 'खाद्य डेटा और घरेलू माप';

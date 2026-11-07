@@ -171,7 +171,6 @@ Future<void> addFood(
   final next = await showAddFoodSheet(context, day: day, slotId: slotId);
   if (next == null || !context.mounted) return;
   final path = switch (next) {
-    AddFoodNext.search => '/search',
     AddFoodNext.barcode => '/scan',
     AddFoodNext.label => '/scan/label',
   };

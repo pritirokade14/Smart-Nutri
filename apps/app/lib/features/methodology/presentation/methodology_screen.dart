@@ -204,6 +204,13 @@ class _MethodologyView extends ConsumerWidget {
                   ?titles[id],
               ],
             ),
+        _SectionCard(
+          key: MethodologyScreen.sectionKey('food_data'),
+          title: l10n.methodologyFoodDataTitle,
+          body: l10n.methodologyFoodDataBody,
+          rows: const [],
+          sources: const [],
+        ),
         const SizedBox(height: SnTokens.space4),
         SectionHeader(
           title: l10n.methodologySourcesTitle,

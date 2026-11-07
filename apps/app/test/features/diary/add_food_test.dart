@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_ai/features/diary/presentation/add_food_sheet.dart';
+import 'package:smartnutri_ai/features/foods/presentation/food_search_view.dart';
 import 'package:smartnutri_ai/features/diary/presentation/diary_screen.dart';
 import 'package:smartnutri_ai/features/diary/presentation/pending_entries.dart';
 import 'package:smartnutri_ai/features/diary/presentation/slot_section.dart';
@@ -125,7 +126,7 @@ void main() {
     expect(added.single.$2, {'method': 'recent'});
   });
 
-  testWidgets('search, barcode and label hand over with the slot and day', (
+  testWidgets('barcode and label hand over; search stays in the sheet', (
     t,
   ) async {
     final env = _env();
@@ -133,8 +134,9 @@ void main() {
     await _open(t);
     await t.tap(find.byKey(AddFoodSheet.segmentKey('search')));
     await t.pumpAndSettle();
-    // The existing search screen opens.
-    expect(find.text(en.searchTitle), findsWidgets);
+    // Search is a segment of the sheet now: one box, no navigation.
+    expect(find.byKey(FoodSearchView.fieldKey), findsOneWidget);
+    expect(find.byKey(AddFoodSheet.segmentKey('search')), findsOneWidget);
     expect(env.meals.logged, isEmpty);
   });
 }

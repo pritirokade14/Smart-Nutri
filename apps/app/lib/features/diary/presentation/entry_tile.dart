@@ -6,7 +6,8 @@ import 'package:smartnutri_api/src/export.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
-import '../../../shared/widgets/off_attribution.dart';
+import '../../../shared/widgets/source_attribution.dart';
+import '../../foods/domain/unit_label.dart';
 import '../../scan/domain/number_text.dart';
 import '../../targets/domain/targets_format.dart';
 
@@ -30,6 +31,22 @@ class EntryTile extends StatelessWidget {
   static const quickBadgeKey = Key('diary-quick-badge');
   static const portionKey = Key('diary-entry-portion');
 
+  /// "2 roti · 136 g" (or ml for an ml-basis food): the amounts as the API
+  /// returned them.
+  String _portionLine(
+    AppLocalizations l10n,
+    num amount,
+    num quantity,
+    String unit,
+  ) {
+    final a = formatForDisplay(amount);
+    final q = formatForDisplay(quantity);
+    final u = unitLabel(l10n, unit, quantity);
+    return entry.basis == MealOutBasis.ml
+        ? l10n.diaryPortionLineMl(a, q, u)
+        : l10n.diaryPortionLine(a, q, u);
+  }
+
   bool get isQuick => entry.sourceKind == MealOutSourceKind.quickAdd;
 
   @override
@@ -44,6 +61,13 @@ class EntryTile extends StatelessWidget {
     final grams = entry.grams;
     final incomplete = entry.incomplete.any(_ringKeys.contains);
     final barcode = entry.barcode;
+    final unit = entry.unit;
+    final quantity = entry.quantity;
+    final credits = entry.attributions?.isNotEmpty == true
+        ? entry.attributions!
+        : (entry.attribution != null
+              ? const [SourceAttribution.offKey]
+              : const <String>[]);
     return ListTile(
       key: tileKey(entry.id),
       contentPadding: EdgeInsets.zero,
@@ -78,14 +102,15 @@ class EntryTile extends StatelessWidget {
         children: [
           if (grams != null)
             Text(
-              l10n.diaryGramsLine(formatForDisplay(grams)),
+              unit != null && unit != 'g' && quantity != null
+                  ? _portionLine(l10n, grams, quantity, unit)
+                  : l10n.diaryGramsLine(formatForDisplay(grams)),
               key: portionKey,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: c.textSecondary,
               ),
             ),
-          if (entry.attribution != null && barcode != null)
-            OffAttribution(barcode: barcode),
+          SourceAttribution(keys: credits, offBarcode: barcode),
         ],
       ),
       trailing: onMove != null

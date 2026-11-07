@@ -9,6 +9,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/buttons.dart';
 import '../../../shared/widgets/states.dart';
+import '../../foods/domain/unit_label.dart';
 import '../../meals/presentation/meals_providers.dart';
 import '../../scan/domain/number_text.dart';
 import '../data/diary_repository.dart';
@@ -38,6 +39,9 @@ class EditEntrySheet extends ConsumerStatefulWidget {
   static const saveKey = Key('edit-entry-save');
   static const removeKey = Key('edit-entry-remove');
   static const moveKey = Key('edit-entry-move');
+  static const quantityKey = Key('edit-entry-quantity');
+  static const gramsHintKey = Key('edit-entry-grams-hint');
+  static Key unitKey(String code) => Key('edit-entry-unit-$code');
   static const nameKey = Key('edit-quick-name');
   static const energyKey = Key('edit-quick-energy');
   static const proteinKey = Key('edit-quick-protein');
@@ -75,8 +79,29 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
   late final _fibre = TextEditingController(
     text: _text(widget.entry.nutrients.fibreG),
   );
+  late final _quantity = TextEditingController(
+    text: widget.entry.quantity == null
+        ? ''
+        : formatForDisplay(widget.entry.quantity!),
+  );
+  late String? _unit = widget.entry.unit;
   bool _busy = false;
   String? _error;
+
+  /// An entry logged with a household unit is edited by quantity and unit
+  /// (the units that resolved when it was logged). No nutrient preview here:
+  /// the API recomputes on save.
+  bool get _byUnit =>
+      !_quick &&
+      widget.entry.unit != null &&
+      widget.entry.quantity != null &&
+      (widget.entry.portionUnits?.isNotEmpty ?? false);
+
+  num? get _quantityValue {
+    final p = parseNumber(_quantity.text);
+    final v = p.value;
+    return p.ok && v != null && v > 0 ? v : null;
+  }
 
   static String _text(num? v) => v == null ? '' : formatForDisplay(v);
 
@@ -90,7 +115,16 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
 
   @override
   void dispose() {
-    for (final c in [_grams, _name, _energy, _protein, _fat, _carbs, _fibre]) {
+    for (final c in [
+      _grams,
+      _quantity,
+      _name,
+      _energy,
+      _protein,
+      _fat,
+      _carbs,
+      _fibre,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -119,6 +153,11 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
     if (_quick) {
       final e = parseNumber(_energy.text).value;
       return _quickEditable && e != null && e > 0;
+    }
+    if (_byUnit) {
+      final q = _quantityValue;
+      return q != null &&
+          (q != widget.entry.quantity || _unit != widget.entry.unit);
     }
     final g = _gramsValue;
     return g != null && g != widget.entry.grams;
@@ -155,6 +194,11 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
               fibreG: _optional(_fibre),
             ),
           )
+        : _byUnit
+        ? MealPatch(
+            quantity: _quantityValue,
+            unit: MealPatchUnit.fromJson(_unit!),
+          )
         : MealPatch(grams: _gramsValue);
     await repo.update(widget.entry.id, patch);
   });
@@ -185,6 +229,53 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
   Future<void> _move() async {
     final moved = await showMoveEntrySheet(context, widget.entry);
     if (moved == true && mounted) Navigator.of(context).pop(true);
+  }
+
+  List<Widget> _unitFields(AppLocalizations l10n) {
+    final units = widget.entry.portionUnits!;
+    final selected = units.where((u) => u.code == _unit).firstOrNull;
+    final count = _quantityValue ?? 1;
+    return [
+      Wrap(
+        spacing: SnTokens.space2,
+        runSpacing: SnTokens.space2,
+        children: [
+          for (final u in units)
+            ChoiceChip(
+              key: EditEntrySheet.unitKey(u.code),
+              label: Text(unitLabel(l10n, u.code, count)),
+              selected: u.code == _unit,
+              onSelected: _busy ? null : (_) => setState(() => _unit = u.code),
+            ),
+        ],
+      ),
+      const SizedBox(height: SnTokens.space2),
+      TextField(
+        key: EditEntrySheet.quantityKey,
+        controller: _quantity,
+        enabled: !_busy,
+        textAlign: TextAlign.center,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        onChanged: (_) => setState(() {}),
+        decoration: InputDecoration(labelText: l10n.foodsPortionQuantity),
+      ),
+      if (selected != null && selected.code != 'g' && selected.code != 'ml')
+        Padding(
+          padding: const EdgeInsets.only(top: SnTokens.space2),
+          child: Text(
+            key: EditEntrySheet.gramsHintKey,
+            widget.entry.basis == MealOutBasis.ml
+                ? l10n.unitAmountHintMl(
+                    formatForDisplay(selected.gramsPerUnit),
+                    unitLabel(l10n, selected.code, 1),
+                  )
+                : l10n.unitGramsHint(
+                    formatForDisplay(selected.gramsPerUnit),
+                    unitLabel(l10n, selected.code, 1),
+                  ),
+          ),
+        ),
+    ];
   }
 
   Widget _numberField(
@@ -265,7 +356,9 @@ class _EditEntrySheetState extends ConsumerState<EditEntrySheet> {
                   helper: l10n.foodsBlankIsUnknown,
                 ),
               ],
-            ] else
+            ] else if (_byUnit)
+              ..._unitFields(l10n)
+            else
               Row(
                 children: [
                   IconButton(

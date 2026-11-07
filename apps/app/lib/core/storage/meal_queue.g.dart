@@ -183,6 +183,35 @@ class $PendingMealsTable extends PendingMeals
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _foodIdMeta = const VerificationMeta('foodId');
+  @override
+  late final GeneratedColumn<String> foodId = GeneratedColumn<String>(
+    'food_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
+    'quantity',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _attemptsMeta = const VerificationMeta(
     'attempts',
   );
@@ -224,6 +253,9 @@ class $PendingMealsTable extends PendingMeals
     quickCarbsG,
     quickFibreG,
     displayName,
+    foodId,
+    quantity,
+    unit,
     attempts,
     lastError,
   ];
@@ -359,6 +391,24 @@ class $PendingMealsTable extends PendingMeals
         ),
       );
     }
+    if (data.containsKey('food_id')) {
+      context.handle(
+        _foodIdMeta,
+        foodId.isAcceptableOrUnknown(data['food_id']!, _foodIdMeta),
+      );
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    }
     if (data.containsKey('attempts')) {
       context.handle(
         _attemptsMeta,
@@ -444,6 +494,18 @@ class $PendingMealsTable extends PendingMeals
         DriftSqlType.string,
         data['${effectivePrefix}display_name'],
       ),
+      foodId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}food_id'],
+      ),
+      quantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quantity'],
+      ),
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      ),
       attempts: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}attempts'],
@@ -497,6 +559,14 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
   /// The name shown on the pending row (a product name or a quick-add name).
   /// User text: never sent to analytics.
   final String? displayName;
+
+  /// A generic food or Indian dish (`foods.id`).
+  final String? foodId;
+
+  /// A household-unit portion: [quantity] of [unit] (a unit code), instead
+  /// of [grams] and [servings]. The API converts it.
+  final double? quantity;
+  final String? unit;
   final int attempts;
   final String? lastError;
   const PendingMeal({
@@ -516,6 +586,9 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     this.quickCarbsG,
     this.quickFibreG,
     this.displayName,
+    this.foodId,
+    this.quantity,
+    this.unit,
     required this.attempts,
     this.lastError,
   });
@@ -563,6 +636,15 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     }
     if (!nullToAbsent || displayName != null) {
       map['display_name'] = Variable<String>(displayName);
+    }
+    if (!nullToAbsent || foodId != null) {
+      map['food_id'] = Variable<String>(foodId);
+    }
+    if (!nullToAbsent || quantity != null) {
+      map['quantity'] = Variable<double>(quantity);
+    }
+    if (!nullToAbsent || unit != null) {
+      map['unit'] = Variable<String>(unit);
     }
     map['attempts'] = Variable<int>(attempts);
     if (!nullToAbsent || lastError != null) {
@@ -615,6 +697,13 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
       displayName: displayName == null && nullToAbsent
           ? const Value.absent()
           : Value(displayName),
+      foodId: foodId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(foodId),
+      quantity: quantity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quantity),
+      unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
       attempts: Value(attempts),
       lastError: lastError == null && nullToAbsent
           ? const Value.absent()
@@ -644,6 +733,9 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
       quickCarbsG: serializer.fromJson<double?>(json['quickCarbsG']),
       quickFibreG: serializer.fromJson<double?>(json['quickFibreG']),
       displayName: serializer.fromJson<String?>(json['displayName']),
+      foodId: serializer.fromJson<String?>(json['foodId']),
+      quantity: serializer.fromJson<double?>(json['quantity']),
+      unit: serializer.fromJson<String?>(json['unit']),
       attempts: serializer.fromJson<int>(json['attempts']),
       lastError: serializer.fromJson<String?>(json['lastError']),
     );
@@ -668,6 +760,9 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
       'quickCarbsG': serializer.toJson<double?>(quickCarbsG),
       'quickFibreG': serializer.toJson<double?>(quickFibreG),
       'displayName': serializer.toJson<String?>(displayName),
+      'foodId': serializer.toJson<String?>(foodId),
+      'quantity': serializer.toJson<double?>(quantity),
+      'unit': serializer.toJson<String?>(unit),
       'attempts': serializer.toJson<int>(attempts),
       'lastError': serializer.toJson<String?>(lastError),
     };
@@ -690,6 +785,9 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     Value<double?> quickCarbsG = const Value.absent(),
     Value<double?> quickFibreG = const Value.absent(),
     Value<String?> displayName = const Value.absent(),
+    Value<String?> foodId = const Value.absent(),
+    Value<double?> quantity = const Value.absent(),
+    Value<String?> unit = const Value.absent(),
     int? attempts,
     Value<String?> lastError = const Value.absent(),
   }) => PendingMeal(
@@ -713,6 +811,9 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     quickCarbsG: quickCarbsG.present ? quickCarbsG.value : this.quickCarbsG,
     quickFibreG: quickFibreG.present ? quickFibreG.value : this.quickFibreG,
     displayName: displayName.present ? displayName.value : this.displayName,
+    foodId: foodId.present ? foodId.value : this.foodId,
+    quantity: quantity.present ? quantity.value : this.quantity,
+    unit: unit.present ? unit.value : this.unit,
     attempts: attempts ?? this.attempts,
     lastError: lastError.present ? lastError.value : this.lastError,
   );
@@ -746,6 +847,9 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
       displayName: data.displayName.present
           ? data.displayName.value
           : this.displayName,
+      foodId: data.foodId.present ? data.foodId.value : this.foodId,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      unit: data.unit.present ? data.unit.value : this.unit,
       attempts: data.attempts.present ? data.attempts.value : this.attempts,
       lastError: data.lastError.present ? data.lastError.value : this.lastError,
     );
@@ -770,6 +874,9 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
           ..write('quickCarbsG: $quickCarbsG, ')
           ..write('quickFibreG: $quickFibreG, ')
           ..write('displayName: $displayName, ')
+          ..write('foodId: $foodId, ')
+          ..write('quantity: $quantity, ')
+          ..write('unit: $unit, ')
           ..write('attempts: $attempts, ')
           ..write('lastError: $lastError')
           ..write(')'))
@@ -777,7 +884,7 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     clientId,
     memberId,
     productId,
@@ -794,9 +901,12 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     quickCarbsG,
     quickFibreG,
     displayName,
+    foodId,
+    quantity,
+    unit,
     attempts,
     lastError,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -817,6 +927,9 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
           other.quickCarbsG == this.quickCarbsG &&
           other.quickFibreG == this.quickFibreG &&
           other.displayName == this.displayName &&
+          other.foodId == this.foodId &&
+          other.quantity == this.quantity &&
+          other.unit == this.unit &&
           other.attempts == this.attempts &&
           other.lastError == this.lastError);
 }
@@ -838,6 +951,9 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
   final Value<double?> quickCarbsG;
   final Value<double?> quickFibreG;
   final Value<String?> displayName;
+  final Value<String?> foodId;
+  final Value<double?> quantity;
+  final Value<String?> unit;
   final Value<int> attempts;
   final Value<String?> lastError;
   final Value<int> rowid;
@@ -858,6 +974,9 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     this.quickCarbsG = const Value.absent(),
     this.quickFibreG = const Value.absent(),
     this.displayName = const Value.absent(),
+    this.foodId = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.unit = const Value.absent(),
     this.attempts = const Value.absent(),
     this.lastError = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -879,6 +998,9 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     this.quickCarbsG = const Value.absent(),
     this.quickFibreG = const Value.absent(),
     this.displayName = const Value.absent(),
+    this.foodId = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.unit = const Value.absent(),
     this.attempts = const Value.absent(),
     this.lastError = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -902,6 +1024,9 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     Expression<double>? quickCarbsG,
     Expression<double>? quickFibreG,
     Expression<String>? displayName,
+    Expression<String>? foodId,
+    Expression<double>? quantity,
+    Expression<String>? unit,
     Expression<int>? attempts,
     Expression<String>? lastError,
     Expression<int>? rowid,
@@ -923,6 +1048,9 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
       if (quickCarbsG != null) 'quick_carbs_g': quickCarbsG,
       if (quickFibreG != null) 'quick_fibre_g': quickFibreG,
       if (displayName != null) 'display_name': displayName,
+      if (foodId != null) 'food_id': foodId,
+      if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
       if (attempts != null) 'attempts': attempts,
       if (lastError != null) 'last_error': lastError,
       if (rowid != null) 'rowid': rowid,
@@ -946,6 +1074,9 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     Value<double?>? quickCarbsG,
     Value<double?>? quickFibreG,
     Value<String?>? displayName,
+    Value<String?>? foodId,
+    Value<double?>? quantity,
+    Value<String?>? unit,
     Value<int>? attempts,
     Value<String?>? lastError,
     Value<int>? rowid,
@@ -967,6 +1098,9 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
       quickCarbsG: quickCarbsG ?? this.quickCarbsG,
       quickFibreG: quickFibreG ?? this.quickFibreG,
       displayName: displayName ?? this.displayName,
+      foodId: foodId ?? this.foodId,
+      quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
       attempts: attempts ?? this.attempts,
       lastError: lastError ?? this.lastError,
       rowid: rowid ?? this.rowid,
@@ -1024,6 +1158,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     if (displayName.present) {
       map['display_name'] = Variable<String>(displayName.value);
     }
+    if (foodId.present) {
+      map['food_id'] = Variable<String>(foodId.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<double>(quantity.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
     if (attempts.present) {
       map['attempts'] = Variable<int>(attempts.value);
     }
@@ -1055,6 +1198,9 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
           ..write('quickCarbsG: $quickCarbsG, ')
           ..write('quickFibreG: $quickFibreG, ')
           ..write('displayName: $displayName, ')
+          ..write('foodId: $foodId, ')
+          ..write('quantity: $quantity, ')
+          ..write('unit: $unit, ')
           ..write('attempts: $attempts, ')
           ..write('lastError: $lastError, ')
           ..write('rowid: $rowid')
@@ -1092,6 +1238,9 @@ typedef $$PendingMealsTableCreateCompanionBuilder =
       Value<double?> quickCarbsG,
       Value<double?> quickFibreG,
       Value<String?> displayName,
+      Value<String?> foodId,
+      Value<double?> quantity,
+      Value<String?> unit,
       Value<int> attempts,
       Value<String?> lastError,
       Value<int> rowid,
@@ -1114,6 +1263,9 @@ typedef $$PendingMealsTableUpdateCompanionBuilder =
       Value<double?> quickCarbsG,
       Value<double?> quickFibreG,
       Value<String?> displayName,
+      Value<String?> foodId,
+      Value<double?> quantity,
+      Value<String?> unit,
       Value<int> attempts,
       Value<String?> lastError,
       Value<int> rowid,
@@ -1205,6 +1357,21 @@ class $$PendingMealsTableFilterComposer
 
   ColumnFilters<String> get displayName => $composableBuilder(
     column: $table.displayName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get foodId => $composableBuilder(
+    column: $table.foodId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1308,6 +1475,21 @@ class $$PendingMealsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get foodId => $composableBuilder(
+    column: $table.foodId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get attempts => $composableBuilder(
     column: $table.attempts,
     builder: (column) => ColumnOrderings(column),
@@ -1388,6 +1570,15 @@ class $$PendingMealsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get foodId =>
+      $composableBuilder(column: $table.foodId, builder: (column) => column);
+
+  GeneratedColumn<double> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
   GeneratedColumn<int> get attempts =>
       $composableBuilder(column: $table.attempts, builder: (column) => column);
 
@@ -1448,6 +1639,9 @@ class $$PendingMealsTableTableManager
                 Value<double?> quickCarbsG = const Value.absent(),
                 Value<double?> quickFibreG = const Value.absent(),
                 Value<String?> displayName = const Value.absent(),
+                Value<String?> foodId = const Value.absent(),
+                Value<double?> quantity = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
                 Value<int> attempts = const Value.absent(),
                 Value<String?> lastError = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -1468,6 +1662,9 @@ class $$PendingMealsTableTableManager
                 quickCarbsG: quickCarbsG,
                 quickFibreG: quickFibreG,
                 displayName: displayName,
+                foodId: foodId,
+                quantity: quantity,
+                unit: unit,
                 attempts: attempts,
                 lastError: lastError,
                 rowid: rowid,
@@ -1490,6 +1687,9 @@ class $$PendingMealsTableTableManager
                 Value<double?> quickCarbsG = const Value.absent(),
                 Value<double?> quickFibreG = const Value.absent(),
                 Value<String?> displayName = const Value.absent(),
+                Value<String?> foodId = const Value.absent(),
+                Value<double?> quantity = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
                 Value<int> attempts = const Value.absent(),
                 Value<String?> lastError = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -1510,6 +1710,9 @@ class $$PendingMealsTableTableManager
                 quickCarbsG: quickCarbsG,
                 quickFibreG: quickFibreG,
                 displayName: displayName,
+                foodId: foodId,
+                quantity: quantity,
+                unit: unit,
                 attempts: attempts,
                 lastError: lastError,
                 rowid: rowid,
