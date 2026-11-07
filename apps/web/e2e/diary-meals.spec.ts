@@ -33,8 +33,13 @@ test.describe("meals", () => {
 
     // Rename Snacks.
     await page.getByRole("button", { name: "Rename: Snacks" }).click();
-    await page.getByLabel("Rename", { exact: true }).fill("Evening chai");
-    await page.getByRole("button", { name: "Save", exact: true }).click();
+    const renameInput = page.getByLabel("Rename", { exact: true });
+    await renameInput.fill("Evening chai");
+    // Submit the rename form itself: each row also has a "Save" for its usual time.
+    await renameInput
+      .locator("xpath=ancestor::form[1]")
+      .getByRole("button", { name: "Save", exact: true })
+      .click();
     await expect(page.getByTestId("meal-slot-name").nth(2)).toHaveText(
       "Evening chai",
     );
