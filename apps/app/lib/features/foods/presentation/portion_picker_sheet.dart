@@ -12,6 +12,10 @@ import '../../../shared/widgets/buttons.dart';
 import '../../../shared/widgets/source_attribution.dart';
 import '../../../shared/widgets/states.dart';
 import '../../diary/domain/slot_label.dart';
+import '../../favourites/presentation/favourite_star.dart';
+import '../../favourites/presentation/favourites_segment.dart'
+    show favouriteMatches;
+import '../../favourites/presentation/favourites_providers.dart';
 import '../../diary/presentation/diary_providers.dart';
 import '../../meals/data/meals_repository.dart';
 import '../../scan/domain/number_text.dart';
@@ -227,6 +231,32 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
     if (mounted) Navigator.of(context).pop(result);
   });
 
+  /// The favourite star, in step with the member's favourites list. It stars
+  /// with the portion on screen; drawn once the list is known.
+  Widget _star() {
+    final member = widget.memberId.isEmpty ? null : widget.memberId;
+    final favs = ref.watch(favouritesProvider(member)).value;
+    if (favs == null) return const SizedBox.shrink();
+    String? id;
+    for (final f in favs) {
+      if (favouriteMatches(f, widget.food)) {
+        id = f.id;
+        break;
+      }
+    }
+    final unit = ref.watch(foodDetailProvider(_key)).value;
+    final sel = unit == null ? null : _selected(unit);
+    final q = _quantityValue;
+    return FavouriteStar(
+      key: ValueKey(id ?? 'none'),
+      food: widget.food,
+      favouriteId: id,
+      memberId: member,
+      quantity: sel != null && q != null ? q : null,
+      unit: sel != null && q != null ? sel.code : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -244,7 +274,14 @@ class _PortionPickerSheetState extends ConsumerState<PortionPickerSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(widget.name, style: theme.textTheme.titleLarge),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(widget.name, style: theme.textTheme.titleLarge),
+                ),
+                if (!widget.ingredient) _star(),
+              ],
+            ),
             const SizedBox(height: SnTokens.space1),
             Text(l10n.foodsPortionTitle, style: theme.textTheme.titleSmall),
             const SizedBox(height: SnTokens.space3),

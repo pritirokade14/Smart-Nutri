@@ -28,6 +28,7 @@ import argparse
 import difflib
 import json
 import sys
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -36,7 +37,7 @@ from uuid import NAMESPACE_URL, uuid5
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from app.features.targets.mapping import to_targets_out
-from app.scoring import targets
+from app.scoring import targets, weight_trend
 from tests.fixtures.loader import FIXTURES
 
 MEMBER_ID = uuid5(NAMESPACE_URL, "https://smartnutri.app/test-fixtures/members/self")
@@ -71,12 +72,21 @@ def _settings(raw: dict) -> targets.GoalSettings:
     )
 
 
+def _dump(out, keep_weight_source: bool = False) -> dict:
+    """The response as JSON. `explanation.weight_source` (slice 6) is only written for a case
+    with weigh-ins; for the others it is left out, so the older goldens stay byte-identical."""
+    body = out.model_dump(mode="json")
+    if body.get("explanation") is not None and not keep_weight_source:
+        body["explanation"].pop("weight_source", None)
+    return body
+
+
 def expected_for(case: dict) -> dict:
     day = date.fromisoformat(case["as_of"])
     body = _body(case["body"])
     raw_settings = case["settings"]
     if raw_settings is None:
-        return to_targets_out(MEMBER_ID, day, None, "show").model_dump(mode="json")
+        return _dump(to_targets_out(MEMBER_ID, day, None, "show"))
     settings = _settings(raw_settings)
     display = raw_settings.get("numbers_display", "show")
     if not case.get("stored", False):
@@ -85,9 +95,24 @@ def expected_for(case: dict) -> dict:
             targets.check_settings(body, settings)
         except targets.SettingsRuleError as exc:
             return {"error": {"code": exc.code, "details": exc.details}}
+    weigh_ins = case.get("weigh_ins")
+    source = None
+    if weigh_ins:  # optional: the trend weight replaces the profile weight (G25)
+        trend = weight_trend.weight_for_targets(
+            [
+                weight_trend.WeighIn(date.fromisoformat(w["date"]), _dec(w["weight_kg"]))
+                for w in weigh_ins
+            ],
+            day,
+        )
+        source = "latest" if trend is None else "trend"
+        if trend is not None:
+            body = replace(body, weight_kg=trend)
     result = targets.compute(body, settings)
+    if weigh_ins and result.explanation is not None:
+        result = replace(result, explanation=replace(result.explanation, weight_source=source))
     out = to_targets_out(MEMBER_ID, day, result, display, unusual=targets.unusual_fields(body))
-    return out.model_dump(mode="json")
+    return _dump(out, keep_weight_source=bool(weigh_ins))
 
 
 def compute(fixtures: Path = FIXTURES) -> dict[str, str]:

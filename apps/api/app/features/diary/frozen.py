@@ -16,7 +16,9 @@ from app.scoring import targets
 from app.scoring.config import ScoringConfig, load_config
 
 _EXPLANATION_FIELDS = tuple(f.name for f in fields(targets.Explanation))
-_DECIMAL_FIELDS = tuple(f for f in _EXPLANATION_FIELDS if f != "protein_basis")
+_DECIMAL_FIELDS = tuple(
+    f for f in _EXPLANATION_FIELDS if f not in ("protein_basis", "weight_source")
+)
 
 
 def _s(value: Decimal | None) -> str | None:
@@ -61,6 +63,7 @@ def to_row_values(result: targets.TargetResult | None, cfg: ScoringConfig | None
         for name in _DECIMAL_FIELDS:
             inputs[name] = _s(getattr(e, name))
         inputs["protein_basis"] = e.protein_basis
+        inputs["weight_source"] = e.weight_source
     return {
         "status": result.status,
         "energy_kcal": _dec(result.energy_kcal),
@@ -91,6 +94,7 @@ def from_row(row: DiaryDay) -> targets.TargetResult | None:
         explanation = targets.Explanation(
             **{name: _d(inputs.get(name)) for name in _DECIMAL_FIELDS},
             protein_basis=inputs["protein_basis"],
+            weight_source=inputs.get("weight_source"),  # absent in rows frozen before slice 6
         )
     return targets.TargetResult(
         status=row.status,  # type: ignore[arg-type]  (checked by ck_diary_days_status)

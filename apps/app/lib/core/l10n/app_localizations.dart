@@ -1768,6 +1768,12 @@ abstract class AppLocalizations {
   /// **'Day'**
   String get diaryViewDay;
 
+  /// No description provided for @diaryViewProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get diaryViewProgress;
+
   /// No description provided for @diaryWaitingSync.
   ///
   /// In en, this message translates to:
@@ -1924,6 +1930,12 @@ abstract class AppLocalizations {
   /// **'That date hasn\'t happened yet.'**
   String get errorDateInFuture;
 
+  /// No description provided for @errorDateRangeTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a range of up to 400 days.'**
+  String get errorDateRangeTooLong;
+
   /// No description provided for @errorDateTooOld.
   ///
   /// In en, this message translates to:
@@ -1965,6 +1977,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please choose a share of calories from fat between 20% and 30%.'**
   String get errorFatPctOutOfRange;
+
+  /// No description provided for @errorFavouriteLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can keep up to 200 favourites. Remove one to add another.'**
+  String get errorFavouriteLimit;
+
+  /// No description provided for @errorFavouriteNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that favourite.'**
+  String get errorFavouriteNotFound;
 
   /// No description provided for @errorFollowUpWithoutType.
   ///
@@ -2302,6 +2326,24 @@ abstract class AppLocalizations {
   /// **'We couldn\'t hear a question. Please hold the button and speak clearly.'**
   String get errorVoiceNotUnderstood;
 
+  /// No description provided for @errorWeightNeedsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This weight is quite different from your last one. Please confirm it.'**
+  String get errorWeightNeedsConfirm;
+
+  /// No description provided for @errorWeightNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that weigh-in.'**
+  String get errorWeightNotFound;
+
+  /// No description provided for @errorWeightOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a weight between 2 and 300 kg.'**
+  String get errorWeightOutOfRange;
+
   /// No description provided for @explanationAiNote.
   ///
   /// In en, this message translates to:
@@ -2368,6 +2410,66 @@ abstract class AppLocalizations {
   /// **'Family'**
   String get familyTitle;
 
+  /// No description provided for @favouritesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favourites'**
+  String get favouritesAdd;
+
+  /// No description provided for @favouritesAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favourites'**
+  String get favouritesAdded;
+
+  /// No description provided for @favouritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No favourites yet'**
+  String get favouritesEmpty;
+
+  /// No description provided for @favouritesLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can keep up to 200 favourites.'**
+  String get favouritesLimit;
+
+  /// No description provided for @favouritesLogAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Log again'**
+  String get favouritesLogAgain;
+
+  /// No description provided for @favouritesMealItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {# item} other {# items}}'**
+  String favouritesMealItems(num count);
+
+  /// No description provided for @favouritesMealName.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal name'**
+  String get favouritesMealName;
+
+  /// No description provided for @favouritesMealNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Names you type are kept exactly as you type them.'**
+  String get favouritesMealNameHint;
+
+  /// No description provided for @favouritesRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favourites'**
+  String get favouritesRemove;
+
+  /// No description provided for @favouritesSaveMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as favourite meal'**
+  String get favouritesSaveMeal;
+
   /// No description provided for @foodsBlankIsUnknown.
   ///
   /// In en, this message translates to:
@@ -2379,6 +2481,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Made with'**
   String get foodsDishIngredients;
+
+  /// No description provided for @foodsFavourites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites'**
+  String get foodsFavourites;
 
   /// No description provided for @foodsGroupIndian.
   ///
@@ -5638,6 +5746,18 @@ abstract class AppLocalizations {
   /// **'How we got this'**
   String get targetsHowTitle;
 
+  /// No description provided for @targetsHowWeightLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight used: {value} kg (your latest weigh-in)'**
+  String targetsHowWeightLatest(String value);
+
+  /// No description provided for @targetsHowWeightTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight used: {value} kg (your trend)'**
+  String targetsHowWeightTrend(String value);
+
   /// No description provided for @targetsIntroBody.
   ///
   /// In en, this message translates to:
@@ -6597,6 +6717,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The pack says \'less than\' this amount. Confirm it if that\'s right.'**
   String get warningUpperBound;
+
+  /// No description provided for @weightAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a weigh-in'**
+  String get weightAdd;
+
+  /// No description provided for @weightCheckEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this weigh-in'**
+  String get weightCheckEntry;
+
+  /// No description provided for @weightConfirmUnusual.
+  ///
+  /// In en, this message translates to:
+  /// **'This is quite different from your last weigh-in ({previous} kg). Save anyway?'**
+  String weightConfirmUnusual(String previous);
+
+  /// No description provided for @weightConfirmUnusualHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'This is quite different from your last weigh-in. Save anyway?'**
+  String get weightConfirmUnusualHidden;
+
+  /// No description provided for @weightConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'To keep a weight log, allow SmartNutri to use your health details.'**
+  String get weightConsent;
+
+  /// No description provided for @weightDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get weightDate;
+
+  /// No description provided for @weightDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete weigh-in'**
+  String get weightDelete;
+
+  /// No description provided for @weightDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this weigh-in?'**
+  String get weightDeleteConfirm;
+
+  /// No description provided for @weightEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit weigh-in'**
+  String get weightEdit;
+
+  /// No description provided for @weightEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No weigh-ins yet'**
+  String get weightEmpty;
+
+  /// No description provided for @weightKgValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} kg'**
+  String weightKgValue(String value);
+
+  /// No description provided for @weightNoProjectionMovingAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trend isn\'t heading toward your target right now.'**
+  String get weightNoProjectionMovingAway;
+
+  /// No description provided for @weightNoProjectionNoTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a target weight to see a projection.'**
+  String get weightNoProjectionNoTarget;
+
+  /// No description provided for @weightNoProjectionReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re at your target weight.'**
+  String get weightNoProjectionReached;
+
+  /// No description provided for @weightNoProjectionTooFar.
+  ///
+  /// In en, this message translates to:
+  /// **'At this pace the target is more than a year away.'**
+  String get weightNoProjectionTooFar;
+
+  /// No description provided for @weightNoProjectionTooFewWeighIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a few more weigh-ins over a couple of weeks to see a projection.'**
+  String get weightNoProjectionTooFewWeighIns;
+
+  /// No description provided for @weightOutlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Left out of the trend'**
+  String get weightOutlier;
+
+  /// No description provided for @weightProjection.
+  ///
+  /// In en, this message translates to:
+  /// **'At this pace you\'d reach {target} kg around {date}.'**
+  String weightProjection(String date, String target);
+
+  /// No description provided for @weightRange30.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get weightRange30;
+
+  /// No description provided for @weightRange365.
+  ///
+  /// In en, this message translates to:
+  /// **'1 year'**
+  String get weightRange365;
+
+  /// No description provided for @weightRange90.
+  ///
+  /// In en, this message translates to:
+  /// **'90 days'**
+  String get weightRange90;
+
+  /// No description provided for @weightRapidLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Your weight is going down faster than {pct}% a week. A slower pace is usually easier to keep up.'**
+  String weightRapidLoss(String pct);
+
+  /// No description provided for @weightSaveAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Save anyway'**
+  String get weightSaveAnyway;
+
+  /// No description provided for @weightTipSameTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Same time of day, for example after waking.'**
+  String get weightTipSameTime;
+
+  /// No description provided for @weightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get weightTitle;
+
+  /// No description provided for @weightTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend'**
+  String get weightTrend;
+
+  /// No description provided for @weightWeeklyRate.
+  ///
+  /// In en, this message translates to:
+  /// **'About {kg} kg a week ({pct}% of body weight)'**
+  String weightWeeklyRate(String kg, String pct);
 }
 
 class _AppLocalizationsDelegate

@@ -946,6 +946,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diaryViewDay => 'Day';
 
   @override
+  String get diaryViewProgress => 'Progress';
+
+  @override
   String get diaryWaitingSync => 'Waiting to sync';
 
   @override
@@ -1046,6 +1049,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorDateInFuture => 'That date hasn\'t happened yet.';
 
   @override
+  String get errorDateRangeTooLong =>
+      'Please choose a range of up to 400 days.';
+
+  @override
   String get errorDateTooOld => 'You can only add to the last 30 days.';
 
   @override
@@ -1070,6 +1077,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorFatPctOutOfRange =>
       'Please choose a share of calories from fat between 20% and 30%.';
+
+  @override
+  String get errorFavouriteLimit =>
+      'You can keep up to 200 favourites. Remove one to add another.';
+
+  @override
+  String get errorFavouriteNotFound => 'We couldn\'t find that favourite.';
 
   @override
   String get errorFollowUpWithoutType =>
@@ -1270,6 +1284,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t hear a question. Please hold the button and speak clearly.';
 
   @override
+  String get errorWeightNeedsConfirm =>
+      'This weight is quite different from your last one. Please confirm it.';
+
+  @override
+  String get errorWeightNotFound => 'We couldn\'t find that weigh-in.';
+
+  @override
+  String get errorWeightOutOfRange => 'Enter a weight between 2 and 300 kg.';
+
+  @override
   String get explanationAiNote =>
       'Written by AI from the results above. It never changes a result.';
 
@@ -1310,11 +1334,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get familyTitle => 'Family';
 
   @override
+  String get favouritesAdd => 'Add to favourites';
+
+  @override
+  String get favouritesAdded => 'Added to favourites';
+
+  @override
+  String get favouritesEmpty => 'No favourites yet';
+
+  @override
+  String get favouritesLimit => 'You can keep up to 200 favourites.';
+
+  @override
+  String get favouritesLogAgain => 'Log again';
+
+  @override
+  String favouritesMealItems(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# items',
+      one: '# item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get favouritesMealName => 'Meal name';
+
+  @override
+  String get favouritesMealNameHint =>
+      'Names you type are kept exactly as you type them.';
+
+  @override
+  String get favouritesRemove => 'Remove from favourites';
+
+  @override
+  String get favouritesSaveMeal => 'Save as favourite meal';
+
+  @override
   String get foodsBlankIsUnknown =>
       'Leave blank if you don\'t know. Blank is never counted as 0.';
 
   @override
   String get foodsDishIngredients => 'Made with';
+
+  @override
+  String get foodsFavourites => 'Favourites';
 
   @override
   String get foodsGroupIndian => 'Indian foods';
@@ -3246,6 +3312,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get targetsHowTitle => 'How we got this';
 
   @override
+  String targetsHowWeightLatest(String value) {
+    return 'Weight used: $value kg (your latest weigh-in)';
+  }
+
+  @override
+  String targetsHowWeightTrend(String value) {
+    return 'Weight used: $value kg (your trend)';
+  }
+
+  @override
   String get targetsIntroBody =>
       'An estimate to guide you, based on your details. Information, not medical advice.';
 
@@ -3960,4 +4036,101 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get warningUpperBound =>
       'The pack says \'less than\' this amount. Confirm it if that\'s right.';
+
+  @override
+  String get weightAdd => 'Add a weigh-in';
+
+  @override
+  String get weightCheckEntry => 'Check this weigh-in';
+
+  @override
+  String weightConfirmUnusual(String previous) {
+    return 'This is quite different from your last weigh-in ($previous kg). Save anyway?';
+  }
+
+  @override
+  String get weightConfirmUnusualHidden =>
+      'This is quite different from your last weigh-in. Save anyway?';
+
+  @override
+  String get weightConsent =>
+      'To keep a weight log, allow SmartNutri to use your health details.';
+
+  @override
+  String get weightDate => 'Date';
+
+  @override
+  String get weightDelete => 'Delete weigh-in';
+
+  @override
+  String get weightDeleteConfirm => 'Delete this weigh-in?';
+
+  @override
+  String get weightEdit => 'Edit weigh-in';
+
+  @override
+  String get weightEmpty => 'No weigh-ins yet';
+
+  @override
+  String weightKgValue(String value) {
+    return '$value kg';
+  }
+
+  @override
+  String get weightNoProjectionMovingAway =>
+      'Your trend isn\'t heading toward your target right now.';
+
+  @override
+  String get weightNoProjectionNoTarget =>
+      'Set a target weight to see a projection.';
+
+  @override
+  String get weightNoProjectionReached => 'You\'re at your target weight.';
+
+  @override
+  String get weightNoProjectionTooFar =>
+      'At this pace the target is more than a year away.';
+
+  @override
+  String get weightNoProjectionTooFewWeighIns =>
+      'Add a few more weigh-ins over a couple of weeks to see a projection.';
+
+  @override
+  String get weightOutlier => 'Left out of the trend';
+
+  @override
+  String weightProjection(String date, String target) {
+    return 'At this pace you\'d reach $target kg around $date.';
+  }
+
+  @override
+  String get weightRange30 => '30 days';
+
+  @override
+  String get weightRange365 => '1 year';
+
+  @override
+  String get weightRange90 => '90 days';
+
+  @override
+  String weightRapidLoss(String pct) {
+    return 'Your weight is going down faster than $pct% a week. A slower pace is usually easier to keep up.';
+  }
+
+  @override
+  String get weightSaveAnyway => 'Save anyway';
+
+  @override
+  String get weightTipSameTime => 'Same time of day, for example after waking.';
+
+  @override
+  String get weightTitle => 'Weight';
+
+  @override
+  String get weightTrend => 'Trend';
+
+  @override
+  String weightWeeklyRate(String kg, String pct) {
+    return 'About $kg kg a week ($pct% of body weight)';
+  }
 }

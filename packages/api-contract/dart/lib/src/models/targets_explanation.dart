@@ -5,6 +5,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'targets_explanation_protein_basis.dart';
+import 'targets_explanation_weight_source.dart';
 
 part 'targets_explanation.g.dart';
 
@@ -24,6 +25,7 @@ class TargetsExplanation {
     required this.proteinGPerKg,
     required this.proteinReferenceWeightKg,
     required this.weightKgUsed,
+    this.weightSource,
   });
 
   factory TargetsExplanation.fromJson(Map<String, Object?> json) =>
@@ -51,6 +53,8 @@ class TargetsExplanation {
   final num? proteinReferenceWeightKg;
   @JsonKey(name: 'weight_kg_used')
   final num? weightKgUsed;
+  @JsonKey(name: 'weight_source')
+  final TargetsExplanationWeightSource? weightSource;
 
   Map<String, Object?> toJson() => _$TargetsExplanationToJson(this);
 }

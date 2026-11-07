@@ -28,6 +28,7 @@ import '../domain/diary_dates.dart';
 import 'add_food_sheet.dart';
 import 'copy_sheet.dart';
 import 'day_header.dart';
+import '../../favourites/presentation/save_meal_favourite_sheet.dart';
 import 'day_menu.dart';
 import 'move_entry_sheet.dart';
 import 'pending_entries.dart';
@@ -326,17 +327,28 @@ class DiaryDayBody extends ConsumerWidget {
                     : () => addFood(context, ref, day, slotId: slot.slotId),
                 menu: PopupMenuButton<String>(
                   key: SlotSection.menuKey(slot.slotId),
-                  onSelected: (_) => showCopySheet(
-                    context,
-                    fromDate: dateKey(day.date),
-                    toDate: dateKey(day.today),
-                    fromSlotId: slot.slotId,
-                    askTarget: true,
-                  ),
+                  onSelected: (v) => v == 'save_meal'
+                      ? showSaveMealFavouriteSheet(
+                          context,
+                          fromDate: dateKey(day.date),
+                          fromSlotId: slot.slotId,
+                          memberId: day.memberId,
+                        )
+                      : showCopySheet(
+                          context,
+                          fromDate: dateKey(day.date),
+                          toDate: dateKey(day.today),
+                          fromSlotId: slot.slotId,
+                          askTarget: true,
+                        ),
                   itemBuilder: (_) => [
                     PopupMenuItem(
                       value: 'copy',
                       child: Text(l10n.diaryCopyMeal),
+                    ),
+                    PopupMenuItem(
+                      value: 'save_meal',
+                      child: Text(l10n.favouritesSaveMeal),
                     ),
                   ],
                 ),

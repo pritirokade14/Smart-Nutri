@@ -21,6 +21,11 @@ TargetsExplanation _$TargetsExplanationFromJson(Map<String, dynamic> json) =>
       proteinGPerKg: json['protein_g_per_kg'] as num?,
       proteinReferenceWeightKg: json['protein_reference_weight_kg'] as num?,
       weightKgUsed: json['weight_kg_used'] as num?,
+      weightSource: json['weight_source'] == null
+          ? null
+          : TargetsExplanationWeightSource.fromJson(
+              json['weight_source'] as String,
+            ),
     );
 
 Map<String, dynamic> _$TargetsExplanationToJson(TargetsExplanation instance) =>
@@ -37,6 +42,8 @@ Map<String, dynamic> _$TargetsExplanationToJson(TargetsExplanation instance) =>
       'protein_g_per_kg': instance.proteinGPerKg,
       'protein_reference_weight_kg': instance.proteinReferenceWeightKg,
       'weight_kg_used': instance.weightKgUsed,
+      'weight_source':
+          _$TargetsExplanationWeightSourceEnumMap[instance.weightSource],
     };
 
 const _$TargetsExplanationProteinBasisEnumMap = {
@@ -44,4 +51,10 @@ const _$TargetsExplanationProteinBasisEnumMap = {
   TargetsExplanationProteinBasis.adjustedWeight: 'adjusted_weight',
   TargetsExplanationProteinBasis.actualWeight: 'actual_weight',
   TargetsExplanationProteinBasis.$unknown: r'$unknown',
+};
+
+const _$TargetsExplanationWeightSourceEnumMap = {
+  TargetsExplanationWeightSource.trend: 'trend',
+  TargetsExplanationWeightSource.latest: 'latest',
+  TargetsExplanationWeightSource.$unknown: r'$unknown',
 };

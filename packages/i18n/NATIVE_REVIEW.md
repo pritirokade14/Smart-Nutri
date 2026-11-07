@@ -314,3 +314,24 @@ All of these are machine drafts in hi and mr.
 - [ ] **hi/mr `recipes.incomplete`** (tentative): "Some ingredients don't show this value, so the real amount may be higher." It sits beside an "at least" figure. Check it is clear that the number shown is a lower bound and does not sound like a warning.
 - [ ] **hi/mr `custom_food.*`, `custom_food.field.*`, `foods.{group.mine,kind.custom_food,kind.recipe,new_food,new_recipe,my_foods}`, `recipes.*`**: everyday form words. "Recipe" is "रेसिपी" in both (check "पाककृती" for Marathi); "ingredients" is "सामग्री" (hi) and "साहित्य" (mr); "serving" is the transliterated "सर्विंग" / "सर्व्हिंग". `custom_food.density_hint` mentions katori, cup and glass (वाटी / कटोरी); check it explains a density without jargon. `custom_food.delete_confirm` and `recipes.delete_confirm` say logged meals keep their values.
 - `foods.load_more`, `recipes.save`, `recipes.delete` (hi, mr): list paging and recipe actions. Machine draft.
+
+## Plan 12 slice 5 (Food Diary: favourites and saved meals)
+All of these are machine drafts in hi and mr.
+- [ ] **hi/mr `error.{favourite_not_found, favourite_limit}`**: error messages. `favourite_limit` says up to 200 favourites and asks to remove one (Marathi uses २००).
+- [ ] **hi/mr `foods.favourites`, `favourites.{add,remove,added,empty,limit}`**: "Favourites" is "पसंदीदा" (hi) and "आवडते" (mr). Check both are what families say for a starred food, and that the toggle labels ("पसंदीदा में जोड़ें" / "आवडत्यांमध्ये जोडा") read naturally.
+- [ ] **hi/mr `favourites.{save_meal,meal_name,log_again}`**: "Save as favourite meal" (a saved copy of one meal's items), the name field label and "Log again". Check "भोजन" / "जेवण" for a saved meal and that "फिर से दर्ज करें" / "पुन्हा नोंदवा" reads as one tap to add the same items again.
+- [ ] **hi/mr `favourites.meal_name_hint`**: "Names you type are kept exactly as you type them." The name is user text and is never translated or changed. Check it reads plainly.
+- [ ] **hi/mr `favourites.meal_items`**: "{count, plural, one {# item} other {# items}}". Hindi and Marathi use one form for both; Marathi prints `{count}` (not `#`) so the digit stays Latin. Check "आइटम" is the word people use.
+
+## Plan 12 slice 6 (Food Diary: weight log, trend and progress)
+All of these are machine drafts in hi and mr.
+- [ ] **hi/mr `weight.rapid_loss`**: neutral card shown when the trend falls faster than `{pct}`% a week (the API sends the line, currently 1.5, from `safety.rapid_loss_pct_bw_per_week`; "A slower pace is usually easier to keep up."). Check the tone is calm, gives no instruction to see a doctor and no medical claim, and that the `{pct}` number (Latin digits, a decimal point) reads naturally in both.
+- [ ] **hi/mr `weight.confirm_unusual`, `weight.confirm_unusual_hidden`, `weight.save_anyway`, `error.weight_needs_confirm`**: asks the user to confirm a weigh-in far from the last one. Check it sounds like a friendly double-check, not a warning or a refusal.
+- [ ] **hi/mr `weight.weekly_rate`**: "About {kg} kg a week ({pct}% of body weight)". `{pct}` is a decimal such as 0.7 (Latin digits, a point). Check the word order and "किग्रा" / "किग्रॅ" for kg.
+- [ ] **hi/mr `weight.projection`**: "At this pace you'd reach {target} kg around {date}." `{date}` is a formatted date: check the Marathi date reads naturally (month name, Marathi numerals or not).
+- [ ] **hi/mr `weight.no_projection.*`**: the five reasons there is no projection (too few weigh-ins, trend moving away, no target, more than a year away, target reached). Check `moving_away` reads as a fact, not a failure.
+- [ ] **hi/mr `weight.{title,add,edit,delete,delete_confirm,date,tip_same_time,trend,outlier,empty,check_entry,consent}`**: "वज़न" (hi) / "वजन" (mr) for body weight, "रुझान" / "कल" for trend, and "Left out of the trend" (an unusual weigh-in kept on the chart but not counted). Check "रुझान" / "कल" is what people say for a trend, and that the `weight.consent` sentence reads as a request for permission.
+- [ ] **hi/mr `weight.range.{30,90,365}`**: chart ranges (30 days, 90 days, 1 year). Marathi uses Marathi numerals here; check that is consistent with the rest of the app.
+- [ ] **hi/mr `targets.how.{weight_trend,weight_latest}`**: "Weight used: {value} kg (your trend)" and "(your latest weigh-in)", shown in "How we got this".
+- [ ] **hi/mr `error.{weight_out_of_range,weight_not_found,date_range_too_long}`**: error messages (Marathi uses ४०० and २ ते ३००).
+- [ ] **hi/mr `diary.view.progress`**: "Progress" as a third Diary view next to Day and Week ("प्रगति" in both, with a spelling difference). Check it is not read as a medical outcome.

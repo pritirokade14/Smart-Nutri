@@ -1,5 +1,7 @@
 """Cascade behaviour on account deletion and member range checks."""
 
+import uuid
+
 import pytest
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
@@ -639,3 +641,208 @@ async def test_portion_custom_food_ref(db, two_accounts):
         text("select count(*) from food_portions where custom_food_id = :c"), {"c": cf}
     )
     assert n == 0  # the portions go with the food (ON DELETE CASCADE)
+
+
+# ---- Plan 12 slice 5 (migration 0012): favourites
+
+
+async def _favourite(db, seed, **cols) -> object:
+    values = {
+        "account_id": seed.account,
+        "member_id": seed.member,
+        "kind": "food",
+        "name": "Fav",
+        **cols,
+    }
+    names = ", ".join(values)
+    params = ", ".join(f":{k}" for k in values)
+    async with db.begin_nested():
+        return (
+            await db.execute(
+                text(f"insert into favourites ({names}) values ({params}) returning id"), values
+            )
+        ).scalar_one()
+
+
+async def test_food_favourite_exactly_one_ref(db, two_accounts):
+    a = two_accounts.seed_a
+    cf = await _custom_food(db, a.account)
+    food = await _food(db)
+    bad = (
+        {"source_kind": "custom_food"},  # no ref
+        {"source_kind": "custom_food", "custom_food_id": cf, "food_id": food},  # two refs
+        {"source_kind": "food", "custom_food_id": cf},  # ref does not match the kind
+        {"source_kind": None, "custom_food_id": cf},  # a food needs its source kind
+        {"source_kind": "mystery", "custom_food_id": cf},
+        {"source_kind": "custom_food", "custom_food_id": cf, "items": "[]"},  # a food has no items
+        {"source_kind": "custom_food", "custom_food_id": cf, "default_quantity": 1},  # no unit
+        {
+            "source_kind": "custom_food",
+            "custom_food_id": cf,
+            "default_quantity": 0,
+            "default_unit": "g",
+        },
+    )
+    for cols in bad:
+        with pytest.raises(IntegrityError) as exc_info:
+            await _favourite(db, a, **cols)
+        assert "ck_favourites_" in str(exc_info.value), cols
+    await _favourite(db, a, source_kind="custom_food", custom_food_id=cf)
+    await _favourite(db, a, source_kind="food", food_id=food, default_quantity=2, default_unit="g")
+    await _favourite(db, a, source_kind="off", off_barcode="8901")
+
+
+async def test_meal_favourite_has_items_no_ref(db, two_accounts):
+    a = two_accounts.seed_a
+    cf = await _custom_food(db, a.account)
+    bad = (
+        {"kind": "meal"},  # no items
+        {"kind": "meal", "items": '[{"a": 1}]', "custom_food_id": cf},  # a ref
+        {"kind": "meal", "items": '[{"a": 1}]', "source_kind": "custom_food"},
+        {"kind": "meal", "items": '[{"a": 1}]', "default_quantity": 1, "default_unit": "g"},
+    )
+    for cols in bad:
+        with pytest.raises(IntegrityError) as exc_info:
+            await _favourite(db, a, **cols)
+        assert "ck_favourites_" in str(exc_info.value), cols
+    await _favourite(db, a, kind="meal", items='[{"a": 1}]')
+    await _favourite(db, a, kind="meal", items='[{"a": 1}]')  # meals are not unique
+
+
+async def test_unique_food_favourite_per_member(db, two_accounts):
+    a, b = two_accounts.seed_a, two_accounts.seed_b
+    p = two_accounts.product
+    await _favourite(db, a, source_kind="product", product_id=p)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _favourite(db, a, source_kind="product", product_id=p)
+    assert "uq_favourites_member_id_product_id" in str(exc_info.value)
+    await _favourite(db, b, source_kind="product", product_id=p)  # another member: its own
+    await _favourite(db, a, source_kind="off", off_barcode="8901")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _favourite(db, a, source_kind="off", off_barcode="8901")
+    assert "uq_favourites_member_id_off_barcode" in str(exc_info.value)
+
+
+async def test_custom_food_delete_cascades_favourite(db, two_accounts):
+    a = two_accounts.seed_a
+    cf = await _custom_food(db, a.account)
+    recipe = await _recipe(db, a.account)
+    await _favourite(db, a, source_kind="custom_food", custom_food_id=cf)
+    await _favourite(db, a, source_kind="recipe", recipe_id=recipe)
+    await db.execute(text("delete from custom_foods where id = :c"), {"c": cf})
+    await db.execute(text("delete from recipes where id = :r"), {"r": recipe})
+    n = await db.scalar(
+        text("select count(*) from favourites where custom_food_id = :c or recipe_id = :r"),
+        {"c": cf, "r": recipe},
+    )
+    assert n == 0
+
+
+async def test_favourite_client_id_unique_per_account(db, two_accounts):
+    a = two_accounts.seed_a
+    cid = uuid.uuid4()
+    await _favourite(db, a, kind="meal", items='[{"a": 1}]', client_id=cid)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _favourite(db, a, kind="meal", items='[{"a": 1}]', client_id=cid)
+    assert "uq_favourites_account_id_client_id" in str(exc_info.value)
+
+
+async def test_favourite_goes_with_its_member(db, two_accounts):
+    a = two_accounts.seed_a
+    await _favourite(db, a, kind="meal", items='[{"a": 1}]')
+    await db.execute(text("delete from meal_logs where member_id = :m"), {"m": a.member})
+    await db.execute(text("delete from meal_slots where member_id = :m"), {"m": a.member})
+    await db.execute(text("delete from diary_days where member_id = :m"), {"m": a.member})
+    await db.execute(text("delete from diary_goal_settings where member_id = :m"), {"m": a.member})
+    await db.execute(text("delete from members where id = :m"), {"m": a.member})
+    n = await db.scalar(
+        text("select count(*) from favourites where member_id = :m"), {"m": a.member}
+    )
+    assert n == 0
+
+
+@pytest.mark.parametrize("items", ["[]", "{}", "[" + ",".join(["{}"] * 51) + "]"])
+async def test_favourite_meal_items_must_hold_1_to_50(db, two_accounts, items):
+    member = await db.scalar(
+        text("select id from members where account_id = :a limit 1"), {"a": two_accounts.a}
+    )
+    with pytest.raises(IntegrityError) as exc_info:
+        await db.execute(
+            text(
+                "insert into favourites (account_id, member_id, kind, name, items) "
+                "values (:a, :m, 'meal', 'M', cast(:items as jsonb))"
+            ),
+            {"a": two_accounts.a, "m": member, "items": items},
+        )
+    assert "ck_favourites" in str(exc_info.value)
+
+
+# ---- Plan 12 slice 6 (migration 0013): weight_logs
+
+
+async def _weigh_in(db, seed, **cols) -> object:
+    values = {
+        "account_id": seed.account,
+        "member_id": seed.member,
+        "local_date": "2026-01-01",
+        "weight_kg": 70,
+        "measured_at": "2026-01-01T06:00:00Z",
+        **cols,
+    }
+    names = ", ".join(values)
+    params = ", ".join(f":{k}" for k in values)
+    async with db.begin_nested():
+        return (
+            await db.execute(
+                text(f"insert into weight_logs ({names}) values ({params}) returning id"),
+                _typed(values),
+            )
+        ).scalar_one()
+
+
+def _typed(values: dict) -> dict:
+    import datetime as _dt
+
+    out = dict(values)
+    if isinstance(out.get("local_date"), str):
+        out["local_date"] = _dt.date.fromisoformat(out["local_date"])
+    if isinstance(out.get("measured_at"), str):
+        out["measured_at"] = _dt.datetime.fromisoformat(out["measured_at"])
+    return out
+
+
+async def test_one_weigh_in_per_day(db, two_accounts):
+    a = two_accounts.seed_a
+    await _weigh_in(db, a, local_date="2026-02-01")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _weigh_in(db, a, local_date="2026-02-01")
+    assert "uq_weight_logs_member_id_local_date" in str(exc_info.value)
+    await _weigh_in(db, a, local_date="2026-02-02")
+    await _weigh_in(db, two_accounts.seed_b, local_date="2026-02-01")  # another member
+
+
+async def test_weight_range_check(db, two_accounts):
+    a = two_accounts.seed_a
+    for kg in (1.9, 0, 300.1, -5):
+        with pytest.raises(IntegrityError) as exc_info:
+            await _weigh_in(db, a, weight_kg=kg, local_date="2026-03-01")
+        assert "ck_weight_logs_weight_kg" in str(exc_info.value), kg
+    await _weigh_in(db, a, weight_kg=2, local_date="2026-03-01")
+    await _weigh_in(db, a, weight_kg=300, local_date="2026-03-02")
+
+
+async def test_source_manual_only(db, two_accounts):
+    a = two_accounts.seed_a
+    with pytest.raises(IntegrityError) as exc_info:
+        await _weigh_in(db, a, source="device", local_date="2026-04-01")
+    assert "ck_weight_logs_source" in str(exc_info.value)
+    await _weigh_in(db, a, source="manual", local_date="2026-04-01")
+
+
+async def test_weigh_in_client_id_unique_per_account(db, two_accounts):
+    a = two_accounts.seed_a
+    cid = uuid.uuid4()
+    await _weigh_in(db, a, client_id=cid, local_date="2026-05-01")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _weigh_in(db, a, client_id=cid, local_date="2026-05-02")
+    assert "uq_weight_logs_account_id_client_id" in str(exc_info.value)

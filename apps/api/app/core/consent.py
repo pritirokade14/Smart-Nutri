@@ -55,6 +55,12 @@ REQUIRED: dict[str, tuple[Purpose, ...]] = {
     # Custom foods and recipes (Plan 12 slice 4, Q13): `terms`.
     "custom_foods": ("terms",),
     "recipes": ("terms",),
+    # Favourites (Plan 12 slice 5, Q13): `terms`.
+    "favourites": ("terms",),
+    # The weight log (Plan 12 slice 6, Q13): body data, so put, list and trend need health_data
+    # too. Gated per route (not by prefix): erasing a weigh-in needs only terms.
+    "weights": ("terms", "health_data"),
+    "weights_erase": ("terms",),
 }
 
 CONSENT_RESPONSES: dict[int | str, dict[str, Any]] = {

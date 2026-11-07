@@ -7,6 +7,8 @@ import { Dialog } from "@/components/ui/Dialog";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { InfoIcon } from "@/components/ui/icons";
 import { LoadingState } from "@/components/ui/Skeleton";
+import { FavouriteStar } from "@/features/favourites/components/FavouriteStar";
+import { FavouritesSegment } from "@/features/favourites/components/FavouritesSegment";
 import type { FoodHit } from "@/features/foods/api/foods";
 import { FoodSearch } from "@/features/foods/components/FoodSearch";
 import { PortionPicker } from "@/features/foods/components/PortionPicker";
@@ -25,7 +27,7 @@ import { type DiaryAddMethod, setDiaryAddContext } from "../lib/addContext";
 import { slotLabel } from "../lib/slotLabel";
 import { QuickAddForm } from "./QuickAddForm";
 
-type Segment = "recent" | "search" | "quick";
+type Segment = "recent" | "favourites" | "search" | "quick";
 
 const recentCredits = (r: RecentItem): string[] =>
   r.attributions && r.attributions.length > 0
@@ -100,8 +102,8 @@ export function AddFoodPanel({
   /** The tapped slot; omitted: the server's suggestion. */
   slotId?: string;
   onClose: () => void;
-  /** Called after a successful log (the panel closes too). */
-  onLogged: () => void;
+  /** Called after a successful log (the panel closes too); a count when a saved meal added several entries. */
+  onLogged: (count?: number) => void;
 }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -163,8 +165,8 @@ export function AddFoodPanel({
     });
 
   const logError = log.error as ApiError | null;
-  const done = () => {
-    onLogged();
+  const done = (count?: number) => {
+    onLogged(count);
   };
 
   return (
@@ -190,7 +192,7 @@ export function AddFoodPanel({
         />
       ) : null}
       <div className="flex flex-wrap gap-2" role="tablist">
-        {(["recent", "search", "quick"] as const).map((s) => (
+        {(["recent", "favourites", "search", "quick"] as const).map((s) => (
           <button
             key={s}
             type="button"
@@ -206,9 +208,11 @@ export function AddFoodPanel({
           >
             {s === "recent"
               ? t("foods.recent")
-              : s === "search"
-                ? t("search.title")
-                : t("foods.quick_add")}
+              : s === "favourites"
+                ? t("foods.favourites")
+                : s === "search"
+                  ? t("search.title")
+                  : t("foods.quick_add")}
           </button>
         ))}
       </div>
@@ -248,7 +252,7 @@ export function AddFoodPanel({
             hit={hit}
             slotId={loaded ? chosen : null}
             localDate={localDate}
-            onLogged={done}
+            onLogged={() => done()}
             onCancel={() => setHit(null)}
             method={viaBarcode ? "barcode" : undefined}
           />
@@ -268,6 +272,12 @@ export function AddFoodPanel({
         <QuickAddForm
           slotId={loaded ? chosen : null}
           localDate={localDate}
+          onLogged={() => done()}
+        />
+      ) : segment === "favourites" ? (
+        <FavouritesSegment
+          slotId={loaded ? chosen : null}
+          localDate={localDate}
           onLogged={done}
         />
       ) : recents.isPending && loaded ? (
@@ -283,13 +293,14 @@ export function AddFoodPanel({
           {(recents.data?.items ?? []).map((r) => (
             <li
               key={`${r.food_id ?? r.custom_food_id ?? r.recipe_id ?? r.product_id ?? r.barcode}`}
+              className="flex items-center gap-1"
             >
               <button
                 type="button"
                 data-testid="recent-item"
                 disabled={log.isPending}
                 onClick={() => logRecent(r)}
-                className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 py-2 text-left hover:bg-surface-muted"
+                className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 py-2 text-left hover:bg-surface-muted"
               >
                 <span className="min-w-0 text-md font-medium break-words text-text-primary">
                   {r.name}
@@ -305,6 +316,24 @@ export function AddFoodPanel({
                   })}
                 </span>
               </button>
+              <FavouriteStar
+                foodRef={{
+                  food_id: r.food_id,
+                  custom_food_id: r.custom_food_id,
+                  recipe_id: r.recipe_id,
+                  product_id: r.product_id,
+                  barcode: r.barcode,
+                }}
+                favouriteId={r.favourite_id}
+                portion={
+                  r.quantity != null && r.unit
+                    ? {
+                        quantity: r.quantity,
+                        unit: r.unit as NonNullable<MealIn["unit"]>,
+                      }
+                    : null
+                }
+              />
             </li>
           ))}
         </ul>

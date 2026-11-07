@@ -162,7 +162,7 @@ def expected_for(stem: str, case: dict) -> dict:
             limits=LIMITS,
             numbers_display=display,
         )
-        return out.model_dump(mode="json")
+        return _dump(out)
     result = _targets(case["targets_case"])
     forced = case.get("targets_status")
     status = forced or (result.status if result is not None else "none")
@@ -179,7 +179,25 @@ def expected_for(stem: str, case: dict) -> dict:
         partial_logged=case["partial_logged"],
         numbers_display=display,
     )
-    return out_day.model_dump(mode="json")
+    return _dump(out_day)
+
+
+def _strip_weight_source(node: object) -> None:
+    if isinstance(node, dict):
+        node.pop("weight_source", None)
+        for v in node.values():
+            _strip_weight_source(v)
+    elif isinstance(node, list):
+        for v in node:
+            _strip_weight_source(v)
+
+
+def _dump(out) -> dict:
+    """The response as JSON, without `explanation.weight_source` (slice 6): these cases have no
+    weigh-ins, so the goldens stay byte-identical."""
+    body = out.model_dump(mode="json")
+    _strip_weight_source(body)
+    return body
 
 
 def compute(fixtures: Path = FIXTURES) -> dict[str, str]:

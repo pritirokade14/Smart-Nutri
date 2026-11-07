@@ -198,6 +198,28 @@ async def seed(session, account_id: UUID, storage: FakeStorage) -> dict[str, UUI
         c=custom_food,
         s=slot,
     )
+    await _exec(
+        session,
+        "insert into favourites (account_id, member_id, kind, source_kind, custom_food_id, name) "
+        "values (:a, :m, 'food', 'custom_food', :c, 'Own bar')",
+        a=account_id,
+        m=member,
+        c=custom_food,
+    )
+    await _exec(
+        session,
+        "insert into favourites (account_id, member_id, kind, items, name) "
+        "values (:a, :m, 'meal', '[{}]', 'My breakfast')",
+        a=account_id,
+        m=member,
+    )
+    await _exec(
+        session,
+        "insert into weight_logs (account_id, member_id, local_date, weight_kg, measured_at) "
+        "values (:a, :m, current_date, 70, now())",
+        a=account_id,
+        m=member,
+    )
     await session.flush()
     return {
         "product": product,
@@ -631,4 +653,30 @@ async def test_delete_me_erases_custom_foods_and_recipes(client, login, db_sessi
     assert (await client.delete("/v1/me")).status_code == 204
     after = await counts(db_session, A)
     assert after["custom_foods"] == after["recipes"] == after["recipe_ingredients"] == 0
+    assert await counts(db_session, B) == before
+
+
+async def test_delete_me_erases_favourites(client, login, db_session, storage):
+    """Plan 12 slice 5: favourite foods and meals go; another account's stay."""
+    await seed(db_session, A, storage)
+    await seed(db_session, B, storage)
+    assert "favourites" in ACCOUNT_OWNED_TABLES
+    before = await counts(db_session, B)
+    assert before["favourites"] == 2
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    assert (await counts(db_session, A))["favourites"] == 0
+    assert await counts(db_session, B) == before
+
+
+async def test_delete_me_erases_weight_logs(client, login, db_session, storage):
+    """Plan 12 slice 6: weigh-ins go; another account's stay."""
+    await seed(db_session, A, storage)
+    await seed(db_session, B, storage)
+    assert "weight_logs" in ACCOUNT_OWNED_TABLES
+    before = await counts(db_session, B)
+    assert before["weight_logs"] == 1
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    assert (await counts(db_session, A))["weight_logs"] == 0
     assert await counts(db_session, B) == before

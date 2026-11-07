@@ -8,6 +8,7 @@ import 'analyze/analyze_client.dart';
 import 'consents/consents_client.dart';
 import 'custom_foods/custom_foods_client.dart';
 import 'diary/diary_client.dart';
+import 'favourites/favourites_client.dart';
 import 'foods/foods_client.dart';
 import 'health/health_client.dart';
 import 'me/me_client.dart';
@@ -21,6 +22,7 @@ import 'recipes/recipes_client.dart';
 import 'scans/scans_client.dart';
 import 'targets/targets_client.dart';
 import 'voice/voice_client.dart';
+import 'weights/weights_client.dart';
 
 /// SmartNutri API `v0.0.0`
 class SmartNutriApiClient {
@@ -37,6 +39,7 @@ class SmartNutriApiClient {
   ConsentsClient? _consents;
   CustomFoodsClient? _customFoods;
   DiaryClient? _diary;
+  FavouritesClient? _favourites;
   FoodsClient? _foods;
   HealthClient? _health;
   MeClient? _me;
@@ -50,6 +53,7 @@ class SmartNutriApiClient {
   ScansClient? _scans;
   TargetsClient? _targets;
   VoiceClient? _voice;
+  WeightsClient? _weights;
 
   AnalyzeClient get analyze =>
       _analyze ??= AnalyzeClient(_dio, baseUrl: _baseUrl);
@@ -61,6 +65,9 @@ class SmartNutriApiClient {
       _customFoods ??= CustomFoodsClient(_dio, baseUrl: _baseUrl);
 
   DiaryClient get diary => _diary ??= DiaryClient(_dio, baseUrl: _baseUrl);
+
+  FavouritesClient get favourites =>
+      _favourites ??= FavouritesClient(_dio, baseUrl: _baseUrl);
 
   FoodsClient get foods => _foods ??= FoodsClient(_dio, baseUrl: _baseUrl);
 
@@ -94,4 +101,7 @@ class SmartNutriApiClient {
       _targets ??= TargetsClient(_dio, baseUrl: _baseUrl);
 
   VoiceClient get voice => _voice ??= VoiceClient(_dio, baseUrl: _baseUrl);
+
+  WeightsClient get weights =>
+      _weights ??= WeightsClient(_dio, baseUrl: _baseUrl);
 }

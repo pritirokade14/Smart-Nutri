@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 // The generated package has no top-level library file, only src/export.dart.
 // ignore: implementation_imports
 import 'package:smartnutri_api/src/export.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
@@ -11,6 +12,11 @@ import '../../../core/observability/analytics.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/source_attribution.dart';
 import '../../../shared/widgets/states.dart';
+import '../../favourites/data/favourites_repository.dart';
+import '../../favourites/presentation/favourite_star.dart';
+import '../../favourites/presentation/favourites_providers.dart';
+import '../../favourites/presentation/favourites_segment.dart';
+import '../../foods/data/foods_repository.dart';
 import '../../foods/domain/portion_line.dart';
 import '../../foods/presentation/food_search_view.dart';
 import '../../foods/presentation/portion_picker_sheet.dart';
@@ -25,7 +31,7 @@ import 'quick_add_form.dart';
 /// Where the sheet sends the user next: the existing flows.
 enum AddFoodNext { barcode, label }
 
-enum _Segment { recent, search, barcode, label, quick, create }
+enum _Segment { recent, favourites, search, barcode, label, quick, create }
 
 /// Logs [draft] (online or queued) and sends `diary_entry_added` with the
 /// method only. Throws [MealsFailure] when the API refuses it.
@@ -79,6 +85,10 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
   bool _busy = false;
   String? _error;
 
+  /// One `client_id` per favourite meal action; kept for retries, dropped on
+  /// success.
+  final _logAgainIds = <String, String>{};
+
   /// A past day sends `local_date`; today sends the time (the API decides
   /// which day is today).
   String? get _localDate =>
@@ -93,17 +103,27 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
 
   /// Opens the portion picker for a search hit; a saved choice closes the
   /// sheet like any other log.
-  Future<void> _pick(FoodHit hit, String? slotId) async {
+  Future<void> _pick(FoodHit hit, String? slotId) => _pickRef(
+    (
+      kind: switch (hit.kind) {
+        FoodHitKind.food => FoodKindPath.food,
+        FoodHitKind.product => FoodKindPath.product,
+        FoodHitKind.customFood => FoodKindPath.customFood,
+        FoodHitKind.recipe => FoodKindPath.recipe,
+        _ => FoodKindPath.off,
+      },
+      id: hit.id,
+    ),
+    hit.name,
+    slotId,
+  );
+
+  Future<void> _pickRef(FoodRef food, String name, String? slotId) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final nav = Navigator.of(context);
-    final kind = switch (hit.kind) {
-      FoodHitKind.food => FoodKindPath.food,
-      FoodHitKind.product => FoodKindPath.product,
-      FoodHitKind.customFood => FoodKindPath.customFood,
-      FoodHitKind.recipe => FoodKindPath.recipe,
-      _ => FoodKindPath.off,
-    };
+    final kind = food.kind;
+    final hit = (id: food.id, name: name);
     final result = await showPortionPicker(
       context,
       food: (kind: kind, id: hit.id),
@@ -147,6 +167,73 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
     if (mounted) nav.pop();
   }
 
+  /// A food favourite: one tap logs its default portion (queued offline).
+  Future<void> _logFavouriteFood(FavouriteOut f, String? slotId) {
+    final ref = favouriteFoodRef(f);
+    if (ref == null) return Future.value();
+    // No default portion: nothing valid to send, so ask for one.
+    if (f.defaultQuantity == null || f.defaultUnit == null) {
+      return _pickFavouriteFood(f, slotId);
+    }
+    return _log(
+      MealDraft(
+        memberId: widget.day.memberId,
+        foodId: ref.kind == FoodKindPath.food ? ref.id : null,
+        productId: ref.kind == FoodKindPath.product ? ref.id : null,
+        customFoodId: ref.kind == FoodKindPath.customFood ? ref.id : null,
+        recipeId: ref.kind == FoodKindPath.recipe ? ref.id : null,
+        barcode: ref.kind == FoodKindPath.off ? ref.id : null,
+        quantity: f.defaultQuantity,
+        unit: f.defaultUnit,
+        eatenAt: DateTime.now().toUtc(),
+        mealSlotId: slotId,
+        localDate: _localDate,
+        displayName: f.name,
+      ),
+      'favourite',
+    );
+  }
+
+  /// A long press: the portion picker.
+  Future<void> _pickFavouriteFood(FavouriteOut f, String? slotId) async {
+    final food = favouriteFoodRef(f);
+    if (food == null) return;
+    await _pickRef(food, f.name, slotId);
+  }
+
+  /// A meal favourite: "Log again", online only. The count is the only thing
+  /// the toast says.
+  Future<void> _logFavouriteMeal(FavouriteOut f, String? slotId) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    final clientId = _logAgainIds.putIfAbsent(f.id, () => const Uuid().v4());
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final created = await ref
+          .read(favouritesRepositoryProvider)
+          .log(f.id, clientId: clientId, slotId: slotId, localDate: _localDate);
+      _logAgainIds.remove(f.id);
+      ref.read(mealsRevisionProvider.notifier).bump();
+      await ref.read(analyticsProvider).track('diary_entry_added', {
+        'method': 'favourite',
+      });
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.favouritesMealItems(created.length))),
+      );
+      if (mounted) nav.pop();
+    } on FavouritesFailure catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _error = localizedErrorCode(AppLocalizations.of(context), e.code);
+      });
+    }
+  }
+
   Future<void> _log(MealDraft draft, String method) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -184,6 +271,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
     final slotId = _slot(slots);
     final labels = <_Segment, String>{
       _Segment.recent: l10n.foodsRecent,
+      _Segment.favourites: l10n.foodsFavourites,
       _Segment.search: l10n.searchTitle,
       _Segment.barcode: l10n.navScan,
       _Segment.label: l10n.labelTitle,
@@ -248,6 +336,14 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
                 child: InlineErrorBanner(message: _error!),
               ),
             if (_segment == _Segment.recent) _recents(slotId),
+            if (_segment == _Segment.favourites)
+              FavouritesSegment(
+                memberId: widget.day.memberId,
+                enabled: !_busy,
+                onLogFood: (f) => _logFavouriteFood(f, slotId),
+                onPickFood: (f) => _pickFavouriteFood(f, slotId),
+                onLogMeal: (f) => _logFavouriteMeal(f, slotId),
+              ),
             if (_segment == _Segment.search)
               FoodSearchView(
                 enabled: !_busy,
@@ -287,6 +383,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
       case _Segment.label:
         _leave(AddFoodNext.label, 'label', slotId);
       case _Segment.recent:
+      case _Segment.favourites:
       case _Segment.search:
       case _Segment.quick:
       case _Segment.create:
@@ -374,11 +471,34 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
                       ),
                     ],
                   ),
+                  trailing: _recentRef(r) == null
+                      ? null
+                      : FavouriteStar(
+                          food: _recentRef(r)!,
+                          favouriteId: r.favouriteId,
+                          memberId: widget.day.memberId,
+                          quantity: r.unit != null ? r.quantity : null,
+                          unit: r.quantity != null ? r.unit : null,
+                        ),
                   onTap: () => _log(_recentDraft(r, slotId), 'recent'),
                 ),
             ],
           ),
         );
+  }
+
+  /// The food a recent points at (for its star).
+  FoodRef? _recentRef(RecentItem r) {
+    if (r.foodId != null) return (kind: FoodKindPath.food, id: r.foodId!);
+    if (r.customFoodId != null) {
+      return (kind: FoodKindPath.customFood, id: r.customFoodId!);
+    }
+    if (r.recipeId != null) return (kind: FoodKindPath.recipe, id: r.recipeId!);
+    if (r.productId != null) {
+      return (kind: FoodKindPath.product, id: r.productId!);
+    }
+    if (r.barcode != null) return (kind: FoodKindPath.off, id: r.barcode!);
+    return null;
   }
 
   /// A recent logs again what was last eaten: its quantity and unit, or the

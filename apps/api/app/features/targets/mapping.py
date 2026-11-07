@@ -55,6 +55,7 @@ def _explanation(e: targets.Explanation, hidden: NumbersHidden) -> TargetsExplan
             body_fat_pct_used=None,
             ibw_kg=None,
             floor_kcal=None,
+            weight_source=None,
         )
 
     def energy(value: Decimal | None) -> int | None:
@@ -72,6 +73,7 @@ def _explanation(e: targets.Explanation, hidden: NumbersHidden) -> TargetsExplan
         body_fat_pct_used=None if e.body_fat_pct_used is None else float(e.body_fat_pct_used),
         ibw_kg=None if e.ibw_kg is None else _dp(e.ibw_kg, 1),
         floor_kcal=energy(e.floor_kcal),
+        weight_source=e.weight_source,
     )
 
 

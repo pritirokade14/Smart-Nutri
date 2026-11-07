@@ -222,3 +222,13 @@ export const EyeOffIcon = (p: IconProps) => (
     <path d="M9.9 9.9a3 3 0 004.2 4.2" />
   </Icon>
 );
+
+/** A star; `filled` for a favourite. */
+export const StarIcon = ({
+  filled,
+  ...p
+}: IconProps & { filled?: boolean }) => (
+  <Icon name="star" {...p} fill={filled ? "currentColor" : "none"}>
+    <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z" />
+  </Icon>
+);

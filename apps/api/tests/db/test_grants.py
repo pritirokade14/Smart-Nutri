@@ -29,6 +29,8 @@ SELECT_ONLY_FOR_USERS = {
     "custom_foods",
     "recipes",
     "recipe_ingredients",
+    "favourites",
+    "weight_logs",
 }
 ALL_PRIVILEGES = {
     "SELECT",

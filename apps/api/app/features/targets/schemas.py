@@ -106,6 +106,9 @@ class TargetsExplanation(BaseModel):
     body_fat_pct_used: float | None
     ibw_kg: float | None
     floor_kcal: int | None
+    # Where the weight came from: the 3+ weigh-in trend, or the latest weight (G25). Null when
+    # hidden, and for explanations frozen before the weight log existed.
+    weight_source: Literal["trend", "latest"] | None = None
 
 
 class TargetsOut(BaseModel):

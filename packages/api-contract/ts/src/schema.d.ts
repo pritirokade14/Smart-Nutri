@@ -181,6 +181,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/favourites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Favourites List
+         * @description The member's favourite foods and saved meals, newest first (at most 200, no cursor).
+         */
+        get: operations["favourites_list"];
+        put?: never;
+        /**
+         * Favourites Add
+         * @description Star a food with an optional default portion (the one a tap logs). 201 for a new
+         *     favourite, 200 with the stored one when the food is already starred. 422 `favourite_limit`
+         *     past 200, `food_retired`, `unit_grams_unknown`, `invalid_product_ref`.
+         */
+        post: operations["favourites_add"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/favourites/meals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Favourites Add Meal
+         * @description Save one meal (a slot on a day) under a name you type, exactly as typed. The entries are
+         *     kept as they were (no food is read again). 422 `copy_source_empty`, `copy_too_many` (more
+         *     than 50), `date_in_future`, `favourite_limit`; 404 `meal_slot_not_found`.
+         */
+        post: operations["favourites_add_meal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/favourites/{favourite_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Favourites Delete
+         * @description Remove a favourite. Entries already logged from it stay.
+         */
+        delete: operations["favourites_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/favourites/{favourite_id}/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Favourites Log
+         * @description Log a favourite MEAL again, from its saved entries, onto today or a day up to 30 days
+         *     back. ``client_id`` is required: a retry returns the same rows with 200 and creates
+         *     nothing. Each entry counts against the daily log limit. A food favourite is logged with
+         *     `meals_log` instead (422 `validation_error` here). 422 `food_retired` if a saved dish was
+         *     retired; a deleted custom food or recipe logs with a null reference. The response is
+         *     redacted with the member's numbers display.
+         */
+        post: operations["favourites_log"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/foods/barcode/{barcode}": {
         parameters: {
             query?: never;
@@ -1083,6 +1176,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/weights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Weights List
+         * @description The member's weigh-ins, oldest first. Default the last 90 local days; a range longer
+         *     than 400 days is 422 `date_range_too_long`.
+         */
+        get: operations["weights_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/weights/trend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Weights Trend Get
+         * @description The weight trend, weekly rate and projection, computed from the member's full history
+         *     and sliced to the window. Every kg, the rate and the target are null under `hide_all`
+         *     (`y` is kept for the chart's shape). Information, not medical advice; the thresholds are
+         *     pending clinician review.
+         */
+        get: operations["weights_trend_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/weights/{day}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Weights Put
+         * @description Create or replace the weigh-in of a local day (200 either way; one per day). 422
+         *     `weight_out_of_range` (outside 2 to 300 kg), `weight_needs_confirm` (outside 30 to 200 kg,
+         *     or a big change since the last weigh-in; resend with `confirm_unusual`; `details.previous` is
+         *     null under `hide_all`), `date_in_future`, `date_too_old` (over 400 days). A repeated
+         *     `client_id` returns the stored row. Today's daily guide is recomputed.
+         */
+        put: operations["weights_put"];
+        post?: never;
+        /**
+         * Weights Delete
+         * @description Delete a weigh-in. Needs only `terms`: erasure is never gated. 404 `weight_not_found`.
+         */
+        delete: operations["weights_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1913,6 +2078,173 @@ export interface components {
             text: string | null;
             /** Tips */
             tips: string[];
+        };
+        /**
+         * FavouriteIn
+         * @description Star a food. Exactly one reference: ``product_id``, ``barcode`` (Open Food Facts or
+         *     your own product), ``food_id``, ``custom_food_id`` or ``recipe_id``. ``default_quantity``
+         *     with ``default_unit`` is the portion one tap logs; both or neither. A unit that cannot be
+         *     converted for this food is 422 ``unit_grams_unknown``.
+         */
+        FavouriteIn: {
+            /** Barcode */
+            barcode?: string | null;
+            /** Custom Food Id */
+            custom_food_id?: string | null;
+            /** Default Quantity */
+            default_quantity?: number | null;
+            /** Default Unit */
+            default_unit?: ("g" | "ml" | "serving" | "piece" | "piece_small" | "piece_medium" | "piece_large" | "roti" | "slice" | "katori" | "katori_small" | "katori_medium" | "katori_large" | "cup" | "glass" | "tbsp" | "tsp") | null;
+            /** Food Id */
+            food_id?: string | null;
+            /** Member Id */
+            member_id?: string | null;
+            /** Product Id */
+            product_id?: string | null;
+            /** Recipe Id */
+            recipe_id?: string | null;
+        };
+        /** FavouriteItemOut */
+        FavouriteItemOut: {
+            /** Attributions */
+            attributions?: string[];
+            /**
+             * Basis
+             * @description The unit of `grams`: grams or millilitres (an ml-basis food)
+             * @default g
+             * @enum {string}
+             */
+            basis: "g" | "ml";
+            /** Grams */
+            grams: number | null;
+            /** Name */
+            name: string | null;
+            /** Quantity */
+            quantity: number | null;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "product" | "off" | "food" | "custom_food" | "recipe" | "quick_add";
+            /** Unit */
+            unit: string | null;
+        };
+        /**
+         * FavouriteLogIn
+         * @description Log a favourite meal again. ``client_id`` is required: each entry's own id is derived
+         *     from it, so a retry returns the same rows with 200 and creates nothing.
+         */
+        FavouriteLogIn: {
+            /**
+             * Client Id
+             * Format: uuid
+             */
+            client_id: string;
+            /**
+             * Local Date
+             * @description Log onto this local day (at most 30 days ago, not in future).
+             */
+            local_date?: string | null;
+            /**
+             * Meal Slot Id
+             * @description Default: the server's pick
+             */
+            meal_slot_id?: string | null;
+        };
+        /** FavouriteLogOut */
+        FavouriteLogOut: {
+            /**
+             * Created
+             * @description The new entries, in the saved order
+             */
+            created: components["schemas"]["MealOut"][];
+        };
+        /**
+         * FavouriteMealIn
+         * @description Save the entries of one meal slot on one day as a named favourite meal. ``name`` is
+         *     user text, 1 to 40 characters, kept exactly as typed.
+         */
+        FavouriteMealIn: {
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * From Date
+             * Format: date
+             */
+            from_date: string;
+            /**
+             * From Slot Id
+             * Format: uuid
+             */
+            from_slot_id: string;
+            /** Member Id */
+            member_id?: string | null;
+            /** Name */
+            name: string;
+        };
+        /** FavouriteOut */
+        FavouriteOut: {
+            /** Attributions */
+            attributions?: string[];
+            /** Barcode */
+            barcode: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Custom Food Id */
+            custom_food_id: string | null;
+            /** Default Quantity */
+            default_quantity: number | null;
+            /** Default Unit */
+            default_unit: string | null;
+            /** Food Id */
+            food_id: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Item Count
+             * @description 1 for a food, the number of saved entries for a meal
+             */
+            item_count: number;
+            /**
+             * Items
+             * @description The saved entries of a meal as they were; null for a food
+             */
+            items: components["schemas"]["FavouriteItemOut"][] | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "food" | "meal";
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /**
+             * Name
+             * @description A food: its name when starred. A meal: the name you typed (user text)
+             */
+            name: string;
+            /** Product Id */
+            product_id: string | null;
+            /** Recipe Id */
+            recipe_id: string | null;
+            /**
+             * Source Kind
+             * @description Null for a saved meal
+             */
+            source_kind: ("product" | "off" | "food" | "custom_food" | "recipe") | null;
+        };
+        /** FavouritesOut */
+        FavouritesOut: {
+            /** Items */
+            items: components["schemas"]["FavouriteOut"][];
         };
         /**
          * FollowUps
@@ -3145,6 +3477,13 @@ export interface components {
              */
             source: "smartnutri" | "openfoodfacts";
         };
+        /** ProjectionOut */
+        ProjectionOut: {
+            /** Date */
+            date: string | null;
+            /** Target Kg */
+            target_kg: number | null;
+        };
         /** PublicProductOut */
         PublicProductOut: {
             product: components["schemas"]["ProductOut"];
@@ -3223,6 +3562,11 @@ export interface components {
              * @description Your custom food; log it again with `custom_food_id`
              */
             custom_food_id?: string | null;
+            /**
+             * Favourite Id
+             * @description The member's favourite for this same food (unstar with `favourites_delete`)
+             */
+            favourite_id?: string | null;
             /**
              * Food Id
              * @description A generic food or dish; log it again with `food_id`
@@ -3638,6 +3982,8 @@ export interface components {
             protein_reference_weight_kg: number | null;
             /** Weight Kg Used */
             weight_kg_used: number | null;
+            /** Weight Source */
+            weight_source?: ("trend" | "latest") | null;
         };
         /**
          * TargetsOut
@@ -3767,6 +4113,18 @@ export interface components {
             salt_g: number | null;
             /** Sugars G */
             sugars_g: number | null;
+        };
+        /** TrendPointOut */
+        TrendPointOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Trend Kg */
+            trend_kg: number | null;
+            /** Y */
+            y: number | null;
         };
         /** UnitOut */
         UnitOut: {
@@ -3938,6 +4296,122 @@ export interface components {
              * Format: date
              */
             start: string;
+        };
+        /** WeeklyRateOut */
+        WeeklyRateOut: {
+            /** Kg */
+            kg: number;
+            /** Pct Bw */
+            pct_bw: number;
+        };
+        /**
+         * WeightIn
+         * @description `weight_kg` is checked by the service (2 to 300, else 422 `weight_out_of_range`) and kept
+         *     to 2 dp. A value outside 30 to 200, or far from the last weigh-in, needs `confirm_unusual`.
+         */
+        WeightIn: {
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Confirm Unusual
+             * @default false
+             */
+            confirm_unusual: boolean;
+            /** Member Id */
+            member_id?: string | null;
+            /** Weight Kg */
+            weight_kg: number;
+        };
+        /** WeightOut */
+        WeightOut: {
+            /** Client Id */
+            client_id: string | null;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /** Numbers Hidden */
+            numbers_hidden: boolean;
+            /**
+             * Source
+             * @constant
+             */
+            source: "manual";
+            /** Weight Kg */
+            weight_kg: number | null;
+        };
+        /** WeightPointOut */
+        WeightPointOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Outlier */
+            outlier: boolean;
+            /** Weight Kg */
+            weight_kg: number | null;
+            /** Y */
+            y: number | null;
+        };
+        /** WeightTrendOut */
+        WeightTrendOut: {
+            /**
+             * Days
+             * @enum {integer}
+             */
+            days: 30 | 90 | 365;
+            /** Flags */
+            flags: "rapid_loss"[];
+            /**
+             * From
+             * Format: date
+             */
+            from: string;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Numbers Hidden */
+            numbers_hidden: boolean;
+            /**
+             * Pending Clinician Review
+             * @default true
+             * @constant
+             */
+            pending_clinician_review: true;
+            /** Points */
+            points: components["schemas"]["WeightPointOut"][];
+            projection: components["schemas"]["ProjectionOut"] | null;
+            /**
+             * Projection Reason
+             * @enum {string}
+             */
+            projection_reason: "ready" | "too_few_weigh_ins" | "moving_away" | "no_target" | "too_far" | "reached";
+            /** Rapid Loss Pct */
+            rapid_loss_pct: number;
+            /**
+             * To
+             * Format: date
+             */
+            to: string;
+            /** Trend */
+            trend: components["schemas"]["TrendPointOut"][];
+            weekly_rate: components["schemas"]["WeeklyRateOut"] | null;
+        };
+        /** WeightsOut */
+        WeightsOut: {
+            /** Items */
+            items: components["schemas"]["WeightOut"][];
+            /** Numbers Hidden */
+            numbers_hidden: boolean;
         };
     };
     responses: never;
@@ -4747,6 +5221,429 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DiaryWeekOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_list: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouritesOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FavouriteIn"];
+            };
+        };
+        responses: {
+            /** @description Already a favourite: nothing changed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_add_meal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FavouriteMealIn"];
+            };
+        };
+        responses: {
+            /** @description Already saved with this client_id */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                favourite_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    favourites_log: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                favourite_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FavouriteLogIn"];
+            };
+        };
+        responses: {
+            /** @description Every entry already existed (a retry) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteLogOut"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteLogOut"];
                 };
             };
             /** @description Missing or invalid access token */
@@ -9088,6 +9985,323 @@ export interface operations {
             };
             /** @description Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), or speech, AI or OFF is unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_list: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+                /** @description Local date; default 89 days back */
+                from?: string | null;
+                /** @description Local date; default today */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeightsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_trend_get: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+                /** @description Window in days: 30, 90 or 365 */
+                days?: 30 | 90 | 365;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeightTrendOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                day: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WeightIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeightOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_delete: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path: {
+                day: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };

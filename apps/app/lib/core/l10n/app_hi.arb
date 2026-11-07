@@ -462,6 +462,7 @@
   "diaryTitle": "डायरी",
   "diaryToday": "आज",
   "diaryViewDay": "दिन",
+  "diaryViewProgress": "प्रगति",
   "diaryWaitingSync": "सिंक होने की प्रतीक्षा में",
   "diaryWeekAtLeast": "कम से कम {value}",
   "@diaryWeekAtLeast": {
@@ -512,6 +513,7 @@
   "errorCustomFoodNotFound": "हमें आपका वह खाना नहीं मिला।",
   "errorCustomFoodNutrientsEmpty": "ऊर्जा डालें, या प्रोटीन, कार्ब्स या फैट में से कम से कम एक डालें।",
   "errorDateInFuture": "वह तारीख़ अभी आई नहीं है।",
+  "errorDateRangeTooLong": "कृपया 400 दिन तक की अवधि चुनें।",
   "errorDateTooOld": "आप सिर्फ़ पिछले 30 दिनों में जोड़ सकते हैं।",
   "errorDeletionIncomplete": "हम आपका खाता पूरी तरह हटा नहीं सके। कृपया फिर से कोशिश करें; जो हट चुका है वह वापस नहीं आएगा।",
   "errorDiaryMemberNotEnabled": "दैनिक गाइड अभी सिर्फ़ आपकी अपनी प्रोफ़ाइल के लिए उपलब्ध हैं।",
@@ -519,6 +521,8 @@
   "errorExtractionFailed": "हम यह लेबल नहीं पढ़ पाए। दूसरी फ़ोटो आज़माएँ या जानकारी खुद भरें।",
   "errorExtractionUnavailable": "लेबल पढ़ने की सुविधा अभी उपलब्ध नहीं है। बाद में फिर कोशिश करें या जानकारी खुद भरें।",
   "errorFatPctOutOfRange": "कृपया कैलोरी में वसा का हिस्सा 20% से 30% के बीच चुनें।",
+  "errorFavouriteLimit": "आप 200 तक पसंदीदा रख सकते हैं। नया जोड़ने के लिए एक हटाएँ।",
+  "errorFavouriteNotFound": "वह पसंदीदा नहीं मिला।",
   "errorFollowUpWithoutType": "कृपया अपने जवाब जाँचें और फिर से कोशिश करें।",
   "errorFoodNotFound": "हमें वह खाना नहीं मिला।",
   "errorFoodRetired": "यह व्यंजन अब उपलब्ध नहीं है, इसलिए इसे दोबारा नहीं जोड़ा जा सकता। आपकी पहले की प्रविष्टियाँ जैसी हैं वैसी रहेंगी।",
@@ -575,6 +579,9 @@
   "errorUserTypesNotFound": "पहले बताइए कि आप SmartNutri क्यों इस्तेमाल कर रहे हैं।",
   "errorValidationError": "कृपया चिह्नित फ़ील्ड जाँचें।",
   "errorVoiceNotUnderstood": "हमें कोई सवाल सुनाई नहीं दिया। कृपया बटन दबाए रखें और साफ़ बोलें।",
+  "errorWeightNeedsConfirm": "यह वज़न आपके पिछले वज़न से काफ़ी अलग है। कृपया पुष्टि करें।",
+  "errorWeightNotFound": "वह वज़न नहीं मिला।",
+  "errorWeightOutOfRange": "2 से 300 किग्रा के बीच वज़न लिखें।",
   "explanationAiNote": "ऊपर के नतीजों से AI ने लिखा है। यह कभी कोई नतीजा नहीं बदलता।",
   "explanationFallbackTip1": "मिलते-जुलते उत्पादों के लेबल की तुलना करें और कम चीनी व कम नमक वाला चुनें।",
   "explanationFallbackTip2": "पैक पर सर्विंग का आकार देखें: लेबल के मान प्रति 100 ग्राम या 100 मि.ली. होते हैं।",
@@ -586,8 +593,26 @@
   "familyComingSoonBody": "हर सदस्य की उम्र, एलर्जी और आहार जोड़ें, ताकि हर किसी के लिए अलग नतीजा मिले।",
   "familyComingSoonTitle": "परिवार प्रोफ़ाइल जल्द आ रही हैं",
   "familyTitle": "परिवार",
+  "favouritesAdd": "पसंदीदा में जोड़ें",
+  "favouritesAdded": "पसंदीदा में जोड़ा गया",
+  "favouritesEmpty": "अभी कोई पसंदीदा नहीं",
+  "favouritesLimit": "आप 200 तक पसंदीदा रख सकते हैं।",
+  "favouritesLogAgain": "फिर से दर्ज करें",
+  "favouritesMealItems": "{count, plural, one {# आइटम} other {# आइटम}}",
+  "@favouritesMealItems": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "favouritesMealName": "भोजन का नाम",
+  "favouritesMealNameHint": "आप जो नाम लिखते हैं, वह ठीक वैसा ही रखा जाता है।",
+  "favouritesRemove": "पसंदीदा से हटाएँ",
+  "favouritesSaveMeal": "पसंदीदा भोजन के रूप में सहेजें",
   "foodsBlankIsUnknown": "पता न हो तो खाली छोड़ें। खाली को कभी 0 नहीं गिना जाता।",
   "foodsDishIngredients": "इनसे बना",
+  "foodsFavourites": "पसंदीदा",
   "foodsGroupIndian": "भारतीय खाना",
   "foodsGroupMine": "मेरे खाने और रेसिपी",
   "foodsGroupPackaged": "पैकेज्ड उत्पाद",
@@ -1776,6 +1801,22 @@
   },
   "targetsHowSources": "स्रोत और तरीका",
   "targetsHowTitle": "हमने यह कैसे निकाला",
+  "targetsHowWeightLatest": "इस्तेमाल किया गया वज़न: {value} किग्रा (आपका ताज़ा वज़न)",
+  "@targetsHowWeightLatest": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowWeightTrend": "इस्तेमाल किया गया वज़न: {value} किग्रा (आपका रुझान)",
+  "@targetsHowWeightTrend": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "targetsIntroBody": "आपकी जानकारी पर आधारित एक अनुमान, जो आपका मार्गदर्शन करे। यह जानकारी है, चिकित्सा सलाह नहीं।",
   "targetsIntroTitle": "आपकी दैनिक गाइड",
   "targetsKcalValue": "{value} किलोकैलोरी",
@@ -2220,5 +2261,73 @@
   "warningSodiumUnitSuspect": "इस उत्पाद के लिए सोडियम बहुत कम लग रहा है। पैक पर देखें कि यह mg में छपा है या g में, और वही इकाई चुनें।",
   "warningUnitUnconfirmed": "इस मान की इकाई साफ़ नहीं थी। जैसा छपा है, वैसा mg या g चुनें।",
   "warningUnreadableField": "हम यह मान पढ़ नहीं पाए। इसे पैक से भरें या खाली छोड़ें।",
-  "warningUpperBound": "पैक पर लिखा है कि इतनी मात्रा से \"कम\"। अगर यह सही है तो पुष्टि करें।"
+  "warningUpperBound": "पैक पर लिखा है कि इतनी मात्रा से \"कम\"। अगर यह सही है तो पुष्टि करें।",
+  "weightAdd": "वज़न दर्ज करें",
+  "weightCheckEntry": "इस वज़न को जाँच लें",
+  "weightConfirmUnusual": "यह आपके पिछले वज़न ({previous} किग्रा) से काफ़ी अलग है। फिर भी सहेजें?",
+  "@weightConfirmUnusual": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      }
+    }
+  },
+  "weightConfirmUnusualHidden": "यह आपके पिछले वज़न से काफ़ी अलग है। फिर भी सहेजें?",
+  "weightConsent": "वज़न का रिकॉर्ड रखने के लिए SmartNutri को अपनी सेहत की जानकारी इस्तेमाल करने दें।",
+  "weightDate": "तारीख़",
+  "weightDelete": "वज़न हटाएँ",
+  "weightDeleteConfirm": "यह वज़न हटाएँ?",
+  "weightEdit": "वज़न बदलें",
+  "weightEmpty": "अभी तक कोई वज़न दर्ज नहीं",
+  "weightKgValue": "{value} किग्रा",
+  "@weightKgValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "weightNoProjectionMovingAway": "अभी आपका रुझान आपके लक्ष्य की ओर नहीं जा रहा है।",
+  "weightNoProjectionNoTarget": "अनुमान देखने के लिए लक्ष्य वज़न तय करें।",
+  "weightNoProjectionReached": "आप अपने लक्ष्य वज़न पर हैं।",
+  "weightNoProjectionTooFar": "इस गति से लक्ष्य एक साल से भी ज़्यादा दूर है।",
+  "weightNoProjectionTooFewWeighIns": "अनुमान देखने के लिए कुछ हफ़्तों में कुछ और बार वज़न दर्ज करें।",
+  "weightOutlier": "रुझान में शामिल नहीं",
+  "weightProjection": "इसी गति से आप लगभग {date} तक {target} किग्रा तक पहुँच जाएँगे।",
+  "@weightProjection": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "weightRange30": "30 दिन",
+  "weightRange365": "1 साल",
+  "weightRange90": "90 दिन",
+  "weightRapidLoss": "आपका वज़न हफ़्ते में {pct}% से ज़्यादा तेज़ी से घट रहा है। धीमी गति आमतौर पर निभाना आसान होता है।",
+  "@weightRapidLoss": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "weightSaveAnyway": "फिर भी सहेजें",
+  "weightTipSameTime": "दिन में हर बार एक ही समय पर, जैसे उठने के बाद।",
+  "weightTitle": "वज़न",
+  "weightTrend": "रुझान",
+  "weightWeeklyRate": "लगभग {kg} किग्रा प्रति सप्ताह (शरीर के वज़न का {pct}%)",
+  "@weightWeeklyRate": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  }
 }
