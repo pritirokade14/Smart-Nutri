@@ -44,8 +44,10 @@ async def test_display_response_is_minimal_even_without_health_data(client, g1):
     assert r.status_code == 200
     assert set(r.json()) == {"member_id", "numbers_display", "summary_view", "updated_at"}
     text = r.text
-    for secret in ("pregnant", "target_weight", "direction", "activity", "rate_pct", "80"):
+    for secret in ("pregnant", "target_weight", "direction", "activity", "rate_pct"):
         assert secret not in text, secret
+    # Compare values, not raw text: ids and timestamps can contain the digits "80".
+    assert 80 not in r.json().values()
 
 
 async def test_hiding_is_never_rate_limited(client, g1, app, db_session):
