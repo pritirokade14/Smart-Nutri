@@ -9,9 +9,10 @@ const H = 160;
 const PAD = 12;
 
 /** Date order of the window decides x; the API's `y` (0 to 1) decides height. */
-function xOf(date: string, from: number, span: number): number {
+export function xOf(date: string, from: number, span: number): number {
   const ms = Date.parse(`${date}T00:00:00Z`);
-  const f = span > 0 ? (ms - from) / span : 0.5;
+  // Clamped to 0..1 like Android, so a date outside from..to stays in the chart.
+  const f = span > 0 ? Math.min(1, Math.max(0, (ms - from) / span)) : 0.5;
   return PAD + f * (W - 2 * PAD);
 }
 const yOf = (y: number): number => PAD + (1 - y) * (H - 2 * PAD);

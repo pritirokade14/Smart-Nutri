@@ -121,7 +121,14 @@ class WeightsRepository {
   );
 
   /// Online only; terms consent is enough (erasing never needs
-  /// `health_data`). Returns how many weigh-ins were deleted.
-  Future<int> deleteAll() async =>
-      (await WeightsFailure.guard(() => _client.weightsDeleteAll())).deleted;
+  /// `health_data`). Returns how many weigh-ins were deleted. Weigh-ins still
+  /// queued on the phone are dropped too, so none uploads after consent is
+  /// given again.
+  Future<int> deleteAll() async {
+    final deleted = (await WeightsFailure.guard(
+      () => _client.weightsDeleteAll(),
+    )).deleted;
+    await _queue.clearWeighIns();
+    return deleted;
+  }
 }

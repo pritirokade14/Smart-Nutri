@@ -48,7 +48,7 @@ class WeightTrendOut {
   @JsonKey(name: 'projection_reason')
   final WeightTrendOutProjectionReason projectionReason;
   @JsonKey(name: 'rapid_loss_pct')
-  final num rapidLossPct;
+  final num? rapidLossPct;
   final DateTime to;
   final List<TrendPointOut> trend;
   @JsonKey(name: 'weekly_rate')

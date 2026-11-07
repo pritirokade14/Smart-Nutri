@@ -13,7 +13,9 @@ A feature is done only when all of these hold:
 
 Status values: ⬜ not started · 🟡 code complete, waiting on a USER gate (manual check, review, deploy or eval) · ✅ done.
 
-**Honest state (2026-11-07):** F1–F22 are code complete on API, Android and web and merged to `main`, and deployed to dev (API 3,972, Flutter 1,511, web 1,298 unit and 47 e2e tests). None is ✅ yet: each waits on at least one USER step (manual real-pack parity checks on a phone and in a browser, label eval, clinician and native-language review).
+**Honest state (2026-11-08):** F23–F26 (Plan 12 slices 3–6) are built on API, Android and web: slices 3–5 merged (PRs #10, #11, #12) and live on dev, slice 6 in PR #13 (pending). The paragraph below is the 2026-11-07 state for F1–F22.
+
+**State of F1–F22 (2026-11-07):** F1–F22 are code complete on API, Android and web and merged to `main`, and deployed to dev (API 3,972, Flutter 1,511, web 1,298 unit and 47 e2e tests). None is ✅ yet: each waits on at least one USER step (manual real-pack parity checks on a phone and in a browser, label eval, clinician and native-language review).
 
 | # | Feature | Milestone | API | Android (Flutter) | Web (Next.js) | Web-specific notes |
 |---|---|---|---|---|---|---|
@@ -39,10 +41,10 @@ Status values: ⬜ not started · 🟡 code complete, waiting on a USER gate (ma
 | F20 | Gym protein guide: `build_muscle` goal and daily protein guide, protein per serving / 100 g / 100 kcal, protein and whey claim checks, higher-protein sort, compare protein columns and a typed-in price per scoop (client-only), supplements not graded | Plan 9 | 🟡 | 🟡 | 🟡 | `/[locale]/protein`; the public product page also shows protein facts (no personal data). Price per scoop lives only in component state. **Status:** built and merged (PR #3; Plan 9 Tasks 3–7, 11, 14); waits on the same USER gates as F1–F17. Thresholds PENDING CLINICIAN REVIEW; supplements (Task 7, migration 0006) can slip. |
 | F21 | Daily guide (targets), hide numbers, protein basis | Plan 10 slice 1 | 🟡 | 🟡 | 🟡 | `/[locale]/guide/setup`, Profile "Diary and daily guide", the Today targets card with the eye toggle. The API decides every number and the pregnancy question starts unanswered. **Status:** merged (PR #7) and live on dev. Thresholds PENDING CLINICIAN REVIEW. |
 | F22 | Food diary day: log by meal, quick add, edit and delete, copy a meal or day, week view, remaining today, meal slots | Plan 11 slice 2 | 🟡 | 🟡 | 🟡 | `/[locale]/diary` (History redirects here); Android Diary tab with an offline queue. Totals, remaining and progress come only from the API, and unknown values show as incomplete, never 0. Slot labels are user text kept out of analytics. **Status:** slices 2 and 2b merged (PR #9, `8f7f456`) and live on dev; dev DB at `0009_diary_days_slots_entries`. Meal-slot management is included. |
-| F23 | Household units, portion picker, generic and Indian foods | Plan 12 slice 3 | ⬜ | ⬜ | ⬜ | Planned in Plan 12. |
-| F24 | Custom foods and recipes | Plan 12 slice 4 | ⬜ | ⬜ | ⬜ | Planned in Plan 12. |
-| F25 | Favourites and recents | Plan 12 slice 5 | ⬜ | ⬜ | ⬜ | Planned in Plan 12. |
-| F26 | Weight log, trend and progress | Plan 12 slice 6 | ⬜ | ⬜ | ⬜ | Planned in Plan 12. |
+| F23 | Household units, portion picker, generic and Indian foods | Plan 12 slice 3 | 🟡 | 🟡 | 🟡 | Same portion picker on both clients; grams and nutrition come only from the API, and a food without a unit shows grams only. **Status:** built and merged (PR #10) and live on dev. Waits on the USER dietitian review of `household_units.csv`, the derived densities and the Indian dishes (weighing roti, phulka, paratha, idli, dosa, puri, vada, samosa, laddoo, besan chilla; katori sizes). The NIN permission letter is still to be sent (USER). |
+| F24 | Custom foods and recipes | Plan 12 slice 4 | 🟡 | 🟡 | 🟡 | Create and edit a food or a recipe (per-serving totals from the API). Custom foods are the user's own data, never shared and never a verdict source. **Status:** built and merged (PR #11) and live on dev. Migration 0011. |
+| F25 | Favourites and recents, saved meals | Plan 12 slice 5 | 🟡 | 🟡 | 🟡 | Star a food, re-log a recent one, save a meal and log it again in one tap. **Status:** built and merged (PR #12) and live on dev. Migration 0012. |
+| F26 | Weight log, trend and progress | Plan 12 slice 6 | 🟡 | 🟡 | 🟡 | Weigh-in log, smoothed trend and progress chart (Android queues weigh-ins offline; web is online-only). Trend, rate and projection come only from the API. Under hide_all no kg and no rapid-loss threshold are returned. "Delete all my weigh-ins" works on terms consent alone and also clears weigh-ins queued on the phone. **Status:** built; PR #13 pending (not yet on `v1-rebuild`/dev until merged). Migration 0013; dev DB at alembic 0013. Thresholds PENDING CLINICIAN REVIEW. |
 
 ## Web-only additions (do not break parity)
 

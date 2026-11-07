@@ -366,6 +366,12 @@ class MemoryMealQueue implements MealQueue, WeighInQueue {
   }
 
   @override
+  Future<void> clearWeighIns() async {
+    weighIns.clear();
+    _changed();
+  }
+
+  @override
   Future<void> confirmWeighIn(String clientId) async {
     final r = weighIns[clientId];
     if (r != null) {

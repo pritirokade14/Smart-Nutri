@@ -1,6 +1,7 @@
 import 'package:smartnutri_ai/core/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:smartnutri_ai/core/storage/meal_queue.dart';
 import 'package:smartnutri_ai/core/theme/sn_colors.dart';
 import 'package:smartnutri_ai/features/targets/presentation/targets_explanation.dart';
 import 'package:smartnutri_ai/features/weights/presentation/progress_view.dart';
@@ -162,5 +163,28 @@ void _extra() {
     await t.pumpAndSettle();
     expect(env.weights.deleteAllCalls, 1);
     expect(find.text(en.weightDeleteAllDone), findsOneWidget);
+  });
+
+  testWidgets('delete all also clears weigh-ins queued on the phone', (
+    t,
+  ) async {
+    final env = WeightsEnv(consents: {'terms'});
+    await env.queue.addWeighIn(
+      PendingWeighIn(
+        clientId: 'q1',
+        localDate: '2026-11-06',
+        weightKg: 70,
+        confirmUnusual: false,
+        status: WeighInStatus.pending,
+        attempts: 0,
+      ),
+    );
+    await pumpWeights(t, env);
+    await t.tap(find.byKey(ProgressView.deleteAllKey));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(ProgressView.deleteAllConfirmKey));
+    await t.pumpAndSettle();
+    expect(env.weights.deleteAllCalls, 1);
+    expect(env.queue.weighIns, isEmpty);
   });
 }

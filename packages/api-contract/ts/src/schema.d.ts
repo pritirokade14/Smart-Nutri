@@ -4402,7 +4402,7 @@ export interface components {
              */
             projection_reason: "ready" | "too_few_weigh_ins" | "moving_away" | "no_target" | "too_far" | "reached";
             /** Rapid Loss Pct */
-            rapid_loss_pct: number;
+            rapid_loss_pct: number | null;
             /**
              * To
              * Format: date
