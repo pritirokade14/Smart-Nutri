@@ -41,9 +41,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T08:15:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 80.0,
           "id": "2b4f1321-9106-575b-90dc-f6dc9e25d77a",
@@ -61,9 +64,17 @@
             "sat_fat_g": 1.5,
             "sugars_g": 9.0
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "66304445-94b5-5b80-a0de-8b15f0550d97",
           "product_name": "Muesli",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T08:15:00+05:30"
         }
       ],
@@ -95,9 +106,14 @@
       "entries": [
         {
           "attribution": "attribution.off",
+          "attributions": [
+            "attribution.off"
+          ],
           "barcode": "8900000000000",
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T13:40:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 30.0,
           "id": "5d6d76a3-d5a9-5969-bde5-10b49b462797",
@@ -121,9 +137,17 @@
             "sat_fat_g": null,
             "sugars_g": null
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": null,
           "product_name": "Open Food Facts namkeen",
+          "quantity": null,
           "source_kind": "off",
+          "unit": null,
           "updated_at": "2026-11-07T13:40:00+05:30"
         }
       ],

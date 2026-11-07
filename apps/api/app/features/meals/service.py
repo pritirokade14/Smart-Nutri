@@ -5,6 +5,7 @@ per-100 g values. A value missing on the label stays null (never 0), and later p
 never rewrite history. Member names and nutrients never go to logs.
 """
 
+from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal
@@ -22,6 +23,8 @@ from app.core.errors import ApiError
 from app.core.time import IST, zone
 from app.features.consents import service as consents_service
 from app.features.diary.days import day_targets
+from app.features.foods import resolve as foods_resolve
+from app.features.foods import units as food_units
 from app.features.me import service as me_service
 from app.features.meal_slots import service as slots_service
 from app.features.meals.models import MealLog
@@ -30,6 +33,7 @@ from app.features.meals.schemas import (
     MealOut,
     MealPatch,
     NutrientSnapshot,
+    PortionUnitOut,
     QuickIn,
     Summary,
     WeekCounts,
@@ -97,15 +101,23 @@ def food_snapshot(
     per_100g: scoring.Nutrients,
     serving_g: float | None,
     attribution: str | None,
+    *,
+    basis: str = "g",
+    units: Mapping[str, float] | None = None,
+    attributions: Sequence[str] | None = None,
+    licence: str | None = None,
+    source: str | None = None,
 ) -> dict[str, Any]:
     """The food as it was at log time (spec 5.1 `food_snapshot`): an edit recomputes from THIS,
-    never from the product row, so a later product edit never rewrites history. ``per_100`` is
-    after the engine's sanitiser, with salt from salt or sodium (the higher wins). Unrounded."""
+    never from the product row, a user override or the seed, so a later edit never rewrites
+    history. ``per_100`` is after the engine's sanitiser, with salt from salt or sodium (the
+    higher wins). Unrounded. ``units`` holds every unit that resolved at log time (code ->
+    grams, or ml, per unit); without it, just the serving."""
     n, _ = per_100g.sanitized()
     return {
         "name": info_name,
         "brand": brand,
-        "basis": "g",
+        "basis": basis,
         "per_100": {
             "energy_kcal": n.energy_kcal,
             "sugars_g": n.sugars_g,
@@ -116,8 +128,15 @@ def food_snapshot(
             "carbs_g": n.carbs_g,
             "fibre_g": n.fiber_g,
         },
-        "units": {"serving": serving_g} if serving_g else {},
+        "units": dict(units)
+        if units is not None
+        else ({"serving": serving_g} if serving_g else {}),
         "attribution": attribution,
+        "attributions": list(attributions)
+        if attributions is not None
+        else ([attribution] if attribution else []),
+        "licence": licence,
+        "source": source,
     }
 
 
@@ -146,6 +165,38 @@ def ist_day_bounds(start_day: date, end_day: date) -> tuple[datetime, datetime]:
 
 def _display(value: float | None) -> float | None:
     return None if value is None else _round1(float(value))
+
+
+_UNIT_SORT = {u.code: u.sort for u in food_units.table_from_yaml().values()}
+
+
+def _snapshot_units(row: MealLog) -> dict[str, float]:
+    """The units that resolved when the entry was logged: its saved food's `units`, plus grams
+    for a gram-basis food (always resolvable; older snapshots did not list it)."""
+    snap = row.food_snapshot
+    if snap is None:  # a legacy product entry (grams are always resolvable) or a quick add
+        return {} if row.source_kind == "quick_add" else {"g": 1.0}
+    units = {k: float(v) for k, v in (snap.get("units") or {}).items() if v}
+    if snap.get("basis", "g") == "g":
+        units.setdefault("g", 1.0)
+    return units
+
+
+def _portion_units(row: MealLog) -> list[PortionUnitOut]:
+    units = _snapshot_units(row)
+    return [
+        PortionUnitOut(code=c, grams_per_unit=units[c])
+        for c in sorted(units, key=lambda c: (_UNIT_SORT.get(c, 999), c))
+    ]
+
+
+def _attributions(row: MealLog) -> list[str]:
+    snap = row.food_snapshot
+    if snap is not None and snap.get("attributions") is not None:
+        return list(snap["attributions"])
+    if snap is not None and snap.get("attribution"):
+        return [snap["attribution"]]
+    return [OFF_ATTRIBUTION] if row.off_barcode is not None else []
 
 
 def to_meal_out(row: MealLog, hidden: NumbersHidden | None = None) -> MealOut:
@@ -178,6 +229,12 @@ def to_meal_out(row: MealLog, hidden: NumbersHidden | None = None) -> MealOut:
         local_date=row.local_date,
         incomplete=[k for k in NUTRIENT_KEYS if raw.get(k) is None],
         updated_at=row.updated_at,
+        food_id=row.food_id,
+        quantity=None if row.quantity is None else float(row.quantity),
+        unit=row.unit,
+        basis=(row.food_snapshot or {}).get("basis", "g"),  # type: ignore[arg-type]
+        attributions=_attributions(row),
+        portion_units=_portion_units(row),
     )
 
 
@@ -211,8 +268,29 @@ def _grams_from(grams: float | None, servings: float | None, serving_size_g: flo
     return out
 
 
-def _grams(body: MealIn, serving_size_g: float | None) -> float:
-    return _grams_from(body.grams, body.servings, serving_size_g)
+def _portion_of(
+    body: MealIn, loaded: foods_resolve.LoadedFood, table: dict[str, food_units.Unit]
+) -> tuple[float, Decimal, str]:
+    """(amount in the food's basis, quantity, unit code) of a log. ``grams`` and ``servings``
+    keep their exact legacy behaviour (bounds, `serving_size_unknown`); ``quantity`` + ``unit``
+    goes through `to_grams`, which refuses to guess: 422 `unit_grams_unknown`,
+    `quantity_out_of_range`. Every new entry stores a quantity and a unit."""
+    if body.quantity is not None:
+        quantity = Decimal(repr(body.quantity))
+        amount = food_units.portion_amount(quantity, body.unit or "", loaded.units, table)
+        return float(amount), quantity, body.unit or ""
+    if body.grams is not None:
+        quantity = Decimal(repr(body.grams))
+        if loaded.basis == "ml":  # grams of an ml-basis food need a density
+            return (
+                float(food_units.portion_amount(quantity, "g", loaded.units, table)),
+                quantity,
+                "g",
+            )
+        return body.grams, quantity, "g"
+    serving = loaded.units.serving_g
+    grams = _grams_from(None, body.servings, None if serving is None else float(serving))
+    return grams, Decimal(repr(body.servings)), "serving"
 
 
 def _quick_nutrients(quick: QuickIn) -> dict[str, float | None]:
@@ -305,33 +383,47 @@ async def log_meal(
             food_snapshot=None,
         )
     else:
-        found = await products_service.resolve_ref(
-            session,
-            off,
-            product_id=body.product_id,
-            barcode=body.barcode,
-            settings=settings,
-            account_id=account_id,
+        ref = foods_resolve.ref_from_ids(
+            food_id=body.food_id, product_id=body.product_id, barcode=body.barcode
         )
-        grams = _grams(body, found.product.serving_size_g)
-        grade = scoring.analyze(found.product, []).report.nutriscore.grade
+        loaded = await foods_resolve.load_food(
+            session, off, ref, account_id=account_id, settings=settings
+        )
+        table = await foods_resolve.unit_table(session)
+        grams, quantity, unit_code = _portion_of(body, loaded, table)
+        units = {
+            r.code: float(r.grams_per_unit) for r in food_units.resolve_units(loaded.units, table)
+        }
+        serving = loaded.units.serving_g
         row = MealLog(
             **common,
-            source_kind="product" if found.product_id is not None else "off",
-            product_id=found.product_id,
-            off_barcode=found.info.barcode if found.product_id is None else None,
-            product_name=found.info.name,
-            grade=grade,
-            grams=grams,
-            nutrients=snapshot(found.product.per_100g, grams).model_dump(),
-            food_snapshot=food_snapshot(
-                found.info.name or "",
-                found.info.brand,
-                found.product.per_100g,
-                found.product.serving_size_g,
-                found.attribution,
+            source_kind=(
+                "food" if loaded.food_id is not None
+                else "product" if loaded.product_id is not None
+                else "off"
             ),
-        )
+            product_id=loaded.product_id,
+            off_barcode=loaded.off_barcode,
+            food_id=loaded.food_id,
+            product_name=loaded.name,
+            grade=loaded.grade,
+            grams=grams,
+            quantity=quantity,
+            unit=unit_code,
+            nutrients=snapshot(loaded.per_100, grams).model_dump(),
+            food_snapshot=food_snapshot(
+                loaded.name,
+                loaded.brand,
+                loaded.per_100,
+                None if serving is None else float(serving),
+                loaded.attribution,
+                basis=loaded.basis,
+                units=units,
+                attributions=loaded.attributions,
+                licence=loaded.licence,
+                source=loaded.source,
+            ),
+        )  # fmt: skip
     try:
         async with session.begin_nested():
             session.add(row)
@@ -355,6 +447,22 @@ async def log_meal(
     await session.commit()
     await session.refresh(row)
     return row, True
+
+
+def _patch_portion(row: MealLog, patch: MealPatch) -> tuple[float, Decimal, str]:
+    """A new quantity + unit, converted ONLY from the entry's own saved units (the ones that
+    resolved when it was logged): a later portion override, density or reseed never rewrites
+    history, and a unit that did not resolve then is 422 `unit_grams_unknown`."""
+    unit_code = patch.unit or ""
+    per_unit = _snapshot_units(row).get(unit_code)
+    if per_unit is None:
+        raise ApiError("unit_grams_unknown", 422, details={"unit": unit_code})
+    quantity = Decimal(repr(patch.quantity))
+    cap = food_units.MAX_AMOUNT if unit_code in ("g", "ml") else food_units.MAX_QUANTITY
+    amount = quantity * Decimal(repr(per_unit))
+    if not 0 < quantity <= cap or not 0 < amount <= food_units.MAX_AMOUNT:
+        raise ApiError("quantity_out_of_range", 422)
+    return float(amount), quantity, unit_code
 
 
 async def update_meal(
@@ -392,15 +500,25 @@ async def update_meal(
             raise ApiError("validation_error", 422, details={"fields": ["body.quick"]})
         row.product_name = patch.quick.name
         row.nutrients = _quick_nutrients(patch.quick)
-    if patch.grams is not None or patch.servings is not None:
+    if patch.grams is not None or patch.servings is not None or patch.quantity is not None:
         if row.source_kind == "quick_add":
-            fields = ["body.grams" if patch.grams is not None else "body.servings"]
-            raise ApiError("validation_error", 422, details={"fields": fields})
-        serving = ((row.food_snapshot or {}).get("units") or {}).get("serving")
-        grams = _grams_from(patch.grams, patch.servings, serving)
+            field = next(f for f in ("grams", "servings", "quantity") if getattr(patch, f))
+            raise ApiError("validation_error", 422, details={"fields": [f"body.{field}"]})
+        if patch.quantity is not None:
+            grams, quantity, unit_code = _patch_portion(row, patch)
+        elif patch.grams is not None:
+            serving = ((row.food_snapshot or {}).get("units") or {}).get("serving")
+            grams = _grams_from(patch.grams, None, serving)
+            quantity, unit_code = Decimal(repr(patch.grams)), "g"
+        else:
+            serving = ((row.food_snapshot or {}).get("units") or {}).get("serving")
+            grams = _grams_from(None, patch.servings, serving)
+            quantity, unit_code = Decimal(repr(patch.servings)), "serving"
         per_100 = per_100_of(row)
         row.nutrients = {k: _portion(per_100[k], grams) for k in NUTRIENT_KEYS}
         row.grams = grams
+        row.quantity = quantity
+        row.unit = unit_code
     if patch.eaten_at is not None:
         _check_eaten_at(patch.eaten_at, now)
         row.eaten_at = patch.eaten_at

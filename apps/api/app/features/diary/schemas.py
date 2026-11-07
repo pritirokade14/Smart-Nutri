@@ -139,15 +139,23 @@ class DiaryDayStatusOut(BaseModel):
 
 
 class RecentItem(BaseModel):
-    source_kind: Literal["product", "off"]
+    source_kind: Literal["product", "off", "food"]
     product_id: UUID | None
     barcode: str | None
+    food_id: UUID | None = Field(
+        default=None, description="A generic food or dish; log it again with `food_id`"
+    )
     name: str
     grade: NutriScoreGrade | None
     grams: float
+    quantity: float | None = Field(
+        default=None, description="The portion as last logged, with `unit`; null for older entries"
+    )
+    unit: str | None = None
     meal_slot_id: UUID
     last_eaten_at: AwareDatetime
     attribution: str | None
+    attributions: list[str] = Field(default_factory=list)
 
 
 class RecentsOut(BaseModel):

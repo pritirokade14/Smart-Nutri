@@ -155,7 +155,8 @@ async def test_snapshot_has_fibre_and_food_snapshot(
         "carbs_g",
         "fibre_g",
     }
-    assert snap["units"] == {"serving": 25.0} and snap["attribution"] is None
+    # Plan 12: every unit that resolved at log time (grams always, then the serving).
+    assert snap["units"] == {"g": 1.0, "serving": 25.0} and snap["attribution"] is None
     assert row.updated_at is not None and row.local_date is not None
 
 

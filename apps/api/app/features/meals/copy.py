@@ -44,6 +44,9 @@ def _snapshot_of(source: MealLog) -> dict | None:
         "per_100": meals_service.per_100_of(source),
         "units": {},
         "attribution": meals_service.OFF_ATTRIBUTION if source.off_barcode else None,
+        "attributions": [meals_service.OFF_ATTRIBUTION] if source.off_barcode else [],
+        "licence": None,
+        "source": None,
     }
 
 
@@ -138,6 +141,9 @@ async def copy_entries(
                 "source_kind": source.source_kind,
                 "product_id": source.product_id,
                 "off_barcode": source.off_barcode,
+                "food_id": source.food_id,
+                "quantity": source.quantity,
+                "unit": source.unit,
                 "product_name": source.product_name,
                 "grade": source.grade,
                 "grams": source.grams,

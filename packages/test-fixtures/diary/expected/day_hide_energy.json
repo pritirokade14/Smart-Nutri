@@ -41,9 +41,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T08:30:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 60.0,
           "id": "40be62e3-2b1c-5241-91e1-6362f642f3b7",
@@ -61,9 +64,17 @@
             "sat_fat_g": 0.8,
             "sugars_g": 0.6
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "7711b171-10e3-576d-befe-f4b70ed2719a",
           "product_name": "Oats",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T08:30:00+05:30"
         }
       ],
@@ -95,9 +106,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T13:15:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 350.0,
           "id": "e022edef-ac5d-5ba9-bafd-51409d3416d5",
@@ -115,9 +129,17 @@
             "sat_fat_g": 3.3,
             "sugars_g": 4.1
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "29814a4f-7d5c-5ddf-ba24-4e9e34239066",
           "product_name": "Dal rice plate",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T13:15:00+05:30"
         }
       ],
@@ -149,9 +171,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T17:00:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 25.0,
           "id": "2f21f322-3012-514b-9f17-712e20bb408e",
@@ -169,9 +194,17 @@
             "sat_fat_g": 2.0,
             "sugars_g": 0.5
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "d79e2254-596f-5c1f-9a7b-df0cd114f432",
           "product_name": "Biscuit",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T17:00:00+05:30"
         }
       ],
@@ -203,9 +236,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T20:30:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 280.0,
           "id": "c7ad9125-4975-5636-b2e6-74e92e9bf6e0",
@@ -223,9 +259,17 @@
             "sat_fat_g": 4.1,
             "sugars_g": 5.0
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "adbf14f3-c9ec-5485-b89a-df3d29f7417e",
           "product_name": "Roti and sabzi",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T20:30:00+05:30"
         }
       ],

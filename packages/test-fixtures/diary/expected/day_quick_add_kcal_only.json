@@ -67,9 +67,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T13:30:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": null,
           "id": "12fd1376-a553-58cc-95da-9f6d393bca95",
@@ -95,9 +98,12 @@
             "sat_fat_g": null,
             "sugars_g": null
           },
+          "portion_units": [],
           "product_id": null,
           "product_name": "Office lunch",
+          "quantity": null,
           "source_kind": "quick_add",
+          "unit": null,
           "updated_at": "2026-11-07T13:30:00+05:30"
         }
       ],

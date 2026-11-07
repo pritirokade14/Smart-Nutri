@@ -67,9 +67,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T13:00:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 250.0,
           "id": "89da24ff-e925-5356-b2bb-e3bcae9b1663",
@@ -92,9 +95,17 @@
             "sat_fat_g": null,
             "sugars_g": null
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "17b3aa2f-78da-50f3-a663-a1f023e98dde",
           "product_name": "Paneer bowl",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T13:00:00+05:30"
         }
       ],

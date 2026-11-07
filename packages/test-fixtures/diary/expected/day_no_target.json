@@ -31,9 +31,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T08:00:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 150.0,
           "id": "047265fd-226b-5ad4-bd34-b0d0732594fb",
@@ -56,9 +59,17 @@
             "sat_fat_g": null,
             "sugars_g": null
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "c51d30c8-b12e-5a27-818b-a4cc6cdc858e",
           "product_name": "Poha",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T08:00:00+05:30"
         }
       ],
