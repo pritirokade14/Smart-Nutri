@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import time as core_time
 from app.core.config import Settings, get_app_settings
+from app.core.consent import CONSENT_RESPONSES
 from app.core.errors import ERROR_RESPONSES
 from app.db.session import get_session
 from app.features.me import service as me_service
@@ -24,7 +25,7 @@ Session = Annotated[AsyncSession, Depends(get_session)]
     "",
     operation_id="meal_slots_list",
     response_model=MealSlotsOut,
-    responses=ERROR_RESPONSES,
+    responses={**ERROR_RESPONSES, **CONSENT_RESPONSES},
 )
 async def meal_slots_list(
     current: Current,

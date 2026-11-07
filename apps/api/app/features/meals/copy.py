@@ -120,11 +120,17 @@ async def copy_entries(
     if not todo:
         return stored, False  # a retry: every copy exists, nothing is counted
 
-    await consume(session, settings, account_id=account_id, bucket="meal_logs", n=len(todo))
-    values = []
+    planned = []
     for source, client_id in todo:
         clock = core_time.local_clock(source.eaten_at, tz_name)
-        at = datetime.combine(body.to_date, clock, tzinfo=core_time.zone(tz_name))
+        at = min(now, datetime.combine(body.to_date, clock, tzinfo=core_time.zone(tz_name)))
+        # Never store what a normal log refuses (same check, same code), before anything counts.
+        meals_service._check_eaten_at(at, now)
+        planned.append((source, client_id, at))
+
+    await consume(session, settings, account_id=account_id, bucket="meal_logs", n=len(todo))
+    values = []
+    for source, client_id, at in planned:
         values.append(
             {
                 "account_id": account_id,
@@ -137,7 +143,7 @@ async def copy_entries(
                 "grams": source.grams,
                 "nutrients": source.nutrients,
                 "food_snapshot": _snapshot_of(source),
-                "eaten_at": min(now, at),
+                "eaten_at": at,
                 "local_date": body.to_date,
                 "meal_slot_id": body.to_slot_id or source.meal_slot_id,
                 "client_id": client_id,

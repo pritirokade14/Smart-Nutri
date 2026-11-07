@@ -83,3 +83,35 @@ async def test_meal_slots_need_only_terms(client, login, grant):
     r = await client.get(URL)
     assert r.status_code == 403
     assert r.json()["error"]["details"]["purposes"] == ["terms"]
+
+
+async def test_ensure_can_add_slot_limit(client, terms_only, db_session):
+    import pytest
+
+    from app.core.errors import ApiError
+    from app.features.meal_slots import service
+    from app.features.members.models import Member
+
+    assert (await client.get(URL)).status_code == 200
+    member = await db_session.scalar(select(Member).where(Member.is_primary.is_(True)))
+    await service.ensure_can_add_slot(session=db_session, member=member)  # 4 of 6: fine
+    for i in range(2):
+        db_session.add(
+            MealSlot(
+                account_id=member.account_id,
+                member_id=member.id,
+                custom_label=f"Extra {i}",
+                position=10 + i,
+            )
+        )
+    await db_session.flush()
+    with pytest.raises(ApiError) as exc:
+        await service.ensure_can_add_slot(db_session, member)
+    assert exc.value.code == "meal_slot_limit_reached"
+    # an archived slot does not count
+    extra = await db_session.scalar(select(MealSlot).where(MealSlot.custom_label == "Extra 0"))
+    from datetime import UTC, datetime
+
+    extra.archived_at = datetime.now(UTC)
+    await db_session.flush()
+    await service.ensure_can_add_slot(db_session, member)

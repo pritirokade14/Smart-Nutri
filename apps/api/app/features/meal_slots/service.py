@@ -12,7 +12,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ApiError
-from app.features.meal_slots.defaults import DEFAULT_SLOTS
+from app.features.meal_slots.defaults import DEFAULT_SLOTS, MAX_ACTIVE_SLOTS
 from app.features.meal_slots.models import MealSlot
 from app.features.meal_slots.rules import SlotChoice, SlotWindow, pick_slot
 from app.features.meal_slots.schemas import MealSlotOut, TimeWindow
@@ -110,3 +110,11 @@ def to_out(row: MealSlot) -> MealSlotOut:
         is_default=row.is_default,
         archived=row.archived_at is not None,
     )
+
+
+async def ensure_can_add_slot(session: AsyncSession, member: Member) -> None:
+    """Guard for the create route (Task 14): at most `max_active` (defaults.yaml) active slots
+    per member, else 422 `meal_slot_limit_reached`. Archived slots do not count."""
+    active = await list_slots(session, member)
+    if len(active) >= MAX_ACTIVE_SLOTS:
+        raise ApiError("meal_slot_limit_reached", 422)

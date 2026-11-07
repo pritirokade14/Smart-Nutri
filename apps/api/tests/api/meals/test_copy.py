@@ -371,3 +371,19 @@ async def test_copy_family_member_422(client, clock, family, app, monkeypatch):
     assert (r.status_code, r.json()["error"]["code"]) == (422, "diary_member_not_enabled")
     foreign = await client.post(URL, json=_copy_body(member_id=str(uuid4())))
     assert (foreign.status_code, foreign.json()["error"]["code"]) == (404, "member_not_found")
+
+
+async def test_copy_never_stores_what_a_normal_log_refuses(client, clock, db_session):
+    """Copying to today-30 at an earlier clock time would be older than 30 days: refused with
+    the normal log's code, nothing stored."""
+    slots = await _slots(client)
+    src = await _log(client, slots["diary.slot.breakfast"], quick={"energy_kcal": 100})
+    row = await db_session.get(MealLog, src["id"])
+    row.eaten_at = datetime(2026, 11, 6, 2, 30, tzinfo=UTC)  # 08:00 IST
+    await db_session.flush()
+    before = await _count(db_session)
+    r = await client.post(URL, json=_copy_body(to_date="2026-10-08"))
+    assert (r.status_code, r.json()["error"]["code"]) == (422, "eaten_at_out_of_range")
+    assert await _count(db_session) == before
+    ok = await client.post(URL, json=_copy_body(to_date="2026-10-09"))
+    assert ok.status_code == 201
