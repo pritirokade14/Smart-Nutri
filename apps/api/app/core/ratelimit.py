@@ -42,6 +42,8 @@ BUCKETS: dict[str, tuple[str, str]] = {
     # Plan 10: goal settings and the display toggle share one bucket; the preview has its own.
     "diary_settings": ("day", "rate_limit_diary_settings_per_day"),
     "targets_preview": ("hour", "rate_limit_targets_preview_per_hour"),
+    # Plan 11 Task 14: meal-slot writes.
+    "diary_writes": ("day", "rate_limit_diary_writes_per_day"),
 }
 ERROR_CODES = {"label_scans": "rate_limited_scans", "voice": "rate_limited_voice"}
 _DEFAULT_CODE = "rate_limited"
