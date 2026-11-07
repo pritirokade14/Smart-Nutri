@@ -68,7 +68,11 @@ const mealOut = (over: object = {}) => ({
 
 const onClose = vi.fn();
 
-function view(product: LogMealProduct = OFF_BISCUIT, memberId = DAD) {
+function view(
+  product: LogMealProduct = OFF_BISCUIT,
+  memberId = DAD,
+  localDate?: string,
+) {
   return render(
     <QueryClientProvider
       client={
@@ -83,6 +87,7 @@ function view(product: LogMealProduct = OFF_BISCUIT, memberId = DAD) {
           product={product}
           members={MEMBERS}
           memberId={memberId}
+          localDate={localDate}
           onClose={onClose}
         />
       </NextIntlClientProvider>
@@ -318,5 +323,80 @@ describe("LogMealDialog", () => {
     expect(new Date(body.eaten_at).getTime()).toBe(
       new Date("2026-11-03T09:30").getTime(),
     );
+  });
+
+  describe("diary slot and day", () => {
+    const SLOTS = ["breakfast", "lunch", "snack", "dinner"].map((k, i) => ({
+      id: `d0000000-0000-4000-8000-00000000000${i + 1}`,
+      member_id: ME,
+      position: i,
+      label_key: `diary.slot.${k}`,
+      custom_label: null,
+      default_time_window: null,
+      is_default: true,
+      archived: false,
+    }));
+    const slotsRoute = { items: SLOTS, suggested_slot_id: SLOTS[1].id };
+
+    it("slot chips preselect the server's suggestion and the log sends it", async () => {
+      const api = apiStub(fetchMock)
+        .on("GET", "/v1/meal-slots", slotsRoute)
+        .on("POST", "/v1/meals", (_c) => json(201, mealOut()));
+      view();
+      const lunch = await screen.findByRole("button", {
+        name: en.diary.slot.lunch,
+      });
+      expect(lunch.getAttribute("aria-pressed")).toBe("true");
+      await userEvent.click(
+        screen.getByRole("button", { name: en.diary.slot.dinner }),
+      );
+      await userEvent.click(
+        screen.getByRole("button", { name: en.meals.log.save }),
+      );
+      await waitFor(() =>
+        expect(api.callsTo("POST", "/v1/meals")).toHaveLength(1),
+      );
+      expect(
+        (api.callsTo("POST", "/v1/meals")[0].body as { meal_slot_id: string })
+          .meal_slot_id,
+      ).toBe(SLOTS[3].id);
+    });
+
+    it("no slot list: no chips and no slot sent", async () => {
+      const api = apiStub(fetchMock).on("POST", "/v1/meals", (_c) =>
+        json(201, mealOut()),
+      );
+      view();
+      await userEvent.click(
+        screen.getByRole("button", { name: en.meals.log.save }),
+      );
+      await waitFor(() =>
+        expect(api.callsTo("POST", "/v1/meals")).toHaveLength(1),
+      );
+      expect(screen.queryByTestId("slot-chips")).toBeNull();
+      expect(api.callsTo("POST", "/v1/meals")[0].body).not.toHaveProperty(
+        "meal_slot_id",
+      );
+    });
+
+    it("a diary day sends local_date and never eaten_at", async () => {
+      const api = apiStub(fetchMock).on("POST", "/v1/meals", (_c) =>
+        json(201, mealOut()),
+      );
+      view(OFF_BISCUIT, DAD, "2026-11-05");
+      expect(screen.queryByLabelText(en.meals.log.eaten_at)).toBeNull();
+      await userEvent.click(
+        screen.getByRole("button", { name: en.meals.log.save }),
+      );
+      await waitFor(() =>
+        expect(api.callsTo("POST", "/v1/meals")).toHaveLength(1),
+      );
+      const sent = api.callsTo("POST", "/v1/meals")[0].body as Record<
+        string,
+        unknown
+      >;
+      expect(sent.local_date).toBe("2026-11-05");
+      expect(sent).not.toHaveProperty("eaten_at");
+    });
   });
 });

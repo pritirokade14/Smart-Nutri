@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { chipClass } from "@/components/ui/Chip";
 import { DisclaimerFooter } from "@/components/ui/DisclaimerFooter";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { InfoIcon } from "@/components/ui/icons";
@@ -29,13 +30,19 @@ import {
 } from "@/features/targets/hooks/useTargets";
 import { statusMessage } from "@/features/targets/lib/status";
 import { track } from "@/lib/analytics";
+import { cn } from "@/lib/cn";
 import type { DiaryDayOut, MealOut } from "../api/diary";
 import { useDiaryDay } from "../hooks/useDiaryDay";
 import { useMealSlots } from "../hooks/useMealSlots";
+import { slotLabel } from "../lib/slotLabel";
+import { AddFoodPanel } from "./AddFoodPanel";
+import { CopyDialog, type CopyKind } from "./CopyDialog";
 import { DayHeader } from "./DayHeader";
+import { DayMenu } from "./DayMenu";
 import { DiaryRings, type SummaryView } from "./DiaryRings";
 import { EditEntryDialog } from "./EditEntryDialog";
 import { SlotSection } from "./SlotSection";
+import { WeekView } from "./WeekView";
 
 /** A sugar or salt band: an API band is kept; an unknown or incomplete total never reads "within limit". */
 function limitBand(day: DiaryDayOut, key: "sugars_g" | "salt_g"): Band {
@@ -146,12 +153,9 @@ function ConsentCard({ onAgreed }: { onAgreed: () => void }) {
  */
 export function DiaryView({
   date: initialDate,
-  extra,
 }: {
   /** From the page's `?date=`; anything but YYYY-MM-DD means the account's today. */
   date?: string;
-  /** Task 12 adds the add-food and day-menu controls. */
-  extra?: (day: DiaryDayOut) => ReactNode;
 }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -159,6 +163,10 @@ export function DiaryView({
     initialDate && isIsoDate(initialDate) ? initialDate : undefined,
   );
   const [editing, setEditing] = useState<MealOut | null>(null);
+  const [view, setViewMode] = useState<"day" | "week">("day");
+  const [adding, setAdding] = useState<{ slotId?: string } | null>(null);
+  const [copying, setCopying] = useState<CopyKind | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const day = useDiaryDay(date);
   const settings = useGoalSettings();
   const slots = useMealSlots();
@@ -216,7 +224,33 @@ export function DiaryView({
         />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="space-y-4 lg:order-1" data-testid="diary-slots">
-            {extra?.(d)}
+            <div
+              className="flex flex-wrap items-center gap-2"
+              data-testid="diary-toolbar"
+            >
+              <Button onClick={() => setAdding({})}>{t("diary.add")}</Button>
+              <DayMenu
+                day={d}
+                onCopyYesterday={() =>
+                  setCopying({ kind: "yesterday", toDate: d.date })
+                }
+                onCopyDay={() => setCopying({ kind: "day", toDate: d.date })}
+              />
+              {d.partial_logged ? (
+                <span className={chipClass} data-testid="day-partial-badge">
+                  {t("diary.partial_badge")}
+                </span>
+              ) : null}
+            </div>
+            {notice ? (
+              <p
+                role="status"
+                data-testid="diary-notice"
+                className="rounded-md bg-surface-muted px-3 py-2 text-md text-text-primary"
+              >
+                {notice}
+              </p>
+            ) : null}
             {!hasEntries ? (
               <p
                 data-testid="diary-empty"
@@ -226,7 +260,44 @@ export function DiaryView({
               </p>
             ) : null}
             {d.slots.map((s) => (
-              <SlotSection key={s.slot_id} slot={s} onEdit={setEditing} />
+              <SlotSection
+                key={s.slot_id}
+                slot={s}
+                onEdit={setEditing}
+                actions={
+                  <span className="flex items-center gap-1">
+                    {s.entries.length > 0 ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setCopying({
+                            kind: "meal",
+                            fromDate: d.date,
+                            fromSlotId: s.slot_id,
+                          })
+                        }
+                      >
+                        {t("diary.copy_meal")}
+                      </Button>
+                    ) : null}
+                    {!s.archived ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setAdding({ slotId: s.slot_id })}
+                      >
+                        {t("diary.add_to_slot", {
+                          slot: slotLabel((k) => t(k), {
+                            labelKey: s.label_key,
+                            customLabel: s.custom_label,
+                          }),
+                        })}
+                      </Button>
+                    ) : null}
+                  </span>
+                }
+              />
             ))}
             {anyGrade ? (
               <p className="text-sm text-text-secondary">
@@ -260,6 +331,24 @@ export function DiaryView({
             />
           </div>
         </div>
+        {adding ? (
+          <AddFoodPanel
+            date={d.date}
+            today={d.today}
+            slotId={adding.slotId}
+            onClose={() => setAdding(null)}
+            onLogged={() => setAdding(null)}
+          />
+        ) : null}
+        {copying ? (
+          <CopyDialog
+            target={copying}
+            today={d.today}
+            slots={slots.data?.items}
+            onClose={() => setCopying(null)}
+            onCopied={(n) => setNotice(t("diary.copied", { count: n }))}
+          />
+        ) : null}
         {editing ? (
           <EditEntryDialog
             key={editing.id}
@@ -282,7 +371,39 @@ export function DiaryView({
         <InfoIcon className="mt-0.5 size-4 shrink-0" />
         <span>{t("meals.online_only")}</span>
       </p>
-      {body}
+      <fieldset
+        className="m-0 flex min-w-0 gap-2 border-0 p-0"
+        data-testid="diary-view-switch"
+      >
+        <legend className="sr-only">{t("diary.title")}</legend>
+        {(["day", "week"] as const).map((v) => (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={view === v}
+            onClick={() => setViewMode(v)}
+            className={cn(
+              "min-h-9 cursor-pointer rounded-full px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary",
+              view === v
+                ? "bg-brand-primary text-brand-on"
+                : "bg-surface-muted text-text-primary",
+            )}
+          >
+            {v === "day" ? t("diary.today") : t("diary.week.title")}
+          </button>
+        ))}
+      </fieldset>
+      {view === "week" ? (
+        <WeekView
+          today={day.data?.today}
+          onPickDay={(d) => {
+            pick(d);
+            setViewMode("day");
+          }}
+        />
+      ) : (
+        body
+      )}
       <DisclaimerFooter />
     </main>
   );
