@@ -6,7 +6,8 @@ Display rounding (Ruling D12): kcal in the explanation are whole kcal, half-up; 
 - `hide_energy` nulls every energy number (the target and the explanation's kcal values).
 - `hide_all` also nulls protein, fat, carbs and every explanation number except
   `protein_basis`.
-- The pace (`rate`, `rate_options`) stays visible under `hide_all`: the user must choose it.
+- The pace (`rate`, `rate_options`) stays visible under `hide_all`, as a percent of body weight
+  per week only: `kg_per_week` is null, because kg/week divided by the percent gives the weight.
 - Flags and the status are not numbers and are never hidden.
 """
 
@@ -33,9 +34,10 @@ def _kcal(value: Decimal) -> int:
     return int(value.quantize(Decimal(1), rounding=ROUND_HALF_UP))
 
 
-def _rate(option: targets.RateOption) -> RateOut:
+def _rate(option: targets.RateOption, hidden: NumbersHidden) -> RateOut:
     return RateOut(
-        pct_bw_per_week=_dp(option.pct_bw_per_week, 2), kg_per_week=_dp(option.kg_per_week, 2)
+        pct_bw_per_week=_dp(option.pct_bw_per_week, 2),
+        kg_per_week=None if hidden.macros else _dp(option.kg_per_week, 2),
     )
 
 
@@ -124,8 +126,8 @@ def to_targets_out(
         carbs_g=None if hidden.macros else result.carbs_g,
         basis="formula" if ready else None,
         direction=result.direction,
-        rate=None if result.rate is None else _rate(result.rate),
-        rate_options=[_rate(o) for o in result.rate_options],
+        rate=None if result.rate is None else _rate(result.rate, hidden),
+        rate_options=[_rate(o, hidden) for o in result.rate_options],
         explanation=None
         if result.explanation is None
         else _explanation(result.explanation, hidden),

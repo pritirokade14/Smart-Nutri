@@ -1,5 +1,8 @@
 """PUT /v1/targets/display: the eye toggle (Plan 10 Task 4, Ruling D4, D19)."""
 
+from sqlalchemy import update
+
+from app.features.targets.models import DiaryGoalSettings
 from tests.api.targets.conftest import ACC_A, G1_SETTINGS, URL
 
 D = f"{URL}/display"
@@ -27,8 +30,45 @@ async def test_display_changes_only_the_two_fields(client, g1):
     r = await client.put(D, json={"summary_view": "consumed"})
     got = r.json()
     assert got["summary_view"] == "consumed" and got["numbers_display"] == "show"
-    assert got["direction"] == "gain" and got["target_weight_kg"] == 80
-    assert got["rate_pct_bw_per_week"] == 0.25
+    saved = (await client.get(S)).json()
+    assert saved["direction"] == "gain" and saved["target_weight_kg"] == 80
+    assert saved["rate_pct_bw_per_week"] == 0.25
+
+
+async def test_display_response_is_minimal_even_without_health_data(client, g1):
+    await client.put(S, json={**G1_SETTINGS, "target_weight_kg": 80})
+    await client.post(
+        "/v1/consents", json={"purpose": "health_data", "version": "2026-11-01", "granted": False}
+    )
+    r = await client.put(D, json={"numbers_display": "hide_all"})
+    assert r.status_code == 200
+    assert set(r.json()) == {"member_id", "numbers_display", "summary_view", "updated_at"}
+    text = r.text
+    for secret in ("pregnant", "target_weight", "direction", "activity", "rate_pct", "80"):
+        assert secret not in text, secret
+
+
+async def test_hiding_is_never_rate_limited(client, g1, app, db_session):
+    await client.put(S, json=G1_SETTINGS)
+    app.state.settings.rate_limit_diary_settings_per_day = 1  # the settings save used it up
+    for i in range(36):  # past the default 30/day
+        target = "hide_energy" if i % 2 == 0 else "hide_all"
+        r = await client.put(D, json={"numbers_display": target})
+        assert r.status_code == 200, (i, r.text)
+        if target == "hide_all":  # back to "show" behind the API's back, to hide again
+            await db_session.execute(update(DiaryGoalSettings).values(numbers_display="show"))
+            await db_session.commit()
+    # showing again (away from hiding) does count and is refused once the budget is gone
+    r = await client.put(D, json={"numbers_display": "show"})
+    assert r.status_code == 429
+
+
+async def test_hide_energy_after_hide_all_counts_but_hide_all_does_not(client, g1, app):
+    await client.put(S, json=G1_SETTINGS)
+    app.state.settings.rate_limit_diary_settings_per_day = 1
+    assert (await client.put(D, json={"numbers_display": "hide_all"})).status_code == 200
+    # hide_all -> hide_energy shows more numbers: it is not "toward hiding"
+    assert (await client.put(D, json={"numbers_display": "hide_energy"})).status_code == 429
 
 
 async def test_display_null_means_unchanged(client, g1):

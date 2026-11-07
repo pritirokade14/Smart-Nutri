@@ -28,6 +28,7 @@ from app.features.scans import service as scans_service
 from app.features.targets import mapping as targets_mapping
 from app.features.targets import service as targets_service
 from app.integrations.openfoodfacts import OffClient
+from app.scoring import targets as engine_targets
 
 FUTURE_TOLERANCE = timedelta(minutes=5)
 MAX_AGE = timedelta(days=30)
@@ -239,12 +240,24 @@ async def member_summary(
     meals = await list_meals(session, account_id, member_id, start, end, limit=None)
     scoring_member = members_service.to_scoring_member(member, today=end_date)
     limits = scoring.daily_limits_for(scoring_member, member.weight_kg)
-    basis: str | None = "actual_weight" if limits.protein_target_g is not None else None
+    basis: str | None = None
     status: str | None = None
     row = await targets_service.get_settings(session, member)
-    if row is not None and await consents_service.has_active_consent(
-        session, account_id, "health_data"
-    ):
+    health_ok = await consents_service.has_active_consent(session, account_id, "health_data")
+    if limits.protein_target_g is not None and member.weight_kg:
+        # No daily-targets result: the SAME reference weight and caps as `targets.compute`
+        # (lean mass, or the adjusted body weight at BMI >= 30, then the g/kg cap). Body fat is
+        # health data, so it counts only while `health_data` is active.
+        body = targets_service.body_data(member, end_date)
+        if not health_ok:
+            body = replace(body, body_fat_pct=None)
+        sex_key = body.sex if body.sex in ("male", "female") else "average"
+        ref = engine_targets.protein_reference(body, sex_key)
+        basis = ref.basis
+        limits = replace(
+            limits, protein_target_g=float(ref.capped_g), protein_g_per_kg=float(ref.factor)
+        )
+    if row is not None and health_ok:
         result, _ = await targets_service.targets_for_today(session, member)
         assert result is not None
         status = result.status

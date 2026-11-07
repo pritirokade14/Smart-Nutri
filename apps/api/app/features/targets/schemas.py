@@ -73,11 +73,22 @@ class DisplayIn(BaseModel):
     summary_view: SummaryView | None = None
 
 
+class DisplayOut(BaseModel):
+    """What `PUT /display` returns: only the display fields. It needs only `terms`, so it must
+    never carry the pregnancy answer, the target weight or the direction."""
+
+    member_id: UUID
+    numbers_display: NumbersDisplay
+    summary_view: SummaryView
+    updated_at: AwareDatetime
+
+
 class RateOut(BaseModel):
-    """Unsigned (`direction` carries the sign), 2 dp (Ruling D12)."""
+    """Unsigned (`direction` carries the sign), 2 dp (Ruling D12). `kg_per_week` is null under
+    `hide_all`: the pace shows as a percent only, so the body weight can't be worked out."""
 
     pct_bw_per_week: float
-    kg_per_week: float
+    kg_per_week: float | None
 
 
 class TargetsExplanation(BaseModel):

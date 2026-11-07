@@ -28,20 +28,20 @@
   "pending_clinician_review": true,
   "protein_g": null,
   "rate": {
-    "kg_per_week": 0.18,
+    "kg_per_week": null,
     "pct_bw_per_week": 0.25
   },
   "rate_options": [
     {
-      "kg_per_week": 0.07,
+      "kg_per_week": null,
       "pct_bw_per_week": 0.1
     },
     {
-      "kg_per_week": 0.18,
+      "kg_per_week": null,
       "pct_bw_per_week": 0.25
     },
     {
-      "kg_per_week": 0.35,
+      "kg_per_week": null,
       "pct_bw_per_week": 0.5
     }
   ],

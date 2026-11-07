@@ -269,3 +269,8 @@ All of these are machine drafts in hi and mr. They sit beside health numbers, so
 - [ ] **hi/mr `diary.disclaimer`, `diary.targets_consent`, `diary.eye.{hide,show}`, `diary.hidden_numbers`, `diary.of_target`, `diary.incomplete`**: machine drafts. `diary.of_target` ("{eaten} of {target}") needs the word order checked.
 - [ ] **hi/mr `settings.diary.*`**, **`home.cards.today_targets.title`**, **`protein.guide_lean`**, **`protein.guide_adjusted`**, **`methodology.section.energy_targets.{title,description}`**: machine drafts. "Information, not medical advice" must stay in the protein guide lines.
 - [ ] **hi/mr `error.{goal_not_allowed_minor, goal_not_allowed_underweight, target_weight_too_low, rate_not_allowed, fat_pct_out_of_range, adaptive_not_enabled, body_fat_out_of_range, diary_member_not_enabled, date_in_future, goal_settings_not_found}`**: machine drafts. `goal_not_allowed_underweight` is gentle by design (it offers keeping a steady weight).
+
+### Plan 10 fix round 1 (safety review)
+- [ ] **hi/mr `targets.flag.carbs_below_reference_hidden`** (new): the same message as `carbs_below_reference` without the 130 g figure; the client shows it when macros are hidden.
+- [ ] **hi/mr `targets.flag.rate_capped`** (reworded): "nearest available option" replaces "safest option" (neutral, no safety claim). Check it reads as neutral.
+- [ ] **hi/mr `targets.field.{height,weight,birth_year,sex,activity,body_fat}`** (new): plain field names for the "needs data" and "please check" messages. No units and no "(optional)".

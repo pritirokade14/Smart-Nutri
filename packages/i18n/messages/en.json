@@ -1142,7 +1142,7 @@
     "needs_body_data": "Add {fields} to see a daily guide.",
     "flag": {
       "underweight_maintenance": "We can help you keep a steady weight instead.",
-      "rate_capped": "We've set the pace to the safest option we offer.",
+      "rate_capped": "We've set the pace to the nearest available option.",
       "deficit_capped": "We've kept the daily change to a gentle amount.",
       "taper_active": "You're close to your target, so the pace is easing off.",
       "goal_weight_reached": "You're at your target weight. The guide is now for staying the same.",
@@ -1151,6 +1151,7 @@
       "floor_limits_deficit": "Your chosen pace isn't possible within a safe minimum, so this guide is for staying the same.",
       "protein_capped": "We've kept protein to a moderate share of your calories.",
       "carbs_below_reference": "Carbs are below the usual minimum of 130 g a day. A dietitian can help you adjust.",
+      "carbs_below_reference_hidden": "Carbs are below the usual minimum. A dietitian can help you adjust.",
       "average_sex_reference": "This guide uses an in-between estimate.",
       "outside_equation_age_range": "This estimate is less certain at your age."
     },
@@ -1168,7 +1169,15 @@
       "guide": "Your guide"
     },
     "unusual_confirm": "Please check {fields}. Is this right?",
-    "save": "Save my daily guide"
+    "save": "Save my daily guide",
+    "field": {
+      "height": "Height",
+      "weight": "Weight",
+      "birth_year": "Birth year",
+      "sex": "Sex",
+      "activity": "Activity level",
+      "body_fat": "Body fat"
+    }
   },
   "diary": {
     "disclaimer": "Information, not medical advice. Daily guides are estimates and are pending clinician review.",

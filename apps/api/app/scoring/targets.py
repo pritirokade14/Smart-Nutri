@@ -261,6 +261,48 @@ def _devine_ibw(height_cm: Decimal, sex_key: str, cfg: ScoringConfig) -> Decimal
     return _d(dv["base_kg"][sex_key]) + _d(dv["kg_per_inch_over_60"]) * inches_over
 
 
+@dataclass(frozen=True, slots=True)
+class ProteinReference:
+    """The protein reference weight and the g/kg-capped daily grams (before the energy cap)."""
+
+    basis: ProteinBasis
+    factor: Decimal
+    weight_kg: Decimal
+    ibw_kg: Decimal | None
+    bf: Decimal | None
+    capped_g: Decimal
+
+
+def protein_reference(
+    body: BodyData, sex_key: str, cfg: ScoringConfig | None = None
+) -> ProteinReference:
+    """Spec 4.7: lean mass when body fat is known, else the adjusted body weight at BMI >= 30
+    (Devine, 0.25), else the actual weight; then the g/kg-of-actual-weight cap. The one source,
+    also used by the summary's no-settings fallback. Needs height and weight (BMI)."""
+    cfg = _cfg(cfg)
+    pr = cfg.targets["protein"]
+    assert body.weight_kg is not None
+    W, H = body.weight_kg, body.height_cm
+    ibw: Decimal | None = None
+    bf_used: Decimal | None = None
+    if body.body_fat_pct is not None:
+        basis: ProteinBasis = "lean_mass"
+        w_ref = W * (1 - body.body_fat_pct / _HUNDRED)
+        factor = _lean_factor(body.goal, cfg)
+        bf_used = body.body_fat_pct
+    else:
+        factor = protein_g_per_kg(body.goal, cfg)
+        if H is not None and W >= _d(pr["adjusted_weight"]["min_bmi"]) * _h2(H):
+            basis = "adjusted_weight"
+            ibw = _devine_ibw(H, sex_key, cfg)
+            w_ref = ibw + _d(pr["adjusted_weight"]["excess_fraction"]) * (W - ibw)
+        else:
+            basis = "actual_weight"
+            w_ref = W
+    capped = min(factor * w_ref, _d(pr["max_g_per_kg"]) * W)
+    return ProteinReference(basis, factor, w_ref, ibw, bf_used, capped)
+
+
 def _missing(body: BodyData, settings: GoalSettings) -> tuple[str, ...]:
     out: list[str] = []
     if body.age is None:
@@ -378,36 +420,33 @@ def compute(
     e_raw = e_m + delta
     floor_kcal: Decimal | None = None
     e_t = e_raw
+    floor_bound = False
     if direction == "lose":
         fl = t["floors"]
-        floor_kcal = max(_d(fl["kcal_by_sex"][sex_key]), bmr * _d(fl["min_bmr_multiple"]))
+        # Q11b: sex "other" or not given always gets the higher floor, whichever estimate is used
+        floor_sex = sex_key if body.sex in ("male", "female") else "average"
+        floor_kcal = max(_d(fl["kcal_by_sex"][floor_sex]), bmr * _d(fl["min_bmr_multiple"]))
         bar = min(floor_kcal, e_m)
         if e_raw < bar:
             e_t = bar
             flags.add("floor_applied" if floor_kcal <= e_m else "floor_limits_deficit")
-    energy = int(_round(e_t, _d(t["rounding"]["kcal_step"])))
+            # only when the floor itself binds: maintenance (floor_limits_deficit) must not
+            # round up into a surplus, and the activity factor keeps it above BMR anyway
+            floor_bound = floor_kcal <= e_m
+    kcal_step = _d(t["rounding"]["kcal_step"])
+    if floor_bound:
+        # round UP so a binding floor (which can be the BMR) is never undercut
+        energy = int((e_t / kcal_step).quantize(Decimal(1), rounding=ROUND_CEILING) * kcal_step)
+    else:
+        energy = int(_round(e_t, kcal_step))
 
     # Protein: reference weight, then the two caps (spec 4.7, 4.7.1)
     pr = t["protein"]
-    ibw: Decimal | None = None
-    bf_used: Decimal | None = None
-    if body.body_fat_pct is not None:
-        basis: ProteinBasis = "lean_mass"
-        w_ref = W * (1 - body.body_fat_pct / _HUNDRED)
-        factor = _lean_factor(body.goal, cfg)
-        bf_used = body.body_fat_pct
-    else:
-        factor = protein_g_per_kg(body.goal, cfg)
-        if W >= _d(pr["adjusted_weight"]["min_bmi"]) * _h2(H):
-            basis = "adjusted_weight"
-            ibw = _devine_ibw(H, sex_key, cfg)
-            w_ref = ibw + _d(pr["adjusted_weight"]["excess_fraction"]) * (W - ibw)
-        else:
-            basis = "actual_weight"
-            w_ref = W
+    ref = protein_reference(body, sex_key, cfg)
+    basis, factor, w_ref, ibw, bf_used = ref.basis, ref.factor, ref.weight_kg, ref.ibw_kg, ref.bf
     kcal_g = t["macros"]["kcal_per_g"]
     p_kcal, c_kcal, f_kcal = _d(kcal_g["protein"]), _d(kcal_g["carbs"]), _d(kcal_g["fat"])
-    p_raw = min(factor * w_ref, _d(pr["max_g_per_kg"]) * W)
+    p_raw = ref.capped_g
     p_energy_cap = _d(pr["max_energy_pct"]) / _HUNDRED * energy / p_kcal
     if p_raw > p_energy_cap:
         p_raw = p_energy_cap

@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import Settings, get_app_settings
 from app.core.consent import CONSENT_RESPONSES, gate_for
 from app.core.errors import ERROR_RESPONSES, ApiError
-from app.core.ratelimit import limit
+from app.core.ratelimit import consume, limit
 from app.core.time import today_ist
 from app.db.session import get_session
 from app.features.me.dependencies import CurrentAccount, current_account_row
@@ -24,6 +24,7 @@ from app.features.targets.mapping import to_targets_out
 from app.features.targets.models import DiaryGoalSettings
 from app.features.targets.schemas import (
     DisplayIn,
+    DisplayOut,
     GoalSettingsIn,
     GoalSettingsOut,
     TargetsOut,
@@ -167,20 +168,35 @@ async def targets_settings_delete(
     return Response(status_code=204)
 
 
+_HIDING_RANK = {"show": 0, "hide_energy": 1, "hide_all": 2}
+
+
 @router.put(
     "/display",
     operation_id="targets_display_put",
-    response_model=GoalSettingsOut,
+    response_model=DisplayOut,
     responses=_RESPONSES,
-    dependencies=[Depends(gate_for("targets_prefs")), Depends(limit("diary_settings"))],
+    dependencies=[Depends(gate_for("targets_prefs"))],
 )
 async def targets_display_put(
     body: DisplayIn, current: Current, session: Session, settings: AppSettings
-) -> GoalSettingsOut:
+) -> DisplayOut:
     """The eye toggle: change only how numbers are shown. Needs only `terms`, so hiding
-    numbers works even after `health_data` was withdrawn (Ruling D4)."""
+    numbers works even after `health_data` was withdrawn (Ruling D4). Returns only the display
+    fields, never the health answers in the settings. A change toward hiding is never rate
+    limited (hiding must not fail); other changes share the `diary_settings` bucket."""
     member = await service.resolve_member(session, current.account.id, body.member_id, settings)
+    row = await service.get_settings(session, member)
+    if row is None:
+        raise ApiError("goal_settings_not_found", 404)
+    new = body.numbers_display
+    toward_hiding = (
+        new is not None and new != "show" and _HIDING_RANK[new] >= _HIDING_RANK[row.numbers_display]
+    )
+    if not toward_hiding:
+        await session.flush()  # a just-created primary member must not be "staged" for consume
+        await consume(session, settings, account_id=current.account.id, bucket="diary_settings")
     row = await service.put_display(session, member, body)
-    out = _settings_out(row)
+    out = DisplayOut.model_validate(row, from_attributes=True)
     await session.commit()
     return out

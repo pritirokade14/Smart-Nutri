@@ -507,3 +507,46 @@ def test_unknown_ibw_formula_raises():
     t["protein"]["ibw"]["formula"] = "bmi_based"
     with pytest.raises(ValueError):
         T.compute(body(weight_kg=100), settings("maintain"), dataclasses.replace(cfg, targets=t))
+
+
+# --- Fix round 1 -------------------------------------------------------------------------
+
+
+def _floor_case(sex, sex_reference=None):
+    return T.compute(
+        body(age=40, sex=sex, height_cm=160, weight_kg=62, goal="weight_loss"),
+        settings("lose", "sedentary", rate_pct_bw_per_week=0.5, sex_reference=sex_reference),
+    )
+
+
+@pytest.mark.parametrize("sex", ["other", None])
+@pytest.mark.parametrize("ref", ["female", "male", "average", None])
+def test_q11b_other_or_unspecified_sex_always_gets_the_higher_floor(sex, ref):
+    if sex is None and ref is None:
+        pytest.skip("needs data")
+    r = _floor_case(sex, ref)
+    assert r.status == "ready"
+    assert r.explanation.floor_kcal >= 1500
+    assert r.energy_kcal >= 1500 or "floor_limits_deficit" in r.flags
+
+
+def test_q11b_female_floor_unchanged_for_stated_female():
+    r = _floor_case("female")
+    assert r.explanation.floor_kcal == Decimal("1259.000")  # the BMR binds, not the 1200 floor
+    assert r.energy_kcal == 1260
+
+
+def test_q11b_other_with_female_reference_is_floored_at_1500():
+    r = _floor_case("other", "female")
+    assert r.energy_kcal == 1500 and "floor_applied" in r.flags
+
+
+def test_floor_that_binds_on_bmr_rounds_up_never_below_bmr():
+    seen_floor = 0
+    for tenths in range(500, 700, 3):
+        b = body(age=40, sex="female", height_cm=160, weight_kg=tenths / 10, goal="weight_loss")
+        r = T.compute(b, settings("lose", "sedentary", rate_pct_bw_per_week=1.0))
+        if "floor_applied" in r.flags:
+            seen_floor += 1
+            assert r.energy_kcal >= r.explanation.bmr_kcal, (tenths, r)
+    assert seen_floor > 10

@@ -20,3 +20,4 @@ Answered one at a time, starting 2026-11-07. These are binding for the build.
 | Q14 | Support signpost | (c) No signpost for now; show only the safety limits (calorie floor, maximum loss rate). Can be revisited before launch. |
 | Q15 | Existing `weight_gain` goal | (a) Keep it working for existing data (direction "gain", Eat Healthy protein), but do not offer it in new UI. A proper "Gain Weight" chip can come later. |
 | Q16 | Meal slots | (b) Renamable slots, up to 6. The defaults are Breakfast, Lunch, Snacks and Dinner, picked from the time of day; the user can rename them or add more, for example pre-workout or evening chai. |
+| Q11b | Calorie floor when sex is "other" or not given | Always the higher floor (1,500 kcal), whichever estimate is picked (user, 2026-11-07, after the safety review) |

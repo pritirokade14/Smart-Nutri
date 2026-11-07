@@ -201,3 +201,29 @@ async def test_settings_rows_are_not_created_by_reading(client, g11, db_session)
     await _summary(client, g11)
     rows = (await db_session.scalars(select(DiaryGoalSettings))).all()
     assert len(rows) == 1
+
+
+async def test_fallback_uses_adjusted_weight(client, family, db_session, grant):  # noqa: F811
+    """No goal settings, BMI 40: the adjusted body weight (Devine, 0.25), not the actual 116 kg
+    x 1.2 = 139 g. Same reference weight and caps as `targets.compute`."""
+    await grant(ACC_A)
+    dad = await db_session.get(Member, family.dad)
+    dad.goal, dad.weight_kg, dad.height_cm, dad.sex = "weight_loss", 116, 170, "male"
+    dad.body_fat_pct = None
+    await db_session.flush()
+    s = await _summary(client, family.dad)
+    assert s["limits"]["protein_basis"] == "adjusted_weight"
+    assert s["limits"]["protein_target_g"] == pytest.approx(94.1, abs=0.1)
+    assert s["limits"]["protein_g_per_kg"] == 1.2
+    assert s["limits"]["protein_target_status"] is None
+
+
+async def test_fallback_uses_lean_mass(client, family, db_session, grant):  # noqa: F811
+    await grant(ACC_A)
+    dad = await db_session.get(Member, family.dad)
+    dad.goal, dad.weight_kg, dad.height_cm, dad.sex = "build_muscle", 80, 180, "male"
+    dad.body_fat_pct = 20
+    await db_session.flush()
+    s = await _summary(client, family.dad)
+    assert s["limits"]["protein_basis"] == "lean_mass"
+    assert s["limits"]["protein_target_g"] == pytest.approx(128.0, abs=0.1)  # 80 x 0.8 x 2.0

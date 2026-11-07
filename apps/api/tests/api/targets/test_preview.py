@@ -160,7 +160,12 @@ async def test_hidden_numbers_redact_every_number(client, consented, set_primary
         if key != "protein_basis":
             assert value is None, key
     assert hidden["explanation"]["protein_basis"] == shown["explanation"]["protein_basis"]
-    assert hidden["rate"] == shown["rate"] and hidden["rate_options"] == shown["rate_options"]
+    # the pace stays, as a percent only: kg/week would let anyone work out the body weight
+    assert hidden["rate"] == {**shown["rate"], "kg_per_week": None}
+    assert hidden["rate_options"] == [{**o, "kg_per_week": None} for o in shown["rate_options"]]
+    assert all(o["pct_bw_per_week"] for o in hidden["rate_options"])
+    # hide_energy still shows the kg pace
+    assert energy["rate"] == shown["rate"]
     assert hidden["flags"] == shown["flags"] and hidden["status"] == "ready"
     # no number of the target can be read from the whole response
     text = json.dumps(hidden)

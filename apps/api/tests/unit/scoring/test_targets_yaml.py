@@ -171,6 +171,19 @@ def test_analyze_service_does_not_import_targets():
     imports = _imports(f)
     assert "app.scoring.targets" not in imports
     assert "app.features.targets" not in " ".join(imports)
+    # any spelling: `from app import scoring` then `scoring.targets`, `import app.scoring.targets
+    # as t`, `from app.scoring import targets`, or a relative import
+    assert not any(i.split(".")[-1] == "targets" for i in imports), imports
+    tree = ast.parse(f.read_text(encoding="utf-8"))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and node.attr == "targets":
+            raise AssertionError(f"attribute access .targets at line {node.lineno}")
+        if isinstance(node, ast.ImportFrom) and node.level:
+            raise AssertionError("relative imports are not allowed in the analyze service")
+    # the package root re-exports nothing from targets, so `from app import scoring` is safe
+    assert not any(
+        i.endswith("targets") for i in _imports(ROOT / "app" / "scoring" / "__init__.py")
+    )
     # and what it takes from app.scoring never reaches targets
     for imp in imports:
         if imp.startswith("app.scoring."):

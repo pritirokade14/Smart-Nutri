@@ -66,7 +66,7 @@ def test_the_planned_cases_exist():
         "body_fat_blank", "devine_male", "devine_female", "devine_average", "devine_short",
         "age_18", "age_78", "age_79", "needs_birth_year", "needs_sex", "needs_height_cm",
         "needs_weight_kg", "pregnancy", "underweight_at_read", "none", "g1_hide_energy",
-        "g1_hide_all", "g4_hide_all",
+        "g1_hide_all", "g4_hide_all", "floor_other_female",
     }  # fmt: skip
     planned |= {
         f"activity_{lv}_{sx}"
@@ -98,6 +98,9 @@ def test_hand_checked_goldens():
     assert (g5["energy_kcal"], g5["protein_g"], g5["fat_g"], g5["carbs_g"]) == (1940, 91, 54, 273)
     assert g5["rate"]["kg_per_week"] == 0.3 and g5["flags"] == ["taper_active"]
     assert macros("g8_sex_other") == (2180, 50, 61, 358)
+    other = _expected("floor_other_female")  # Q11b: sex "other" + female estimate -> floor 1500
+    assert other["energy_kcal"] == 1500 and other["explanation"]["floor_kcal"] == 1500
+    assert "floor_applied" in other["flags"]
     g11, g12 = _expected("g11_lean_mass"), _expected("g12_lean_mass_bmi30")
     assert (g11["protein_g"], g11["carbs_g"]) == (119, 398)
     assert (g12["protein_g"], g12["carbs_g"]) == (74, 214)
@@ -180,6 +183,9 @@ def test_hidden_number_fixtures_carry_no_hidden_digit():
             assert t[key] is None, (stem, key)
         assert {k for k, v in t["explanation"].items() if v is not None} == {"protein_basis"}
         assert t["rate"] is not None and t["rate_options"]  # the pace stays visible
+        # ... as a percent only (kg/week would reveal the body weight)
+        assert t["rate"]["pct_bw_per_week"] and t["rate"]["kg_per_week"] is None
+        assert all(o["kg_per_week"] is None and o["pct_bw_per_week"] for o in t["rate_options"])
     assert "floor_applied" in _expected("g4_hide_all")["flags"]  # the client shows the hidden copy
 
 
@@ -201,9 +207,20 @@ def _en_hi_mr(key: str):
 
 
 def test_every_flag_has_copy():
-    for flag in (*targets.FLAG_ORDER, "floor_applied_hidden"):
+    for flag in (*targets.FLAG_ORDER, "floor_applied_hidden", "carbs_below_reference_hidden"):
         for lang, value in _en_hi_mr(f"targets.flag.{flag}"):
             assert isinstance(value, str) and value, (lang, flag)
+
+
+def test_hidden_variants_carry_no_number_and_field_names_exist():
+    for lang, value in _en_hi_mr("targets.flag.carbs_below_reference_hidden"):
+        assert not re.search(r"\d", value), (lang, value)
+    for lang, value in _en_hi_mr("targets.flag.rate_capped"):
+        assert "safest" not in value.lower(), (lang, value)
+    for field in ("height", "weight", "birth_year", "sex", "activity", "body_fat"):
+        for lang, value in _en_hi_mr(f"targets.field.{field}"):
+            assert isinstance(value, str) and value, (lang, field)
+            assert "(" not in value and "kg" not in value and "cm" not in value, (lang, field)
 
 
 def test_every_explanation_key_has_copy():
