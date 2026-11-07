@@ -23,6 +23,9 @@ SELECT_ONLY_FOR_USERS = {
     "diary_goal_settings",
     "meal_slots",
     "diary_days",
+    "household_units",
+    "foods",
+    "food_portions",
 }
 ALL_PRIVILEGES = {
     "SELECT",

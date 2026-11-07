@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import (
@@ -19,6 +20,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+from app.features.foods import models as _foods_models  # noqa: F401  (FK targets)
 
 
 class MealLog(Base):
@@ -38,14 +40,20 @@ class MealLog(Base):
         CheckConstraint("grams is null or (grams > 0 and grams <= 5000)", name="grams"),
         CheckConstraint(
             "(source_kind = 'product' AND product_id IS NOT NULL AND off_barcode IS NULL "
-            "AND grams IS NOT NULL) "
+            "AND food_id IS NULL AND grams IS NOT NULL) "
             "OR (source_kind = 'off' AND off_barcode IS NOT NULL AND product_id IS NULL "
-            "AND grams IS NOT NULL) "
+            "AND food_id IS NULL AND grams IS NOT NULL) "
+            "OR (source_kind = 'food' AND food_id IS NOT NULL AND product_id IS NULL "
+            "AND off_barcode IS NULL AND grams IS NOT NULL) "
             "OR (source_kind = 'quick_add' AND product_id IS NULL AND off_barcode IS NULL "
-            "AND grams IS NULL)",
+            "AND food_id IS NULL AND grams IS NULL)",
             name="ref",
         ),
-        CheckConstraint("source_kind in ('product', 'off', 'quick_add')", name="source_kind"),
+        CheckConstraint("quantity is null or (quantity > 0 and quantity <= 5000)", name="quantity"),
+        CheckConstraint("num_nonnulls(quantity, unit) in (0, 2)", name="quantity_unit"),
+        CheckConstraint(
+            "source_kind in ('product', 'off', 'food', 'quick_add')", name="source_kind"
+        ),
         ForeignKeyConstraint(
             ["meal_slot_id", "member_id"],
             ["meal_slots.id", "meal_slots.member_id"],
@@ -84,3 +92,8 @@ class MealLog(Base):
     source_kind: Mapped[str] = mapped_column(Text, server_default="product")
     food_snapshot: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    # Plan 12 (migration 0010): a generic food or dish, and the portion as typed
+    # (``quantity`` x ``unit``). Legacy rows keep quantity and unit NULL.
+    food_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("foods.id"))
+    quantity: Mapped[Decimal | None] = mapped_column(Numeric(asdecimal=True))
+    unit: Mapped[str | None] = mapped_column(Text, ForeignKey("household_units.code"))

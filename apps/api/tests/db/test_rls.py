@@ -30,6 +30,8 @@ KEY = {t: "id" for t in OWNED} | {
     "diary_goal_settings": "member_id",  # one row per member (Plan 10)
     "diary_days": "member_id",  # one row per member and local day (Plan 11)
 }
+# Reference tables (Plan 12): readable by every signed-in user, never writable by one.
+REFERENCE = ("household_units", "foods", "food_portions")
 SERVER_ONLY = (
     "off_product_cache",
     "rate_limit_counters",
@@ -80,6 +82,9 @@ async def test_policies_are_exactly_as_designed(db):
         ("diary_goal_settings", "ALL"),
         ("diary_days", "ALL"),
         ("meal_slots", "ALL"),
+        ("household_units", "SELECT"),
+        ("foods", "SELECT"),
+        ("food_portions", "SELECT"),
     }
     assert all(list(r.roles) == ["authenticated"] for r in rows)
 
@@ -290,7 +295,7 @@ async def test_server_only_tables_reject_user_writes(db, two_accounts):
 
 async def test_user_without_jwt_sub_sees_nothing(db, two_accounts):
     async with as_user(db, None):
-        for table in TABLES - {"products", *SERVER_ONLY}:
+        for table in TABLES - {"products", "household_units", "foods", *SERVER_ONLY}:
             count = (await db.execute(text(f"select count(*) from {table}"))).scalar()
             assert count == 0, table
 
@@ -299,3 +304,69 @@ async def test_user_without_jwt_sub_sees_nothing(db, two_accounts):
 async def test_anon_has_no_access(db, two_accounts, table):
     async with as_anon(db):
         await _expect_denied(db, f"select count(*) from {table}")
+
+
+async def _seed_reference(db, two_accounts) -> None:
+    food = (
+        await db.execute(
+            text(
+                "insert into foods (source, source_code, name_en, search_text, basis, per_100, "
+                "licence, data_version) values ('usda_fdc', 'rls-1', 'RLS dal', 'rls dal', 'g', "
+                "'{}', 'CC0 1.0', 'v') returning id"
+            )
+        )
+    ).scalar_one()
+    for acc, source, unit in (
+        (None, "reference_table", "roti"),
+        (two_accounts.a, "user", "piece"),
+        (two_accounts.b, "user", "piece"),
+    ):
+        await db.execute(
+            text(
+                "insert into food_portions (account_id, food_id, unit, grams_per_unit, source) "
+                "values (:acc, :f, :u, 40, :s)"
+            ),
+            {"acc": acc, "f": food, "u": unit, "s": source},
+        )
+
+
+async def test_reference_tables_read_only(db, two_accounts):
+    await _seed_reference(db, two_accounts)
+    async with as_user(db, two_accounts.a):
+        assert (await db.execute(text("select count(*) from household_units"))).scalar() == 17
+        assert (await db.execute(text("select count(*) from foods"))).scalar() == 1
+        await _expect_denied(
+            db,
+            "insert into household_units (code, kind, sort) values ('x', 'count', 99)",
+        )
+        await _expect_denied(db, "update household_units set sort = 0 where code = 'g'")
+        await _expect_denied(db, "delete from household_units where code = 'g'")
+        await _expect_denied(
+            db,
+            "insert into foods (source, source_code, name_en, search_text, basis, per_100, "
+            "licence, data_version) values ('usda_fdc', 'x', 'x', 'x', 'g', '{}', 'l', 'v')",
+        )
+        await _expect_denied(db, "update foods set name_en = 'pwned'")
+        await _expect_denied(db, "delete from foods")
+        await _expect_denied(
+            db,
+            "insert into food_portions (account_id, food_id, unit, grams_per_unit, source) "
+            "select :a, id, 'slice', 30, 'user' from foods",
+            {"a": two_accounts.a},
+        )
+        await _expect_denied(db, "update food_portions set grams_per_unit = 1")
+        await _expect_denied(db, "delete from food_portions")
+
+
+async def test_food_portions_global_and_own_rows_only(db, two_accounts):
+    await _seed_reference(db, two_accounts)
+    for me, other in ((two_accounts.a, two_accounts.b), (two_accounts.b, two_accounts.a)):
+        async with as_user(db, me):
+            owners = (
+                (await db.execute(text("select account_id from food_portions"))).scalars().all()
+            )
+        assert sorted(owners, key=str) == sorted([None, me], key=str)
+        assert other not in owners
+    async with as_user(db, None):
+        owners = (await db.execute(text("select account_id from food_portions"))).scalars().all()
+    assert owners == [None]  # a user with no sub sees the global row only

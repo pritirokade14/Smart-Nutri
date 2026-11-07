@@ -321,3 +321,131 @@ async def test_diary_days_checks(db, two_accounts):
                     {"m": seed.member, "a": seed.account, **cols},
                 )
         assert name in str(exc_info.value)
+
+
+# ---- Plan 12 Task 1 (migration 0010): food entries, units and portions
+
+
+async def _food(db, code: str = "c-1") -> object:
+    return (
+        await db.execute(
+            text(
+                "insert into foods (source, source_code, name_en, search_text, basis, per_100, "
+                "licence, data_version) values ('usda_fdc', :c, 'Dal', 'dal', 'g', '{}', "
+                "'CC0 1.0', 'v') returning id"
+            ),
+            {"c": code},
+        )
+    ).scalar_one()
+
+
+async def test_food_entry_needs_food_id_and_grams(db, two_accounts):
+    seed = two_accounts.seed_a
+    food = await _food(db)
+    await _entry(
+        db, seed, None, source_kind="food", food_id=food, grams=142, quantity=1, unit="katori"
+    )
+    for cols in (
+        {"food_id": None},  # no food id
+        {"grams": None},  # no grams
+        {"product_id": two_accounts.product},  # a food row with a product id too
+    ):
+        values = {"source_kind": "food", "food_id": food, "grams": 142} | cols
+        with pytest.raises(IntegrityError) as exc_info:
+            await _entry(db, seed, values.pop("product_id", None), **values)
+        assert "ck_meal_logs_ref" in str(exc_info.value)
+
+
+async def test_product_entry_rejects_food_id(db, two_accounts):
+    food = await _food(db)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _entry(db, two_accounts.seed_a, two_accounts.product, food_id=food)
+    assert "ck_meal_logs_ref" in str(exc_info.value)
+
+
+@pytest.mark.parametrize("cols", [{"quantity": 1}, {"unit": "katori"}])
+async def test_quantity_and_unit_together(db, two_accounts, cols):
+    with pytest.raises(IntegrityError) as exc_info:
+        await _entry(db, two_accounts.seed_a, two_accounts.product, **cols)
+    assert "ck_meal_logs_quantity_unit" in str(exc_info.value)
+    await _entry(db, two_accounts.seed_a, two_accounts.product, quantity=2, unit="piece")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _entry(db, two_accounts.seed_a, two_accounts.product, quantity=5001, unit="g")
+    assert "ck_meal_logs_quantity" in str(exc_info.value)
+
+
+async def test_unit_must_exist(db, two_accounts):
+    with pytest.raises(IntegrityError) as exc_info:
+        await _entry(db, two_accounts.seed_a, two_accounts.product, quantity=1, unit="ladle")
+    assert "fk_meal_logs_unit_household_units" in str(exc_info.value)
+    food = await _food(db)
+    with pytest.raises(IntegrityError) as exc_info:
+        async with db.begin_nested():
+            await db.execute(
+                text(
+                    "insert into food_portions (food_id, unit, grams_per_unit, source) "
+                    "values (:f, 'handful', 30, 'reference_table')"
+                ),
+                {"f": food},
+            )
+    assert "fk_food_portions_unit_household_units" in str(exc_info.value)
+
+
+async def _portion(db, **cols) -> None:
+    values = {"unit": "roti", "grams_per_unit": 40, "source": "reference_table"} | cols
+    names = ", ".join(values)
+    params = ", ".join(f":{k}" for k in values)
+    async with db.begin_nested():
+        await db.execute(text(f"insert into food_portions ({names}) values ({params})"), values)
+
+
+async def test_portion_exactly_one_ref(db, two_accounts):
+    food = await _food(db)
+    for cols in (
+        {},  # no ref
+        {"food_id": food, "product_id": two_accounts.product},
+        {"food_id": food, "off_barcode": "8901"},
+    ):
+        with pytest.raises(IntegrityError) as exc_info:
+            await _portion(db, **cols)
+        assert "ck_food_portions_ref" in str(exc_info.value)
+    await _portion(db, food_id=food)
+    await _portion(db, off_barcode="8901", unit="piece")
+    await _portion(db, product_id=two_accounts.product, unit="slice")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _portion(db, food_id=food, unit="piece", grams_per_unit=2001)
+    assert "ck_food_portions_grams" in str(exc_info.value)
+
+
+async def test_global_portion_not_user_source(db, two_accounts):
+    food = await _food(db)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _portion(db, food_id=food, source="user")  # global row with source user
+    assert "ck_food_portions_owner" in str(exc_info.value)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _portion(db, food_id=food, account_id=two_accounts.a)  # user row, global source
+    assert "ck_food_portions_owner" in str(exc_info.value)
+    await _portion(db, food_id=food, account_id=two_accounts.a, source="user")
+
+
+async def test_portion_unique_per_owner_ref_unit(db, two_accounts):
+    food = await _food(db)
+    a, b = two_accounts.a, two_accounts.b
+    await _portion(db, food_id=food)  # global
+    await _portion(db, food_id=food, account_id=a, source="user")  # A's override
+    await _portion(db, food_id=food, account_id=b, source="user")  # B's override
+    for cols, name in (
+        ({"food_id": food}, "uq_food_portions_food"),
+        ({"food_id": food, "account_id": a, "source": "user"}, "uq_food_portions_food"),
+    ):
+        with pytest.raises(IntegrityError) as exc_info:
+            await _portion(db, **cols)
+        assert name in str(exc_info.value)
+    await _portion(db, off_barcode="8902")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _portion(db, off_barcode="8902")
+    assert "uq_food_portions_off" in str(exc_info.value)
+    await _portion(db, product_id=two_accounts.product)
+    with pytest.raises(IntegrityError) as exc_info:
+        await _portion(db, product_id=two_accounts.product)
+    assert "uq_food_portions_product" in str(exc_info.value)

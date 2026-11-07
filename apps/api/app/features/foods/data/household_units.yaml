@@ -1,0 +1,35 @@
+# PENDING DIETITIAN REVIEW (Q6, Q6b). Read by app/features/foods only.
+#
+# The 17 household units (ADR 0024). `ml` is the volume of a volume unit, `grams` the weight of a
+# mass unit; count units have neither (their grams are per food, in `food_portions`).
+# `csv_key` is the row of docs/research/food-diary/data/household_units.csv this value comes
+# from (tested: each value equals its CSV cell). Units with no csv_key are the size words and
+# `roti`, whose grams exist only per food.
+# Katori default is 200 ml (Q6b, ICMR-NIN 2024 standard cup C7); the CSV's 150 ml `katori` row
+# is superseded. Labels always show the ml beside the name (unit.ml_hint).
+units:
+  - {code: g, kind: mass, ml: null, grams: "1", sort: 0, csv_key: g, note: SI unit}
+  - {code: ml, kind: volume, ml: "1", grams: null, sort: 1, csv_key: ml, note: "Grams need a per-food density"}
+  - {code: serving, kind: count, ml: null, grams: null, sort: 2, csv_key: serving, note: "The food's own serving grams"}
+  - {code: piece, kind: count, ml: null, grams: null, sort: 3, csv_key: piece, note: "A single item with no size word (mango, guava, one almond)"}
+  - {code: piece_small, kind: count, ml: null, grams: null, sort: 4, csv_key: null, note: "Size word: small"}
+  - {code: piece_medium, kind: count, ml: null, grams: null, sort: 5, csv_key: null, note: "Size word: medium"}
+  - {code: piece_large, kind: count, ml: null, grams: null, sort: 6, csv_key: null, note: "Size word: large"}
+  - {code: roti, kind: count, ml: null, grams: null, sort: 7, csv_key: null, note: "One roti or chapati; needs a per-food weight"}
+  - {code: slice, kind: count, ml: null, grams: null, sort: 8, csv_key: slice, note: "A slice of bread"}
+  - {code: katori, kind: volume, ml: "200", grams: null, sort: 9, csv_key: katori_nin_m, note: "Default katori, NIN standard cup C7 (Q6b)"}
+  - {code: katori_small, kind: volume, ml: "115", grams: null, sort: 10, csv_key: katori_nin_xs, note: "NIN standard cup C9"}
+  - {code: katori_medium, kind: volume, ml: "155", grams: null, sort: 11, csv_key: katori_nin_s, note: "NIN standard cup C8; smaller than the default katori"}
+  - {code: katori_large, kind: volume, ml: "360", grams: null, sort: 12, csv_key: katori_nin_l, note: "NIN standard cup C6"}
+  - {code: cup, kind: volume, ml: "200", grams: null, sort: 13, csv_key: cup, note: "Equal to the default katori"}
+  - {code: glass, kind: volume, ml: "250", grams: null, sort: 14, csv_key: glass, note: "No NIN value found"}
+  - {code: tbsp, kind: volume, ml: "15", grams: null, sort: 15, csv_key: tbsp, note: "Metric tablespoon"}
+  - {code: tsp, kind: volume, ml: "5", grams: null, sort: 16, csv_key: tsp, note: "Metric teaspoon"}
+
+# CSV rows that are not units. Not seeded.
+not_seeded:
+  - {csv_key: katori, reason: "Superseded by Q6b: the default katori is 200 ml, not the CSV's 150 ml"}
+  - {csv_key: ladle, reason: "No published volume; ladles vary"}
+  - {csv_key: handful, reason: "No reliable weight; depends on food and hand size"}
+  - {csv_key: bowl, reason: "Ambiguous; map to a named katori size instead"}
+  - {csv_key: plate, reason: "Not measurable without a food"}

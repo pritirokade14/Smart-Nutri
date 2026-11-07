@@ -112,6 +112,7 @@ async def get_display_name(session: AsyncSession, account_id: UUID) -> str | Non
 ACCOUNT_OWNED_TABLES: tuple[str, ...] = (
     "meal_logs",  # before meal_slots: the entry -> slot FK is NO ACTION (Plan 11 E3)
     "meal_slots",  # Plan 11; before members (composite FK)
+    "food_portions",  # Plan 12; the account's own portion overrides (global rows stay)
     "diary_days",  # Plan 11; before members (composite FK)
     "diary_goal_settings",  # Plan 10; before members (composite FK)
     "members",
