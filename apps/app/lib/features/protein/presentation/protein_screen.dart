@@ -12,7 +12,7 @@ import '../../../shared/widgets/disclaimer_footer.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/states.dart';
 import '../../history/presentation/history_providers.dart';
-import '../../history/presentation/history_screen.dart' show memberOutLabel;
+import '../../members/presentation/member_labels.dart' show memberOutLabel;
 import '../../history/presentation/summary_display.dart';
 import '../../meals/data/meals_repository.dart';
 import '../../members/data/members_repository.dart';

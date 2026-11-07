@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smartnutri_ai/features/history/presentation/history_screen.dart';
+import 'package:smartnutri_ai/features/diary/presentation/diary_screen.dart';
 import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
 import 'package:smartnutri_ai/features/members/presentation/members_list_screen.dart';
 import 'package:smartnutri_ai/features/methodology/presentation/methodology_screen.dart';
@@ -21,7 +21,7 @@ import '../user_types/user_types_harness.dart';
 const _screens = <String, Type>{
   'home': HomeScreen,
   'scan': ScanScreen,
-  'diary': HistoryScreen,
+  'diary': DiaryScreen,
   'family': MembersListScreen,
   'protein': ProteinScreen,
   'compare': CompareScreen,

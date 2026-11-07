@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../diary/presentation/diary_providers.dart';
 import '../../history/presentation/history_providers.dart';
 import '../data/targets_repository.dart';
 
@@ -41,4 +42,6 @@ void refreshTargets(WidgetRef ref) {
   ref.invalidate(todayTargetsProvider);
   ref.invalidate(goalSettingsProvider);
   ref.invalidate(mealSummaryProvider);
+  ref.invalidate(diaryDayProvider);
+  ref.invalidate(diaryWeekProvider);
 }

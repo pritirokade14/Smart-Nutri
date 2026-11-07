@@ -118,15 +118,39 @@ class FakeMealsClient implements MealsClient {
     );
   }
 
+  final copied = <CopyIn>[];
+  final updated = <(String, MealPatch)>[];
+
+  /// What `mealsCopy` answers in order (a [CopyOut] or an error to throw);
+  /// when it runs out, one copy per call succeeds.
+  final copyResponses = <Object>[];
+
+  /// Thrown by the next `mealsUpdate` (then cleared).
+  Object? updateError;
+
   @override
-  Future<CopyOut> mealsCopy({required CopyIn body}) =>
-      throw UnimplementedError('mealsCopy is not used in these tests');
+  Future<CopyOut> mealsCopy({required CopyIn body}) async {
+    copied.add(body);
+    if (copyResponses.isNotEmpty) {
+      final r = copyResponses.removeAt(0);
+      if (r is CopyOut) return r;
+      throw r;
+    }
+    return CopyOut(created: [mealOut(id: 'copy-${copied.length}')]);
+  }
 
   @override
   Future<MealOut> mealsUpdate({
     required String mealId,
     required MealPatch body,
-  }) => throw UnimplementedError('mealsUpdate is not used in these tests');
+  }) async {
+    updated.add((mealId, body));
+    if (updateError case final e?) {
+      updateError = null;
+      throw e;
+    }
+    return mealOut(id: mealId);
+  }
 
   @override
   Future<List<MealOut>> mealsList({
@@ -160,8 +184,15 @@ class FakeMealsClient implements MealsClient {
   @override
   Future<WeekCounts> mealsWeekCounts({DateTime? date}) async => weekCounts;
 
+  /// Thrown by the next `mealsDelete` (then cleared).
+  Object? deleteError;
+
   @override
   Future<void> mealsDelete({required String mealId}) async {
+    if (deleteError case final e?) {
+      deleteError = null;
+      throw e;
+    }
     deleted.add(mealId);
     meals = [
       for (final m in meals)

@@ -10,11 +10,11 @@ import 'package:smartnutri_ai/features/targets/presentation/today_targets_card.d
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_meals.dart';
+import '../../support/fake_diary.dart';
 import '../../support/fake_members.dart';
 import '../../support/fake_targets.dart';
 import '../../support/fake_user_types.dart';
 import '../../support/fixtures.dart';
-import '../home/home_cards_test.dart' show daySummary;
 import '../user_types/user_types_harness.dart';
 
 MemberOut _primary() => memberOut(
@@ -31,7 +31,8 @@ Future<AppHarness> _home(
   FakeTargetsClient targets, {
   String mode = 'gym',
   FakeConsentsClient? consents,
-  Summary Function(String id)? summary,
+  String day = 'day_complete_under',
+  DiaryDayOut Function(DateTime? date)? dayFor,
 }) => pumpApp(
   t,
   FakeUserTypesApi(
@@ -39,9 +40,9 @@ Future<AppHarness> _home(
     members: FakeMembersClient([_primary()]),
     consents: consents ?? FakeConsentsClient(granted: {'terms', 'health_data'}),
     targets: targets,
+    diary: FakeDiaryClient(day: day)..dayFor = dayFor,
   ),
-  meals: FakeMealsClient()
-    ..summary = (id, _) => (summary ?? (id) => daySummary(id))(id),
+  meals: FakeMealsClient(),
 );
 
 Finder get _card => find.byKey(HomeCards.cardKey('today_targets'));
@@ -66,16 +67,18 @@ void main() {
         settings: goalSettingsOut(activity: 'moderate'),
       ),
     );
-    // Energy and protein read "{eaten} of {target}"; fat and carbs, the target.
-    expect(_in(find.textContaining('2,760')), findsOneWidget);
-    expect(_in(find.textContaining('112 g')), findsOneWidget);
+    // Energy and protein read "{eaten} of {target}" and the API's remaining
+    // ("diary_day_get"); fat and carbs, the target.
+    expect(_in(find.textContaining('2,760')), findsWidgets);
     expect(_in(find.text('77 g')), findsOneWidget);
     expect(_in(find.text('405 g')), findsOneWidget);
     expect(
-      _in(find.text(en.diaryOfTarget('300 kcal', '2,760 kcal'))),
+      _in(find.text(en.diaryOfTarget('1,501 kcal', '2,760 kcal'))),
       findsOneWidget,
     );
-    expect(_in(find.text(en.diaryOfTarget('20 g', '112 g'))), findsOneWidget);
+    expect(_in(find.text(en.diaryOfTarget('44.7 g', '112 g'))), findsOneWidget);
+    expect(_in(find.text(en.diaryLeft('1,259 kcal'))), findsOneWidget);
+    expect(_in(find.text(en.diaryLeft('67.4 g'))), findsOneWidget);
   });
 
   testWidgets('status none shows setup CTA and skip', (t) async {
@@ -149,9 +152,10 @@ void main() {
     await _home(
       t,
       targets,
-      summary: (id) => daySummary(
-        id,
-        hidden: targets.settings?.numbersDisplay.json == 'hide_all',
+      dayFor: (_) => diaryFixture(
+        targets.settings?.numbersDisplay.json == 'hide_all'
+            ? 'day_hide_all'
+            : 'day_complete_under',
       ),
     );
     expect(_digits, findsWidgets);
@@ -181,7 +185,7 @@ void main() {
         numbersDisplay: 'hide_all',
       ),
     )..displayError = apiError(429, 'rate_limited');
-    await _home(t, targets, summary: (id) => daySummary(id, hidden: true));
+    await _home(t, targets, day: 'day_hide_all');
     await _tap(t, EyeToggle.buttonKey);
     expect(find.text(en.errorRateLimited), findsOneWidget);
     expect(_digits, findsNothing);
@@ -197,7 +201,7 @@ void main() {
           numbersDisplay: 'hide_energy',
         ),
       ),
-      summary: (id) => daySummary(id, hidden: true),
+      day: 'day_hide_energy',
     );
     expect(find.byKey(TodayTargetsCard.rowKey('energy')), findsNothing);
     expect(_in(find.textContaining('kcal')), findsNothing);
@@ -209,29 +213,29 @@ void main() {
     await _home(
       t,
       FakeTargetsClient(today: 'g1_build_muscle'),
-      summary: (id) => daySummary(id, kcal: null),
+      day: 'day_incomplete_energy',
     );
     expect(find.byKey(TodayTargetsCard.incompleteKey), findsOneWidget);
     expect(_in(find.text(en.diaryIncomplete)), findsOneWidget);
-    // No eaten number for the incomplete total: the target only.
+    // No eaten number and no "left" for the incomplete total: the target only.
     expect(_in(find.text('2,760 kcal')), findsOneWidget);
+    expect(find.byKey(const Key('today-remaining-energy')), findsNothing);
   });
 
   testWidgets('over target uses the neutral tone', (t) async {
     await _home(
       t,
       FakeTargetsClient(today: 'g1_build_muscle'),
-      summary: (id) => daySummary(id, kcal: 3200),
+      day: 'day_over_energy',
     );
-    final line = find.text(en.diaryOfTarget('3,200 kcal', '2,760 kcal'));
+    // The API's remaining is -250.4: "250 kcal over", in a neutral colour.
+    final line = find.text(en.diaryOver('250 kcal'));
     expect(line, findsOneWidget);
     final c = SnColors.of(t.element(line));
     final color = t.widget<Text>(line).style?.color;
-    expect(color, c.textPrimary);
+    expect(color, c.textSecondary);
     expect(color, isNot(verdictTone(c, 'avoid').color));
     expect(color, isNot(Theme.of(t.element(line)).colorScheme.error));
-    // No "X over" text.
-    expect(_in(find.textContaining('over')), findsNothing);
   });
 
   testWidgets('disclaimer and pending review shown', (t) async {

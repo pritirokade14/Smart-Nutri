@@ -9,8 +9,7 @@ const kShellBranches = ['home', 'diary', 'family', 'protein', 'profile'];
 /// The path of each shell branch.
 const kBranchPaths = {
   'home': '/home',
-  // The Diary opens the existing History screen at /history until Plan 11 Task 9 replaces it.
-  'diary': '/history',
+  'diary': '/diary',
   'family': '/family',
   'protein': '/protein',
   'profile': '/profile',

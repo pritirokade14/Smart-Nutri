@@ -48,6 +48,7 @@ Future<AppHarness> pumpApp(
   List<Override> overrides = const [],
   String locale = 'en',
   Size size = const Size(900, 3600),
+  void Function(String event, Map<String, Object> props)? onEvent,
 }) async {
   t.view.physicalSize = size;
   t.view.devicePixelRatio = 1;
@@ -64,7 +65,10 @@ Future<AppHarness> pumpApp(
         ),
         apiClientProvider.overrideWithValue(api),
         analyticsProvider.overrideWithValue(
-          Analytics((e, _) async => h.events.add(e)),
+          Analytics((e, p) async {
+            h.events.add(e);
+            onEvent?.call(e, p);
+          }),
         ),
       ],
       child: Consumer(

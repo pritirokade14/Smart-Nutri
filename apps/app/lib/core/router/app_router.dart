@@ -11,7 +11,8 @@ import '../../features/auth/presentation/phone_otp_screen.dart';
 import '../../features/auth/presentation/sign_in_screen.dart';
 import '../../features/consent/presentation/consent_providers.dart';
 import '../../features/consent/presentation/consent_screen.dart';
-import '../../features/history/presentation/history_screen.dart';
+import '../../features/diary/presentation/diary_providers.dart';
+import '../../features/diary/presentation/diary_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/meals/presentation/meals_providers.dart';
 import '../../features/members/presentation/member_form_screen.dart';
@@ -113,6 +114,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (onSignIn || onTerms || onGoodbye) {
         return types == UserTypesStatus.unanswered ? '/welcome' : '/home';
       }
+      // Plan 11: History became the Diary; old links keep working.
+      if (location == '/history') return '/diary';
       return null;
     },
     routes: [
@@ -126,13 +129,15 @@ final routerProvider = Provider<GoRouter>((ref) {
             GoRoute(path: 'phone', builder: (_, _) => const PhoneOtpScreen()),
         ],
       ),
-      // The signed-in branches, in `kShellBranches` order: Home, History,
+      // The signed-in branches, in `kShellBranches` order: Home, Diary,
       // Family, Protein, Profile. The tab bar shows the focused mode's five
       // (AppShell). Scan, Compare, Search, label capture, confirm and result
       // are full-screen routes above the shell.
       StatefulShellRoute.indexedStack(
         // The offline log syncs while signed in (start, resume, back online).
-        builder: (_, _, shell) => MealSyncScope(child: AppShell(shell: shell)),
+        builder: (_, _, shell) => MealSyncScope(
+          child: TimezoneSyncScope(child: AppShell(shell: shell)),
+        ),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -142,8 +147,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/history',
-                builder: (_, _) => const HistoryScreen(),
+                path: '/diary',
+                builder: (_, state) =>
+                    DiaryScreen(date: state.uri.queryParameters['date']),
               ),
             ],
           ),

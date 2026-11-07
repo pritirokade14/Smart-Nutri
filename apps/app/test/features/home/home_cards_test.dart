@@ -8,8 +8,10 @@ import 'package:smartnutri_ai/features/modes/mode_layouts.dart';
 import 'package:smartnutri_ai/features/protein/presentation/protein_progress.dart';
 import 'package:smartnutri_api/src/export.dart';
 
+import '../../support/fake_diary.dart';
 import '../../support/fake_meals.dart';
 import '../../support/fake_members.dart';
+import '../../support/fake_targets.dart';
 import '../../support/fake_user_types.dart';
 import '../user_types/user_types_harness.dart';
 
@@ -251,5 +253,31 @@ void main() {
         (e.widget as BandChip).band,
     ];
     expect(bands, [Band.over, Band.near]);
+  });
+
+  testWidgets('today_targets uses diary remaining', (t) async {
+    final diary = FakeDiaryClient(day: 'day_complete_under');
+    await pumpApp(
+      t,
+      FakeUserTypesApi(
+        me: FakeUserTypesMe(userTypesOut(types: ['gym'])),
+        members: FakeMembersClient([
+          memberOut(
+            id: 'p1',
+            name: 'Ravi',
+            relation: MemberOutRelation.self,
+            birthYear: 1997,
+            isPrimary: true,
+          ),
+        ]),
+        consents: FakeConsentsClient(granted: {'terms', 'health_data'}),
+        targets: FakeTargetsClient(today: 'g1_build_muscle'),
+        diary: diary,
+      ),
+    );
+    // The eaten and remaining values are `diary_day_get`'s, as sent.
+    expect(diary.dayDates, isNotEmpty);
+    expect(find.text(en.diaryLeft('1,259 kcal')), findsOneWidget);
+    expect(find.text(en.diaryLeft('67.4 g')), findsOneWidget);
   });
 }

@@ -1,6 +1,9 @@
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 
 import '../../../core/l10n/app_localizations.dart';
+// ignore: implementation_imports
+import 'package:smartnutri_api/src/export.dart' show MemberOut;
+import '../../../shared/share/share_text.dart' show shareRelation;
 
 /// i18n labels for member field codes. A code this build does not know is
 /// shown as-is.
@@ -75,4 +78,11 @@ String alertLabel(AppLocalizations l, String code) {
     _ => code,
   };
   return toBeginningOfSentenceCase(label);
+}
+
+/// "You" for the account holder, else the name, else the relation.
+String memberOutLabel(AppLocalizations l10n, MemberOut m) {
+  if (m.isPrimary) return l10n.resultYou;
+  final name = m.name.trim();
+  return name.isNotEmpty ? name : shareRelation(l10n, m.relation.json);
 }
