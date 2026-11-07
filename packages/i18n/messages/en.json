@@ -1336,7 +1336,8 @@
       "100g": "Values per 100 g",
       "100ml": "Values per 100 ml",
       "serving": "Values per serving"
-    }
+    },
+    "load_more": "Load more"
   },
   "unit": {
     "g": "{count, plural, one {g} other {g}}",
@@ -1403,6 +1404,8 @@
     "log_serving": "Log a serving",
     "delete_confirm": "Delete this recipe? Meals you already logged keep their values.",
     "saved": "Recipe saved",
-    "empty": "No recipes yet"
+    "empty": "No recipes yet",
+    "save": "Save recipe",
+    "delete": "Delete recipe"
   }
 }

@@ -1346,6 +1346,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get foodsKindRecipe => 'रेसिपी';
 
   @override
+  String get foodsLoadMore => 'और दिखाएँ';
+
+  @override
   String get foodsMyFoods => 'मेरे खाने और रेसिपी';
 
   @override
@@ -2636,6 +2639,9 @@ class AppLocalizationsHi extends AppLocalizations {
       'सबसे सही नतीजे के लिए पकाने के बाद बर्तन का वज़न करें।';
 
   @override
+  String get recipesDelete => 'रेसिपी हटाएँ';
+
+  @override
   String get recipesDeleteConfirm =>
       'यह रेसिपी हटाएँ? जो भोजन आप पहले दर्ज कर चुके हैं, उनके मान वैसे ही रहेंगे।';
 
@@ -2664,6 +2670,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get recipesPerServing => 'प्रति सर्विंग';
+
+  @override
+  String get recipesSave => 'रेसिपी सेव करें';
 
   @override
   String get recipesSaved => 'रेसिपी सहेज ली';

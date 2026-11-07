@@ -2428,6 +2428,12 @@ abstract class AppLocalizations {
   /// **'Recipe'**
   String get foodsKindRecipe;
 
+  /// No description provided for @foodsLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get foodsLoadMore;
+
   /// No description provided for @foodsMyFoods.
   ///
   /// In en, this message translates to:
@@ -4570,6 +4576,12 @@ abstract class AppLocalizations {
   /// **'Weigh the pot after cooking for the best accuracy.'**
   String get recipesCookedWeightTip;
 
+  /// No description provided for @recipesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete recipe'**
+  String get recipesDelete;
+
   /// No description provided for @recipesDeleteConfirm.
   ///
   /// In en, this message translates to:
@@ -4623,6 +4635,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Per serving'**
   String get recipesPerServing;
+
+  /// No description provided for @recipesSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save recipe'**
+  String get recipesSave;
 
   /// No description provided for @recipesSaved.
   ///

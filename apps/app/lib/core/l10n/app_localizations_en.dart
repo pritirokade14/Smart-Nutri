@@ -1341,6 +1341,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get foodsKindRecipe => 'Recipe';
 
   @override
+  String get foodsLoadMore => 'Load more';
+
+  @override
   String get foodsMyFoods => 'My foods and recipes';
 
   @override
@@ -2627,6 +2630,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Weigh the pot after cooking for the best accuracy.';
 
   @override
+  String get recipesDelete => 'Delete recipe';
+
+  @override
   String get recipesDeleteConfirm =>
       'Delete this recipe? Meals you already logged keep their values.';
 
@@ -2655,6 +2661,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recipesPerServing => 'Per serving';
+
+  @override
+  String get recipesSave => 'Save recipe';
 
   @override
   String get recipesSaved => 'Recipe saved';
