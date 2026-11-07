@@ -988,6 +988,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please check your answers and try again.';
 
   @override
+  String get errorFoodNotFound => 'We couldn\'t find that food.';
+
+  @override
   String get errorForbidden => 'You don\'t have access to this.';
 
   @override
@@ -1088,6 +1091,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorProductNotFound => 'We couldn\'t find this product yet.';
 
   @override
+  String get errorQuantityOutOfRange =>
+      'That amount is too large or too small. Check the number and try again.';
+
+  @override
   String get errorQuickAddEnergyRequired => 'Enter the calories to add this.';
 
   @override
@@ -1132,6 +1139,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnauthorized => 'Please sign in.';
+
+  @override
+  String get errorUnitGramsUnknown =>
+      'We don\'t know the grams for this measure yet. Enter grams, or set your own value.';
+
+  @override
+  String get errorUnitNotSupported =>
+      'That measure isn\'t available here. Choose another.';
 
   @override
   String get errorUnsupportedImage => 'Please use a JPEG, PNG or WebP photo.';

@@ -993,6 +993,9 @@ class AppLocalizationsMr extends AppLocalizations {
       'कृपया तुमची उत्तरे तपासा आणि पुन्हा प्रयत्न करा.';
 
   @override
+  String get errorFoodNotFound => 'आम्हाला तो पदार्थ सापडला नाही.';
+
+  @override
   String get errorForbidden => 'तुम्हाला याचा प्रवेश नाही.';
 
   @override
@@ -1094,6 +1097,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorProductNotFound => 'हे उत्पादन आम्हाला अजून सापडले नाही.';
 
   @override
+  String get errorQuantityOutOfRange =>
+      'हे प्रमाण खूप जास्त किंवा खूप कमी आहे. संख्या तपासून पुन्हा प्रयत्न करा.';
+
+  @override
   String get errorQuickAddEnergyRequired => 'हे जोडण्यासाठी कॅलरी भरा.';
 
   @override
@@ -1138,6 +1145,13 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get errorUnauthorized => 'कृपया साइन इन करा.';
+
+  @override
+  String get errorUnitGramsUnknown =>
+      'या मापाचे ग्रॅम आम्हाला अजून माहीत नाहीत. ग्रॅममध्ये प्रमाण टाका किंवा तुमचे स्वतःचे मूल्य सेट करा.';
+
+  @override
+  String get errorUnitNotSupported => 'हे माप येथे उपलब्ध नाही. दुसरे निवडा.';
 
   @override
   String get errorUnsupportedImage => 'कृपया JPEG, PNG किंवा WebP फोटो वापरा.';

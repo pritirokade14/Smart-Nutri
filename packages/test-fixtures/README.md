@@ -235,3 +235,14 @@ Each case is `{case, food: {basis, serving_g, density_g_per_ml, global_portions,
 - `preview` is the portion preview Android and web must reproduce: `quantity x grams_per_unit x per_100 / 100`, rounded half-up to 1 dp, in exact decimal arithmetic (so `1.15` x 100 g shows `1.2`, not the float `1.1`). A `null` nutrient stays `null`, never 0.
 - The per-100 values are synthetic test numbers, not food data. The API asserts `to_grams` and its own rounding against the file (`tests/unit/foods/test_units.py`); Android and web assert their **preview** against it.
 
+## Seeded dishes (`foods/`)
+
+`foods/dishes.json`: the per-100 g nutrients of the 21 seeded Indian dishes (Plan 12 slice 3), and the 9 dishes left out with their status (`blocked` or `needs_weighing`). It is **generated** from the real seed code, never edited by hand:
+
+```
+cd apps/api && uv run python -m scripts.generate_dish_expectations          # --check (default)
+cd apps/api && uv run python -m scripts.generate_dish_expectations --write
+```
+
+`{dishes: {<code>: {name_en, cooked_weight_g, serving_g | null, per_100: {energy_kcal, sugars_g, salt_g, protein_g, fat_g, sat_fat_g, carbs_g, fibre_g}}}, excluded: {<code>: status}}`. A nutrient is `null` when it is unknown on any ingredient (never a partial sum): `sat_fat_g` is `null` for every dish, and `sugars_g` is `null` for dal tadka. Every value is PENDING DIETITIAN REVIEW: the recipes and cooked weights in `docs/research/food-diary/data/indian_dishes_recipes.md` are assumptions. The API asserts the numbers (`tests/unit/foods/test_dishes.py`).
+

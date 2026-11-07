@@ -1,0 +1,74 @@
+# PENDING DIETITIAN REVIEW. Read by app/features/foods only (the seed job and its tests).
+#
+# Per-food household grams and densities, each from a row of
+# docs/research/food-diary/data/household_units.csv (`csv_key`). tests/unit/foods/test_seed_data.py
+# checks that every number equals its CSV cell and that no empty CSV cell gets a number.
+#
+# The CSV unit_key is mapped to a unit code (ADR 0024): size words (large, medium, small) map to
+# piece_large, piece_medium and piece_small; a single fruit with no size (mango, guava) and one
+# almond map to `piece`; bread slices to `slice`; packaged roti to `roti`.
+
+portions:
+  - {csv_key: roti_plain_commercial, fdc_id: 171844, unit: roti, grams: "68"}
+  - {csv_key: roti_wholewheat_commercial, fdc_id: 174075, unit: roti, grams: "43"}
+  - {csv_key: egg_large, fdc_id: 171287, unit: piece_large, grams: "50"}
+  - {csv_key: egg_medium, fdc_id: 171287, unit: piece_medium, grams: "44"}
+  - {csv_key: egg_small, fdc_id: 171287, unit: piece_small, grams: "38"}
+  - {csv_key: banana_medium, fdc_id: 173944, unit: piece_medium, grams: "118"}
+  - {csv_key: banana_small, fdc_id: 173944, unit: piece_small, grams: "101"}
+  - {csv_key: apple_medium, fdc_id: 171688, unit: piece_medium, grams: "182"}
+  - {csv_key: orange_medium, fdc_id: 169097, unit: piece_medium, grams: "131"}
+  - {csv_key: mango_fruit, fdc_id: 169910, unit: piece, grams: "336"}
+  - {csv_key: guava_fruit, fdc_id: 173044, unit: piece, grams: "55"}
+  - {csv_key: potato_medium_boiled, fdc_id: 170440, unit: piece_medium, grams: "167"}
+  - {csv_key: potato_medium_raw, fdc_id: 170026, unit: piece_medium, grams: "213"}
+  - {csv_key: onion_medium, fdc_id: 170000, unit: piece_medium, grams: "110"}
+  - {csv_key: tomato_medium, fdc_id: 170457, unit: piece_medium, grams: "123"}
+  - {csv_key: bread_slice_white, fdc_id: 174924, unit: slice, grams: "29"}
+  - {csv_key: bread_slice_wholewheat, fdc_id: 172688, unit: slice, grams: "32"}
+  - {csv_key: almond_one, fdc_id: 170567, unit: piece, grams: "1.2"}
+  - {csv_key: carrot_medium, fdc_id: 170393, unit: piece_medium, grams: "61"}
+
+densities:
+  - {csv_key: density_168878, fdc_id: 168878, density_g_per_ml: "0.668"}
+  - {csv_key: density_172437, fdc_id: 172437, density_g_per_ml: "0.71"}
+  - {csv_key: density_172421, fdc_id: 172421, density_g_per_ml: "0.837"}
+  - {csv_key: density_174257, fdc_id: 174257, density_g_per_ml: "0.854"}
+  - {csv_key: density_173757, fdc_id: 173757, density_g_per_ml: "0.693"}
+  - {csv_key: density_173740, fdc_id: 173740, density_g_per_ml: "0.748"}
+  - {csv_key: density_168893, fdc_id: 168893, density_g_per_ml: "0.507"}
+  - {csv_key: density_174288, fdc_id: 174288, density_g_per_ml: "0.389"}
+  - {csv_key: density_169714, fdc_id: 169714, density_g_per_ml: "0.668"}
+  - {csv_key: density_168933, fdc_id: 168933, density_g_per_ml: "0.706"}
+  - {csv_key: density_169756, fdc_id: 169756, density_g_per_ml: "0.782"}
+  - {csv_key: density_169655, fdc_id: 169655, density_g_per_ml: "0.845"}
+  - {csv_key: density_171265, fdc_id: 171265, density_g_per_ml: "1.031"}
+  - {csv_key: density_171284, fdc_id: 171284, density_g_per_ml: "1.036"}
+  - {csv_key: density_173227, fdc_id: 173227, density_g_per_ml: "1.002"}
+  - {csv_key: density_173410, fdc_id: 173410, density_g_per_ml: "0.959"}
+  - {csv_key: density_173412, fdc_id: 173412, density_g_per_ml: "0.866"}
+  - {csv_key: density_172336, fdc_id: 172336, density_g_per_ml: "0.921"}
+  - {csv_key: density_171412, fdc_id: 171412, density_g_per_ml: "0.921"}
+  - {csv_key: density_173904, fdc_id: 173904, density_g_per_ml: "0.342"}
+
+# FDC portions whose food is not in the 141-row ingredient set.
+not_seeded:
+  - {csv_key: naan_plain_commercial, reason: "FDC 171845 is not in usda_fdc_foods.csv"}
+  - {csv_key: naan_wholewheat_commercial, reason: "FDC 174077 is not in usda_fdc_foods.csv"}
+
+# The CSV has no grams for these pieces (never invented). They produce no portion row, so the
+# unit does not resolve for the food: the picker never offers it, and the user may set their own
+# value (a per-food override). Each note is the CSV note, shortened.
+unknown_piece_weights:
+  - {csv_key: phulka, note: "Annexure 8 of NIN Dietary Guidelines 2011 gives energy only (80 kcal per phulka), no grams"}
+  - {csv_key: roti_homemade_medium, note: "Only blog values (about 25 to 40 g) found, which disagree; not used"}
+  - {csv_key: paratha, note: "NIN 2011 Annexure 8 gives 150 kcal per paratha, no grams"}
+  - {csv_key: idli, note: "Blogs give about 30 to 50 g (about 39 to 40 g most repeated) but no validated source; not used"}
+  - {csv_key: dosa_plain, note: "Blogs give about 80 to 125 g; no validated source; not used"}
+  - {csv_key: vada, note: "No published weight found"}
+  - {csv_key: puri, note: "No published weight found"}
+  - {csv_key: samosa, note: "No published weight found"}
+  - {csv_key: laddoo, note: "No published weight found; varies by type (besan, motichoor, rava)"}
+  - {csv_key: papad, note: "USDA lists Papad (168106) per 100 g but gives no piece weight"}
+  - {csv_key: pakora_one, note: "No published weight found"}
+  - {csv_key: upma_poha_cup, note: "NIN 2011 Annexure 8 gives 270 kcal per cup; cup volume and grams not defined there"}

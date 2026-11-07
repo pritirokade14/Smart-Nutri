@@ -330,7 +330,11 @@
     "copy_too_many": "That is too many items to copy at once. Copy one meal at a time.",
     "date_too_old": "You can only add to the last 30 days.",
     "meal_slot_last_active": "You need at least one meal.",
-    "meal_slot_label_duplicate": "You already have a meal with this name."
+    "meal_slot_label_duplicate": "You already have a meal with this name.",
+    "unit_grams_unknown": "We don't know the grams for this measure yet. Enter grams, or set your own value.",
+    "unit_not_supported": "That measure isn't available here. Choose another.",
+    "quantity_out_of_range": "That amount is too large or too small. Check the number and try again.",
+    "food_not_found": "We couldn't find that food."
   },
   "scan": {
     "title": "Scan a barcode",

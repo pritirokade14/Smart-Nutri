@@ -1816,6 +1816,12 @@ abstract class AppLocalizations {
   /// **'Please check your answers and try again.'**
   String get errorFollowUpWithoutType;
 
+  /// No description provided for @errorFoodNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that food.'**
+  String get errorFoodNotFound;
+
   /// No description provided for @errorForbidden.
   ///
   /// In en, this message translates to:
@@ -1990,6 +1996,12 @@ abstract class AppLocalizations {
   /// **'We couldn\'t find this product yet.'**
   String get errorProductNotFound;
 
+  /// No description provided for @errorQuantityOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'That amount is too large or too small. Check the number and try again.'**
+  String get errorQuantityOutOfRange;
+
   /// No description provided for @errorQuickAddEnergyRequired.
   ///
   /// In en, this message translates to:
@@ -2067,6 +2079,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please sign in.'**
   String get errorUnauthorized;
+
+  /// No description provided for @errorUnitGramsUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'We don\'t know the grams for this measure yet. Enter grams, or set your own value.'**
+  String get errorUnitGramsUnknown;
+
+  /// No description provided for @errorUnitNotSupported.
+  ///
+  /// In en, this message translates to:
+  /// **'That measure isn\'t available here. Choose another.'**
+  String get errorUnitNotSupported;
 
   /// No description provided for @errorUnsupportedImage.
   ///

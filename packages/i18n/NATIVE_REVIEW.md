@@ -295,3 +295,7 @@ All of these are machine drafts in hi and mr. The diary sits beside health numbe
 
 - `diary.slots.move_up`, `diary.slots.move_down` (hi, mr): accessible names for the meal reorder buttons. Machine draft.
 - `diary.slots.time_start`, `diary.slots.time_end` (hi, mr): accessible names for the meal time inputs. Machine draft.
+
+## Plan 12 slice 3 (Food Diary: household units and Indian foods)
+All of these are machine drafts in hi and mr.
+- [ ] **hi/mr `error.{unit_grams_unknown, unit_not_supported, quantity_out_of_range, food_not_found}`**: error messages. `unit_grams_unknown` says we do not know the grams of a household measure (for example a katori of a food with no density) and offers grams or the user's own value; check it does not read as a fault of the user. "Measure" is "माप" (hi, mr).

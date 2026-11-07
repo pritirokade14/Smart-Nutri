@@ -1,0 +1,330 @@
+{
+  "dishes": {
+    "aloo_gobi": {
+      "cooked_weight_g": 280.0,
+      "name_en": "Aloo gobi",
+      "per_100": {
+        "carbs_g": 11.2732,
+        "energy_kcal": 83.7107,
+        "fat_g": 3.9452,
+        "fibre_g": 2.4634,
+        "protein_g": 2.1686,
+        "salt_g": 0.7428,
+        "sat_fat_g": null,
+        "sugars_g": null
+      },
+      "serving_g": null
+    },
+    "aloo_sabzi": {
+      "cooked_weight_g": 220.0,
+      "name_en": "Aloo sabzi (dry)",
+      "per_100": {
+        "carbs_g": 18.0806,
+        "energy_kcal": 120.5909,
+        "fat_g": 4.7933,
+        "fibre_g": 2.3793,
+        "protein_g": 2.1939,
+        "salt_g": 0.8986,
+        "sat_fat_g": null,
+        "sugars_g": 1.5574
+      },
+      "serving_g": null
+    },
+    "baingan_bharta": {
+      "cooked_weight_g": 250.0,
+      "name_en": "Baingan bharta",
+      "per_100": {
+        "carbs_g": 9.654,
+        "energy_kcal": 77.784,
+        "fat_g": 4.3536,
+        "fibre_g": 3.7574,
+        "protein_g": 1.629,
+        "salt_g": 0.7878,
+        "sat_fat_g": null,
+        "sugars_g": 5.0446
+      },
+      "serving_g": null
+    },
+    "bhindi_sabzi": {
+      "cooked_weight_g": 170.0,
+      "name_en": "Bhindi (okra) sabzi",
+      "per_100": {
+        "carbs_g": 11.4201,
+        "energy_kcal": 103.3588,
+        "fat_g": 6.27,
+        "fibre_g": 4.2932,
+        "protein_g": 2.6626,
+        "salt_g": 1.1656,
+        "sat_fat_g": null,
+        "sugars_g": 2.7615
+      },
+      "serving_g": null
+    },
+    "chai": {
+      "cooked_weight_g": 200.0,
+      "name_en": "Tea with milk and sugar (chai)",
+      "per_100": {
+        "carbs_g": 5.0495,
+        "energy_kcal": 40.675,
+        "fat_g": 1.625,
+        "fibre_g": 0.0,
+        "protein_g": 1.575,
+        "salt_g": 0.0576,
+        "sat_fat_g": null,
+        "sugars_g": 5.02
+      },
+      "serving_g": null
+    },
+    "chicken_curry": {
+      "cooked_weight_g": 400.0,
+      "name_en": "Chicken curry",
+      "per_100": {
+        "carbs_g": 4.3576,
+        "energy_kcal": 112.8325,
+        "fat_g": 5.5708,
+        "fibre_g": 1.0225,
+        "protein_g": 11.4152,
+        "salt_g": 0.8308,
+        "sat_fat_g": null,
+        "sugars_g": null
+      },
+      "serving_g": null
+    },
+    "chole": {
+      "cooked_weight_g": 400.0,
+      "name_en": "Chole (chickpea curry)",
+      "per_100": {
+        "carbs_g": 13.0789,
+        "energy_kcal": 95.8375,
+        "fat_g": 3.6756,
+        "fibre_g": 2.747,
+        "protein_g": 3.6948,
+        "salt_g": 0.7427,
+        "sat_fat_g": null,
+        "sugars_g": null
+      },
+      "serving_g": null
+    },
+    "cucumber_raita": {
+      "cooked_weight_g": 160.0,
+      "name_en": "Cucumber raita",
+      "per_100": {
+        "carbs_g": 4.118,
+        "energy_kcal": 48.9531,
+        "fat_g": 2.5193,
+        "fibre_g": 0.1947,
+        "protein_g": 2.7834,
+        "salt_g": 0.5728,
+        "sat_fat_g": null,
+        "sugars_g": 3.8442
+      },
+      "serving_g": null
+    },
+    "curd_rice": {
+      "cooked_weight_g": 300.0,
+      "name_en": "Curd rice",
+      "per_100": {
+        "carbs_g": 16.4758,
+        "energy_kcal": 105.1867,
+        "fat_g": 2.8254,
+        "fibre_g": 0.2203,
+        "protein_g": 3.0915,
+        "salt_g": 0.381,
+        "sat_fat_g": null,
+        "sugars_g": 2.4053
+      },
+      "serving_g": null
+    },
+    "dal_tadka": {
+      "cooked_weight_g": 350.0,
+      "name_en": "Dal tadka (toor)",
+      "per_100": {
+        "carbs_g": 11.166,
+        "energy_kcal": 79.6914,
+        "fat_g": 2.6594,
+        "fibre_g": 2.6283,
+        "protein_g": 3.4986,
+        "salt_g": 0.5643,
+        "sat_fat_g": null,
+        "sugars_g": null
+      },
+      "serving_g": null
+    },
+    "egg_bhurji": {
+      "cooked_weight_g": 150.0,
+      "name_en": "Egg bhurji",
+      "per_100": {
+        "carbs_g": 3.3498,
+        "energy_kcal": 143.3333,
+        "fat_g": 10.4108,
+        "fibre_g": 0.6557,
+        "protein_g": 8.8016,
+        "salt_g": 0.8874,
+        "sat_fat_g": null,
+        "sugars_g": 1.6314
+      },
+      "serving_g": 150.0
+    },
+    "khichdi": {
+      "cooked_weight_g": 400.0,
+      "name_en": "Khichdi",
+      "per_100": {
+        "carbs_g": 14.102,
+        "energy_kcal": 79.69,
+        "fat_g": 1.4641,
+        "fibre_g": 1.2359,
+        "protein_g": 2.4391,
+        "salt_g": 0.4895,
+        "sat_fat_g": null,
+        "sugars_g": 0.4371
+      },
+      "serving_g": null
+    },
+    "masala_omelette": {
+      "cooked_weight_g": 120.0,
+      "name_en": "Masala omelette",
+      "per_100": {
+        "carbs_g": 2.6429,
+        "energy_kcal": 164.9167,
+        "fat_g": 12.1333,
+        "fibre_g": 0.4333,
+        "protein_g": 10.76,
+        "salt_g": 1.1065,
+        "sat_fat_g": null,
+        "sugars_g": 1.3438
+      },
+      "serving_g": 120.0
+    },
+    "moong_dal": {
+      "cooked_weight_g": 300.0,
+      "name_en": "Moong dal (yellow, plain)",
+      "per_100": {
+        "carbs_g": 10.8079,
+        "energy_kcal": 74.8567,
+        "fat_g": 1.9434,
+        "fibre_g": 2.8273,
+        "protein_g": 4.0683,
+        "salt_g": 0.6538,
+        "sat_fat_g": null,
+        "sugars_g": 1.1182
+      },
+      "serving_g": null
+    },
+    "palak_dal": {
+      "cooked_weight_g": 350.0,
+      "name_en": "Palak dal",
+      "per_100": {
+        "carbs_g": 9.4704,
+        "energy_kcal": 67.2886,
+        "fat_g": 2.0071,
+        "fibre_g": 1.9579,
+        "protein_g": 3.7003,
+        "salt_g": 0.6032,
+        "sat_fat_g": null,
+        "sugars_g": 0.7139
+      },
+      "serving_g": null
+    },
+    "plain_rice": {
+      "cooked_weight_g": 250.0,
+      "name_en": "Plain rice, boiled",
+      "per_100": {
+        "carbs_g": 31.98,
+        "energy_kcal": 146.0,
+        "fat_g": 0.264,
+        "fibre_g": 0.52,
+        "protein_g": 2.852,
+        "salt_g": 0.005,
+        "sat_fat_g": null,
+        "sugars_g": 0.048
+      },
+      "serving_g": null
+    },
+    "rajma_masala": {
+      "cooked_weight_g": 400.0,
+      "name_en": "Rajma masala",
+      "per_100": {
+        "carbs_g": 12.8299,
+        "energy_kcal": 89.6875,
+        "fat_g": 2.9286,
+        "fibre_g": 3.197,
+        "protein_g": 4.0038,
+        "salt_g": 0.7382,
+        "sat_fat_g": null,
+        "sugars_g": null
+      },
+      "serving_g": null
+    },
+    "sambar": {
+      "cooked_weight_g": 600.0,
+      "name_en": "Sambar",
+      "per_100": {
+        "carbs_g": 6.911,
+        "energy_kcal": 42.8508,
+        "fat_g": 1.1412,
+        "fibre_g": 1.8095,
+        "protein_g": 1.8522,
+        "salt_g": 0.4992,
+        "sat_fat_g": null,
+        "sugars_g": null
+      },
+      "serving_g": null
+    },
+    "sweet_lassi": {
+      "cooked_weight_g": 265.0,
+      "name_en": "Sweet lassi",
+      "per_100": {
+        "carbs_g": 8.297,
+        "energy_kcal": 56.434,
+        "fat_g": 1.8396,
+        "fibre_g": 0.0,
+        "protein_g": 1.9642,
+        "salt_g": 0.0652,
+        "sat_fat_g": null,
+        "sugars_g": 8.2868
+      },
+      "serving_g": null
+    },
+    "upma": {
+      "cooked_weight_g": 250.0,
+      "name_en": "Upma (rava)",
+      "per_100": {
+        "carbs_g": 17.4326,
+        "energy_kcal": 115.26,
+        "fat_g": 3.6102,
+        "fibre_g": 1.5988,
+        "protein_g": 3.1719,
+        "salt_g": 0.7915,
+        "sat_fat_g": null,
+        "sugars_g": null
+      },
+      "serving_g": null
+    },
+    "veg_pulao": {
+      "cooked_weight_g": 300.0,
+      "name_en": "Vegetable pulao",
+      "per_100": {
+        "carbs_g": 24.0035,
+        "energy_kcal": 134.29,
+        "fat_g": 2.9696,
+        "fibre_g": 1.1183,
+        "protein_g": 2.494,
+        "salt_g": 0.664,
+        "sat_fat_g": null,
+        "sugars_g": 1.1575
+      },
+      "serving_g": null
+    }
+  },
+  "excluded": {
+    "besan_chilla": "needs_weighing",
+    "boiled_egg": "needs_weighing",
+    "dosa_plain": "needs_weighing",
+    "idli": "needs_weighing",
+    "paneer_bhurji": "blocked",
+    "paratha": "needs_weighing",
+    "poha": "blocked",
+    "puri": "needs_weighing",
+    "roti": "needs_weighing"
+  }
+}
