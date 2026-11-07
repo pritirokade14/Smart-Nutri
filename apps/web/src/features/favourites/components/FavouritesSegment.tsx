@@ -60,7 +60,7 @@ export function FavouritesSegment({
   const again = useLogFavourite();
   const remove = useDeleteFavourite();
   const [picking, setPicking] = useState<FavouriteOut | null>(null);
-  const foodClient = useRef<string | null>(null);
+  const foodClient = useRef<{ id: string; clientId: string } | null>(null);
   const mealClient = useRef<{ id: string; clientId: string } | null>(null);
 
   if (picking) {
@@ -85,7 +85,9 @@ export function FavouritesSegment({
       setPicking(f);
       return;
     }
-    foodClient.current ??= crypto.randomUUID();
+    if (foodClient.current?.id !== f.id)
+      foodClient.current = { id: f.id, clientId: crypto.randomUUID() };
+    const clientId = foodClient.current.clientId;
     log.mutate(
       {
         ...(f.food_id
@@ -101,7 +103,7 @@ export function FavouritesSegment({
         unit: f.default_unit as NonNullable<MealIn["unit"]>,
         ...(slotId ? { meal_slot_id: slotId } : {}),
         ...(localDate ? { local_date: localDate } : {}),
-        client_id: foodClient.current,
+        client_id: clientId,
       },
       {
         onSuccess: () => {

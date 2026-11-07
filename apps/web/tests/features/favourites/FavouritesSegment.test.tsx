@@ -150,6 +150,36 @@ describe("FavouritesSegment", () => {
     expect(ids[0]).toBe(ids[1]);
   });
 
+  it("food favourites key client_id by favourite and regenerate after success", async () => {
+    let n = 0;
+    const DAL = {
+      ...ROTI,
+      id: "f3",
+      name: "Dal",
+      food_id: "f0000000-0000-4000-8000-000000000003",
+    };
+    const api = stub([ROTI, DAL]).on("POST", "/v1/meals", (_c) => {
+      n += 1;
+      return n === 1
+        ? json(503, envelope("internal_error"))
+        : json(201, { id: `c${n}` });
+    });
+    const onLogged = open();
+    const rows = await screen.findAllByTestId("favourite-food");
+    await userEvent.click(rows[0]);
+    await screen.findByRole("alert");
+    await userEvent.click(rows[1]);
+    await waitFor(() => expect(onLogged).toHaveBeenCalledTimes(1));
+    await userEvent.click(rows[1]);
+    await waitFor(() => expect(onLogged).toHaveBeenCalledTimes(2));
+    const ids = api
+      .callsTo("POST", "/v1/meals")
+      .map((c) => (c.body as { client_id: string }).client_id);
+    expect(ids).toHaveLength(3);
+    expect(ids[0]).not.toBe(ids[1]);
+    expect(ids[2]).not.toBe(ids[1]);
+  });
+
   it("food_retired shows its message", async () => {
     stub([MEAL]).on(
       "POST",
