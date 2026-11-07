@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { Providers } from "@/app/providers";
 import { AppShell } from "@/components/shell/AppShell";
 import { ConsentGate } from "@/features/consent/components/ConsentGate";
+import { AddContextGuard } from "@/features/diary/components/AddContextGuard";
 import { TimezoneSync } from "@/features/diary/components/TimezoneSync";
 import { UserTypesGate } from "@/features/user-types/components/UserTypesGate";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -24,6 +25,7 @@ export default async function AppLayout({
   return (
     <Providers>
       <TimezoneSync />
+      <AddContextGuard />
       <AppShell locale={locale}>
         <ConsentGate>
           <UserTypesGate>{children}</UserTypesGate>

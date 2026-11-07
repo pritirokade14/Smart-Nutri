@@ -114,12 +114,13 @@ describe("LogMealDialog from the Diary add-food flow", () => {
         method: "barcode",
         slotId: "d0000000-0000-4000-8000-000000000009",
         localDate: "2026-11-05",
+        at: Date.now(),
       }),
     );
     const api = apiStub(fetchMock)
       .on("GET", "/v1/meal-slots", { items: [], suggested_slot_id: null })
       .on("POST", "/v1/meals", json(201, mealOut()));
-    view();
+    view(OFF_BISCUIT, ME);
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: en.meals.log.save }));
     await screen.findByText(en.meals.log.saved.replace("{who}", "Dad"));
@@ -130,6 +131,55 @@ describe("LogMealDialog from the Diary add-food flow", () => {
       method: "barcode",
     });
     expect(window.sessionStorage.getItem("sn.diaryAddContext")).toBeNull();
+  });
+
+  const CTX = {
+    method: "barcode",
+    slotId: "d0000000-0000-4000-8000-000000000009",
+    localDate: "2026-11-05",
+  };
+
+  it("a stale context (older than 30 minutes) is not applied", async () => {
+    window.sessionStorage.setItem(
+      "sn.diaryAddContext",
+      JSON.stringify({ ...CTX, at: Date.now() - 31 * 60 * 1000 }),
+    );
+    const api = apiStub(fetchMock).on(
+      "POST",
+      "/v1/meals",
+      json(201, mealOut()),
+    );
+    view(OFF_BISCUIT, ME);
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: en.meals.log.save }));
+    await waitFor(() =>
+      expect(api.callsTo("POST", "/v1/meals")).toHaveLength(1),
+    );
+    expect(api.callsTo("POST", "/v1/meals")[0].body).not.toHaveProperty(
+      "local_date",
+    );
+    expect(track).not.toHaveBeenCalledWith("diary_entry_added", {
+      method: "barcode",
+    });
+  });
+
+  it("the diary day is not applied when logging for someone else", async () => {
+    window.sessionStorage.setItem(
+      "sn.diaryAddContext",
+      JSON.stringify({ ...CTX, at: Date.now() }),
+    );
+    const api = apiStub(fetchMock)
+      .on("GET", "/v1/meal-slots", { items: [], suggested_slot_id: null })
+      .on("POST", "/v1/meals", json(201, mealOut()));
+    view(OFF_BISCUIT, DAD);
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: en.meals.log.save }));
+    await screen.findByText(en.meals.log.saved.replace("{who}", "Dad"));
+    const body = api.callsTo("POST", "/v1/meals")[0].body as object;
+    expect(body).not.toHaveProperty("local_date");
+    expect(body).not.toHaveProperty("meal_slot_id");
   });
 
   it("without a diary context no diary event is sent", async () => {

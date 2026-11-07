@@ -45,14 +45,12 @@ import { EditEntryDialog } from "./EditEntryDialog";
 import { SlotSection } from "./SlotSection";
 import { WeekView } from "./WeekView";
 
-/** A sugar or salt band: an API band is kept; an unknown or incomplete total never reads "within limit". */
+/** A sugar or salt band: the API band exactly as returned (unknown stays grey). */
 function limitBand(day: DiaryDayOut, key: "sugars_g" | "salt_g"): Band {
   const band =
     key === "sugars_g" ? day.limits_bands.sugar_g : day.limits_bands.salt_g;
   if (day.numbers_hidden.macros) return bandOf(band);
-  const total = shownTotal(day.totals[key], day.incomplete[key]);
-  const b = shownBand(band, total);
-  return day.incomplete[key] && b === "ok" ? "unknown" : b;
+  return shownBand(band, shownTotal(day.totals[key], day.incomplete[key]));
 }
 
 function Summary({
@@ -114,14 +112,14 @@ function Summary({
           </span>
         ))}
       </div>
-      {ready ? (
-        <div className="space-y-1" data-testid="diary-target-footer">
-          <p className="text-sm text-text-secondary">{t("diary.disclaimer")}</p>
+      <div className="space-y-1" data-testid="diary-target-footer">
+        <p className="text-sm text-text-secondary">{t("diary.disclaimer")}</p>
+        {ready ? (
           <p className="text-sm text-text-secondary">
             {t("targets.pending_review")}
           </p>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </Card>
   );
 }

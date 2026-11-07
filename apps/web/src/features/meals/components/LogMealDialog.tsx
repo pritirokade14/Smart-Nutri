@@ -106,10 +106,15 @@ export function LogMealDialog({
   const [ctx] = useState<DiaryAddContext | null>(() =>
     typeof window === "undefined" ? null : getDiaryAddContext(),
   );
-  const logDate = localDate ?? ctx?.localDate ?? undefined;
+  // The diary's day and slot belong to the self member only.
+  const forSelf = members.find((x) => x.id === member)?.isPrimary === true;
+  const logDate = localDate ?? (forSelf ? ctx?.localDate : null) ?? undefined;
   const [pickedSlot, setPickedSlot] = useState<string | null>(null);
   const slotId =
-    pickedSlot ?? ctx?.slotId ?? slots.data?.suggested_slot_id ?? null;
+    pickedSlot ??
+    (forSelf ? ctx?.slotId : null) ??
+    slots.data?.suggested_slot_id ??
+    null;
 
   const who = (id: string) => {
     const m = members.find((x) => x.id === id);

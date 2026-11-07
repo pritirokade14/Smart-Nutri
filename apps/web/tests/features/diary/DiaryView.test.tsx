@@ -204,6 +204,16 @@ describe("DiaryView", () => {
     expect(screen.queryAllByTestId("entry-row")).toHaveLength(0);
   });
 
+  it("an incomplete total of 0 never shows as a bare 0", async () => {
+    stub("day_incomplete_energy", null, (d) => {
+      d.totals.energy_kcal = 0;
+      d.incomplete.energy_kcal = true;
+    });
+    view();
+    await screen.findByTestId("incomplete-energy_kcal");
+    expect(screen.queryByTestId("value-energy_kcal")).toBeNull();
+  });
+
   it("no guide shows the setup call to action", async () => {
     stub("day_no_target");
     view();
@@ -216,8 +226,13 @@ describe("DiaryView", () => {
     expect(screen.getByTestId("value-energy_kcal").textContent).toContain(
       "250",
     );
-    // The disclaimer sits where targets show; none show here.
-    expect(screen.queryByTestId("diary-target-footer")).toBeNull();
+    // The bands still show, so the disclaimer does too (no pending note).
+    expect(screen.getByTestId("diary-target-footer").textContent).toContain(
+      MESSAGES.en.diary.disclaimer,
+    );
+    expect(screen.getByTestId("diary-target-footer").textContent).not.toContain(
+      MESSAGES.en.targets.pending_review,
+    );
     // No support link anywhere.
     expect(document.querySelector('a[href*="support"]')).toBeNull();
   });

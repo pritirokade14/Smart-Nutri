@@ -22,9 +22,9 @@ vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
 
 const en = MESSAGES.en;
 
-function stubWeek(stem: string) {
+function stubWeek(stem: string, edit?: Parameters<typeof diaryWeek>[1]) {
   return apiStub(fetchMock)
-    .on("GET", "/v1/diary/week", () => json(200, diaryWeek(stem)))
+    .on("GET", "/v1/diary/week", () => json(200, diaryWeek(stem, edit)))
     .on("GET", "/v1/meals/week_counts", {
       start: "2026-11-01",
       end: "2026-11-07",
@@ -113,6 +113,18 @@ describe("WeekView", () => {
     expect(JSON.stringify(msgs).toLowerCase()).not.toMatch(
       /streak|good|bad|great/,
     );
+  });
+
+  it("an incomplete day with a raw 0 total shows no kcal number", async () => {
+    stubWeek("week_mixed", (w) => {
+      w.days[4].totals.energy_kcal = 0;
+      w.days[4].incomplete.energy_kcal = true;
+      w.days[4].items = Math.max(w.days[4].items, 1);
+    });
+    renderIntl(<WeekView today="2026-11-07" onPickDay={vi.fn()} />);
+    const tiles = await screen.findAllByTestId("week-tile");
+    expect(within(tiles[4]).queryByTestId("week-kcal")).toBeNull();
+    expect(within(tiles[4]).getByTestId("week-incomplete")).toBeTruthy();
   });
 
   it("hide_all leaves no digits on the week", async () => {

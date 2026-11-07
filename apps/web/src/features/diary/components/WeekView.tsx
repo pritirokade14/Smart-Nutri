@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { chipClass } from "@/components/ui/Chip";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/Skeleton";
-import { formatAmount } from "@/features/history/lib/summary";
+import { formatAmount, shownTotal } from "@/features/history/lib/summary";
 import { errorKey } from "@/features/members/components/ConsentDialog";
 import { WeeklyShare } from "@/features/share/WeeklyShare";
 import type { DayTile, DiaryWeekOut } from "../api/diary";
@@ -41,7 +41,10 @@ function Tile({
   const t = useTranslations();
   const locale = useLocale();
   const progress = tile.progress?.energy_kcal;
-  const kcal = tile.totals.energy_kcal;
+  const kcal = shownTotal(
+    tile.totals.energy_kcal,
+    tile.incomplete.energy_kcal === true,
+  );
   const showTarget = tile.targets?.energy_kcal != null && !hidden;
   return (
     <li data-testid="week-tile" data-date={tile.date} className="min-w-0">

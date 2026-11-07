@@ -19,9 +19,22 @@ export type DiaryAddContext = {
 
 const METHODS: readonly string[] = ["search", "barcode", "label"];
 
+/** An unfinished add-food trip older than this no longer applies. */
+export const ADD_CONTEXT_TTL_MS = 30 * 60 * 1000;
+
+/** Pages of the add-food trip (after the locale); leaving them drops the context. */
+const TRIP = /^\/[^/]+\/(diary|search|scan|result|product)(\/|$)/;
+
+export function isAddTripPath(pathname: string): boolean {
+  return TRIP.test(pathname);
+}
+
 export function setDiaryAddContext(ctx: DiaryAddContext): void {
   try {
-    window.sessionStorage.setItem(KEY, JSON.stringify(ctx));
+    window.sessionStorage.setItem(
+      KEY,
+      JSON.stringify({ ...ctx, at: Date.now() }),
+    );
   } catch {
     // Storage may be blocked: the log then goes to now, as before.
   }
@@ -39,7 +52,11 @@ export function getDiaryAddContext(): DiaryAddContext | null {
   try {
     const raw = window.sessionStorage.getItem(KEY);
     if (!raw) return null;
-    const v = JSON.parse(raw) as Partial<DiaryAddContext>;
+    const v = JSON.parse(raw) as Partial<DiaryAddContext> & { at?: number };
+    if (typeof v.at !== "number" || Date.now() - v.at > ADD_CONTEXT_TTL_MS) {
+      window.sessionStorage.removeItem(KEY);
+      return null;
+    }
     if (typeof v.method !== "string" || !METHODS.includes(v.method))
       return null;
     return {

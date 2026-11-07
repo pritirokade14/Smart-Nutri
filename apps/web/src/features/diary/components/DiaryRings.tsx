@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { chipClass } from "@/components/ui/Chip";
-import { formatAmount } from "@/features/history/lib/summary";
+import { formatAmount, shownTotal } from "@/features/history/lib/summary";
 import { cn } from "@/lib/cn";
 import type { DiaryDayOut, Macro4 } from "../api/diary";
 
@@ -45,7 +45,8 @@ function pick(day: DiaryDayOut, key: Key, view: SummaryView): Shown {
       : { kind: "left", value: r };
   }
   const total = day.totals[key];
-  if (incomplete) return { kind: "incomplete", lowerBound: total };
+  if (incomplete)
+    return { kind: "incomplete", lowerBound: shownTotal(total, true) };
   return total === null ? { kind: "none" } : { kind: "eaten", value: total };
 }
 
