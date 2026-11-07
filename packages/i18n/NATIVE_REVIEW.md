@@ -313,3 +313,11 @@ All of these are machine drafts in hi and mr.
 - [ ] **hi/mr `recipes.per_serving`, `recipes.per_100g`, `foods.values_per.{100g,100ml,serving}`**: "per serving" and "values per 100 g" are label words ("प्रति सर्विंग", "प्रति 100 ग्राम के मान"). Check them against how a nutrition label reads in Hindi and Marathi.
 - [ ] **hi/mr `recipes.incomplete`** (tentative): "Some ingredients don't show this value, so the real amount may be higher." It sits beside an "at least" figure. Check it is clear that the number shown is a lower bound and does not sound like a warning.
 - [ ] **hi/mr `custom_food.*`, `custom_food.field.*`, `foods.{group.mine,kind.custom_food,kind.recipe,new_food,new_recipe,my_foods}`, `recipes.*`**: everyday form words. "Recipe" is "रेसिपी" in both (check "पाककृती" for Marathi); "ingredients" is "सामग्री" (hi) and "साहित्य" (mr); "serving" is the transliterated "सर्विंग" / "सर्व्हिंग". `custom_food.density_hint` mentions katori, cup and glass (वाटी / कटोरी); check it explains a density without jargon. `custom_food.delete_confirm` and `recipes.delete_confirm` say logged meals keep their values.
+
+## Plan 12 slice 5 (Food Diary: favourites and saved meals)
+All of these are machine drafts in hi and mr.
+- [ ] **hi/mr `error.{favourite_not_found, favourite_limit}`**: error messages. `favourite_limit` says up to 200 favourites and asks to remove one (Marathi uses २००).
+- [ ] **hi/mr `foods.favourites`, `favourites.{add,remove,added,empty,limit}`**: "Favourites" is "पसंदीदा" (hi) and "आवडते" (mr). Check both are what families say for a starred food, and that the toggle labels ("पसंदीदा में जोड़ें" / "आवडत्यांमध्ये जोडा") read naturally.
+- [ ] **hi/mr `favourites.{save_meal,meal_name,log_again}`**: "Save as favourite meal" (a saved copy of one meal's items), the name field label and "Log again". Check "भोजन" / "जेवण" for a saved meal and that "फिर से दर्ज करें" / "पुन्हा नोंदवा" reads as one tap to add the same items again.
+- [ ] **hi/mr `favourites.meal_name_hint`**: "Names you type are kept exactly as you type them." The name is user text and is never translated or changed. Check it reads plainly.
+- [ ] **hi/mr `favourites.meal_items`**: "{count, plural, one {# item} other {# items}}". Hindi and Marathi use one form for both; Marathi prints `{count}` (not `#`) so the digit stays Latin. Check "आइटम" is the word people use.
