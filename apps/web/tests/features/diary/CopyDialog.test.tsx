@@ -163,6 +163,35 @@ describe("CopyDialog", () => {
 });
 
 describe("copy toast", () => {
+  it("the copied toast uses Latin digits in Marathi", async () => {
+    const day = diaryDay("day_hide_all");
+    const copied = day.slots.flatMap((s) => s.entries).slice(0, 3);
+    apiStub(fetchMock)
+      .on("GET", "/v1/diary/day", day)
+      .on(
+        "GET",
+        "/v1/targets/settings",
+        json(404, envelope("goal_settings_not_found")),
+      )
+      .on("GET", "/v1/meal-slots", { items: [], suggested_slot_id: "x" })
+      .on("POST", "/v1/meals/copy", json(201, { created: copied }));
+    renderIntl(<DiaryView />, "mr");
+    await userEvent.click(
+      await screen.findByRole("button", { name: MESSAGES.mr.nav.more }),
+    );
+    await userEvent.click(
+      screen.getByRole("menuitem", { name: MESSAGES.mr.diary.copy_yesterday }),
+    );
+    await userEvent.click(
+      screen
+        .getByTestId("copy-dialog")
+        .querySelector('button[type="submit"]') as HTMLElement,
+    );
+    const toast = await screen.findByTestId("diary-notice");
+    expect(toast.textContent).toContain("3");
+    expect(toast.textContent).not.toMatch(/[०-९]/);
+  });
+
   it("copied toast shows count only under hide_all", async () => {
     const day = diaryDay("day_hide_all");
     const copied = day.slots.flatMap((s) => s.entries).slice(0, 3);

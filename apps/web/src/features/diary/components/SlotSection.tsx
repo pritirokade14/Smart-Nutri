@@ -36,6 +36,14 @@ export function SlotSection({
         >
           {title}
         </h3>
+        {slot.archived ? (
+          <span
+            data-testid="slot-removed"
+            className="text-sm text-text-secondary"
+          >
+            {t("diary.slots.removed")}
+          </span>
+        ) : null}
         {actions}
       </div>
       {slot.entries.length > 0 ? (

@@ -104,6 +104,48 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+describe("LogMealDialog from the Diary add-food flow", () => {
+  afterEach(() => window.sessionStorage.clear());
+
+  it("logs to the diary day and slot and sends diary_entry_added", async () => {
+    window.sessionStorage.setItem(
+      "sn.diaryAddContext",
+      JSON.stringify({
+        method: "barcode",
+        slotId: "d0000000-0000-4000-8000-000000000009",
+        localDate: "2026-11-05",
+      }),
+    );
+    const api = apiStub(fetchMock)
+      .on("GET", "/v1/meal-slots", { items: [], suggested_slot_id: null })
+      .on("POST", "/v1/meals", json(201, mealOut()));
+    view();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: en.meals.log.save }));
+    await screen.findByText(en.meals.log.saved.replace("{who}", "Dad"));
+    expect(api.callsTo("POST", "/v1/meals")[0].body).toMatchObject({
+      local_date: "2026-11-05",
+    });
+    expect(track).toHaveBeenCalledWith("diary_entry_added", {
+      method: "barcode",
+    });
+    expect(window.sessionStorage.getItem("sn.diaryAddContext")).toBeNull();
+  });
+
+  it("without a diary context no diary event is sent", async () => {
+    apiStub(fetchMock).on("POST", "/v1/meals", json(201, mealOut()));
+    view();
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: en.meals.log.save }));
+    await screen.findByText(en.meals.log.saved.replace("{who}", "Dad"));
+    expect(track).not.toHaveBeenCalledWith(
+      "diary_entry_added",
+      expect.anything(),
+    );
+  });
+});
+
 describe("LogMealDialog", () => {
   it("shows online-only notice", () => {
     apiStub(fetchMock);

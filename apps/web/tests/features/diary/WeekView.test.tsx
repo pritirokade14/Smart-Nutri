@@ -56,10 +56,10 @@ describe("WeekView", () => {
     // Averages over the 5 averaged days, exactly as the API sent them.
     const avg = screen.getByTestId("week-averages");
     // The averaged-days count comes from the API (5), in the locale's own ICU
-    // plural (mr prints it in Devanagari digits).
-    expect(avg.querySelector("[data-allow-digits]")?.textContent).toMatch(
-      /[5५]/,
-    );
+    // plural (Latin digits in every locale).
+    const avgText = avg.querySelector("[data-allow-digits]")?.textContent ?? "";
+    expect(avgText).toContain("5");
+    expect(avgText).not.toMatch(/[०-९]/);
     expect(
       screen.getByTestId("week-average-energy_kcal").textContent,
     ).toContain("1,630");
@@ -82,11 +82,23 @@ describe("WeekView", () => {
     expect(within(tiles[3]).queryByTestId("week-kcal")).toBeNull();
   });
 
-  it("averages that are lower bounds carry the incomplete chip", async () => {
+  it("averages that are lower bounds read 'at least', in grey", async () => {
     stubWeek("week_mixed");
     renderIntl(<WeekView today="2026-11-07" onPickDay={vi.fn()} />);
-    const row = await screen.findByTestId("week-average-energy_kcal");
-    expect(row.textContent).toContain(en.diary.incomplete);
+    const row = await screen.findByTestId("week-at-least-energy_kcal");
+    expect(row.textContent).toBe(
+      en.diary.week.at_least.replace("{value}", "1,630 kcal"),
+    );
+    expect(row.className).toContain("text-text-secondary");
+  });
+
+  it("the week average count is a Latin digit in Marathi", async () => {
+    stubWeek("week_mixed");
+    renderIntl(<WeekView today="2026-11-07" onPickDay={vi.fn()} />, "mr");
+    const avg = await screen.findByTestId("week-averages");
+    const text = avg.querySelector("[data-allow-digits]")?.textContent ?? "";
+    expect(text).toContain("5");
+    expect(text).not.toMatch(/[०-९]/);
   });
 
   it.each(LOCALES)("no rating or streak text in %s", async (loc) => {

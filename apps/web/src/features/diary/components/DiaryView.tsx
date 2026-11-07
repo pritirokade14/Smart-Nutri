@@ -34,6 +34,7 @@ import { cn } from "@/lib/cn";
 import type { DiaryDayOut, MealOut } from "../api/diary";
 import { useDiaryDay } from "../hooks/useDiaryDay";
 import { useMealSlots } from "../hooks/useMealSlots";
+import { clearDiaryAddContext } from "../lib/addContext";
 import { slotLabel } from "../lib/slotLabel";
 import { AddFoodPanel } from "./AddFoodPanel";
 import { CopyDialog, type CopyKind } from "./CopyDialog";
@@ -177,6 +178,8 @@ export function DiaryView({
     if (viewed.current) return;
     viewed.current = true;
     track("diary_day_viewed");
+    // Back on the Diary: an unfinished add-food trip no longer applies.
+    clearDiaryAddContext();
   }, []);
 
   const pick = (next: string) => {
@@ -389,7 +392,7 @@ export function DiaryView({
                 : "bg-surface-muted text-text-primary",
             )}
           >
-            {v === "day" ? t("diary.today") : t("diary.week.title")}
+            {v === "day" ? t("diary.view.day") : t("diary.week.title")}
           </button>
         ))}
       </fieldset>

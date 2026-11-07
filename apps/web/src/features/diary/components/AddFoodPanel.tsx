@@ -16,6 +16,7 @@ import { cn } from "@/lib/cn";
 import type { RecentItem } from "../api/diary";
 import { useRecents } from "../hooks/useDiaryDay";
 import { useMealSlots } from "../hooks/useMealSlots";
+import { type DiaryAddMethod, setDiaryAddContext } from "../lib/addContext";
 import { slotLabel } from "../lib/slotLabel";
 import { QuickAddForm } from "./QuickAddForm";
 
@@ -124,6 +125,14 @@ export function AddFoodPanel({
     );
   }
 
+  // Search, barcode and label are other pages: carry the day and slot there.
+  const leave = (method: DiaryAddMethod) =>
+    setDiaryAddContext({
+      method,
+      slotId: loaded ? chosen : null,
+      localDate: localDate ?? null,
+    });
+
   const logError = log.error as ApiError | null;
   const done = () => {
     onLogged();
@@ -173,18 +182,21 @@ export function AddFoodPanel({
       <div className="flex flex-wrap gap-2" data-testid="add-food-links">
         <a
           href={`/${locale}/search`}
+          onClick={() => leave("search")}
           className={buttonClass({ variant: "outline", size: "sm" })}
         >
           {t("search.title")}
         </a>
         <a
           href={`/${locale}/scan`}
+          onClick={() => leave("barcode")}
           className={buttonClass({ variant: "outline", size: "sm" })}
         >
           {t("scan.title")}
         </a>
         <a
           href={`/${locale}/scan/label`}
+          onClick={() => leave("label")}
           className={buttonClass({ variant: "outline", size: "sm" })}
         >
           {t("label.title")}

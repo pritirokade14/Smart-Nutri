@@ -337,6 +337,29 @@ describe("DiaryView", () => {
     expect(
       screen.getAllByTestId("slot-title").map((x) => x.textContent),
     ).toContain("Pre-gym");
+    expect(screen.getAllByTestId("slot-removed")[0].textContent).toBe(
+      MESSAGES.hi.diary.slots.removed,
+    );
+  });
+
+  it("the Day switch uses diary.view.day", async () => {
+    stub("day_complete_under");
+    view();
+    const sw = await screen.findByTestId("diary-view-switch");
+    expect(sw.textContent).toContain(MESSAGES.en.diary.view.day);
+  });
+
+  it("past-date params are plain YYYY-MM-DD", async () => {
+    const api = stub("day_complete_under");
+    view();
+    await userEvent.click(
+      await screen.findByRole("button", { name: MESSAGES.en.diary.prev_day }),
+    );
+    await waitFor(() =>
+      expect(
+        api.callsTo("GET", "/v1/diary/day").at(-1)?.query.get("date"),
+      ).toMatch(/^\d{4}-\d{2}-\d{2}$/),
+    );
   });
 
   it("an unknown value is never 0 in the entries", async () => {

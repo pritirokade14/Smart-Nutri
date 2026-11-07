@@ -166,10 +166,18 @@ export function WeekView({
                 >
                   <span className="text-text-secondary">{t(label)}</span>
                   <span className="flex items-center gap-2 text-text-primary">
-                    {t(unit, { value: formatAmount(v) })}
                     {w.averages_incomplete[k] ? (
-                      <span className={chipClass}>{t("diary.incomplete")}</span>
-                    ) : null}
+                      <span
+                        data-testid={`week-at-least-${k}`}
+                        className="text-text-secondary"
+                      >
+                        {t("diary.week.at_least", {
+                          value: t(unit, { value: formatAmount(v) }),
+                        })}
+                      </span>
+                    ) : (
+                      t(unit, { value: formatAmount(v) })
+                    )}
                   </span>
                 </li>
               );

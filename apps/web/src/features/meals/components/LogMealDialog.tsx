@@ -8,6 +8,11 @@ import { hintClass, inputClass, labelClass } from "@/components/ui/field";
 import { InfoIcon } from "@/components/ui/icons";
 import { SlotChips } from "@/features/diary/components/AddFoodPanel";
 import { useMealSlots } from "@/features/diary/hooks/useMealSlots";
+import {
+  clearDiaryAddContext,
+  type DiaryAddContext,
+  getDiaryAddContext,
+} from "@/features/diary/lib/addContext";
 import { formatAmount } from "@/features/history/lib/summary";
 import { track } from "@/lib/analytics";
 import type { ApiError } from "@/lib/api/errors";
@@ -97,8 +102,14 @@ export function LogMealDialog({
   // The slot comes from the server's list and suggestion (never worked out
   // here); until the list loads, no chips show and no slot is sent.
   const slots = useMealSlots();
+  // From the Diary's add-food flow: its day and slot (else the API picks).
+  const [ctx] = useState<DiaryAddContext | null>(() =>
+    typeof window === "undefined" ? null : getDiaryAddContext(),
+  );
+  const logDate = localDate ?? ctx?.localDate ?? undefined;
   const [pickedSlot, setPickedSlot] = useState<string | null>(null);
-  const slotId = pickedSlot ?? slots.data?.suggested_slot_id ?? null;
+  const slotId =
+    pickedSlot ?? ctx?.slotId ?? slots.data?.suggested_slot_id ?? null;
 
   const who = (id: string) => {
     const m = members.find((x) => x.id === id);
@@ -128,7 +139,7 @@ export function LogMealDialog({
     setInvalid(false);
     clientId.current ??= crypto.randomUUID();
     // A past day sends local_date; local_date and eaten_at never go together.
-    const eatenAt = localDate ? null : toAware(when);
+    const eatenAt = logDate ? null : toAware(when);
     const body: MealIn = {
       member_id: member,
       ...(product.productId
@@ -136,7 +147,7 @@ export function LogMealDialog({
         : { barcode: product.barcode }),
       ...(mode === "servings" ? { servings: n } : { grams: n }),
       ...(eatenAt ? { eaten_at: eatenAt } : {}),
-      ...(localDate ? { local_date: localDate } : {}),
+      ...(logDate ? { local_date: logDate } : {}),
       ...(slots.data && slotId ? { meal_slot_id: slotId } : {}),
       client_id: clientId.current,
     };
@@ -145,6 +156,11 @@ export function LogMealDialog({
         clientId.current = null; // the next log is a new attempt series
         setSaved(meal);
         track("meal_logged");
+        if (ctx) {
+          // The method only: no product, member or portion.
+          track("diary_entry_added", { method: ctx.method });
+          clearDiaryAddContext();
+        }
       },
     });
   }
@@ -319,7 +335,7 @@ export function LogMealDialog({
           />
         ) : null}
 
-        {localDate ? null : (
+        {logDate ? null : (
           <div className="space-y-1">
             <label htmlFor={ids.when} className={labelClass}>
               {t("meals.log.eaten_at")}
