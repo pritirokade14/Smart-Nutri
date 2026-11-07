@@ -29,13 +29,28 @@ MealOut _$MealOutFromJson(Map<String, dynamic> json) => MealOut(
   productName: json['product_name'] as String,
   sourceKind: MealOutSourceKind.fromJson(json['source_kind'] as String),
   updatedAt: DateTime.parse(json['updated_at'] as String),
+  basis: json['basis'] == null
+      ? MealOutBasis.g
+      : MealOutBasis.fromJson(json['basis'] as String),
+  attributions: (json['attributions'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  foodId: json['food_id'] as String?,
+  portionUnits: (json['portion_units'] as List<dynamic>?)
+      ?.map((e) => PortionUnitOut.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  quantity: json['quantity'] as num?,
+  unit: json['unit'] as String?,
 );
 
 Map<String, dynamic> _$MealOutToJson(MealOut instance) => <String, dynamic>{
   'attribution': instance.attribution,
+  'attributions': instance.attributions,
   'barcode': instance.barcode,
+  'basis': _$MealOutBasisEnumMap[instance.basis]!,
   'client_id': instance.clientId,
   'eaten_at': instance.eatenAt.toIso8601String(),
+  'food_id': instance.foodId,
   'grade': _$NutriScoreGradeEnumMap[instance.grade],
   'grams': instance.grams,
   'id': instance.id,
@@ -44,10 +59,19 @@ Map<String, dynamic> _$MealOutToJson(MealOut instance) => <String, dynamic>{
   'meal_slot_id': instance.mealSlotId,
   'member_id': instance.memberId,
   'nutrients': instance.nutrients,
+  'portion_units': instance.portionUnits,
   'product_id': instance.productId,
   'product_name': instance.productName,
+  'quantity': instance.quantity,
   'source_kind': _$MealOutSourceKindEnumMap[instance.sourceKind]!,
+  'unit': instance.unit,
   'updated_at': instance.updatedAt.toIso8601String(),
+};
+
+const _$MealOutBasisEnumMap = {
+  MealOutBasis.g: 'g',
+  MealOutBasis.ml: 'ml',
+  MealOutBasis.$unknown: r'$unknown',
 };
 
 const _$NutriScoreGradeEnumMap = {
@@ -62,6 +86,7 @@ const _$NutriScoreGradeEnumMap = {
 const _$MealOutSourceKindEnumMap = {
   MealOutSourceKind.product: 'product',
   MealOutSourceKind.off: 'off',
+  MealOutSourceKind.food: 'food',
   MealOutSourceKind.quickAdd: 'quick_add',
   MealOutSourceKind.$unknown: r'$unknown',
 };

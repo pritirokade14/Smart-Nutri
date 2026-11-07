@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'meal_patch_unit.dart';
 import 'quick_in.dart';
 
 part 'meal_patch.g.dart';
@@ -17,8 +18,10 @@ class MealPatch {
     this.eatenAt,
     this.grams,
     this.mealSlotId,
+    this.quantity,
     this.quick,
     this.servings,
+    this.unit,
   });
 
   factory MealPatch.fromJson(Map<String, Object?> json) =>
@@ -29,8 +32,12 @@ class MealPatch {
   final num? grams;
   @JsonKey(name: 'meal_slot_id')
   final String? mealSlotId;
+
+  /// With `unit`: a new portion in a household unit. Only units that resolved when the entry was logged (`portion_units`) are accepted, else 422 unit_grams_unknown
+  final num? quantity;
   final QuickIn? quick;
   final num? servings;
+  final MealPatchUnit? unit;
 
   Map<String, Object?> toJson() => _$MealPatchToJson(this);
 }
