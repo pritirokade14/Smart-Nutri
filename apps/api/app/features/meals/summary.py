@@ -36,6 +36,7 @@ from app.features.meals.schemas import (
     SummaryPeriod,
     Totals,
 )
+from app.features.targets.schemas import NumbersHidden
 from app.scoring import DailyLimits, nutrient_band
 from app.scoring.config import ScoringConfig
 
@@ -148,6 +149,41 @@ def _protein_left(acc: "_Acc", target: float | None) -> float | None:
         return None
     eaten = acc.raw_totals()["protein_g"] or 0.0  # None here only when nothing was logged
     return _round1(max(0.0, target - eaten))
+
+
+def annotate_protein(summary: Summary, basis: str | None, status: str | None) -> Summary:
+    """Record on ``summary.limits`` which weight the protein target used and the daily-targets
+    status (null = the legacy rule). Returns the same summary, for the endpoint and the
+    fixture generator to share."""
+    summary.limits.protein_basis = basis  # type: ignore[assignment]
+    summary.limits.protein_target_status = status  # type: ignore[assignment]
+    return summary
+
+
+def redact(summary: Summary, hidden: NumbersHidden) -> Summary:
+    """The summary with the numbers the user hid set to null (Plan 10, Ruling D11). Pure: the
+    input is not changed. Bands and ``incomplete`` are untouched, and the result says what was
+    hidden in ``numbers_hidden``.
+
+    - ``energy``: ``totals.energy_kcal`` and every day's ``energy_kcal``.
+    - ``macros``: every total (all four nutrients, the period and each day), the protein
+      target, its g/kg and ``protein_left_g``.
+    """
+    out = summary.model_copy(deep=True)
+    out.numbers_hidden = hidden.model_copy()
+    if not (hidden.energy or hidden.macros):
+        return out
+    groups = [out.totals, *(d.totals for d in out.days)]
+    for totals in groups:
+        if hidden.energy:
+            totals.energy_kcal = None
+        if hidden.macros:
+            totals.energy_kcal = totals.sugars_g = totals.salt_g = totals.protein_g = None
+    if hidden.macros:
+        out.limits.protein_target_g = None
+        out.limits.protein_g_per_kg = None
+        out.protein_left_g = None
+    return out
 
 
 def summarise(

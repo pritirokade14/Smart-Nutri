@@ -36,7 +36,7 @@ from app.core.config import Settings
 from app.core.time import IST
 from app.features.meals.models import MealLog
 from app.features.meals.service import snapshot
-from app.features.meals.summary import summarise
+from app.features.meals.summary import annotate_protein, summarise
 from app.features.members.models import Member
 from app.features.members.service import to_scoring_member
 from app.features.products import service as products_service
@@ -134,6 +134,8 @@ def week_summary(family: WeekFamily, member_key: str) -> dict[str, Any]:
     )
     own = [m for m in family.meals if m.member_id == member.id]
     s = summarise(own, limits, "week", family.end_date, IST, member_id=member.id)
+    # The endpoint's legacy rule (no goal settings): a target means weight x g/kg.
+    annotate_protein(s, "actual_weight" if limits.protein_target_g is not None else None, None)
     return s.model_dump(mode="json")
 
 
