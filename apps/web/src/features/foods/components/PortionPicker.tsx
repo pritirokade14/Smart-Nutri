@@ -7,6 +7,9 @@ import { chipClass } from "@/components/ui/Chip";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { hintClass, inputClass, labelClass } from "@/components/ui/field";
 import { LoadingState } from "@/components/ui/Skeleton";
+import { foodRef, sameRef } from "@/features/favourites/api/favourites";
+import { FavouriteStar } from "@/features/favourites/components/FavouriteStar";
+import { useFavourites } from "@/features/favourites/hooks/useFavourites";
 import { useLogMeal } from "@/features/meals/hooks/useMeals";
 import { errorKey } from "@/features/members/components/ConsentDialog";
 import { track } from "@/lib/analytics";
@@ -168,6 +171,9 @@ function Loaded({
   const put = usePutPortion(hit.kind, hit.id);
   const reset = useDeletePortion(hit.kind, hit.id);
   const clientId = useRef<string | null>(null);
+  const favourites = useFavourites(!ingredient);
+  const ref = foodRef(hit.kind, hit.id);
+  const starred = favourites.data?.items.find((f) => sameRef(f, ref));
   const [picked, setPicked] = useState<string | null>(null);
   const [quantity, setQuantity] = useState("1");
   const [editing, setEditing] = useState<string | null>(null);
@@ -261,13 +267,27 @@ function Loaded({
 
   return (
     <div className="space-y-4" data-testid="portion-picker">
-      <div className="space-y-1">
-        <h3 className="text-md font-semibold break-words text-text-primary">
-          {hit.name}
-        </h3>
-        <p className="text-sm text-text-secondary">
-          {t("foods.portion.title")}
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 space-y-1">
+          <h3 className="text-md font-semibold break-words text-text-primary">
+            {hit.name}
+          </h3>
+          <p className="text-sm text-text-secondary">
+            {t("foods.portion.title")}
+          </p>
+        </div>
+        {!ingredient && favourites.isSuccess ? (
+          <FavouriteStar
+            key={starred?.id ?? "none"}
+            foodRef={ref}
+            favouriteId={starred?.id ?? null}
+            portion={
+              valid && unit
+                ? { quantity: q, unit: unit.code as UnitCode }
+                : null
+            }
+          />
+        ) : null}
       </div>
 
       {units.length === 0 ? (

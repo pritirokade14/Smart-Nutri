@@ -11,6 +11,7 @@ import { InfoIcon } from "@/components/ui/icons";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { LoadingState } from "@/components/ui/Skeleton";
 import { OffAttribution } from "@/features/analysis/components/OffAttribution";
+import { SaveMealFavouriteDialog } from "@/features/favourites/components/SaveMealFavouriteDialog";
 import { BandBadge } from "@/features/history/components/BandBadge";
 import {
   type Band,
@@ -164,6 +165,10 @@ export function DiaryView({
   const [view, setViewMode] = useState<"day" | "week">("day");
   const [adding, setAdding] = useState<{ slotId?: string } | null>(null);
   const [copying, setCopying] = useState<CopyKind | null>(null);
+  const [savingMeal, setSavingMeal] = useState<{
+    date: string;
+    slotId: string;
+  } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const day = useDiaryDay(date);
   const settings = useGoalSettings();
@@ -281,6 +286,18 @@ export function DiaryView({
                         {t("diary.copy_meal")}
                       </Button>
                     ) : null}
+                    {s.entries.length > 0 ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        data-testid="save-meal-favourite"
+                        onClick={() =>
+                          setSavingMeal({ date: d.date, slotId: s.slot_id })
+                        }
+                      >
+                        {t("favourites.save_meal")}
+                      </Button>
+                    ) : null}
                     {!s.archived ? (
                       <Button
                         variant="secondary"
@@ -337,7 +354,11 @@ export function DiaryView({
             today={d.today}
             slotId={adding.slotId}
             onClose={() => setAdding(null)}
-            onLogged={() => setAdding(null)}
+            onLogged={(count) => {
+              setAdding(null);
+              // A saved meal added several entries: say how many (a count only).
+              if (count !== undefined) setNotice(t("diary.copied", { count }));
+            }}
           />
         ) : null}
         {copying ? (
@@ -347,6 +368,14 @@ export function DiaryView({
             slots={slots.data?.items}
             onClose={() => setCopying(null)}
             onCopied={(n) => setNotice(t("diary.copied", { count: n }))}
+          />
+        ) : null}
+        {savingMeal ? (
+          <SaveMealFavouriteDialog
+            fromDate={savingMeal.date}
+            fromSlotId={savingMeal.slotId}
+            onClose={() => setSavingMeal(null)}
+            onSaved={() => setNotice(t("favourites.added"))}
           />
         ) : null}
         {editing ? (

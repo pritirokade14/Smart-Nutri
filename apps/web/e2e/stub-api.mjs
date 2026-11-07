@@ -72,6 +72,8 @@ function reset(params = new URLSearchParams()) {
     // Custom foods and recipes (Plan 12 slice 4).
     customFoods: [],
     recipes: [],
+    // Favourites (Plan 12 slice 5): foods and saved meals, newest first.
+    favourites: [],
     timezone: "Asia/Kolkata",
     // The meal slots (the four defaults at first); archived ones stay.
     slots: defaultSlots(),
@@ -1109,6 +1111,163 @@ function copyMeals(b) {
   return [fresh ? 201 : 200, { created }];
 }
 
+// ---- Favourites (e2e/diary-favourites.spec.ts) ------------------------------
+// A food favourite points at a food; a meal favourite keeps a snapshot of the
+// source entries (private `_entries`). No nutrient value is ever returned.
+
+const favRefOf = (b) =>
+  b.food_id
+    ? ["food", "food_id", b.food_id]
+    : b.custom_food_id
+      ? ["custom_food", "custom_food_id", b.custom_food_id]
+      : b.recipe_id
+        ? ["recipe", "recipe_id", b.recipe_id]
+        : b.product_id
+          ? ["product", "product_id", b.product_id]
+          : ["off", "barcode", b.barcode];
+
+const publicFav = ({ _entries, ...f }) => f;
+
+function favouriteRoutes(method, path, b) {
+  if (method === "GET" && path === "/v1/favourites")
+    return [200, { items: state.favourites.map(publicFav) }];
+  if (method === "POST" && path === "/v1/favourites") {
+    const [kind, key, id] = favRefOf(b);
+    const prior = state.favourites.find(
+      (f) => f.kind === "food" && f[key] === id,
+    );
+    if (prior) return [200, publicFav(prior)];
+    const f =
+      kind === "food"
+        ? FOODS[`food:${id}`]
+        : kind === "product"
+          ? FOODS[`product:${id}`]
+          : mineFood(kind, id);
+    if (!f) return [404, envelope("food_not_found")];
+    if (f.retired) return [422, envelope("food_retired")];
+    if (state.favourites.length >= 200)
+      return [422, envelope("favourite_limit")];
+    if (b.default_unit && !f.units.some((u) => u.code === b.default_unit))
+      return [422, envelope("unit_grams_unknown")];
+    state.seq += 1;
+    const fav = {
+      id: `e0000000-0000-4000-8000-${String(state.seq).padStart(12, "0")}`,
+      member_id: b.member_id ?? PRIMARY_ID,
+      kind: "food",
+      source_kind: kind,
+      product_id: null,
+      barcode: null,
+      food_id: null,
+      custom_food_id: null,
+      recipe_id: null,
+      [key]: id,
+      name: f.name,
+      default_quantity: b.default_quantity ?? null,
+      default_unit: b.default_unit ?? null,
+      item_count: 1,
+      items: null,
+      attributions: f.attributions ?? [],
+      created_at: nowIso(),
+    };
+    state.favourites.unshift(fav);
+    return [201, publicFav(fav)];
+  }
+  if (method === "POST" && path === "/v1/favourites/meals") {
+    const prior = b.client_id
+      ? state.favourites.find((f) => f._clientId === b.client_id)
+      : null;
+    if (prior) return [200, publicFav(prior)];
+    const len = [...(b.name ?? "")].length;
+    if (!b.name || b.name.trim() === "" || len > 40)
+      return [422, envelope("validation_error")];
+    if (b.from_date > istDate(nowIso()))
+      return [422, envelope("date_in_future")];
+    if (!slotRows().some((r) => r.id === b.from_slot_id))
+      return [404, envelope("meal_slot_not_found")];
+    const entries = state.meals
+      .filter(
+        (m) =>
+          m.member_id === (b.member_id ?? PRIMARY_ID) &&
+          m.local_date === b.from_date &&
+          m.meal_slot_id === b.from_slot_id,
+      )
+      .sort((x, y) => x.eaten_at.localeCompare(y.eaten_at));
+    if (!entries.length) return [422, envelope("copy_source_empty")];
+    if (state.favourites.length >= 200)
+      return [422, envelope("favourite_limit")];
+    state.seq += 1;
+    const fav = {
+      id: `e0000000-0000-4000-8000-${String(state.seq).padStart(12, "0")}`,
+      member_id: b.member_id ?? PRIMARY_ID,
+      kind: "meal",
+      source_kind: null,
+      product_id: null,
+      barcode: null,
+      food_id: null,
+      custom_food_id: null,
+      recipe_id: null,
+      name: b.name,
+      default_quantity: null,
+      default_unit: null,
+      item_count: entries.length,
+      items: entries.map((m) => ({
+        name: m.product_name,
+        quantity: m.quantity ?? null,
+        unit: m.unit ?? null,
+        grams: m.grams ?? null,
+        source_kind: m.source_kind,
+        attributions: m.attributions ?? [],
+      })),
+      attributions: [...new Set(entries.flatMap((m) => m.attributions ?? []))],
+      created_at: nowIso(),
+      _entries: entries.map((m) => structuredClone(m)),
+      _clientId: b.client_id ?? null,
+    };
+    state.favourites.unshift(fav);
+    return [201, publicFav(fav)];
+  }
+  const one = path.match(/^\/v1\/favourites\/([^/]+)(\/log)?$/);
+  if (!one) return null;
+  const idx = state.favourites.findIndex((f) => f.id === one[1]);
+  if (idx < 0) return [404, envelope("favourite_not_found")];
+  if (method === "DELETE" && !one[2]) {
+    state.favourites.splice(idx, 1);
+    return [204];
+  }
+  if (method === "POST" && one[2]) {
+    const fav = state.favourites[idx];
+    if (fav.kind !== "meal") return [422, envelope("validation_error")];
+    const today = istDate(nowIso());
+    const day = b.local_date ?? today;
+    if (day > today) return [422, envelope("date_in_future")];
+    if (b.meal_slot_id && !slotRows().some((r) => r.id === b.meal_slot_id))
+      return [404, envelope("meal_slot_not_found")];
+    const created = [];
+    let fresh = false;
+    for (const src of fav._entries) {
+      const cid = `${b.client_id}:${src.id}`;
+      let copy = state.meals.find((m) => m.client_id === cid);
+      if (!copy) {
+        fresh = true;
+        state.seq += 1;
+        copy = {
+          ...structuredClone(src),
+          id: `c0000000-0000-4000-8000-${String(state.seq).padStart(12, "0")}`,
+          client_id: cid,
+          meal_slot_id: b.meal_slot_id ?? suggestedSlot(),
+          eaten_at: capNow(`${day}T${istClock(src.eaten_at)}+05:30`),
+          local_date: day,
+          updated_at: nowIso(),
+        };
+        state.meals.push(copy);
+      }
+      created.push(publicMeal(copy));
+    }
+    return [fresh ? 201 : 200, { created }];
+  }
+  return null;
+}
+
 // ---- Diary (e2e/diary.spec.ts) ----------------------------------------------
 // With ?diary=<stem> on /__reset the golden day (and week) is served as-is.
 // Otherwise a day is assembled from the stored meals: sums of the known
@@ -1376,7 +1535,17 @@ function diaryRecents() {
     const ref = m.food_id ?? m.custom_food_id ?? m.recipe_id ?? m.product_id;
     if (seen.has(ref)) continue;
     seen.add(ref);
+    const refKey = m.food_id
+      ? "food_id"
+      : m.custom_food_id
+        ? "custom_food_id"
+        : m.recipe_id
+          ? "recipe_id"
+          : "product_id";
     items.push({
+      favourite_id:
+        state.favourites.find((f) => f.kind === "food" && f[refKey] === ref)
+          ?.id ?? null,
       source_kind: m.source_kind,
       product_id: m.product_id,
       food_id: m.food_id ?? null,
@@ -1681,6 +1850,7 @@ function route(method, path, b, q = new URLSearchParams()) {
     (path.startsWith("/v1/meals") ||
       path.startsWith("/v1/foods") ||
       path.startsWith("/v1/custom-foods") ||
+      path.startsWith("/v1/favourites") ||
       path.startsWith("/v1/recipes") ||
       path.startsWith("/v1/diary") ||
       path.startsWith("/v1/meal-slots")) &&
@@ -1763,6 +1933,10 @@ function route(method, path, b, q = new URLSearchParams()) {
       200,
       { date: status[1], partial_logged: Boolean(b.partial_logged) },
     ];
+  }
+  if (path.startsWith("/v1/favourites")) {
+    const out = favouriteRoutes(method, path, b);
+    if (out) return out;
   }
   if (method === "POST" && path === "/v1/meals/copy") return copyMeals(b);
   if (method === "POST" && path === "/v1/meals") return logMeal(b);
