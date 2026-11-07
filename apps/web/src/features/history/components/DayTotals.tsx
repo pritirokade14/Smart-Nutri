@@ -3,7 +3,9 @@ import { cardClass } from "@/components/ui/Card";
 import type { Summary } from "@/features/meals/api/meals";
 import { cn } from "@/lib/cn";
 import {
+  bandOf,
   formatAmount,
+  isHidden,
   NUTRIENTS,
   readBand,
   readFlag,
@@ -32,6 +34,7 @@ function limitOf(summary: Summary, n: Nutrient): number | null {
  */
 export function DayTotals({ summary }: { summary: Summary }) {
   const t = useTranslations("summary");
+  const root = useTranslations();
   const day = summary.days[0];
   if (day && day.items === 0) {
     return (
@@ -52,7 +55,10 @@ export function DayTotals({ summary }: { summary: Summary }) {
         const incomplete = readFlag(summary.incomplete, n.key);
         const total = shownTotal(readTotal(summary.totals, n.key), incomplete);
         const limit = limitOf(summary, n);
+        const hidden = isHidden(summary.numbers_hidden, n.key);
+        const hiddenBand = bandOf(readBand(summary.bands, n.band));
         const value = (() => {
+          if (hidden) return root("diary.hidden_numbers");
           if (total === null) return t("band.unknown");
           const v = formatAmount(total);
           if (n.key === "energy_kcal") return t("kcal_total", { total: v });
@@ -80,16 +86,24 @@ export function DayTotals({ summary }: { summary: Summary }) {
                 </p>
               </div>
               {n.banded ? (
-                <BandBadge
-                  band={shownBand(readBand(summary.bands, n.band), total)}
-                />
-              ) : total === null ? (
+                // A hidden number whose band is unknown gets no chip
+                // (Android parity); a known band still shows.
+                hidden && hiddenBand === "unknown" ? null : (
+                  <BandBadge
+                    band={
+                      hidden
+                        ? hiddenBand
+                        : shownBand(readBand(summary.bands, n.band), total)
+                    }
+                  />
+                )
+              ) : hidden ? null : total === null ? (
                 // Android parity: an unknown protein or kcal total gets the
                 // grey "Not enough data" chip too.
                 <BandBadge band="unknown" />
               ) : null}
             </div>
-            {incomplete ? (
+            {incomplete && !hidden ? (
               <p className="text-sm text-text-secondary">{t("incomplete")}</p>
             ) : null}
             {n.key === "protein_g" && limit === null ? (

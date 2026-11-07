@@ -263,10 +263,14 @@ def test_required_purposes_match_ruling_g1():
         "products_create": ("terms",),
         "product_verdicts": ("terms",),
         "voice": ("terms", "ai_processing"),
+        "targets": ("terms", "health_data"),
+        "targets_prefs": ("terms",),
     }
     # products_create and product_verdicts are gated on their routes only: a /v1/products
     # prefix gate would 401 the public /v1/products/{barcode}/public page.
-    assert set(CONSENT_GATES.values()) == set(REQUIRED) - {"products_create", "product_verdicts"}
+    # The targets routes carry their gate on each route (delete and display need only terms).
+    route_only = {"products_create", "product_verdicts", "targets", "targets_prefs"}
+    assert set(CONSENT_GATES.values()) == set(REQUIRED) - route_only
     assert "/v1/products" not in CONSENT_GATES
 
 

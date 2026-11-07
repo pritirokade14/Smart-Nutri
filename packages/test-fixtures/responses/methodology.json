@@ -961,7 +961,6 @@
       ],
       "thresholds": {
         "adult": {
-          "protein_g_per_kg": 0.83,
           "salt_g": 5,
           "sugar_g": 25
         },
@@ -983,10 +982,154 @@
         },
         "infant_max_age": 2,
         "near_pct": 80,
-        "protein_g_per_kg_by_goal": {
-          "build_muscle": 1.6
-        },
         "protein_min_age": 18
+      }
+    },
+    {
+      "id": "energy_targets",
+      "rationale_sources": [
+        "issn_protein_2017",
+        "iom_2005_dri"
+      ],
+      "threshold_sources": [
+        "mifflin_1990",
+        "cdc_weight_loss",
+        "iom_2005_dri",
+        "issn_protein_2017",
+        "morton_2018",
+        "icmr_nin_2024",
+        "who_protein_2007",
+        "devine_1974",
+        "smartnutri_working_values"
+      ],
+      "thresholds": {
+        "body_fat": {
+          "max_pct": 70,
+          "min_pct": 3
+        },
+        "energy": {
+          "activity_factor": {
+            "light": 1.375,
+            "moderate": 1.55,
+            "sedentary": 1.2,
+            "very": 1.725
+          },
+          "equation": "mifflin_st_jeor_1990",
+          "kcal_per_kg_body_weight": 7700,
+          "mifflin": {
+            "age_kcal_per_year": 5,
+            "height_kcal_per_cm": 6.25,
+            "sex_constant": {
+              "average": -78,
+              "female": -161,
+              "male": 5
+            },
+            "valid_age": {
+              "max": 78,
+              "min": 18
+            },
+            "weight_kcal_per_kg": 10
+          }
+        },
+        "floors": {
+          "kcal_by_sex": {
+            "average": 1500,
+            "female": 1200,
+            "male": 1500
+          },
+          "min_bmr_multiple": 1.0
+        },
+        "goal_rates": {
+          "gain": {
+            "default_pct_bw_per_week": 0.25,
+            "options_pct_bw_per_week": [
+              0.1,
+              0.25,
+              0.5
+            ]
+          },
+          "lose": {
+            "default_pct_bw_per_week": 0.5,
+            "max_kg_per_week": 1.0,
+            "options_pct_bw_per_week": [
+              0.25,
+              0.5,
+              0.75,
+              1.0
+            ]
+          },
+          "lose_min_current_bmi": 18.5,
+          "max_deficit_kcal_per_day": 1000,
+          "max_deficit_pct_of_maintenance": 25,
+          "taper": {
+            "maintenance_band_kg": 0.5,
+            "weeks": 4
+          },
+          "target_weight_min_bmi": 18.5
+        },
+        "macros": {
+          "carbs_reference_min_g": 130,
+          "fat_pct_energy": {
+            "default": 25,
+            "max": 30,
+            "min": 20
+          },
+          "kcal_per_g": {
+            "carbs": 4,
+            "fat": 9,
+            "protein": 4
+          }
+        },
+        "minors": {
+          "min_age_for_targets": 18
+        },
+        "plausible": {
+          "height_cm": {
+            "max": 210,
+            "min": 120
+          },
+          "weight_kg": {
+            "max": 200,
+            "min": 30
+          }
+        },
+        "protein": {
+          "adjusted_weight": {
+            "excess_fraction": 0.25,
+            "min_bmi": 30
+          },
+          "default_g_per_kg": 0.83,
+          "g_per_kg_by_goal": {
+            "build_muscle": 1.6,
+            "healthy_eating": 0.83,
+            "weight_gain": 0.83,
+            "weight_loss": 1.2
+          },
+          "ibw": {
+            "devine": {
+              "base_kg": {
+                "average": 47.75,
+                "female": 45.5,
+                "male": 50
+              },
+              "kg_per_inch_over_60": 2.3
+            },
+            "formula": "devine"
+          },
+          "lean_mass_g_per_kg_by_goal": {
+            "build_muscle": 2.0,
+            "default": 1.0,
+            "healthy_eating": 1.0,
+            "weight_gain": 1.0,
+            "weight_loss": 1.5
+          },
+          "max_energy_pct": 35,
+          "max_g_per_kg": 2.2
+        },
+        "rounding": {
+          "kcal_step": 10,
+          "macro_g_step": 1
+        }
       }
     }
   ],
@@ -1094,11 +1237,41 @@
       "url_verified": false
     },
     {
+      "id": "mifflin_1990",
+      "title": "Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990)",
+      "url": "https://doi.org/10.1093/ajcn/51.2.241",
+      "url_verified": false
+    },
+    {
+      "id": "cdc_weight_loss",
+      "title": "CDC: losing weight",
+      "url": "https://www.cdc.gov/healthy-weight-growth/losing-weight/index.html",
+      "url_verified": false
+    },
+    {
+      "id": "iom_2005_dri",
+      "title": "Institute of Medicine: Dietary Reference Intakes for energy, carbohydrate, fibre, fat and protein (2005)",
+      "url": "https://doi.org/10.17226/10490",
+      "url_verified": false
+    },
+    {
+      "id": "morton_2018",
+      "title": "Morton et al.: protein supplementation and resistance training gains, meta-analysis (Br J Sports Med 2018)",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28698222/",
+      "url_verified": false
+    },
+    {
+      "id": "devine_1974",
+      "title": "Devine: ideal body weight formula (Drug Intell Clin Pharm 1974)",
+      "url": null,
+      "url_verified": false
+    },
+    {
       "id": "smartnutri_working_values",
       "title": "SmartNutri working values, pending clinician review",
       "url": null,
       "url_verified": false
     }
   ],
-  "version": "a754de17a377"
+  "version": "66eb4d51ea83"
 }

@@ -6,6 +6,7 @@ Member names and health fields never go to logs.
 
 from collections.abc import Sequence
 from datetime import date
+from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import delete, func, select, text
@@ -23,6 +24,7 @@ from app.features.members.schemas import (
     MemberPatch,
     goal_allowed_at_age,
 )
+from app.scoring import targets as scoring_targets
 
 MAX_MEMBERS = 10
 
@@ -186,6 +188,16 @@ def _check_goal_age(goal: str | None, birth_year: int | None) -> None:
         raise ApiError("validation_error", 422, details={"fields": ["body.goal"]})
 
 
+def _check_body_fat(value: object) -> None:
+    """422 `body_fat_out_of_range` {min, max} for a value outside the targets.yaml limits."""
+    if value is None:
+        return
+    try:
+        scoring_targets.check_body_fat(Decimal(str(value)))
+    except scoring_targets.SettingsRuleError as exc:
+        raise ApiError("body_fat_out_of_range", 422, details=exc.details) from None
+
+
 async def list_members(session: AsyncSession, account_id: UUID) -> list[Member]:
     """The account's members: the primary first, then in creation order. Read-only."""
     rows = await session.scalars(
@@ -214,6 +226,7 @@ async def create_member(session: AsyncSession, account_id: UUID, body: MemberIn)
     """
     values = body.model_dump()
     _check_goal_age(body.goal, body.birth_year)
+    _check_body_fat(body.body_fat_pct)
     await _require_health_consent(session, account_id, values)
     await get_or_create_primary(session, account_id)  # takes the per-account lock
     count = await session.scalar(
@@ -242,6 +255,8 @@ async def update_member(
     Ownership is checked first (404), so a 403 never confirms that a foreign id exists.
     """
     member = await get_member(session, account_id, member_id)
+    if body.clear_body_fat_pct and body.body_fat_pct is not None:
+        raise ApiError("validation_error", 422, details={"fields": ["body.clear_body_fat_pct"]})
     changes = body.changes()
     # Only the primary is `self`, and the primary's relation can't change.
     if "relation" in changes and (changes["relation"] == "self") != member.is_primary:
@@ -252,6 +267,7 @@ async def update_member(
             changes.get("goal", member.goal),  # type: ignore[arg-type]
             changes.get("birth_year", member.birth_year),  # type: ignore[arg-type]
         )
+    _check_body_fat(changes.get("body_fat_pct"))
     await _require_health_consent(session, account_id, changes, member)
     for field, value in changes.items():
         setattr(member, field, value)

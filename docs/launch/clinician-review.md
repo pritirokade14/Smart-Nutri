@@ -1,7 +1,7 @@
 # Clinician review: SmartNutri scoring thresholds
 
-> **Generated** by `scripts/clinician_review_sheet.py` from `apps/api/app/scoring/data/thresholds.yaml`. Do not edit by hand.
-> Scoring version: `a754de17a377`. Pending clinician review: **True**.
+> **Generated** by `scripts/clinician_review_sheet.py` from `apps/api/app/scoring/data/thresholds.yaml` and `targets.yaml`. Do not edit by hand.
+> Scoring version: `66eb4d51ea83`. Pending clinician review: **True**.
 
 **For the reviewer.** SmartNutri shows packaged-food verdicts per family member: `ok`, `caution`, `unknown` or `avoid`. It is information, not medical advice. Values are per 100 g (food) or per 100 ml (drink) unless the unit says otherwise. For each row, tick Approved, or write the value you recommend in Change to, then initial the Signed column. Sign and date the bottom of the sheet.
 
@@ -52,16 +52,74 @@
 | 39 | `supplements.suspect_min_protein_g` | 50 | g per 100 g | SmartNutri working values, pending clinician review (why: ICMR-NIN Dietary Guidelines for Indians 2024) | Is this appropriate for Indian adults? |  |  |  |
 | 40 | `daily_limits.adult.sugar_g` | 25 | g per day | WHO guideline: sugars intake for adults and children | Is this appropriate for Indian adults? |  |  |  |
 | 41 | `daily_limits.adult.salt_g` | 5 | g per day | WHO guideline: sodium intake for adults and children | Is this appropriate for Indian adults? |  |  |  |
-| 42 | `daily_limits.adult.protein_g_per_kg` | 0.83 | g per kg body weight per day | WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007) | Is this appropriate for Indian adults? |  |  |  |
-| 43 | `daily_limits.protein_min_age` | 18 | years (minimum age) | SmartNutri working values, pending clinician review (why: WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)) | Is this appropriate for Indian adults? |  |  |  |
-| 44 | `daily_limits.protein_g_per_kg_by_goal.build_muscle` | 1.6 | g per kg body weight per day | ISSN position stand: protein and exercise (2017) | Is 1.6 g/kg right as a daily protein guide for adults who want to build muscle? Should members with diabetes or hypertension keep it? There is no kidney field. The copy says "If you have kidney disease, ask your doctor before eating more protein." Is that enough? Should weight loss get 1.2 g/kg (it now keeps 0.83 g/kg)? |  |  |  |
-| 45 | `daily_limits.child_salt_g_by_min_age.2` | 2 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
-| 46 | `daily_limits.child_salt_g_by_min_age.4` | 3 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
-| 47 | `daily_limits.child_salt_g_by_min_age.7` | 5 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
-| 48 | `daily_limits.child_salt_g_by_min_age.11` | 6 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
-| 49 | `daily_limits.infant.sugar_g` | 0 | g per day | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
-| 50 | `daily_limits.infant.salt_g` | 0 | g per day | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
-| 51 | `daily_limits.near_pct` | 80 | % of daily limit | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 42 | `daily_limits.protein_min_age` | 18 | years (minimum age) | SmartNutri working values, pending clinician review (why: WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)) | Is this appropriate for Indian adults? |  |  |  |
+| 43 | `daily_limits.child_salt_g_by_min_age.2` | 2 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 44 | `daily_limits.child_salt_g_by_min_age.4` | 3 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 45 | `daily_limits.child_salt_g_by_min_age.7` | 5 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 46 | `daily_limits.child_salt_g_by_min_age.11` | 6 | g salt per day (key = minimum age in years) | NHS: salt limits for children | Is this appropriate for Indian children (by age band)? |  |  |  |
+| 47 | `daily_limits.infant.sugar_g` | 0 | g per day | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
+| 48 | `daily_limits.infant.salt_g` | 0 | g per day | WHO guidance: no added sugar or salt under 2 | Is this appropriate for Indian infants under 2? |  |  |  |
+| 49 | `daily_limits.near_pct` | 80 | % of daily limit | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 50 | `targets.energy.mifflin.weight_kcal_per_kg` | 10 | kcal per kg body weight | Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990) | Is this appropriate for Indian adults? |  |  |  |
+| 51 | `targets.energy.mifflin.height_kcal_per_cm` | 6.25 | kcal per cm of height | Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990) | Is this appropriate for Indian adults? |  |  |  |
+| 52 | `targets.energy.mifflin.age_kcal_per_year` | 5 | kcal per year of age | Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990) | Is this appropriate for Indian adults? |  |  |  |
+| 53 | `targets.energy.mifflin.sex_constant.male` | 5 | kcal per day (constant) | Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990) | Is this appropriate for Indian adults? |  |  |  |
+| 54 | `targets.energy.mifflin.sex_constant.female` | -161 | kcal per day (constant) | Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990) | Is this appropriate for Indian adults? |  |  |  |
+| 55 | `targets.energy.mifflin.sex_constant.average` | -78 | kcal per day (constant) | SmartNutri working values, pending clinician review (why: Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990)) | Is this appropriate for Indian adults? |  |  |  |
+| 56 | `targets.energy.mifflin.valid_age.min` | 18 | years | Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990) | Is this appropriate for Indian adults? |  |  |  |
+| 57 | `targets.energy.mifflin.valid_age.max` | 78 | years | Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990) | Is this appropriate for Indian adults? |  |  |  |
+| 58 | `targets.energy.activity_factor.sedentary` | 1.2 | multiple of resting energy | SmartNutri working values, pending clinician review | No primary source found: confirm or replace with ICMR-NIN 2020 PAL values |  |  |  |
+| 59 | `targets.energy.activity_factor.light` | 1.375 | multiple of resting energy | SmartNutri working values, pending clinician review | No primary source found: confirm or replace with ICMR-NIN 2020 PAL values |  |  |  |
+| 60 | `targets.energy.activity_factor.moderate` | 1.55 | multiple of resting energy | SmartNutri working values, pending clinician review | No primary source found: confirm or replace with ICMR-NIN 2020 PAL values |  |  |  |
+| 61 | `targets.energy.activity_factor.very` | 1.725 | multiple of resting energy | SmartNutri working values, pending clinician review | No primary source found: confirm or replace with ICMR-NIN 2020 PAL values |  |  |  |
+| 62 | `targets.energy.kcal_per_kg_body_weight` | 7700 | kcal per kg of body-weight change | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 63 | `targets.goal_rates.lose.default_pct_bw_per_week` | 0.5 | % of body weight per week | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 64 | `targets.goal_rates.lose.max_kg_per_week` | 1.0 | kg per week | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 65 | `targets.goal_rates.gain.default_pct_bw_per_week` | 0.25 | % of body weight per week | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 66 | `targets.goal_rates.max_deficit_pct_of_maintenance` | 25 | % of maintenance energy | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 67 | `targets.goal_rates.max_deficit_kcal_per_day` | 1000 | kcal per day | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 68 | `targets.goal_rates.taper.weeks` | 4 | weeks | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 69 | `targets.goal_rates.taper.maintenance_band_kg` | 0.5 | kg | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 70 | `targets.goal_rates.target_weight_min_bmi` | 18.5 | BMI | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 71 | `targets.goal_rates.lose_min_current_bmi` | 18.5 | BMI | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 72 | `targets.floors.kcal_by_sex.female` | 1200 | kcal per day | SmartNutri working values, pending clinician review | Widely quoted figure, original source not confirmed: confirm or replace. |  |  |  |
+| 73 | `targets.floors.kcal_by_sex.male` | 1500 | kcal per day | SmartNutri working values, pending clinician review | Widely quoted figure, original source not confirmed: confirm or replace. |  |  |  |
+| 74 | `targets.floors.kcal_by_sex.average` | 1500 | kcal per day | SmartNutri working values, pending clinician review | Widely quoted figure, original source not confirmed: confirm or replace. |  |  |  |
+| 75 | `targets.floors.min_bmr_multiple` | 1.0 | multiple of estimated resting energy | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 76 | `targets.protein.g_per_kg_by_goal.build_muscle` | 1.6 | g per kg body weight per day | ISSN position stand: protein and exercise (2017); Morton et al.: protein supplementation and resistance training gains, meta-analysis (Br J Sports Med 2018) | Is 1.6 g/kg right as a daily protein guide for adults who want to build muscle? Should members with diabetes or hypertension keep it? There is no kidney field. The copy says "If you have kidney disease, ask your doctor before eating more protein." Is that enough? |  |  |  |
+| 77 | `targets.protein.g_per_kg_by_goal.weight_loss` | 1.2 | g per kg body weight per day | SmartNutri working values, pending clinician review (why: ISSN position stand: protein and exercise (2017)) | Q8: weight loss now uses 1.2 g/kg (it was 0.83 g/kg). Is 1.2 g/kg right as a daily protein guide for adults losing weight? Is it appropriate with diabetes or hypertension, and should a kidney warning show? |  |  |  |
+| 78 | `targets.protein.g_per_kg_by_goal.healthy_eating` | 0.83 | g per kg body weight per day | WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007) | Is this appropriate for Indian adults? |  |  |  |
+| 79 | `targets.protein.g_per_kg_by_goal.weight_gain` | 0.83 | g per kg body weight per day | WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007) | Is this appropriate for Indian adults? |  |  |  |
+| 80 | `targets.protein.default_g_per_kg` | 0.83 | g per kg body weight per day | WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007) | Is this appropriate for Indian adults? |  |  |  |
+| 81 | `targets.protein.lean_mass_g_per_kg_by_goal.build_muscle` | 2.0 | g per kg of lean mass per day | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 82 | `targets.protein.lean_mass_g_per_kg_by_goal.weight_loss` | 1.5 | g per kg of lean mass per day | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 83 | `targets.protein.lean_mass_g_per_kg_by_goal.healthy_eating` | 1.0 | g per kg of lean mass per day | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 84 | `targets.protein.lean_mass_g_per_kg_by_goal.weight_gain` | 1.0 | g per kg of lean mass per day | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 85 | `targets.protein.lean_mass_g_per_kg_by_goal.default` | 1.0 | g per kg of lean mass per day | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 86 | `targets.protein.max_g_per_kg` | 2.2 | g per kg body weight per day (ceiling) | SmartNutri working values, pending clinician review (why: ISSN position stand: protein and exercise (2017)) | Is this appropriate for Indian adults? |  |  |  |
+| 87 | `targets.protein.max_energy_pct` | 35 | % of the energy target | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 88 | `targets.protein.adjusted_weight.min_bmi` | 30 | BMI | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 89 | `targets.protein.adjusted_weight.excess_fraction` | 0.25 | fraction of the excess over ideal weight | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 90 | `targets.protein.ibw.devine.base_kg.male` | 50 | kg | Devine: ideal body weight formula (Drug Intell Clin Pharm 1974) | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 91 | `targets.protein.ibw.devine.base_kg.female` | 45.5 | kg | Devine: ideal body weight formula (Drug Intell Clin Pharm 1974) | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 92 | `targets.protein.ibw.devine.base_kg.average` | 47.75 | kg | Devine: ideal body weight formula (Drug Intell Clin Pharm 1974) | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 93 | `targets.protein.ibw.devine.kg_per_inch_over_60` | 2.3 | kg per inch over 60 inches | Devine: ideal body weight formula (Drug Intell Clin Pharm 1974) | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 94 | `targets.body_fat.min_pct` | 3 | % body fat | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 95 | `targets.body_fat.max_pct` | 70 | % body fat | SmartNutri working values, pending clinician review | Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian Indian adults / plausible body-fat range) |  |  |  |
+| 96 | `targets.macros.fat_pct_energy.default` | 25 | % of energy | Institute of Medicine: Dietary Reference Intakes for energy, carbohydrate, fibre, fat and protein (2005) | Is this appropriate for Indian adults? |  |  |  |
+| 97 | `targets.macros.fat_pct_energy.min` | 20 | % of energy | Institute of Medicine: Dietary Reference Intakes for energy, carbohydrate, fibre, fat and protein (2005) | Is this appropriate for Indian adults? |  |  |  |
+| 98 | `targets.macros.fat_pct_energy.max` | 30 | % of energy | ICMR-NIN Dietary Guidelines for Indians 2024 | Is this appropriate for Indian adults? |  |  |  |
+| 99 | `targets.macros.carbs_reference_min_g` | 130 | g per day | Institute of Medicine: Dietary Reference Intakes for energy, carbohydrate, fibre, fat and protein (2005) | Is this appropriate for Indian adults? |  |  |  |
+| 100 | `targets.macros.kcal_per_g.protein` | 4 | kcal per g | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 101 | `targets.macros.kcal_per_g.carbs` | 4 | kcal per g | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 102 | `targets.macros.kcal_per_g.fat` | 9 | kcal per g | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 103 | `targets.minors.min_age_for_targets` | 18 | years (minimum age) | SmartNutri working values, pending clinician review (why: WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)) | Is this appropriate for Indian adults? |  |  |  |
+| 104 | `targets.rounding.kcal_step` | 10 | kcal | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 105 | `targets.rounding.macro_g_step` | 1 | g | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 106 | `targets.plausible.height_cm.min` | 120 | cm | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 107 | `targets.plausible.height_cm.max` | 210 | cm | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 108 | `targets.plausible.weight_kg.min` | 30 | kg | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 109 | `targets.plausible.weight_kg.max` | 200 | kg | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
 
 ## Other rule settings
 
@@ -74,6 +132,10 @@
 | `supplements.infant_status` | avoid | Is this rule appropriate? |  |  |  |
 | `supplements.suspect_whole_food_categories` | cheese | Is this rule appropriate? |  |  |  |
 | `supplements.suspect_protein_words` | protein, proteins, casein, caseinate, calcium caseinate, milk protein, प्रोटीन, प्रथिने | Is this rule appropriate? |  |  |  |
+| `targets.energy.equation` | mifflin_st_jeor_1990 | Is this rule appropriate? |  |  |  |
+| `targets.goal_rates.lose.options_pct_bw_per_week` | 0.25, 0.5, 0.75, 1.0 | Is this rule appropriate? |  |  |  |
+| `targets.goal_rates.gain.options_pct_bw_per_week` | 0.1, 0.25, 0.5 | Is this rule appropriate? |  |  |  |
+| `targets.protein.ibw.formula` | devine | Is this rule appropriate? |  |  |  |
 
 ## Sources
 
@@ -94,6 +156,11 @@
 - **WHO/FAO/UNU: protein and amino acid requirements in human nutrition (2007)**: https://www.who.int/publications/i/item/9789241209359 (link not yet verified)
 - **ISSN position stand: protein and exercise (2017)**: https://pubmed.ncbi.nlm.nih.gov/28642676/ (link not yet verified)
 - **NHS: salt limits for children**: https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/ (link not yet verified)
+- **Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990)**: https://doi.org/10.1093/ajcn/51.2.241 (link not yet verified)
+- **CDC: losing weight**: https://www.cdc.gov/healthy-weight-growth/losing-weight/index.html (link not yet verified)
+- **Institute of Medicine: Dietary Reference Intakes for energy, carbohydrate, fibre, fat and protein (2005)**: https://doi.org/10.17226/10490 (link not yet verified)
+- **Morton et al.: protein supplementation and resistance training gains, meta-analysis (Br J Sports Med 2018)**: https://pubmed.ncbi.nlm.nih.gov/28698222/ (link not yet verified)
+- **Devine: ideal body weight formula (Drug Intell Clin Pharm 1974)** (link not yet verified)
 - **SmartNutri working values, pending clinician review** (link not yet verified)
 
 ## Sign-off

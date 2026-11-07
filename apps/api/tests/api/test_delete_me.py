@@ -110,6 +110,13 @@ async def seed(session, account_id: UUID, storage: FakeStorage) -> dict[str, UUI
         "values (:a, '{health_condition,gym}', 'gym')",
         a=account_id,
     )
+    await _exec(
+        session,
+        "insert into diary_goal_settings (member_id, account_id, direction, activity_level) "
+        "values (:m, :a, 'lose', 'light')",
+        a=account_id,
+        m=member,
+    )
     await session.flush()
     return {"product": product, "member": member}
 
@@ -165,6 +172,23 @@ async def test_delete_me_erases_user_types(client, login, db_session, storage):
     left = await _exec(
         db_session,
         "select account_id from account_user_types where account_id in (:a, :b)",
+        a=A,
+        b=B,
+    )
+    assert left.scalars().all() == [B]
+
+
+async def test_delete_me_erases_goal_settings(client, login, db_session, storage):
+    """Plan 10: the daily-guide settings (health data) go with the account, before members."""
+    await seed(db_session, A, storage)
+    await seed(db_session, B, storage)
+    order = list(ACCOUNT_OWNED_TABLES)
+    assert order.index("diary_goal_settings") < order.index("members")
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    left = await _exec(
+        db_session,
+        "select account_id from diary_goal_settings where account_id in (:a, :b)",
         a=A,
         b=B,
     )

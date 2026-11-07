@@ -145,6 +145,8 @@ def test_unknown_limits(cfg):
         "protein_target_g": None,
         "kcal": None,
         "protein_g_per_kg": None,
+        "protein_basis": None,
+        "protein_target_status": None,
     }
 
 
@@ -352,3 +354,68 @@ def test_protein_target_uses_unrounded_total(cfg):
     s = summarise([meal(protein=58.06)], ADULT_LIMITS, "day", TODAY, IST, cfg, member_id=MEMBER)
     assert s.totals.protein_g == 58.1
     assert s.days[0].bands.protein_g == "unknown"
+
+
+# --- Plan 10 Task 5: hidden numbers (Ruling D11) -----------------------------------------
+
+
+def _week_with_data(cfg):
+    meals = [
+        meal(day=TODAY - timedelta(days=i), sugars=5, kcal=400, salt=1, protein=20) for i in (0, 1)
+    ]
+    return summarise(meals, ADULT_LIMITS, "week", TODAY, IST, cfg, member_id=MEMBER)
+
+
+def test_redact_energy_only(cfg):
+    from app.features.meals.summary import redact
+    from app.features.targets.schemas import NumbersHidden
+
+    s = _week_with_data(cfg)
+    r = redact(s, NumbersHidden(energy=True, macros=False))
+    assert r.totals.energy_kcal is None and r.totals.sugars_g == 10
+    assert all(d.totals.energy_kcal is None for d in r.days)
+    assert r.days[-1].totals.sugars_g == 5
+    assert r.limits.protein_target_g == 58.1
+    assert r.bands == s.bands and r.incomplete == s.incomplete
+
+
+def test_redact_macros_hides_every_total_and_the_protein_target(cfg):
+    from app.features.meals.summary import redact
+    from app.features.targets.schemas import NumbersHidden
+
+    s = summarise(
+        [meal(protein=20, kcal=400, sugars=5, salt=1)],
+        ADULT_LIMITS,
+        "day",
+        TODAY,
+        IST,
+        cfg,
+        member_id=MEMBER,
+    )
+    assert s.protein_left_g is not None
+    r = redact(s, NumbersHidden(energy=True, macros=True))
+    assert all(v is None for v in r.totals.model_dump().values())
+    assert all(v is None for d in r.days for v in d.totals.model_dump().values())
+    assert r.limits.protein_target_g is None and r.protein_left_g is None
+    assert r.limits.protein_g_per_kg is None
+    assert r.limits.sugar_g == 25 and r.limits.salt_g == 5
+    assert r.bands == s.bands
+
+
+def test_redact_is_pure(cfg):
+    from app.features.meals.summary import redact
+    from app.features.targets.schemas import NumbersHidden
+
+    s = _week_with_data(cfg)
+    before = s.model_dump()
+    redact(s, NumbersHidden(energy=True, macros=True))
+    assert s.model_dump() == before
+
+
+def test_redact_nothing_hidden_returns_an_equal_summary(cfg):
+    from app.features.meals.summary import redact
+    from app.features.targets.schemas import NumbersHidden
+
+    s = _week_with_data(cfg)
+    assert redact(s, NumbersHidden(energy=False, macros=False)) == s
+    assert s.numbers_hidden.model_dump() == {"energy": False, "macros": False}

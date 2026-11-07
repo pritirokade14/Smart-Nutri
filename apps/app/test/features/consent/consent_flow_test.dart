@@ -333,6 +333,13 @@ void main() {
       final interceptor = ConsentRequiredInterceptor(seen.add);
       final gated = _Handler();
       final member = _Handler();
+      final targets = _Handler();
+      interceptor.onError(
+        _forbidden('/v1/targets', {
+          'purposes': ['health_data'],
+        }),
+        targets,
+      );
       interceptor.onError(
         _forbidden('/v1/scans/upload-url', {
           'purposes': ['terms'],
@@ -349,6 +356,8 @@ void main() {
       // Both errors are passed on (`next`) to reach the caller.
       expect(gated.passed, hasLength(1));
       expect(member.passed, hasLength(1));
+      // Targets are handled in place (an inline consent card), no redirect.
+      expect(targets.passed, hasLength(1));
     });
 
     testWidgets('route gate error text asks to agree; members text stays', (

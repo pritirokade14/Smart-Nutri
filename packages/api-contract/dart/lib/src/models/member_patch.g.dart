@@ -7,10 +7,12 @@ part of 'member_patch.dart';
 // **************************************************************************
 
 MemberPatch _$MemberPatchFromJson(Map<String, dynamic> json) => MemberPatch(
+  clearBodyFatPct: json['clear_body_fat_pct'] as bool? ?? false,
   allergens: (json['allergens'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
   birthYear: (json['birth_year'] as num?)?.toInt(),
+  bodyFatPct: json['body_fat_pct'] as num?,
   conditions: (json['conditions'] as List<dynamic>?)
       ?.map((e) => MemberPatchConditions.fromJson(e as String))
       .toList(),
@@ -38,6 +40,8 @@ Map<String, dynamic> _$MemberPatchToJson(MemberPatch instance) =>
     <String, dynamic>{
       'allergens': instance.allergens,
       'birth_year': instance.birthYear,
+      'body_fat_pct': instance.bodyFatPct,
+      'clear_body_fat_pct': instance.clearBodyFatPct,
       'conditions': instance.conditions
           ?.map((e) => _$MemberPatchConditionsEnumMap[e]!)
           .toList(),

@@ -31,6 +31,7 @@ SECTION_IDS: tuple[str, ...] = (
     "supplements",
     "custom_alerts",
     "daily_limits",
+    "energy_targets",
 )
 _CONDITION_GROUPS = (
     "blood_sugar",
@@ -97,6 +98,9 @@ def _thresholds(section_id: str, cfg: ScoringConfig) -> Any:
             "child_max_age": cfg.thresholds["conditions"]["child"]["max_age"],
             "infant_max_age": cfg.thresholds["conditions"]["infant"]["max_age"],
         }
+    if section_id == "energy_targets":
+        # Daily energy and macro guides: the whole of targets.yaml (minus its version).
+        return {k: v for k, v in cfg.targets.items() if k != "version"}
     raise KeyError(section_id)
 
 

@@ -1,0 +1,24 @@
+{
+  "as_of": "2026-11-07",
+  "stored": false,
+  "body": {
+    "age": 25,
+    "sex": "male",
+    "height_cm": 190,
+    "weight_kg": 130,
+    "body_fat_pct": null,
+    "goal": null
+  },
+  "settings": {
+    "direction": "lose",
+    "activity_level": "very",
+    "rate_pct_bw_per_week": 1.0,
+    "target_weight_kg": null,
+    "sex_reference": null,
+    "pregnant_or_breastfeeding": false,
+    "fat_pct_energy": null,
+    "energy_mode": "formula",
+    "numbers_display": "show",
+    "summary_view": "remaining"
+  }
+}

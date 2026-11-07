@@ -1,0 +1,45 @@
+{
+  "basis": "formula",
+  "carbs_g": 266,
+  "date": "2026-11-07",
+  "direction": "maintain",
+  "energy_kcal": 1660,
+  "explanation": {
+    "activity_factor": 1.375,
+    "adjustment_kcal": 0,
+    "bmr_kcal": 1208,
+    "body_fat_pct_used": null,
+    "floor_kcal": null,
+    "ibw_kg": null,
+    "maintenance_kcal": 1661,
+    "protein_basis": "actual_weight",
+    "protein_g_per_kg": 0.83,
+    "protein_reference_weight_kg": 55.0,
+    "weight_kg_used": 55.0
+  },
+  "fat_g": 46,
+  "flags": [],
+  "member_id": "fdd4cd87-39ef-541a-b6d9-5488f566a54a",
+  "missing_fields": [],
+  "numbers_hidden": {
+    "energy": false,
+    "macros": false
+  },
+  "pending_clinician_review": true,
+  "protein_g": 46,
+  "rate": null,
+  "rate_options": [],
+  "sources": [
+    "mifflin_1990",
+    "cdc_weight_loss",
+    "iom_2005_dri",
+    "issn_protein_2017",
+    "morton_2018",
+    "icmr_nin_2024",
+    "who_protein_2007",
+    "devine_1974",
+    "smartnutri_working_values"
+  ],
+  "status": "ready",
+  "unusual_fields": []
+}

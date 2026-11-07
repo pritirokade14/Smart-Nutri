@@ -19,6 +19,8 @@ import '../../features/members/presentation/members_list_screen.dart';
 import '../../features/members/presentation/members_providers.dart';
 import '../../features/methodology/presentation/methodology_screen.dart';
 import '../../features/product/presentation/compare_screen.dart';
+import '../../features/targets/presentation/guide_settings_screen.dart';
+import '../../features/targets/presentation/guide_setup_screen.dart';
 import '../../features/product/presentation/discovery_routes.dart';
 import '../../features/product/presentation/search_screen.dart';
 import '../../features/protein/presentation/protein_screen.dart';
@@ -177,6 +179,12 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/profile',
                 builder: (_, _) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'guide',
+                    builder: (_, _) => const GuideSettingsScreen(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -208,6 +216,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           purposes: ConsentScreen.parsePurposes(
             state.uri.queryParameters['purposes'],
           ),
+        ),
+      ),
+      GoRoute(
+        path: '/guide/setup',
+        builder: (_, state) => GuideSetupScreen(
+          fromWelcome: state.uri.queryParameters['from'] == 'welcome',
         ),
       ),
       GoRoute(

@@ -207,3 +207,18 @@ export const MoreIcon = (p: IconProps) => (
     <circle cx="18" cy="12" r="1.2" />
   </Icon>
 );
+
+export const EyeIcon = (p: IconProps) => (
+  <Icon name="eye" {...p}>
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+    <circle cx="12" cy="12" r="3" />
+  </Icon>
+);
+
+export const EyeOffIcon = (p: IconProps) => (
+  <Icon name="eye-off" {...p}>
+    <path d="M3 3l18 18" />
+    <path d="M10.6 5.1A10.6 10.6 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-3.2 4.1M6.6 6.6A16.6 16.6 0 002 12s3.6 7 10 7a10 10 0 004.4-1" />
+    <path d="M9.9 9.9a3 3 0 004.2 4.2" />
+  </Icon>
+);

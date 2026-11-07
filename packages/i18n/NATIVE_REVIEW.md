@@ -258,3 +258,21 @@ All hi/mr strings below are machine drafts and need a native reader. Safe words 
 
 ## Web QA fixes (2026-11-04)
 - [ ] **hi/mr `meals.log.cta_for`, `voice.button_hold_for`**: machine drafts. Screen-reader names only ("I ate this, {name}", "Hold to ask, {name}"), so each member's button is distinct; the visible text stays `meals.log.cta` / `voice.button_hold`.
+
+## Plan 10 (Food Diary slice 1: daily guide, hidden numbers, protein basis)
+All of these are machine drafts in hi and mr. They sit beside health numbers, so tone matters most: information, never a judgement, never "you need", and no support contact (Q14).
+- [ ] **hi/mr `targets.flag.*`** (tone, never judging): `rate_capped`, `deficit_capped`, `taper_active`, `goal_weight_reached`, `floor_applied`, `floor_applied_hidden`, `floor_limits_deficit`, `protein_capped`, `carbs_below_reference`, `average_sex_reference`, `outside_equation_age_range`, `underweight_maintenance`. They say what the guide did and that a doctor or dietitian can advise. `floor_applied_hidden` must read the same as `floor_applied` without a number.
+- [ ] **hi/mr `targets.pregnancy.paused`** (and `targets.pregnancy.{question,yes,no,prefer_not}`): the question asks about pregnancy or breastfeeding; "Prefer not to say" pauses the guide as "yes" does. Hindi uses the feminine forms for the reader; check that is acceptable for a general audience.
+- [ ] **hi/mr `targets.rate_option`**: plural and number formatting ("About {kg} kg a week ({pct}% of body weight)"); confirm word order and that `{kg}` and `{pct}` read naturally with the client's number formatting.
+- [ ] **hi/mr `targets.how.*`, `targets.how.floor`**: the "how we got this" lines. Check "लीन मास" / "लीन मास" (lean mass), "समायोजित वज़न" / "समायोजित वजन" (adjusted weight) and "किलोकैलोरी" / "किलोकॅलरी" (kcal) are understood.
+- [ ] **hi/mr `targets.activity.*` and `*_hint`**, **`targets.direction.*`**, **`targets.sex_reference.*`**, **`targets.step.*`**, **`targets.intro.*`**, **`targets.body_fat.*`**, **`targets.unusual_confirm`**, **`targets.save`**, **`targets.target_weight*`**, **`targets.needs_body_data`**: machine drafts of the guide setup screens. `{fields}` is a list of field names made by the client.
+- [ ] **hi/mr `diary.disclaimer`, `diary.targets_consent`, `diary.eye.{hide,show}`, `diary.hidden_numbers`, `diary.of_target`, `diary.incomplete`**: machine drafts. `diary.of_target` ("{eaten} of {target}") needs the word order checked.
+- [ ] **hi/mr `settings.diary.*`**, **`home.cards.today_targets.title`**, **`protein.guide_lean`**, **`protein.guide_adjusted`**, **`methodology.section.energy_targets.{title,description}`**: machine drafts. "Information, not medical advice" must stay in the protein guide lines.
+- [ ] **hi/mr `error.{goal_not_allowed_minor, goal_not_allowed_underweight, target_weight_too_low, rate_not_allowed, fat_pct_out_of_range, adaptive_not_enabled, body_fat_out_of_range, diary_member_not_enabled, date_in_future, goal_settings_not_found}`**: machine drafts. `goal_not_allowed_underweight` is gentle by design (it offers keeping a steady weight).
+
+### Plan 10 fix round 1 (safety review)
+- [ ] **hi/mr `targets.flag.carbs_below_reference_hidden`** (new): the same message as `carbs_below_reference` without the 130 g figure; the client shows it when macros are hidden.
+- [ ] **hi/mr `targets.flag.rate_capped`** (reworded): "nearest available option" replaces "safest option" (neutral, no safety claim). Check it reads as neutral.
+- [ ] **hi/mr `targets.field.{height,weight,birth_year,sex,activity,body_fat}`** (new): plain field names for the "needs data" and "please check" messages. No units and no "(optional)".
+
+- `targets.rate_option_pct` (hi, mr): pace shown as % only when all numbers are hidden. Machine draft.

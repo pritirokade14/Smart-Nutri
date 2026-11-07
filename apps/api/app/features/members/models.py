@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 
 from sqlalchemy import (
     Boolean,
@@ -9,6 +10,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     Text,
+    UniqueConstraint,
     func,
     text,
 )
@@ -33,6 +35,13 @@ class Member(Base):
         CheckConstraint("birth_year between 1900 and 2100", name="birth_year"),
         CheckConstraint("height_cm > 0 and height_cm <= 300", name="height_cm"),
         CheckConstraint("weight_kg > 0 and weight_kg <= 500", name="weight_kg"),
+        # The API checks the limits it reads from targets.yaml; this is the backstop (Plan 10).
+        CheckConstraint(
+            "body_fat_pct is null or (body_fat_pct >= 3 and body_fat_pct <= 70)",
+            name="body_fat_pct",
+        ),
+        # Target of the composite FKs of member-scoped tables (diary_goal_settings).
+        UniqueConstraint("id", "account_id", name="uq_members_id_account_id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -47,6 +56,8 @@ class Member(Base):
     sex: Mapped[str | None] = mapped_column(Text)
     height_cm: Mapped[float | None] = mapped_column(Numeric(asdecimal=False))
     weight_kg: Mapped[float | None] = mapped_column(Numeric(asdecimal=False))
+    # Optional, user-entered body fat %, 3-70. NULL is unknown and never 0 (Plan 10, Q10).
+    body_fat_pct: Mapped[Decimal | None] = mapped_column(Numeric(asdecimal=True))
     diet: Mapped[str] = mapped_column(Text, server_default="non_veg")
     allergens: Mapped[list[str]] = mapped_column(ARRAY(Text), server_default="{}")
     conditions: Mapped[list[str]] = mapped_column(ARRAY(Text), server_default="{}")

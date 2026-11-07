@@ -15,6 +15,7 @@ const APP_ROUTES = [
   "product",
   "result",
   "profile",
+  "guide",
 ];
 
 export default function robots(): MetadataRoute.Robots {

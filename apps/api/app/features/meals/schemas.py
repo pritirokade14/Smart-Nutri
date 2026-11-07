@@ -7,6 +7,8 @@ from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
 from app.core.errors import ApiError
 from app.features.products.schemas import NutriScoreGrade
+from app.features.targets.schemas import NumbersHidden
+from app.scoring.targets import ProteinBasis, TargetsStatus
 
 MAX_GRAMS = 5000.0  # meal_logs check: 0 < grams <= 5000
 MAX_SERVINGS = 200.0
@@ -131,6 +133,22 @@ class DailyLimitsOut(BaseModel):
             "protein_target_g is null. Display only; never compute a target on the client"
         )
     )
+    protein_basis: ProteinBasis | None = Field(
+        default=None,
+        description=(
+            "Which weight protein_g_per_kg applies to: lean_mass, adjusted_weight or "
+            "actual_weight (the legacy weight x g/kg rule, whenever it gives a target). Null "
+            "whenever protein_target_g is null. Display only (the protein.guide_* copy)"
+        ),
+    )
+    protein_target_status: TargetsStatus | None = Field(
+        default=None,
+        description=(
+            "null = the legacy rule applied (no goal settings, or health_data not active). "
+            "Otherwise the daily-targets status; anything but `ready` means no protein target "
+            "(not_available_minor, paused_pregnancy, needs_body_data)"
+        ),
+    )
 
 
 class NutrientBands(BaseModel):
@@ -172,6 +190,13 @@ class Summary(BaseModel):
             "whole target when nothing is logged). Null when there is no target, when protein "
             "is incomplete for the day, or for period=week. A guide, not a need."
         )
+    )
+    numbers_hidden: NumbersHidden = Field(
+        default_factory=lambda: NumbersHidden(energy=False, macros=False),
+        description=(
+            "What the member hid with the eye toggle (daily-targets settings). A hidden total "
+            "is null here, never 0; bands and `incomplete` are unchanged"
+        ),
     )
     pending_clinician_review: bool = True
 

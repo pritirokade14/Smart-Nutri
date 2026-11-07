@@ -20,6 +20,7 @@ class MemberIn {
     required this.birthYear,
     required this.name,
     required this.relation,
+    this.bodyFatPct,
     this.goal,
     this.heightCm,
     this.sex,
@@ -36,6 +37,8 @@ class MemberIn {
   final List<String> allergens;
   @JsonKey(name: 'birth_year')
   final int birthYear;
+  @JsonKey(name: 'body_fat_pct')
+  final num? bodyFatPct;
   final List<MemberInConditions> conditions;
   @JsonKey(name: 'custom_alerts')
   final List<MemberInCustomAlerts> customAlerts;

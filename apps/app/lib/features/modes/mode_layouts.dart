@@ -60,11 +60,12 @@ const kModeLayouts = <String, ModeLayout>{
   ),
   'weight_loss': ModeLayout(
     tabs: ['home', 'scan', 'history', 'protein', 'profile'],
-    homeCards: ['today_protein', 'today_sugar_salt', 'recent_scans'],
+    homeCards: ['today_targets', 'today_sugar_salt', 'recent_scans'],
   ),
   'gym': ModeLayout(
     tabs: ['home', 'scan', 'protein', 'compare', 'profile'],
     homeCards: [
+      'today_targets',
       'today_protein',
       'protein_swaps',
       'protein_claims_tip',
@@ -77,7 +78,12 @@ const kModeLayouts = <String, ModeLayout>{
   ),
   'eat_better': ModeLayout(
     tabs: ['home', 'scan', 'compare', 'history', 'profile'],
-    homeCards: ['custom_alerts_setup', 'claims_tip', 'recent_scans'],
+    homeCards: [
+      'today_targets',
+      'custom_alerts_setup',
+      'claims_tip',
+      'recent_scans',
+    ],
   ),
 };
 

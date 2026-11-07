@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import functools
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +20,8 @@ class ScoringConfig:
     # Term lists, plus `custom_alerts`: {key: {"terms": [...], "exclude": [...]}}.
     ingredient_lists: Mapping[str, Any]
     thresholds: Mapping[str, Any]
+    # Daily-guide constants (targets.yaml). Read only by app.scoring.targets, never by verdicts.
+    targets: Mapping[str, Any] = field(default_factory=lambda: _load_default_targets())
 
 
 def _read(path: Path) -> Any:
@@ -33,7 +35,13 @@ def _load(data_dir: Path) -> ScoringConfig:
         diet=_read(data_dir / "diet.yaml"),
         ingredient_lists=_read(data_dir / "ingredients.yaml"),
         thresholds=_read(data_dir / "thresholds.yaml"),
+        targets=_read(data_dir / "targets.yaml"),
     )
+
+
+@functools.cache
+def _load_default_targets() -> Mapping[str, Any]:
+    return _read(_DEFAULT_DIR / "targets.yaml")
 
 
 @functools.cache

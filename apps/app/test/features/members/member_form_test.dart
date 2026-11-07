@@ -235,6 +235,8 @@ void main() {
       'conditions': ['diabetes'],
       'custom_alerts': ['palm_oil'],
       'goal': 'healthy_eating',
+      'body_fat_pct': null,
+      'clear_body_fat_pct': false,
     });
   });
 

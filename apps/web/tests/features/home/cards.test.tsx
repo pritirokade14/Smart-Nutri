@@ -20,6 +20,7 @@ import { ProteinProgress } from "@/features/protein/components/ProteinProgress";
 import { membersMessages } from "@/i18n/client-messages";
 import { MESSAGES } from "../../support/analyze-fixtures";
 import { apiStub, envelope, json } from "../../support/api-stub";
+import { targetsFixture } from "../../support/targets-fixtures";
 
 // Plan 9 Task 13: Home cards come from layouts.json, in order.
 
@@ -63,6 +64,7 @@ const member = (over: Partial<MemberOut> = {}): MemberOut => ({
   sex: null,
   height_cm: null,
   weight_kg: 70,
+  body_fat_pct: null,
   diet: "non_veg",
   allergens: [],
   conditions: [],
@@ -222,6 +224,16 @@ describe("home cards (T13)", () => {
     ]);
   });
 
+  it("today_targets: weight_loss shows the daily guide card first, from the API", async () => {
+    api.on("GET", "/v1/targets", targetsFixture("g2_lose_adjusted"));
+    home("weight_loss", [member({ goal: "weight_loss" })]);
+    const card = await screen.findByTestId("home-card-today_targets");
+    expect(cardOrder()[0]).toBe("today_targets");
+    expect(
+      await within(card).findByText(/of 1,540 kcal|1,540 kcal/),
+    ).toBeTruthy();
+  });
+
   it("today_protein: loading, then the API's progress and protein left", async () => {
     let resolve: (r: Response) => void = () => {};
     home("gym", [member()]);
@@ -306,7 +318,7 @@ describe("home cards (T13)", () => {
   });
 
   it("today_protein: no target shows the note and a link to the member form", async () => {
-    home("weight_loss", [member({ weight_kg: null })]);
+    home("gym", [member({ weight_kg: null })]);
     api.on(
       "GET",
       "/v1/meals/summary",

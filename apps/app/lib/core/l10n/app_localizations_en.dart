@@ -615,6 +615,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consentWithdraw => 'Withdraw consent';
 
   @override
+  String get diaryDisclaimer =>
+      'Information, not medical advice. Daily guides are estimates and are pending clinician review.';
+
+  @override
+  String get diaryEyeHide => 'Hide numbers';
+
+  @override
+  String get diaryEyeShow => 'Show numbers';
+
+  @override
+  String get diaryHiddenNumbers =>
+      'Numbers are hidden. You can change this in settings.';
+
+  @override
+  String get diaryIncomplete =>
+      'Some items don\'t show this value, so the real total may be higher.';
+
+  @override
+  String diaryOfTarget(String eaten, String target) {
+    return '$eaten of $target';
+  }
+
+  @override
+  String get diaryTargetsConsent =>
+      'To see your daily guide, allow SmartNutri to use your health details.';
+
+  @override
   String get dietEggetarian => 'Eggetarian';
 
   @override
@@ -628,6 +655,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dietVegan => 'Vegan';
+
+  @override
+  String get errorAdaptiveNotEnabled => 'This option isn\'t available yet.';
 
   @override
   String get errorAiUnavailable =>
@@ -652,6 +682,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthRequired => 'Please sign in.';
 
   @override
+  String get errorBodyFatOutOfRange =>
+      'Please enter a body fat percentage between 3 and 70.';
+
+  @override
   String get errorConsentRequired =>
       'To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.';
 
@@ -660,8 +694,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'This consent text has been updated. Please reload and review it again.';
 
   @override
+  String get errorDateInFuture => 'That date hasn\'t happened yet.';
+
+  @override
   String get errorDeletionIncomplete =>
       'We could not finish deleting your account. Please try again; nothing you deleted will come back.';
+
+  @override
+  String get errorDiaryMemberNotEnabled =>
+      'Daily guides are only available for your own profile for now.';
 
   @override
   String get errorEatenAtOutOfRange => 'Choose a time within the last 30 days.';
@@ -675,11 +716,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Label reading is unavailable right now. Try again later or enter the details manually.';
 
   @override
+  String get errorFatPctOutOfRange =>
+      'Please choose a share of calories from fat between 20% and 30%.';
+
+  @override
   String get errorFollowUpWithoutType =>
       'Please check your answers and try again.';
 
   @override
   String get errorForbidden => 'You don\'t have access to this.';
+
+  @override
+  String get errorGoalNotAllowedMinor =>
+      'Daily guides are for adults. You can still log food.';
+
+  @override
+  String get errorGoalNotAllowedUnderweight =>
+      'We can help you keep a steady weight instead.';
+
+  @override
+  String get errorGoalSettingsNotFound => 'Set up your daily guide first.';
 
   @override
   String get errorHttpError => 'Something went wrong. Please try again.';
@@ -761,6 +817,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ve reached today\'s voice-question limit.';
 
   @override
+  String get errorRateNotAllowed =>
+      'That pace isn\'t available. Please pick one of the options shown.';
+
+  @override
   String get errorScanImageNotFound =>
       'We couldn\'t find that photo. Please take or upload it again.';
 
@@ -778,6 +838,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorStorageUnavailable =>
       'We couldn\'t handle the photo right now. Please try again in a moment.';
+
+  @override
+  String get errorTargetWeightTooLow => 'Please choose a higher target weight.';
 
   @override
   String get errorUnauthorized => 'Please sign in.';
@@ -1003,6 +1066,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeCardsTodaySugarSaltTitle => 'Today: sugar and salt';
+
+  @override
+  String get homeCardsTodayTargetsTitle => 'Today';
 
   @override
   String get homeCardsUnknownExplainerBody =>
@@ -1530,6 +1596,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodologySectionDietTitle => 'Diet';
 
   @override
+  String get methodologySectionEnergyTargetsDescription =>
+      'Your daily guide is an estimate. We start from the Mifflin-St Jeor equation using age, sex, height and weight, multiply by an activity level, adjust gently for the chosen goal, and set protein, fat and carbs from the result. Safe minimums and pace limits always apply. Every value is pending clinician review. Information, not medical advice.';
+
+  @override
+  String get methodologySectionEnergyTargetsTitle => 'How we set daily guides';
+
+  @override
   String get methodologySectionHighInDescription =>
       'A product is marked high in a nutrient when its amount per 100 g or 100 ml is at or above these limits.';
 
@@ -1773,6 +1846,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String proteinGuide(String per_kg, String target) {
     return 'Daily protein guide: $target g, based on $per_kg g per kg. Information, not medical advice.';
+  }
+
+  @override
+  String proteinGuideAdjusted(String per_kg, String target) {
+    return 'Daily protein guide: $target g, based on $per_kg g per kg of an adjusted weight. Information, not medical advice.';
+  }
+
+  @override
+  String proteinGuideLean(String per_kg, String target) {
+    return 'Daily protein guide: $target g, based on $per_kg g per kg of lean mass. Information, not medical advice.';
   }
 
   @override
@@ -2224,6 +2307,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDeleting => 'Deleting your account…';
 
   @override
+  String get settingsDiaryBodyFat => 'Body fat %';
+
+  @override
+  String get settingsDiaryNumbersHideAll => 'Hide all numbers';
+
+  @override
+  String get settingsDiaryNumbersHideEnergy => 'Hide calories';
+
+  @override
+  String get settingsDiaryNumbersHideNote =>
+      'You can still log food. Your guide keeps working in the background.';
+
+  @override
+  String get settingsDiaryNumbersShow => 'Show numbers';
+
+  @override
+  String get settingsDiaryNumbersTitle => 'Numbers';
+
+  @override
+  String get settingsDiaryReset => 'Reset daily guide';
+
+  @override
+  String get settingsDiaryResetConfirm =>
+      'Reset your daily guide? Your food log stays.';
+
+  @override
+  String get settingsDiaryTitle => 'Diary and daily guide';
+
+  @override
   String get settingsLanguageBody =>
       'Choose the language for SmartNutri on this device.';
 
@@ -2391,6 +2503,294 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get summaryWeekNote =>
       'The week is compared with the daily limit for each day something was logged.';
+
+  @override
+  String get targetsActivityLight => 'Lightly active';
+
+  @override
+  String get targetsActivityLightHint =>
+      'On your feet part of the day, or light exercise 1 to 3 days a week';
+
+  @override
+  String get targetsActivityModerate => 'Active';
+
+  @override
+  String get targetsActivityModerateHint =>
+      'An active job, or exercise 3 to 5 days a week';
+
+  @override
+  String get targetsActivitySedentary => 'Mostly sitting';
+
+  @override
+  String get targetsActivitySedentaryHint => 'Desk work and little walking';
+
+  @override
+  String get targetsActivityVery => 'Very active';
+
+  @override
+  String get targetsActivityVeryHint =>
+      'Hard physical work, or hard training 6 to 7 days a week';
+
+  @override
+  String get targetsBodyFatHint =>
+      'If you know it, for example from a body-composition scale, we base your protein guide on lean mass. If you leave it blank, we use your weight.';
+
+  @override
+  String get targetsBodyFatLabel => 'Body fat % (optional)';
+
+  @override
+  String targetsBodyFatOutOfRange(String max, String min) {
+    return 'Please enter a number between $min and $max.';
+  }
+
+  @override
+  String get targetsCarbs => 'Carbs';
+
+  @override
+  String get targetsDirectionGain => 'Gain slowly';
+
+  @override
+  String get targetsDirectionLose => 'Lose weight slowly';
+
+  @override
+  String get targetsDirectionMaintain => 'Stay the same';
+
+  @override
+  String get targetsEnergy => 'Calories';
+
+  @override
+  String get targetsFat => 'Fat';
+
+  @override
+  String get targetsFieldActivity => 'Activity level';
+
+  @override
+  String get targetsFieldBirthYear => 'Birth year';
+
+  @override
+  String get targetsFieldBodyFat => 'Body fat';
+
+  @override
+  String get targetsFieldHeight => 'Height';
+
+  @override
+  String get targetsFieldSex => 'Sex';
+
+  @override
+  String get targetsFieldWeight => 'Weight';
+
+  @override
+  String get targetsFlagAverageSexReference =>
+      'This guide uses an in-between estimate.';
+
+  @override
+  String get targetsFlagCarbsBelowReference =>
+      'Carbs are below the usual minimum of 130 g a day. A dietitian can help you adjust.';
+
+  @override
+  String get targetsFlagCarbsBelowReferenceHidden =>
+      'Carbs are below the usual minimum. A dietitian can help you adjust.';
+
+  @override
+  String get targetsFlagDeficitCapped =>
+      'We\'ve kept the daily change to a gentle amount.';
+
+  @override
+  String targetsFlagFloorApplied(String value) {
+    return 'We don\'t suggest going below $value kcal a day. A doctor or dietitian can advise you.';
+  }
+
+  @override
+  String get targetsFlagFloorAppliedHidden =>
+      'We don\'t suggest going lower than this. A doctor or dietitian can advise you.';
+
+  @override
+  String get targetsFlagFloorLimitsDeficit =>
+      'Your chosen pace isn\'t possible within a safe minimum, so this guide is for staying the same.';
+
+  @override
+  String get targetsFlagGoalWeightReached =>
+      'You\'re at your target weight. The guide is now for staying the same.';
+
+  @override
+  String get targetsFlagOutsideEquationAgeRange =>
+      'This estimate is less certain at your age.';
+
+  @override
+  String get targetsFlagProteinCapped =>
+      'We\'ve kept protein to a moderate share of your calories.';
+
+  @override
+  String get targetsFlagRateCapped =>
+      'We\'ve set the pace to the nearest available option.';
+
+  @override
+  String get targetsFlagTaperActive =>
+      'You\'re close to your target, so the pace is easing off.';
+
+  @override
+  String get targetsFlagUnderweightMaintenance =>
+      'We can help you keep a steady weight instead.';
+
+  @override
+  String targetsGValue(String value) {
+    return '$value g';
+  }
+
+  @override
+  String targetsHowActivity(String value) {
+    return 'Activity factor: $value';
+  }
+
+  @override
+  String targetsHowAdjustment(String value) {
+    return 'Change for your goal: $value kcal a day';
+  }
+
+  @override
+  String targetsHowBmr(String value) {
+    return 'Estimated energy at rest: $value kcal';
+  }
+
+  @override
+  String targetsHowFloor(String value) {
+    return 'Lowest we suggest: $value kcal a day';
+  }
+
+  @override
+  String targetsHowMaintenance(String value) {
+    return 'Estimated energy to stay the same: $value kcal';
+  }
+
+  @override
+  String targetsHowProtein(String per_kg, String weight) {
+    return 'Protein: $per_kg g per kg of your weight ($weight kg)';
+  }
+
+  @override
+  String targetsHowProteinAdjusted(String per_kg, String weight) {
+    return 'Protein: $per_kg g per kg of an adjusted weight ($weight kg)';
+  }
+
+  @override
+  String targetsHowProteinLean(String per_kg, String weight) {
+    return 'Protein: $per_kg g per kg of lean mass ($weight kg)';
+  }
+
+  @override
+  String get targetsHowSources => 'Sources and method';
+
+  @override
+  String get targetsHowTitle => 'How we got this';
+
+  @override
+  String get targetsIntroBody =>
+      'An estimate to guide you, based on your details. Information, not medical advice.';
+
+  @override
+  String get targetsIntroTitle => 'Your daily guide';
+
+  @override
+  String targetsKcalValue(String value) {
+    return '$value kcal';
+  }
+
+  @override
+  String get targetsMinor =>
+      'Daily guides are for adults. You can still log food.';
+
+  @override
+  String targetsNeedsBodyData(String fields) {
+    return 'Add $fields to see a daily guide.';
+  }
+
+  @override
+  String get targetsPendingReview => 'Pending clinician review';
+
+  @override
+  String get targetsPregnancyNo => 'No';
+
+  @override
+  String get targetsPregnancyPaused =>
+      'Daily guides are paused during pregnancy and breastfeeding. Please ask your doctor about your needs. You can still log food.';
+
+  @override
+  String get targetsPregnancyPreferNot => 'Prefer not to say';
+
+  @override
+  String get targetsPregnancyQuestion => 'Are you pregnant or breastfeeding?';
+
+  @override
+  String get targetsPregnancyYes => 'Yes';
+
+  @override
+  String get targetsProtein => 'Protein';
+
+  @override
+  String targetsRateOption(String kg, String pct) {
+    return 'About $kg kg a week ($pct% of body weight)';
+  }
+
+  @override
+  String targetsRateOptionPct(String pct) {
+    return 'About $pct% of body weight a week';
+  }
+
+  @override
+  String get targetsRateTitle => 'Pace';
+
+  @override
+  String get targetsSave => 'Save my daily guide';
+
+  @override
+  String get targetsSetupCta => 'Set up your daily guide';
+
+  @override
+  String get targetsSexReferenceAverage => 'In between';
+
+  @override
+  String get targetsSexReferenceFemale => 'Female estimate';
+
+  @override
+  String get targetsSexReferenceMale => 'Male estimate';
+
+  @override
+  String get targetsSexReferenceTitle => 'Which estimate should we use?';
+
+  @override
+  String get targetsSkip => 'Skip, just log food';
+
+  @override
+  String get targetsStepAbout => 'About you';
+
+  @override
+  String get targetsStepActivity => 'Activity';
+
+  @override
+  String get targetsStepGoal => 'Your goal';
+
+  @override
+  String get targetsStepGuide => 'Your guide';
+
+  @override
+  String get targetsTargetWeight => 'Target weight (optional)';
+
+  @override
+  String targetsTargetWeightTooLow(String min) {
+    return 'Please choose $min kg or more.';
+  }
+
+  @override
+  String get targetsTitle => 'Your daily guide';
+
+  @override
+  String get targetsUnderweight =>
+      'We can help you keep a steady weight instead.';
+
+  @override
+  String targetsUnusualConfirm(String fields) {
+    return 'Please check $fields. Is this right?';
+  }
 
   @override
   String get userTypesChangeLater => 'You can change this in Profile';

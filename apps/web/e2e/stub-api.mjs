@@ -49,7 +49,7 @@ const goldenVerdict = (product, member) => {
 };
 
 let state;
-// POST /__reset?terms=current|old&delete_fails=N&user_types=unanswered|<a,b>
+// POST /__reset?terms=current|old&health_data=current&delete_fails=N&user_types=unanswered|<a,b>
 // seeds the signed-in state: terms agreed now or at an older text version
 // (needs_update), how many DELETE /v1/me calls answer 503
 // deletion_incomplete before one succeeds, and the account's user types
@@ -69,6 +69,8 @@ function reset(params = new URLSearchParams()) {
     seq: 0,
     scans: 0,
     meals: [],
+    // The stored daily-guide settings (GoalSettingsOut), or null.
+    goal: null,
     deleteFails: Number(params.get("delete_fails") ?? 0),
     deleted: false,
     // What the browser PUT to "storage": only facts about the bytes.
@@ -81,6 +83,8 @@ function reset(params = new URLSearchParams()) {
           : terms === "old"
             ? OLD_CONSENT_VERSION
             : null,
+      health_data:
+        params.get("health_data") === "current" ? CONSENT_VERSION : null,
     },
     members: [
       {
@@ -91,6 +95,7 @@ function reset(params = new URLSearchParams()) {
         sex: null,
         height_cm: null,
         weight_kg: null,
+        body_fat_pct: null,
         diet: "non_veg",
         allergens: [],
         conditions: [],
@@ -388,24 +393,119 @@ function summary(q) {
   const incomplete = Object.fromEntries(
     KEYS.map((k) => [k, days.some((d) => d.incomplete[k])]),
   );
+  const display = state.goal?.numbers_display ?? "show";
+  const hideEnergy = display !== "show";
+  const hideMacros = display === "hide_all";
+  const redact = (t) => ({
+    ...t,
+    energy_kcal: hideEnergy ? null : t.energy_kcal,
+    sugars_g: hideMacros ? null : t.sugars_g,
+    salt_g: hideMacros ? null : t.salt_g,
+    protein_g: hideMacros ? null : t.protein_g,
+  });
   return [
     200,
     {
+      numbers_hidden: { energy: hideEnergy, macros: hideMacros },
       member_id: memberId,
       period: n === 7 ? "week" : "day",
       start: days[0].date,
       end,
-      totals,
+      totals: redact(totals),
       incomplete,
       limits: WEEK.limits,
       bands: UNKNOWN_BANDS,
-      days,
+      days: days.map((d) => ({ ...d, totals: redact(d.totals) })),
       pending_clinician_review: true,
     },
   ];
 }
 
+// ---- Daily guide (e2e/guide.spec.ts) ----------------------------------------
+// The stub never computes a target: it serves a golden TargetsOut chosen from
+// what was posted (packages/test-fixtures/targets/expected). Hidden numbers
+// are the golden hide_* files, as the API would redact them.
+
+const targetsGolden = (stem) => read(`targets/expected/${stem}.json`);
+
+function targetsStem(display, direction, bodyFat) {
+  if (display === "hide_all") return "g1_hide_all";
+  if (display === "hide_energy") return "g1_hide_energy";
+  if (direction === "lose") return "g2_lose_adjusted";
+  return bodyFat != null ? "g11_lean_mass" : "g1_build_muscle";
+}
+
+function targetsRoute(method, path, b) {
+  const primary = state.members.find((m) => m.is_primary);
+  const gated = !(
+    (method === "PUT" && path === "/v1/targets/display") ||
+    (method === "DELETE" && path === "/v1/targets/settings")
+  );
+  if (termsMissing())
+    return [403, envelope("consent_required", { purposes: ["terms"] })];
+  if (gated && state.consents.health_data === null)
+    return [403, envelope("consent_required", { purposes: ["health_data"] })];
+  const g = state.goal;
+  const stemFor = () =>
+    targetsStem(g?.numbers_display, g?.direction, primary.body_fat_pct);
+  if (method === "GET" && path === "/v1/targets/settings") return [200, g];
+  if (method === "GET" && path === "/v1/targets")
+    return [200, targetsGolden(g ? stemFor() : "none")];
+  if (method === "POST" && path === "/v1/targets/preview") {
+    const fat =
+      b.body && "body_fat_pct" in b.body
+        ? b.body.body_fat_pct
+        : primary.body_fat_pct;
+    return [
+      200,
+      targetsGolden(targetsStem(b.numbers_display, b.direction, fat)),
+    ];
+  }
+  if (method === "PUT" && path === "/v1/targets/settings") {
+    state.goal = {
+      summary_view: "remaining",
+      numbers_display: "show",
+      energy_mode: "formula",
+      fat_pct_energy: null,
+      rate_pct_bw_per_week: null,
+      target_weight_kg: null,
+      sex_reference: null,
+      ...b,
+      member_id: primary.id,
+      updated_at: new Date().toISOString(),
+    };
+    return [
+      200,
+      targetsGolden(
+        targetsStem(b.numbers_display, b.direction, primary.body_fat_pct),
+      ),
+    ];
+  }
+  if (method === "PUT" && path === "/v1/targets/display") {
+    if (!g) return [404, envelope("goal_settings_not_found")];
+    if (b.numbers_display) g.numbers_display = b.numbers_display;
+    if (b.summary_view) g.summary_view = b.summary_view;
+    g.updated_at = new Date().toISOString();
+    // DisplayOut: no settings fields
+    return [
+      200,
+      {
+        member_id: g.member_id,
+        numbers_display: g.numbers_display,
+        summary_view: g.summary_view,
+        updated_at: g.updated_at,
+      },
+    ];
+  }
+  if (method === "DELETE" && path === "/v1/targets/settings") {
+    state.goal = null;
+    return [204, undefined];
+  }
+  return [404, envelope("not_found")];
+}
+
 function route(method, path, b, q = new URLSearchParams()) {
+  if (path.startsWith("/v1/targets")) return targetsRoute(method, path, b);
   if (method === "GET" && path === "/v1/me")
     return [
       200,
@@ -447,6 +547,7 @@ function route(method, path, b, q = new URLSearchParams()) {
       sex: null,
       height_cm: null,
       weight_kg: null,
+      body_fat_pct: null,
       diet: "non_veg",
       allergens: [],
       conditions: [],
@@ -469,7 +570,11 @@ function route(method, path, b, q = new URLSearchParams()) {
       return [204, undefined];
     }
     if (method === "PATCH") {
-      Object.assign(m, b);
+      // body_fat_pct null is "unchanged"; only the clear flag clears it (D3).
+      const { clear_body_fat_pct: clear, body_fat_pct: fat, ...rest } = b;
+      Object.assign(m, rest);
+      if (clear) m.body_fat_pct = null;
+      else if (fat != null) m.body_fat_pct = fat;
       return [200, m];
     }
   }

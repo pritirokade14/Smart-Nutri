@@ -11,6 +11,7 @@ MemberOut _$MemberOutFromJson(Map<String, dynamic> json) => MemberOut(
       .map((e) => e as String)
       .toList(),
   birthYear: (json['birth_year'] as num?)?.toInt(),
+  bodyFatPct: json['body_fat_pct'] as num?,
   conditions: (json['conditions'] as List<dynamic>)
       .map((e) => MemberOutConditions.fromJson(e as String))
       .toList(),
@@ -35,6 +36,7 @@ MemberOut _$MemberOutFromJson(Map<String, dynamic> json) => MemberOut(
 Map<String, dynamic> _$MemberOutToJson(MemberOut instance) => <String, dynamic>{
   'allergens': instance.allergens,
   'birth_year': instance.birthYear,
+  'body_fat_pct': instance.bodyFatPct,
   'conditions': instance.conditions
       .map((e) => _$MemberOutConditionsEnumMap[e]!)
       .toList(),

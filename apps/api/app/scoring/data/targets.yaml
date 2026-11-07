@@ -1,0 +1,50 @@
+# PENDING CLINICIAN REVIEW. Read only by app/scoring/targets.py. Never read by verdict rules.
+# Daily energy and macro guides (Food Diary slice 1). Every value is a working value or an
+# unverified literature value until a clinician signs off; see docs/research/food-diary/FEATURE_SPEC.md
+# section 4 for the source of each number. Keys marked [clinician] are Q10 questions.
+version: 1
+energy:
+  equation: mifflin_st_jeor_1990
+  # Mifflin MD et al., Am J Clin Nutr 1990;51(2):241-247, doi:10.1093/ajcn/51.2.241 (abstract read only).
+  mifflin:
+    weight_kcal_per_kg: 10
+    height_kcal_per_cm: 6.25
+    age_kcal_per_year: 5
+    sex_constant: {male: 5, female: -161, average: -78}   # average = mean of the two: our own working value
+    valid_age: {min: 18, max: 78}
+  # No primary source found: confirm or replace with ICMR-NIN 2020 PAL values. No 1.9 level on purpose.
+  activity_factor: {sedentary: 1.2, light: 1.375, moderate: 1.55, very: 1.725}
+  kcal_per_kg_body_weight: 7700
+goal_rates:
+  lose: {options_pct_bw_per_week: [0.25, 0.5, 0.75, 1.0], default_pct_bw_per_week: 0.5, max_kg_per_week: 1.0}
+  gain: {options_pct_bw_per_week: [0.1, 0.25, 0.5], default_pct_bw_per_week: 0.25}
+  max_deficit_pct_of_maintenance: 25
+  max_deficit_kcal_per_day: 1000
+  taper: {weeks: 4, maintenance_band_kg: 0.5}
+  target_weight_min_bmi: 18.5   # WHO adult cut-off
+  lose_min_current_bmi: 18.5
+floors:
+  kcal_by_sex: {female: 1200, male: 1500, average: 1500}
+  min_bmr_multiple: 1.0
+protein:
+  # build_muscle 1.6: ISSN 2017 (PMID 28642676), Morton 2018 (PMID 28698222). weight_loss 1.2: Q8.
+  # healthy_eating 0.83: WHO/FAO/UNU 2007. weight_gain is the hidden goal: the Eat Healthy value (Q15).
+  g_per_kg_by_goal: {build_muscle: 1.6, weight_loss: 1.2, healthy_eating: 0.83, weight_gain: 0.83}
+  default_g_per_kg: 0.83
+  lean_mass_g_per_kg_by_goal: {build_muscle: 2.0, weight_loss: 1.5, healthy_eating: 1.0, weight_gain: 1.0, default: 1.0}   # [clinician] Q10
+  max_g_per_kg: 2.2            # per kg of total body weight, every branch
+  max_energy_pct: 35
+  adjusted_weight: {min_bmi: 30, excess_fraction: 0.25}   # [clinician] Q10
+  ibw:
+    formula: devine            # [clinician] devine only until the clinician picks another
+    devine: {base_kg: {male: 50, female: 45.5, average: 47.75}, kg_per_inch_over_60: 2.3}
+body_fat: {min_pct: 3, max_pct: 70}   # [clinician] Q10
+macros:
+  fat_pct_energy: {default: 25, min: 20, max: 30}
+  carbs_reference_min_g: 130
+  kcal_per_g: {protein: 4, carbs: 4, fat: 9}
+minors: {min_age_for_targets: 18}
+rounding: {kcal_step: 10, macro_g_step: 1}
+plausible:        # confirm-before-save ranges for body data (hard limits stay in the members API)
+  height_cm: {min: 120, max: 210}
+  weight_kg: {min: 30, max: 200}

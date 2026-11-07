@@ -1,0 +1,7 @@
+{
+  "build_muscle": "gain",
+  "weight_loss": "lose",
+  "healthy_eating": "maintain",
+  "weight_gain": "gain",
+  "none": "maintain"
+}

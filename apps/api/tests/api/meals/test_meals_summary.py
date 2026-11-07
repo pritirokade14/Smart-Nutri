@@ -62,7 +62,10 @@ async def test_week_summary_for_child(client, family, sf_biscuit_product_id):
         "protein_target_g": None,
         "kcal": None,
         "protein_g_per_kg": None,
+        "protein_basis": None,
+        "protein_target_status": None,
     }
+    assert s["numbers_hidden"] == {"energy": False, "macros": False}
     assert s["days"][-1]["items"] == 1 and s["days"][0]["items"] == 0
     assert s["days"][0]["bands"]["sugar_g"] == "unknown"
     # Ruling M1 S1: an empty day has null totals, never 0.0.

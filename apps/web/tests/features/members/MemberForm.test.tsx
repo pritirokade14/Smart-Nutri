@@ -74,6 +74,7 @@ const saved = (over: Partial<MemberOut> = {}): MemberOut => ({
   sex: null,
   height_cm: null,
   weight_kg: null,
+  body_fat_pct: null,
   diet: "veg",
   allergens: [],
   conditions: [],

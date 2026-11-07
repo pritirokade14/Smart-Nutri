@@ -124,20 +124,13 @@ daily_limits:
   #   https://www.who.int/publications/i/item/9789241549028
   # salt 5 g: WHO sodium guideline (< 2 g sodium a day);
   #   https://www.who.int/publications/i/item/9789241504836
-  # protein 0.83 g/kg: WHO/FAO/UNU safe level for adults (TRS 935, 2007); a TARGET, not a limit.
-  #   https://www.who.int/publications/i/item/9789241209359
-  adult:  {sugar_g: 25, salt_g: 5, protein_g_per_kg: 0.83}
-  # The 0.83 g/kg protein target applies from this age only: it is the ADULT safe level
+  # The protein g/kg (adult.protein_g_per_kg and protein_g_per_kg_by_goal) moved to
+  # targets.yaml protein.* (Plan 10, one protein source); read via targets.protein_g_per_kg().
+  adult:  {sugar_g: 25, salt_g: 5}
+  # The protein target applies from this age only: it is the ADULT safe level
   # (WHO/FAO/UNU TRS 935, 2007, above); children and adolescents have age-specific values
   # there. Younger members, and an unknown age, get no protein target (Ruling M1 S3).
   protein_min_age: 18
-  # Protein TARGET by goal (g per kg body weight per day), adults (protein_min_age) with a
-  # weight only. build_muscle 1.6: ISSN position stand 2017 (Jager et al., PMID 28642676),
-  # range 1.4-2.0 g/kg for exercising people. PENDING CLINICIAN REVIEW. Other goals use
-  # adult.protein_g_per_kg (weight_loss keeps 0.83, Ruling P9-R13). A guide, never a need;
-  # it never changes a verdict (read only by daily_limits.py).
-  #   https://pubmed.ncbi.nlm.nih.gov/28642676/
-  protein_g_per_kg_by_goal: {build_muscle: 1.6}
   # key = min age of band, for infant.max_age <= age < child.max_age. Child SUGAR reuses
   # conditions.child.free_sugar_daily_limit_g. NHS: 1-3 y 2 g, 4-6 y 3 g, 7-10 y 5 g, 11+ 6 g
   # (Ruling P6-R1: 2-3 year olds keep NHS's own 2 g, the stricter value).
@@ -175,6 +168,12 @@ sources:
   issn_protein_2017: {title: "ISSN position stand: protein and exercise (2017)", url: "https://pubmed.ncbi.nlm.nih.gov/28642676/", url_verified: false}
   nhs_child_salt: {title: "NHS: salt limits for children", url: "https://www.nhs.uk/live-well/eat-well/food-types/salt-nutrition/", url_verified: false}
   # Numbers SmartNutri chose itself (no external source states them). No link.
+  # Daily guides (Plan 10, targets.yaml). URLs from the Food Diary spec section 13.
+  mifflin_1990: {title: "Mifflin-St Jeor: a new predictive equation for resting energy expenditure (Am J Clin Nutr 1990)", url: "https://doi.org/10.1093/ajcn/51.2.241", url_verified: false}
+  cdc_weight_loss: {title: "CDC: losing weight", url: "https://www.cdc.gov/healthy-weight-growth/losing-weight/index.html", url_verified: false}
+  iom_2005_dri: {title: "Institute of Medicine: Dietary Reference Intakes for energy, carbohydrate, fibre, fat and protein (2005)", url: "https://doi.org/10.17226/10490", url_verified: false}
+  morton_2018: {title: "Morton et al.: protein supplementation and resistance training gains, meta-analysis (Br J Sports Med 2018)", url: "https://pubmed.ncbi.nlm.nih.gov/28698222/", url_verified: false}
+  devine_1974: {title: "Devine: ideal body weight formula (Drug Intell Clin Pharm 1974)", url: null, url_verified: false}
   smartnutri_working_values: {title: "SmartNutri working values, pending clinician review", url: null, url_verified: false}
 # Section -> where its numbers come from (`thresholds`) and, optionally, why the rule exists
 # (`rationale`). Both are lists of keys from `sources` above. null = a member's own preference,
@@ -208,3 +207,8 @@ section_sources:
   # bands: NHS; the 80 % "near" share: SmartNutri. Infant 0 g rests on WHO's "no added sugar
   # or salt under 2" (rationale).
   daily_limits:    {thresholds: [who_free_sugars, who_sodium, who_protein_2007, issn_protein_2017, nhs_child_sugar, nhs_child_salt, smartnutri_working_values], rationale: [who_infant]}
+  # Daily guides (Plan 10): Mifflin-St Jeor 1990 for the equation; CDC for the pace; IOM 2005
+  # for the fat and carbohydrate shares; ISSN, Morton, WHO/FAO/UNU and ICMR-NIN for protein;
+  # Devine for the ideal weight. Activity factors, floors, caps and the lean-mass factors are
+  # SmartNutri working values.
+  energy_targets:  {thresholds: [mifflin_1990, cdc_weight_loss, iom_2005_dri, issn_protein_2017, morton_2018, icmr_nin_2024, who_protein_2007, devine_1974, smartnutri_working_values], rationale: [issn_protein_2017, iom_2005_dri]}

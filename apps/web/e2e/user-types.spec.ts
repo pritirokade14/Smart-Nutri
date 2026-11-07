@@ -61,6 +61,9 @@ test("first sign-in: terms, then the picker, follow-ups and a confirmed pre-fill
   expect(s.members[0]?.goal).toBeNull();
 
   await review.getByRole("button", { name: "Add to profile" }).click();
+  // Gym is a daily-guide mode (Plan 10): the guide setup is offered, skippable.
+  await expect(page).toHaveURL(/\/en\/guide\/setup\?from=welcome$/);
+  await page.getByRole("button", { name: "Skip, just log food" }).click();
   await expect(page).toHaveURL(/\/en\/home$/);
   s = await stubState(page);
   expect(s.members[0]?.allergens).toEqual(["milk"]);

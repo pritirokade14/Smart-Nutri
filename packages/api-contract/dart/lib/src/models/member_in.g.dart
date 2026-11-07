@@ -10,6 +10,7 @@ MemberIn _$MemberInFromJson(Map<String, dynamic> json) => MemberIn(
   birthYear: (json['birth_year'] as num).toInt(),
   name: json['name'] as String,
   relation: MemberInRelation.fromJson(json['relation'] as String),
+  bodyFatPct: json['body_fat_pct'] as num?,
   goal: json['goal'] == null
       ? null
       : MemberInGoal.fromJson(json['goal'] as String),
@@ -37,6 +38,7 @@ MemberIn _$MemberInFromJson(Map<String, dynamic> json) => MemberIn(
 Map<String, dynamic> _$MemberInToJson(MemberIn instance) => <String, dynamic>{
   'allergens': instance.allergens,
   'birth_year': instance.birthYear,
+  'body_fat_pct': instance.bodyFatPct,
   'conditions': instance.conditions
       .map((e) => _$MemberInConditionsEnumMap[e]!)
       .toList(),

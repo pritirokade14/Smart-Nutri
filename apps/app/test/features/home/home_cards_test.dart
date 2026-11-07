@@ -27,7 +27,12 @@ Summary daySummary(
   num? proteinTarget = 56,
   num? proteinPerKg = 0.8,
   num? proteinLeft = 36,
+  bool hidden = false,
 }) {
+  if (hidden) {
+    sugars = salt = protein = kcal = null;
+    proteinTarget = proteinPerKg = proteinLeft = null;
+  }
   final totals = {
     'energy_kcal': kcal,
     'protein_g': protein,
@@ -47,6 +52,8 @@ Summary daySummary(
     'sugar_g': sugarBand,
   };
   return Summary.fromJson({
+    // The API's hide_all: every total, the target and its factor are null.
+    if (hidden) 'numbers_hidden': {'energy': true, 'macros': true},
     'bands': bands,
     'days': [
       {

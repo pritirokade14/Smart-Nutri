@@ -7,6 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'daily_limits_out.dart';
 import 'day_summary.dart';
 import 'incomplete_nutrients.dart';
+import 'numbers_hidden.dart';
 import 'nutrient_bands.dart';
 import 'summary_period.dart';
 import 'totals.dart';
@@ -27,6 +28,7 @@ class Summary {
     required this.start,
     required this.totals,
     this.pendingClinicianReview = true,
+    this.numbersHidden,
   });
 
   factory Summary.fromJson(Map<String, Object?> json) =>
@@ -41,6 +43,10 @@ class Summary {
   final DailyLimitsOut limits;
   @JsonKey(name: 'member_id')
   final String memberId;
+
+  /// What the member hid with the eye toggle (daily-targets settings). A hidden total is null here, never 0; bands and `incomplete` are unchanged
+  @JsonKey(name: 'numbers_hidden')
+  final NumbersHidden? numbersHidden;
   @JsonKey(name: 'pending_clinician_review')
   final bool pendingClinicianReview;
   final SummaryPeriod period;

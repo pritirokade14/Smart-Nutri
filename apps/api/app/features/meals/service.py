@@ -5,6 +5,7 @@ per-100 g values. A value missing on the label stays null (never 0), and later p
 never rewrite history. Member names and nutrients never go to logs.
 """
 
+from dataclasses import replace
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
@@ -17,13 +18,17 @@ from app import scoring
 from app.core.config import Settings
 from app.core.errors import ApiError
 from app.core.time import IST, today_ist
+from app.features.consents import service as consents_service
 from app.features.meals.models import MealLog
 from app.features.meals.schemas import MealIn, MealOut, NutrientSnapshot, Summary, WeekCounts
-from app.features.meals.summary import PERIOD_DAYS, summarise
+from app.features.meals.summary import PERIOD_DAYS, annotate_protein, redact, summarise
 from app.features.members import service as members_service
 from app.features.products import service as products_service
 from app.features.scans import service as scans_service
+from app.features.targets import mapping as targets_mapping
+from app.features.targets import service as targets_service
 from app.integrations.openfoodfacts import OffClient
+from app.scoring import targets as engine_targets
 
 FUTURE_TOLERANCE = timedelta(minutes=5)
 MAX_AGE = timedelta(days=30)
@@ -224,8 +229,10 @@ async def member_summary(
 ) -> Summary:
     """The member's summary for the ``period`` ending on ``end_date`` (IST). 404 if foreign.
 
-    Limits come from the engine (age from the birth year as of ``end_date``, protein from the
-    member's weight).
+    Limits come from the engine (age from the birth year as of ``end_date``). The protein
+    target comes from today's daily-targets result when the member has goal settings and
+    `health_data` is active (Plan 10, Ruling D10); otherwise from the legacy weight x g/kg
+    rule. Numbers the member hid are redacted either way, consent or not (Ruling D11).
     """
     member = await members_service.get_member(session, account_id, member_id)
     n_days = PERIOD_DAYS[period]
@@ -233,7 +240,42 @@ async def member_summary(
     meals = await list_meals(session, account_id, member_id, start, end, limit=None)
     scoring_member = members_service.to_scoring_member(member, today=end_date)
     limits = scoring.daily_limits_for(scoring_member, member.weight_kg)
-    return summarise(meals, limits, period, end_date, IST, member_id=member.id)
+    basis: str | None = None
+    status: str | None = None
+    row = await targets_service.get_settings(session, member)
+    health_ok = await consents_service.has_active_consent(session, account_id, "health_data")
+    if limits.protein_target_g is not None and member.weight_kg:
+        # No daily-targets result: the SAME reference weight and caps as `targets.compute`
+        # (lean mass, or the adjusted body weight at BMI >= 30, then the g/kg cap). Body fat is
+        # health data, so it counts only while `health_data` is active.
+        body = targets_service.body_data(member, end_date)
+        if not health_ok:
+            body = replace(body, body_fat_pct=None)
+        sex_key = body.sex if body.sex in ("male", "female") else "average"
+        ref = engine_targets.protein_reference(body, sex_key)
+        basis = ref.basis
+        limits = replace(
+            limits, protein_target_g=float(ref.capped_g), protein_g_per_kg=float(ref.factor)
+        )
+    if row is not None and health_ok:
+        result, _ = await targets_service.targets_for_today(session, member)
+        assert result is not None
+        status = result.status
+        if result.status == "ready" and result.explanation is not None:
+            basis = result.explanation.protein_basis
+            limits = replace(
+                limits,
+                protein_target_g=float(result.protein_g),  # type: ignore[arg-type]
+                protein_g_per_kg=float(result.explanation.protein_g_per_kg),
+            )
+        else:
+            basis = None
+            limits = replace(limits, protein_target_g=None, protein_g_per_kg=None)
+    summary = annotate_protein(
+        summarise(meals, limits, period, end_date, IST, member_id=member.id), basis, status
+    )
+    hidden = targets_mapping.hidden_for(row.numbers_display) if row is not None else None  # type: ignore[arg-type]
+    return summary if hidden is None else redact(summary, hidden)
 
 
 async def week_counts(session: AsyncSession, account_id: UUID, end_date: date) -> WeekCounts:

@@ -93,6 +93,9 @@
       },
       "recent_scans": {
         "title": "Recent scans"
+      },
+      "today_targets": {
+        "title": "Today"
       }
     }
   },
@@ -307,7 +310,17 @@
     "user_type_not_selected": "Pick one of the options you chose for yourself.",
     "follow_up_without_type": "Please check your answers and try again.",
     "user_types_not_found": "Tell us what brings you to SmartNutri first.",
-    "image_quality_low": "This photo is hard to read. Please take it again."
+    "image_quality_low": "This photo is hard to read. Please take it again.",
+    "goal_not_allowed_minor": "Daily guides are for adults. You can still log food.",
+    "goal_not_allowed_underweight": "We can help you keep a steady weight instead.",
+    "target_weight_too_low": "Please choose a higher target weight.",
+    "rate_not_allowed": "That pace isn't available. Please pick one of the options shown.",
+    "fat_pct_out_of_range": "Please choose a share of calories from fat between 20% and 30%.",
+    "adaptive_not_enabled": "This option isn't available yet.",
+    "body_fat_out_of_range": "Please enter a body fat percentage between 3 and 70.",
+    "diary_member_not_enabled": "Daily guides are only available for your own profile for now.",
+    "date_in_future": "That date hasn't happened yet.",
+    "goal_settings_not_found": "Set up your daily guide first."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -842,6 +855,10 @@
         "title": "Daily limits",
         "description": "In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed."
       },
+      "energy_targets": {
+        "title": "How we set daily guides",
+        "description": "Your daily guide is an estimate. We start from the Mifflin-St Jeor equation using age, sex, height and weight, multiply by an activity level, adjust gently for the chosen goal, and set protein, fat and carbs from the result. Safe minimums and pace limits always apply. Every value is pending clinician review. Information, not medical advice."
+      },
       "build_muscle": {
         "title": "Build muscle",
         "description": "For adult members (18 and over) who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid, and it can't be set for members under 18. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein."
@@ -898,7 +915,20 @@
     "delete_confirm": "Delete permanently",
     "deleting": "Deleting your account…",
     "delete_retrying": "Still deleting. Trying again…",
-    "language_body": "Choose the language for SmartNutri on this device."
+    "language_body": "Choose the language for SmartNutri on this device.",
+    "diary": {
+      "title": "Diary and daily guide",
+      "numbers": {
+        "title": "Numbers",
+        "show": "Show numbers",
+        "hide_energy": "Hide calories",
+        "hide_all": "Hide all numbers",
+        "hide_note": "You can still log food. Your guide keeps working in the background."
+      },
+      "reset": "Reset daily guide",
+      "reset_confirm": "Reset your daily guide? Your food log stays.",
+      "body_fat": "Body fat %"
+    }
   },
   "goodbye": {
     "title": "Your account has been deleted",
@@ -1037,7 +1067,9 @@
       "protein_100kcal": "Protein per 100 kcal",
       "sugar": "Sugars",
       "price_scoop": "Price per scoop"
-    }
+    },
+    "guide_lean": "Daily protein guide: {target} g, based on {per_kg} g per kg of lean mass. Information, not medical advice.",
+    "guide_adjusted": "Daily protein guide: {target} g, based on {per_kg} g per kg of an adjusted weight. Information, not medical advice."
   },
   "goal": {
     "healthy_eating": "Eat healthier",
@@ -1047,5 +1079,116 @@
   },
   "category": {
     "supplement": "Supplement"
+  },
+  "targets": {
+    "title": "Your daily guide",
+    "setup_cta": "Set up your daily guide",
+    "skip": "Skip, just log food",
+    "energy": "Calories",
+    "protein": "Protein",
+    "fat": "Fat",
+    "carbs": "Carbs",
+    "kcal_value": "{value} kcal",
+    "g_value": "{value} g",
+    "how": {
+      "title": "How we got this",
+      "bmr": "Estimated energy at rest: {value} kcal",
+      "activity": "Activity factor: {value}",
+      "maintenance": "Estimated energy to stay the same: {value} kcal",
+      "adjustment": "Change for your goal: {value} kcal a day",
+      "protein": "Protein: {per_kg} g per kg of your weight ({weight} kg)",
+      "protein_adjusted": "Protein: {per_kg} g per kg of an adjusted weight ({weight} kg)",
+      "protein_lean": "Protein: {per_kg} g per kg of lean mass ({weight} kg)",
+      "floor": "Lowest we suggest: {value} kcal a day",
+      "sources": "Sources and method"
+    },
+    "body_fat": {
+      "label": "Body fat % (optional)",
+      "hint": "If you know it, for example from a body-composition scale, we base your protein guide on lean mass. If you leave it blank, we use your weight.",
+      "out_of_range": "Please enter a number between {min} and {max}."
+    },
+    "direction": {
+      "lose": "Lose weight slowly",
+      "maintain": "Stay the same",
+      "gain": "Gain slowly"
+    },
+    "rate_option": "About {kg} kg a week ({pct}% of body weight)",
+    "rate_option_pct": "About {pct}% of body weight a week",
+    "rate_title": "Pace",
+    "target_weight": "Target weight (optional)",
+    "activity": {
+      "sedentary": "Mostly sitting",
+      "light": "Lightly active",
+      "moderate": "Active",
+      "very": "Very active",
+      "sedentary_hint": "Desk work and little walking",
+      "light_hint": "On your feet part of the day, or light exercise 1 to 3 days a week",
+      "moderate_hint": "An active job, or exercise 3 to 5 days a week",
+      "very_hint": "Hard physical work, or hard training 6 to 7 days a week"
+    },
+    "sex_reference": {
+      "title": "Which estimate should we use?",
+      "female": "Female estimate",
+      "male": "Male estimate",
+      "average": "In between"
+    },
+    "pregnancy": {
+      "question": "Are you pregnant or breastfeeding?",
+      "paused": "Daily guides are paused during pregnancy and breastfeeding. Please ask your doctor about your needs. You can still log food.",
+      "yes": "Yes",
+      "no": "No",
+      "prefer_not": "Prefer not to say"
+    },
+    "minor": "Daily guides are for adults. You can still log food.",
+    "needs_body_data": "Add {fields} to see a daily guide.",
+    "flag": {
+      "underweight_maintenance": "We can help you keep a steady weight instead.",
+      "rate_capped": "We've set the pace to the nearest available option.",
+      "deficit_capped": "We've kept the daily change to a gentle amount.",
+      "taper_active": "You're close to your target, so the pace is easing off.",
+      "goal_weight_reached": "You're at your target weight. The guide is now for staying the same.",
+      "floor_applied": "We don't suggest going below {value} kcal a day. A doctor or dietitian can advise you.",
+      "floor_applied_hidden": "We don't suggest going lower than this. A doctor or dietitian can advise you.",
+      "floor_limits_deficit": "Your chosen pace isn't possible within a safe minimum, so this guide is for staying the same.",
+      "protein_capped": "We've kept protein to a moderate share of your calories.",
+      "carbs_below_reference": "Carbs are below the usual minimum of 130 g a day. A dietitian can help you adjust.",
+      "carbs_below_reference_hidden": "Carbs are below the usual minimum. A dietitian can help you adjust.",
+      "average_sex_reference": "This guide uses an in-between estimate.",
+      "outside_equation_age_range": "This estimate is less certain at your age."
+    },
+    "underweight": "We can help you keep a steady weight instead.",
+    "target_weight_too_low": "Please choose {min} kg or more.",
+    "pending_review": "Pending clinician review",
+    "intro": {
+      "title": "Your daily guide",
+      "body": "An estimate to guide you, based on your details. Information, not medical advice."
+    },
+    "step": {
+      "about": "About you",
+      "activity": "Activity",
+      "goal": "Your goal",
+      "guide": "Your guide"
+    },
+    "unusual_confirm": "Please check {fields}. Is this right?",
+    "save": "Save my daily guide",
+    "field": {
+      "height": "Height",
+      "weight": "Weight",
+      "birth_year": "Birth year",
+      "sex": "Sex",
+      "activity": "Activity level",
+      "body_fat": "Body fat"
+    }
+  },
+  "diary": {
+    "disclaimer": "Information, not medical advice. Daily guides are estimates and are pending clinician review.",
+    "targets_consent": "To see your daily guide, allow SmartNutri to use your health details.",
+    "eye": {
+      "hide": "Hide numbers",
+      "show": "Show numbers"
+    },
+    "hidden_numbers": "Numbers are hidden. You can change this in settings.",
+    "of_target": "{eaten} of {target}",
+    "incomplete": "Some items don't show this value, so the real total may be higher."
   }
 }

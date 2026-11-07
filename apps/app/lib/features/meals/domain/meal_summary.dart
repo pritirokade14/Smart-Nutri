@@ -119,6 +119,10 @@ class MealSummary {
     required this.pendingClinicianReview,
     this.proteinLeftG,
     this.proteinGPerKg,
+    this.energyHidden = false,
+    this.macrosHidden = false,
+    this.proteinBasis,
+    this.proteinTargetStatus,
   });
 
   factory MealSummary.fromApi(Summary s) {
@@ -154,6 +158,10 @@ class MealSummary {
       pendingClinicianReview: s.pendingClinicianReview,
       proteinLeftG: s.proteinLeftG,
       proteinGPerKg: s.limits.proteinGPerKg,
+      energyHidden: s.numbersHidden?.energy ?? false,
+      macrosHidden: s.numbersHidden?.macros ?? false,
+      proteinBasis: s.limits.proteinBasis,
+      proteinTargetStatus: s.limits.proteinTargetStatus,
     );
   }
 
@@ -179,6 +187,26 @@ class MealSummary {
   /// value), for the guide sentence; null whenever there is no target.
   /// Display only: never derived on the device.
   final num? proteinGPerKg;
+
+  /// The API hid every energy number (`numbers_hidden.energy`): a null
+  /// energy total is hidden, not unknown.
+  final bool energyHidden;
+
+  /// The API hid the macro, sugar and salt numbers and the protein target
+  /// (`numbers_hidden.macros`).
+  final bool macrosHidden;
+
+  /// Which weight the protein target is based on (lean mass, adjusted
+  /// weight, actual weight); null without a target.
+  final DailyLimitsOutProteinBasis? proteinBasis;
+
+  /// Why there is no protein target (`paused_pregnancy`, ...), null when
+  /// the legacy rule applies or a target exists.
+  final DailyLimitsOutProteinTargetStatus? proteinTargetStatus;
+
+  /// Whether the API hid [n]'s numbers.
+  bool isHidden(SummaryNutrient n) =>
+      n == SummaryNutrient.kcal ? energyHidden : macrosHidden;
 
   /// Any nutrient on any day is missing from a logged label.
   bool get anyIncomplete => [

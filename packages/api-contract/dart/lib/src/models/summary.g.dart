@@ -22,6 +22,9 @@ Summary _$SummaryFromJson(Map<String, dynamic> json) => Summary(
   start: DateTime.parse(json['start'] as String),
   totals: Totals.fromJson(json['totals'] as Map<String, dynamic>),
   pendingClinicianReview: json['pending_clinician_review'] as bool? ?? true,
+  numbersHidden: json['numbers_hidden'] == null
+      ? null
+      : NumbersHidden.fromJson(json['numbers_hidden'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$SummaryToJson(Summary instance) => <String, dynamic>{
@@ -31,6 +34,7 @@ Map<String, dynamic> _$SummaryToJson(Summary instance) => <String, dynamic>{
   'incomplete': instance.incomplete,
   'limits': instance.limits,
   'member_id': instance.memberId,
+  'numbers_hidden': instance.numbersHidden,
   'pending_clinician_review': instance.pendingClinicianReview,
   'period': _$SummaryPeriodEnumMap[instance.period]!,
   'protein_left_g': instance.proteinLeftG,

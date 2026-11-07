@@ -7,6 +7,7 @@ import 'package:smartnutri_ai/features/home/presentation/home_screen.dart';
 import 'package:smartnutri_ai/features/members/presentation/consent_sheet.dart';
 import 'package:smartnutri_ai/features/members/presentation/members_providers.dart';
 import 'package:smartnutri_ai/features/settings/presentation/profile_screen.dart';
+import 'package:smartnutri_ai/features/targets/presentation/guide_setup_screen.dart';
 import 'package:smartnutri_ai/features/user_types/presentation/follow_up_screen.dart';
 import 'package:smartnutri_ai/features/user_types/presentation/prefill_review_screen.dart';
 import 'package:smartnutri_ai/features/user_types/presentation/type_picker_screen.dart';
@@ -144,7 +145,7 @@ void main() {
     await t.tap(find.byKey(ConsentSheet.agreeKey));
     await t.pumpAndSettle();
     expect(api.me.puts, hasLength(2));
-    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(GuideSetupScreen), findsOneWidget);
   });
 
   testWidgets('defaults are not saved until confirmed', (t) async {
@@ -174,7 +175,7 @@ void main() {
     final (id, body) = api.members.patched.single;
     expect(id, 'p1');
     expect([for (final a in body.customAlerts!) a.json], ['palm_oil']);
-    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(GuideSetupScreen), findsOneWidget);
   });
 
   testWidgets('not now sends nothing', (t) async {
@@ -195,7 +196,7 @@ void main() {
     await _tapKey(t, FollowUpScreen.nextKey);
     await _tapKey(t, PrefillReviewScreen.notNowKey);
     expect(api.members.patched, isEmpty);
-    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(GuideSetupScreen), findsOneWidget);
   });
 
   testWidgets('only ticked changes are sent', (t) async {

@@ -266,25 +266,50 @@
   "consentUpdateNote": "आम्ही हा मजकूर अद्ययावत केला आहे. कृपया तो वाचा आणि पुन्हा संमती द्या.",
   "consentUpdatesBanner": "आम्ही काही संमतीचे मजकूर अद्ययावत केले आहेत. कृपया ते पाहा.",
   "consentWithdraw": "संमती मागे घ्या",
+  "diaryDisclaimer": "ही माहिती आहे, वैद्यकीय सल्ला नाही. दैनिक मार्गदर्शक हे अंदाज आहेत आणि डॉक्टरांच्या तपासणीसाठी प्रलंबित आहेत.",
+  "diaryEyeHide": "संख्या लपवा",
+  "diaryEyeShow": "संख्या दाखवा",
+  "diaryHiddenNumbers": "संख्या लपवल्या आहेत. तुम्ही हे सेटिंग्जमध्ये बदलू शकता.",
+  "diaryIncomplete": "काही पदार्थांमध्ये हे मूल्य दिसत नाही, म्हणून खरी बेरीज जास्त असू शकते.",
+  "diaryOfTarget": "{target} पैकी {eaten}",
+  "@diaryOfTarget": {
+    "placeholders": {
+      "eaten": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryTargetsConsent": "तुमचा दैनिक मार्गदर्शक पाहण्यासाठी, SmartNutri ला तुमची आरोग्य माहिती वापरण्याची परवानगी द्या.",
   "dietEggetarian": "अंडाहारी (अंडे खाणारा शाकाहारी)",
   "dietJain": "जैन",
   "dietNonVeg": "मांसाहारी",
   "dietVeg": "शाकाहारी",
   "dietVegan": "व्हेगन",
+  "errorAdaptiveNotEnabled": "हा पर्याय अजून उपलब्ध नाही.",
   "errorAiUnavailable": "आवाजातील उत्तरे सध्या उपलब्ध नाहीत. कृपया नंतर पुन्हा प्रयत्न करा.",
   "errorAudioTooLarge": "हे रेकॉर्डिंग खूप मोठे आहे. कृपया छोटा प्रश्न विचारा.",
   "errorAudioTooLong": "हे रेकॉर्डिंग 30 सेकंदांपेक्षा मोठे आहे. कृपया छोटा प्रश्न विचारा.",
   "errorAudioUnsupported": "आम्ही हे रेकॉर्डिंग चालवू शकलो नाही. कृपया पुन्हा प्रयत्न करा.",
   "errorAuthInvalid": "तुमचे सत्र संपले आहे. कृपया पुन्हा साइन इन करा.",
   "errorAuthRequired": "कृपया साइन इन करा.",
+  "errorBodyFatOutOfRange": "कृपया 3 ते 70 दरम्यान शरीरातील चरबीची टक्केवारी भरा.",
   "errorConsentRequired": "ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची किंवा वजन जतन करण्यासाठी, कृपया आधी आरोग्य डेटाच्या वापराला संमती द्या.",
   "errorConsentVersionMismatch": "संमतीचा मजकूर अद्ययावत झाला आहे. कृपया पुन्हा लोड करून तो पुन्हा पाहा.",
+  "errorDateInFuture": "ती तारीख अजून आलेली नाही.",
   "errorDeletionIncomplete": "आम्ही तुमचे खाते पूर्णपणे हटवू शकलो नाही. कृपया पुन्हा प्रयत्न करा; जे हटले आहे ते परत येणार नाही.",
+  "errorDiaryMemberNotEnabled": "दैनिक मार्गदर्शक सध्या फक्त तुमच्या स्वतःच्या प्रोफाइलसाठी उपलब्ध आहेत.",
   "errorEatenAtOutOfRange": "गेल्या 30 दिवसांतील वेळ निवडा.",
   "errorExtractionFailed": "आम्हाला हे लेबल वाचता आले नाही. दुसरा फोटो वापरून पाहा किंवा माहिती स्वतः भरा.",
   "errorExtractionUnavailable": "लेबल वाचण्याची सुविधा सध्या उपलब्ध नाही. नंतर पुन्हा प्रयत्न करा किंवा माहिती स्वतः भरा.",
+  "errorFatPctOutOfRange": "कृपया कॅलरीतील चरबीचा वाटा 20% ते 30% दरम्यान निवडा.",
   "errorFollowUpWithoutType": "कृपया तुमची उत्तरे तपासा आणि पुन्हा प्रयत्न करा.",
   "errorForbidden": "तुम्हाला याचा प्रवेश नाही.",
+  "errorGoalNotAllowedMinor": "दैनिक मार्गदर्शक प्रौढांसाठी आहेत. तुम्ही तरीही जेवण नोंदवू शकता.",
+  "errorGoalNotAllowedUnderweight": "त्याऐवजी आम्ही तुम्हाला स्थिर वजन राखण्यास मदत करू शकतो.",
+  "errorGoalSettingsNotFound": "आधी तुमचा दैनिक मार्गदर्शक सेट करा.",
   "errorHttpError": "काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.",
   "errorImageQualityLow": "हा फोटो नीट वाचता येत नाही. कृपया पुन्हा फोटो काढा.",
   "errorImageTooLarge": "हा फोटो खूप मोठा आहे. कृपया 8 MB पेक्षा लहान फोटो वापरा.",
@@ -308,11 +333,13 @@
   "errorRateLimited": "खूप जास्त विनंत्या. कृपया थोडा वेळ थांबा.",
   "errorRateLimitedScans": "तुम्ही आजच्या लेबल-स्कॅन मर्यादेपर्यंत पोहोचला आहात.",
   "errorRateLimitedVoice": "तुम्ही आजच्या आवाजाद्वारे प्रश्न विचारण्याच्या मर्यादेपर्यंत पोहोचला आहात.",
+  "errorRateNotAllowed": "ती गती उपलब्ध नाही. कृपया दाखवलेल्या पर्यायांपैकी निवडा.",
   "errorScanImageNotFound": "तो फोटो आम्हाला सापडला नाही. कृपया फोटो पुन्हा काढा किंवा अपलोड करा.",
   "errorScanNotFound": "हा लेबल स्कॅन सापडला नाही. कृपया लेबल पुन्हा स्कॅन करा.",
   "errorSearchQueryTooShort": "शोधण्यासाठी किमान 3 अक्षरे लिहा.",
   "errorServingSizeUnknown": "या पॅकवर सर्व्हिंगचा आकार दिलेला नाही. प्रमाण ग्रॅममध्ये भरा.",
   "errorStorageUnavailable": "आम्ही सध्या फोटो हाताळू शकलो नाही. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.",
+  "errorTargetWeightTooLow": "कृपया जास्त लक्ष्य वजन निवडा.",
   "errorUnauthorized": "कृपया साइन इन करा.",
   "errorUnsupportedImage": "कृपया JPEG, PNG किंवा WebP फोटो वापरा.",
   "errorUserTypeNotSelected": "तुम्ही स्वतःसाठी निवडलेल्या पर्यायांपैकी एक निवडा.",
@@ -404,6 +431,7 @@
   "homeCardsRecentScansTitle": "अलीकडील स्कॅन",
   "homeCardsTodayProteinTitle": "आज: प्रथिने",
   "homeCardsTodaySugarSaltTitle": "आज: साखर आणि मीठ",
+  "homeCardsTodayTargetsTitle": "आज",
   "homeCardsUnknownExplainerBody": "लेबलवर घटक नसतील किंवा वाचणे कठीण असेल, तेव्हा आम्ही तपासू शकत नाही. आम्ही ते कधीही सुरक्षित दाखवत नाही.",
   "homeCardsUnknownExplainerTitle": "\"अज्ञात\" सुरक्षित का नाही",
   "homeCardsWeeklyFamilyBody": "गेल्या 7 दिवसांत तुमच्या कुटुंबासाठी {count} गोष्टी नोंदवल्या",
@@ -659,6 +687,8 @@
   "methodologySectionDailyLimitsTitle": "दैनिक मर्यादा",
   "methodologySectionDietDescription": "सदस्याच्या आहाराशी (शाकाहारी, अंडाहारी, व्हीगन किंवा जैन) न जुळणारे घटक आम्ही शोधतो आणि पॅकवरील हिरवी किंवा तपकिरी खूण तपासतो.",
   "methodologySectionDietTitle": "आहार",
+  "methodologySectionEnergyTargetsDescription": "तुमचा दैनिक मार्गदर्शक हा एक अंदाज आहे. आम्ही वय, लिंग, उंची आणि वजन वापरून मिफ्लिन-सेंट जिओर समीकरण घेतो, त्याला हालचालीच्या पातळीने गुणतो, निवडलेल्या ध्येयासाठी हळुवार बदल करतो आणि निकालावरून प्रथिने, चरबी आणि कार्ब्स ठरवतो. किमान मर्यादा आणि गतीच्या मर्यादा नेहमी लागू असतात. प्रत्येक मूल्य डॉक्टरांच्या तपासणीसाठी प्रलंबित आहे. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+  "methodologySectionEnergyTargetsTitle": "आम्ही दैनिक मार्गदर्शक कसा ठरवतो",
   "methodologySectionHighInDescription": "एखाद्या पोषक घटकाचे प्रमाण प्रति 100 ग्रॅम किंवा 100 मि.ली. या मर्यादांइतके किंवा त्यापेक्षा जास्त असल्यास, उत्पादनात तो घटक जास्त असल्याचे दाखवले जाते.",
   "methodologySectionHighInTitle": "साखर, फॅट, संतृप्त फॅट किंवा मीठ जास्त",
   "methodologySectionHypertensionDescription": "उच्च रक्तदाब असलेल्या सदस्यांसाठी आम्ही जास्त मीठ असलेली उत्पादने दाखवतो.",
@@ -767,6 +797,28 @@
   "proteinCompareSugar": "साखर",
   "proteinGuide": "दैनिक प्रथिने मार्गदर्शक: {target} ग्रॅम, प्रति किलो {per_kg} ग्रॅमवर आधारित. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
   "@proteinGuide": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinGuideAdjusted": "दैनिक प्रथिन मार्गदर्शक: {target} ग्रॅम, समायोजित वजनाच्या प्रति किग्रॅ {per_kg} ग्रॅमवर आधारित. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+  "@proteinGuideAdjusted": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinGuideLean": "दैनिक प्रथिन मार्गदर्शक: {target} ग्रॅम, लीन मासच्या प्रति किग्रॅ {per_kg} ग्रॅमवर आधारित. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+  "@proteinGuideLean": {
     "placeholders": {
       "per_kg": {
         "type": "String"
@@ -1153,6 +1205,15 @@
   "settingsDeleteRetrying": "अजून हटवले जात आहे. पुन्हा प्रयत्न करत आहोत…",
   "settingsDeleteTitle": "खाते हटवा",
   "settingsDeleting": "तुमचे खाते हटवले जात आहे…",
+  "settingsDiaryBodyFat": "शरीरातील चरबी %",
+  "settingsDiaryNumbersHideAll": "सर्व संख्या लपवा",
+  "settingsDiaryNumbersHideEnergy": "कॅलरी लपवा",
+  "settingsDiaryNumbersHideNote": "तुम्ही तरीही जेवण नोंदवू शकता. तुमचा मार्गदर्शक पार्श्वभूमीत काम करत राहतो.",
+  "settingsDiaryNumbersShow": "संख्या दाखवा",
+  "settingsDiaryNumbersTitle": "संख्या",
+  "settingsDiaryReset": "दैनिक मार्गदर्शक रीसेट करा",
+  "settingsDiaryResetConfirm": "तुमचा दैनिक मार्गदर्शक रीसेट करायचा? तुमचा फूड लॉग तसाच राहील.",
+  "settingsDiaryTitle": "डायरी आणि दैनिक मार्गदर्शक",
   "settingsLanguageBody": "या डिव्हाइसवर SmartNutri ची भाषा निवडा.",
   "settingsLanguageSystem": "डिव्हाइसची भाषा",
   "shareButton": "शेअर करा",
@@ -1301,6 +1362,218 @@
     }
   },
   "summaryWeekNote": "ज्या दिवशी काही नोंदवले आहे, त्या प्रत्येक दिवसाच्या दैनिक मर्यादेशी आठवड्याची तुलना केली जाते.",
+  "targetsActivityLight": "हलके सक्रिय",
+  "targetsActivityLightHint": "दिवसाचा काही वेळ उभे राहणे, किंवा आठवड्यात 1 ते 3 दिवस हलका व्यायाम",
+  "targetsActivityModerate": "सक्रिय",
+  "targetsActivityModerateHint": "सक्रिय काम, किंवा आठवड्यात 3 ते 5 दिवस व्यायाम",
+  "targetsActivitySedentary": "बहुतेक बसून",
+  "targetsActivitySedentaryHint": "डेस्कवरचे काम आणि कमी चालणे",
+  "targetsActivityVery": "खूप सक्रिय",
+  "targetsActivityVeryHint": "कठीण शारीरिक काम, किंवा आठवड्यात 6 ते 7 दिवस कठीण प्रशिक्षण",
+  "targetsBodyFatHint": "तुम्हाला माहीत असल्यास, उदाहरणार्थ बॉडी-कंपोझिशन स्केलवरून, आम्ही तुमचा प्रथिन मार्गदर्शक लीन मासवर आधारित करतो. रिकामे सोडल्यास आम्ही तुमचे वजन वापरतो.",
+  "targetsBodyFatLabel": "शरीरातील चरबी % (ऐच्छिक)",
+  "targetsBodyFatOutOfRange": "कृपया {min} ते {max} दरम्यानची संख्या भरा.",
+  "@targetsBodyFatOutOfRange": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsCarbs": "कार्ब्स",
+  "targetsDirectionGain": "हळूहळू वजन वाढवा",
+  "targetsDirectionLose": "हळूहळू वजन कमी करा",
+  "targetsDirectionMaintain": "वजन तसेच ठेवा",
+  "targetsEnergy": "कॅलरी",
+  "targetsFat": "चरबी",
+  "targetsFieldActivity": "हालचालीची पातळी",
+  "targetsFieldBirthYear": "जन्म वर्ष",
+  "targetsFieldBodyFat": "शरीरातील चरबी",
+  "targetsFieldHeight": "उंची",
+  "targetsFieldSex": "लिंग",
+  "targetsFieldWeight": "वजन",
+  "targetsFlagAverageSexReference": "हा मार्गदर्शक दोन्हींच्या मधला अंदाज वापरतो.",
+  "targetsFlagCarbsBelowReference": "कार्ब्स नेहमीच्या किमान 130 ग्रॅम प्रतिदिनपेक्षा कमी आहेत. आहारतज्ज्ञ तुम्हाला ते समायोजित करण्यात मदत करू शकतात.",
+  "targetsFlagCarbsBelowReferenceHidden": "कार्ब्स नेहमीच्या किमान प्रमाणापेक्षा कमी आहेत. आहारतज्ज्ञ तुम्हाला ते समायोजित करण्यास मदत करू शकतात.",
+  "targetsFlagDeficitCapped": "आम्ही रोजचा बदल सौम्य ठेवला आहे.",
+  "targetsFlagFloorApplied": "आम्ही दररोज {value} किलोकॅलरीपेक्षा कमी सुचवत नाही. डॉक्टर किंवा आहारतज्ज्ञ तुम्हाला सल्ला देऊ शकतात.",
+  "@targetsFlagFloorApplied": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsFlagFloorAppliedHidden": "आम्ही यापेक्षा कमी सुचवत नाही. डॉक्टर किंवा आहारतज्ज्ञ तुम्हाला सल्ला देऊ शकतात.",
+  "targetsFlagFloorLimitsDeficit": "तुमची निवडलेली गती सुरक्षित किमान मर्यादेत शक्य नाही, म्हणून हा मार्गदर्शक वजन तसेच ठेवण्यासाठी आहे.",
+  "targetsFlagGoalWeightReached": "तुम्ही तुमच्या लक्ष्य वजनावर आहात. आता मार्गदर्शक वजन तसेच ठेवण्यासाठी आहे.",
+  "targetsFlagOutsideEquationAgeRange": "तुमच्या वयात हा अंदाज कमी निश्चित आहे.",
+  "targetsFlagProteinCapped": "आम्ही प्रथिने तुमच्या कॅलरीचा मध्यम वाटा ठेवली आहेत.",
+  "targetsFlagRateCapped": "आम्ही गती उपलब्ध असलेल्या सर्वात जवळच्या पर्यायावर ठेवली आहे.",
+  "targetsFlagTaperActive": "तुम्ही तुमच्या लक्ष्याच्या जवळ आहात, म्हणून गती कमी होत आहे.",
+  "targetsFlagUnderweightMaintenance": "त्याऐवजी आम्ही तुम्हाला स्थिर वजन राखण्यास मदत करू शकतो.",
+  "targetsGValue": "{value} ग्रॅम",
+  "@targetsGValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowActivity": "हालचाल गुणक: {value}",
+  "@targetsHowActivity": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowAdjustment": "तुमच्या ध्येयासाठी बदल: दररोज {value} किलोकॅलरी",
+  "@targetsHowAdjustment": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowBmr": "विश्रांतीतील अंदाजे ऊर्जा: {value} किलोकॅलरी",
+  "@targetsHowBmr": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowFloor": "आम्ही यापेक्षा कमी सुचवत नाही: दररोज {value} किलोकॅलरी",
+  "@targetsHowFloor": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowMaintenance": "वजन स्थिर ठेवण्यासाठी अंदाजे ऊर्जा: {value} किलोकॅलरी",
+  "@targetsHowMaintenance": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProtein": "प्रथिने: तुमच्या वजनाच्या ({weight} किग्रॅ) प्रति किग्रॅ {per_kg} ग्रॅम",
+  "@targetsHowProtein": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProteinAdjusted": "प्रथिने: समायोजित वजनाच्या ({weight} किग्रॅ) प्रति किग्रॅ {per_kg} ग्रॅम",
+  "@targetsHowProteinAdjusted": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProteinLean": "प्रथिने: लीन मासच्या ({weight} किग्रॅ) प्रति किग्रॅ {per_kg} ग्रॅम",
+  "@targetsHowProteinLean": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowSources": "स्रोत आणि पद्धत",
+  "targetsHowTitle": "आम्ही हे कसे काढले",
+  "targetsIntroBody": "तुमच्या माहितीवर आधारित, तुम्हाला दिशा देणारा एक अंदाज. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
+  "targetsIntroTitle": "तुमचा दैनिक मार्गदर्शक",
+  "targetsKcalValue": "{value} किलोकॅलरी",
+  "@targetsKcalValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsMinor": "दैनिक मार्गदर्शक प्रौढांसाठी आहेत. तुम्ही तरीही जेवण नोंदवू शकता.",
+  "targetsNeedsBodyData": "दैनिक मार्गदर्शक पाहण्यासाठी {fields} जोडा.",
+  "@targetsNeedsBodyData": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsPendingReview": "डॉक्टरांची तपासणी प्रलंबित",
+  "targetsPregnancyNo": "नाही",
+  "targetsPregnancyPaused": "गर्भधारणा आणि स्तनपानाच्या काळात दैनिक मार्गदर्शक थांबवलेला असतो. तुमच्या गरजांबद्दल कृपया डॉक्टरांना विचारा. तुम्ही तरीही जेवण नोंदवू शकता.",
+  "targetsPregnancyPreferNot": "सांगायचे नाही",
+  "targetsPregnancyQuestion": "तुम्ही गर्भवती आहात का किंवा स्तनपान करत आहात का?",
+  "targetsPregnancyYes": "होय",
+  "targetsProtein": "प्रथिने",
+  "targetsRateOption": "सुमारे {kg} किग्रॅ दर आठवड्याला (शरीराच्या वजनाच्या {pct}%)",
+  "@targetsRateOption": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsRateOptionPct": "दर आठवड्याला शरीराच्या वजनाच्या सुमारे {pct}%",
+  "@targetsRateOptionPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsRateTitle": "गती",
+  "targetsSave": "माझा दैनिक मार्गदर्शक जतन करा",
+  "targetsSetupCta": "तुमचा दैनिक मार्गदर्शक सेट करा",
+  "targetsSexReferenceAverage": "दोन्हींच्या मधला",
+  "targetsSexReferenceFemale": "महिलांसाठीचा अंदाज",
+  "targetsSexReferenceMale": "पुरुषांसाठीचा अंदाज",
+  "targetsSexReferenceTitle": "आम्ही कोणता अंदाज वापरावा?",
+  "targetsSkip": "वगळा, फक्त जेवण नोंदवा",
+  "targetsStepAbout": "तुमच्याबद्दल",
+  "targetsStepActivity": "हालचाल",
+  "targetsStepGoal": "तुमचे ध्येय",
+  "targetsStepGuide": "तुमचा मार्गदर्शक",
+  "targetsTargetWeight": "लक्ष्य वजन (ऐच्छिक)",
+  "targetsTargetWeightTooLow": "कृपया {min} किग्रॅ किंवा त्याहून जास्त निवडा.",
+  "@targetsTargetWeightTooLow": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsTitle": "तुमचा दैनिक मार्गदर्शक",
+  "targetsUnderweight": "त्याऐवजी आम्ही तुम्हाला स्थिर वजन राखण्यास मदत करू शकतो.",
+  "targetsUnusualConfirm": "कृपया {fields} तपासा. हे बरोबर आहे का?",
+  "@targetsUnusualConfirm": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
   "userTypesChangeLater": "तुम्ही हे प्रोफाइलमध्ये बदलू शकता",
   "userTypesConsentNeeded": "आरोग्य माहिती जतन करण्यासाठी आरोग्य डेटावर तुमची संमती आवश्यक आहे.",
   "userTypesConsentNote": "यातील काही निवडल्यास तुमच्या प्रोफाइलमध्ये माहिती जोडण्याची सूचना येऊ शकते. तुम्ही पुष्टी केली तरच आणि आरोग्य डेटासाठी तुमची संमती असेल तरच ती जतन होईल.",

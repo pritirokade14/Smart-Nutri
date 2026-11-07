@@ -98,3 +98,16 @@ export function longDateLabel(date: string, locale: string): string {
     timeZone: "UTC",
   }).format(new Date(`${date}T00:00:00Z`));
 }
+
+/**
+ * True when the member hid this nutrient's numbers (eye toggle or setting):
+ * the API sent null, and the UI says so instead of "Not enough data".
+ * Energy follows `numbers_hidden.energy`; every other nutrient `macros`.
+ */
+export function isHidden(
+  hidden: { energy: boolean; macros: boolean } | null | undefined,
+  key: NutrientKey,
+): boolean {
+  if (!hidden) return false;
+  return key === "energy_kcal" ? hidden.energy : hidden.macros;
+}

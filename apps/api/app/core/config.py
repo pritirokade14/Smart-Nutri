@@ -105,6 +105,14 @@ class Settings(BaseSettings):
     rate_limit_account_deletes_per_day: int = 5
     # m6: POST /v1/members and PATCH /v1/members/{id} together (each account, per UTC day).
     rate_limit_member_writes_per_day: int = 60
+    # Plan 10 (daily guides): settings and display writes (per account, per UTC day), and the
+    # unsaved preview behind the setup screen (per account, per UTC hour).
+    rate_limit_diary_settings_per_day: int = 30
+    rate_limit_targets_preview_per_hour: int = 120
+    # Solo only (Q9): a non-primary member gets 422 diary_member_not_enabled while this is off.
+    diary_family_enabled: bool = False
+    # Adaptive energy (slice 7) stays off until clinician sign-off; PUT refuses it while off.
+    adaptive_tdee_enabled: bool = False
     # Trusted reverse-proxy hops in front of the API (see .env.example). 0 = use socket peer.
     trusted_proxy_hops: int = Field(default=0, ge=0)
     sentry_dsn: str | None = None

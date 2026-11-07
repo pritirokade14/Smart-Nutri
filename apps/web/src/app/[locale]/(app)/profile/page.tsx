@@ -42,6 +42,18 @@ export default function ProfilePage({
         </Card>
       </section>
       <ProfileFocus />
+      <section className="space-y-3" aria-labelledby="diary-title">
+        <SectionHeader id="diary-title" title={t("settings.diary.title")} />
+        <Card>
+          <a
+            href={`/${locale}/profile/guide`}
+            data-testid="profile-guide-link"
+            className="inline-flex min-h-11 items-center text-md font-semibold text-brand-primary underline-offset-4 hover:underline"
+          >
+            {t("targets.title")}
+          </a>
+        </Card>
+      </section>
       <ConsentSettings />
       <div>
         <SignOutButton />

@@ -280,7 +280,9 @@ describe("user types (T12)", () => {
     await userEvent.click(
       within(dialog).getByRole("button", { name: en.consent.agree }),
     );
-    await waitFor(() => expect(nav.replace).toHaveBeenCalledWith("/en/home"));
+    await waitFor(() =>
+      expect(nav.replace).toHaveBeenCalledWith("/en/guide/setup?from=welcome"),
+    );
     expect(api.callsTo("PUT", "/v1/me/user-types").map((c) => c.body)).toEqual([
       { types: ["weight_loss"], follow_ups: {} },
     ]);
@@ -385,7 +387,9 @@ describe("user types (T12)", () => {
     expect(boxes.map((b) => b.checked)).toEqual([true, true, false]);
     await userEvent.click(boxes[1] as HTMLInputElement); // untick the alert
     await userEvent.click(button(en.user_types.prefill.apply));
-    await waitFor(() => expect(nav.replace).toHaveBeenCalledWith("/en/home"));
+    await waitFor(() =>
+      expect(nav.replace).toHaveBeenCalledWith("/en/guide/setup?from=welcome"),
+    );
     expect(
       api.callsTo("PATCH", `/v1/members/${PRIMARY}`).map((c) => c.body),
     ).toEqual([{ allergens: ["peanut", "milk"] }]);
@@ -430,7 +434,10 @@ describe("user types (T12)", () => {
     expect(neither.checked).toBe(true);
     // Saving with "neither" changes nothing: no members PATCH.
     await userEvent.click(button(en.user_types.prefill.apply));
-    await waitFor(() => expect(nav.replace).toHaveBeenCalledWith("/en/home"));
+    // Plan 10: weight_loss, gym and eat_better go on to the daily guide setup.
+    await waitFor(() =>
+      expect(nav.replace).toHaveBeenCalledWith("/en/guide/setup?from=welcome"),
+    );
     expect(api.calls.filter((c) => c.method === "PATCH")).toHaveLength(0);
     expect(api.callsTo("PUT", "/v1/me/user-types").map((c) => c.body)).toEqual([
       {
@@ -516,7 +523,9 @@ describe("user types (T12)", () => {
     await userEvent.click(
       within(dialog).getByRole("button", { name: en.consent.agree }),
     );
-    await waitFor(() => expect(nav.replace).toHaveBeenCalledWith("/en/home"));
+    await waitFor(() =>
+      expect(nav.replace).toHaveBeenCalledWith("/en/guide/setup?from=welcome"),
+    );
     expect(
       api.callsTo("PATCH", `/v1/members/${PRIMARY}`).map((c) => c.body),
     ).toEqual([{ custom_alerts: ["msg"] }, { custom_alerts: ["msg"] }]);

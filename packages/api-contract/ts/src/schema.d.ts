@@ -501,6 +501,100 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Targets Get
+         * @description Today's targets, computed live. A past date has no stored guide in this version, so it
+         *     returns status `none`; a future date is 422 `date_in_future`.
+         */
+        get: operations["targets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/targets/display": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Targets Display Put
+         * @description The eye toggle: change only how numbers are shown. Needs only `terms`, so hiding
+         *     numbers works even after `health_data` was withdrawn (Ruling D4). Returns only the display
+         *     fields, never the health answers in the settings. A change toward hiding is never rate
+         *     limited (hiding must not fail); other changes share the `diary_settings` bucket.
+         */
+        put: operations["targets_display_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/targets/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Targets Preview
+         * @description Targets for unsaved settings and optional unsaved body data. Nothing is saved.
+         *     `needs_body_data` is a status here, not an error.
+         */
+        post: operations["targets_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/targets/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Targets Settings Get
+         * @description The member's saved daily-guide settings, or null before setup.
+         */
+        get: operations["targets_settings_get"];
+        /**
+         * Targets Settings Put
+         * @description Validate and save the settings; returns today's targets, recomputed. Information, not
+         *     medical advice: the numbers are estimates pending clinician review.
+         */
+        put: operations["targets_settings_put"];
+        post?: never;
+        /**
+         * Targets Settings Delete
+         * @description Erase the member's daily-guide settings. Needs only `terms`: erasure is never gated.
+         */
+        delete: operations["targets_settings_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/voice/ask": {
         parameters: {
             query?: never;
@@ -648,6 +742,23 @@ export interface components {
          * @enum {string}
          */
         BetterSide: "a" | "b" | "same" | "unknown";
+        /**
+         * BodyDataIn
+         * @description Unsaved body data for a preview. A field that is SENT (even as null) overrides the
+         *     stored one; a field left out keeps the stored value.
+         */
+        BodyDataIn: {
+            /** Birth Year */
+            birth_year?: number | null;
+            /** Body Fat Pct */
+            body_fat_pct?: number | null;
+            /** Height Cm */
+            height_cm?: number | null;
+            /** Sex */
+            sex?: ("female" | "male" | "other") | null;
+            /** Weight Kg */
+            weight_kg?: number | null;
+        };
         /** Body_voice_ask */
         Body_voice_ask: {
             /**
@@ -810,6 +921,11 @@ export interface components {
              */
             kcal: number | null;
             /**
+             * Protein Basis
+             * @description Which weight protein_g_per_kg applies to: lean_mass, adjusted_weight or actual_weight (the legacy weight x g/kg rule, whenever it gives a target). Null whenever protein_target_g is null. Display only (the protein.guide_* copy)
+             */
+            protein_basis?: ("lean_mass" | "adjusted_weight" | "actual_weight") | null;
+            /**
              * Protein G Per Kg
              * @description The g per kg body weight per day the protein target was computed with (thresholds.yaml, pending clinician review), for the protein.guide copy. Null whenever protein_target_g is null. Display only; never compute a target on the client
              */
@@ -819,6 +935,11 @@ export interface components {
              * @description A target, not a limit. Adults (18+) with a weight only; null for children, adolescents, an unknown age or no weight
              */
             protein_target_g: number | null;
+            /**
+             * Protein Target Status
+             * @description null = the legacy rule applied (no goal settings, or health_data not active). Otherwise the daily-targets status; anything but `ready` means no protein target (not_available_minor, paused_pregnancy, needs_body_data)
+             */
+            protein_target_status?: ("ready" | "needs_body_data" | "not_available_minor" | "paused_pregnancy") | null;
             /** Salt G */
             salt_g: number | null;
             /** Sugar G */
@@ -837,6 +958,45 @@ export interface components {
             /** Items */
             items: number;
             totals: components["schemas"]["Totals"];
+        };
+        /**
+         * DisplayIn
+         * @description The eye toggle (Ruling D4): only these two fields change; null means unchanged.
+         */
+        DisplayIn: {
+            /** Member Id */
+            member_id?: string | null;
+            /** Numbers Display */
+            numbers_display?: ("show" | "hide_energy" | "hide_all") | null;
+            /** Summary View */
+            summary_view?: ("remaining" | "consumed") | null;
+        };
+        /**
+         * DisplayOut
+         * @description What `PUT /display` returns: only the display fields. It needs only `terms`, so it must
+         *     never carry the pregnancy answer, the target weight or the direction.
+         */
+        DisplayOut: {
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /**
+             * Numbers Display
+             * @enum {string}
+             */
+            numbers_display: "show" | "hide_energy" | "hide_all";
+            /**
+             * Summary View
+             * @enum {string}
+             */
+            summary_view: "remaining" | "consumed";
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * DraftConfirm
@@ -968,6 +1128,104 @@ export interface components {
             family_with?: ("children" | "parents" | "partner" | "others")[] | null;
             /** Gym Goal */
             gym_goal?: ("build_muscle" | "lose_fat" | "stay_fit") | null;
+        };
+        /**
+         * GoalSettingsIn
+         * @description Spec 6.1. `member_id` is optional (the primary). `rate_pct_bw_per_week` must be one of
+         *     the YAML options for the direction and is null for `maintain`; omitted means the default.
+         */
+        GoalSettingsIn: {
+            /**
+             * Activity Level
+             * @enum {string}
+             */
+            activity_level: "sedentary" | "light" | "moderate" | "very";
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "lose" | "maintain" | "gain";
+            /**
+             * Energy Mode
+             * @default formula
+             * @enum {string}
+             */
+            energy_mode: "formula" | "adaptive";
+            /** Fat Pct Energy */
+            fat_pct_energy?: number | null;
+            /** Member Id */
+            member_id?: string | null;
+            /**
+             * Numbers Display
+             * @default show
+             * @enum {string}
+             */
+            numbers_display: "show" | "hide_energy" | "hide_all";
+            /** Pregnant Or Breastfeeding */
+            pregnant_or_breastfeeding: boolean;
+            /** Rate Pct Bw Per Week */
+            rate_pct_bw_per_week?: number | null;
+            /** Sex Reference */
+            sex_reference?: ("male" | "female" | "average") | null;
+            /**
+             * Summary View
+             * @default remaining
+             * @enum {string}
+             */
+            summary_view: "remaining" | "consumed";
+            /** Target Weight Kg */
+            target_weight_kg?: number | null;
+        };
+        /** GoalSettingsOut */
+        GoalSettingsOut: {
+            /**
+             * Activity Level
+             * @enum {string}
+             */
+            activity_level: "sedentary" | "light" | "moderate" | "very";
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "lose" | "maintain" | "gain";
+            /**
+             * Energy Mode
+             * @default formula
+             * @enum {string}
+             */
+            energy_mode: "formula" | "adaptive";
+            /** Fat Pct Energy */
+            fat_pct_energy?: number | null;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /**
+             * Numbers Display
+             * @default show
+             * @enum {string}
+             */
+            numbers_display: "show" | "hide_energy" | "hide_all";
+            /** Pregnant Or Breastfeeding */
+            pregnant_or_breastfeeding: boolean;
+            /** Rate Pct Bw Per Week */
+            rate_pct_bw_per_week?: number | null;
+            /** Sex Reference */
+            sex_reference?: ("male" | "female" | "average") | null;
+            /**
+             * Summary View
+             * @default remaining
+             * @enum {string}
+             */
+            summary_view: "remaining" | "consumed";
+            /** Target Weight Kg */
+            target_weight_kg?: number | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * HealthOut
@@ -1115,6 +1373,8 @@ export interface components {
             allergens: string[];
             /** Birth Year */
             birth_year: number;
+            /** Body Fat Pct */
+            body_fat_pct?: number | null;
             /**
              * Conditions
              * @default []
@@ -1153,6 +1413,8 @@ export interface components {
             allergens: string[];
             /** Birth Year */
             birth_year: number | null;
+            /** Body Fat Pct */
+            body_fat_pct: number | null;
             /** Conditions */
             conditions: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[];
             /** Custom Alerts */
@@ -1192,12 +1454,23 @@ export interface components {
          *     `null` clears `sex`, `height_cm`, `weight_kg` and `goal`. For every other field `null`
          *     means "unchanged" (the generated Dart client sends every field, unset ones as null), so
          *     `birth_year` can never be cleared.
+         *
+         *     `body_fat_pct: null` also means "unchanged", NOT "clear" (Plan 10, Ruling D3: the Dart
+         *     client sends it as null on every unrelated edit and would wipe the value). To clear it send
+         *     `clear_body_fat_pct: true`; sending a value and the clear flag together is a 422.
          */
         MemberPatch: {
             /** Allergens */
             allergens?: string[] | null;
             /** Birth Year */
             birth_year?: number | null;
+            /** Body Fat Pct */
+            body_fat_pct?: number | null;
+            /**
+             * Clear Body Fat Pct
+             * @default false
+             */
+            clear_body_fat_pct: boolean;
             /** Conditions */
             conditions?: ("diabetes" | "prediabetes" | "pcos" | "hypertension")[] | null;
             /** Custom Alerts */
@@ -1285,6 +1558,16 @@ export interface components {
              * @description False until a person has checked the link. Clients must not present an unverified link as authoritative.
              */
             url_verified: boolean;
+        };
+        /**
+         * NumbersHidden
+         * @description Which groups of numbers the user hid (also on the meals summary, Plan 10 Task 5).
+         */
+        NumbersHidden: {
+            /** Energy */
+            energy: boolean;
+            /** Macros */
+            macros: boolean;
         };
         /**
          * NutriScoreGrade
@@ -1673,6 +1956,17 @@ export interface components {
              */
             score_label: "calculated_by_smartnutri";
         };
+        /**
+         * RateOut
+         * @description Unsigned (`direction` carries the sign), 2 dp (Ruling D12). `kg_per_week` is null under
+         *     `hide_all`: the pace shows as a percent only, so the body weight can't be worked out.
+         */
+        RateOut: {
+            /** Kg Per Week */
+            kg_per_week: number | null;
+            /** Pct Bw Per Week */
+            pct_bw_per_week: number;
+        };
         /** ReasonOut */
         ReasonOut: {
             /** Code */
@@ -1810,6 +2104,8 @@ export interface components {
              * Format: uuid
              */
             member_id: string;
+            /** @description What the member hid with the eye toggle (daily-targets settings). A hidden total is null here, never 0; bands and `incomplete` are unchanged */
+            numbers_hidden?: components["schemas"]["NumbersHidden"];
             /**
              * Pending Clinician Review
              * @default true
@@ -1833,6 +2129,134 @@ export interface components {
          * @enum {string}
          */
         SummaryPeriod: "day" | "week";
+        /**
+         * TargetsExplanation
+         * @description "How we got this". Kcal values are whole kcal, weights 1 dp (Ruling D12). Numbers are
+         *     null when hidden (Ruling D11); `protein_basis` is never hidden.
+         */
+        TargetsExplanation: {
+            /** Activity Factor */
+            activity_factor: number | null;
+            /** Adjustment Kcal */
+            adjustment_kcal: number | null;
+            /** Bmr Kcal */
+            bmr_kcal: number | null;
+            /** Body Fat Pct Used */
+            body_fat_pct_used: number | null;
+            /** Floor Kcal */
+            floor_kcal: number | null;
+            /** Ibw Kg */
+            ibw_kg: number | null;
+            /** Maintenance Kcal */
+            maintenance_kcal: number | null;
+            /**
+             * Protein Basis
+             * @enum {string}
+             */
+            protein_basis: "lean_mass" | "adjusted_weight" | "actual_weight";
+            /** Protein G Per Kg */
+            protein_g_per_kg: number | null;
+            /** Protein Reference Weight Kg */
+            protein_reference_weight_kg: number | null;
+            /** Weight Kg Used */
+            weight_kg_used: number | null;
+        };
+        /**
+         * TargetsOut
+         * @description Spec 6.1 plus `rate_options` and `unusual_fields` (Ruling D5).
+         */
+        TargetsOut: {
+            /** Basis */
+            basis: ("formula" | "adaptive") | null;
+            /** Carbs G */
+            carbs_g: number | null;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Direction */
+            direction: ("lose" | "maintain" | "gain") | null;
+            /** Energy Kcal */
+            energy_kcal: number | null;
+            explanation: components["schemas"]["TargetsExplanation"] | null;
+            /** Fat G */
+            fat_g: number | null;
+            /** Flags */
+            flags: string[];
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Missing Fields */
+            missing_fields: string[];
+            numbers_hidden: components["schemas"]["NumbersHidden"];
+            /**
+             * Pending Clinician Review
+             * @default true
+             * @constant
+             */
+            pending_clinician_review: true;
+            /** Protein G */
+            protein_g: number | null;
+            rate: components["schemas"]["RateOut"] | null;
+            /** Rate Options */
+            rate_options: components["schemas"]["RateOut"][];
+            /** Sources */
+            sources: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ready" | "needs_body_data" | "not_available_minor" | "paused_pregnancy" | "none";
+            /** Unusual Fields */
+            unusual_fields: string[];
+        };
+        /** TargetsPreviewIn */
+        TargetsPreviewIn: {
+            /**
+             * Activity Level
+             * @enum {string}
+             */
+            activity_level: "sedentary" | "light" | "moderate" | "very";
+            body?: components["schemas"]["BodyDataIn"] | null;
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "lose" | "maintain" | "gain";
+            /**
+             * Energy Mode
+             * @default formula
+             * @enum {string}
+             */
+            energy_mode: "formula" | "adaptive";
+            /** Fat Pct Energy */
+            fat_pct_energy?: number | null;
+            /** Member Id */
+            member_id?: string | null;
+            /**
+             * Numbers Display
+             * @default show
+             * @enum {string}
+             */
+            numbers_display: "show" | "hide_energy" | "hide_all";
+            /** Pregnant Or Breastfeeding */
+            pregnant_or_breastfeeding: boolean;
+            /** Rate Pct Bw Per Week */
+            rate_pct_bw_per_week?: number | null;
+            /** Sex Reference */
+            sex_reference?: ("male" | "female" | "average") | null;
+            /**
+             * Summary View
+             * @default remaining
+             * @enum {string}
+             */
+            summary_view: "remaining" | "consumed";
+            /** Target Weight Kg */
+            target_weight_kg?: number | null;
+        };
         /**
          * Totals
          * @description Sums of the KNOWN values only; see ``Summary.incomplete``. null when no meal in the
@@ -4358,6 +4782,471 @@ export interface operations {
             };
             /** @description Storage unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    targets_get: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+                /** @description Local date; default today */
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    targets_display_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    targets_preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TargetsPreviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    targets_settings_get: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalSettingsOut"] | null;
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    targets_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalSettingsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    targets_settings_delete: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };

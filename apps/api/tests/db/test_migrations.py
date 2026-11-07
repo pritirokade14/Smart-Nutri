@@ -16,20 +16,20 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert (
-            MigrationContext.configure(conn).get_current_revision()
-            == "0007_plan9_supplement_category"
-        )
+        assert MigrationContext.configure(conn).get_current_revision() == "0008_diary_goal_settings"
     engine.dispose()
 
 
 def test_single_alembic_head():
-    """Plan 9: 0006 and 0007 are chained, so there is exactly one head, 0007."""
+    """0006, 0007 and 0008 are chained, so there is exactly one head, 0008."""
     from alembic.config import Config
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(Config("alembic.ini"))
-    assert script.get_heads() == ["0007_plan9_supplement_category"]
+    assert script.get_heads() == ["0008_diary_goal_settings"]
+    assert script.get_revision("0008_diary_goal_settings").down_revision == (
+        "0007_plan9_supplement_category"
+    )
     assert script.get_revision("0007_plan9_supplement_category").down_revision == (
         "0006_plan9_user_types"
     )
@@ -106,6 +106,57 @@ def test_user_types_check_constraints(migrated):
             )
             conn.rollback()
     finally:
+        engine.dispose()
+
+
+def test_diary_goal_settings_downgrades_cleanly(migrated):
+    """Plan 10 (Ruling D1): the settings table, `members.body_fat_pct` and the unique
+    constraint come and go with 0008, and the table has forced RLS and its owner policy."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0007_plan9_supplement_category")
+        with engine.connect() as conn:
+            insp = inspect(conn)
+            assert "diary_goal_settings" not in insp.get_table_names()
+            assert "body_fat_pct" not in {c["name"] for c in insp.get_columns("members")}
+            assert "uq_members_id_account_id" not in {
+                c["name"] for c in insp.get_unique_constraints("members")
+            }
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            insp = inspect(conn)
+            assert "body_fat_pct" in {c["name"] for c in insp.get_columns("members")}
+            assert "uq_members_id_account_id" in {
+                c["name"] for c in insp.get_unique_constraints("members")
+            }
+            row = conn.execute(
+                text(
+                    "select relrowsecurity, relforcerowsecurity from pg_class "
+                    "where oid = 'public.diary_goal_settings'::regclass"
+                )
+            ).one()
+            assert tuple(row) == (True, True)
+            policies = conn.execute(
+                text(
+                    "select policyname, cmd from pg_policies "
+                    "where tablename = 'diary_goal_settings'"
+                )
+            ).all()
+            assert [tuple(p) for p in policies] == [("diary_goal_settings_owner", "ALL")]
+            for role, expected in (("anon", False), ("authenticated", True)):
+                granted = conn.execute(
+                    text("select has_table_privilege(:r, 'public.diary_goal_settings', 'SELECT')"),
+                    {"r": role},
+                ).scalar()
+                assert granted is expected, role
+            writes = conn.execute(
+                text(
+                    "select has_table_privilege('authenticated', 'public.diary_goal_settings', 'INSERT')"
+                )
+            ).scalar()
+            assert writes is False
+    finally:
+        command.upgrade(migrated, "head")
         engine.dispose()
 
 
@@ -261,7 +312,8 @@ def test_models_match_migration(migrated):
     import app.features.products.models
     import app.features.ratelimit.models
     import app.features.reports.models
-    import app.features.scans.models  # noqa: F401
+    import app.features.scans.models
+    import app.features.targets.models  # noqa: F401
     from app.db.base import Base
 
     assert set(Base.metadata.tables) == TABLES
@@ -292,6 +344,7 @@ def test_orm_class_names():
     from app.features.ratelimit.models import ExplanationCache, RateLimitCounter
     from app.features.reports.models import ProductReport
     from app.features.scans.models import Scan
+    from app.features.targets.models import DiaryGoalSettings
 
     assert {
         c.__tablename__
@@ -308,6 +361,7 @@ def test_orm_class_names():
             ProductReport,
             RateLimitCounter,
             ExplanationCache,
+            DiaryGoalSettings,
         )
     } == TABLES
 

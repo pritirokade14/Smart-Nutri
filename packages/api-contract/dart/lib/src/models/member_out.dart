@@ -18,6 +18,7 @@ class MemberOut {
   const MemberOut({
     required this.allergens,
     required this.birthYear,
+    required this.bodyFatPct,
     required this.conditions,
     required this.customAlerts,
     required this.diet,
@@ -37,6 +38,8 @@ class MemberOut {
   final List<String> allergens;
   @JsonKey(name: 'birth_year')
   final int? birthYear;
+  @JsonKey(name: 'body_fat_pct')
+  final num? bodyFatPct;
   final List<MemberOutConditions> conditions;
   @JsonKey(name: 'custom_alerts')
   final List<MemberOutCustomAlerts> customAlerts;

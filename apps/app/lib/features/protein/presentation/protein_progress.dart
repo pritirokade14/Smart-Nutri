@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
+// The generated package has no top-level library file, only src/export.dart.
+// ignore: implementation_imports
+import 'package:smartnutri_api/src/export.dart'
+    show DailyLimitsOutProteinBasis, DailyLimitsOutProteinTargetStatus;
+import '../../../shared/widgets/disclaimer_footer.dart';
 import '../../history/presentation/summary_display.dart';
 import '../../meals/domain/meal_summary.dart';
 
@@ -22,6 +27,8 @@ class ProteinProgress extends StatelessWidget {
   static const noTargetKey = Key('protein-no-target');
   static const progressKey = Key('protein-progress');
   static const guideKey = Key('protein-guide');
+  static const hiddenKey = Key('protein-hidden');
+  static const pausedKey = Key('protein-paused');
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +40,16 @@ class ProteinProgress extends StatelessWidget {
     final left = summary.proteinLeftG;
     final perKg = summary.proteinGPerKg;
     final kcal = summary.totals.kcal;
+    if (summary.macrosHidden) {
+      // The API hid the protein numbers: no value, no target, no "no data".
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SummaryNote(key: hiddenKey, text: l10n.diaryHiddenNumbers),
+          DisclaimerFooter(text: l10n.diaryDisclaimer),
+        ],
+      );
+    }
     final band = shownBand(
       SummaryNutrient.protein,
       summary.bands.protein,
@@ -87,7 +104,21 @@ class ProteinProgress extends StatelessWidget {
             key: guideKey,
             padding: const EdgeInsets.only(top: SnTokens.space2),
             child: Text(
-              l10n.proteinGuide(formatAmount(perKg), formatAmount(target)),
+              switch (summary.proteinBasis) {
+                DailyLimitsOutProteinBasis.leanMass => l10n.proteinGuideLean(
+                  formatAmount(perKg),
+                  formatAmount(target),
+                ),
+                DailyLimitsOutProteinBasis.adjustedWeight =>
+                  l10n.proteinGuideAdjusted(
+                    formatAmount(perKg),
+                    formatAmount(target),
+                  ),
+                _ => l10n.proteinGuide(
+                  formatAmount(perKg),
+                  formatAmount(target),
+                ),
+              },
               style: theme.textTheme.bodySmall?.copyWith(
                 color: c.textSecondary,
               ),
@@ -100,8 +131,14 @@ class ProteinProgress extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SummaryNote(text: l10n.proteinNoTarget),
-                if (onAddDetails != null)
+                if (summary.proteinTargetStatus ==
+                    DailyLimitsOutProteinTargetStatus.pausedPregnancy)
+                  SummaryNote(key: pausedKey, text: l10n.targetsPregnancyPaused)
+                else
+                  SummaryNote(text: l10n.proteinNoTarget),
+                if (onAddDetails != null &&
+                    summary.proteinTargetStatus !=
+                        DailyLimitsOutProteinTargetStatus.pausedPregnancy)
                   TextButton.icon(
                     icon: const Icon(Icons.edit_outlined),
                     label: Text(l10n.membersEdit),
