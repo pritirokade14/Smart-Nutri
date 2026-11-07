@@ -1257,7 +1257,7 @@
       "day": "Day"
     },
     "slots": {
-      "manage": "Manage meals",
+      "manage": "Edit meals",
       "removed": "Removed meal"
     }
   },

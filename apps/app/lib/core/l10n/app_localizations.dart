@@ -1489,7 +1489,7 @@ abstract class AppLocalizations {
   /// No description provided for @diarySlotsManage.
   ///
   /// In en, this message translates to:
-  /// **'Manage meals'**
+  /// **'Edit meals'**
   String get diarySlotsManage;
 
   /// No description provided for @diarySlotsRemoved.

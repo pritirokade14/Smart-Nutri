@@ -786,7 +786,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diarySlotSnack => 'Snacks';
 
   @override
-  String get diarySlotsManage => 'Manage meals';
+  String get diarySlotsManage => 'Edit meals';
 
   @override
   String get diarySlotsRemoved => 'Removed meal';

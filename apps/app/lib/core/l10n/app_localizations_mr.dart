@@ -790,7 +790,7 @@ class AppLocalizationsMr extends AppLocalizations {
   String get diarySlotSnack => 'स्नॅक्स';
 
   @override
-  String get diarySlotsManage => 'जेवणे व्यवस्थापित करा';
+  String get diarySlotsManage => 'जेवणे बदला';
 
   @override
   String get diarySlotsRemoved => 'काढलेले जेवण';
