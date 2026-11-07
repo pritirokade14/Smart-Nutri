@@ -307,7 +307,17 @@
     "user_type_not_selected": "Pick one of the options you chose for yourself.",
     "follow_up_without_type": "Please check your answers and try again.",
     "user_types_not_found": "Tell us what brings you to SmartNutri first.",
-    "image_quality_low": "This photo is hard to read. Please take it again."
+    "image_quality_low": "This photo is hard to read. Please take it again.",
+    "goal_not_allowed_minor": "Daily guides are for adults. You can still log food.",
+    "goal_not_allowed_underweight": "We can help you keep a steady weight instead.",
+    "target_weight_too_low": "Please choose a higher target weight.",
+    "rate_not_allowed": "That pace isn't available. Please pick one of the options shown.",
+    "fat_pct_out_of_range": "Please choose a share of calories from fat between 20% and 30%.",
+    "adaptive_not_enabled": "This option isn't available yet.",
+    "body_fat_out_of_range": "Please enter a body fat percentage between 3 and 70.",
+    "diary_member_not_enabled": "Daily guides are only available for your own profile for now.",
+    "date_in_future": "That date hasn't happened yet.",
+    "goal_settings_not_found": "Set up your daily guide first."
   },
   "scan": {
     "title": "Scan a barcode",

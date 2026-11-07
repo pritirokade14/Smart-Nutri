@@ -630,6 +630,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dietVegan => 'Vegan';
 
   @override
+  String get errorAdaptiveNotEnabled => 'This option isn\'t available yet.';
+
+  @override
   String get errorAiUnavailable =>
       'Voice answers are unavailable right now. Please try again later.';
 
@@ -652,6 +655,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthRequired => 'Please sign in.';
 
   @override
+  String get errorBodyFatOutOfRange =>
+      'Please enter a body fat percentage between 3 and 70.';
+
+  @override
   String get errorConsentRequired =>
       'To save allergies, health conditions, a goal, height or weight, please agree to health data processing first.';
 
@@ -660,8 +667,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'This consent text has been updated. Please reload and review it again.';
 
   @override
+  String get errorDateInFuture => 'That date hasn\'t happened yet.';
+
+  @override
   String get errorDeletionIncomplete =>
       'We could not finish deleting your account. Please try again; nothing you deleted will come back.';
+
+  @override
+  String get errorDiaryMemberNotEnabled =>
+      'Daily guides are only available for your own profile for now.';
 
   @override
   String get errorEatenAtOutOfRange => 'Choose a time within the last 30 days.';
@@ -675,11 +689,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Label reading is unavailable right now. Try again later or enter the details manually.';
 
   @override
+  String get errorFatPctOutOfRange =>
+      'Please choose a share of calories from fat between 20% and 30%.';
+
+  @override
   String get errorFollowUpWithoutType =>
       'Please check your answers and try again.';
 
   @override
   String get errorForbidden => 'You don\'t have access to this.';
+
+  @override
+  String get errorGoalNotAllowedMinor =>
+      'Daily guides are for adults. You can still log food.';
+
+  @override
+  String get errorGoalNotAllowedUnderweight =>
+      'We can help you keep a steady weight instead.';
+
+  @override
+  String get errorGoalSettingsNotFound => 'Set up your daily guide first.';
 
   @override
   String get errorHttpError => 'Something went wrong. Please try again.';
@@ -761,6 +790,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ve reached today\'s voice-question limit.';
 
   @override
+  String get errorRateNotAllowed =>
+      'That pace isn\'t available. Please pick one of the options shown.';
+
+  @override
   String get errorScanImageNotFound =>
       'We couldn\'t find that photo. Please take or upload it again.';
 
@@ -778,6 +811,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorStorageUnavailable =>
       'We couldn\'t handle the photo right now. Please try again in a moment.';
+
+  @override
+  String get errorTargetWeightTooLow => 'Please choose a higher target weight.';
 
   @override
   String get errorUnauthorized => 'Please sign in.';

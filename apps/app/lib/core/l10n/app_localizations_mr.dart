@@ -633,6 +633,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get dietVegan => 'व्हेगन';
 
   @override
+  String get errorAdaptiveNotEnabled => 'हा पर्याय अजून उपलब्ध नाही.';
+
+  @override
   String get errorAiUnavailable =>
       'आवाजातील उत्तरे सध्या उपलब्ध नाहीत. कृपया नंतर पुन्हा प्रयत्न करा.';
 
@@ -656,6 +659,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करा.';
 
   @override
+  String get errorBodyFatOutOfRange =>
+      'कृपया 3 ते 70 दरम्यान शरीरातील चरबीची टक्केवारी भरा.';
+
+  @override
   String get errorConsentRequired =>
       'ॲलर्जी, आरोग्य स्थिती, उद्दिष्ट, उंची किंवा वजन जतन करण्यासाठी, कृपया आधी आरोग्य डेटाच्या वापराला संमती द्या.';
 
@@ -664,8 +671,15 @@ class AppLocalizationsMr extends AppLocalizations {
       'संमतीचा मजकूर अद्ययावत झाला आहे. कृपया पुन्हा लोड करून तो पुन्हा पाहा.';
 
   @override
+  String get errorDateInFuture => 'ती तारीख अजून आलेली नाही.';
+
+  @override
   String get errorDeletionIncomplete =>
       'आम्ही तुमचे खाते पूर्णपणे हटवू शकलो नाही. कृपया पुन्हा प्रयत्न करा; जे हटले आहे ते परत येणार नाही.';
+
+  @override
+  String get errorDiaryMemberNotEnabled =>
+      'दैनिक मार्गदर्शक सध्या फक्त तुमच्या स्वतःच्या प्रोफाइलसाठी उपलब्ध आहेत.';
 
   @override
   String get errorEatenAtOutOfRange => 'गेल्या 30 दिवसांतील वेळ निवडा.';
@@ -679,11 +693,26 @@ class AppLocalizationsMr extends AppLocalizations {
       'लेबल वाचण्याची सुविधा सध्या उपलब्ध नाही. नंतर पुन्हा प्रयत्न करा किंवा माहिती स्वतः भरा.';
 
   @override
+  String get errorFatPctOutOfRange =>
+      'कृपया कॅलरीतील चरबीचा वाटा 20% ते 30% दरम्यान निवडा.';
+
+  @override
   String get errorFollowUpWithoutType =>
       'कृपया तुमची उत्तरे तपासा आणि पुन्हा प्रयत्न करा.';
 
   @override
   String get errorForbidden => 'तुम्हाला याचा प्रवेश नाही.';
+
+  @override
+  String get errorGoalNotAllowedMinor =>
+      'दैनिक मार्गदर्शक प्रौढांसाठी आहेत. तुम्ही तरीही जेवण नोंदवू शकता.';
+
+  @override
+  String get errorGoalNotAllowedUnderweight =>
+      'त्याऐवजी आम्ही तुम्हाला स्थिर वजन राखण्यास मदत करू शकतो.';
+
+  @override
+  String get errorGoalSettingsNotFound => 'आधी तुमचा दैनिक मार्गदर्शक सेट करा.';
 
   @override
   String get errorHttpError => 'काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.';
@@ -766,6 +795,10 @@ class AppLocalizationsMr extends AppLocalizations {
       'तुम्ही आजच्या आवाजाद्वारे प्रश्न विचारण्याच्या मर्यादेपर्यंत पोहोचला आहात.';
 
   @override
+  String get errorRateNotAllowed =>
+      'ती गती उपलब्ध नाही. कृपया दाखवलेल्या पर्यायांपैकी निवडा.';
+
+  @override
   String get errorScanImageNotFound =>
       'तो फोटो आम्हाला सापडला नाही. कृपया फोटो पुन्हा काढा किंवा अपलोड करा.';
 
@@ -783,6 +816,9 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get errorStorageUnavailable =>
       'आम्ही सध्या फोटो हाताळू शकलो नाही. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.';
+
+  @override
+  String get errorTargetWeightTooLow => 'कृपया जास्त लक्ष्य वजन निवडा.';
 
   @override
   String get errorUnauthorized => 'कृपया साइन इन करा.';

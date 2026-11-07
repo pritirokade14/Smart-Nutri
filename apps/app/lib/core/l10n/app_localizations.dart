@@ -1234,6 +1234,12 @@ abstract class AppLocalizations {
   /// **'Vegan'**
   String get dietVegan;
 
+  /// No description provided for @errorAdaptiveNotEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'This option isn\'t available yet.'**
+  String get errorAdaptiveNotEnabled;
+
   /// No description provided for @errorAiUnavailable.
   ///
   /// In en, this message translates to:
@@ -1270,6 +1276,12 @@ abstract class AppLocalizations {
   /// **'Please sign in.'**
   String get errorAuthRequired;
 
+  /// No description provided for @errorBodyFatOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a body fat percentage between 3 and 70.'**
+  String get errorBodyFatOutOfRange;
+
   /// No description provided for @errorConsentRequired.
   ///
   /// In en, this message translates to:
@@ -1282,11 +1294,23 @@ abstract class AppLocalizations {
   /// **'This consent text has been updated. Please reload and review it again.'**
   String get errorConsentVersionMismatch;
 
+  /// No description provided for @errorDateInFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'That date hasn\'t happened yet.'**
+  String get errorDateInFuture;
+
   /// No description provided for @errorDeletionIncomplete.
   ///
   /// In en, this message translates to:
   /// **'We could not finish deleting your account. Please try again; nothing you deleted will come back.'**
   String get errorDeletionIncomplete;
+
+  /// No description provided for @errorDiaryMemberNotEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily guides are only available for your own profile for now.'**
+  String get errorDiaryMemberNotEnabled;
 
   /// No description provided for @errorEatenAtOutOfRange.
   ///
@@ -1306,6 +1330,12 @@ abstract class AppLocalizations {
   /// **'Label reading is unavailable right now. Try again later or enter the details manually.'**
   String get errorExtractionUnavailable;
 
+  /// No description provided for @errorFatPctOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a share of calories from fat between 20% and 30%.'**
+  String get errorFatPctOutOfRange;
+
   /// No description provided for @errorFollowUpWithoutType.
   ///
   /// In en, this message translates to:
@@ -1317,6 +1347,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You don\'t have access to this.'**
   String get errorForbidden;
+
+  /// No description provided for @errorGoalNotAllowedMinor.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily guides are for adults. You can still log food.'**
+  String get errorGoalNotAllowedMinor;
+
+  /// No description provided for @errorGoalNotAllowedUnderweight.
+  ///
+  /// In en, this message translates to:
+  /// **'We can help you keep a steady weight instead.'**
+  String get errorGoalNotAllowedUnderweight;
+
+  /// No description provided for @errorGoalSettingsNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your daily guide first.'**
+  String get errorGoalSettingsNotFound;
 
   /// No description provided for @errorHttpError.
   ///
@@ -1456,6 +1504,12 @@ abstract class AppLocalizations {
   /// **'You\'ve reached today\'s voice-question limit.'**
   String get errorRateLimitedVoice;
 
+  /// No description provided for @errorRateNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'That pace isn\'t available. Please pick one of the options shown.'**
+  String get errorRateNotAllowed;
+
   /// No description provided for @errorScanImageNotFound.
   ///
   /// In en, this message translates to:
@@ -1485,6 +1539,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn\'t handle the photo right now. Please try again in a moment.'**
   String get errorStorageUnavailable;
+
+  /// No description provided for @errorTargetWeightTooLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a higher target weight.'**
+  String get errorTargetWeightTooLow;
 
   /// No description provided for @errorUnauthorized.
   ///

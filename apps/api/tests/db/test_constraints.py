@@ -97,3 +97,88 @@ async def test_scan_image_path_unique_per_account(db, two_accounts):
 async def test_scans_without_a_path_are_not_constrained(db, two_accounts):
     await _insert_scan(db, two_accounts.a, None)
     await _insert_scan(db, two_accounts.a, None)
+
+
+async def test_members_body_fat_check(db, two_accounts):
+    for bad in (2.9, 70.1):
+        with pytest.raises(IntegrityError) as exc_info:
+            await _insert_member(db, two_accounts.a, body_fat_pct=bad)
+        assert "ck_members_body_fat_pct" in str(exc_info.value)
+    for ok in (3, 70, 15.5):
+        await _insert_member(db, two_accounts.a, body_fat_pct=ok)
+    await _insert_member(db, two_accounts.a)  # null is unknown
+
+
+async def test_diary_goal_settings_composite_fk_rejects_foreign_member(db, two_accounts):
+    # Account A's row pointing at account B's member: the composite FK refuses it.
+    b_member = await db.scalar(
+        text(
+            "insert into members (account_id, name, relation) "
+            "values (:b, 'b2', 'other') returning id"
+        ),
+        {"b": two_accounts.b},
+    )
+    with pytest.raises(IntegrityError) as exc_info:
+        async with db.begin_nested():
+            await db.execute(
+                text(
+                    "insert into diary_goal_settings (member_id, account_id, direction, "
+                    "activity_level) values (:m, :a, 'lose', 'light')"
+                ),
+                {"m": b_member, "a": two_accounts.a},
+            )
+    assert "fk_diary_goal_settings_member_id_members" in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
+    ("col", "value", "constraint"),
+    [
+        ("direction", "cut", "ck_diary_goal_settings_direction"),
+        ("activity_level", "extreme", "ck_diary_goal_settings_activity_level"),
+        ("energy_mode", "magic", "ck_diary_goal_settings_energy_mode"),
+        ("numbers_display", "hide_some", "ck_diary_goal_settings_numbers_display"),
+        ("summary_view", "both", "ck_diary_goal_settings_summary_view"),
+        ("sex_reference", "x", "ck_diary_goal_settings_sex_reference"),
+        ("target_weight_kg", 1.9, "ck_diary_goal_settings_target_weight_kg"),
+        ("target_weight_kg", 300.1, "ck_diary_goal_settings_target_weight_kg"),
+    ],
+)
+async def test_diary_goal_settings_closed_sets(db, two_accounts, col, value, constraint):
+    a = two_accounts
+    member = await db.scalar(
+        text(
+            "insert into members (account_id, name, relation) values (:a, 'm2', 'other') returning id"
+        ),
+        {"a": a.a},
+    )
+    cols = {"direction": "maintain", "activity_level": "light", col: value}
+    names = ", ".join(["member_id", "account_id", *cols])
+    vals = ", ".join([":m", ":a", *(f":{c}" for c in cols)])
+    with pytest.raises(IntegrityError) as exc_info:
+        async with db.begin_nested():
+            await db.execute(
+                text(f"insert into diary_goal_settings ({names}) values ({vals})"),
+                {"m": member, "a": a.a, **cols},
+            )
+    assert constraint in str(exc_info.value)
+
+
+async def test_diary_goal_settings_defaults_and_cascade(db, two_accounts):
+    row = (
+        await db.execute(
+            text(
+                "select pregnant_or_breastfeeding, energy_mode, numbers_display, summary_view, "
+                "rate_pct_bw_per_week, created_at is not null as c from diary_goal_settings "
+                "where member_id = :m"
+            ),
+            {"m": two_accounts.seed_a.member},
+        )
+    ).one()
+    assert tuple(row) == (False, "formula", "show", "remaining", None, True)
+    # Deleting the member removes its settings (composite FK, ON DELETE CASCADE).
+    await db.execute(text("delete from members where id = :m"), {"m": two_accounts.seed_a.member})
+    n = await db.scalar(
+        text("select count(*) from diary_goal_settings where account_id = :a"),
+        {"a": two_accounts.a},
+    )
+    assert n == 0

@@ -20,6 +20,7 @@ SELECT_ONLY_FOR_USERS = {
     "product_reports",
     "products",
     "account_user_types",
+    "diary_goal_settings",
 }
 ALL_PRIVILEGES = {
     "SELECT",

@@ -52,7 +52,14 @@ ALLERGEN_MAX_LEN = 40
 BIRTH_YEAR_MIN = 1900
 
 # Health fields: writing a non-empty value needs an active `health_data` consent (P5).
-HEALTH_FIELDS: tuple[str, ...] = ("allergens", "conditions", "goal", "height_cm", "weight_kg")
+HEALTH_FIELDS: tuple[str, ...] = (
+    "allergens",
+    "conditions",
+    "goal",
+    "height_cm",
+    "weight_kg",
+    "body_fat_pct",
+)
 
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=40)]
 BirthYear = Annotated[int, Field(ge=BIRTH_YEAR_MIN)]
@@ -144,6 +151,9 @@ class MemberIn(_MemberFields):
     conditions: list[ConditionIn] = []
     custom_alerts: list[CustomAlert] = []
     goal: GoalIn | None = None
+    # Optional body fat %, 3-70 (Plan 10, Q10). No Pydantic bounds: the service returns the
+    # specific `body_fat_out_of_range` code with the limits.
+    body_fat_pct: float | None = None
 
 
 class MemberPatch(_MemberFields):
@@ -152,6 +162,10 @@ class MemberPatch(_MemberFields):
     `null` clears `sex`, `height_cm`, `weight_kg` and `goal`. For every other field `null`
     means "unchanged" (the generated Dart client sends every field, unset ones as null), so
     `birth_year` can never be cleared.
+
+    `body_fat_pct: null` also means "unchanged", NOT "clear" (Plan 10, Ruling D3: the Dart
+    client sends it as null on every unrelated edit and would wipe the value). To clear it send
+    `clear_body_fat_pct: true`; sending a value and the clear flag together is a 422.
     """
 
     name: Name | None = None
@@ -165,14 +179,20 @@ class MemberPatch(_MemberFields):
     conditions: list[ConditionIn] | None = None
     custom_alerts: list[CustomAlert] | None = None
     goal: GoalIn | None = None
+    body_fat_pct: float | None = None
+    clear_body_fat_pct: bool = False
 
     def changes(self) -> dict[str, object]:
         """The fields to write: those sent, minus nulls for fields that can't be cleared."""
-        return {
+        out = {
             field: getattr(self, field)
             for field in sorted(self.model_fields_set)
-            if field in NULLABLE_ON_PATCH or getattr(self, field) is not None
+            if field != "clear_body_fat_pct"
+            and (field in NULLABLE_ON_PATCH or getattr(self, field) is not None)
         }
+        if self.clear_body_fat_pct:
+            out["body_fat_pct"] = None
+        return out
 
 
 # PATCH fields that `null` clears. Any other field sent as null is left unchanged.
@@ -192,4 +212,5 @@ class MemberOut(BaseModel):
     conditions: list[ConditionIn]
     custom_alerts: list[CustomAlert]
     goal: GoalIn | None
+    body_fat_pct: float | None
     is_primary: bool

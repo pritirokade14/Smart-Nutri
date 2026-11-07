@@ -41,6 +41,7 @@ TABLES = {
     "explanation_cache",
     "deleted_accounts",
     "account_user_types",
+    "diary_goal_settings",
 }
 
 _ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")
@@ -303,6 +304,14 @@ async def _seed(db: AsyncConnection, label: str, product: uuid.UUID) -> Seed:
             """values (:acc, '{gym}', '{"gym_goal": "stay_fit"}'::jsonb)"""
         ),
         {"acc": ids["account"]},
+    )
+    # One goal-settings row per member (Plan 10, migration 0008); its key is the member id.
+    await db.execute(
+        text(
+            "insert into diary_goal_settings (member_id, account_id, direction, activity_level) "
+            "values (:m, :acc, 'maintain', 'light')"
+        ),
+        {"m": ids["member"], "acc": ids["account"]},
     )
     return Seed(**ids)
 

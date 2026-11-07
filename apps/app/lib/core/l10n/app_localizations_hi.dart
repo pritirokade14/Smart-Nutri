@@ -633,6 +633,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get dietVegan => 'वीगन';
 
   @override
+  String get errorAdaptiveNotEnabled => 'यह विकल्प अभी उपलब्ध नहीं है।';
+
+  @override
   String get errorAiUnavailable =>
       'आवाज़ वाले जवाब अभी उपलब्ध नहीं हैं। कृपया बाद में फिर कोशिश करें।';
 
@@ -656,6 +659,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get errorAuthRequired => 'कृपया साइन इन करें।';
 
   @override
+  String get errorBodyFatOutOfRange =>
+      'कृपया 3 से 70 के बीच शरीर में वसा प्रतिशत दर्ज करें।';
+
+  @override
   String get errorConsentRequired =>
       'एलर्जी, स्वास्थ्य स्थितियाँ, लक्ष्य, ऊँचाई या वज़न सहेजने के लिए, कृपया पहले स्वास्थ्य डेटा के उपयोग के लिए सहमति दें।';
 
@@ -664,8 +671,15 @@ class AppLocalizationsHi extends AppLocalizations {
       'सहमति का पाठ अपडेट हो गया है। कृपया पेज फिर से लोड करके उसे दोबारा देखें।';
 
   @override
+  String get errorDateInFuture => 'वह तारीख़ अभी आई नहीं है।';
+
+  @override
   String get errorDeletionIncomplete =>
       'हम आपका खाता पूरी तरह हटा नहीं सके। कृपया फिर से कोशिश करें; जो हट चुका है वह वापस नहीं आएगा।';
+
+  @override
+  String get errorDiaryMemberNotEnabled =>
+      'दैनिक गाइड अभी सिर्फ़ आपकी अपनी प्रोफ़ाइल के लिए उपलब्ध हैं।';
 
   @override
   String get errorEatenAtOutOfRange => 'पिछले 30 दिनों के भीतर का समय चुनें।';
@@ -679,11 +693,26 @@ class AppLocalizationsHi extends AppLocalizations {
       'लेबल पढ़ने की सुविधा अभी उपलब्ध नहीं है। बाद में फिर कोशिश करें या जानकारी खुद भरें।';
 
   @override
+  String get errorFatPctOutOfRange =>
+      'कृपया कैलोरी में वसा का हिस्सा 20% से 30% के बीच चुनें।';
+
+  @override
   String get errorFollowUpWithoutType =>
       'कृपया अपने जवाब जाँचें और फिर से कोशिश करें।';
 
   @override
   String get errorForbidden => 'आपके पास इसकी पहुँच नहीं है।';
+
+  @override
+  String get errorGoalNotAllowedMinor =>
+      'दैनिक गाइड वयस्कों के लिए हैं। आप फिर भी खाना दर्ज कर सकते हैं।';
+
+  @override
+  String get errorGoalNotAllowedUnderweight =>
+      'इसके बजाय हम आपको स्थिर वज़न बनाए रखने में मदद कर सकते हैं।';
+
+  @override
+  String get errorGoalSettingsNotFound => 'पहले अपनी दैनिक गाइड सेट करें।';
 
   @override
   String get errorHttpError => 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।';
@@ -764,6 +793,10 @@ class AppLocalizationsHi extends AppLocalizations {
       'आप आज की आवाज़ से प्रश्न पूछने की सीमा तक पहुँच गए हैं।';
 
   @override
+  String get errorRateNotAllowed =>
+      'वह गति उपलब्ध नहीं है। कृपया दिखाए गए विकल्पों में से चुनें।';
+
+  @override
   String get errorScanImageNotFound =>
       'वह फ़ोटो हमें नहीं मिली। कृपया फ़ोटो फिर से लें या अपलोड करें।';
 
@@ -781,6 +814,9 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get errorStorageUnavailable =>
       'हम अभी फ़ोटो संभाल नहीं पाए। कृपया थोड़ी देर बाद फिर कोशिश करें।';
+
+  @override
+  String get errorTargetWeightTooLow => 'कृपया ज़्यादा लक्ष्य वज़न चुनें।';
 
   @override
   String get errorUnauthorized => 'कृपया साइन इन करें।';

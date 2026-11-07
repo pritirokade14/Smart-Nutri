@@ -15,7 +15,8 @@ import app.features.members.models
 import app.features.products.models
 import app.features.ratelimit.models
 import app.features.reports.models
-import app.features.scans.models  # noqa: F401
+import app.features.scans.models
+import app.features.targets.models  # noqa: F401
 from alembic import context
 from app.db.base import Base
 
