@@ -58,6 +58,7 @@ class LoadedFood:
     custom_food_id: UUID | None = None
     recipe_id: UUID | None = None
     incomplete: tuple[str, ...] = ()  # a recipe's nutrients at least one ingredient lacks
+    retired: bool = False  # a dish we no longer offer: readable, but never logged anew
 
 
 def ref_from_ids(
@@ -285,6 +286,7 @@ async def load_food(
             food_id=food.id,
             product_id=None,
             off_barcode=None,
+            retired=food.review_status == "retired",
         )
 
     if ref.kind == "product":

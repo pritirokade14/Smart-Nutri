@@ -1020,6 +1020,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorFoodNotFound => 'We couldn\'t find that food.';
 
   @override
+  String get errorFoodRetired =>
+      'We no longer offer this dish, so it can\'t be added again. Your earlier entries are unchanged.';
+
+  @override
   String get errorForbidden => 'You don\'t have access to this.';
 
   @override
@@ -1140,6 +1144,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorRateNotAllowed =>
       'That pace isn\'t available. Please pick one of the options shown.';
+
+  @override
+  String get errorRecipeIngredientLimit =>
+      'A recipe can have 1 to 50 ingredients.';
 
   @override
   String get errorRecipeNotFound => 'We couldn\'t find that recipe.';

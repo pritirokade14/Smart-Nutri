@@ -1864,6 +1864,12 @@ abstract class AppLocalizations {
   /// **'We couldn\'t find that food.'**
   String get errorFoodNotFound;
 
+  /// No description provided for @errorFoodRetired.
+  ///
+  /// In en, this message translates to:
+  /// **'We no longer offer this dish, so it can\'t be added again. Your earlier entries are unchanged.'**
+  String get errorFoodRetired;
+
   /// No description provided for @errorForbidden.
   ///
   /// In en, this message translates to:
@@ -2073,6 +2079,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That pace isn\'t available. Please pick one of the options shown.'**
   String get errorRateNotAllowed;
+
+  /// No description provided for @errorRecipeIngredientLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'A recipe can have 1 to 50 ingredients.'**
+  String get errorRecipeIngredientLimit;
 
   /// No description provided for @errorRecipeNotFound.
   ///

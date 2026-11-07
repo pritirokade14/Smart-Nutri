@@ -45,6 +45,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T08:00:00+05:30",
           "food_id": null,
           "grade": null,
@@ -78,8 +79,10 @@
           "product_id": "acdb77be-ca87-5cc6-8fd7-d611dd2dc514",
           "product_name": "Big breakfast",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T08:00:00+05:30"
         }
       ],
@@ -115,6 +118,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T13:00:00+05:30",
           "food_id": null,
           "grade": null,
@@ -148,8 +152,10 @@
           "product_id": "14399703-d416-56bc-a6fc-b393339cc687",
           "product_name": "Big lunch",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T13:00:00+05:30"
         }
       ],
@@ -211,6 +217,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T21:00:00+05:30",
           "food_id": null,
           "grade": null,
@@ -244,8 +251,10 @@
           "product_id": "d019bf96-71da-5afb-b0f7-d92801ebb72b",
           "product_name": "Big dinner",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T21:00:00+05:30"
         }
       ],

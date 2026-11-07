@@ -7,8 +7,6 @@ per 100), a blank stays absent (unknown), and the stored values pass the engine'
 plausibility rules. Names and values never go to logs.
 """
 
-import base64
-import json
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
@@ -17,6 +15,7 @@ from sqlalchemy import and_, delete, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.cursor import decode_cursor, encode_cursor
 from app.core.errors import ApiError
 from app.features.custom_foods.models import CustomFood
 from app.features.custom_foods.schemas import (
@@ -300,19 +299,6 @@ async def delete_food(session: AsyncSession, account_id: UUID, food_id: UUID) ->
 
 
 # ---- list: an opaque cursor over (updated_at desc, id desc)
-
-
-def encode_cursor(updated_at: datetime, food_id: UUID) -> str:
-    raw = json.dumps({"t": updated_at.isoformat(), "i": str(food_id)}).encode()
-    return base64.urlsafe_b64encode(raw).decode()
-
-
-def decode_cursor(cursor: str) -> tuple[datetime, UUID]:
-    try:
-        data = json.loads(base64.urlsafe_b64decode(cursor.encode()))
-        return datetime.fromisoformat(data["t"]), UUID(data["i"])
-    except (ValueError, KeyError, TypeError):
-        raise ApiError("validation_error", 422, details={"fields": ["query.cursor"]}) from None
 
 
 async def list_foods(

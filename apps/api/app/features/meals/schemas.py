@@ -17,7 +17,8 @@ MAX_SERVINGS = 200.0
 Band = Literal["ok", "near", "over", "unknown"]
 
 
-SourceKind = Literal["product", "off", "food", "quick_add"]
+SourceKind = Literal["product", "off", "food", "custom_food", "recipe", "quick_add"]
+UnitSourceOut = Literal["grams", "portion", "density"]
 MAX_QUANTITY = 5000.0  # meal_logs check: 0 < quantity <= 5000 (per-unit limits: units.py)
 
 
@@ -65,6 +66,8 @@ class MealIn(BaseModel):
     product_id: UUID | None = None
     barcode: str | None = Field(default=None, max_length=64)
     food_id: UUID | None = Field(default=None, description="A generic food or Indian dish")
+    custom_food_id: UUID | None = Field(default=None, description="One of your own custom foods")
+    recipe_id: UUID | None = Field(default=None, description="One of your own recipes")
     quick: QuickIn | None = None
     grams: float | None = Field(default=None, gt=0, le=MAX_GRAMS)
     servings: float | None = Field(default=None, gt=0, le=MAX_SERVINGS)
@@ -84,7 +87,17 @@ class MealIn(BaseModel):
 
     @model_validator(mode="after")
     def _exactly_one(self) -> "MealIn":
-        refs = sum(x is not None for x in (self.product_id, self.barcode, self.food_id, self.quick))
+        refs = sum(
+            x is not None
+            for x in (
+                self.product_id,
+                self.barcode,
+                self.food_id,
+                self.custom_food_id,
+                self.recipe_id,
+                self.quick,
+            )
+        )
         if refs != 1:
             raise ApiError("invalid_product_ref", 422)
         if self.local_date is not None and self.eaten_at is not None:
@@ -216,10 +229,26 @@ class MealOut(BaseModel):
     food_id: UUID | None = Field(
         default=None, description="A generic food or Indian dish; null for other entries"
     )
+    custom_food_id: UUID | None = Field(
+        default=None,
+        description="Your custom food; null for other entries, or once it was deleted",
+    )
+    recipe_id: UUID | None = Field(
+        default=None, description="Your recipe; null for other entries, or once it was deleted"
+    )
     quantity: float | None = Field(
         default=None, description="The portion as typed (with unit); null for older entries"
     )
     unit: str | None = Field(default=None, description="The household unit; null for older entries")
+    unit_source: UnitSourceOut | None = Field(
+        default=None,
+        description=(
+            "How `grams` was worked out from the unit when logged: `grams` (exact: grams, "
+            "millilitres or a label serving), `portion` (a per-food weight, ours or the "
+            "account's own) or `density` (a volume converted through a density). Clients mark "
+            "`portion` and `density` as approximate (≈). null on older entries"
+        ),
+    )
     basis: Literal["g", "ml"] = Field(
         default="g", description="Whether `grams` and the per-100 values are per g or per ml"
     )

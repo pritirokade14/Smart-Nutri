@@ -29,6 +29,7 @@ from app.features.meals.router import router as meals_router
 from app.features.members.router import router as members_router
 from app.features.methodology.router import router as methodology_router
 from app.features.products.router import router as products_router
+from app.features.recipes.router import router as recipes_router
 from app.features.reports.router import router as reports_router
 from app.features.scans.router import router as scans_router
 from app.features.targets.router import router as targets_router
@@ -49,6 +50,7 @@ ROUTERS: list[APIRouter] = [
     diary_router,
     foods_router,
     custom_foods_router,
+    recipes_router,
     voice_router,
     methodology_router,
     reports_router,
@@ -68,6 +70,7 @@ CONSENT_GATES: dict[str, str] = {
     "/v1/diary": "diary",
     "/v1/foods": "foods",
     "/v1/custom-foods": "custom_foods",
+    "/v1/recipes": "recipes",
 }
 
 

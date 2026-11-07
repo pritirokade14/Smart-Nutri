@@ -1,0 +1,55 @@
+{
+  "name": "recipe_servings_4",
+  "servings": 4,
+  "cooked_weight_g": null,
+  "ingredients": [
+    {
+      "name": "Rice",
+      "amount": 200,
+      "basis": "g",
+      "density_g_per_ml": null,
+      "per_100": {
+        "energy_kcal": 130,
+        "sugars_g": 0.1,
+        "salt_g": 0.01,
+        "protein_g": 2.7,
+        "fat_g": 0.3,
+        "sat_fat_g": 0.1,
+        "carbs_g": 28,
+        "fibre_g": 0.4
+      }
+    },
+    {
+      "name": "Dal",
+      "amount": 100,
+      "basis": "g",
+      "density_g_per_ml": null,
+      "per_100": {
+        "energy_kcal": 116,
+        "sugars_g": 1.8,
+        "salt_g": 0.01,
+        "protein_g": 9,
+        "fat_g": 0.4,
+        "sat_fat_g": 0.1,
+        "carbs_g": 20,
+        "fibre_g": 7.9
+      }
+    },
+    {
+      "name": "Oil",
+      "amount": 20,
+      "basis": "g",
+      "density_g_per_ml": null,
+      "per_100": {
+        "energy_kcal": 884,
+        "sugars_g": 0,
+        "salt_g": 0,
+        "protein_g": 0,
+        "fat_g": 100,
+        "sat_fat_g": 14,
+        "carbs_g": 0,
+        "fibre_g": 0
+      }
+    }
+  ]
+}

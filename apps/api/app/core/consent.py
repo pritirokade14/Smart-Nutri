@@ -54,6 +54,7 @@ REQUIRED: dict[str, tuple[Purpose, ...]] = {
     "foods": ("terms",),
     # Custom foods and recipes (Plan 12 slice 4, Q13): `terms`.
     "custom_foods": ("terms",),
+    "recipes": ("terms",),
 }
 
 CONSENT_RESPONSES: dict[int | str, dict[str, Any]] = {

@@ -1025,6 +1025,10 @@ class AppLocalizationsMr extends AppLocalizations {
   String get errorFoodNotFound => 'आम्हाला तो पदार्थ सापडला नाही.';
 
   @override
+  String get errorFoodRetired =>
+      'हा पदार्थ आता उपलब्ध नाही, म्हणून तो पुन्हा जोडता येत नाही. तुमच्या आधीच्या नोंदी जशाच्या तशा राहतील.';
+
+  @override
   String get errorForbidden => 'तुम्हाला याचा प्रवेश नाही.';
 
   @override
@@ -1146,6 +1150,10 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get errorRateNotAllowed =>
       'ती गती उपलब्ध नाही. कृपया दाखवलेल्या पर्यायांपैकी निवडा.';
+
+  @override
+  String get errorRecipeIngredientLimit =>
+      'एका रेसिपीमध्ये १ ते ५० घटक असू शकतात.';
 
   @override
   String get errorRecipeNotFound => 'आम्हाला ती रेसिपी सापडली नाही.';

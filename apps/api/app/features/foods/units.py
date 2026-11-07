@@ -6,8 +6,8 @@ food's BASIS: grams, or millilitres for an ml-basis food. It follows spec 5.6, i
 1. a mass unit;
 2. ``serving`` -> the food's ``serving_g``;
 3. a portion row for this food and unit (the user's own override first, then the global row);
-4. a volume unit with a density;
-5. a volume unit on an ml-basis food.
+4. a volume unit on an ml-basis food (its amount is millilitres, so a density never applies);
+5. a volume unit with a density (a gram-basis food).
 
 Otherwise the result is ``None``: a unit with nothing to convert it by is never offered, and a
 forced request is `422 unit_grams_unknown`. The API never assumes 1 ml = 1 g and never returns
@@ -105,10 +105,12 @@ def _convert(quantity: Decimal, unit: Unit, food: FoodUnits) -> tuple[Decimal, U
     if ours is not None:
         return quantity * ours, "portion_global"
     if unit.kind == "volume" and unit.ml is not None:
+        if food.basis == "ml":
+            # The amount of an ml-basis food IS millilitres: a density must not be applied
+            # (it would turn the volume into grams and then count them as millilitres).
+            return quantity * unit.ml, "volume_basis"
         if food.density_g_per_ml:
             return quantity * unit.ml * food.density_g_per_ml, "density"
-        if food.basis == "ml":
-            return quantity * unit.ml, "volume_basis"
     return None
 
 

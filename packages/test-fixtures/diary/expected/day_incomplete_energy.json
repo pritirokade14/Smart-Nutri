@@ -45,6 +45,7 @@
           "barcode": null,
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T08:15:00+05:30",
           "food_id": null,
           "grade": null,
@@ -73,8 +74,10 @@
           "product_id": "66304445-94b5-5b80-a0de-8b15f0550d97",
           "product_name": "Muesli",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "product",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T08:15:00+05:30"
         }
       ],
@@ -112,6 +115,7 @@
           "barcode": "8900000000000",
           "basis": "g",
           "client_id": null,
+          "custom_food_id": null,
           "eaten_at": "2026-11-07T13:40:00+05:30",
           "food_id": null,
           "grade": null,
@@ -146,8 +150,10 @@
           "product_id": null,
           "product_name": "Open Food Facts namkeen",
           "quantity": null,
+          "recipe_id": null,
           "source_kind": "off",
           "unit": null,
+          "unit_source": null,
           "updated_at": "2026-11-07T13:40:00+05:30"
         }
       ],

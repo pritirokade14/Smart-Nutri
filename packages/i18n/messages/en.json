@@ -339,7 +339,9 @@
     "recipe_not_found": "We couldn't find that recipe.",
     "recipe_weight_invalid": "The recipe weight doesn't look right. Check the cooked weight.",
     "custom_food_nutrients_empty": "Add the energy, or at least one of protein, carbs or fat.",
-    "barcode_already_used": "You already have a food with this barcode."
+    "barcode_already_used": "You already have a food with this barcode.",
+    "food_retired": "We no longer offer this dish, so it can't be added again. Your earlier entries are unchanged.",
+    "recipe_ingredient_limit": "A recipe can have 1 to 50 ingredients."
   },
   "scan": {
     "title": "Scan a barcode",
