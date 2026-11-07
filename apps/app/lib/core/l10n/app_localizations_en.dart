@@ -843,6 +843,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diarySlotsResetName => 'Use the original name';
 
   @override
+  String get diarySlotsTimeEnd => 'End time';
+
+  @override
+  String get diarySlotsTimeStart => 'Start time';
+
+  @override
   String get diarySlotsTimeWindow => 'Usual time (optional)';
 
   @override

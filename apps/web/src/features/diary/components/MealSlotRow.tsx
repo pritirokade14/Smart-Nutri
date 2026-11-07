@@ -191,7 +191,7 @@ export function MealSlotRow({
           <div className="flex flex-wrap items-center gap-2">
             <input
               type="time"
-              aria-label={t("diary.slots.time_window")}
+              aria-label={t("diary.slots.time_start")}
               data-testid="meal-slot-start"
               value={start}
               onChange={(e) => setStart(e.target.value)}
@@ -200,7 +200,7 @@ export function MealSlotRow({
             <span aria-hidden="true">–</span>
             <input
               type="time"
-              aria-label={t("diary.slots.time_window")}
+              aria-label={t("diary.slots.time_end")}
               data-testid="meal-slot-end"
               value={end}
               onChange={(e) => setEnd(e.target.value)}

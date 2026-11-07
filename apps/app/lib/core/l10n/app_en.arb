@@ -405,6 +405,8 @@
   "diarySlotsRename": "Rename",
   "diarySlotsReorder": "Change order",
   "diarySlotsResetName": "Use the original name",
+  "diarySlotsTimeEnd": "End time",
+  "diarySlotsTimeStart": "Start time",
   "diarySlotsTimeWindow": "Usual time (optional)",
   "diarySlotsTimeWindowHint": "We use this to suggest a meal when you add food.",
   "diaryTargetsConsent": "To see your daily guide, allow SmartNutri to use your health details.",

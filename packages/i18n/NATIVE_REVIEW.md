@@ -294,3 +294,4 @@ All of these are machine drafts in hi and mr. The diary sits beside health numbe
 - [ ] **hi/mr `diary.slots.{add,rename,reset_name,name_hint,time_window,time_window_hint,reorder,remove,remove_note,removed_badge,limit,last_active,duplicate,pick_again}`, `settings.diary.meals`, `error.{meal_slot_last_active, meal_slot_label_duplicate}`** (Plan 11 Task 14): meal-management screen copy. `diary.slots.limit` uses `{max}`. Check "भोजन"/"जेवण" is what families call a meal slot, and that "हटाएँ"/"काढा" (remove) does not suggest the logged food is deleted (`remove_note` says it stays).
 
 - `diary.slots.move_up`, `diary.slots.move_down` (hi, mr): accessible names for the meal reorder buttons. Machine draft.
+- `diary.slots.time_start`, `diary.slots.time_end` (hi, mr): accessible names for the meal time inputs. Machine draft.

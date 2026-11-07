@@ -846,6 +846,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get diarySlotsResetName => 'मूल नाम इस्तेमाल करें';
 
   @override
+  String get diarySlotsTimeEnd => 'खत्म होने का समय';
+
+  @override
+  String get diarySlotsTimeStart => 'शुरू होने का समय';
+
+  @override
   String get diarySlotsTimeWindow => 'आम समय (वैकल्पिक)';
 
   @override

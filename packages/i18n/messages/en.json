@@ -1277,7 +1277,9 @@
       "duplicate": "You already have a meal with this name.",
       "pick_again": "That meal was removed. Please pick another meal for this item.",
       "move_up": "Move {title} up",
-      "move_down": "Move {title} down"
+      "move_down": "Move {title} down",
+      "time_start": "Start time",
+      "time_end": "End time"
     }
   },
   "foods": {

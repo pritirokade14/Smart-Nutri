@@ -1582,6 +1582,18 @@ abstract class AppLocalizations {
   /// **'Use the original name'**
   String get diarySlotsResetName;
 
+  /// No description provided for @diarySlotsTimeEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End time'**
+  String get diarySlotsTimeEnd;
+
+  /// No description provided for @diarySlotsTimeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get diarySlotsTimeStart;
+
   /// No description provided for @diarySlotsTimeWindow.
   ///
   /// In en, this message translates to:

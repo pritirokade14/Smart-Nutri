@@ -405,6 +405,8 @@
   "diarySlotsRename": "नाव बदला",
   "diarySlotsReorder": "क्रम बदला",
   "diarySlotsResetName": "मूळ नाव वापरा",
+  "diarySlotsTimeEnd": "संपण्याची वेळ",
+  "diarySlotsTimeStart": "सुरू होण्याची वेळ",
   "diarySlotsTimeWindow": "नेहमीची वेळ (ऐच्छिक)",
   "diarySlotsTimeWindowHint": "तुम्ही अन्न जोडताना आम्ही यावरून जेवण सुचवतो.",
   "diaryTargetsConsent": "तुमचा दैनिक मार्गदर्शक पाहण्यासाठी, SmartNutri ला तुमची आरोग्य माहिती वापरण्याची परवानगी द्या.",

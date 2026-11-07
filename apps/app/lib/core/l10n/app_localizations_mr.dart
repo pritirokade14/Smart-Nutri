@@ -847,6 +847,12 @@ class AppLocalizationsMr extends AppLocalizations {
   String get diarySlotsResetName => 'मूळ नाव वापरा';
 
   @override
+  String get diarySlotsTimeEnd => 'संपण्याची वेळ';
+
+  @override
+  String get diarySlotsTimeStart => 'सुरू होण्याची वेळ';
+
+  @override
   String get diarySlotsTimeWindow => 'नेहमीची वेळ (ऐच्छिक)';
 
   @override
