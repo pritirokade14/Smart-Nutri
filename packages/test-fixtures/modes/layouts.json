@@ -14,11 +14,11 @@
     },
     "weight_loss": {
       "tabs": ["home", "scan", "history", "protein", "profile"],
-      "home_cards": ["today_protein", "today_sugar_salt", "recent_scans"]
+      "home_cards": ["today_targets", "today_sugar_salt", "recent_scans"]
     },
     "gym": {
       "tabs": ["home", "scan", "protein", "compare", "profile"],
-      "home_cards": ["today_protein", "protein_swaps", "protein_claims_tip", "recent_scans"]
+      "home_cards": ["today_targets", "today_protein", "protein_swaps", "protein_claims_tip", "recent_scans"]
     },
     "allergy_diet": {
       "tabs": ["home", "scan", "family", "search", "profile"],
@@ -26,7 +26,7 @@
     },
     "eat_better": {
       "tabs": ["home", "scan", "compare", "history", "profile"],
-      "home_cards": ["custom_alerts_setup", "claims_tip", "recent_scans"]
+      "home_cards": ["today_targets", "custom_alerts_setup", "claims_tip", "recent_scans"]
     }
   }
 }

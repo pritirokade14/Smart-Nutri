@@ -1,0 +1,61 @@
+{
+  "basis": "formula",
+  "carbs_g": null,
+  "date": "2026-11-07",
+  "direction": "gain",
+  "energy_kcal": null,
+  "explanation": {
+    "activity_factor": null,
+    "adjustment_kcal": null,
+    "bmr_kcal": null,
+    "body_fat_pct_used": null,
+    "floor_kcal": null,
+    "ibw_kg": null,
+    "maintenance_kcal": null,
+    "protein_basis": "actual_weight",
+    "protein_g_per_kg": null,
+    "protein_reference_weight_kg": null,
+    "weight_kg_used": null
+  },
+  "fat_g": null,
+  "flags": [],
+  "member_id": "fdd4cd87-39ef-541a-b6d9-5488f566a54a",
+  "missing_fields": [],
+  "numbers_hidden": {
+    "energy": true,
+    "macros": true
+  },
+  "pending_clinician_review": true,
+  "protein_g": null,
+  "rate": {
+    "kg_per_week": 0.18,
+    "pct_bw_per_week": 0.25
+  },
+  "rate_options": [
+    {
+      "kg_per_week": 0.07,
+      "pct_bw_per_week": 0.1
+    },
+    {
+      "kg_per_week": 0.18,
+      "pct_bw_per_week": 0.25
+    },
+    {
+      "kg_per_week": 0.35,
+      "pct_bw_per_week": 0.5
+    }
+  ],
+  "sources": [
+    "mifflin_1990",
+    "cdc_weight_loss",
+    "iom_2005_dri",
+    "issn_protein_2017",
+    "morton_2018",
+    "icmr_nin_2024",
+    "who_protein_2007",
+    "devine_1974",
+    "smartnutri_working_values"
+  ],
+  "status": "ready",
+  "unusual_fields": []
+}

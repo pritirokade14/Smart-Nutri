@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "body_fat_out_of_range",
+    "details": {
+      "max": 70,
+      "min": 3
+    }
+  }
+}

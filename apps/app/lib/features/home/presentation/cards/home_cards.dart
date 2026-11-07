@@ -42,6 +42,8 @@ class HomeCards extends ConsumerWidget {
     return switch (card) {
       'allergy_check' => const AllergyCheckCard(),
       'today_sugar_salt' => const TodaySugarSaltCard(),
+      // Rendered by Task 8 (Plan 10); nothing until then.
+      'today_targets' => const SizedBox.shrink(),
       'today_protein' => const TodayProteinCard(),
       'protein_swaps' => HomeCardFrame(
         title: l10n.homeCardsProteinSwapsTitle,

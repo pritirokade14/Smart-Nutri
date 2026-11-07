@@ -304,6 +304,78 @@
         "title": "BetterSide",
         "type": "string"
       },
+      "BodyDataIn": {
+        "description": "Unsaved body data for a preview. A field that is SENT (even as null) overrides the\nstored one; a field left out keeps the stored value.",
+        "properties": {
+          "birth_year": {
+            "anyOf": [
+              {
+                "minimum": 1900.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birth Year"
+          },
+          "body_fat_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Fat Pct"
+          },
+          "height_cm": {
+            "anyOf": [
+              {
+                "maximum": 250.0,
+                "minimum": 30.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height Cm"
+          },
+          "sex": {
+            "anyOf": [
+              {
+                "enum": [
+                  "female",
+                  "male",
+                  "other"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sex"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "maximum": 300.0,
+                "minimum": 2.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          }
+        },
+        "title": "BodyDataIn",
+        "type": "object"
+      },
       "Body_voice_ask": {
         "properties": {
           "audio": {
@@ -741,6 +813,23 @@
             "description": "Always null in v1 (no personal energy target)",
             "title": "Kcal"
           },
+          "protein_basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "lean_mass",
+                  "adjusted_weight",
+                  "actual_weight"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Which weight protein_g_per_kg applies to: lean_mass, adjusted_weight or actual_weight (the legacy weight x g/kg rule, whenever it gives a target). Null whenever protein_target_g is null. Display only (the protein.guide_* copy)",
+            "title": "Protein Basis"
+          },
           "protein_g_per_kg": {
             "anyOf": [
               {
@@ -764,6 +853,24 @@
             ],
             "description": "A target, not a limit. Adults (18+) with a weight only; null for children, adolescents, an unknown age or no weight",
             "title": "Protein Target G"
+          },
+          "protein_target_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ready",
+                  "needs_body_data",
+                  "not_available_minor",
+                  "paused_pregnancy"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null = the legacy rule applied (no goal settings, or health_data not active). Otherwise the daily-targets status; anything but `ready` means no protein target (not_available_minor, paused_pregnancy, needs_body_data)",
+            "title": "Protein Target Status"
           },
           "salt_g": {
             "anyOf": [
@@ -828,6 +935,56 @@
           "bands"
         ],
         "title": "DaySummary",
+        "type": "object"
+      },
+      "DisplayIn": {
+        "description": "The eye toggle (Ruling D4): only these two fields change; null means unchanged.",
+        "properties": {
+          "member_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
+          "numbers_display": {
+            "anyOf": [
+              {
+                "enum": [
+                  "show",
+                  "hide_energy",
+                  "hide_all"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numbers Display"
+          },
+          "summary_view": {
+            "anyOf": [
+              {
+                "enum": [
+                  "remaining",
+                  "consumed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary View"
+          }
+        },
+        "title": "DisplayIn",
         "type": "object"
       },
       "DraftConfirm": {
@@ -1246,6 +1403,257 @@
         "title": "FollowUps",
         "type": "object"
       },
+      "GoalSettingsIn": {
+        "description": "Spec 6.1. `member_id` is optional (the primary). `rate_pct_bw_per_week` must be one of\nthe YAML options for the direction and is null for `maintain`; omitted means the default.",
+        "properties": {
+          "activity_level": {
+            "enum": [
+              "sedentary",
+              "light",
+              "moderate",
+              "very"
+            ],
+            "title": "Activity Level",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "lose",
+              "maintain",
+              "gain"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "energy_mode": {
+            "default": "formula",
+            "enum": [
+              "formula",
+              "adaptive"
+            ],
+            "title": "Energy Mode",
+            "type": "string"
+          },
+          "fat_pct_energy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fat Pct Energy"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
+          "numbers_display": {
+            "default": "show",
+            "enum": [
+              "show",
+              "hide_energy",
+              "hide_all"
+            ],
+            "title": "Numbers Display",
+            "type": "string"
+          },
+          "pregnant_or_breastfeeding": {
+            "title": "Pregnant Or Breastfeeding",
+            "type": "boolean"
+          },
+          "rate_pct_bw_per_week": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Pct Bw Per Week"
+          },
+          "sex_reference": {
+            "anyOf": [
+              {
+                "enum": [
+                  "male",
+                  "female",
+                  "average"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sex Reference"
+          },
+          "summary_view": {
+            "default": "remaining",
+            "enum": [
+              "remaining",
+              "consumed"
+            ],
+            "title": "Summary View",
+            "type": "string"
+          },
+          "target_weight_kg": {
+            "anyOf": [
+              {
+                "maximum": 300.0,
+                "minimum": 2.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Weight Kg"
+          }
+        },
+        "required": [
+          "direction",
+          "activity_level",
+          "pregnant_or_breastfeeding"
+        ],
+        "title": "GoalSettingsIn",
+        "type": "object"
+      },
+      "GoalSettingsOut": {
+        "properties": {
+          "activity_level": {
+            "enum": [
+              "sedentary",
+              "light",
+              "moderate",
+              "very"
+            ],
+            "title": "Activity Level",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "lose",
+              "maintain",
+              "gain"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "energy_mode": {
+            "default": "formula",
+            "enum": [
+              "formula",
+              "adaptive"
+            ],
+            "title": "Energy Mode",
+            "type": "string"
+          },
+          "fat_pct_energy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fat Pct Energy"
+          },
+          "member_id": {
+            "format": "uuid",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "numbers_display": {
+            "default": "show",
+            "enum": [
+              "show",
+              "hide_energy",
+              "hide_all"
+            ],
+            "title": "Numbers Display",
+            "type": "string"
+          },
+          "pregnant_or_breastfeeding": {
+            "title": "Pregnant Or Breastfeeding",
+            "type": "boolean"
+          },
+          "rate_pct_bw_per_week": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Pct Bw Per Week"
+          },
+          "sex_reference": {
+            "anyOf": [
+              {
+                "enum": [
+                  "male",
+                  "female",
+                  "average"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sex Reference"
+          },
+          "summary_view": {
+            "default": "remaining",
+            "enum": [
+              "remaining",
+              "consumed"
+            ],
+            "title": "Summary View",
+            "type": "string"
+          },
+          "target_weight_kg": {
+            "anyOf": [
+              {
+                "maximum": 300.0,
+                "minimum": 2.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Weight Kg"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "member_id",
+          "direction",
+          "activity_level",
+          "pregnant_or_breastfeeding",
+          "updated_at"
+        ],
+        "title": "GoalSettingsOut",
+        "type": "object"
+      },
       "HealthOut": {
         "description": "`ok`/`ok` (200); `degraded`/`error` when the database is unreachable (503);\n`unavailable`/`schema_behind` when its Alembic revision is not this build's head (503).",
         "properties": {
@@ -1596,6 +2004,17 @@
             "title": "Birth Year",
             "type": "integer"
           },
+          "body_fat_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Fat Pct"
+          },
           "conditions": {
             "default": [],
             "items": {
@@ -1741,6 +2160,17 @@
             ],
             "title": "Birth Year"
           },
+          "body_fat_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Fat Pct"
+          },
           "conditions": {
             "items": {
               "enum": [
@@ -1872,13 +2302,14 @@
           "conditions",
           "custom_alerts",
           "goal",
+          "body_fat_pct",
           "is_primary"
         ],
         "title": "MemberOut",
         "type": "object"
       },
       "MemberPatch": {
-        "description": "Change only the fields sent. `relation` can't become `self`, or change on the primary.\n\n`null` clears `sex`, `height_cm`, `weight_kg` and `goal`. For every other field `null`\nmeans \"unchanged\" (the generated Dart client sends every field, unset ones as null), so\n`birth_year` can never be cleared.",
+        "description": "Change only the fields sent. `relation` can't become `self`, or change on the primary.\n\n`null` clears `sex`, `height_cm`, `weight_kg` and `goal`. For every other field `null`\nmeans \"unchanged\" (the generated Dart client sends every field, unset ones as null), so\n`birth_year` can never be cleared.\n\n`body_fat_pct: null` also means \"unchanged\", NOT \"clear\" (Plan 10, Ruling D3: the Dart\nclient sends it as null on every unrelated edit and would wipe the value). To clear it send\n`clear_body_fat_pct: true`; sending a value and the clear flag together is a 422.",
         "properties": {
           "allergens": {
             "anyOf": [
@@ -1906,6 +2337,22 @@
               }
             ],
             "title": "Birth Year"
+          },
+          "body_fat_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Fat Pct"
+          },
+          "clear_body_fat_pct": {
+            "default": false,
+            "title": "Clear Body Fat Pct",
+            "type": "boolean"
           },
           "conditions": {
             "anyOf": [
@@ -2207,6 +2654,25 @@
           "url_verified"
         ],
         "title": "MethodologySource",
+        "type": "object"
+      },
+      "NumbersHidden": {
+        "description": "Which groups of numbers the user hid (also on the meals summary, Plan 10 Task 5).",
+        "properties": {
+          "energy": {
+            "title": "Energy",
+            "type": "boolean"
+          },
+          "macros": {
+            "title": "Macros",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "energy",
+          "macros"
+        ],
+        "title": "NumbersHidden",
         "type": "object"
       },
       "NutriScoreGrade": {
@@ -3259,6 +3725,25 @@
         "title": "PublicProductOut",
         "type": "object"
       },
+      "RateOut": {
+        "description": "Unsigned (`direction` carries the sign), 2 dp (Ruling D12).",
+        "properties": {
+          "kg_per_week": {
+            "title": "Kg Per Week",
+            "type": "number"
+          },
+          "pct_bw_per_week": {
+            "title": "Pct Bw Per Week",
+            "type": "number"
+          }
+        },
+        "required": [
+          "pct_bw_per_week",
+          "kg_per_week"
+        ],
+        "title": "RateOut",
+        "type": "object"
+      },
       "ReasonOut": {
         "properties": {
           "code": {
@@ -3562,6 +4047,10 @@
             "title": "Member Id",
             "type": "string"
           },
+          "numbers_hidden": {
+            "$ref": "#/components/schemas/NumbersHidden",
+            "description": "What the member hid with the eye toggle (daily-targets settings). A hidden total is null here, never 0; bands and `incomplete` are unchanged"
+          },
           "pending_clinician_review": {
             "default": true,
             "title": "Pending Clinician Review",
@@ -3613,6 +4102,466 @@
         ],
         "title": "SummaryPeriod",
         "type": "string"
+      },
+      "TargetsExplanation": {
+        "description": "\"How we got this\". Kcal values are whole kcal, weights 1 dp (Ruling D12). Numbers are\nnull when hidden (Ruling D11); `protein_basis` is never hidden.",
+        "properties": {
+          "activity_factor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Factor"
+          },
+          "adjustment_kcal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjustment Kcal"
+          },
+          "bmr_kcal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bmr Kcal"
+          },
+          "body_fat_pct_used": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Fat Pct Used"
+          },
+          "floor_kcal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Floor Kcal"
+          },
+          "ibw_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ibw Kg"
+          },
+          "maintenance_kcal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Kcal"
+          },
+          "protein_basis": {
+            "enum": [
+              "lean_mass",
+              "adjusted_weight",
+              "actual_weight"
+            ],
+            "title": "Protein Basis",
+            "type": "string"
+          },
+          "protein_g_per_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protein G Per Kg"
+          },
+          "protein_reference_weight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protein Reference Weight Kg"
+          },
+          "weight_kg_used": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg Used"
+          }
+        },
+        "required": [
+          "bmr_kcal",
+          "activity_factor",
+          "maintenance_kcal",
+          "adjustment_kcal",
+          "weight_kg_used",
+          "protein_basis",
+          "protein_g_per_kg",
+          "protein_reference_weight_kg",
+          "body_fat_pct_used",
+          "ibw_kg",
+          "floor_kcal"
+        ],
+        "title": "TargetsExplanation",
+        "type": "object"
+      },
+      "TargetsOut": {
+        "description": "Spec 6.1 plus `rate_options` and `unusual_fields` (Ruling D5).",
+        "properties": {
+          "basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "formula",
+                  "adaptive"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis"
+          },
+          "carbs_g": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carbs G"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "enum": [
+                  "lose",
+                  "maintain",
+                  "gain"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direction"
+          },
+          "energy_kcal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Kcal"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TargetsExplanation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fat_g": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fat G"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "member_id": {
+            "format": "uuid",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "missing_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Fields",
+            "type": "array"
+          },
+          "numbers_hidden": {
+            "$ref": "#/components/schemas/NumbersHidden"
+          },
+          "pending_clinician_review": {
+            "const": true,
+            "default": true,
+            "title": "Pending Clinician Review",
+            "type": "boolean"
+          },
+          "protein_g": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protein G"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RateOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rate_options": {
+            "items": {
+              "$ref": "#/components/schemas/RateOut"
+            },
+            "title": "Rate Options",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "needs_body_data",
+              "not_available_minor",
+              "paused_pregnancy",
+              "none"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "unusual_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unusual Fields",
+            "type": "array"
+          }
+        },
+        "required": [
+          "member_id",
+          "date",
+          "status",
+          "missing_fields",
+          "energy_kcal",
+          "protein_g",
+          "fat_g",
+          "carbs_g",
+          "basis",
+          "direction",
+          "rate",
+          "rate_options",
+          "explanation",
+          "flags",
+          "unusual_fields",
+          "numbers_hidden",
+          "sources"
+        ],
+        "title": "TargetsOut",
+        "type": "object"
+      },
+      "TargetsPreviewIn": {
+        "properties": {
+          "activity_level": {
+            "enum": [
+              "sedentary",
+              "light",
+              "moderate",
+              "very"
+            ],
+            "title": "Activity Level",
+            "type": "string"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BodyDataIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "direction": {
+            "enum": [
+              "lose",
+              "maintain",
+              "gain"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "energy_mode": {
+            "default": "formula",
+            "enum": [
+              "formula",
+              "adaptive"
+            ],
+            "title": "Energy Mode",
+            "type": "string"
+          },
+          "fat_pct_energy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fat Pct Energy"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
+          "numbers_display": {
+            "default": "show",
+            "enum": [
+              "show",
+              "hide_energy",
+              "hide_all"
+            ],
+            "title": "Numbers Display",
+            "type": "string"
+          },
+          "pregnant_or_breastfeeding": {
+            "title": "Pregnant Or Breastfeeding",
+            "type": "boolean"
+          },
+          "rate_pct_bw_per_week": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Pct Bw Per Week"
+          },
+          "sex_reference": {
+            "anyOf": [
+              {
+                "enum": [
+                  "male",
+                  "female",
+                  "average"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sex Reference"
+          },
+          "summary_view": {
+            "default": "remaining",
+            "enum": [
+              "remaining",
+              "consumed"
+            ],
+            "title": "Summary View",
+            "type": "string"
+          },
+          "target_weight_kg": {
+            "anyOf": [
+              {
+                "maximum": 300.0,
+                "minimum": 2.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Weight Kg"
+          }
+        },
+        "required": [
+          "direction",
+          "activity_level",
+          "pregnant_or_breastfeeding"
+        ],
+        "title": "TargetsPreviewIn",
+        "type": "object"
       },
       "Totals": {
         "description": "Sums of the KNOWN values only; see ``Summary.incomplete``. null when no meal in the\nperiod has a value for that nutrient (also when nothing was logged): never shown as 0.",
@@ -7155,6 +8104,637 @@
         "summary": "Scans Create Upload Url",
         "tags": [
           "scans"
+        ]
+      }
+    },
+    "/v1/targets": {
+      "get": {
+        "description": "Today's targets, computed live. A past date has no stored guide in this version, so it\nreturns status `none`; a future date is 422 `date_in_future`.",
+        "operationId": "targets_get",
+        "parameters": [
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          },
+          {
+            "description": "Local date; default today",
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Local date; default today",
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TargetsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Targets Get",
+        "tags": [
+          "targets"
+        ]
+      }
+    },
+    "/v1/targets/display": {
+      "put": {
+        "description": "The eye toggle: change only how numbers are shown. Needs only `terms`, so hiding\nnumbers works even after `health_data` was withdrawn (Ruling D4).",
+        "operationId": "targets_display_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisplayIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalSettingsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Targets Display Put",
+        "tags": [
+          "targets"
+        ]
+      }
+    },
+    "/v1/targets/preview": {
+      "post": {
+        "description": "Targets for unsaved settings and optional unsaved body data. Nothing is saved.\n`needs_body_data` is a status here, not an error.",
+        "operationId": "targets_preview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TargetsPreviewIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TargetsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Targets Preview",
+        "tags": [
+          "targets"
+        ]
+      }
+    },
+    "/v1/targets/settings": {
+      "delete": {
+        "description": "Erase the member's daily-guide settings. Needs only `terms`: erasure is never gated.",
+        "operationId": "targets_settings_delete",
+        "parameters": [
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Targets Settings Delete",
+        "tags": [
+          "targets"
+        ]
+      },
+      "get": {
+        "description": "The member's saved daily-guide settings, or null before setup.",
+        "operationId": "targets_settings_get",
+        "parameters": [
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/GoalSettingsOut"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Targets Settings Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Targets Settings Get",
+        "tags": [
+          "targets"
+        ]
+      },
+      "put": {
+        "description": "Validate and save the settings; returns today's targets, recomputed. Information, not\nmedical advice: the numbers are estimates pending clinician review.",
+        "operationId": "targets_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalSettingsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TargetsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Targets Settings Put",
+        "tags": [
+          "targets"
         ]
       }
     },

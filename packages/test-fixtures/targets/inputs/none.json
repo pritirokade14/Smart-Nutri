@@ -1,0 +1,13 @@
+{
+  "as_of": "2026-11-07",
+  "stored": true,
+  "body": {
+    "age": 28,
+    "sex": "male",
+    "height_cm": 175,
+    "weight_kg": 70,
+    "body_fat_pct": null,
+    "goal": "build_muscle"
+  },
+  "settings": null
+}

@@ -278,7 +278,10 @@ export function toPatch(
   stored?: MemberOut,
 ): MemberPatch {
   const { relation, ...rest } = body;
-  const patch: MemberPatch = isPrimary ? rest : { ...rest, relation };
+  // `clear_body_fat_pct: false` always: a null body fat means "unchanged" (Plan 10, Ruling D3).
+  const patch: MemberPatch = isPrimary
+    ? { ...rest, clear_body_fat_pct: false }
+    : { ...rest, relation, clear_body_fat_pct: false };
   if (!(DIETS as readonly string[]).includes(body.diet)) patch.diet = null;
   if (stored && unknownIn(stored.conditions, CONDITIONS))
     patch.conditions = null;

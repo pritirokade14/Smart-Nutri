@@ -266,6 +266,23 @@
   "consentUpdateNote": "We've updated this text. Please read it and agree again.",
   "consentUpdatesBanner": "We've updated some consent texts. Please review them.",
   "consentWithdraw": "Withdraw consent",
+  "diaryDisclaimer": "Information, not medical advice. Daily guides are estimates and are pending clinician review.",
+  "diaryEyeHide": "Hide numbers",
+  "diaryEyeShow": "Show numbers",
+  "diaryHiddenNumbers": "Numbers are hidden. You can change this in settings.",
+  "diaryIncomplete": "Some items don't show this value, so the real total may be higher.",
+  "diaryOfTarget": "{eaten} of {target}",
+  "@diaryOfTarget": {
+    "placeholders": {
+      "eaten": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryTargetsConsent": "To see your daily guide, allow SmartNutri to use your health details.",
   "dietEggetarian": "Eggetarian",
   "dietJain": "Jain",
   "dietNonVeg": "Non-vegetarian",
@@ -414,6 +431,7 @@
   "homeCardsRecentScansTitle": "Recent scans",
   "homeCardsTodayProteinTitle": "Today: protein",
   "homeCardsTodaySugarSaltTitle": "Today: sugar and salt",
+  "homeCardsTodayTargetsTitle": "Today",
   "homeCardsUnknownExplainerBody": "When a label is missing ingredients or is hard to read, we can't check it. We never show that as safe.",
   "homeCardsUnknownExplainerTitle": "Why \"unknown\" is not safe",
   "homeCardsWeeklyFamilyBody": "{count} items logged for your family in the last 7 days",
@@ -779,6 +797,28 @@
   "proteinCompareSugar": "Sugars",
   "proteinGuide": "Daily protein guide: {target} g, based on {per_kg} g per kg. Information, not medical advice.",
   "@proteinGuide": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinGuideAdjusted": "Daily protein guide: {target} g, based on {per_kg} g per kg of an adjusted weight. Information, not medical advice.",
+  "@proteinGuideAdjusted": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinGuideLean": "Daily protein guide: {target} g, based on {per_kg} g per kg of lean mass. Information, not medical advice.",
+  "@proteinGuideLean": {
     "placeholders": {
       "per_kg": {
         "type": "String"
@@ -1165,6 +1205,15 @@
   "settingsDeleteRetrying": "Still deleting. Trying again…",
   "settingsDeleteTitle": "Delete account",
   "settingsDeleting": "Deleting your account…",
+  "settingsDiaryBodyFat": "Body fat %",
+  "settingsDiaryNumbersHideAll": "Hide all numbers",
+  "settingsDiaryNumbersHideEnergy": "Hide calories",
+  "settingsDiaryNumbersHideNote": "You can still log food. Your guide keeps working in the background.",
+  "settingsDiaryNumbersShow": "Show numbers",
+  "settingsDiaryNumbersTitle": "Numbers",
+  "settingsDiaryReset": "Reset daily guide",
+  "settingsDiaryResetConfirm": "Reset your daily guide? Your food log stays.",
+  "settingsDiaryTitle": "Diary and daily guide",
   "settingsLanguageBody": "Choose the language for SmartNutri on this device.",
   "settingsLanguageSystem": "Device language",
   "shareButton": "Share",
@@ -1313,6 +1362,203 @@
     }
   },
   "summaryWeekNote": "The week is compared with the daily limit for each day something was logged.",
+  "targetsActivityLight": "Lightly active",
+  "targetsActivityLightHint": "On your feet part of the day, or light exercise 1 to 3 days a week",
+  "targetsActivityModerate": "Active",
+  "targetsActivityModerateHint": "An active job, or exercise 3 to 5 days a week",
+  "targetsActivitySedentary": "Mostly sitting",
+  "targetsActivitySedentaryHint": "Desk work and little walking",
+  "targetsActivityVery": "Very active",
+  "targetsActivityVeryHint": "Hard physical work, or hard training 6 to 7 days a week",
+  "targetsBodyFatHint": "If you know it, for example from a body-composition scale, we base your protein guide on lean mass. If you leave it blank, we use your weight.",
+  "targetsBodyFatLabel": "Body fat % (optional)",
+  "targetsBodyFatOutOfRange": "Please enter a number between {min} and {max}.",
+  "@targetsBodyFatOutOfRange": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsCarbs": "Carbs",
+  "targetsDirectionGain": "Gain slowly",
+  "targetsDirectionLose": "Lose weight slowly",
+  "targetsDirectionMaintain": "Stay the same",
+  "targetsEnergy": "Calories",
+  "targetsFat": "Fat",
+  "targetsFlagAverageSexReference": "This guide uses an in-between estimate.",
+  "targetsFlagCarbsBelowReference": "Carbs are below the usual minimum of 130 g a day. A dietitian can help you adjust.",
+  "targetsFlagDeficitCapped": "We've kept the daily change to a gentle amount.",
+  "targetsFlagFloorApplied": "We don't suggest going below {value} kcal a day. A doctor or dietitian can advise you.",
+  "@targetsFlagFloorApplied": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsFlagFloorAppliedHidden": "We don't suggest going lower than this. A doctor or dietitian can advise you.",
+  "targetsFlagFloorLimitsDeficit": "Your chosen pace isn't possible within a safe minimum, so this guide is for staying the same.",
+  "targetsFlagGoalWeightReached": "You're at your target weight. The guide is now for staying the same.",
+  "targetsFlagOutsideEquationAgeRange": "This estimate is less certain at your age.",
+  "targetsFlagProteinCapped": "We've kept protein to a moderate share of your calories.",
+  "targetsFlagRateCapped": "We've set the pace to the safest option we offer.",
+  "targetsFlagTaperActive": "You're close to your target, so the pace is easing off.",
+  "targetsFlagUnderweightMaintenance": "We can help you keep a steady weight instead.",
+  "targetsGValue": "{value} g",
+  "@targetsGValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowActivity": "Activity factor: {value}",
+  "@targetsHowActivity": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowAdjustment": "Change for your goal: {value} kcal a day",
+  "@targetsHowAdjustment": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowBmr": "Estimated energy at rest: {value} kcal",
+  "@targetsHowBmr": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowFloor": "Lowest we suggest: {value} kcal a day",
+  "@targetsHowFloor": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowMaintenance": "Estimated energy to stay the same: {value} kcal",
+  "@targetsHowMaintenance": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProtein": "Protein: {per_kg} g per kg of your weight ({weight} kg)",
+  "@targetsHowProtein": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProteinAdjusted": "Protein: {per_kg} g per kg of an adjusted weight ({weight} kg)",
+  "@targetsHowProteinAdjusted": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProteinLean": "Protein: {per_kg} g per kg of lean mass ({weight} kg)",
+  "@targetsHowProteinLean": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowSources": "Sources and method",
+  "targetsHowTitle": "How we got this",
+  "targetsIntroBody": "An estimate to guide you, based on your details. Information, not medical advice.",
+  "targetsIntroTitle": "Your daily guide",
+  "targetsKcalValue": "{value} kcal",
+  "@targetsKcalValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsMinor": "Daily guides are for adults. You can still log food.",
+  "targetsNeedsBodyData": "Add {fields} to see a daily guide.",
+  "@targetsNeedsBodyData": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsPendingReview": "Pending clinician review",
+  "targetsPregnancyNo": "No",
+  "targetsPregnancyPaused": "Daily guides are paused during pregnancy and breastfeeding. Please ask your doctor about your needs. You can still log food.",
+  "targetsPregnancyPreferNot": "Prefer not to say",
+  "targetsPregnancyQuestion": "Are you pregnant or breastfeeding?",
+  "targetsPregnancyYes": "Yes",
+  "targetsProtein": "Protein",
+  "targetsRateOption": "About {kg} kg a week ({pct}% of body weight)",
+  "@targetsRateOption": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsRateTitle": "Pace",
+  "targetsSave": "Save my daily guide",
+  "targetsSetupCta": "Set up your daily guide",
+  "targetsSexReferenceAverage": "In between",
+  "targetsSexReferenceFemale": "Female estimate",
+  "targetsSexReferenceMale": "Male estimate",
+  "targetsSexReferenceTitle": "Which estimate should we use?",
+  "targetsSkip": "Skip, just log food",
+  "targetsStepAbout": "About you",
+  "targetsStepActivity": "Activity",
+  "targetsStepGoal": "Your goal",
+  "targetsStepGuide": "Your guide",
+  "targetsTargetWeight": "Target weight (optional)",
+  "targetsTargetWeightTooLow": "Please choose {min} kg or more.",
+  "@targetsTargetWeightTooLow": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsTitle": "Your daily guide",
+  "targetsUnderweight": "We can help you keep a steady weight instead.",
+  "targetsUnusualConfirm": "Please check {fields}. Is this right?",
+  "@targetsUnusualConfirm": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
   "userTypesChangeLater": "You can change this in Profile",
   "userTypesConsentNeeded": "Saving health details needs your consent to health data processing.",
   "userTypesConsentNote": "Choosing some of these may offer to add details to your profile. This is saved only if you confirm, and only with your consent to health data processing.",

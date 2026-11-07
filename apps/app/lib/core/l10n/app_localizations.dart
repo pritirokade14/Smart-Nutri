@@ -1204,6 +1204,48 @@ abstract class AppLocalizations {
   /// **'Withdraw consent'**
   String get consentWithdraw;
 
+  /// No description provided for @diaryDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Information, not medical advice. Daily guides are estimates and are pending clinician review.'**
+  String get diaryDisclaimer;
+
+  /// No description provided for @diaryEyeHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide numbers'**
+  String get diaryEyeHide;
+
+  /// No description provided for @diaryEyeShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show numbers'**
+  String get diaryEyeShow;
+
+  /// No description provided for @diaryHiddenNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers are hidden. You can change this in settings.'**
+  String get diaryHiddenNumbers;
+
+  /// No description provided for @diaryIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items don\'t show this value, so the real total may be higher.'**
+  String get diaryIncomplete;
+
+  /// No description provided for @diaryOfTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'{eaten} of {target}'**
+  String diaryOfTarget(String eaten, String target);
+
+  /// No description provided for @diaryTargetsConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'To see your daily guide, allow SmartNutri to use your health details.'**
+  String get diaryTargetsConsent;
+
   /// No description provided for @dietEggetarian.
   ///
   /// In en, this message translates to:
@@ -1947,6 +1989,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today: sugar and salt'**
   String get homeCardsTodaySugarSaltTitle;
+
+  /// No description provided for @homeCardsTodayTargetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get homeCardsTodayTargetsTitle;
 
   /// No description provided for @homeCardsUnknownExplainerBody.
   ///
@@ -3298,6 +3346,18 @@ abstract class AppLocalizations {
   /// **'Daily protein guide: {target} g, based on {per_kg} g per kg. Information, not medical advice.'**
   String proteinGuide(String per_kg, String target);
 
+  /// No description provided for @proteinGuideAdjusted.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily protein guide: {target} g, based on {per_kg} g per kg of an adjusted weight. Information, not medical advice.'**
+  String proteinGuideAdjusted(String per_kg, String target);
+
+  /// No description provided for @proteinGuideLean.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily protein guide: {target} g, based on {per_kg} g per kg of lean mass. Information, not medical advice.'**
+  String proteinGuideLean(String per_kg, String target);
+
   /// No description provided for @proteinKidneyNote.
   ///
   /// In en, this message translates to:
@@ -3988,6 +4048,60 @@ abstract class AppLocalizations {
   /// **'Deleting your account…'**
   String get settingsDeleting;
 
+  /// No description provided for @settingsDiaryBodyFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Body fat %'**
+  String get settingsDiaryBodyFat;
+
+  /// No description provided for @settingsDiaryNumbersHideAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide all numbers'**
+  String get settingsDiaryNumbersHideAll;
+
+  /// No description provided for @settingsDiaryNumbersHideEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide calories'**
+  String get settingsDiaryNumbersHideEnergy;
+
+  /// No description provided for @settingsDiaryNumbersHideNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can still log food. Your guide keeps working in the background.'**
+  String get settingsDiaryNumbersHideNote;
+
+  /// No description provided for @settingsDiaryNumbersShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show numbers'**
+  String get settingsDiaryNumbersShow;
+
+  /// No description provided for @settingsDiaryNumbersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers'**
+  String get settingsDiaryNumbersTitle;
+
+  /// No description provided for @settingsDiaryReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset daily guide'**
+  String get settingsDiaryReset;
+
+  /// No description provided for @settingsDiaryResetConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your daily guide? Your food log stays.'**
+  String get settingsDiaryResetConfirm;
+
+  /// No description provided for @settingsDiaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diary and daily guide'**
+  String get settingsDiaryTitle;
+
   /// No description provided for @settingsLanguageBody.
   ///
   /// In en, this message translates to:
@@ -4269,6 +4383,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The week is compared with the daily limit for each day something was logged.'**
   String get summaryWeekNote;
+
+  /// No description provided for @targetsActivityLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightly active'**
+  String get targetsActivityLight;
+
+  /// No description provided for @targetsActivityLightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On your feet part of the day, or light exercise 1 to 3 days a week'**
+  String get targetsActivityLightHint;
+
+  /// No description provided for @targetsActivityModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get targetsActivityModerate;
+
+  /// No description provided for @targetsActivityModerateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'An active job, or exercise 3 to 5 days a week'**
+  String get targetsActivityModerateHint;
+
+  /// No description provided for @targetsActivitySedentary.
+  ///
+  /// In en, this message translates to:
+  /// **'Mostly sitting'**
+  String get targetsActivitySedentary;
+
+  /// No description provided for @targetsActivitySedentaryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Desk work and little walking'**
+  String get targetsActivitySedentaryHint;
+
+  /// No description provided for @targetsActivityVery.
+  ///
+  /// In en, this message translates to:
+  /// **'Very active'**
+  String get targetsActivityVery;
+
+  /// No description provided for @targetsActivityVeryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard physical work, or hard training 6 to 7 days a week'**
+  String get targetsActivityVeryHint;
+
+  /// No description provided for @targetsBodyFatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If you know it, for example from a body-composition scale, we base your protein guide on lean mass. If you leave it blank, we use your weight.'**
+  String get targetsBodyFatHint;
+
+  /// No description provided for @targetsBodyFatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Body fat % (optional)'**
+  String get targetsBodyFatLabel;
+
+  /// No description provided for @targetsBodyFatOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a number between {min} and {max}.'**
+  String targetsBodyFatOutOfRange(String max, String min);
+
+  /// No description provided for @targetsCarbs.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs'**
+  String get targetsCarbs;
+
+  /// No description provided for @targetsDirectionGain.
+  ///
+  /// In en, this message translates to:
+  /// **'Gain slowly'**
+  String get targetsDirectionGain;
+
+  /// No description provided for @targetsDirectionLose.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose weight slowly'**
+  String get targetsDirectionLose;
+
+  /// No description provided for @targetsDirectionMaintain.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay the same'**
+  String get targetsDirectionMaintain;
+
+  /// No description provided for @targetsEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get targetsEnergy;
+
+  /// No description provided for @targetsFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Fat'**
+  String get targetsFat;
+
+  /// No description provided for @targetsFlagAverageSexReference.
+  ///
+  /// In en, this message translates to:
+  /// **'This guide uses an in-between estimate.'**
+  String get targetsFlagAverageSexReference;
+
+  /// No description provided for @targetsFlagCarbsBelowReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs are below the usual minimum of 130 g a day. A dietitian can help you adjust.'**
+  String get targetsFlagCarbsBelowReference;
+
+  /// No description provided for @targetsFlagDeficitCapped.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve kept the daily change to a gentle amount.'**
+  String get targetsFlagDeficitCapped;
+
+  /// No description provided for @targetsFlagFloorApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'We don\'t suggest going below {value} kcal a day. A doctor or dietitian can advise you.'**
+  String targetsFlagFloorApplied(String value);
+
+  /// No description provided for @targetsFlagFloorAppliedHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'We don\'t suggest going lower than this. A doctor or dietitian can advise you.'**
+  String get targetsFlagFloorAppliedHidden;
+
+  /// No description provided for @targetsFlagFloorLimitsDeficit.
+  ///
+  /// In en, this message translates to:
+  /// **'Your chosen pace isn\'t possible within a safe minimum, so this guide is for staying the same.'**
+  String get targetsFlagFloorLimitsDeficit;
+
+  /// No description provided for @targetsFlagGoalWeightReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re at your target weight. The guide is now for staying the same.'**
+  String get targetsFlagGoalWeightReached;
+
+  /// No description provided for @targetsFlagOutsideEquationAgeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'This estimate is less certain at your age.'**
+  String get targetsFlagOutsideEquationAgeRange;
+
+  /// No description provided for @targetsFlagProteinCapped.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve kept protein to a moderate share of your calories.'**
+  String get targetsFlagProteinCapped;
+
+  /// No description provided for @targetsFlagRateCapped.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve set the pace to the safest option we offer.'**
+  String get targetsFlagRateCapped;
+
+  /// No description provided for @targetsFlagTaperActive.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re close to your target, so the pace is easing off.'**
+  String get targetsFlagTaperActive;
+
+  /// No description provided for @targetsFlagUnderweightMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'We can help you keep a steady weight instead.'**
+  String get targetsFlagUnderweightMaintenance;
+
+  /// No description provided for @targetsGValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} g'**
+  String targetsGValue(String value);
+
+  /// No description provided for @targetsHowActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity factor: {value}'**
+  String targetsHowActivity(String value);
+
+  /// No description provided for @targetsHowAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Change for your goal: {value} kcal a day'**
+  String targetsHowAdjustment(String value);
+
+  /// No description provided for @targetsHowBmr.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated energy at rest: {value} kcal'**
+  String targetsHowBmr(String value);
+
+  /// No description provided for @targetsHowFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest we suggest: {value} kcal a day'**
+  String targetsHowFloor(String value);
+
+  /// No description provided for @targetsHowMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated energy to stay the same: {value} kcal'**
+  String targetsHowMaintenance(String value);
+
+  /// No description provided for @targetsHowProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein: {per_kg} g per kg of your weight ({weight} kg)'**
+  String targetsHowProtein(String per_kg, String weight);
+
+  /// No description provided for @targetsHowProteinAdjusted.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein: {per_kg} g per kg of an adjusted weight ({weight} kg)'**
+  String targetsHowProteinAdjusted(String per_kg, String weight);
+
+  /// No description provided for @targetsHowProteinLean.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein: {per_kg} g per kg of lean mass ({weight} kg)'**
+  String targetsHowProteinLean(String per_kg, String weight);
+
+  /// No description provided for @targetsHowSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources and method'**
+  String get targetsHowSources;
+
+  /// No description provided for @targetsHowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How we got this'**
+  String get targetsHowTitle;
+
+  /// No description provided for @targetsIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'An estimate to guide you, based on your details. Information, not medical advice.'**
+  String get targetsIntroBody;
+
+  /// No description provided for @targetsIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily guide'**
+  String get targetsIntroTitle;
+
+  /// No description provided for @targetsKcalValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} kcal'**
+  String targetsKcalValue(String value);
+
+  /// No description provided for @targetsMinor.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily guides are for adults. You can still log food.'**
+  String get targetsMinor;
+
+  /// No description provided for @targetsNeedsBodyData.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {fields} to see a daily guide.'**
+  String targetsNeedsBodyData(String fields);
+
+  /// No description provided for @targetsPendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending clinician review'**
+  String get targetsPendingReview;
+
+  /// No description provided for @targetsPregnancyNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get targetsPregnancyNo;
+
+  /// No description provided for @targetsPregnancyPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily guides are paused during pregnancy and breastfeeding. Please ask your doctor about your needs. You can still log food.'**
+  String get targetsPregnancyPaused;
+
+  /// No description provided for @targetsPregnancyPreferNot.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer not to say'**
+  String get targetsPregnancyPreferNot;
+
+  /// No description provided for @targetsPregnancyQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you pregnant or breastfeeding?'**
+  String get targetsPregnancyQuestion;
+
+  /// No description provided for @targetsPregnancyYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get targetsPregnancyYes;
+
+  /// No description provided for @targetsProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get targetsProtein;
+
+  /// No description provided for @targetsRateOption.
+  ///
+  /// In en, this message translates to:
+  /// **'About {kg} kg a week ({pct}% of body weight)'**
+  String targetsRateOption(String kg, String pct);
+
+  /// No description provided for @targetsRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pace'**
+  String get targetsRateTitle;
+
+  /// No description provided for @targetsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save my daily guide'**
+  String get targetsSave;
+
+  /// No description provided for @targetsSetupCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your daily guide'**
+  String get targetsSetupCta;
+
+  /// No description provided for @targetsSexReferenceAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'In between'**
+  String get targetsSexReferenceAverage;
+
+  /// No description provided for @targetsSexReferenceFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female estimate'**
+  String get targetsSexReferenceFemale;
+
+  /// No description provided for @targetsSexReferenceMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male estimate'**
+  String get targetsSexReferenceMale;
+
+  /// No description provided for @targetsSexReferenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which estimate should we use?'**
+  String get targetsSexReferenceTitle;
+
+  /// No description provided for @targetsSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip, just log food'**
+  String get targetsSkip;
+
+  /// No description provided for @targetsStepAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About you'**
+  String get targetsStepAbout;
+
+  /// No description provided for @targetsStepActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get targetsStepActivity;
+
+  /// No description provided for @targetsStepGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Your goal'**
+  String get targetsStepGoal;
+
+  /// No description provided for @targetsStepGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Your guide'**
+  String get targetsStepGuide;
+
+  /// No description provided for @targetsTargetWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Target weight (optional)'**
+  String get targetsTargetWeight;
+
+  /// No description provided for @targetsTargetWeightTooLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose {min} kg or more.'**
+  String targetsTargetWeightTooLow(String min);
+
+  /// No description provided for @targetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily guide'**
+  String get targetsTitle;
+
+  /// No description provided for @targetsUnderweight.
+  ///
+  /// In en, this message translates to:
+  /// **'We can help you keep a steady weight instead.'**
+  String get targetsUnderweight;
+
+  /// No description provided for @targetsUnusualConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check {fields}. Is this right?'**
+  String targetsUnusualConfirm(String fields);
 
   /// No description provided for @userTypesChangeLater.
   ///

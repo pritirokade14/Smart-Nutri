@@ -153,6 +153,7 @@ uv run python scripts/export_meal_fixtures.py --write  # write only the files th
 |---|---|---|
 | `allergy_check` | `members_list` | who has which allergy; "Unknown means we couldn't check, so it is never marked safe"; a CTA to add allergies when none are set (allergy mode only) |
 | `today_sugar_salt` | `meals_summary` (primary member, day) | bands from tokens; `unknown` is grey |
+| `today_targets` | `targets_get` (primary member, today), `meals_summary` | the API's calories, protein, fat and carbs, an eye toggle (`targets_display_put`), "{eaten} of {target}" for energy and protein from `meals_summary`; grey "not enough data" for `needs_body_data`; an inline grant button on `consent_required` (never a redirect); no ring or "over" arithmetic in slice 1 |
 | `today_protein` | `meals_summary` (primary member, day) | total vs `limits.protein_target_g`, `protein_left_g`; "no target" note; kcal shown without a target |
 | `protein_swaps` | link | "Find higher-protein options" opens the Protein screen |
 | `protein_claims_tip` | static copy | protein claims are checked against the nutrition table |
@@ -167,6 +168,17 @@ uv run python scripts/export_meal_fixtures.py --write  # write only the files th
 The protein g/kg per goal moved from `thresholds.yaml` to `apps/api/app/scoring/data/targets.yaml` (`protein.*`, Plan 10), and Lose Weight is now 1.2 g/kg (Q8, was 0.83). Daily-limit protein targets read it through `targets.protein_g_per_kg()`.
 
 `protein/price_per_scoop.json` holds hand-written cases for the client-only arithmetic `price_per_scoop = price * serving_size_g / pack_size_g`, rounded to 2 dp (half up). It is `null` when any input is missing or <= 0. The price is typed by the user and never saved. `members/build_muscle_adult.json` (age 25, goal `build_muscle`) and `products/whey_powder.json` (synthetic, category `supplement`) feed the protein target, claim checks and the supplement rules; their `expected/` files are generated like the others.
+
+## Daily targets (Plan 10: `targets/`)
+
+`targets/inputs/<stem>.json` is hand-written; `targets/expected/<stem>.json` is **generated** by `apps/api/scripts/generate_target_expectations.py` from the real engine (`app/scoring/targets.py`) and the API's own mapping (`app/features/targets/mapping.py`), then dumped with sorted keys, 2-space indent and a trailing newline. Run it from `apps/api`: `uv run python scripts/generate_target_expectations.py` checks (exit 1 if stale), `--write` updates. `apps/api/tests/fixtures/test_target_fixtures.py` fails when an expected file is stale and also pins the hand-checked goldens (spec 4.12). Review every change with `nutrition-safety-reviewer`; never edit an expected file by hand.
+
+- **Input:** `{"as_of": "2026-11-07", "stored": false, "body": {"age", "sex", "height_cm", "weight_kg", "body_fat_pct", "goal"}, "settings": {...} | null}`. `settings` carries the `GoalSettingsIn` fields without `member_id`; `null` gives status `none`. `stored: false` (default) is the preview and PUT path: the body-fat and settings rules run first. `stored: true` is the GET path for settings saved earlier: only `compute` runs. `age` is the engine age (`youngest_age`), not a birth year. Numbers are read as `Decimal(str(x))`.
+- **Expected:** the `TargetsOut` JSON the API returns (member id fixed to `uuid5(NAMESPACE_URL, "https://smartnutri.app/test-fixtures/members/self")`), or `{"error": {"code", "details"}}` when a rule refuses the input.
+- **Cases:** the golden examples `g1_build_muscle`, `g2_lose_adjusted`, `g3_eat_healthy`, `g4_floor`, `g5_taper` (the trend weight 76.2 kg is the body weight, Ruling D18), `g8_sex_other`, `g11_lean_mass`, `g12_lean_mass_bmi30`; the minor and underweight rules `g6_minor`, `g7_underweight_lose`; one case per activity factor and sex; the floors, the rate and deficit caps, the taper, the protein cap, the BMI 29.9 and 30.0 and body-fat 2.9 / 3 / 70 / 70.1 / blank boundaries, Devine ideal weight, the lean-mass factor per goal, ages 18 / 78 / 79, each missing field, pregnancy, a stored "lose" that no longer validates (`underweight_at_read`), no settings (`none`), and the hidden numbers (`g1_hide_energy`, `g1_hide_all`, `g4_hide_all`).
+- **Hidden numbers (Ruling D11):** `hide_energy` nulls every energy number; `hide_all` also nulls protein, fat, carbs and every explanation number except `protein_basis`. The pace (`rate`, `rate_options`) and the flags stay, so a client shows `targets.flag.floor_applied_hidden` instead of the floor number.
+- **`direction_defaults.json`** maps each goal to the direction the setup screen preselects (build muscle and weight gain: gain; weight loss: lose; eat healthy and no goal: maintain). It equals `targets.default_direction` (tested), and each client checks its own copy against the file.
+- Clients render these numbers and flags and never compute a target, a pace in kg, a remaining value or a flag.
 
 ## How each project uses them
 

@@ -1,0 +1,35 @@
+{
+  "basis": null,
+  "carbs_g": null,
+  "date": "2026-11-07",
+  "direction": null,
+  "energy_kcal": null,
+  "explanation": null,
+  "fat_g": null,
+  "flags": [],
+  "member_id": "fdd4cd87-39ef-541a-b6d9-5488f566a54a",
+  "missing_fields": [
+    "sex"
+  ],
+  "numbers_hidden": {
+    "energy": false,
+    "macros": false
+  },
+  "pending_clinician_review": true,
+  "protein_g": null,
+  "rate": null,
+  "rate_options": [],
+  "sources": [
+    "mifflin_1990",
+    "cdc_weight_loss",
+    "iom_2005_dri",
+    "issn_protein_2017",
+    "morton_2018",
+    "icmr_nin_2024",
+    "who_protein_2007",
+    "devine_1974",
+    "smartnutri_working_values"
+  ],
+  "status": "needs_body_data",
+  "unusual_fields": []
+}

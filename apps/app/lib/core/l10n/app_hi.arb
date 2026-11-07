@@ -266,6 +266,23 @@
   "consentUpdateNote": "हमने यह जानकारी अपडेट की है। कृपया इसे पढ़ें और फिर से सहमति दें।",
   "consentUpdatesBanner": "हमने कुछ सहमति की जानकारी अपडेट की है। कृपया उन्हें देखें।",
   "consentWithdraw": "सहमति वापस लें",
+  "diaryDisclaimer": "यह जानकारी है, चिकित्सा सलाह नहीं। दैनिक गाइड अनुमान हैं और चिकित्सक की समीक्षा के लिए लंबित हैं।",
+  "diaryEyeHide": "संख्याएँ छिपाएँ",
+  "diaryEyeShow": "संख्याएँ दिखाएँ",
+  "diaryHiddenNumbers": "संख्याएँ छिपी हैं। आप इसे सेटिंग्स में बदल सकते हैं।",
+  "diaryIncomplete": "कुछ चीज़ों में यह मान नहीं दिखता, इसलिए असली कुल ज़्यादा हो सकता है।",
+  "diaryOfTarget": "{target} में से {eaten}",
+  "@diaryOfTarget": {
+    "placeholders": {
+      "eaten": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryTargetsConsent": "अपनी दैनिक गाइड देखने के लिए, SmartNutri को अपनी सेहत की जानकारी इस्तेमाल करने की अनुमति दें।",
   "dietEggetarian": "अंडाहारी (अंडा खाने वाला शाकाहारी)",
   "dietJain": "जैन",
   "dietNonVeg": "मांसाहारी",
@@ -414,6 +431,7 @@
   "homeCardsRecentScansTitle": "हाल के स्कैन",
   "homeCardsTodayProteinTitle": "आज: प्रोटीन",
   "homeCardsTodaySugarSaltTitle": "आज: चीनी और नमक",
+  "homeCardsTodayTargetsTitle": "आज",
   "homeCardsUnknownExplainerBody": "जब लेबल पर सामग्री न हो या पढ़ना मुश्किल हो, तो हम जाँच नहीं कर सकते। हम उसे कभी सुरक्षित नहीं दिखाते।",
   "homeCardsUnknownExplainerTitle": "\"अज्ञात\" सुरक्षित क्यों नहीं है",
   "homeCardsWeeklyFamilyBody": "पिछले 7 दिनों में आपके परिवार के लिए {count} चीज़ें दर्ज हुईं",
@@ -779,6 +797,28 @@
   "proteinCompareSugar": "शर्करा",
   "proteinGuide": "रोज़ाना प्रोटीन गाइड: {target} ग्राम, प्रति किलो {per_kg} ग्राम पर आधारित। यह जानकारी है, चिकित्सकीय सलाह नहीं।",
   "@proteinGuide": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinGuideAdjusted": "दैनिक प्रोटीन गाइड: {target} ग्राम, समायोजित वज़न के प्रति किग्रा {per_kg} ग्राम के आधार पर। यह जानकारी है, चिकित्सा सलाह नहीं।",
+  "@proteinGuideAdjusted": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "proteinGuideLean": "दैनिक प्रोटीन गाइड: {target} ग्राम, लीन मास के प्रति किग्रा {per_kg} ग्राम के आधार पर। यह जानकारी है, चिकित्सा सलाह नहीं।",
+  "@proteinGuideLean": {
     "placeholders": {
       "per_kg": {
         "type": "String"
@@ -1165,6 +1205,15 @@
   "settingsDeleteRetrying": "अभी भी हटाया जा रहा है। फिर से कोशिश कर रहे हैं…",
   "settingsDeleteTitle": "खाता हटाएँ",
   "settingsDeleting": "आपका खाता हटाया जा रहा है…",
+  "settingsDiaryBodyFat": "शरीर में वसा %",
+  "settingsDiaryNumbersHideAll": "सभी संख्याएँ छिपाएँ",
+  "settingsDiaryNumbersHideEnergy": "कैलोरी छिपाएँ",
+  "settingsDiaryNumbersHideNote": "आप फिर भी खाना दर्ज कर सकते हैं। आपकी गाइड पृष्ठभूमि में काम करती रहती है।",
+  "settingsDiaryNumbersShow": "संख्याएँ दिखाएँ",
+  "settingsDiaryNumbersTitle": "संख्याएँ",
+  "settingsDiaryReset": "दैनिक गाइड रीसेट करें",
+  "settingsDiaryResetConfirm": "अपनी दैनिक गाइड रीसेट करें? आपका फ़ूड लॉग बना रहेगा।",
+  "settingsDiaryTitle": "डायरी और दैनिक गाइड",
   "settingsLanguageBody": "इस डिवाइस पर SmartNutri की भाषा चुनें।",
   "settingsLanguageSystem": "डिवाइस की भाषा",
   "shareButton": "शेयर करें",
@@ -1313,6 +1362,203 @@
     }
   },
   "summaryWeekNote": "हफ़्ते की तुलना हर उस दिन की दैनिक सीमा से की जाती है, जिस दिन कुछ दर्ज किया गया।",
+  "targetsActivityLight": "हल्का सक्रिय",
+  "targetsActivityLightHint": "दिन में कुछ समय खड़े रहना, या हफ़्ते में 1 से 3 दिन हल्की कसरत",
+  "targetsActivityModerate": "सक्रिय",
+  "targetsActivityModerateHint": "सक्रिय काम, या हफ़्ते में 3 से 5 दिन कसरत",
+  "targetsActivitySedentary": "ज़्यादातर बैठे रहना",
+  "targetsActivitySedentaryHint": "डेस्क का काम और कम चलना",
+  "targetsActivityVery": "बहुत सक्रिय",
+  "targetsActivityVeryHint": "कठिन शारीरिक काम, या हफ़्ते में 6 से 7 दिन कठिन प्रशिक्षण",
+  "targetsBodyFatHint": "अगर आपको पता है, जैसे बॉडी-कंपोज़िशन स्केल से, तो हम आपकी प्रोटीन गाइड लीन मास पर आधारित करते हैं। खाली छोड़ने पर हम आपका वज़न इस्तेमाल करते हैं।",
+  "targetsBodyFatLabel": "शरीर में वसा % (वैकल्पिक)",
+  "targetsBodyFatOutOfRange": "कृपया {min} से {max} के बीच की संख्या दर्ज करें।",
+  "@targetsBodyFatOutOfRange": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsCarbs": "कार्ब्स",
+  "targetsDirectionGain": "धीरे-धीरे वज़न बढ़ाएँ",
+  "targetsDirectionLose": "धीरे-धीरे वज़न घटाएँ",
+  "targetsDirectionMaintain": "वज़न वही रखें",
+  "targetsEnergy": "कैलोरी",
+  "targetsFat": "वसा",
+  "targetsFlagAverageSexReference": "यह गाइड दोनों के बीच का अनुमान इस्तेमाल करती है।",
+  "targetsFlagCarbsBelowReference": "कार्ब्स सामान्य न्यूनतम 130 ग्राम प्रतिदिन से कम हैं। आहार विशेषज्ञ आपको इसे ठीक करने में मदद कर सकते हैं।",
+  "targetsFlagDeficitCapped": "हमने रोज़ का बदलाव हल्का रखा है।",
+  "targetsFlagFloorApplied": "हम {value} किलोकैलोरी प्रतिदिन से कम का सुझाव नहीं देते। डॉक्टर या आहार विशेषज्ञ आपको सलाह दे सकते हैं।",
+  "@targetsFlagFloorApplied": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsFlagFloorAppliedHidden": "हम इससे कम का सुझाव नहीं देते। डॉक्टर या आहार विशेषज्ञ आपको सलाह दे सकते हैं।",
+  "targetsFlagFloorLimitsDeficit": "आपकी चुनी हुई गति सुरक्षित न्यूनतम सीमा में संभव नहीं है, इसलिए यह गाइड वज़न वही रखने के लिए है।",
+  "targetsFlagGoalWeightReached": "आप अपने लक्ष्य वज़न पर हैं। अब गाइड वज़न वही रखने के लिए है।",
+  "targetsFlagOutsideEquationAgeRange": "आपकी उम्र में यह अनुमान कम पक्का है।",
+  "targetsFlagProteinCapped": "हमने प्रोटीन को आपकी कैलोरी का मध्यम हिस्सा रखा है।",
+  "targetsFlagRateCapped": "हमने गति को सबसे सुरक्षित विकल्प पर रखा है जो हम देते हैं।",
+  "targetsFlagTaperActive": "आप अपने लक्ष्य के करीब हैं, इसलिए गति धीमी हो रही है।",
+  "targetsFlagUnderweightMaintenance": "इसके बजाय हम आपको स्थिर वज़न बनाए रखने में मदद कर सकते हैं।",
+  "targetsGValue": "{value} ग्राम",
+  "@targetsGValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowActivity": "गतिविधि गुणक: {value}",
+  "@targetsHowActivity": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowAdjustment": "आपके लक्ष्य के लिए बदलाव: {value} किलोकैलोरी प्रतिदिन",
+  "@targetsHowAdjustment": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowBmr": "आराम में अनुमानित ऊर्जा: {value} किलोकैलोरी",
+  "@targetsHowBmr": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowFloor": "हम इससे कम का सुझाव नहीं देते: {value} किलोकैलोरी प्रतिदिन",
+  "@targetsHowFloor": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowMaintenance": "वज़न स्थिर रखने के लिए अनुमानित ऊर्जा: {value} किलोकैलोरी",
+  "@targetsHowMaintenance": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProtein": "प्रोटीन: आपके वज़न ({weight} किग्रा) के प्रति किग्रा {per_kg} ग्राम",
+  "@targetsHowProtein": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProteinAdjusted": "प्रोटीन: समायोजित वज़न ({weight} किग्रा) के प्रति किग्रा {per_kg} ग्राम",
+  "@targetsHowProteinAdjusted": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowProteinLean": "प्रोटीन: लीन मास ({weight} किग्रा) के प्रति किग्रा {per_kg} ग्राम",
+  "@targetsHowProteinLean": {
+    "placeholders": {
+      "per_kg": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowSources": "स्रोत और तरीका",
+  "targetsHowTitle": "हमने यह कैसे निकाला",
+  "targetsIntroBody": "आपकी जानकारी पर आधारित एक अनुमान, जो आपका मार्गदर्शन करे। यह जानकारी है, चिकित्सा सलाह नहीं।",
+  "targetsIntroTitle": "आपकी दैनिक गाइड",
+  "targetsKcalValue": "{value} किलोकैलोरी",
+  "@targetsKcalValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsMinor": "दैनिक गाइड वयस्कों के लिए हैं। आप फिर भी खाना दर्ज कर सकते हैं।",
+  "targetsNeedsBodyData": "दैनिक गाइड देखने के लिए {fields} जोड़ें।",
+  "@targetsNeedsBodyData": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsPendingReview": "चिकित्सक की समीक्षा लंबित",
+  "targetsPregnancyNo": "नहीं",
+  "targetsPregnancyPaused": "गर्भावस्था और स्तनपान के दौरान दैनिक गाइड रुकी रहती है। अपनी ज़रूरतों के बारे में कृपया डॉक्टर से पूछें। आप फिर भी खाना दर्ज कर सकती हैं।",
+  "targetsPregnancyPreferNot": "बताना नहीं चाहते",
+  "targetsPregnancyQuestion": "क्या आप गर्भवती हैं या स्तनपान करा रही हैं?",
+  "targetsPregnancyYes": "हाँ",
+  "targetsProtein": "प्रोटीन",
+  "targetsRateOption": "लगभग {kg} किग्रा प्रति सप्ताह (शरीर के वज़न का {pct}%)",
+  "@targetsRateOption": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsRateTitle": "गति",
+  "targetsSave": "मेरी दैनिक गाइड सहेजें",
+  "targetsSetupCta": "अपनी दैनिक गाइड सेट करें",
+  "targetsSexReferenceAverage": "दोनों के बीच का",
+  "targetsSexReferenceFemale": "महिला का अनुमान",
+  "targetsSexReferenceMale": "पुरुष का अनुमान",
+  "targetsSexReferenceTitle": "हमें कौन सा अनुमान इस्तेमाल करना चाहिए?",
+  "targetsSkip": "छोड़ें, बस खाना दर्ज करें",
+  "targetsStepAbout": "आपके बारे में",
+  "targetsStepActivity": "गतिविधि",
+  "targetsStepGoal": "आपका लक्ष्य",
+  "targetsStepGuide": "आपकी गाइड",
+  "targetsTargetWeight": "लक्ष्य वज़न (वैकल्पिक)",
+  "targetsTargetWeightTooLow": "कृपया {min} किग्रा या उससे ज़्यादा चुनें।",
+  "@targetsTargetWeightTooLow": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsTitle": "आपकी दैनिक गाइड",
+  "targetsUnderweight": "इसके बजाय हम आपको स्थिर वज़न बनाए रखने में मदद कर सकते हैं।",
+  "targetsUnusualConfirm": "कृपया {fields} जाँचें। क्या यह सही है?",
+  "@targetsUnusualConfirm": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
   "userTypesChangeLater": "आप इसे प्रोफ़ाइल में बदल सकते हैं",
   "userTypesConsentNeeded": "स्वास्थ्य जानकारी सहेजने के लिए स्वास्थ्य डेटा पर आपकी सहमति ज़रूरी है।",
   "userTypesConsentNote": "इनमें से कुछ चुनने पर आपकी प्रोफ़ाइल में जानकारी जोड़ने का सुझाव आ सकता है। यह तभी सहेजा जाएगा जब आप पुष्टि करेंगे, और स्वास्थ्य डेटा के लिए आपकी सहमति होने पर ही।",

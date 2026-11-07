@@ -63,6 +63,7 @@ const member = (over: Partial<MemberOut> = {}): MemberOut => ({
   sex: null,
   height_cm: null,
   weight_kg: 70,
+  body_fat_pct: null,
   diet: "non_veg",
   allergens: [],
   conditions: [],
@@ -306,7 +307,7 @@ describe("home cards (T13)", () => {
   });
 
   it("today_protein: no target shows the note and a link to the member form", async () => {
-    home("weight_loss", [member({ weight_kg: null })]);
+    home("gym", [member({ weight_kg: null })]);
     api.on(
       "GET",
       "/v1/meals/summary",

@@ -61,6 +61,9 @@ function Cards() {
     switch (card) {
       case "allergy_check":
         return <AllergyCheckCard members={members} mode={mode} />;
+      case "today_targets":
+        // Rendered by Task 10 (Plan 10); nothing until then.
+        return <div data-testid="home-card-today_targets" />;
       case "today_sugar_salt":
         return <TodaySugarSaltCard primary={primary} />;
       case "today_protein":

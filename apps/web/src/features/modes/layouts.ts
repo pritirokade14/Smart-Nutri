@@ -24,6 +24,7 @@ export type Destination = (typeof DESTINATIONS)[number];
 
 export const HOME_CARDS = [
   "allergy_check",
+  "today_targets",
   "today_sugar_salt",
   "today_protein",
   "protein_swaps",

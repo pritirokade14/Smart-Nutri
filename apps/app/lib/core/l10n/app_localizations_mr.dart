@@ -618,6 +618,33 @@ class AppLocalizationsMr extends AppLocalizations {
   String get consentWithdraw => 'संमती मागे घ्या';
 
   @override
+  String get diaryDisclaimer =>
+      'ही माहिती आहे, वैद्यकीय सल्ला नाही. दैनिक मार्गदर्शक हे अंदाज आहेत आणि डॉक्टरांच्या तपासणीसाठी प्रलंबित आहेत.';
+
+  @override
+  String get diaryEyeHide => 'संख्या लपवा';
+
+  @override
+  String get diaryEyeShow => 'संख्या दाखवा';
+
+  @override
+  String get diaryHiddenNumbers =>
+      'संख्या लपवल्या आहेत. तुम्ही हे सेटिंग्जमध्ये बदलू शकता.';
+
+  @override
+  String get diaryIncomplete =>
+      'काही पदार्थांमध्ये हे मूल्य दिसत नाही, म्हणून खरी बेरीज जास्त असू शकते.';
+
+  @override
+  String diaryOfTarget(String eaten, String target) {
+    return '$target पैकी $eaten';
+  }
+
+  @override
+  String get diaryTargetsConsent =>
+      'तुमचा दैनिक मार्गदर्शक पाहण्यासाठी, SmartNutri ला तुमची आरोग्य माहिती वापरण्याची परवानगी द्या.';
+
+  @override
   String get dietEggetarian => 'अंडाहारी (अंडे खाणारा शाकाहारी)';
 
   @override
@@ -1044,6 +1071,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get homeCardsTodaySugarSaltTitle => 'आज: साखर आणि मीठ';
+
+  @override
+  String get homeCardsTodayTargetsTitle => 'आज';
 
   @override
   String get homeCardsUnknownExplainerBody =>
@@ -1823,6 +1853,16 @@ class AppLocalizationsMr extends AppLocalizations {
   }
 
   @override
+  String proteinGuideAdjusted(String per_kg, String target) {
+    return 'दैनिक प्रथिन मार्गदर्शक: $target ग्रॅम, समायोजित वजनाच्या प्रति किग्रॅ $per_kg ग्रॅमवर आधारित. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+  }
+
+  @override
+  String proteinGuideLean(String per_kg, String target) {
+    return 'दैनिक प्रथिन मार्गदर्शक: $target ग्रॅम, लीन मासच्या प्रति किग्रॅ $per_kg ग्रॅमवर आधारित. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+  }
+
+  @override
   String get proteinKidneyNote =>
       'तुम्हाला मूत्रपिंडाचा आजार असेल, तर जास्त प्रथिने खाण्यापूर्वी डॉक्टरांना विचारा.';
 
@@ -2272,6 +2312,35 @@ class AppLocalizationsMr extends AppLocalizations {
   String get settingsDeleting => 'तुमचे खाते हटवले जात आहे…';
 
   @override
+  String get settingsDiaryBodyFat => 'शरीरातील चरबी %';
+
+  @override
+  String get settingsDiaryNumbersHideAll => 'सर्व संख्या लपवा';
+
+  @override
+  String get settingsDiaryNumbersHideEnergy => 'कॅलरी लपवा';
+
+  @override
+  String get settingsDiaryNumbersHideNote =>
+      'तुम्ही तरीही जेवण नोंदवू शकता. तुमचा मार्गदर्शक पार्श्वभूमीत काम करत राहतो.';
+
+  @override
+  String get settingsDiaryNumbersShow => 'संख्या दाखवा';
+
+  @override
+  String get settingsDiaryNumbersTitle => 'संख्या';
+
+  @override
+  String get settingsDiaryReset => 'दैनिक मार्गदर्शक रीसेट करा';
+
+  @override
+  String get settingsDiaryResetConfirm =>
+      'तुमचा दैनिक मार्गदर्शक रीसेट करायचा? तुमचा फूड लॉग तसाच राहील.';
+
+  @override
+  String get settingsDiaryTitle => 'डायरी आणि दैनिक मार्गदर्शक';
+
+  @override
   String get settingsLanguageBody => 'या डिव्हाइसवर SmartNutri ची भाषा निवडा.';
 
   @override
@@ -2440,6 +2509,267 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get summaryWeekNote =>
       'ज्या दिवशी काही नोंदवले आहे, त्या प्रत्येक दिवसाच्या दैनिक मर्यादेशी आठवड्याची तुलना केली जाते.';
+
+  @override
+  String get targetsActivityLight => 'हलके सक्रिय';
+
+  @override
+  String get targetsActivityLightHint =>
+      'दिवसाचा काही वेळ उभे राहणे, किंवा आठवड्यात 1 ते 3 दिवस हलका व्यायाम';
+
+  @override
+  String get targetsActivityModerate => 'सक्रिय';
+
+  @override
+  String get targetsActivityModerateHint =>
+      'सक्रिय काम, किंवा आठवड्यात 3 ते 5 दिवस व्यायाम';
+
+  @override
+  String get targetsActivitySedentary => 'बहुतेक बसून';
+
+  @override
+  String get targetsActivitySedentaryHint => 'डेस्कवरचे काम आणि कमी चालणे';
+
+  @override
+  String get targetsActivityVery => 'खूप सक्रिय';
+
+  @override
+  String get targetsActivityVeryHint =>
+      'कठीण शारीरिक काम, किंवा आठवड्यात 6 ते 7 दिवस कठीण प्रशिक्षण';
+
+  @override
+  String get targetsBodyFatHint =>
+      'तुम्हाला माहीत असल्यास, उदाहरणार्थ बॉडी-कंपोझिशन स्केलवरून, आम्ही तुमचा प्रथिन मार्गदर्शक लीन मासवर आधारित करतो. रिकामे सोडल्यास आम्ही तुमचे वजन वापरतो.';
+
+  @override
+  String get targetsBodyFatLabel => 'शरीरातील चरबी % (ऐच्छिक)';
+
+  @override
+  String targetsBodyFatOutOfRange(String max, String min) {
+    return 'कृपया $min ते $max दरम्यानची संख्या भरा.';
+  }
+
+  @override
+  String get targetsCarbs => 'कार्ब्स';
+
+  @override
+  String get targetsDirectionGain => 'हळूहळू वजन वाढवा';
+
+  @override
+  String get targetsDirectionLose => 'हळूहळू वजन कमी करा';
+
+  @override
+  String get targetsDirectionMaintain => 'वजन तसेच ठेवा';
+
+  @override
+  String get targetsEnergy => 'कॅलरी';
+
+  @override
+  String get targetsFat => 'चरबी';
+
+  @override
+  String get targetsFlagAverageSexReference =>
+      'हा मार्गदर्शक दोन्हींच्या मधला अंदाज वापरतो.';
+
+  @override
+  String get targetsFlagCarbsBelowReference =>
+      'कार्ब्स नेहमीच्या किमान 130 ग्रॅम प्रतिदिनपेक्षा कमी आहेत. आहारतज्ज्ञ तुम्हाला ते समायोजित करण्यात मदत करू शकतात.';
+
+  @override
+  String get targetsFlagDeficitCapped => 'आम्ही रोजचा बदल सौम्य ठेवला आहे.';
+
+  @override
+  String targetsFlagFloorApplied(String value) {
+    return 'आम्ही दररोज $value किलोकॅलरीपेक्षा कमी सुचवत नाही. डॉक्टर किंवा आहारतज्ज्ञ तुम्हाला सल्ला देऊ शकतात.';
+  }
+
+  @override
+  String get targetsFlagFloorAppliedHidden =>
+      'आम्ही यापेक्षा कमी सुचवत नाही. डॉक्टर किंवा आहारतज्ज्ञ तुम्हाला सल्ला देऊ शकतात.';
+
+  @override
+  String get targetsFlagFloorLimitsDeficit =>
+      'तुमची निवडलेली गती सुरक्षित किमान मर्यादेत शक्य नाही, म्हणून हा मार्गदर्शक वजन तसेच ठेवण्यासाठी आहे.';
+
+  @override
+  String get targetsFlagGoalWeightReached =>
+      'तुम्ही तुमच्या लक्ष्य वजनावर आहात. आता मार्गदर्शक वजन तसेच ठेवण्यासाठी आहे.';
+
+  @override
+  String get targetsFlagOutsideEquationAgeRange =>
+      'तुमच्या वयात हा अंदाज कमी निश्चित आहे.';
+
+  @override
+  String get targetsFlagProteinCapped =>
+      'आम्ही प्रथिने तुमच्या कॅलरीचा मध्यम वाटा ठेवली आहेत.';
+
+  @override
+  String get targetsFlagRateCapped =>
+      'आम्ही गती आमच्याकडील सर्वात सुरक्षित पर्यायावर ठेवली आहे.';
+
+  @override
+  String get targetsFlagTaperActive =>
+      'तुम्ही तुमच्या लक्ष्याच्या जवळ आहात, म्हणून गती कमी होत आहे.';
+
+  @override
+  String get targetsFlagUnderweightMaintenance =>
+      'त्याऐवजी आम्ही तुम्हाला स्थिर वजन राखण्यास मदत करू शकतो.';
+
+  @override
+  String targetsGValue(String value) {
+    return '$value ग्रॅम';
+  }
+
+  @override
+  String targetsHowActivity(String value) {
+    return 'हालचाल गुणक: $value';
+  }
+
+  @override
+  String targetsHowAdjustment(String value) {
+    return 'तुमच्या ध्येयासाठी बदल: दररोज $value किलोकॅलरी';
+  }
+
+  @override
+  String targetsHowBmr(String value) {
+    return 'विश्रांतीतील अंदाजे ऊर्जा: $value किलोकॅलरी';
+  }
+
+  @override
+  String targetsHowFloor(String value) {
+    return 'आम्ही यापेक्षा कमी सुचवत नाही: दररोज $value किलोकॅलरी';
+  }
+
+  @override
+  String targetsHowMaintenance(String value) {
+    return 'वजन स्थिर ठेवण्यासाठी अंदाजे ऊर्जा: $value किलोकॅलरी';
+  }
+
+  @override
+  String targetsHowProtein(String per_kg, String weight) {
+    return 'प्रथिने: तुमच्या वजनाच्या ($weight किग्रॅ) प्रति किग्रॅ $per_kg ग्रॅम';
+  }
+
+  @override
+  String targetsHowProteinAdjusted(String per_kg, String weight) {
+    return 'प्रथिने: समायोजित वजनाच्या ($weight किग्रॅ) प्रति किग्रॅ $per_kg ग्रॅम';
+  }
+
+  @override
+  String targetsHowProteinLean(String per_kg, String weight) {
+    return 'प्रथिने: लीन मासच्या ($weight किग्रॅ) प्रति किग्रॅ $per_kg ग्रॅम';
+  }
+
+  @override
+  String get targetsHowSources => 'स्रोत आणि पद्धत';
+
+  @override
+  String get targetsHowTitle => 'आम्ही हे कसे काढले';
+
+  @override
+  String get targetsIntroBody =>
+      'तुमच्या माहितीवर आधारित, तुम्हाला दिशा देणारा एक अंदाज. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get targetsIntroTitle => 'तुमचा दैनिक मार्गदर्शक';
+
+  @override
+  String targetsKcalValue(String value) {
+    return '$value किलोकॅलरी';
+  }
+
+  @override
+  String get targetsMinor =>
+      'दैनिक मार्गदर्शक प्रौढांसाठी आहेत. तुम्ही तरीही जेवण नोंदवू शकता.';
+
+  @override
+  String targetsNeedsBodyData(String fields) {
+    return 'दैनिक मार्गदर्शक पाहण्यासाठी $fields जोडा.';
+  }
+
+  @override
+  String get targetsPendingReview => 'डॉक्टरांची तपासणी प्रलंबित';
+
+  @override
+  String get targetsPregnancyNo => 'नाही';
+
+  @override
+  String get targetsPregnancyPaused =>
+      'गर्भधारणा आणि स्तनपानाच्या काळात दैनिक मार्गदर्शक थांबवलेला असतो. तुमच्या गरजांबद्दल कृपया डॉक्टरांना विचारा. तुम्ही तरीही जेवण नोंदवू शकता.';
+
+  @override
+  String get targetsPregnancyPreferNot => 'सांगायचे नाही';
+
+  @override
+  String get targetsPregnancyQuestion =>
+      'तुम्ही गर्भवती आहात का किंवा स्तनपान करत आहात का?';
+
+  @override
+  String get targetsPregnancyYes => 'होय';
+
+  @override
+  String get targetsProtein => 'प्रथिने';
+
+  @override
+  String targetsRateOption(String kg, String pct) {
+    return 'सुमारे $kg किग्रॅ दर आठवड्याला (शरीराच्या वजनाच्या $pct%)';
+  }
+
+  @override
+  String get targetsRateTitle => 'गती';
+
+  @override
+  String get targetsSave => 'माझा दैनिक मार्गदर्शक जतन करा';
+
+  @override
+  String get targetsSetupCta => 'तुमचा दैनिक मार्गदर्शक सेट करा';
+
+  @override
+  String get targetsSexReferenceAverage => 'दोन्हींच्या मधला';
+
+  @override
+  String get targetsSexReferenceFemale => 'महिलांसाठीचा अंदाज';
+
+  @override
+  String get targetsSexReferenceMale => 'पुरुषांसाठीचा अंदाज';
+
+  @override
+  String get targetsSexReferenceTitle => 'आम्ही कोणता अंदाज वापरावा?';
+
+  @override
+  String get targetsSkip => 'वगळा, फक्त जेवण नोंदवा';
+
+  @override
+  String get targetsStepAbout => 'तुमच्याबद्दल';
+
+  @override
+  String get targetsStepActivity => 'हालचाल';
+
+  @override
+  String get targetsStepGoal => 'तुमचे ध्येय';
+
+  @override
+  String get targetsStepGuide => 'तुमचा मार्गदर्शक';
+
+  @override
+  String get targetsTargetWeight => 'लक्ष्य वजन (ऐच्छिक)';
+
+  @override
+  String targetsTargetWeightTooLow(String min) {
+    return 'कृपया $min किग्रॅ किंवा त्याहून जास्त निवडा.';
+  }
+
+  @override
+  String get targetsTitle => 'तुमचा दैनिक मार्गदर्शक';
+
+  @override
+  String get targetsUnderweight =>
+      'त्याऐवजी आम्ही तुम्हाला स्थिर वजन राखण्यास मदत करू शकतो.';
+
+  @override
+  String targetsUnusualConfirm(String fields) {
+    return 'कृपया $fields तपासा. हे बरोबर आहे का?';
+  }
 
   @override
   String get userTypesChangeLater => 'तुम्ही हे प्रोफाइलमध्ये बदलू शकता';
