@@ -124,3 +124,21 @@ async def set_partial(
     row = await _row(session, member, day)
     assert row is not None
     return row
+
+
+async def partial_flags(
+    session: AsyncSession, member: Member, start: date, end: date
+) -> dict[date, bool]:
+    """`partial_logged` of the member's stored rows between two local dates (a day without a
+    row is not marked)."""
+    rows = await session.execute(
+        select(DiaryDay.local_date, DiaryDay.partial_logged)
+        .where(
+            DiaryDay.member_id == member.id,
+            DiaryDay.account_id == member.account_id,
+            DiaryDay.local_date >= start,
+            DiaryDay.local_date <= end,
+        )
+        .execution_options(populate_existing=True)
+    )
+    return {d: bool(p) for d, p in rows.all()}

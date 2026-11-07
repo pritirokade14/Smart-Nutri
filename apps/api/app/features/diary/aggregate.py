@@ -17,6 +17,7 @@ sugar, salt and fibre number. Portions, slot structure, bands and incompleteness
 """
 
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
@@ -114,12 +115,11 @@ def _totals(acc: _Acc, hidden: NumbersHidden) -> Totals:
 
 
 def _limits_for(limits: DailyLimits, result: engine.TargetResult | None) -> DailyLimits:
-    """The protein band compares with that day's frozen protein target when it is ready."""
-    if result is not None and result.status == "ready" and result.protein_g is not None:
-        from dataclasses import replace
-
-        return replace(limits, protein_target_g=float(result.protein_g))
-    return limits
+    """The sugar and salt limits as given. Protein is a target here: the day's frozen protein
+    target when it is ready, otherwise none (the legacy weight rule belongs to the meal summary,
+    not to a day without a frozen target)."""
+    ready = result is not None and result.status == "ready" and result.protein_g is not None
+    return replace(limits, protein_target_g=float(result.protein_g) if ready else None)  # type: ignore[union-attr]
 
 
 def _sorted(entries: Sequence[MealLog]) -> list[MealLog]:

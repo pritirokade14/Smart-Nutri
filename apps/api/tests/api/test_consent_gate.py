@@ -266,6 +266,7 @@ def test_required_purposes_match_ruling_g1():
         "targets": ("terms", "health_data"),
         "targets_prefs": ("terms",),
         "meal_slots": ("terms",),
+        "diary": ("terms",),
     }
     # products_create and product_verdicts are gated on their routes only: a /v1/products
     # prefix gate would 401 the public /v1/products/{barcode}/public page.
