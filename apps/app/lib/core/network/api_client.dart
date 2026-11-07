@@ -101,6 +101,7 @@ String localizedErrorCode(AppLocalizations l10n, String? code) {
     'date_too_old' => l10n.errorDateTooOld,
     'meal_slot_not_found' => l10n.errorMealSlotNotFound,
     'meal_slot_archived' => l10n.errorMealSlotArchived,
+    'meal_slot_limit_reached' => l10n.errorMealSlotLimitReached,
     'timezone_invalid' => l10n.errorTimezoneInvalid,
     'scan_image_not_found' => l10n.errorScanImageNotFound,
     'scan_not_found' => l10n.errorScanNotFound,
