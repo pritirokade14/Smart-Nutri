@@ -2276,6 +2276,9 @@
   "weightConsent": "वज़न का रिकॉर्ड रखने के लिए SmartNutri को अपनी सेहत की जानकारी इस्तेमाल करने दें।",
   "weightDate": "तारीख़",
   "weightDelete": "वज़न हटाएँ",
+  "weightDeleteAll": "सभी वज़न हटाएँ",
+  "weightDeleteAllConfirm": "अपने सभी वज़न हटाएँ? इसे वापस नहीं किया जा सकता। आपकी प्रोफ़ाइल का वज़न जैसा है वैसा ही रहेगा।",
+  "weightDeleteAllDone": "सभी वज़न हटा दिए गए",
   "weightDeleteConfirm": "यह वज़न हटाएँ?",
   "weightEdit": "वज़न बदलें",
   "weightEmpty": "अभी तक कोई वज़न दर्ज नहीं",
@@ -2315,6 +2318,7 @@
       }
     }
   },
+  "weightRapidLossHidden": "आपका वज़न तेज़ी से घट रहा है। धीमी गति आमतौर पर निभाना आसान होता है।",
   "weightSaveAnyway": "फिर भी सहेजें",
   "weightTipSameTime": "दिन में हर बार एक ही समय पर, जैसे उठने के बाद।",
   "weightTitle": "वज़न",
