@@ -319,6 +319,32 @@ describe("guide setup", () => {
     await waitFor(() => expect(lastPreview().rate_pct_bw_per_week).toBe(1));
   });
 
+  it("rate chips show the percent only when kg_per_week is null", async () => {
+    const fake = {
+      ...targetsFixture("g2_lose_adjusted"),
+      rate_options: [
+        { kg_per_week: null, pct_bw_per_week: 0.5 },
+        { kg_per_week: null, pct_bw_per_week: 1 },
+      ],
+      rate: { kg_per_week: null, pct_bw_per_week: 0.5 },
+    };
+    setup({ preview: fake });
+    await step("goal");
+    const chips = await screen.findAllByTestId("rate-chip");
+    expect(chips[0]?.textContent).toBe(
+      en.targets.rate_option_pct.replace("{pct}", "0.5"),
+    );
+    expect(chips[0]?.textContent).not.toContain("kg");
+  });
+
+  it("missing fields use the neutral targets.field labels", async () => {
+    setup({ preview: targetsFixture("needs_height_cm") });
+    await step("guide");
+    expect(
+      await screen.findByText(new RegExp(en.targets.field.height)),
+    ).toBeTruthy();
+  });
+
   it("g1_hide_all preview shows no digits for energy and macros", async () => {
     setup({ preview: targetsFixture("g1_hide_all") });
     await step("guide");

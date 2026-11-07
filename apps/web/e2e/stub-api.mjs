@@ -485,7 +485,17 @@ function targetsRoute(method, path, b) {
     if (!g) return [404, envelope("goal_settings_not_found")];
     if (b.numbers_display) g.numbers_display = b.numbers_display;
     if (b.summary_view) g.summary_view = b.summary_view;
-    return [200, g];
+    g.updated_at = new Date().toISOString();
+    // DisplayOut: no settings fields
+    return [
+      200,
+      {
+        member_id: g.member_id,
+        numbers_display: g.numbers_display,
+        summary_view: g.summary_view,
+        updated_at: g.updated_at,
+      },
+    ];
   }
   if (method === "DELETE" && path === "/v1/targets/settings") {
     state.goal = null;

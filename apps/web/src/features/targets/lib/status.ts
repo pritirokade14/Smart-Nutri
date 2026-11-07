@@ -3,11 +3,15 @@ import type { TargetsOut } from "../api/targets";
 type T = (key: string, values?: Record<string, string | number>) => string;
 
 const FIELD_LABEL: Record<string, string> = {
-  birth_year: "members.form.birth_year",
-  sex: "members.form.sex",
-  height_cm: "members.form.height_cm",
-  weight_kg: "members.form.weight_kg",
+  birth_year: "targets.field.birth_year",
+  sex: "targets.field.sex",
+  height_cm: "targets.field.height",
+  weight_kg: "targets.field.weight",
 };
+
+/** Label key for a `missing_fields` / `unusual_fields` entry (null if unknown). */
+export const fieldLabelKey = (f: string): string | null =>
+  FIELD_LABEL[f] ?? null;
 
 /**
  * The message for a status that has no numbers (null for `ready` and `none`).

@@ -8,7 +8,7 @@ import type { ApiError } from "@/lib/api/errors";
 import type { TargetsOut } from "../api/targets";
 import { formatInt } from "../lib/format";
 import { problemMessage } from "../lib/problems";
-import { anyHidden, statusMessage } from "../lib/status";
+import { anyHidden, fieldLabelKey, statusMessage } from "../lib/status";
 import { FlagNotes } from "./FlagNotes";
 import { TargetsExplanation } from "./TargetsExplanation";
 
@@ -129,13 +129,10 @@ export function GuideResult({
               <span>
                 {t("targets.unusual_confirm", {
                   fields: unusual
-                    .map((f) =>
-                      t(
-                        f === "height_cm"
-                          ? "members.form.height_cm"
-                          : "members.form.weight_kg",
-                      ),
-                    )
+                    .map((f) => {
+                      const key = fieldLabelKey(f);
+                      return key ? t(key) : f;
+                    })
                     .join(", "),
                 })}
               </span>

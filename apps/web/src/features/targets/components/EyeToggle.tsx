@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { EyeIcon, EyeOffIcon } from "@/components/ui/icons";
+import { errorKey } from "@/features/members/components/ConsentDialog";
 import type { TargetsOut } from "../api/targets";
 import { useSetDisplay } from "../hooks/useTargets";
 import { anyHidden } from "../lib/status";
@@ -21,17 +22,29 @@ export function EyeToggle({
   const hidden = anyHidden(targets);
   const Icon = hidden ? EyeIcon : EyeOffIcon;
   return (
-    <button
-      type="button"
-      data-testid="eye-toggle"
-      aria-label={t(hidden ? "diary.eye.show" : "diary.eye.hide")}
-      disabled={setDisplay.isPending}
-      className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-text-secondary hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:opacity-50"
-      onClick={() =>
-        setDisplay.mutate({ numbers_display: hidden ? "show" : "hide_all" })
-      }
-    >
-      <Icon />
-    </button>
+    <>
+      <button
+        type="button"
+        data-testid="eye-toggle"
+        aria-label={t(hidden ? "diary.eye.show" : "diary.eye.hide")}
+        disabled={setDisplay.isPending}
+        className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-text-secondary hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary disabled:opacity-50"
+        onClick={() =>
+          setDisplay.mutate({ numbers_display: hidden ? "show" : "hide_all" })
+        }
+      >
+        <Icon />
+      </button>
+      {/* un-hiding can answer 429 (rate_limited): the standard error copy */}
+      {setDisplay.error ? (
+        <p
+          role="alert"
+          data-testid="eye-toggle-error"
+          className="basis-full text-sm text-text-primary"
+        >
+          {t(errorKey(t, setDisplay.error))}
+        </p>
+      ) : null}
+    </>
   );
 }

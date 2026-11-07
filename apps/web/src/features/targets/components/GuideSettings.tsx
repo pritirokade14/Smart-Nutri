@@ -131,6 +131,11 @@ function Sections({
           unusualConfirmed={form.unusualConfirmed}
           onUnusualChange={form.setUnusualConfirmed}
         />
+        {setDisplay.error ? (
+          <p role="alert" className="text-md text-text-primary">
+            {t(errorKey(t, setDisplay.error))}
+          </p>
+        ) : null}
         {saveError ? (
           <p role="alert" className="text-md text-text-primary">
             {saveError}

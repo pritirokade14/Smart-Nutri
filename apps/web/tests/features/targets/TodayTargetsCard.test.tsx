@@ -225,6 +225,50 @@ describe("TodayTargetsCard", () => {
     await within(c).findByTestId("target-energy");
   });
 
+  it("un-hiding rate limited shows the standard error copy", async () => {
+    api
+      .on("GET", "/v1/targets", targetsFixture("g1_hide_all"))
+      .on("GET", "/v1/meals/summary", summary())
+      .on("PUT", "/v1/targets/display", () =>
+        json(429, {
+          error: { code: "rate_limited", message_key: "error.rate_limited" },
+        }),
+      );
+    wrap();
+    const c = await card();
+    await userEvent.click(await within(c).findByTestId("eye-toggle"));
+    expect((await within(c).findByRole("alert")).textContent).toBe(
+      en.error.rate_limited,
+    );
+  });
+
+  it("toggling refetches targets and settings", async () => {
+    let display = "show";
+    api
+      .on("GET", "/v1/targets", () =>
+        json(200, targetsFixture("g1_build_muscle")),
+      )
+      .on("GET", "/v1/targets/settings", () => json(200, null))
+      .on("GET", "/v1/meals/summary", summary())
+      .on("PUT", "/v1/targets/display", () => {
+        display = "hide_all";
+        return json(200, {
+          member_id: "m1",
+          numbers_display: display,
+          summary_view: "remaining",
+          updated_at: "2026-11-07T00:00:00Z",
+        });
+      });
+    wrap();
+    const c = await card();
+    await within(c).findByTestId("target-energy");
+    const before = api.callsTo("GET", "/v1/targets").length;
+    await userEvent.click(within(c).getByTestId("eye-toggle"));
+    await waitFor(() =>
+      expect(api.callsTo("GET", "/v1/targets").length).toBeGreaterThan(before),
+    );
+  });
+
   it("hide_energy shows macros but no kcal", async () => {
     api.on("GET", "/v1/targets", targetsFixture("g1_hide_energy")).on(
       "GET",

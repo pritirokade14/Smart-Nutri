@@ -51,4 +51,16 @@ describe("flagMessage", () => {
       ),
     ).toBeNull();
   });
+
+  it("carbs_below_reference uses the hidden variant when macros are hidden", () => {
+    const base = targetsFixture("g1_build_muscle");
+    const shown = flagMessage(translator("en"), "carbs_below_reference", base);
+    expect(shown).toContain("130");
+    const hidden = flagMessage(translator("en"), "carbs_below_reference", {
+      ...base,
+      numbers_hidden: { energy: true, macros: true },
+    });
+    expect(hidden).toBe(MESSAGES.en.targets.flag.carbs_below_reference_hidden);
+    expect(hidden).not.toMatch(/\d/);
+  });
 });

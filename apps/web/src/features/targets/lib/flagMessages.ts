@@ -23,6 +23,8 @@ export function flagMessage(
       ? t("targets.flag.floor_applied", { value: formatInt(floor) })
       : t("targets.flag.floor_applied_hidden");
   }
+  if (flag === "carbs_below_reference" && targets.numbers_hidden.macros)
+    return t("targets.flag.carbs_below_reference_hidden");
   const key = `targets.flag.${flag}`;
   return t.has(key) ? t(key) : null;
 }

@@ -174,7 +174,7 @@ export function TodayTargetsCard({ primary }: { primary?: MemberOut }) {
 
   const title = t("home.cards.today_targets.title");
   const heading = (toggle?: TargetsOut) => (
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-2">
       <h2
         id="home-card-today_targets-title"
         className="text-md font-semibold text-text-primary"
