@@ -987,6 +987,46 @@
         "title": "DisplayIn",
         "type": "object"
       },
+      "DisplayOut": {
+        "description": "What `PUT /display` returns: only the display fields. It needs only `terms`, so it must\nnever carry the pregnancy answer, the target weight or the direction.",
+        "properties": {
+          "member_id": {
+            "format": "uuid",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "numbers_display": {
+            "enum": [
+              "show",
+              "hide_energy",
+              "hide_all"
+            ],
+            "title": "Numbers Display",
+            "type": "string"
+          },
+          "summary_view": {
+            "enum": [
+              "remaining",
+              "consumed"
+            ],
+            "title": "Summary View",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "member_id",
+          "numbers_display",
+          "summary_view",
+          "updated_at"
+        ],
+        "title": "DisplayOut",
+        "type": "object"
+      },
       "DraftConfirm": {
         "description": "Server-computed confirm-screen hints (R21). Clients render these; they never\nre-derive the save rules. Computed from the draft itself, so always current.",
         "properties": {
@@ -3726,11 +3766,18 @@
         "type": "object"
       },
       "RateOut": {
-        "description": "Unsigned (`direction` carries the sign), 2 dp (Ruling D12).",
+        "description": "Unsigned (`direction` carries the sign), 2 dp (Ruling D12). `kg_per_week` is null under\n`hide_all`: the pace shows as a percent only, so the body weight can't be worked out.",
         "properties": {
           "kg_per_week": {
-            "title": "Kg Per Week",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kg Per Week"
           },
           "pct_bw_per_week": {
             "title": "Pct Bw Per Week",
@@ -8236,7 +8283,7 @@
     },
     "/v1/targets/display": {
       "put": {
-        "description": "The eye toggle: change only how numbers are shown. Needs only `terms`, so hiding\nnumbers works even after `health_data` was withdrawn (Ruling D4).",
+        "description": "The eye toggle: change only how numbers are shown. Needs only `terms`, so hiding\nnumbers works even after `health_data` was withdrawn (Ruling D4). Returns only the display\nfields, never the health answers in the settings. A change toward hiding is never rate\nlimited (hiding must not fail); other changes share the `diary_settings` bucket.",
         "operationId": "targets_display_put",
         "requestBody": {
           "content": {
@@ -8253,7 +8300,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GoalSettingsOut"
+                  "$ref": "#/components/schemas/DisplayOut"
                 }
               }
             },

@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../models/display_in.dart';
+import '../models/display_out.dart';
 import '../models/goal_settings_in.dart';
 import '../models/goal_settings_out.dart';
 import '../models/targets_out.dart';
@@ -34,9 +35,11 @@ abstract class TargetsClient {
   /// Targets Display Put.
   ///
   /// The eye toggle: change only how numbers are shown. Needs only `terms`, so hiding.
-  /// numbers works even after `health_data` was withdrawn (Ruling D4).
+  /// numbers works even after `health_data` was withdrawn (Ruling D4). Returns only the display.
+  /// fields, never the health answers in the settings. A change toward hiding is never rate.
+  /// limited (hiding must not fail); other changes share the `diary_settings` bucket.
   @PUT('/v1/targets/display')
-  Future<GoalSettingsOut> targetsDisplayPut({@Body() required DisplayIn body});
+  Future<DisplayOut> targetsDisplayPut({@Body() required DisplayIn body});
 
   /// Targets Preview.
   ///

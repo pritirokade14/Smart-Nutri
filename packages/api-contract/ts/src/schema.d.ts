@@ -533,7 +533,9 @@ export interface paths {
         /**
          * Targets Display Put
          * @description The eye toggle: change only how numbers are shown. Needs only `terms`, so hiding
-         *     numbers works even after `health_data` was withdrawn (Ruling D4).
+         *     numbers works even after `health_data` was withdrawn (Ruling D4). Returns only the display
+         *     fields, never the health answers in the settings. A change toward hiding is never rate
+         *     limited (hiding must not fail); other changes share the `diary_settings` bucket.
          */
         put: operations["targets_display_put"];
         post?: never;
@@ -968,6 +970,33 @@ export interface components {
             numbers_display?: ("show" | "hide_energy" | "hide_all") | null;
             /** Summary View */
             summary_view?: ("remaining" | "consumed") | null;
+        };
+        /**
+         * DisplayOut
+         * @description What `PUT /display` returns: only the display fields. It needs only `terms`, so it must
+         *     never carry the pregnancy answer, the target weight or the direction.
+         */
+        DisplayOut: {
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /**
+             * Numbers Display
+             * @enum {string}
+             */
+            numbers_display: "show" | "hide_energy" | "hide_all";
+            /**
+             * Summary View
+             * @enum {string}
+             */
+            summary_view: "remaining" | "consumed";
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * DraftConfirm
@@ -1929,11 +1958,12 @@ export interface components {
         };
         /**
          * RateOut
-         * @description Unsigned (`direction` carries the sign), 2 dp (Ruling D12).
+         * @description Unsigned (`direction` carries the sign), 2 dp (Ruling D12). `kg_per_week` is null under
+         *     `hide_all`: the pace shows as a percent only, so the body weight can't be worked out.
          */
         RateOut: {
             /** Kg Per Week */
-            kg_per_week: number;
+            kg_per_week: number | null;
             /** Pct Bw Per Week */
             pct_bw_per_week: number;
         };
@@ -4859,7 +4889,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GoalSettingsOut"];
+                    "application/json": components["schemas"]["DisplayOut"];
                 };
             };
             /** @description Missing or invalid access token */

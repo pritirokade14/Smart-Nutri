@@ -7,7 +7,7 @@ part of 'rate_out.dart';
 // **************************************************************************
 
 RateOut _$RateOutFromJson(Map<String, dynamic> json) => RateOut(
-  kgPerWeek: json['kg_per_week'] as num,
+  kgPerWeek: json['kg_per_week'] as num?,
   pctBwPerWeek: json['pct_bw_per_week'] as num,
 );
 

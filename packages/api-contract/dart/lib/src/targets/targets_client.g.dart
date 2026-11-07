@@ -52,13 +52,13 @@ class _TargetsClient implements TargetsClient {
   }
 
   @override
-  Future<GoalSettingsOut> targetsDisplayPut({required DisplayIn body}) async {
+  Future<DisplayOut> targetsDisplayPut({required DisplayIn body}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body.toJson());
-    final _options = _setStreamType<GoalSettingsOut>(
+    final _options = _setStreamType<DisplayOut>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -69,9 +69,9 @@ class _TargetsClient implements TargetsClient {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, Object?>>(_options);
-    late GoalSettingsOut _value;
+    late DisplayOut _value;
     try {
-      _value = GoalSettingsOut.fromJson(_result.data!);
+      _value = DisplayOut.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
