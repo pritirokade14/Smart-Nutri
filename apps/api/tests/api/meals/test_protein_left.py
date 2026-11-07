@@ -114,3 +114,23 @@ async def test_summary_exposes_protein_per_kg(client, family, gym_member):
     riya = await _summary(client, family.riya)
     assert riya["limits"]["protein_target_g"] is None
     assert riya["limits"]["protein_g_per_kg"] is None
+
+
+async def test_weight_loss_protein_target_is_1_2_g_per_kg(client, db_session, family):
+    # Q8 (Plan 10): Lose Weight is 1.2 g/kg, read from targets.yaml (was 0.83).
+    member = Member(
+        account_id=ACC_A,
+        name="Meera",
+        relation="other",
+        birth_year=today_ist().year - 36,
+        diet="veg",
+        allergens=[],
+        conditions=[],
+        goal="weight_loss",
+        weight_kg=70,
+    )
+    db_session.add(member)
+    await db_session.flush()
+    s = await _summary(client, member.id)
+    assert s["limits"]["protein_target_g"] == 84.0
+    assert s["limits"]["protein_g_per_kg"] == 1.2

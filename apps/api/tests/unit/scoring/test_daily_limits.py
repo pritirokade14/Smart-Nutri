@@ -97,7 +97,22 @@ def test_band_edges(cfg):
 
 def test_limits_are_read_from_yaml(cfg):
     dl = cfg.thresholds["daily_limits"]
-    assert dl["adult"] == {"sugar_g": 25, "salt_g": 5, "protein_g_per_kg": 0.83}
+    assert dl["adult"] == {"sugar_g": 25, "salt_g": 5}
     assert dl["infant"] == {"sugar_g": 0, "salt_g": 0}
     assert dl["near_pct"] == 80
     assert dl["protein_min_age"] == 18
+
+
+def test_weight_loss_protein_is_1_2(cfg):
+    # Q8: Lose Weight is 1.2 g/kg (was 0.83, ruling P9-R13); read from targets.yaml.
+    m = Member(id="w", name="W", age=30, goal="weight_loss")
+    lim = daily_limits_for(m, 70.0, cfg)
+    assert lim.protein_target_g == pytest.approx(84.0)
+    assert lim.protein_g_per_kg == 1.2
+
+
+def test_protein_g_per_kg_read_from_targets_yaml(cfg):
+    dl = cfg.thresholds["daily_limits"]
+    assert "protein_g_per_kg" not in dl["adult"]
+    assert "protein_g_per_kg_by_goal" not in dl
+    assert cfg.targets["protein"]["g_per_kg_by_goal"]["weight_loss"] == 1.2

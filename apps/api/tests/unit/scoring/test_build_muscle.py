@@ -63,9 +63,10 @@ def test_no_target_without_weight(cfg):
     assert daily_limits_for(m, None, cfg).protein_target_g is None
 
 
-def test_other_goals_keep_adult_value(cfg):
+def test_weight_loss_target_is_1_2_g_per_kg(cfg):
+    # Q8 (Plan 10): Lose Weight moved from 0.83 to 1.2 g/kg.
     m = Member(id="w", name="W", age=30, goal="weight_loss")
-    assert daily_limits_for(m, 70.0, cfg).protein_target_g == pytest.approx(58.1)
+    assert daily_limits_for(m, 70.0, cfg).protein_target_g == pytest.approx(84.0)
 
 
 @pytest.mark.parametrize("goal", [None, "healthy_eating", "weight_gain", "something_else"])
@@ -75,7 +76,7 @@ def test_unlisted_goals_keep_adult_value(cfg, goal):
 
 
 def test_target_reads_yaml(cfg):
-    assert cfg.thresholds["daily_limits"]["protein_g_per_kg_by_goal"] == {"build_muscle": 1.6}
+    assert cfg.targets["protein"]["g_per_kg_by_goal"]["build_muscle"] == 1.6
 
 
 def test_build_muscle_keeps_child_sugar_and_salt_limits(cfg):
@@ -170,7 +171,7 @@ def test_protein_per_kg_by_goal(cfg):
     assert daily_limits_for(m, 70.0, cfg).protein_g_per_kg == pytest.approx(1.6)
 
 
-@pytest.mark.parametrize("goal", [None, "weight_loss", "healthy_eating"])
+@pytest.mark.parametrize("goal", [None, "healthy_eating"])
 def test_protein_per_kg_adult_default(cfg, goal):
     m = Member(id="w", name="W", age=30, goal=goal)
     assert daily_limits_for(m, 70.0, cfg).protein_g_per_kg == pytest.approx(0.83)

@@ -1530,6 +1530,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodologySectionDietTitle => 'Diet';
 
   @override
+  String get methodologySectionEnergyTargetsDescription =>
+      'Your daily guide is an estimate. We start from the Mifflin-St Jeor equation using age, sex, height and weight, multiply by an activity level, adjust gently for the chosen goal, and set protein, fat and carbs from the result. Safe minimums and pace limits always apply. Every value is pending clinician review. Information, not medical advice.';
+
+  @override
+  String get methodologySectionEnergyTargetsTitle => 'How we set daily guides';
+
+  @override
   String get methodologySectionHighInDescription =>
       'A product is marked high in a nutrient when its amount per 100 g or 100 ml is at or above these limits.';
 

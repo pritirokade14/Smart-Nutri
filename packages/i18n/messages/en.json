@@ -842,6 +842,10 @@
         "title": "Daily limits",
         "description": "In the food log, we add up the sugar and salt logged for each member in a day and compare the totals with a daily limit for their age. Protein is shown as progress towards a daily target. Labels give total sugar, not only added sugar, so this can warn more than needed."
       },
+      "energy_targets": {
+        "title": "How we set daily guides",
+        "description": "Your daily guide is an estimate. We start from the Mifflin-St Jeor equation using age, sex, height and weight, multiply by an activity level, adjust gently for the chosen goal, and set protein, fat and carbs from the result. Safe minimums and pace limits always apply. Every value is pending clinician review. Information, not medical advice."
+      },
       "build_muscle": {
         "title": "Build muscle",
         "description": "For adult members (18 and over) who want to build muscle, we note products with good protein for their calories. This goal never adds a caution or an avoid, and it can't be set for members under 18. In the food log, adults with a weight see a daily protein guide based on body weight. If you have kidney disease, ask your doctor before eating more protein."

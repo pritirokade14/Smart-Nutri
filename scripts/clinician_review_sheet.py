@@ -3,8 +3,9 @@
     cd apps/api && uv run python ../../scripts/clinician_review_sheet.py \\
         > ../../docs/launch/clinician-review.md
 
-The output has one row per numeric threshold in `app/scoring/data/thresholds.yaml`, loaded
-through `app.scoring.load_config`. Each row gives:
+The output has one row per numeric threshold in `app/scoring/data/thresholds.yaml` and one per
+numeric value in `app/scoring/data/targets.yaml` (paths prefixed `targets.`, `version` left out),
+loaded through `app.scoring.load_config`. Each row gives:
 - the path, value and unit;
 - the sources of that number (`KEY_SOURCES`, else its section's sources from
   `methodology()`), and the sources of the reason for the rule as "why: ...";
@@ -78,7 +79,19 @@ def count_numeric(node: Any, top: bool = True) -> int:
     return 1 if is_number(node) else 0
 
 
+def target_leaves(targets: dict) -> list[tuple[tuple[str, ...], Any]]:
+    """Numeric leaves of targets.yaml with the path prefixed `targets` (`version` is not one)."""
+    return [(("targets", *p), v) for p, v in walk(targets) if is_number(v) and p != ("version",)]
+
+
+def all_rows(cfg: Any) -> list[tuple[tuple[str, ...], Any]]:
+    """Every numeric row of the sheet: thresholds.yaml, then targets.yaml."""
+    return [*numeric_leaves(cfg.thresholds), *target_leaves(dict(cfg.targets))]
+
+
 def section_of(path: tuple[str, ...]) -> str | None:
+    if path[0] == "targets":
+        return "energy_targets"
     if path[0] == "conditions" and len(path) > 1:
         return path[1]
     return path[0]
@@ -87,12 +100,8 @@ def section_of(path: tuple[str, ...]) -> str | None:
 def daily_unit_of(path: tuple[str, ...]) -> str:
     """Units for `daily_limits.*`: amounts per DAY (food-log totals), never per 100 g."""
     leaf = path[-1]
-    if path[1] == "protein_g_per_kg_by_goal":
-        return "g per kg body weight per day"
     if path[1] == "child_salt_g_by_min_age":
         return "g salt per day (key = minimum age in years)"
-    if leaf == "protein_g_per_kg":
-        return "g per kg body weight per day"
     if leaf == "protein_min_age":
         return "years (minimum age)"
     if leaf == "near_pct":
@@ -102,7 +111,68 @@ def daily_unit_of(path: tuple[str, ...]) -> str:
     return ""
 
 
+def target_unit_of(path: tuple[str, ...]) -> str:
+    """Units for `targets.*` rows (path[0] is `targets`)."""
+    p = path[1:]
+    leaf = p[-1]
+    head = p[0]
+    if head == "energy":
+        if p[1] == "mifflin":
+            if p[2] == "valid_age":
+                return "years"
+            return {
+                "weight_kcal_per_kg": "kcal per kg body weight",
+                "height_kcal_per_cm": "kcal per cm of height",
+                "age_kcal_per_year": "kcal per year of age",
+            }.get(leaf, "kcal per day (constant)")
+        if p[1] == "activity_factor":
+            return "multiple of resting energy"
+        return "kcal per kg of body-weight change"
+    if head == "goal_rates":
+        return {
+            "default_pct_bw_per_week": "% of body weight per week",
+            "max_kg_per_week": "kg per week",
+            "max_deficit_pct_of_maintenance": "% of maintenance energy",
+            "max_deficit_kcal_per_day": "kcal per day",
+            "weeks": "weeks",
+            "maintenance_band_kg": "kg",
+        }.get(leaf, "BMI")
+    if head == "floors":
+        return (
+            "multiple of estimated resting energy" if leaf == "min_bmr_multiple" else "kcal per day"
+        )
+    if head == "protein":
+        if p[1] == "lean_mass_g_per_kg_by_goal":
+            return "g per kg of lean mass per day"
+        if p[1] == "adjusted_weight":
+            return "BMI" if leaf == "min_bmi" else "fraction of the excess over ideal weight"
+        if p[1] == "ibw":
+            return "kg" if p[2] == "devine" and p[3] == "base_kg" else "kg per inch over 60 inches"
+        if leaf == "max_energy_pct":
+            return "% of the energy target"
+        if leaf == "max_g_per_kg":
+            return "g per kg body weight per day (ceiling)"
+        return "g per kg body weight per day"
+    if head == "body_fat":
+        return "% body fat"
+    if head == "macros":
+        if p[1] == "fat_pct_energy":
+            return "% of energy"
+        if p[1] == "kcal_per_g":
+            return "kcal per g"
+        return "g per day"
+    if head == "minors":
+        return "years (minimum age)"
+    if head == "rounding":
+        return "kcal" if leaf == "kcal_step" else "g"
+    if head == "plausible":
+        return "cm" if p[1] == "height_cm" else "kg"
+    return ""
+
+
 def unit_of(path: tuple[str, ...]) -> str:
+    if path[0] == "targets":
+        return target_unit_of(path)
     if path[0] == "daily_limits":
         return daily_unit_of(path)
     joined = ".".join(path)
@@ -135,11 +205,16 @@ def unit_of(path: tuple[str, ...]) -> str:
 
 # Row-specific questions (Plan 9), checked before the age-group defaults.
 QUESTIONS_BY_PATH: dict[tuple[str, ...], str] = {
-    ("daily_limits", "protein_g_per_kg_by_goal", "build_muscle"): (
+    ("targets", "protein", "g_per_kg_by_goal", "build_muscle"): (
         "Is 1.6 g/kg right as a daily protein guide for adults who want to build muscle? "
         "Should members with diabetes or hypertension keep it? There is no kidney field. The "
         'copy says "If you have kidney disease, ask your doctor before eating more '
-        'protein." Is that enough? Should weight loss get 1.2 g/kg (it now keeps 0.83 g/kg)?'
+        'protein." Is that enough?'
+    ),
+    ("targets", "protein", "g_per_kg_by_goal", "weight_loss"): (
+        "Q8: weight loss now uses 1.2 g/kg (it was 0.83 g/kg). Is 1.2 g/kg right as a daily "
+        "protein guide for adults losing weight? Is it appropriate with diabetes or "
+        "hypertension, and should a kidney warning show?"
     ),
     ("supplements", "child_max_age"): (
         "Supplements (protein powders, whey, health supplements) get no Nutri-Score grade and "
@@ -154,9 +229,29 @@ QUESTIONS_BY_PATH: dict[tuple[str, ...], str] = {
 }
 
 
+QUESTION_Q10 = (
+    "Q10: confirm or replace (lean-mass factor / IBW formula / BMI 30 threshold for Asian "
+    "Indian adults / plausible body-fat range)"
+)
+QUESTION_ACTIVITY = "No primary source found: confirm or replace with ICMR-NIN 2020 PAL values"
+QUESTION_FLOORS = "Widely quoted figure, original source not confirmed: confirm or replace."
+Q10_PREFIXES = (
+    ("targets", "protein", "lean_mass_g_per_kg_by_goal"),
+    ("targets", "protein", "ibw"),
+    ("targets", "protein", "adjusted_weight"),
+    ("targets", "body_fat"),
+)
+
+
 def question_of(path: tuple[str, ...]) -> str:
     if path in QUESTIONS_BY_PATH:
         return QUESTIONS_BY_PATH[path]
+    if any(path[: len(prefix)] == prefix for prefix in Q10_PREFIXES):
+        return QUESTION_Q10
+    if path[:3] == ("targets", "energy", "activity_factor"):
+        return QUESTION_ACTIVITY
+    if path[:3] == ("targets", "floors", "kcal_by_sex"):
+        return QUESTION_FLOORS
     if "infant" in path:
         return QUESTION_INFANT
     if "child" in path or any(p.startswith("child_") for p in path):
@@ -198,14 +293,44 @@ KEY_SOURCES: dict[tuple[str, ...], tuple[list[str], list[str]]] = {
     # Daily limits for the food log.
     ("daily_limits", "adult", "sugar_g"): (["who_free_sugars"], []),
     ("daily_limits", "adult", "salt_g"): (["who_sodium"], []),
-    ("daily_limits", "adult", "protein_g_per_kg"): (["who_protein_2007"], []),
     ("daily_limits", "protein_min_age"): ([_SMARTNUTRI], ["who_protein_2007"]),
-    # Build muscle (Plan 9): 1.6 g/kg is ISSN's; the 5 g per 100 kcal density is ours.
-    ("daily_limits", "protein_g_per_kg_by_goal"): (["issn_protein_2017"], []),
+    # Build muscle (Plan 9): the 5 g per 100 kcal density is ours (1.6 g/kg is ISSN's, now under
+    # targets.protein).
     ("conditions", "build_muscle"): ([_SMARTNUTRI], ["issn_protein_2017"]),
     ("daily_limits", "child_salt_g_by_min_age"): (["nhs_child_salt"], []),
     ("daily_limits", "infant"): (["who_infant"], []),  # 0 g: no added sugar or salt under 2
     ("daily_limits", "near_pct"): ([_SMARTNUTRI], []),
+    # Daily energy and macro guides (Plan 10, targets.yaml).
+    ("targets", "energy", "mifflin"): (["mifflin_1990"], []),
+    # The in-between constant is the mean of the paper's two; our own working value.
+    ("targets", "energy", "mifflin", "sex_constant", "average"): ([_SMARTNUTRI], ["mifflin_1990"]),
+    ("targets", "energy", "activity_factor"): ([_SMARTNUTRI], []),
+    ("targets", "energy", "kcal_per_kg_body_weight"): ([_SMARTNUTRI], []),
+    ("targets", "goal_rates"): ([_SMARTNUTRI], ["cdc_weight_loss"]),
+    ("targets", "floors"): ([_SMARTNUTRI], []),
+    ("targets", "protein", "g_per_kg_by_goal"): (["who_protein_2007"], []),
+    ("targets", "protein", "g_per_kg_by_goal", "build_muscle"): (
+        ["issn_protein_2017", "morton_2018"],
+        [],
+    ),
+    ("targets", "protein", "g_per_kg_by_goal", "weight_loss"): (
+        [_SMARTNUTRI],
+        ["issn_protein_2017"],
+    ),
+    ("targets", "protein", "default_g_per_kg"): (["who_protein_2007"], []),
+    ("targets", "protein", "lean_mass_g_per_kg_by_goal"): ([_SMARTNUTRI], []),
+    ("targets", "protein", "max_g_per_kg"): ([_SMARTNUTRI], ["issn_protein_2017"]),
+    ("targets", "protein", "max_energy_pct"): ([_SMARTNUTRI], []),
+    ("targets", "protein", "adjusted_weight"): ([_SMARTNUTRI], []),
+    ("targets", "protein", "ibw"): (["devine_1974"], []),
+    ("targets", "body_fat"): ([_SMARTNUTRI], []),
+    ("targets", "macros", "fat_pct_energy"): (["iom_2005_dri"], []),
+    ("targets", "macros", "fat_pct_energy", "max"): (["icmr_nin_2024"], []),
+    ("targets", "macros", "carbs_reference_min_g"): (["iom_2005_dri"], []),
+    ("targets", "macros", "kcal_per_g"): ([_SMARTNUTRI], []),
+    ("targets", "minors"): ([_SMARTNUTRI], ["who_protein_2007"]),
+    ("targets", "rounding"): ([_SMARTNUTRI], []),
+    ("targets", "plausible"): ([_SMARTNUTRI], []),
 }
 
 
@@ -248,8 +373,9 @@ def render() -> str:
     thresholds = cfg.thresholds
     meta = methodology(cfg)
     sections = {s["id"]: s for s in meta["sections"]}
-    rows = numeric_leaves(thresholds)
-    expected = count_numeric(thresholds)
+    rows = all_rows(cfg)
+    targets = dict(cfg.targets)
+    expected = count_numeric(thresholds) + count_numeric(targets) - 1  # `version` is no threshold
     assert len(rows) == expected, f"{len(rows)} rows for {expected} numeric thresholds"
 
     out = [
@@ -257,7 +383,7 @@ def render() -> str:
         "",
         (
             "> **Generated** by `scripts/clinician_review_sheet.py` from "
-            "`apps/api/app/scoring/data/thresholds.yaml`. Do not edit by hand."
+            "`apps/api/app/scoring/data/thresholds.yaml` and `targets.yaml`. Do not edit by hand."
         ),
         (
             f"> Scoring version: `{meta['version']}`. "
@@ -292,6 +418,7 @@ def render() -> str:
         )
 
     other = [(p, v) for p, v in walk(thresholds) if not is_number(v)]
+    other += [(("targets", *p), v) for p, v in walk(targets) if not is_number(v)]
     out += [
         "",
         "## Other rule settings",

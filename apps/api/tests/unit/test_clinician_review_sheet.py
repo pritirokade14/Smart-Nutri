@@ -24,12 +24,7 @@ def sheet():
     [
         (("daily_limits", "adult", "sugar_g"), "g per day"),
         (("daily_limits", "adult", "salt_g"), "g per day"),
-        (("daily_limits", "adult", "protein_g_per_kg"), "g per kg body weight per day"),
         (("daily_limits", "protein_min_age"), "years (minimum age)"),
-        (
-            ("daily_limits", "protein_g_per_kg_by_goal", "build_muscle"),
-            "g per kg body weight per day",
-        ),
         (("conditions", "build_muscle", "good_protein_g_per_100kcal"), "g per 100 kcal"),
         (
             ("daily_limits", "child_salt_g_by_min_age", "4"),
@@ -69,16 +64,17 @@ def test_daily_limit_questions(sheet):
 
 
 def test_build_muscle_protein_target_questions(sheet):
-    q = sheet.question_of(("daily_limits", "protein_g_per_kg_by_goal", "build_muscle"))
+    q = sheet.question_of(("targets", "protein", "g_per_kg_by_goal", "build_muscle"))
     assert "Is 1.6 g/kg right" in q
     assert "diabetes or hypertension" in q
     assert "kidney" in q
     assert "If you have kidney disease, ask your doctor before eating more protein." in q
-    assert "1.2 g/kg" in q
+    wl = sheet.question_of(("targets", "protein", "g_per_kg_by_goal", "weight_loss"))
+    assert "1.2 g/kg" in wl and "Q8" in wl
     row = next(
         line
         for line in sheet.render().splitlines()
-        if "`daily_limits.protein_g_per_kg_by_goal.build_muscle`" in line
+        if "`targets.protein.g_per_kg_by_goal.build_muscle`" in line
     )
     assert "| 1.6 | g per kg body weight per day |" in row
     assert "ISSN position stand" in row and "kidney" in row
@@ -117,8 +113,12 @@ def test_infant_per_100g_values_are_ours_with_who_as_the_reason(sheet, meta, lea
     [
         (("daily_limits", "adult", "sugar_g"), ["who_free_sugars"]),
         (("daily_limits", "adult", "salt_g"), ["who_sodium"]),
-        (("daily_limits", "adult", "protein_g_per_kg"), ["who_protein_2007"]),
-        (("daily_limits", "protein_g_per_kg_by_goal", "build_muscle"), ["issn_protein_2017"]),
+        (
+            ("targets", "protein", "g_per_kg_by_goal", "build_muscle"),
+            ["issn_protein_2017", "morton_2018"],
+        ),
+        (("targets", "protein", "g_per_kg_by_goal", "healthy_eating"), ["who_protein_2007"]),
+        (("targets", "energy", "mifflin", "weight_kcal_per_kg"), ["mifflin_1990"]),
         (
             ("conditions", "build_muscle", "good_protein_g_per_100kcal"),
             ["smartnutri_working_values"],
@@ -162,7 +162,7 @@ def test_every_row_of_a_multi_source_section_has_its_own_sources(sheet, meta):
 def test_key_sources_name_real_sources_and_real_thresholds(sheet, meta):
     from app.scoring import load_config
 
-    paths = [p for p, _ in sheet.numeric_leaves(load_config().thresholds)]
+    paths = [p for p, _ in sheet.all_rows(load_config())]
     for prefix, (thresholds, rationale) in sheet.KEY_SOURCES.items():
         assert set(thresholds) | set(rationale) <= set(meta["sources"]), prefix
         assert any(p[: len(prefix)] == prefix for p in paths), f"stale entry {prefix}"
@@ -186,3 +186,65 @@ def test_committed_sheet_is_current(sheet):
     text = SHEET.read_text(encoding="utf-8")
     assert "`daily_limits.adult.sugar_g` | 25 | g per day" in text
     assert text == sheet.render()
+
+
+# --- Plan 10 Task 2: one row per numeric leaf of targets.yaml, with Q10 questions -----------
+
+
+def _row(sheet, dotted):
+    return next(line for line in sheet.render().splitlines() if f"| `{dotted}` |" in line)
+
+
+def test_targets_rows_present(sheet):
+    for dotted in (
+        "targets.protein.ibw.devine.kg_per_inch_over_60",
+        "targets.body_fat.min_pct",
+    ):
+        assert "Q10: confirm or replace" in _row(sheet, dotted), dotted
+    text = SHEET.read_text(encoding="utf-8")
+    assert text == sheet.render()
+
+
+def test_targets_rows_cover_every_numeric_leaf_except_version(sheet):
+    from app.scoring import load_config
+
+    cfg = load_config()
+    rows = [".".join(p) for p, _ in sheet.all_rows(cfg) if p[0] == "targets"]
+    leaves = [
+        ".".join(("targets", *p))
+        for p, v in sheet.walk(dict(cfg.targets))
+        if sheet.is_number(v) and p != ("version",)
+    ]
+    assert rows == leaves and len(rows) > 50
+    for dotted in rows:
+        assert f"| `{dotted}` |" in sheet.render()
+
+
+def test_targets_questions_and_units(sheet):
+    q10 = "Q10: confirm or replace"
+    for path in (
+        ("targets", "protein", "lean_mass_g_per_kg_by_goal", "build_muscle"),
+        ("targets", "protein", "adjusted_weight", "min_bmi"),
+        ("targets", "protein", "ibw", "devine", "base_kg", "male"),
+        ("targets", "body_fat", "max_pct"),
+    ):
+        assert q10 in sheet.question_of(path), path
+    act = sheet.question_of(("targets", "energy", "activity_factor", "light"))
+    assert "No primary source found: confirm or replace with ICMR-NIN 2020 PAL values" in act
+    assert q10 not in act
+    from app.scoring import load_config
+
+    for path, _ in sheet.all_rows(load_config()):
+        if path[0] == "targets":
+            assert sheet.unit_of(path), ".".join(path)
+
+
+def test_every_targets_row_has_its_own_sources(sheet, meta):
+    from app.scoring import load_config
+
+    sections = {s["id"]: s for s in meta["sections"]}
+    for path, _ in sheet.all_rows(load_config()):
+        if path[0] == "targets":
+            thresholds, _ = sheet.source_keys(path, sections)
+            assert thresholds, ".".join(path)
+            assert sheet.key_entry(path) is not None, ".".join(path)

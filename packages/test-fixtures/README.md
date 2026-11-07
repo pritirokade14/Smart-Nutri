@@ -164,6 +164,8 @@ uv run python scripts/export_meal_fixtures.py --write  # write only the files th
 | `custom_alerts_setup` | `members_list` | CTA to switch on alerts |
 | `recent_scans` | existing recent list | always last |
 
+The protein g/kg per goal moved from `thresholds.yaml` to `apps/api/app/scoring/data/targets.yaml` (`protein.*`, Plan 10), and Lose Weight is now 1.2 g/kg (Q8, was 0.83). Daily-limit protein targets read it through `targets.protein_g_per_kg()`.
+
 `protein/price_per_scoop.json` holds hand-written cases for the client-only arithmetic `price_per_scoop = price * serving_size_g / pack_size_g`, rounded to 2 dp (half up). It is `null` when any input is missing or <= 0. The price is typed by the user and never saved. `members/build_muscle_adult.json` (age 25, goal `build_muscle`) and `products/whey_powder.json` (synthetic, category `supplement`) feed the protein target, claim checks and the supplement rules; their `expected/` files are generated like the others.
 
 ## How each project uses them

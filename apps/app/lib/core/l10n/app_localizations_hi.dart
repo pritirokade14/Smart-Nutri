@@ -1535,6 +1535,14 @@ class AppLocalizationsHi extends AppLocalizations {
   String get methodologySectionDietTitle => 'आहार';
 
   @override
+  String get methodologySectionEnergyTargetsDescription =>
+      'आपकी दैनिक गाइड एक अनुमान है। हम उम्र, लिंग, ऊँचाई और वज़न से मिफ़्लिन-सेंट जिओर समीकरण लेते हैं, उसे गतिविधि के स्तर से गुणा करते हैं, चुने गए लक्ष्य के लिए हल्का बदलाव करते हैं, और नतीजे से प्रोटीन, वसा और कार्ब्स तय करते हैं। न्यूनतम सीमाएँ और गति की सीमाएँ हमेशा लागू रहती हैं। हर मान चिकित्सक की समीक्षा के लिए लंबित है। यह जानकारी है, चिकित्सा सलाह नहीं।';
+
+  @override
+  String get methodologySectionEnergyTargetsTitle =>
+      'हम दैनिक गाइड कैसे तय करते हैं';
+
+  @override
   String get methodologySectionHighInDescription =>
       'जब किसी पोषक तत्व की मात्रा प्रति 100 ग्राम या 100 मि.ली. इन सीमाओं के बराबर या उनसे ज़्यादा हो, तो उत्पाद को उस तत्व में अधिक बताया जाता है।';
 

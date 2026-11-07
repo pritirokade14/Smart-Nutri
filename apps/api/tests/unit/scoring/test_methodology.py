@@ -19,6 +19,7 @@ SECTION_IDS = [
     "supplements",
     "custom_alerts",
     "daily_limits",
+    "energy_targets",
 ]
 
 
@@ -110,8 +111,13 @@ def test_sources_are_honest_ruling_p7(cfg):
     # A member's own alerts are a preference, not a health rule: no source.
     alerts = _section(m, "custom_alerts")
     assert alerts["threshold_sources"] is None and alerts["rationale_sources"] is None
-    # No section cites ICMR-NIN as the source of its numbers.
-    assert all("icmr_nin_2024" not in (s["threshold_sources"] or []) for s in m["sections"])
+    # No section cites ICMR-NIN as the source of its numbers, except the daily guides, whose
+    # 30 % fat maximum is ICMR-NIN 2024 (read via news coverage, marked [verify]).
+    assert all(
+        "icmr_nin_2024" not in (s["threshold_sources"] or [])
+        for s in m["sections"]
+        if s["id"] != "energy_targets"
+    )
 
 
 def test_sources_have_title_url_and_are_unverified(cfg):
@@ -121,8 +127,9 @@ def test_sources_have_title_url_and_are_unverified(cfg):
     for key, src in m["sources"].items():
         assert set(src) == {"title", "url", "url_verified"}, key
         assert src["title"], key
-        # Internal working values have no external link.
-        if key == "smartnutri_working_values":
+        # Internal working values, and Devine 1974 (original not read, no stable link), have
+        # no external link.
+        if key in ("smartnutri_working_values", "devine_1974"):
             assert src["url"] is None
         else:
             assert src["url"].startswith("https://"), key
@@ -211,5 +218,33 @@ def test_build_muscle_section_plan9(cfg):
     assert muscle["thresholds"] == cfg.thresholds["conditions"]["build_muscle"]
     daily = _section(m, "daily_limits")
     assert "issn_protein_2017" in daily["threshold_sources"]
-    assert daily["thresholds"]["protein_g_per_kg_by_goal"] == {"build_muscle": 1.6}
+    assert "protein_g_per_kg_by_goal" not in daily["thresholds"]  # moved to targets.yaml
     assert m["sources"]["issn_protein_2017"]["url_verified"] is False
+
+
+def test_energy_targets_section(cfg):
+    sec = _section(methodology(cfg), "energy_targets")
+    assert "mifflin_1990" in sec["threshold_sources"]
+    assert sec["thresholds"]["protein"]["lean_mass_g_per_kg_by_goal"]["build_muscle"] == 2.0
+    assert "version" not in sec["thresholds"]
+    expected = {k: v for k, v in cfg.targets.items() if k != "version"}
+    assert sec["thresholds"] == expected
+    from app.scoring import targets
+
+    assert targets.sources(cfg) == tuple(
+        dict.fromkeys([*sec["threshold_sources"], *sec["rationale_sources"]])
+    )
+    assert sec["threshold_sources"] == [
+        "mifflin_1990",
+        "cdc_weight_loss",
+        "iom_2005_dri",
+        "issn_protein_2017",
+        "morton_2018",
+        "icmr_nin_2024",
+        "who_protein_2007",
+        "devine_1974",
+        "smartnutri_working_values",
+    ]
+    assert sec["rationale_sources"] == ["issn_protein_2017", "iom_2005_dri"]
+    for k in ("mifflin_1990", "cdc_weight_loss", "iom_2005_dri", "morton_2018", "devine_1974"):
+        assert methodology(cfg)["sources"][k]["url_verified"] is False

@@ -1533,6 +1533,14 @@ class AppLocalizationsMr extends AppLocalizations {
   String get methodologySectionDietTitle => 'आहार';
 
   @override
+  String get methodologySectionEnergyTargetsDescription =>
+      'तुमचा दैनिक मार्गदर्शक हा एक अंदाज आहे. आम्ही वय, लिंग, उंची आणि वजन वापरून मिफ्लिन-सेंट जिओर समीकरण घेतो, त्याला हालचालीच्या पातळीने गुणतो, निवडलेल्या ध्येयासाठी हळुवार बदल करतो आणि निकालावरून प्रथिने, चरबी आणि कार्ब्स ठरवतो. किमान मर्यादा आणि गतीच्या मर्यादा नेहमी लागू असतात. प्रत्येक मूल्य डॉक्टरांच्या तपासणीसाठी प्रलंबित आहे. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
+
+  @override
+  String get methodologySectionEnergyTargetsTitle =>
+      'आम्ही दैनिक मार्गदर्शक कसा ठरवतो';
+
+  @override
   String get methodologySectionHighInDescription =>
       'एखाद्या पोषक घटकाचे प्रमाण प्रति 100 ग्रॅम किंवा 100 मि.ली. या मर्यादांइतके किंवा त्यापेक्षा जास्त असल्यास, उत्पादनात तो घटक जास्त असल्याचे दाखवले जाते.';
 

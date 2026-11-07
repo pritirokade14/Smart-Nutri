@@ -2794,6 +2794,18 @@ abstract class AppLocalizations {
   /// **'Diet'**
   String get methodologySectionDietTitle;
 
+  /// No description provided for @methodologySectionEnergyTargetsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily guide is an estimate. We start from the Mifflin-St Jeor equation using age, sex, height and weight, multiply by an activity level, adjust gently for the chosen goal, and set protein, fat and carbs from the result. Safe minimums and pace limits always apply. Every value is pending clinician review. Information, not medical advice.'**
+  String get methodologySectionEnergyTargetsDescription;
+
+  /// No description provided for @methodologySectionEnergyTargetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How we set daily guides'**
+  String get methodologySectionEnergyTargetsTitle;
+
   /// No description provided for @methodologySectionHighInDescription.
   ///
   /// In en, this message translates to:
