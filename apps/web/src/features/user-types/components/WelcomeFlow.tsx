@@ -33,6 +33,9 @@ import { FollowUp } from "./FollowUp";
 import { PrefillReview } from "./PrefillReview";
 import { TypePicker } from "./TypePicker";
 
+// The modes whose Home has a daily-guide card (layouts.json today_targets).
+const GUIDE_TYPES: readonly UserType[] = ["gym", "weight_loss", "eat_better"];
+
 type Step = "pick" | "follow" | "review" | "done";
 type After = "home" | "add_member";
 
@@ -80,6 +83,9 @@ export function WelcomeFlow({ edit }: { edit: boolean }) {
 
   function finish(to: After) {
     if (to === "add_member") router.push(`/${locale}/members/new`);
+    else if (!edit && types.some((p) => GUIDE_TYPES.includes(p)))
+      // Plan 10: the daily guide is offered to these modes (skippable there).
+      router.replace(`/${locale}/guide/setup?from=welcome`);
     else router.replace(`/${locale}/${edit ? "profile" : "home"}`);
   }
 

@@ -56,7 +56,13 @@ export function getApi(): ApiClient {
         ) {
           await onUnauthorized?.();
         }
-        if (response.status === 403 && onConsentRequired) {
+        // Targets handle a missing health_data consent in place (an inline
+        // card with a grant button), never by pulling the user away.
+        if (
+          response.status === 403 &&
+          onConsentRequired &&
+          !new URL(request.url).pathname.startsWith("/v1/targets")
+        ) {
           const purposes = await consentPurposes(response);
           if (purposes) onConsentRequired(purposes);
         }
