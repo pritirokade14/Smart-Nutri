@@ -70,6 +70,8 @@ function reset(params = new URLSearchParams()) {
     scans: 0,
     meals: [],
     timezone: "Asia/Kolkata",
+    // The meal slots (the four defaults at first); archived ones stay.
+    slots: defaultSlots(),
     // Days marked as partly logged (date -> true).
     partial: {},
     // ?diary=<stem> serves that golden day (and its week) as-is.
@@ -118,7 +120,6 @@ function reset(params = new URLSearchParams()) {
     ],
   };
 }
-reset();
 
 const consentStates = () =>
   PURPOSES.map((purpose) => ({
@@ -324,7 +325,7 @@ const round1 = (n) => Math.round(n * 10) / 10;
 const PRIMARY_ID = "a0000000-0000-4000-8000-000000000001";
 const SLOT_KEYS = ["breakfast", "lunch", "snack", "dinner"];
 const slotId = (i) => `d0000000-0000-4000-8000-00000000000${i + 1}`;
-const slotRows = () =>
+const defaultSlots = () =>
   SLOT_KEYS.map((k, i) => ({
     id: slotId(i),
     member_id: PRIMARY_ID,
@@ -335,10 +336,17 @@ const slotRows = () =>
     is_default: true,
     archived: false,
   }));
+const activeSlots = () =>
+  state.slots
+    .filter((r) => !r.archived)
+    .sort((a, b) => a.position - b.position);
+const slotRows = activeSlots;
 // Canned: the stub's pick for the current IST hour (the real API decides).
 const suggestedSlot = () => {
   const h = new Date(Date.now() + IST_MS).getUTCHours();
-  return slotId(h >= 4 && h < 11 ? 0 : h < 16 ? 1 : h < 19 ? 2 : 3);
+  const want = slotId(h >= 4 && h < 11 ? 0 : h < 16 ? 1 : h < 19 ? 2 : 3);
+  const rows = activeSlots();
+  return (rows.find((r) => r.id === want) ?? rows[0]).id;
 };
 const NUTRIENTS = [
   "energy_kcal",
@@ -476,7 +484,12 @@ function patchMeal(id, b) {
       NUTRIENTS.map((k) => [k, b.quick[k] ?? null]),
     );
   }
-  if (b.meal_slot_id != null) m.meal_slot_id = b.meal_slot_id;
+  if (b.meal_slot_id != null) {
+    const to = state.slots.find((r) => r.id === b.meal_slot_id);
+    if (!to) return [404, envelope("meal_slot_not_found")];
+    if (to.archived) return [422, envelope("meal_slot_archived")];
+    m.meal_slot_id = b.meal_slot_id;
+  }
   m.updated_at = nowIso();
   return [200, publicMeal(m)];
 }
@@ -545,6 +558,95 @@ const redactTotals = (t) => {
   );
 };
 
+// Meal slots (Plan 11 slice 2b): create (max 6 active), rename, reorder and
+// archive/delete, with the API's error codes. Labels are stored as typed.
+const SLOT_MAX = 6;
+const labelOk = (v) =>
+  typeof v === "string" &&
+  [...v.trim()].length >= 1 &&
+  [...v.trim()].length <= 30;
+function mealSlotRoute(method, path, b) {
+  const active = activeSlots();
+  const dup = (label, exceptId) =>
+    active.some(
+      (r) =>
+        r.id !== exceptId &&
+        r.custom_label != null &&
+        r.custom_label.toLowerCase() === label.toLowerCase(),
+    );
+  if (method === "POST" && path === "/v1/meal-slots") {
+    if (!labelOk(b.custom_label)) return [422, envelope("validation_error")];
+    const label = b.custom_label.trim();
+    if (b.client_id) {
+      const prior = state.slots.find((r) => r.client_id === b.client_id);
+      if (prior) return [200, publicSlot(prior)];
+    }
+    if (active.length >= SLOT_MAX)
+      return [422, envelope("meal_slot_limit_reached", { max: SLOT_MAX })];
+    if (dup(label)) return [422, envelope("meal_slot_label_duplicate")];
+    const n = state.slots.length + 1;
+    const row = {
+      id: `d0000000-0000-4000-8000-${String(100 + n).padStart(12, "0")}`,
+      member_id: PRIMARY_ID,
+      position: Math.max(-1, ...state.slots.map((r) => r.position)) + 1,
+      label_key: null,
+      custom_label: label,
+      default_time_window: b.default_time_window ?? null,
+      is_default: false,
+      archived: false,
+      client_id: b.client_id ?? null,
+    };
+    state.slots.push(row);
+    return [201, publicSlot(row)];
+  }
+  if (method === "PUT" && path === "/v1/meal-slots/order") {
+    const ids = b.ids ?? [];
+    const unknown = ids.find((i) => !state.slots.some((r) => r.id === i));
+    if (unknown) return [404, envelope("meal_slot_not_found")];
+    if (
+      ids.length !== active.length ||
+      new Set(ids).size !== ids.length ||
+      !active.every((r) => ids.includes(r.id))
+    )
+      return [422, envelope("validation_error")];
+    ids.forEach((id, i) => {
+      state.slots.find((r) => r.id === id).position = i;
+    });
+    return [200, { items: activeSlots().map(publicSlot) }];
+  }
+  const one = path.match(/^\/v1\/meal-slots\/([0-9a-f-]{36})$/);
+  if (!one) return null;
+  const row = state.slots.find((r) => r.id === one[1]);
+  if (!row) return [404, envelope("meal_slot_not_found")];
+  if (method === "PATCH") {
+    if (row.archived) return [422, envelope("meal_slot_archived")];
+    if (b.clear_custom_label && row.is_default) row.custom_label = null;
+    if (b.custom_label != null) {
+      if (!labelOk(b.custom_label)) return [422, envelope("validation_error")];
+      const label = b.custom_label.trim();
+      if (dup(label, row.id))
+        return [422, envelope("meal_slot_label_duplicate")];
+      row.custom_label = label;
+    }
+    if (b.clear_time_window) row.default_time_window = null;
+    if (b.default_time_window) row.default_time_window = b.default_time_window;
+    return [200, publicSlot(row)];
+  }
+  if (method === "DELETE") {
+    if (row.archived) return [200, { result: "archived" }];
+    if (active.length <= 1) return [422, envelope("meal_slot_last_active")];
+    const used = state.meals.some((m) => m.meal_slot_id === row.id);
+    if (used || row.is_default) {
+      row.archived = true;
+      return [200, { result: "archived" }];
+    }
+    state.slots = state.slots.filter((r) => r.id !== row.id);
+    return [200, { result: "deleted" }];
+  }
+  return null;
+}
+const publicSlot = ({ client_id: _c, ...r }) => r;
+
 function diaryDayOut(date) {
   if (state.diaryDay && !date) return [200, state.diaryDay];
   const today = istDate(nowIso());
@@ -602,19 +704,24 @@ function diaryDayOut(date) {
       date: day,
       today,
       timezone: "Asia/Kolkata",
-      slots: slotRows().map((r) => {
-        const list = dayMeals.filter((m) => m.meal_slot_id === r.id);
-        return {
-          slot_id: r.id,
-          label_key: r.label_key,
-          custom_label: null,
-          position: r.position,
-          archived: false,
-          entries: list.map(publicMeal),
-          totals: redactTotals(totalsOf(list)),
-          incomplete: incompleteOf(list),
-        };
-      }),
+      slots: state.slots
+        .filter(
+          (r) => !r.archived || dayMeals.some((m) => m.meal_slot_id === r.id),
+        )
+        .sort((a, b) => a.position - b.position)
+        .map((r) => {
+          const list = dayMeals.filter((m) => m.meal_slot_id === r.id);
+          return {
+            slot_id: r.id,
+            label_key: r.label_key,
+            custom_label: r.custom_label,
+            position: r.position,
+            archived: r.archived,
+            entries: list.map(publicMeal),
+            totals: redactTotals(totalsOf(list)),
+            incomplete: incompleteOf(list),
+          };
+        }),
       totals: redactTotals(eaten),
       incomplete,
       targets,
@@ -990,7 +1097,22 @@ function route(method, path, b, q = new URLSearchParams()) {
   )
     return [403, envelope("consent_required", { purposes: ["terms"] })];
   if (method === "GET" && path === "/v1/meal-slots")
-    return [200, { items: slotRows(), suggested_slot_id: suggestedSlot() }];
+    return [
+      200,
+      {
+        items:
+          q.get("include_archived") === "true"
+            ? [...state.slots]
+                .sort((a, b) => a.position - b.position)
+                .map(publicSlot)
+            : slotRows().map(publicSlot),
+        suggested_slot_id: suggestedSlot(),
+      },
+    ];
+  if (path.startsWith("/v1/meal-slots/") || path === "/v1/meal-slots") {
+    const slotRoute = mealSlotRoute(method, path, b);
+    if (slotRoute) return slotRoute;
+  }
   if (method === "GET" && path === "/v1/diary/day")
     return diaryDayOut(q.get("date"));
   if (method === "GET" && path === "/v1/diary/week")
@@ -1050,6 +1172,8 @@ const CORS = {
   "access-control-allow-headers": "authorization, content-type",
   "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
 };
+
+reset();
 
 createServer((req, res) => {
   if (req.url === "/health") {

@@ -1486,17 +1486,125 @@ abstract class AppLocalizations {
   /// **'Snacks'**
   String get diarySlotSnack;
 
+  /// No description provided for @diarySlotsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a meal'**
+  String get diarySlotsAdd;
+
+  /// No description provided for @diarySlotsDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a meal with this name.'**
+  String get diarySlotsDuplicate;
+
+  /// No description provided for @diarySlotsLastActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least one meal.'**
+  String get diarySlotsLastActive;
+
+  /// No description provided for @diarySlotsLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can have up to {max} meals.'**
+  String diarySlotsLimit(String max);
+
   /// No description provided for @diarySlotsManage.
   ///
   /// In en, this message translates to:
   /// **'Edit meals'**
   String get diarySlotsManage;
 
+  /// No description provided for @diarySlotsMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {title} down'**
+  String diarySlotsMoveDown(String title);
+
+  /// No description provided for @diarySlotsMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {title} up'**
+  String diarySlotsMoveUp(String title);
+
+  /// No description provided for @diarySlotsNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Names you type are kept exactly as you type them.'**
+  String get diarySlotsNameHint;
+
+  /// No description provided for @diarySlotsPickAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'That meal was removed. Please pick another meal for this item.'**
+  String get diarySlotsPickAgain;
+
+  /// No description provided for @diarySlotsRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this meal'**
+  String get diarySlotsRemove;
+
+  /// No description provided for @diarySlotsRemoveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Food you already logged here stays in your diary.'**
+  String get diarySlotsRemoveNote;
+
   /// No description provided for @diarySlotsRemoved.
   ///
   /// In en, this message translates to:
   /// **'Removed meal'**
   String get diarySlotsRemoved;
+
+  /// No description provided for @diarySlotsRemovedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed meal'**
+  String get diarySlotsRemovedBadge;
+
+  /// No description provided for @diarySlotsRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get diarySlotsRename;
+
+  /// No description provided for @diarySlotsReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Change order'**
+  String get diarySlotsReorder;
+
+  /// No description provided for @diarySlotsResetName.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the original name'**
+  String get diarySlotsResetName;
+
+  /// No description provided for @diarySlotsTimeEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End time'**
+  String get diarySlotsTimeEnd;
+
+  /// No description provided for @diarySlotsTimeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get diarySlotsTimeStart;
+
+  /// No description provided for @diarySlotsTimeWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Usual time (optional)'**
+  String get diarySlotsTimeWindow;
+
+  /// No description provided for @diarySlotsTimeWindowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We use this to suggest a meal when you add food.'**
+  String get diarySlotsTimeWindowHint;
 
   /// No description provided for @diaryTargetsConsent.
   ///
@@ -1785,6 +1893,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That meal has been removed. Pick another meal.'**
   String get errorMealSlotArchived;
+
+  /// No description provided for @errorMealSlotLabelDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a meal with this name.'**
+  String get errorMealSlotLabelDuplicate;
+
+  /// No description provided for @errorMealSlotLastActive.
+  ///
+  /// In en, this message translates to:
+  /// **'You need at least one meal.'**
+  String get errorMealSlotLastActive;
 
   /// No description provided for @errorMealSlotLimitReached.
   ///
@@ -4431,6 +4551,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Body fat %'**
   String get settingsDiaryBodyFat;
+
+  /// No description provided for @settingsDiaryMeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Meals'**
+  String get settingsDiaryMeals;
 
   /// No description provided for @settingsDiaryNumbersHideAll.
   ///

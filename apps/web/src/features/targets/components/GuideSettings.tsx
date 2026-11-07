@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ConfirmDialog } from "@/components/ui/Dialog";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -210,6 +210,7 @@ function Sections({
  */
 export function GuideSettings() {
   const t = useTranslations();
+  const locale = useLocale();
   const members = useMembers();
   const settings = useGoalSettings();
   const failed =
@@ -231,6 +232,13 @@ export function GuideSettings() {
   return (
     <div className="space-y-4">
       <SectionHeader as="h1" title={t("settings.diary.title")} />
+      <a
+        href={`/${locale}/diary/meals`}
+        className={buttonClass({ variant: "outline" })}
+        data-testid="settings-meals-link"
+      >
+        {t("settings.diary.meals")}
+      </a>
       <Sections
         member={primary}
         settings={settings.data ?? null}

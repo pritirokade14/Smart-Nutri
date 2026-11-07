@@ -109,6 +109,7 @@ class Settings(BaseSettings):
     # unsaved preview behind the setup screen (per account, per UTC hour).
     rate_limit_diary_settings_per_day: int = 30
     rate_limit_targets_preview_per_hour: int = 120
+    rate_limit_diary_writes_per_day: int = 200  # meal-slot create, rename, reorder, archive
     # Solo only (Q9): a non-primary member gets 422 diary_member_not_enabled while this is off.
     diary_family_enabled: bool = False
     # Adaptive energy (slice 7) stays off until clinician sign-off; PUT refuses it while off.

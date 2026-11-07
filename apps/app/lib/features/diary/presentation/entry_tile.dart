@@ -17,12 +17,16 @@ const _ringKeys = {'energy_kcal', 'protein_g', 'fat_g', 'carbs_g'};
 /// One logged entry. Shows exactly what the API sent: kcal only when it is
 /// known and not hidden; an unknown value gets the incomplete marker.
 class EntryTile extends StatelessWidget {
-  const EntryTile({super.key, required this.entry, this.onTap});
+  const EntryTile({super.key, required this.entry, this.onTap, this.onMove});
 
   final MealOut entry;
   final VoidCallback? onTap;
 
+  /// Offered on entries of a removed meal.
+  final VoidCallback? onMove;
+
   static Key tileKey(String id) => Key('diary-entry-$id');
+  static Key moveKey(String id) => Key('diary-entry-move-$id');
   static const quickBadgeKey = Key('diary-quick-badge');
   static const portionKey = Key('diary-entry-portion');
 
@@ -84,7 +88,21 @@ class EntryTile extends StatelessWidget {
             OffAttribution(barcode: barcode),
         ],
       ),
-      trailing: kcal != null
+      trailing: onMove != null
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (kcal != null)
+                  Text(kcalText(l10n, kcal), style: theme.textTheme.bodyMedium),
+                IconButton(
+                  key: moveKey(entry.id),
+                  tooltip: l10n.diaryMove,
+                  icon: const Icon(Icons.drive_file_move_outlined),
+                  onPressed: onMove,
+                ),
+              ],
+            )
+          : kcal != null
           ? Text(kcalText(l10n, kcal), style: theme.textTheme.bodyMedium)
           : incomplete
           ? Tooltip(

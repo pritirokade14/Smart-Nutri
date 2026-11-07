@@ -789,10 +789,74 @@ class AppLocalizationsHi extends AppLocalizations {
   String get diarySlotSnack => 'स्नैक्स';
 
   @override
+  String get diarySlotsAdd => 'भोजन जोड़ें';
+
+  @override
+  String get diarySlotsDuplicate => 'इस नाम का भोजन आपके पास पहले से है।';
+
+  @override
+  String get diarySlotsLastActive => 'कम से कम एक भोजन रखें।';
+
+  @override
+  String diarySlotsLimit(String max) {
+    return 'आप अधिकतम $max भोजन रख सकते हैं।';
+  }
+
+  @override
   String get diarySlotsManage => 'भोजन बदलें';
 
   @override
+  String diarySlotsMoveDown(String title) {
+    return '$title को नीचे ले जाएँ';
+  }
+
+  @override
+  String diarySlotsMoveUp(String title) {
+    return '$title को ऊपर ले जाएँ';
+  }
+
+  @override
+  String get diarySlotsNameHint =>
+      'आप जो नाम लिखेंगे, वह ठीक वैसा ही रखा जाएगा।';
+
+  @override
+  String get diarySlotsPickAgain =>
+      'वह भोजन हटा दिया गया था। कृपया इस आइटम के लिए कोई दूसरा भोजन चुनें।';
+
+  @override
+  String get diarySlotsRemove => 'यह भोजन हटाएँ';
+
+  @override
+  String get diarySlotsRemoveNote =>
+      'यहाँ जो खाना आप पहले लॉग कर चुके हैं, वह आपकी डायरी में रहेगा।';
+
+  @override
   String get diarySlotsRemoved => 'हटाया गया भोजन';
+
+  @override
+  String get diarySlotsRemovedBadge => 'हटाया गया भोजन';
+
+  @override
+  String get diarySlotsRename => 'नाम बदलें';
+
+  @override
+  String get diarySlotsReorder => 'क्रम बदलें';
+
+  @override
+  String get diarySlotsResetName => 'मूल नाम इस्तेमाल करें';
+
+  @override
+  String get diarySlotsTimeEnd => 'खत्म होने का समय';
+
+  @override
+  String get diarySlotsTimeStart => 'शुरू होने का समय';
+
+  @override
+  String get diarySlotsTimeWindow => 'आम समय (वैकल्पिक)';
+
+  @override
+  String get diarySlotsTimeWindowHint =>
+      'खाना जोड़ते समय हम इससे भोजन सुझाते हैं।';
 
   @override
   String get diaryTargetsConsent =>
@@ -971,6 +1035,13 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get errorMealSlotArchived =>
       'यह भोजन हटा दिया गया है। कोई दूसरा भोजन चुनें।';
+
+  @override
+  String get errorMealSlotLabelDuplicate =>
+      'इस नाम का भोजन आपके पास पहले से है।';
+
+  @override
+  String get errorMealSlotLastActive => 'कम से कम एक भोजन रखना ज़रूरी है।';
 
   @override
   String get errorMealSlotLimitReached =>
@@ -2547,6 +2618,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get settingsDiaryBodyFat => 'शरीर में वसा %';
+
+  @override
+  String get settingsDiaryMeals => 'भोजन';
 
   @override
   String get settingsDiaryNumbersHideAll => 'सभी संख्याएँ छिपाएँ';

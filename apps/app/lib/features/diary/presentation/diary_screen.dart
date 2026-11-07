@@ -29,7 +29,9 @@ import 'add_food_sheet.dart';
 import 'copy_sheet.dart';
 import 'day_header.dart';
 import 'day_menu.dart';
+import 'move_entry_sheet.dart';
 import 'pending_entries.dart';
+import 'pick_slot_again.dart';
 import 'week_view.dart';
 import 'diary_providers.dart';
 import 'diary_rings.dart';
@@ -233,6 +235,7 @@ class DiaryDayBody extends ConsumerWidget {
         ),
         children: [
           const SyncBanner(),
+          const PickSlotAgain(),
           DayHeader(day: day),
           if (day.partialLogged)
             Padding(
@@ -351,6 +354,10 @@ class DiaryDayBody extends ConsumerWidget {
                   ))
                     PendingEntryTile(row: r),
                 ],
+                onEntryMove: (e) async {
+                  final moved = await showMoveEntrySheet(context, e);
+                  if (moved == true) ref.invalidate(diaryDayProvider(date));
+                },
                 onEntryTap: (e) async {
                   final changed = await showEditEntrySheet(context, e);
                   if (changed == true) {

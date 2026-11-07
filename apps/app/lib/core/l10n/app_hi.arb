@@ -368,8 +368,47 @@
   "diarySlotDinner": "रात का खाना",
   "diarySlotLunch": "दोपहर का खाना",
   "diarySlotSnack": "स्नैक्स",
+  "diarySlotsAdd": "भोजन जोड़ें",
+  "diarySlotsDuplicate": "इस नाम का भोजन आपके पास पहले से है।",
+  "diarySlotsLastActive": "कम से कम एक भोजन रखें।",
+  "diarySlotsLimit": "आप अधिकतम {max} भोजन रख सकते हैं।",
+  "@diarySlotsLimit": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "diarySlotsManage": "भोजन बदलें",
+  "diarySlotsMoveDown": "{title} को नीचे ले जाएँ",
+  "@diarySlotsMoveDown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "diarySlotsMoveUp": "{title} को ऊपर ले जाएँ",
+  "@diarySlotsMoveUp": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "diarySlotsNameHint": "आप जो नाम लिखेंगे, वह ठीक वैसा ही रखा जाएगा।",
+  "diarySlotsPickAgain": "वह भोजन हटा दिया गया था। कृपया इस आइटम के लिए कोई दूसरा भोजन चुनें।",
+  "diarySlotsRemove": "यह भोजन हटाएँ",
+  "diarySlotsRemoveNote": "यहाँ जो खाना आप पहले लॉग कर चुके हैं, वह आपकी डायरी में रहेगा।",
   "diarySlotsRemoved": "हटाया गया भोजन",
+  "diarySlotsRemovedBadge": "हटाया गया भोजन",
+  "diarySlotsRename": "नाम बदलें",
+  "diarySlotsReorder": "क्रम बदलें",
+  "diarySlotsResetName": "मूल नाम इस्तेमाल करें",
+  "diarySlotsTimeEnd": "खत्म होने का समय",
+  "diarySlotsTimeStart": "शुरू होने का समय",
+  "diarySlotsTimeWindow": "आम समय (वैकल्पिक)",
+  "diarySlotsTimeWindowHint": "खाना जोड़ते समय हम इससे भोजन सुझाते हैं।",
   "diaryTargetsConsent": "अपनी दैनिक गाइड देखने के लिए, SmartNutri को अपनी सेहत की जानकारी इस्तेमाल करने की अनुमति दें।",
   "diaryTitle": "डायरी",
   "diaryToday": "आज",
@@ -442,6 +481,8 @@
   "errorInvalidProductRef": "जाँचने के लिए एक उत्पाद चुनें।",
   "errorMealNotFound": "यह खाने की एंट्री नहीं मिली।",
   "errorMealSlotArchived": "यह भोजन हटा दिया गया है। कोई दूसरा भोजन चुनें।",
+  "errorMealSlotLabelDuplicate": "इस नाम का भोजन आपके पास पहले से है।",
+  "errorMealSlotLastActive": "कम से कम एक भोजन रखना ज़रूरी है।",
   "errorMealSlotLimitReached": "अधिकतम 6 सक्रिय भोजन रखे जा सकते हैं। पहले एक हटाएँ।",
   "errorMealSlotNotFound": "यह भोजन नहीं मिला।",
   "errorMemberLimit": "आप परिवार के अधिकतम 10 सदस्य जोड़ सकते हैं।",
@@ -1338,6 +1379,7 @@
   "settingsDeleteTitle": "खाता हटाएँ",
   "settingsDeleting": "आपका खाता हटाया जा रहा है…",
   "settingsDiaryBodyFat": "शरीर में वसा %",
+  "settingsDiaryMeals": "भोजन",
   "settingsDiaryNumbersHideAll": "सभी संख्याएँ छिपाएँ",
   "settingsDiaryNumbersHideEnergy": "कैलोरी छिपाएँ",
   "settingsDiaryNumbersHideNote": "आप फिर भी खाना दर्ज कर सकते हैं। आपकी गाइड पृष्ठभूमि में काम करती रहती है।",
