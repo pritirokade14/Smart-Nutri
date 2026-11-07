@@ -1966,6 +1966,18 @@ abstract class AppLocalizations {
   /// **'Please choose a share of calories from fat between 20% and 30%.'**
   String get errorFatPctOutOfRange;
 
+  /// No description provided for @errorFavouriteLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can keep up to 200 favourites. Remove one to add another.'**
+  String get errorFavouriteLimit;
+
+  /// No description provided for @errorFavouriteNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that favourite.'**
+  String get errorFavouriteNotFound;
+
   /// No description provided for @errorFollowUpWithoutType.
   ///
   /// In en, this message translates to:
@@ -2368,6 +2380,66 @@ abstract class AppLocalizations {
   /// **'Family'**
   String get familyTitle;
 
+  /// No description provided for @favouritesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favourites'**
+  String get favouritesAdd;
+
+  /// No description provided for @favouritesAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favourites'**
+  String get favouritesAdded;
+
+  /// No description provided for @favouritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No favourites yet'**
+  String get favouritesEmpty;
+
+  /// No description provided for @favouritesLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can keep up to 200 favourites.'**
+  String get favouritesLimit;
+
+  /// No description provided for @favouritesLogAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Log again'**
+  String get favouritesLogAgain;
+
+  /// No description provided for @favouritesMealItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {# item} other {# items}}'**
+  String favouritesMealItems(num count);
+
+  /// No description provided for @favouritesMealName.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal name'**
+  String get favouritesMealName;
+
+  /// No description provided for @favouritesMealNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Names you type are kept exactly as you type them.'**
+  String get favouritesMealNameHint;
+
+  /// No description provided for @favouritesRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favourites'**
+  String get favouritesRemove;
+
+  /// No description provided for @favouritesSaveMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as favourite meal'**
+  String get favouritesSaveMeal;
+
   /// No description provided for @foodsBlankIsUnknown.
   ///
   /// In en, this message translates to:
@@ -2379,6 +2451,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Made with'**
   String get foodsDishIngredients;
+
+  /// No description provided for @foodsFavourites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites'**
+  String get foodsFavourites;
 
   /// No description provided for @foodsGroupIndian.
   ///

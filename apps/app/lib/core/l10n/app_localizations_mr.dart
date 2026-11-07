@@ -1078,6 +1078,13 @@ class AppLocalizationsMr extends AppLocalizations {
       'कृपया कॅलरीतील चरबीचा वाटा 20% ते 30% दरम्यान निवडा.';
 
   @override
+  String get errorFavouriteLimit =>
+      'तुम्ही २०० पर्यंत आवडते ठेवू शकता. नवीन जोडण्यासाठी एक काढा.';
+
+  @override
+  String get errorFavouriteNotFound => 'ते आवडते सापडले नाही.';
+
+  @override
   String get errorFollowUpWithoutType =>
       'कृपया तुमची उत्तरे तपासा आणि पुन्हा प्रयत्न करा.';
 
@@ -1316,11 +1323,53 @@ class AppLocalizationsMr extends AppLocalizations {
   String get familyTitle => 'कुटुंब';
 
   @override
+  String get favouritesAdd => 'आवडत्यांमध्ये जोडा';
+
+  @override
+  String get favouritesAdded => 'आवडत्यांमध्ये जोडले';
+
+  @override
+  String get favouritesEmpty => 'अजून आवडते नाहीत';
+
+  @override
+  String get favouritesLimit => 'तुम्ही २०० पर्यंत आवडते ठेवू शकता.';
+
+  @override
+  String get favouritesLogAgain => 'पुन्हा नोंदवा';
+
+  @override
+  String favouritesMealItems(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count आयटम',
+      one: '$count आयटम',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get favouritesMealName => 'जेवणाचे नाव';
+
+  @override
+  String get favouritesMealNameHint =>
+      'तुम्ही लिहिलेली नावे जशीच्या तशी ठेवली जातात.';
+
+  @override
+  String get favouritesRemove => 'आवडत्यांमधून काढा';
+
+  @override
+  String get favouritesSaveMeal => 'आवडते जेवण म्हणून जतन करा';
+
+  @override
   String get foodsBlankIsUnknown =>
       'माहीत नसेल तर रिकामे ठेवा. रिकामे कधीही 0 धरले जात नाही.';
 
   @override
   String get foodsDishIngredients => 'यापासून बनलेले';
+
+  @override
+  String get foodsFavourites => 'आवडते';
 
   @override
   String get foodsGroupIndian => 'भारतीय पदार्थ';

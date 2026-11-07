@@ -519,6 +519,8 @@
   "errorExtractionFailed": "हम यह लेबल नहीं पढ़ पाए। दूसरी फ़ोटो आज़माएँ या जानकारी खुद भरें।",
   "errorExtractionUnavailable": "लेबल पढ़ने की सुविधा अभी उपलब्ध नहीं है। बाद में फिर कोशिश करें या जानकारी खुद भरें।",
   "errorFatPctOutOfRange": "कृपया कैलोरी में वसा का हिस्सा 20% से 30% के बीच चुनें।",
+  "errorFavouriteLimit": "आप 200 तक पसंदीदा रख सकते हैं। नया जोड़ने के लिए एक हटाएँ।",
+  "errorFavouriteNotFound": "वह पसंदीदा नहीं मिला।",
   "errorFollowUpWithoutType": "कृपया अपने जवाब जाँचें और फिर से कोशिश करें।",
   "errorFoodNotFound": "हमें वह खाना नहीं मिला।",
   "errorFoodRetired": "यह व्यंजन अब उपलब्ध नहीं है, इसलिए इसे दोबारा नहीं जोड़ा जा सकता। आपकी पहले की प्रविष्टियाँ जैसी हैं वैसी रहेंगी।",
@@ -586,8 +588,26 @@
   "familyComingSoonBody": "हर सदस्य की उम्र, एलर्जी और आहार जोड़ें, ताकि हर किसी के लिए अलग नतीजा मिले।",
   "familyComingSoonTitle": "परिवार प्रोफ़ाइल जल्द आ रही हैं",
   "familyTitle": "परिवार",
+  "favouritesAdd": "पसंदीदा में जोड़ें",
+  "favouritesAdded": "पसंदीदा में जोड़ा गया",
+  "favouritesEmpty": "अभी कोई पसंदीदा नहीं",
+  "favouritesLimit": "आप 200 तक पसंदीदा रख सकते हैं।",
+  "favouritesLogAgain": "फिर से दर्ज करें",
+  "favouritesMealItems": "{count, plural, one {# आइटम} other {# आइटम}}",
+  "@favouritesMealItems": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "favouritesMealName": "भोजन का नाम",
+  "favouritesMealNameHint": "आप जो नाम लिखते हैं, वह ठीक वैसा ही रखा जाता है।",
+  "favouritesRemove": "पसंदीदा से हटाएँ",
+  "favouritesSaveMeal": "पसंदीदा भोजन के रूप में सहेजें",
   "foodsBlankIsUnknown": "पता न हो तो खाली छोड़ें। खाली को कभी 0 नहीं गिना जाता।",
   "foodsDishIngredients": "इनसे बना",
+  "foodsFavourites": "पसंदीदा",
   "foodsGroupIndian": "भारतीय खाना",
   "foodsGroupMine": "मेरे खाने और रेसिपी",
   "foodsGroupPackaged": "पैकेज्ड उत्पाद",

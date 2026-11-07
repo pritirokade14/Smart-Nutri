@@ -1077,6 +1077,13 @@ class AppLocalizationsHi extends AppLocalizations {
       'कृपया कैलोरी में वसा का हिस्सा 20% से 30% के बीच चुनें।';
 
   @override
+  String get errorFavouriteLimit =>
+      'आप 200 तक पसंदीदा रख सकते हैं। नया जोड़ने के लिए एक हटाएँ।';
+
+  @override
+  String get errorFavouriteNotFound => 'वह पसंदीदा नहीं मिला।';
+
+  @override
   String get errorFollowUpWithoutType =>
       'कृपया अपने जवाब जाँचें और फिर से कोशिश करें।';
 
@@ -1315,11 +1322,53 @@ class AppLocalizationsHi extends AppLocalizations {
   String get familyTitle => 'परिवार';
 
   @override
+  String get favouritesAdd => 'पसंदीदा में जोड़ें';
+
+  @override
+  String get favouritesAdded => 'पसंदीदा में जोड़ा गया';
+
+  @override
+  String get favouritesEmpty => 'अभी कोई पसंदीदा नहीं';
+
+  @override
+  String get favouritesLimit => 'आप 200 तक पसंदीदा रख सकते हैं।';
+
+  @override
+  String get favouritesLogAgain => 'फिर से दर्ज करें';
+
+  @override
+  String favouritesMealItems(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# आइटम',
+      one: '# आइटम',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get favouritesMealName => 'भोजन का नाम';
+
+  @override
+  String get favouritesMealNameHint =>
+      'आप जो नाम लिखते हैं, वह ठीक वैसा ही रखा जाता है।';
+
+  @override
+  String get favouritesRemove => 'पसंदीदा से हटाएँ';
+
+  @override
+  String get favouritesSaveMeal => 'पसंदीदा भोजन के रूप में सहेजें';
+
+  @override
   String get foodsBlankIsUnknown =>
       'पता न हो तो खाली छोड़ें। खाली को कभी 0 नहीं गिना जाता।';
 
   @override
   String get foodsDishIngredients => 'इनसे बना';
+
+  @override
+  String get foodsFavourites => 'पसंदीदा';
 
   @override
   String get foodsGroupIndian => 'भारतीय खाना';
