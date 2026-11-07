@@ -30,6 +30,7 @@
   ],
   "projection": null,
   "projection_reason": "too_few_weigh_ins",
+  "rapid_loss_pct": 1.5,
   "trend": [
     {
       "date": "2026-01-01",

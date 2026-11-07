@@ -16,17 +16,18 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert MigrationContext.configure(conn).get_current_revision() == "0012_diary_favourites"
+        assert MigrationContext.configure(conn).get_current_revision() == "0013_diary_weight_logs"
     engine.dispose()
 
 
 def test_single_alembic_head():
-    """0006 to 0012 are chained, so there is exactly one head, 0012."""
+    """0006 to 0013 are chained, so there is exactly one head, 0013."""
     from alembic.config import Config
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(Config("alembic.ini"))
-    assert script.get_heads() == ["0012_diary_favourites"]
+    assert script.get_heads() == ["0013_diary_weight_logs"]
+    assert script.get_revision("0013_diary_weight_logs").down_revision == "0012_diary_favourites"
     assert script.get_revision("0012_diary_favourites").down_revision == (
         "0011_diary_custom_foods_recipes"
     )
@@ -609,6 +610,7 @@ def test_orm_class_names():
     from app.features.reports.models import ProductReport
     from app.features.scans.models import Scan
     from app.features.targets.models import DiaryGoalSettings
+    from app.features.weights.models import WeightLog
 
     assert {
         c.__tablename__
@@ -635,6 +637,7 @@ def test_orm_class_names():
             CustomFood,
             Recipe,
             RecipeIngredient,
+            WeightLog,
         )
     } == TABLES
 
@@ -831,6 +834,81 @@ def test_0009_downgrades_cleanly(migrated):
                 assert [p[0] for p in policies] == [f"{table}_owner"]
         with engine.begin() as conn:
             conn.execute(text("delete from accounts where id = :a"), {"a": acc})
+    finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
+def test_0013_backfill_dates_in_account_zone(migrated):
+    """Plan 12 Task 21: the back-fill adds one weigh-in per member with a weight in 2 to 300,
+    dated by `updated_at` in the account's time zone; a legacy 400 kg gets no row."""
+    import uuid
+
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    acc, m_ok, m_bad = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    try:
+        command.downgrade(migrated, "0012_diary_favourites")
+        with engine.begin() as conn:
+            conn.execute(
+                text("insert into accounts (id, timezone) values (:a, 'America/New_York')"),
+                {"a": acc},
+            )
+            for mid, kg in ((m_ok, 70.5), (m_bad, 400)):
+                conn.execute(
+                    text(
+                        "insert into members (id, account_id, name, relation, weight_kg, "
+                        "updated_at) values (:m, :a, 'm', 'self', :kg, '2026-11-07T02:00:00Z')"
+                    ),
+                    {"m": mid, "a": acc, "kg": kg},
+                )
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            rows = conn.execute(
+                text(
+                    "select member_id, local_date, weight_kg, source, measured_at "
+                    "from weight_logs where account_id = :a"
+                ),
+                {"a": acc},
+            ).all()
+        assert len(rows) == 1
+        assert rows[0].member_id == m_ok and rows[0].source == "manual"
+        assert str(rows[0].local_date) == "2026-11-06"  # 02:00Z is still the 6th in New York
+        assert float(rows[0].weight_kg) == 70.5
+    finally:
+        command.upgrade(migrated, "head")
+        with engine.begin() as conn:
+            conn.execute(text("delete from accounts where id = :a"), {"a": acc})
+        engine.dispose()
+
+
+def test_0013_downgrade(migrated):
+    """Plan 12 Task 21: the downgrade drops `weight_logs`; the upgrade re-creates it with forced
+    RLS, the owner policy and no write grant for `authenticated`."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        command.downgrade(migrated, "0012_diary_favourites")
+        with engine.connect() as conn:
+            assert "weight_logs" not in inspect(conn).get_table_names()
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    "select relrowsecurity, relforcerowsecurity from pg_class "
+                    "where oid = 'public.weight_logs'::regclass"
+                )
+            ).one()
+            assert tuple(row) == (True, True)
+            policies = conn.execute(
+                text("select policyname, cmd from pg_policies where tablename = 'weight_logs'")
+            ).all()
+            assert [tuple(p) for p in policies] == [("weight_logs_owner", "ALL")]
+            for priv in ("INSERT", "UPDATE", "DELETE"):
+                granted = conn.execute(
+                    text(
+                        f"select has_table_privilege('authenticated', 'public.weight_logs', '{priv}')"
+                    )
+                ).scalar()
+                assert granted is False, priv
     finally:
         command.upgrade(migrated, "head")
         engine.dispose()

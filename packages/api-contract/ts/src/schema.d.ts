@@ -1176,6 +1176,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/weights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Weights List
+         * @description The member's weigh-ins, oldest first. Default the last 90 local days; a range longer
+         *     than 400 days is 422 `date_range_too_long`.
+         */
+        get: operations["weights_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/weights/trend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Weights Trend Get
+         * @description The weight trend, weekly rate and projection, computed from the member's full history
+         *     and sliced to the window. Every kg, the rate and the target are null under `hide_all`
+         *     (`y` is kept for the chart's shape). Information, not medical advice; the thresholds are
+         *     pending clinician review.
+         */
+        get: operations["weights_trend_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/weights/{day}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Weights Put
+         * @description Create or replace the weigh-in of a local day (200 either way; one per day). 422
+         *     `weight_out_of_range` (outside 2 to 300 kg), `weight_needs_confirm` (outside 30 to 200 kg,
+         *     or a big change since the last weigh-in; resend with `confirm_unusual`; `details.previous` is
+         *     null under `hide_all`), `date_in_future`, `date_too_old` (over 400 days). A repeated
+         *     `client_id` returns the stored row. Today's daily guide is recomputed.
+         */
+        put: operations["weights_put"];
+        post?: never;
+        /**
+         * Weights Delete
+         * @description Delete a weigh-in. Needs only `terms`: erasure is never gated. 404 `weight_not_found`.
+         */
+        delete: operations["weights_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3405,6 +3477,13 @@ export interface components {
              */
             source: "smartnutri" | "openfoodfacts";
         };
+        /** ProjectionOut */
+        ProjectionOut: {
+            /** Date */
+            date: string | null;
+            /** Target Kg */
+            target_kg: number | null;
+        };
         /** PublicProductOut */
         PublicProductOut: {
             product: components["schemas"]["ProductOut"];
@@ -3903,6 +3982,8 @@ export interface components {
             protein_reference_weight_kg: number | null;
             /** Weight Kg Used */
             weight_kg_used: number | null;
+            /** Weight Source */
+            weight_source?: ("trend" | "latest") | null;
         };
         /**
          * TargetsOut
@@ -4032,6 +4113,18 @@ export interface components {
             salt_g: number | null;
             /** Sugars G */
             sugars_g: number | null;
+        };
+        /** TrendPointOut */
+        TrendPointOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Trend Kg */
+            trend_kg: number | null;
+            /** Y */
+            y: number | null;
         };
         /** UnitOut */
         UnitOut: {
@@ -4203,6 +4296,122 @@ export interface components {
              * Format: date
              */
             start: string;
+        };
+        /** WeeklyRateOut */
+        WeeklyRateOut: {
+            /** Kg */
+            kg: number;
+            /** Pct Bw */
+            pct_bw: number;
+        };
+        /**
+         * WeightIn
+         * @description `weight_kg` is checked by the service (2 to 300, else 422 `weight_out_of_range`) and kept
+         *     to 2 dp. A value outside 30 to 200, or far from the last weigh-in, needs `confirm_unusual`.
+         */
+        WeightIn: {
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Confirm Unusual
+             * @default false
+             */
+            confirm_unusual: boolean;
+            /** Member Id */
+            member_id?: string | null;
+            /** Weight Kg */
+            weight_kg: number;
+        };
+        /** WeightOut */
+        WeightOut: {
+            /** Client Id */
+            client_id: string | null;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /** Numbers Hidden */
+            numbers_hidden: boolean;
+            /**
+             * Source
+             * @constant
+             */
+            source: "manual";
+            /** Weight Kg */
+            weight_kg: number | null;
+        };
+        /** WeightPointOut */
+        WeightPointOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Outlier */
+            outlier: boolean;
+            /** Weight Kg */
+            weight_kg: number | null;
+            /** Y */
+            y: number | null;
+        };
+        /** WeightTrendOut */
+        WeightTrendOut: {
+            /**
+             * Days
+             * @enum {integer}
+             */
+            days: 30 | 90 | 365;
+            /** Flags */
+            flags: "rapid_loss"[];
+            /**
+             * From
+             * Format: date
+             */
+            from: string;
+            /**
+             * Member Id
+             * Format: uuid
+             */
+            member_id: string;
+            /** Numbers Hidden */
+            numbers_hidden: boolean;
+            /**
+             * Pending Clinician Review
+             * @default true
+             * @constant
+             */
+            pending_clinician_review: true;
+            /** Points */
+            points: components["schemas"]["WeightPointOut"][];
+            projection: components["schemas"]["ProjectionOut"] | null;
+            /**
+             * Projection Reason
+             * @enum {string}
+             */
+            projection_reason: "ready" | "too_few_weigh_ins" | "moving_away" | "no_target" | "too_far" | "reached";
+            /** Rapid Loss Pct */
+            rapid_loss_pct: number;
+            /**
+             * To
+             * Format: date
+             */
+            to: string;
+            /** Trend */
+            trend: components["schemas"]["TrendPointOut"][];
+            weekly_rate: components["schemas"]["WeeklyRateOut"] | null;
+        };
+        /** WeightsOut */
+        WeightsOut: {
+            /** Items */
+            items: components["schemas"]["WeightOut"][];
+            /** Numbers Hidden */
+            numbers_hidden: boolean;
         };
     };
     responses: never;
@@ -9776,6 +9985,323 @@ export interface operations {
             };
             /** @description Voice is switched off on this server (VOICE_ENABLED=false, code ai_unavailable), or speech, AI or OFF is unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_list: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+                /** @description Local date; default 89 days back */
+                from?: string | null;
+                /** @description Local date; default today */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeightsOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_trend_get: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+                /** @description Window in days: 30, 90 or 365 */
+                days?: 30 | 90 | 365;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeightTrendOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                day: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WeightIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeightOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    weights_delete: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path: {
+                day: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };

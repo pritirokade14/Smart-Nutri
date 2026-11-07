@@ -14,7 +14,7 @@ Output (generated, never edited by hand): weights/expected/<stem>.json, the `Wei
 body without the request envelope (`member_id`, `days`, `from`, `to`, which the route adds):
   points[{date, weight_kg|null, outlier, y}], trend[{date, trend_kg|null, y}],
   weekly_rate {kg, pct_bw}|null, projection {target_kg|null, date}|null, projection_reason,
-  flags ["rapid_loss"], numbers_hidden, pending_clinician_review.
+  flags ["rapid_loss"], rapid_loss_pct (the safety line, for the card text), numbers_hidden, pending_clinician_review.
 kg and pct are rounded to 2 dp half-up and written as JSON numbers. `y` is `shape()` over the
 weigh-ins and the trend values together, so the dots and the line share one scale. Under
 `hide_all` every kg, the rate and the target are null; `y` is kept; the projection date is null too, so no digits show (spec e2e 7), while
@@ -38,6 +38,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from app.scoring import weight_trend as wt
+from app.scoring.config import load_config
 from tests.fixtures.loader import FIXTURES
 
 TWO_DP = Decimal("0.01")
@@ -95,6 +96,7 @@ def expected_for(case: dict) -> dict:
         else {"target_kg": _kg(target, hidden), "date": None if hidden else when.isoformat()},
         "projection_reason": reason,
         "flags": ["rapid_loss"] if wt.rapid_loss(result) else [],
+        "rapid_loss_pct": float(load_config().targets["safety"]["rapid_loss_pct_bw_per_week"]),
         "numbers_hidden": hidden,
         "pending_clinician_review": True,
     }

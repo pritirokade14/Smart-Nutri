@@ -462,6 +462,7 @@
   "diaryTitle": "डायरी",
   "diaryToday": "आज",
   "diaryViewDay": "दिवस",
+  "diaryViewProgress": "प्रगती",
   "diaryWaitingSync": "सिंक होण्याची प्रतीक्षा",
   "diaryWeekAtLeast": "किमान {value}",
   "@diaryWeekAtLeast": {
@@ -512,6 +513,7 @@
   "errorCustomFoodNotFound": "आम्हाला तुमचा तो पदार्थ सापडला नाही.",
   "errorCustomFoodNutrientsEmpty": "ऊर्जा टाका, किंवा प्रथिने, कार्ब्स किंवा फॅट यांपैकी किमान एक टाका.",
   "errorDateInFuture": "ती तारीख अजून आलेली नाही.",
+  "errorDateRangeTooLong": "कृपया ४०० दिवसांपर्यंतचा कालावधी निवडा.",
   "errorDateTooOld": "तुम्ही फक्त मागील 30 दिवसांत जोडू शकता.",
   "errorDeletionIncomplete": "आम्ही तुमचे खाते पूर्णपणे हटवू शकलो नाही. कृपया पुन्हा प्रयत्न करा; जे हटले आहे ते परत येणार नाही.",
   "errorDiaryMemberNotEnabled": "दैनिक मार्गदर्शक सध्या फक्त तुमच्या स्वतःच्या प्रोफाइलसाठी उपलब्ध आहेत.",
@@ -577,6 +579,9 @@
   "errorUserTypesNotFound": "आधी सांगा की तुम्ही SmartNutri का वापरत आहात.",
   "errorValidationError": "कृपया अधोरेखित केलेली फील्ड तपासा.",
   "errorVoiceNotUnderstood": "आम्हाला प्रश्न ऐकू आला नाही. कृपया बटण दाबून ठेवा आणि स्पष्ट बोला.",
+  "errorWeightNeedsConfirm": "हे वजन तुमच्या मागील वजनापेक्षा खूपच वेगळे आहे. कृपया खात्री करा.",
+  "errorWeightNotFound": "ते वजन सापडले नाही.",
+  "errorWeightOutOfRange": "२ ते ३०० किग्रॅ दरम्यानचे वजन लिहा.",
   "explanationAiNote": "वरील निकालांवरून AI ने लिहिले आहे. यामुळे कोणताही निकाल बदलत नाही.",
   "explanationFallbackTip1": "सारख्या उत्पादनांची लेबले तुलना करा आणि कमी साखर व कमी मीठ असलेले उत्पादन निवडा.",
   "explanationFallbackTip2": "पॅकवरील सर्व्हिंगचा आकार पाहा: लेबलवरील मूल्ये प्रति 100 ग्रॅम किंवा 100 मि.ली. असतात.",
@@ -1796,6 +1801,22 @@
   },
   "targetsHowSources": "स्रोत आणि पद्धत",
   "targetsHowTitle": "आम्ही हे कसे काढले",
+  "targetsHowWeightLatest": "वापरलेले वजन: {value} किग्रॅ (तुमचे ताजे वजन)",
+  "@targetsHowWeightLatest": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowWeightTrend": "वापरलेले वजन: {value} किग्रॅ (तुमचा कल)",
+  "@targetsHowWeightTrend": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "targetsIntroBody": "तुमच्या माहितीवर आधारित, तुम्हाला दिशा देणारा एक अंदाज. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
   "targetsIntroTitle": "तुमचा दैनिक मार्गदर्शक",
   "targetsKcalValue": "{value} किलोकॅलरी",
@@ -2240,5 +2261,73 @@
   "warningSodiumUnitSuspect": "या उत्पादनासाठी सोडियम खूप कमी दिसत आहे. पॅकवर ते mg मध्ये छापले आहे की g मध्ये ते तपासा आणि तेच एकक निवडा.",
   "warningUnitUnconfirmed": "या मूल्याचे एकक स्पष्ट नव्हते. जसे छापले आहे तसे mg किंवा g निवडा.",
   "warningUnreadableField": "आम्हाला हे मूल्य वाचता आले नाही. ते पॅकवरून भरा किंवा रिकामे ठेवा.",
-  "warningUpperBound": "पॅकवर या प्रमाणापेक्षा \"कमी\" असे लिहिले आहे. हे बरोबर असेल तर खात्री करा."
+  "warningUpperBound": "पॅकवर या प्रमाणापेक्षा \"कमी\" असे लिहिले आहे. हे बरोबर असेल तर खात्री करा.",
+  "weightAdd": "वजन नोंदवा",
+  "weightCheckEntry": "हे वजन तपासा",
+  "weightConfirmUnusual": "हे तुमच्या मागील वजनापेक्षा ({previous} किग्रॅ) खूपच वेगळे आहे. तरीही जतन करायचे?",
+  "@weightConfirmUnusual": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      }
+    }
+  },
+  "weightConfirmUnusualHidden": "हे तुमच्या मागील वजनापेक्षा खूपच वेगळे आहे. तरीही जतन करायचे?",
+  "weightConsent": "वजनाची नोंद ठेवण्यासाठी SmartNutri ला तुमची आरोग्य माहिती वापरू द्या.",
+  "weightDate": "तारीख",
+  "weightDelete": "वजन काढा",
+  "weightDeleteConfirm": "हे वजन काढायचे?",
+  "weightEdit": "वजन बदला",
+  "weightEmpty": "अजून वजन नोंदवलेले नाही",
+  "weightKgValue": "{value} किग्रॅ",
+  "@weightKgValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "weightNoProjectionMovingAway": "सध्या तुमचा कल तुमच्या ध्येयाकडे जात नाही.",
+  "weightNoProjectionNoTarget": "अंदाज पाहण्यासाठी ध्येय वजन ठरवा.",
+  "weightNoProjectionReached": "तुम्ही तुमच्या ध्येय वजनावर आहात.",
+  "weightNoProjectionTooFar": "या गतीने ध्येय एका वर्षापेक्षा जास्त दूर आहे.",
+  "weightNoProjectionTooFewWeighIns": "अंदाज पाहण्यासाठी काही आठवड्यांत आणखी काही वेळा वजन नोंदवा.",
+  "weightOutlier": "कलामध्ये धरलेले नाही",
+  "weightProjection": "याच गतीने तुम्ही सुमारे {date} पर्यंत {target} किग्रॅ वर पोहोचाल.",
+  "@weightProjection": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "weightRange30": "३० दिवस",
+  "weightRange365": "१ वर्ष",
+  "weightRange90": "९० दिवस",
+  "weightRapidLoss": "तुमचे वजन आठवड्याला {pct}% पेक्षा जास्त वेगाने कमी होत आहे. हळू गती सहसा टिकवणे सोपे असते.",
+  "@weightRapidLoss": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "weightSaveAnyway": "तरीही जतन करा",
+  "weightTipSameTime": "दररोज एकाच वेळी, उदाहरणार्थ उठल्यानंतर.",
+  "weightTitle": "वजन",
+  "weightTrend": "कल",
+  "weightWeeklyRate": "आठवड्याला सुमारे {kg} किग्रॅ (शरीराच्या वजनाच्या {pct}%)",
+  "@weightWeeklyRate": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  }
 }

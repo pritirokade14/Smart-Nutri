@@ -6295,6 +6295,39 @@
         "title": "ProductOut",
         "type": "object"
       },
+      "ProjectionOut": {
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "target_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Kg"
+          }
+        },
+        "required": [
+          "target_kg",
+          "date"
+        ],
+        "title": "ProjectionOut",
+        "type": "object"
+      },
       "PublicProductOut": {
         "properties": {
           "product": {
@@ -7654,6 +7687,21 @@
               }
             ],
             "title": "Weight Kg Used"
+          },
+          "weight_source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "trend",
+                  "latest"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Source"
           }
         },
         "required": [
@@ -8121,6 +8169,44 @@
         "title": "Totals",
         "type": "object"
       },
+      "TrendPointOut": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "trend_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trend Kg"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Y"
+          }
+        },
+        "required": [
+          "date",
+          "trend_kg",
+          "y"
+        ],
+        "title": "TrendPointOut",
+        "type": "object"
+      },
       "UnitOut": {
         "properties": {
           "code": {
@@ -8478,6 +8564,299 @@
           "logged"
         ],
         "title": "WeekCounts",
+        "type": "object"
+      },
+      "WeeklyRateOut": {
+        "properties": {
+          "kg": {
+            "title": "Kg",
+            "type": "number"
+          },
+          "pct_bw": {
+            "title": "Pct Bw",
+            "type": "number"
+          }
+        },
+        "required": [
+          "kg",
+          "pct_bw"
+        ],
+        "title": "WeeklyRateOut",
+        "type": "object"
+      },
+      "WeightIn": {
+        "description": "`weight_kg` is checked by the service (2 to 300, else 422 `weight_out_of_range`) and kept\nto 2 dp. A value outside 30 to 200, or far from the last weigh-in, needs `confirm_unusual`.",
+        "properties": {
+          "client_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "confirm_unusual": {
+            "default": false,
+            "title": "Confirm Unusual",
+            "type": "boolean"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
+          "weight_kg": {
+            "title": "Weight Kg",
+            "type": "number"
+          }
+        },
+        "required": [
+          "weight_kg"
+        ],
+        "title": "WeightIn",
+        "type": "object"
+      },
+      "WeightOut": {
+        "properties": {
+          "client_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "measured_at": {
+            "format": "date-time",
+            "title": "Measured At",
+            "type": "string"
+          },
+          "numbers_hidden": {
+            "title": "Numbers Hidden",
+            "type": "boolean"
+          },
+          "source": {
+            "const": "manual",
+            "title": "Source",
+            "type": "string"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          }
+        },
+        "required": [
+          "date",
+          "weight_kg",
+          "measured_at",
+          "source",
+          "client_id",
+          "numbers_hidden"
+        ],
+        "title": "WeightOut",
+        "type": "object"
+      },
+      "WeightPointOut": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "outlier": {
+            "title": "Outlier",
+            "type": "boolean"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Y"
+          }
+        },
+        "required": [
+          "date",
+          "weight_kg",
+          "outlier",
+          "y"
+        ],
+        "title": "WeightPointOut",
+        "type": "object"
+      },
+      "WeightTrendOut": {
+        "properties": {
+          "days": {
+            "enum": [
+              30,
+              90,
+              365
+            ],
+            "title": "Days",
+            "type": "integer"
+          },
+          "flags": {
+            "items": {
+              "const": "rapid_loss",
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "from": {
+            "format": "date",
+            "title": "From",
+            "type": "string"
+          },
+          "member_id": {
+            "format": "uuid",
+            "title": "Member Id",
+            "type": "string"
+          },
+          "numbers_hidden": {
+            "title": "Numbers Hidden",
+            "type": "boolean"
+          },
+          "pending_clinician_review": {
+            "const": true,
+            "default": true,
+            "title": "Pending Clinician Review",
+            "type": "boolean"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/WeightPointOut"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "projection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "projection_reason": {
+            "enum": [
+              "ready",
+              "too_few_weigh_ins",
+              "moving_away",
+              "no_target",
+              "too_far",
+              "reached"
+            ],
+            "title": "Projection Reason",
+            "type": "string"
+          },
+          "rapid_loss_pct": {
+            "title": "Rapid Loss Pct",
+            "type": "number"
+          },
+          "to": {
+            "format": "date",
+            "title": "To",
+            "type": "string"
+          },
+          "trend": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPointOut"
+            },
+            "title": "Trend",
+            "type": "array"
+          },
+          "weekly_rate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WeeklyRateOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "member_id",
+          "days",
+          "from",
+          "to",
+          "points",
+          "trend",
+          "weekly_rate",
+          "projection",
+          "projection_reason",
+          "flags",
+          "rapid_loss_pct",
+          "numbers_hidden"
+        ],
+        "title": "WeightTrendOut",
+        "type": "object"
+      },
+      "WeightsOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WeightOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "numbers_hidden": {
+            "title": "Numbers Hidden",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "numbers_hidden"
+        ],
+        "title": "WeightsOut",
         "type": "object"
       }
     },
@@ -16088,6 +16467,495 @@
         "summary": "Voice Ask",
         "tags": [
           "voice"
+        ]
+      }
+    },
+    "/v1/weights": {
+      "get": {
+        "description": "The member's weigh-ins, oldest first. Default the last 90 local days; a range longer\nthan 400 days is 422 `date_range_too_long`.",
+        "operationId": "weights_list",
+        "parameters": [
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          },
+          {
+            "description": "Local date; default 89 days back",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Local date; default 89 days back",
+              "title": "From"
+            }
+          },
+          {
+            "description": "Local date; default today",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Local date; default today",
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeightsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Weights List",
+        "tags": [
+          "weights"
+        ]
+      }
+    },
+    "/v1/weights/trend": {
+      "get": {
+        "description": "The weight trend, weekly rate and projection, computed from the member's full history\nand sliced to the window. Every kg, the rate and the target are null under `hide_all`\n(`y` is kept for the chart's shape). Information, not medical advice; the thresholds are\npending clinician review.",
+        "operationId": "weights_trend_get",
+        "parameters": [
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          },
+          {
+            "description": "Window in days: 30, 90 or 365",
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 90,
+              "description": "Window in days: 30, 90 or 365",
+              "enum": [
+                30,
+                90,
+                365
+              ],
+              "title": "Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeightTrendOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Weights Trend Get",
+        "tags": [
+          "weights"
+        ]
+      }
+    },
+    "/v1/weights/{day}": {
+      "delete": {
+        "description": "Delete a weigh-in. Needs only `terms`: erasure is never gated. 404 `weight_not_found`.",
+        "operationId": "weights_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "Day",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Weights Delete",
+        "tags": [
+          "weights"
+        ]
+      },
+      "put": {
+        "description": "Create or replace the weigh-in of a local day (200 either way; one per day). 422\n`weight_out_of_range` (outside 2 to 300 kg), `weight_needs_confirm` (outside 30 to 200 kg,\nor a big change since the last weigh-in; resend with `confirm_unusual`; `details.previous` is\nnull under `hide_all`), `date_in_future`, `date_too_old` (over 400 days). A repeated\n`client_id` returns the stored row. Today's daily guide is recomputed.",
+        "operationId": "weights_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "Day",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeightIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeightOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Weights Put",
+        "tags": [
+          "weights"
         ]
       }
     }

@@ -5,6 +5,7 @@ The engine (`app.scoring.targets`) decides every number. Targets are information
 verdicts: nothing here touches `analyze`.
 """
 
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from uuid import UUID
@@ -20,6 +21,7 @@ from app.features.members import service as members_service
 from app.features.members.models import Member
 from app.features.targets.models import DiaryGoalSettings
 from app.features.targets.schemas import BodyDataIn, DisplayIn, GoalSettingsIn
+from app.features.weights.trend_source import weight_in_use
 from app.scoring import targets as engine
 from app.scoring.config import ScoringConfig, load_config
 
@@ -204,10 +206,17 @@ async def targets_for_today(
 ) -> tuple[engine.TargetResult | None, DiaryGoalSettings | None]:
     """Today's targets computed live from the stored settings (None without settings). Stored
     settings that stopped validating are computed as the engine says (maintenance, minor,
-    pregnancy), never as an error. The caller has checked `health_data` consent. ``today`` is
+    pregnancy), never as an error. The weight is the 3+ weigh-in trend or the stored weight (G25). The caller has checked `health_data` consent. ``today`` is
     the account's local today (the age is as of that date)."""
     row = await get_settings(session, member)
     if row is None:
         return None, None
-    result = engine.compute(body_data(member, today or today_ist()), goal_settings(row), cfg)
+    day = today or today_ist()
+    body = body_data(member, day)
+    weight, source = await weight_in_use(session, member, day, cfg)  # G25
+    if weight is not None:
+        body = replace(body, weight_kg=weight)
+    result = engine.compute(body, goal_settings(row), cfg)
+    if result.explanation is not None:
+        result = replace(result, explanation=replace(result.explanation, weight_source=source))
     return result, row

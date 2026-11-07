@@ -951,6 +951,9 @@ class AppLocalizationsMr extends AppLocalizations {
   String get diaryViewDay => 'दिवस';
 
   @override
+  String get diaryViewProgress => 'प्रगती';
+
+  @override
   String get diaryWaitingSync => 'सिंक होण्याची प्रतीक्षा';
 
   @override
@@ -1050,6 +1053,9 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get errorDateInFuture => 'ती तारीख अजून आलेली नाही.';
+
+  @override
+  String get errorDateRangeTooLong => 'कृपया ४०० दिवसांपर्यंतचा कालावधी निवडा.';
 
   @override
   String get errorDateTooOld => 'तुम्ही फक्त मागील 30 दिवसांत जोडू शकता.';
@@ -1281,6 +1287,16 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get errorVoiceNotUnderstood =>
       'आम्हाला प्रश्न ऐकू आला नाही. कृपया बटण दाबून ठेवा आणि स्पष्ट बोला.';
+
+  @override
+  String get errorWeightNeedsConfirm =>
+      'हे वजन तुमच्या मागील वजनापेक्षा खूपच वेगळे आहे. कृपया खात्री करा.';
+
+  @override
+  String get errorWeightNotFound => 'ते वजन सापडले नाही.';
+
+  @override
+  String get errorWeightOutOfRange => '२ ते ३०० किग्रॅ दरम्यानचे वजन लिहा.';
 
   @override
   String get explanationAiNote =>
@@ -3302,6 +3318,16 @@ class AppLocalizationsMr extends AppLocalizations {
   String get targetsHowTitle => 'आम्ही हे कसे काढले';
 
   @override
+  String targetsHowWeightLatest(String value) {
+    return 'वापरलेले वजन: $value किग्रॅ (तुमचे ताजे वजन)';
+  }
+
+  @override
+  String targetsHowWeightTrend(String value) {
+    return 'वापरलेले वजन: $value किग्रॅ (तुमचा कल)';
+  }
+
+  @override
   String get targetsIntroBody =>
       'तुमच्या माहितीवर आधारित, तुम्हाला दिशा देणारा एक अंदाज. ही माहिती आहे, वैद्यकीय सल्ला नाही.';
 
@@ -4017,4 +4043,100 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get warningUpperBound =>
       'पॅकवर या प्रमाणापेक्षा \"कमी\" असे लिहिले आहे. हे बरोबर असेल तर खात्री करा.';
+
+  @override
+  String get weightAdd => 'वजन नोंदवा';
+
+  @override
+  String get weightCheckEntry => 'हे वजन तपासा';
+
+  @override
+  String weightConfirmUnusual(String previous) {
+    return 'हे तुमच्या मागील वजनापेक्षा ($previous किग्रॅ) खूपच वेगळे आहे. तरीही जतन करायचे?';
+  }
+
+  @override
+  String get weightConfirmUnusualHidden =>
+      'हे तुमच्या मागील वजनापेक्षा खूपच वेगळे आहे. तरीही जतन करायचे?';
+
+  @override
+  String get weightConsent =>
+      'वजनाची नोंद ठेवण्यासाठी SmartNutri ला तुमची आरोग्य माहिती वापरू द्या.';
+
+  @override
+  String get weightDate => 'तारीख';
+
+  @override
+  String get weightDelete => 'वजन काढा';
+
+  @override
+  String get weightDeleteConfirm => 'हे वजन काढायचे?';
+
+  @override
+  String get weightEdit => 'वजन बदला';
+
+  @override
+  String get weightEmpty => 'अजून वजन नोंदवलेले नाही';
+
+  @override
+  String weightKgValue(String value) {
+    return '$value किग्रॅ';
+  }
+
+  @override
+  String get weightNoProjectionMovingAway =>
+      'सध्या तुमचा कल तुमच्या ध्येयाकडे जात नाही.';
+
+  @override
+  String get weightNoProjectionNoTarget => 'अंदाज पाहण्यासाठी ध्येय वजन ठरवा.';
+
+  @override
+  String get weightNoProjectionReached => 'तुम्ही तुमच्या ध्येय वजनावर आहात.';
+
+  @override
+  String get weightNoProjectionTooFar =>
+      'या गतीने ध्येय एका वर्षापेक्षा जास्त दूर आहे.';
+
+  @override
+  String get weightNoProjectionTooFewWeighIns =>
+      'अंदाज पाहण्यासाठी काही आठवड्यांत आणखी काही वेळा वजन नोंदवा.';
+
+  @override
+  String get weightOutlier => 'कलामध्ये धरलेले नाही';
+
+  @override
+  String weightProjection(String date, String target) {
+    return 'याच गतीने तुम्ही सुमारे $date पर्यंत $target किग्रॅ वर पोहोचाल.';
+  }
+
+  @override
+  String get weightRange30 => '३० दिवस';
+
+  @override
+  String get weightRange365 => '१ वर्ष';
+
+  @override
+  String get weightRange90 => '९० दिवस';
+
+  @override
+  String weightRapidLoss(String pct) {
+    return 'तुमचे वजन आठवड्याला $pct% पेक्षा जास्त वेगाने कमी होत आहे. हळू गती सहसा टिकवणे सोपे असते.';
+  }
+
+  @override
+  String get weightSaveAnyway => 'तरीही जतन करा';
+
+  @override
+  String get weightTipSameTime => 'दररोज एकाच वेळी, उदाहरणार्थ उठल्यानंतर.';
+
+  @override
+  String get weightTitle => 'वजन';
+
+  @override
+  String get weightTrend => 'कल';
+
+  @override
+  String weightWeeklyRate(String kg, String pct) {
+    return 'आठवड्याला सुमारे $kg किग्रॅ (शरीराच्या वजनाच्या $pct%)';
+  }
 }

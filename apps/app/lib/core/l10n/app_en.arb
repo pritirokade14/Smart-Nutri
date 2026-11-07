@@ -462,6 +462,7 @@
   "diaryTitle": "Diary",
   "diaryToday": "Today",
   "diaryViewDay": "Day",
+  "diaryViewProgress": "Progress",
   "diaryWaitingSync": "Waiting to sync",
   "diaryWeekAtLeast": "At least {value}",
   "@diaryWeekAtLeast": {
@@ -512,6 +513,7 @@
   "errorCustomFoodNotFound": "We couldn't find that food of yours.",
   "errorCustomFoodNutrientsEmpty": "Add the energy, or at least one of protein, carbs or fat.",
   "errorDateInFuture": "That date hasn't happened yet.",
+  "errorDateRangeTooLong": "Please choose a range of up to 400 days.",
   "errorDateTooOld": "You can only add to the last 30 days.",
   "errorDeletionIncomplete": "We could not finish deleting your account. Please try again; nothing you deleted will come back.",
   "errorDiaryMemberNotEnabled": "Daily guides are only available for your own profile for now.",
@@ -577,6 +579,9 @@
   "errorUserTypesNotFound": "Tell us what brings you to SmartNutri first.",
   "errorValidationError": "Please check the highlighted fields.",
   "errorVoiceNotUnderstood": "We couldn't hear a question. Please hold the button and speak clearly.",
+  "errorWeightNeedsConfirm": "This weight is quite different from your last one. Please confirm it.",
+  "errorWeightNotFound": "We couldn't find that weigh-in.",
+  "errorWeightOutOfRange": "Enter a weight between 2 and 300 kg.",
   "explanationAiNote": "Written by AI from the results above. It never changes a result.",
   "explanationFallbackTip1": "Compare the labels of similar products and choose the one with less sugar and salt.",
   "explanationFallbackTip2": "Check the serving size on the pack: the label values are per 100 g or 100 ml.",
@@ -1796,6 +1801,22 @@
   },
   "targetsHowSources": "Sources and method",
   "targetsHowTitle": "How we got this",
+  "targetsHowWeightLatest": "Weight used: {value} kg (your latest weigh-in)",
+  "@targetsHowWeightLatest": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "targetsHowWeightTrend": "Weight used: {value} kg (your trend)",
+  "@targetsHowWeightTrend": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "targetsIntroBody": "An estimate to guide you, based on your details. Information, not medical advice.",
   "targetsIntroTitle": "Your daily guide",
   "targetsKcalValue": "{value} kcal",
@@ -2240,5 +2261,73 @@
   "warningSodiumUnitSuspect": "The sodium looks too low for this product. Check whether the pack prints it in mg or g, and choose that unit.",
   "warningUnitUnconfirmed": "The unit for this value wasn't clear. Choose mg or g as printed.",
   "warningUnreadableField": "We couldn't read this value. Enter it from the pack, or leave it blank.",
-  "warningUpperBound": "The pack says 'less than' this amount. Confirm it if that's right."
+  "warningUpperBound": "The pack says 'less than' this amount. Confirm it if that's right.",
+  "weightAdd": "Add a weigh-in",
+  "weightCheckEntry": "Check this weigh-in",
+  "weightConfirmUnusual": "This is quite different from your last weigh-in ({previous} kg). Save anyway?",
+  "@weightConfirmUnusual": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      }
+    }
+  },
+  "weightConfirmUnusualHidden": "This is quite different from your last weigh-in. Save anyway?",
+  "weightConsent": "To keep a weight log, allow SmartNutri to use your health details.",
+  "weightDate": "Date",
+  "weightDelete": "Delete weigh-in",
+  "weightDeleteConfirm": "Delete this weigh-in?",
+  "weightEdit": "Edit weigh-in",
+  "weightEmpty": "No weigh-ins yet",
+  "weightKgValue": "{value} kg",
+  "@weightKgValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "weightNoProjectionMovingAway": "Your trend isn't heading toward your target right now.",
+  "weightNoProjectionNoTarget": "Set a target weight to see a projection.",
+  "weightNoProjectionReached": "You're at your target weight.",
+  "weightNoProjectionTooFar": "At this pace the target is more than a year away.",
+  "weightNoProjectionTooFewWeighIns": "Add a few more weigh-ins over a couple of weeks to see a projection.",
+  "weightOutlier": "Left out of the trend",
+  "weightProjection": "At this pace you'd reach {target} kg around {date}.",
+  "@weightProjection": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "weightRange30": "30 days",
+  "weightRange365": "1 year",
+  "weightRange90": "90 days",
+  "weightRapidLoss": "Your weight is going down faster than {pct}% a week. A slower pace is usually easier to keep up.",
+  "@weightRapidLoss": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "weightSaveAnyway": "Save anyway",
+  "weightTipSameTime": "Same time of day, for example after waking.",
+  "weightTitle": "Weight",
+  "weightTrend": "Trend",
+  "weightWeeklyRate": "About {kg} kg a week ({pct}% of body weight)",
+  "@weightWeeklyRate": {
+    "placeholders": {
+      "kg": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -44,7 +44,7 @@ def test_every_input_has_expected():
     assert inputs and inputs == expected
     for name in inputs:
         case = json.loads((INPUTS / name).read_text(encoding="utf-8"))
-        assert set(case) == {"as_of", "stored", "body", "settings"}, name
+        assert set(case) - {"weigh_ins"} == {"as_of", "stored", "body", "settings"}, name
         assert set(case["body"]) == {
             "age",
             "sex",

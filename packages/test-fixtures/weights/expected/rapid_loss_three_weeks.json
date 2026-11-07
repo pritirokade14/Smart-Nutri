@@ -176,6 +176,7 @@
   ],
   "projection": null,
   "projection_reason": "no_target",
+  "rapid_loss_pct": 1.5,
   "trend": [
     {
       "date": "2026-01-01",

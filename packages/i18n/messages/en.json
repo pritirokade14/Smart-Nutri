@@ -343,7 +343,11 @@
     "food_retired": "We no longer offer this dish, so it can't be added again. Your earlier entries are unchanged.",
     "recipe_ingredient_limit": "A recipe can have 1 to 50 ingredients.",
     "favourite_not_found": "We couldn't find that favourite.",
-    "favourite_limit": "You can keep up to 200 favourites. Remove one to add another."
+    "favourite_limit": "You can keep up to 200 favourites. Remove one to add another.",
+    "weight_out_of_range": "Enter a weight between 2 and 300 kg.",
+    "weight_needs_confirm": "This weight is quite different from your last one. Please confirm it.",
+    "weight_not_found": "We couldn't find that weigh-in.",
+    "date_range_too_long": "Please choose a range of up to 400 days."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -1131,7 +1135,9 @@
       "protein_adjusted": "Protein: {per_kg} g per kg of an adjusted weight ({weight} kg)",
       "protein_lean": "Protein: {per_kg} g per kg of lean mass ({weight} kg)",
       "floor": "Lowest we suggest: {value} kcal a day",
-      "sources": "Sources and method"
+      "sources": "Sources and method",
+      "weight_trend": "Weight used: {value} kg (your trend)",
+      "weight_latest": "Weight used: {value} kg (your latest weigh-in)"
     },
     "body_fat": {
       "label": "Body fat % (optional)",
@@ -1276,7 +1282,8 @@
     "share_week": "Share this week",
     "no_guide": "Set up your daily guide, or just log food.",
     "view": {
-      "day": "Day"
+      "day": "Day",
+      "progress": "Progress"
     },
     "slots": {
       "manage": "Edit meals",
@@ -1422,5 +1429,38 @@
     "log_again": "Log again",
     "empty": "No favourites yet",
     "limit": "You can keep up to 200 favourites."
+  },
+  "weight": {
+    "title": "Weight",
+    "add": "Add a weigh-in",
+    "edit": "Edit weigh-in",
+    "delete": "Delete weigh-in",
+    "delete_confirm": "Delete this weigh-in?",
+    "kg_value": "{value} kg",
+    "date": "Date",
+    "tip_same_time": "Same time of day, for example after waking.",
+    "confirm_unusual": "This is quite different from your last weigh-in ({previous} kg). Save anyway?",
+    "confirm_unusual_hidden": "This is quite different from your last weigh-in. Save anyway?",
+    "save_anyway": "Save anyway",
+    "trend": "Trend",
+    "weekly_rate": "About {kg} kg a week ({pct}% of body weight)",
+    "projection": "At this pace you'd reach {target} kg around {date}.",
+    "no_projection": {
+      "too_few_weigh_ins": "Add a few more weigh-ins over a couple of weeks to see a projection.",
+      "moving_away": "Your trend isn't heading toward your target right now.",
+      "no_target": "Set a target weight to see a projection.",
+      "too_far": "At this pace the target is more than a year away.",
+      "reached": "You're at your target weight."
+    },
+    "outlier": "Left out of the trend",
+    "rapid_loss": "Your weight is going down faster than {pct}% a week. A slower pace is usually easier to keep up.",
+    "consent": "To keep a weight log, allow SmartNutri to use your health details.",
+    "empty": "No weigh-ins yet",
+    "range": {
+      "30": "30 days",
+      "90": "90 days",
+      "365": "1 year"
+    },
+    "check_entry": "Check this weigh-in"
   }
 }

@@ -36,6 +36,7 @@ from app.features.scans.router import router as scans_router
 from app.features.targets.router import router as targets_router
 from app.features.voice.router import require_voice_enabled
 from app.features.voice.router import router as voice_router
+from app.features.weights.router import router as weights_router
 from app.integrations.openfoodfacts import SearchThrottle
 
 ROUTERS: list[APIRouter] = [
@@ -57,6 +58,7 @@ ROUTERS: list[APIRouter] = [
     methodology_router,
     reports_router,
     targets_router,
+    weights_router,
     auth_hooks_router,
 ]
 

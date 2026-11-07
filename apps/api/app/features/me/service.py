@@ -111,6 +111,7 @@ async def get_display_name(session: AsyncSession, account_id: UUID) -> str | Non
 # alters meal_logs; Plan 7 reports use product_reports; voice stores no rows).
 ACCOUNT_OWNED_TABLES: tuple[str, ...] = (
     "recipe_ingredients",  # Plan 12 slice 4; before recipes and custom_foods
+    "weight_logs",  # Plan 12 slice 6; before members (composite FK)
     "favourites",  # Plan 12 slice 5; before the foods they point at, and members
     "meal_logs",  # before meal_slots: the entry -> slot FK is NO ACTION (Plan 11 E3)
     "meal_slots",  # Plan 11; before members (composite FK)

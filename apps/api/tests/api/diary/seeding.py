@@ -14,7 +14,18 @@ from tests.fixtures.loader import FIXTURES
 
 OFF_BARCODE = "8900000000000"
 # Keys that differ between a seeded database and a fixture (generated ids and timestamps).
-DROP = {"id", "member_id", "slot_id", "meal_slot_id", "product_id", "updated_at", "client_id"}
+# `weight_source` (slice 6) is not in the day goldens (they have no weigh-ins); `normalise`
+# asserts it is "latest" (or null when hidden) and drops it. The "trend" case is the shared
+# target golden g5_taper_trend.
+DROP = {
+    "id",
+    "member_id",
+    "slot_id",
+    "meal_slot_id",
+    "product_id",
+    "updated_at",
+    "client_id",
+}
 
 
 def load_input(stem: str) -> dict:
@@ -64,12 +75,14 @@ def normalise(node):
     """The response without ids and update times, with instants in UTC, for comparing with an
     expected file."""
     if isinstance(node, dict):
+        if "weight_source" in node:
+            assert node["weight_source"] in ("latest", None), node["weight_source"]
         return {
             k: _instant(v)
             if k in ("eaten_at", "last_eaten_at") and isinstance(v, str)
             else normalise(v)
             for k, v in node.items()
-            if k not in DROP
+            if k not in DROP and k != "weight_source"
         }
     if isinstance(node, list):
         return [normalise(v) for v in node]

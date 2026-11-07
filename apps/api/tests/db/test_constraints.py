@@ -775,3 +775,74 @@ async def test_favourite_meal_items_must_hold_1_to_50(db, two_accounts, items):
             {"a": two_accounts.a, "m": member, "items": items},
         )
     assert "ck_favourites" in str(exc_info.value)
+
+
+# ---- Plan 12 slice 6 (migration 0013): weight_logs
+
+
+async def _weigh_in(db, seed, **cols) -> object:
+    values = {
+        "account_id": seed.account,
+        "member_id": seed.member,
+        "local_date": "2026-01-01",
+        "weight_kg": 70,
+        "measured_at": "2026-01-01T06:00:00Z",
+        **cols,
+    }
+    names = ", ".join(values)
+    params = ", ".join(f":{k}" for k in values)
+    async with db.begin_nested():
+        return (
+            await db.execute(
+                text(f"insert into weight_logs ({names}) values ({params}) returning id"),
+                _typed(values),
+            )
+        ).scalar_one()
+
+
+def _typed(values: dict) -> dict:
+    import datetime as _dt
+
+    out = dict(values)
+    if isinstance(out.get("local_date"), str):
+        out["local_date"] = _dt.date.fromisoformat(out["local_date"])
+    if isinstance(out.get("measured_at"), str):
+        out["measured_at"] = _dt.datetime.fromisoformat(out["measured_at"])
+    return out
+
+
+async def test_one_weigh_in_per_day(db, two_accounts):
+    a = two_accounts.seed_a
+    await _weigh_in(db, a, local_date="2026-02-01")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _weigh_in(db, a, local_date="2026-02-01")
+    assert "uq_weight_logs_member_id_local_date" in str(exc_info.value)
+    await _weigh_in(db, a, local_date="2026-02-02")
+    await _weigh_in(db, two_accounts.seed_b, local_date="2026-02-01")  # another member
+
+
+async def test_weight_range_check(db, two_accounts):
+    a = two_accounts.seed_a
+    for kg in (1.9, 0, 300.1, -5):
+        with pytest.raises(IntegrityError) as exc_info:
+            await _weigh_in(db, a, weight_kg=kg, local_date="2026-03-01")
+        assert "ck_weight_logs_weight_kg" in str(exc_info.value), kg
+    await _weigh_in(db, a, weight_kg=2, local_date="2026-03-01")
+    await _weigh_in(db, a, weight_kg=300, local_date="2026-03-02")
+
+
+async def test_source_manual_only(db, two_accounts):
+    a = two_accounts.seed_a
+    with pytest.raises(IntegrityError) as exc_info:
+        await _weigh_in(db, a, source="device", local_date="2026-04-01")
+    assert "ck_weight_logs_source" in str(exc_info.value)
+    await _weigh_in(db, a, source="manual", local_date="2026-04-01")
+
+
+async def test_weigh_in_client_id_unique_per_account(db, two_accounts):
+    a = two_accounts.seed_a
+    cid = uuid.uuid4()
+    await _weigh_in(db, a, client_id=cid, local_date="2026-05-01")
+    with pytest.raises(IntegrityError) as exc_info:
+        await _weigh_in(db, a, client_id=cid, local_date="2026-05-02")
+    assert "uq_weight_logs_account_id_client_id" in str(exc_info.value)
