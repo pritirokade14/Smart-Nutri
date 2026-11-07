@@ -2,7 +2,7 @@
 
 from uuid import uuid4
 
-from sqlalchemy import select
+from sqlalchemy import event, select
 
 from app.features.favourites.models import Favourite
 from app.features.members import service as members_service
@@ -155,3 +155,42 @@ async def test_consent_gate_before_limit(client, login):
     login(ACC_A)  # no consent granted
     r = await client.get(URL)
     assert r.status_code == 403 and r.json()["error"]["code"] == "consent_required"
+
+
+async def test_delete_resolves_the_member(client, g1, add_member, db_session):
+    """A favourite of a member that is not the solo diary member cannot be deleted through
+    this route (the same 422 as every other favourites route)."""
+    other = await add_member(ACC_A, name="Dad")
+    row = Favourite(
+        account_id=ACC_A,
+        member_id=other.id,
+        kind="food",
+        source_kind="off",
+        off_barcode="8901234567890",
+        name="Dad's food",
+    )
+    db_session.add(row)
+    await db_session.flush()
+    r = await client.delete(f"{URL}/{row.id}")
+    assert r.status_code == 422 and r.json()["error"]["code"] == "diary_member_not_enabled"
+
+
+async def test_adds_lock_the_member_row(client, g1, db_session):
+    """Every add locks the member row before counting, so concurrent adds are serialised
+    (the test session is single-connection: asserted through the lock statement)."""
+    statements: list[str] = []
+
+    def _record(conn, cursor, statement, *_a):
+        statements.append(statement)
+
+    cf = await make_custom(client)
+    sync = db_session.sync_session.get_bind()
+    event.listen(sync, "before_cursor_execute", _record)
+    try:
+        r = await client.post(URL, json={"custom_food_id": cf})
+    finally:
+        event.remove(sync, "before_cursor_execute", _record)
+    assert r.status_code == 201
+    lock = next(i for i, s in enumerate(statements) if "FROM members" in s and "FOR UPDATE" in s)
+    count = next(i for i, s in enumerate(statements) if "count(" in s and "favourites" in s)
+    assert lock < count

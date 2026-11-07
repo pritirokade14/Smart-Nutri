@@ -113,3 +113,21 @@ async def test_name_kept_as_typed_and_never_in_analytics_or_logs(
     assert "संध्या" not in json.dumps(spy.captured, ensure_ascii=False, default=str)
     assert "संध्या" not in caplog.text
     assert "संध्या" not in "".join(str(x.args) + x.getMessage() for x in caplog.records)
+
+
+async def test_ml_item_reports_basis(client, g1, slot_ids, clock, db_session):
+    from sqlalchemy import select
+
+    from app.features.favourites.models import Favourite
+
+    cf = await make_custom(client)
+    await log_custom(client, cf, slot_ids["breakfast"])
+    fav = (await save_meal(client, slot_ids["breakfast"])).json()
+    assert fav["items"][0]["basis"] == "g"
+    row = await db_session.scalar(select(Favourite))
+    row.items = [
+        {**row.items[0], "food_snapshot": {**row.items[0]["food_snapshot"], "basis": "ml"}}
+    ]
+    await db_session.flush()
+    listing = (await client.get(URL)).json()["items"]
+    assert listing[0]["items"][0]["basis"] == "ml"

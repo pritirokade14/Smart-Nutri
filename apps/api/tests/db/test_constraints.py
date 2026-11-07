@@ -697,16 +697,16 @@ async def test_meal_favourite_has_items_no_ref(db, two_accounts):
     cf = await _custom_food(db, a.account)
     bad = (
         {"kind": "meal"},  # no items
-        {"kind": "meal", "items": "[]", "custom_food_id": cf},  # a ref
-        {"kind": "meal", "items": "[]", "source_kind": "custom_food"},
-        {"kind": "meal", "items": "[]", "default_quantity": 1, "default_unit": "g"},
+        {"kind": "meal", "items": '[{"a": 1}]', "custom_food_id": cf},  # a ref
+        {"kind": "meal", "items": '[{"a": 1}]', "source_kind": "custom_food"},
+        {"kind": "meal", "items": '[{"a": 1}]', "default_quantity": 1, "default_unit": "g"},
     )
     for cols in bad:
         with pytest.raises(IntegrityError) as exc_info:
             await _favourite(db, a, **cols)
         assert "ck_favourites_" in str(exc_info.value), cols
-    await _favourite(db, a, kind="meal", items="[]")
-    await _favourite(db, a, kind="meal", items="[]")  # meals are not unique
+    await _favourite(db, a, kind="meal", items='[{"a": 1}]')
+    await _favourite(db, a, kind="meal", items='[{"a": 1}]')  # meals are not unique
 
 
 async def test_unique_food_favourite_per_member(db, two_accounts):
@@ -741,15 +741,15 @@ async def test_custom_food_delete_cascades_favourite(db, two_accounts):
 async def test_favourite_client_id_unique_per_account(db, two_accounts):
     a = two_accounts.seed_a
     cid = uuid.uuid4()
-    await _favourite(db, a, kind="meal", items="[]", client_id=cid)
+    await _favourite(db, a, kind="meal", items='[{"a": 1}]', client_id=cid)
     with pytest.raises(IntegrityError) as exc_info:
-        await _favourite(db, a, kind="meal", items="[]", client_id=cid)
+        await _favourite(db, a, kind="meal", items='[{"a": 1}]', client_id=cid)
     assert "uq_favourites_account_id_client_id" in str(exc_info.value)
 
 
 async def test_favourite_goes_with_its_member(db, two_accounts):
     a = two_accounts.seed_a
-    await _favourite(db, a, kind="meal", items="[]")
+    await _favourite(db, a, kind="meal", items='[{"a": 1}]')
     await db.execute(text("delete from meal_logs where member_id = :m"), {"m": a.member})
     await db.execute(text("delete from meal_slots where member_id = :m"), {"m": a.member})
     await db.execute(text("delete from diary_days where member_id = :m"), {"m": a.member})
@@ -759,3 +759,19 @@ async def test_favourite_goes_with_its_member(db, two_accounts):
         text("select count(*) from favourites where member_id = :m"), {"m": a.member}
     )
     assert n == 0
+
+
+@pytest.mark.parametrize("items", ["[]", "{}", "[" + ",".join(["{}"] * 51) + "]"])
+async def test_favourite_meal_items_must_hold_1_to_50(db, two_accounts, items):
+    member = await db.scalar(
+        text("select id from members where account_id = :a limit 1"), {"a": two_accounts.a}
+    )
+    with pytest.raises(IntegrityError) as exc_info:
+        await db.execute(
+            text(
+                "insert into favourites (account_id, member_id, kind, name, items) "
+                "values (:a, :m, 'meal', 'M', cast(:items as jsonb))"
+            ),
+            {"a": two_accounts.a, "m": member, "items": items},
+        )
+    assert "ck_favourites" in str(exc_info.value)

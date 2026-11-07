@@ -139,7 +139,8 @@ async def favourites_log(
     )
     if not created:
         response.status_code = 200
-    member = await members_service.get_member(session, current.account.id, rows[0].member_id)
+    fav = await service.get_owned(session, current.account.id, favourite_id)
+    member = await members_service.get_member(session, current.account.id, fav.member_id)
     hidden = await meals_service.hidden_for_member(session, member)
     return FavouriteLogOut(created=[meals_service.to_meal_out(r, hidden) for r in rows])
 
@@ -151,8 +152,10 @@ async def favourites_log(
     responses=_RESPONSES,
     dependencies=[Depends(limit("diary_writes"))],
 )
-async def favourites_delete(favourite_id: UUID, current: Current, session: Session) -> Response:
+async def favourites_delete(
+    favourite_id: UUID, current: Current, session: Session, settings: AppSettings
+) -> Response:
     """Remove a favourite. Entries already logged from it stay."""
-    await service.delete_favourite(session, current.account.id, favourite_id)
+    await service.delete_favourite(session, current.account.id, favourite_id, settings)
     await session.commit()
     return Response(status_code=204)

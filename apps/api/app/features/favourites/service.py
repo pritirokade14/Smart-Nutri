@@ -90,6 +90,8 @@ async def _count(session: AsyncSession, member: Member) -> int:
 
 
 async def _check_room(session: AsyncSession, member: Member) -> None:
+    """Lock the member row first, so two concurrent adds are serialised and the count is exact."""
+    await session.execute(select(Member.id).where(Member.id == member.id).with_for_update())
     if await _count(session, member) >= MAX_FAVOURITES:
         raise ApiError("favourite_limit", 422)
 
@@ -267,8 +269,11 @@ async def add_meal(
     return row, True
 
 
-async def delete_favourite(session: AsyncSession, account_id: UUID, favourite_id: UUID) -> None:
+async def delete_favourite(
+    session: AsyncSession, account_id: UUID, favourite_id: UUID, settings: Settings
+) -> None:
     row = await get_owned(session, account_id, favourite_id)
+    await _member(session, account_id, row.member_id, settings)
     await session.delete(row)
     await session.flush()
 
@@ -401,6 +406,7 @@ def to_out(row: Favourite) -> FavouriteOut:
                 quantity=None if i.get("quantity") is None else float(i["quantity"]),
                 unit=i.get("unit"),
                 grams=i.get("grams"),
+                basis="ml" if (i.get("food_snapshot") or {}).get("basis") == "ml" else "g",
                 source_kind=i["source_kind"],
                 attributions=_item_credits(i),
             )

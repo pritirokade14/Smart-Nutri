@@ -209,7 +209,7 @@ async def seed(session, account_id: UUID, storage: FakeStorage) -> dict[str, UUI
     await _exec(
         session,
         "insert into favourites (account_id, member_id, kind, items, name) "
-        "values (:a, :m, 'meal', '[]', 'My breakfast')",
+        "values (:a, :m, 'meal', '[{}]', 'My breakfast')",
         a=account_id,
         m=member,
     )

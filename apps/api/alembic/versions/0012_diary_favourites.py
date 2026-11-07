@@ -43,6 +43,7 @@ _KIND_CHECK = (
     "OR (source_kind = 'custom_food' AND custom_food_id IS NOT NULL) "
     "OR (source_kind = 'recipe' AND recipe_id IS NOT NULL))) "
     "OR (kind = 'meal' AND items IS NOT NULL AND source_kind IS NULL "
+    "AND jsonb_typeof(items) = 'array' AND jsonb_array_length(items) BETWEEN 1 AND 50 "
     "AND num_nonnulls(product_id, off_barcode, food_id, custom_food_id, recipe_id) = 0 "
     "AND default_quantity IS NULL AND default_unit IS NULL)"
 )

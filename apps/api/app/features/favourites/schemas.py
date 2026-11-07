@@ -89,6 +89,9 @@ class FavouriteItemOut(BaseModel):
     quantity: float | None
     unit: str | None
     grams: float | None
+    basis: Literal["g", "ml"] = Field(
+        default="g", description="The unit of `grams`: grams or millilitres (an ml-basis food)"
+    )
     source_kind: ItemSource
     attributions: list[str] = Field(default_factory=list)
 
