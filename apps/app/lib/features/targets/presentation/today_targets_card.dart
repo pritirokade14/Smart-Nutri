@@ -224,12 +224,18 @@ class _Ready extends ConsumerWidget {
             name: 'fat',
             label: l10n.targetsFat,
             target: gramsText(l10n, t.fatG!),
+            eaten: eaten(RingNutrient.fat),
+            remaining: remaining(RingNutrient.fat),
+            incomplete: incomplete(RingNutrient.fat),
           ),
         if (t.carbsG != null)
           _TargetLine(
             name: 'carbs',
             label: l10n.targetsCarbs,
             target: gramsText(l10n, t.carbsG!),
+            eaten: eaten(RingNutrient.carbs),
+            remaining: remaining(RingNutrient.carbs),
+            incomplete: incomplete(RingNutrient.carbs),
           ),
         if (t.numbersHidden.energy || t.numbersHidden.macros)
           Padding(

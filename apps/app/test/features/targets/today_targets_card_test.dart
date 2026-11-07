@@ -70,8 +70,10 @@ void main() {
     // Energy and protein read "{eaten} of {target}" and the API's remaining
     // ("diary_day_get"); fat and carbs, the target.
     expect(_in(find.textContaining('2,760')), findsWidgets);
-    expect(_in(find.text('77 g')), findsOneWidget);
-    expect(_in(find.text('405 g')), findsOneWidget);
+    expect(find.byKey(TodayTargetsCard.rowKey('fat')), findsOneWidget);
+    expect(find.byKey(TodayTargetsCard.rowKey('carbs')), findsOneWidget);
+    expect(find.byKey(const Key('today-remaining-fat')), findsOneWidget);
+    expect(find.byKey(const Key('today-remaining-carbs')), findsOneWidget);
     expect(
       _in(find.text(en.diaryOfTarget('1,501 kcal', '2,760 kcal'))),
       findsOneWidget,
@@ -206,7 +208,7 @@ void main() {
     expect(find.byKey(TodayTargetsCard.rowKey('energy')), findsNothing);
     expect(_in(find.textContaining('kcal')), findsNothing);
     expect(_in(find.textContaining('112 g')), findsOneWidget);
-    expect(_in(find.text('77 g')), findsOneWidget);
+    expect(_in(find.textContaining('77 g')), findsOneWidget);
   });
 
   testWidgets('incomplete energy shows the grey chip', (t) async {

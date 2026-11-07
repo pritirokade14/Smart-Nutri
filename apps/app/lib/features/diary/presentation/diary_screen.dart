@@ -11,6 +11,8 @@ import '../../../core/theme/sn_colors.dart';
 import '../../../core/theme/tokens.g.dart';
 import '../../../shared/widgets/disclaimer_footer.dart';
 import '../../../shared/widgets/states.dart';
+import '../../history/presentation/summary_display.dart';
+import '../../meals/domain/meal_summary.dart';
 import '../../meals/presentation/meals_providers.dart';
 import '../../members/presentation/consent_sheet.dart';
 import '../../members/presentation/members_providers.dart'
@@ -50,6 +52,8 @@ class DiaryScreen extends ConsumerStatefulWidget {
   static const setupKey = Key('diary-setup');
   static const consentKey = Key('diary-consent');
   static const consentButtonKey = Key('diary-consent-grant');
+  static const bandsKey = Key('diary-bands');
+  static Key bandKey(String n) => Key('diary-band-$n');
   static const partialKey = Key('diary-partial-badge');
   static const hiddenNoteKey = Key('diary-hidden-note');
   static const pendingReviewKey = Key('diary-pending-review');
@@ -262,6 +266,35 @@ class DiaryDayBody extends ConsumerWidget {
             onToggleView: settings == null
                 ? null
                 : () => _toggleView(ref, view),
+          ),
+          Padding(
+            key: DiaryScreen.bandsKey,
+            padding: const EdgeInsets.only(top: SnTokens.space2),
+            child: Wrap(
+              spacing: SnTokens.space3,
+              runSpacing: SnTokens.space2,
+              children: [
+                for (final (n, b) in [
+                  (SummaryNutrient.sugars, day.limitsBands.sugarG),
+                  (SummaryNutrient.salt, day.limitsBands.saltG),
+                ])
+                  Row(
+                    key: DiaryScreen.bandKey(n.name),
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        nutrientLabel(l10n, n),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: c.textSecondary),
+                      ),
+                      const SizedBox(width: SnTokens.space2),
+                      // The API's band as sent; an unrecognised one is unknown.
+                      BandChip(band: Band.fromApi(b)),
+                    ],
+                  ),
+              ],
+            ),
           ),
           if (hidden)
             Padding(

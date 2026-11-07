@@ -25,6 +25,33 @@ String _path(AppHarness h) =>
     h.router.routerDelegate.currentConfiguration.uri.toString();
 
 void main() {
+  testWidgets('shows the API sugar and salt bands as sent, with disclaimer', (
+    t,
+  ) async {
+    final env = DiaryEnv();
+    final j =
+        jsonDecode(jsonEncode(env.diary.day.toJson())) as Map<String, Object?>;
+    (j['limits_bands'] as Map<String, Object?>)['sugar_g'] = 'over';
+    (j['limits_bands'] as Map<String, Object?>)['salt_g'] = 'unknown';
+    env.diary.day = DiaryDayOut.fromJson(j);
+    await pumpDiary(t, env);
+    final sugar = find.byKey(DiaryScreen.bandKey('sugars'));
+    final salt = find.byKey(DiaryScreen.bandKey('salt'));
+    expect(
+      find.descendant(of: sugar, matching: find.text(en.summaryBandOver)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: salt, matching: find.text(en.summaryBandUnknown)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: salt, matching: find.text(en.summaryBandOk)),
+      findsNothing,
+    );
+    expect(find.text(en.diaryDisclaimer), findsOneWidget);
+  });
+
   testWidgets('renders golden day_complete_under', (t) async {
     final env = DiaryEnv();
     await pumpDiary(t, env);
