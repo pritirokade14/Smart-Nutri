@@ -1,6 +1,6 @@
 # Feature Parity: API × Android × Web
 
-**Rule (ADR 0008, ADR 0011):** every v1 feature F1–F20 (F18–F20 added by Plan 9) ships on **both** the Android app (Flutter) and the web app (Next.js). Nothing is removed from either platform.
+**Rule (ADR 0008, ADR 0011):** every v1 feature F1–F22 (F18–F20 added by Plan 9, F21–F22 by Plans 10 and 11) ships on **both** the Android app (Flutter) and the web app (Next.js). Nothing is removed from either platform.
 
 ## Definition of done (per feature)
 
@@ -13,7 +13,7 @@ A feature is done only when all of these hold:
 
 Status values: ⬜ not started · 🟡 code complete, waiting on a USER gate (manual check, review, deploy or eval) · ✅ done.
 
-**Honest state (2026-11-04):** F1–F20 are code complete on API, Android and web and merged to `main`, and deployed to dev (API 3,972, Flutter 1,511, web 1,298 unit and 47 e2e tests). None is ✅ yet: each waits on at least one USER step (manual real-pack parity checks on a phone and in a browser, label eval, clinician and native-language review).
+**Honest state (2026-11-07):** F1–F22 are code complete on API, Android and web and merged to `main`, and deployed to dev (API 3,972, Flutter 1,511, web 1,298 unit and 47 e2e tests). None is ✅ yet: each waits on at least one USER step (manual real-pack parity checks on a phone and in a browser, label eval, clinician and native-language review).
 
 | # | Feature | Milestone | API | Android (Flutter) | Web (Next.js) | Web-specific notes |
 |---|---|---|---|---|---|---|
@@ -37,8 +37,12 @@ Status values: ⬜ not started · 🟡 code complete, waiting on a USER gate (ma
 | F18 | User types: picker after Terms (up to 3 of 6, one follow-up each, skippable), confirm-only pre-fill of the account holder's profile, edit in Profile | Plan 9 | 🟡 | 🟡 | 🟡 | `/[locale]/welcome` after the terms step (`UserTypesGate`); same consent dialog for health types. **Status:** built and merged (PR #3; Plan 9 Tasks 1, 2, 9, 12); waits on the same USER gates as F1–F17. Never sent to analytics; never changes a verdict (ADR 0019). Migration 0005. |
 | F19 | Focused modes: per-type Home cards and 5-tab bar, More menu, mode switcher; scan and verdicts identical in every mode | Plan 9 | 🟡 | 🟡 | 🟡 | Mobile bottom bar shows the mode's 5 tabs; the desktop rail shows the 5 tabs plus a More group. Both clients mirror `packages/test-fixtures/modes/layouts.json`. **Status:** built and merged (PR #3; Plan 9 Tasks 8, 10, 13); waits on the same USER gates as F1–F17. |
 | F20 | Gym protein guide: `build_muscle` goal and daily protein guide, protein per serving / 100 g / 100 kcal, protein and whey claim checks, higher-protein sort, compare protein columns and a typed-in price per scoop (client-only), supplements not graded | Plan 9 | 🟡 | 🟡 | 🟡 | `/[locale]/protein`; the public product page also shows protein facts (no personal data). Price per scoop lives only in component state. **Status:** built and merged (PR #3; Plan 9 Tasks 3–7, 11, 14); waits on the same USER gates as F1–F17. Thresholds PENDING CLINICIAN REVIEW; supplements (Task 7, migration 0006) can slip. |
-| F21 | Daily guide (targets), hide numbers, protein basis | Plan 10 slice 1 | 🟡 | 🟡 | 🟡 | `/[locale]/guide/setup`, Profile "Diary and daily guide", the Today targets card with the eye toggle. The API decides every number and the pregnancy question starts unanswered. **Status:** built on API, Android and web for slice 1 (merge pending); the food diary itself is still to come in slice 2. Thresholds PENDING CLINICIAN REVIEW. |
-| F22 | Food diary day: log by meal, quick add, edit and delete, copy a meal or day, week view, remaining today, meal slots | Plan 11 slice 2 | 🟡 | 🟡 | 🟡 | `/[locale]/diary` (History redirects here); Android Diary tab with an offline queue. Totals, remaining and progress come only from the API, and unknown values show as incomplete, never 0. Slot labels are user text kept out of analytics. **Status:** built on API, Android and web and safety-reviewed (merge pending). Meal-slot management is slice 2b. |
+| F21 | Daily guide (targets), hide numbers, protein basis | Plan 10 slice 1 | 🟡 | 🟡 | 🟡 | `/[locale]/guide/setup`, Profile "Diary and daily guide", the Today targets card with the eye toggle. The API decides every number and the pregnancy question starts unanswered. **Status:** merged (PR #7) and live on dev. Thresholds PENDING CLINICIAN REVIEW. |
+| F22 | Food diary day: log by meal, quick add, edit and delete, copy a meal or day, week view, remaining today, meal slots | Plan 11 slice 2 | 🟡 | 🟡 | 🟡 | `/[locale]/diary` (History redirects here); Android Diary tab with an offline queue. Totals, remaining and progress come only from the API, and unknown values show as incomplete, never 0. Slot labels are user text kept out of analytics. **Status:** slices 2 and 2b merged (PR #9, `8f7f456`) and live on dev; dev DB at `0009_diary_days_slots_entries`. Meal-slot management is included. |
+| F23 | Household units, portion picker, generic and Indian foods | Plan 12 slice 3 | ⬜ | ⬜ | ⬜ | Planned in Plan 12. |
+| F24 | Custom foods and recipes | Plan 12 slice 4 | ⬜ | ⬜ | ⬜ | Planned in Plan 12. |
+| F25 | Favourites and recents | Plan 12 slice 5 | ⬜ | ⬜ | ⬜ | Planned in Plan 12. |
+| F26 | Weight log, trend and progress | Plan 12 slice 6 | ⬜ | ⬜ | ⬜ | Planned in Plan 12. |
 
 ## Web-only additions (do not break parity)
 

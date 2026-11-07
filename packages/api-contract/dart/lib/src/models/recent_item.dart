@@ -21,13 +21,22 @@ class RecentItem {
     required this.name,
     required this.productId,
     required this.sourceKind,
+    this.attributions,
+    this.foodId,
+    this.quantity,
+    this.unit,
   });
 
   factory RecentItem.fromJson(Map<String, Object?> json) =>
       _$RecentItemFromJson(json);
 
   final String? attribution;
+  final List<String>? attributions;
   final String? barcode;
+
+  /// A generic food or dish; log it again with `food_id`
+  @JsonKey(name: 'food_id')
+  final String? foodId;
   final NutriScoreGrade? grade;
   final num grams;
   @JsonKey(name: 'last_eaten_at')
@@ -37,8 +46,12 @@ class RecentItem {
   final String name;
   @JsonKey(name: 'product_id')
   final String? productId;
+
+  /// The portion as last logged, with `unit`; null for older entries
+  final num? quantity;
   @JsonKey(name: 'source_kind')
   final RecentItemSourceKind sourceKind;
+  final String? unit;
 
   Map<String, Object?> toJson() => _$RecentItemToJson(this);
 }

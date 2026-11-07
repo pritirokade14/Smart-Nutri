@@ -95,7 +95,7 @@ async def search_products(
     """
     if sort == SearchSort.PROTEIN and member is None:
         raise ValueError("sort=protein needs a member (member_id or the primary member)")
-    hits = await _search(
+    hits, _ = await _search(
         session,
         off,
         q,
@@ -104,8 +104,34 @@ async def search_products(
         settings=settings,
         member=member,
         skip_supplements=sort == SearchSort.PROTEIN,
+        strict=True,
     )
     return sort_by_protein(hits) if sort == SearchSort.PROTEIN else hits
+
+
+async def search_products_status(
+    session: AsyncSession,
+    off: OffClient,
+    q: str,
+    limit: int = 20,
+    *,
+    account_id: UUID,
+    settings: Settings,
+) -> tuple[list[SearchHit], bool]:
+    """(hits, partial) for the foods search (Plan 12 G16). The same hits as
+    ``search_products``, but Open Food Facts trouble never raises: when OFF is throttled, or
+    silently unavailable, our own hits come back with ``partial = True`` (possibly none). Does
+    not commit."""
+    return await _search(
+        session,
+        off,
+        q,
+        limit,
+        account_id=account_id,
+        settings=settings,
+        member=None,
+        strict=False,
+    )
 
 
 async def _search(
@@ -118,7 +144,11 @@ async def _search(
     settings: Settings,
     member: scoring.Member | None,
     skip_supplements: bool = False,
-) -> list[SearchHit]:
+    strict: bool = True,
+) -> tuple[list[SearchHit], bool]:
+    """(hits, partial). ``strict`` keeps the products-search behaviour for a throttled OFF
+    (503 with no local hits); not strict never raises. ``partial`` is true when OFF was
+    throttled or unavailable and so may have more hits."""
     query = normalise_query(q)
     pattern = _like(query)
     hide_suspects = (
@@ -163,7 +193,7 @@ async def _search(
             )
         )
     if len(hits) >= limit:
-        return hits
+        return hits, False
 
     try:
         payloads = await service.cached_off_search(
@@ -173,13 +203,15 @@ async def _search(
         # I4: over the process-wide OFF search budget with nothing cached. Our own hits
         # are still useful: return them flagged. With none, it is not an empty result:
         # 503, so the client says "busy, try again" (Retry-After).
+        if not strict:
+            return hits, True
         if hits:
-            return [h.model_copy(update={"off_degraded": True}) for h in hits]
+            return [h.model_copy(update={"off_degraded": True}) for h in hits], True
         raise ApiError(
             "off_unavailable", 503, headers={"Retry-After": str(exc.retry_after)}
         ) from None
     except OffUnavailable:
-        return hits
+        return hits, True
     for payload in payloads:
         if len(hits) >= limit:
             break
@@ -205,4 +237,4 @@ async def _search(
                 **_engine_fields(product, member),
             )
         )
-    return hits
+    return hits, False

@@ -50,6 +50,8 @@ REQUIRED: dict[str, tuple[Purpose, ...]] = {
     # day and week views checks `health_data` inside the handler (spec 6.6).
     "meal_slots": ("terms",),
     "diary": ("terms",),
+    # Foods, units and portion overrides (Plan 12, Q13): `terms`.
+    "foods": ("terms",),
 }
 
 CONSENT_RESPONSES: dict[int | str, dict[str, Any]] = {

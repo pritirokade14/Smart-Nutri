@@ -44,6 +44,9 @@ TABLES = {
     "diary_goal_settings",
     "meal_slots",
     "diary_days",
+    "household_units",
+    "foods",
+    "food_portions",
 }
 
 _ALLOWED_HOSTS = ("127.0.0.1", "localhost", "::1", "postgres")

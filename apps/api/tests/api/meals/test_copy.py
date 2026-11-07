@@ -387,3 +387,29 @@ async def test_copy_never_stores_what_a_normal_log_refuses(client, clock, db_ses
     assert await _count(db_session) == before
     ok = await client.post(URL, json=_copy_body(to_date="2026-10-09"))
     assert ok.status_code == 201
+
+
+async def test_copy_carries_food_quantity_unit(client, clock, food_ids, db_session):
+    slots = await _slots(client)
+    r = await client.post(
+        "/v1/meals",
+        json={
+            "food_id": food_ids["172437"],
+            "quantity": 1,
+            "unit": "katori",
+            "meal_slot_id": slots["diary.slot.lunch"],
+            "local_date": YESTERDAY,
+        },
+    )
+    assert r.status_code == 201, r.text
+    src = r.json()
+    r = await client.post(URL, json=_copy_body(from_slot_id=slots["diary.slot.lunch"]))
+    assert r.status_code == 201, r.text
+    [copy] = r.json()["created"]
+    assert copy["source_kind"] == "food" and copy["food_id"] == src["food_id"]
+    assert (copy["quantity"], copy["unit"], copy["grams"]) == (1.0, "katori", 142.0)
+    assert copy["nutrients"] == src["nutrients"]
+    assert copy["attributions"] == ["attribution.usda_fdc"]
+    assert copy["portion_units"] == src["portion_units"]
+    rows = (await db_session.scalars(select(MealLog).where(MealLog.food_id.is_not(None)))).all()
+    assert len(rows) == 2 and rows[0].food_snapshot == rows[1].food_snapshot

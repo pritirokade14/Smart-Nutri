@@ -115,6 +115,12 @@ void main() {
     expect(find.text(_l.methodologyPendingReview), findsNothing);
   });
 
+  testWidgets('food_data_section_credits_usda_and_says_pending', (t) async {
+    await _pump(t, _FakeMethodology(() async => methodologyFixture()));
+    expect(find.text(_l.methodologyFoodDataTitle), findsOneWidget);
+    expect(find.text(_l.methodologyFoodDataBody), findsOneWidget);
+  });
+
   testWidgets('error_state_retries', (t) async {
     final fixture = methodologyFixture();
     final client = _FakeMethodology(() async => throw _network());

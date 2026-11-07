@@ -1358,6 +1358,78 @@
         "title": "DiaryWeekOut",
         "type": "object"
       },
+      "DishIngredientOut": {
+        "properties": {
+          "grams": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grams"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "required": [
+          "name",
+          "grams"
+        ],
+        "title": "DishIngredientOut",
+        "type": "object"
+      },
+      "DishOut": {
+        "properties": {
+          "cooked_weight_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cooked Weight G"
+          },
+          "ingredients": {
+            "items": {
+              "$ref": "#/components/schemas/DishIngredientOut"
+            },
+            "title": "Ingredients",
+            "type": "array"
+          },
+          "servings": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servings"
+          }
+        },
+        "required": [
+          "ingredients",
+          "cooked_weight_g",
+          "servings"
+        ],
+        "title": "DishOut",
+        "type": "object"
+      },
       "DisplayIn": {
         "description": "The eye toggle (Ruling D4): only these two fields change; null means unchanged.",
         "properties": {
@@ -1864,6 +1936,339 @@
         "title": "FollowUps",
         "type": "object"
       },
+      "FoodDetailOut": {
+        "properties": {
+          "attribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attribution"
+          },
+          "attributions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Attributions",
+            "type": "array"
+          },
+          "basis": {
+            "enum": [
+              "g",
+              "ml"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "default_unit": {
+            "title": "Default Unit",
+            "type": "string"
+          },
+          "dish": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DishOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "food",
+              "product",
+              "off"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "licence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Licence"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "numbers_hidden": {
+            "$ref": "#/components/schemas/NumbersHidden"
+          },
+          "per_100": {
+            "$ref": "#/components/schemas/NutrientSnapshot",
+            "description": "Per 100 g (or 100 ml), unrounded; null = unknown, or hidden by the member's numbers display"
+          },
+          "review_pending": {
+            "description": "Household measures and dishes are pending dietitian review",
+            "title": "Review Pending",
+            "type": "boolean"
+          },
+          "serving_g": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serving G"
+          },
+          "settable_units": {
+            "description": "Units that do not resolve yet and may be given the user's own grams",
+            "items": {
+              "type": "string"
+            },
+            "title": "Settable Units",
+            "type": "array"
+          },
+          "units": {
+            "items": {
+              "$ref": "#/components/schemas/FoodUnitOut"
+            },
+            "title": "Units",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "name",
+          "brand",
+          "basis",
+          "per_100",
+          "units",
+          "default_unit",
+          "settable_units",
+          "serving_g",
+          "attribution",
+          "attributions",
+          "licence",
+          "dish",
+          "review_pending",
+          "numbers_hidden"
+        ],
+        "title": "FoodDetailOut",
+        "type": "object"
+      },
+      "FoodHit": {
+        "properties": {
+          "attribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "\"attribution.usda_fdc\", \"attribution.smartnutri_recipe\" or \"attribution.off\"",
+            "title": "Attribution"
+          },
+          "attributions": {
+            "description": "Every credit this hit needs, in order",
+            "items": {
+              "type": "string"
+            },
+            "title": "Attributions",
+            "type": "array"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NutriScoreGrade"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nutri-Score calculated by SmartNutri; packaged products only, else null"
+          },
+          "group": {
+            "enum": [
+              "indian",
+              "packaged"
+            ],
+            "title": "Group",
+            "type": "string"
+          },
+          "id": {
+            "description": "A uuid, or the barcode for kind=off",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_dish": {
+            "description": "A documented Indian dish (calculated from ingredients)",
+            "title": "Is Dish",
+            "type": "boolean"
+          },
+          "kind": {
+            "enum": [
+              "food",
+              "product",
+              "off"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "name",
+          "brand",
+          "group",
+          "is_dish",
+          "grade",
+          "attribution",
+          "attributions"
+        ],
+        "title": "FoodHit",
+        "type": "object"
+      },
+      "FoodKindPath": {
+        "description": "What ``id`` is: a generic food or dish (uuid), our own product (uuid) or an Open Food\nFacts product (the barcode).",
+        "enum": [
+          "food",
+          "product",
+          "off"
+        ],
+        "title": "FoodKindPath",
+        "type": "string"
+      },
+      "FoodSearchOut": {
+        "properties": {
+          "failed_sources": {
+            "items": {
+              "const": "off",
+              "type": "string"
+            },
+            "title": "Failed Sources",
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FoodHit"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "partial": {
+            "description": "true when a source (Open Food Facts) could not answer",
+            "title": "Partial",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "partial",
+          "failed_sources"
+        ],
+        "title": "FoodSearchOut",
+        "type": "object"
+      },
+      "FoodUnitOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "grams_per_unit": {
+            "description": "The amount of ONE unit in the food's basis (grams, or ml for an ml-basis food), unrounded. Only units that resolve are listed",
+            "title": "Grams Per Unit",
+            "type": "number"
+          },
+          "kind": {
+            "enum": [
+              "mass",
+              "volume",
+              "count"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "ml": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Volume of one unit; volume units only",
+            "title": "Ml"
+          },
+          "source": {
+            "enum": [
+              "mass",
+              "serving",
+              "portion_user",
+              "portion_global",
+              "density",
+              "volume_basis"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "user_override": {
+            "description": "true when the account set this value itself",
+            "title": "User Override",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "kind",
+          "ml",
+          "grams_per_unit",
+          "source",
+          "user_override"
+        ],
+        "title": "FoodUnitOut",
+        "type": "object"
+      },
       "GoalSettingsIn": {
         "description": "Spec 6.1. `member_id` is optional (the primary). `rate_pct_bw_per_week` must be one of\nthe YAML options for the direction and is null for `maintain`; omitted means the default.",
         "properties": {
@@ -2331,7 +2736,7 @@
         "type": "object"
       },
       "MealIn": {
-        "description": "Log what a member ate. Exactly one food reference (own ``product_id``, a ``barcode``\nfor Open Food Facts products, or ``quick``) and, except for a quick add, exactly one\nportion (``grams`` or ``servings``; servings need the product's serving size).\n\n``member_id`` defaults to the primary member. ``meal_slot_id`` defaults to the slot the\nserver picks from the local time. ``local_date`` logs onto a past day (``eaten_at`` becomes\nthat date at the current local clock time, capped at now); it cannot be sent together with\n``eaten_at``.\n\n``client_id`` makes the call idempotent: posting the same id again (an offline retry)\nreturns the stored log with 200 and never creates a second row.",
+        "description": "Log what a member ate. Exactly one food reference (own ``product_id``, a ``barcode``\nfor Open Food Facts products, a generic ``food_id``, or ``quick``) and, except for a quick\nadd, exactly one portion: ``grams``, ``servings`` (they need the food's serving size) or\n``quantity`` with a ``unit`` (a household unit such as a katori or a roti). A unit that\ncannot be converted for this food is 422 ``unit_grams_unknown``; it is never guessed.\n\n``member_id`` defaults to the primary member. ``meal_slot_id`` defaults to the slot the\nserver picks from the local time. ``local_date`` logs onto a past day (``eaten_at`` becomes\nthat date at the current local clock time, capped at now); it cannot be sent together with\n``eaten_at``.\n\n``client_id`` makes the call idempotent: posting the same id again (an offline retry)\nreturns the stored log with 200 and never creates a second row.",
         "properties": {
           "barcode": {
             "anyOf": [
@@ -2369,6 +2774,19 @@
             ],
             "description": "Timezone-aware. Default: now. At most 5 minutes ahead, at most 30 days ago.",
             "title": "Eaten At"
+          },
+          "food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A generic food or Indian dish",
+            "title": "Food Id"
           },
           "grams": {
             "anyOf": [
@@ -2432,6 +2850,20 @@
             ],
             "title": "Product Id"
           },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 5000.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "With `unit`: how many of the unit",
+            "title": "Quantity"
+          },
           "quick": {
             "anyOf": [
               {
@@ -2454,6 +2886,37 @@
               }
             ],
             "title": "Servings"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "g",
+                  "ml",
+                  "serving",
+                  "piece",
+                  "piece_small",
+                  "piece_medium",
+                  "piece_large",
+                  "roti",
+                  "slice",
+                  "katori",
+                  "katori_small",
+                  "katori_medium",
+                  "katori_large",
+                  "cup",
+                  "glass",
+                  "tbsp",
+                  "tsp"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "With `quantity`: a household unit",
+            "title": "Unit"
           }
         },
         "title": "MealIn",
@@ -2473,6 +2936,14 @@
             "description": "\"attribution.off\" for Open Food Facts products (credit OFF), else null",
             "title": "Attribution"
           },
+          "attributions": {
+            "description": "Every credit this entry needs (\"attribution.usda_fdc\", \"attribution.off\", ...)",
+            "items": {
+              "type": "string"
+            },
+            "title": "Attributions",
+            "type": "array"
+          },
           "barcode": {
             "anyOf": [
               {
@@ -2484,6 +2955,16 @@
             ],
             "description": "Open Food Facts barcode; null for our products",
             "title": "Barcode"
+          },
+          "basis": {
+            "default": "g",
+            "description": "Whether `grams` and the per-100 values are per g or per ml",
+            "enum": [
+              "g",
+              "ml"
+            ],
+            "title": "Basis",
+            "type": "string"
           },
           "client_id": {
             "anyOf": [
@@ -2501,6 +2982,19 @@
             "format": "date-time",
             "title": "Eaten At",
             "type": "string"
+          },
+          "food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A generic food or Indian dish; null for other entries",
+            "title": "Food Id"
           },
           "grade": {
             "anyOf": [
@@ -2557,6 +3051,14 @@
           "nutrients": {
             "$ref": "#/components/schemas/NutrientSnapshot"
           },
+          "portion_units": {
+            "description": "The units that resolved when the entry was logged (from its saved food), for the edit sheet. A PATCH may use only these",
+            "items": {
+              "$ref": "#/components/schemas/PortionUnitOut"
+            },
+            "title": "Portion Units",
+            "type": "array"
+          },
           "product_id": {
             "anyOf": [
               {
@@ -2575,14 +3077,39 @@
             "title": "Product Name",
             "type": "string"
           },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The portion as typed (with unit); null for older entries",
+            "title": "Quantity"
+          },
           "source_kind": {
             "enum": [
               "product",
               "off",
+              "food",
               "quick_add"
             ],
             "title": "Source Kind",
             "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The household unit; null for older entries",
+            "title": "Unit"
           },
           "updated_at": {
             "format": "date-time",
@@ -2651,6 +3178,20 @@
             ],
             "title": "Meal Slot Id"
           },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 5000.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "With `unit`: a new portion in a household unit. Only units that resolved when the entry was logged (`portion_units`) are accepted, else 422 unit_grams_unknown",
+            "title": "Quantity"
+          },
           "quick": {
             "anyOf": [
               {
@@ -2673,6 +3214,36 @@
               }
             ],
             "title": "Servings"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "enum": [
+                  "g",
+                  "ml",
+                  "serving",
+                  "piece",
+                  "piece_small",
+                  "piece_medium",
+                  "piece_large",
+                  "roti",
+                  "slice",
+                  "katori",
+                  "katori_small",
+                  "katori_medium",
+                  "katori_large",
+                  "cup",
+                  "glass",
+                  "tbsp",
+                  "tsp"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
           }
         },
         "title": "MealPatch",
@@ -3859,6 +4430,41 @@
         "title": "NutrientsOut",
         "type": "object"
       },
+      "PortionIn": {
+        "properties": {
+          "grams_per_unit": {
+            "description": "The amount of one unit in the food's basis",
+            "exclusiveMinimum": 0.0,
+            "maximum": 2000.0,
+            "title": "Grams Per Unit",
+            "type": "number"
+          }
+        },
+        "required": [
+          "grams_per_unit"
+        ],
+        "title": "PortionIn",
+        "type": "object"
+      },
+      "PortionUnitOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "grams_per_unit": {
+            "description": "The amount of ONE unit in the entry's basis, as it was when logged",
+            "title": "Grams Per Unit",
+            "type": "number"
+          }
+        },
+        "required": [
+          "code",
+          "grams_per_unit"
+        ],
+        "title": "PortionUnitOut",
+        "type": "object"
+      },
       "PrefillChange": {
         "description": "One suggested change to the primary member. Never applied by the API: the client sends\n`value` in `PATCH /v1/members/{member_id}` only if the user confirms it.",
         "properties": {
@@ -4805,6 +5411,13 @@
             ],
             "title": "Attribution"
           },
+          "attributions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Attributions",
+            "type": "array"
+          },
           "barcode": {
             "anyOf": [
               {
@@ -4815,6 +5428,19 @@
               }
             ],
             "title": "Barcode"
+          },
+          "food_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A generic food or dish; log it again with `food_id`",
+            "title": "Food Id"
           },
           "grade": {
             "anyOf": [
@@ -4856,13 +5482,37 @@
             ],
             "title": "Product Id"
           },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The portion as last logged, with `unit`; null for older entries",
+            "title": "Quantity"
+          },
           "source_kind": {
             "enum": [
               "product",
-              "off"
+              "off",
+              "food"
             ],
             "title": "Source Kind",
             "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
           }
         },
         "required": [
@@ -5129,6 +5779,14 @@
         ],
         "title": "SearchHit",
         "type": "object"
+      },
+      "SearchKind": {
+        "enum": [
+          "food",
+          "product"
+        ],
+        "title": "SearchKind",
+        "type": "string"
       },
       "SearchSort": {
         "description": "Search order: ``relevance`` (ours first, then Open Food Facts) or ``protein`` (most\nprotein per 100 kcal first, unknown last, never avoid for the member).",
@@ -5876,6 +6534,53 @@
           "salt_g"
         ],
         "title": "Totals",
+        "type": "object"
+      },
+      "UnitOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "grams": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grams"
+          },
+          "kind": {
+            "enum": [
+              "mass",
+              "volume",
+              "count"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "ml": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ml"
+          }
+        },
+        "required": [
+          "code",
+          "kind",
+          "ml",
+          "grams"
+        ],
+        "title": "UnitOut",
         "type": "object"
       },
       "UploadUrlIn": {
@@ -6977,6 +7682,636 @@
         "summary": "Diary Week Get",
         "tags": [
           "diary"
+        ]
+      }
+    },
+    "/v1/foods/search": {
+      "get": {
+        "description": "Search generic foods and Indian dishes first, then packaged products (our catalogue and\nOpen Food Facts). Hits carry no nutrients. When Open Food Facts cannot answer, the other\nresults still come back with `partial: true` and `failed_sources: [\"off\"]`. USDA and\nOpen Food Facts credits ride on each hit.",
+        "operationId": "foods_search",
+        "parameters": [
+          {
+            "description": "Which sources to search; default both (food = generic foods and dishes)",
+            "in": "query",
+            "name": "kinds",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/SearchKind"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Which sources to search; default both (food = generic foods and dishes)",
+              "title": "Kinds"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "2 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "description": "2 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short",
+              "maxLength": 80,
+              "title": "Q",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodSearchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Foods Search",
+        "tags": [
+          "foods"
+        ]
+      }
+    },
+    "/v1/foods/units": {
+      "get": {
+        "description": "The household units (kind, volume or grams) in display order. Whether a unit applies to\na food is `foods_get`'s `units`; the label is the i18n key `unit.<code>`.",
+        "operationId": "foods_units_list",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UnitOut"
+                  },
+                  "title": "Response Foods Units List",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Foods Units List",
+        "tags": [
+          "foods"
+        ]
+      }
+    },
+    "/v1/foods/{kind}/{id}": {
+      "get": {
+        "description": "One food with the per-100 values and ONLY the units that resolve (a unit with nothing to\nconvert it by is never listed), the default unit, the units the user may set their own\ngrams for, credits and, for a dish, its ingredients. `id` is a uuid, or the barcode for\n`off`. Per-100 values the member hid are null. Household measures and dishes are pending\ndietitian review.",
+        "operationId": "foods_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/FoodKindPath"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodDetailOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Foods Get",
+        "tags": [
+          "foods"
+        ]
+      }
+    },
+    "/v1/foods/{kind}/{id}/portions/{unit}": {
+      "delete": {
+        "description": "Remove YOUR value for this unit; ours applies again. 204 even when you had none.",
+        "operationId": "foods_portion_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/FoodKindPath"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "unit",
+            "required": true,
+            "schema": {
+              "title": "Unit",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Foods Portion Delete",
+        "tags": [
+          "foods"
+        ]
+      },
+      "put": {
+        "description": "Set YOUR grams for one unit of one food (for example one roti = 35 g). Count and volume\nunits only; `serving` and the mass units are 422 `unit_not_supported`. The value belongs to\nthe account, replaces ours for you, and never changes a past diary entry.",
+        "operationId": "foods_portion_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/FoodKindPath"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "unit",
+            "required": true,
+            "schema": {
+              "title": "Unit",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Defaults to the primary member",
+            "in": "query",
+            "name": "member_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Defaults to the primary member",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodDetailOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Missing or invalid access token"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limited"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Open Food Facts unavailable"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Foods Portion Put",
+        "tags": [
+          "foods"
         ]
       }
     },

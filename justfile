@@ -107,6 +107,7 @@ generate: contract i18n tokens
 # Apply Alembic migrations (Alembic owns all tables + RLS) (Plan 2)
 db-migrate:
     cd apps/api && uv run alembic upgrade head
+    cd apps/api && uv run python -m app.jobs.seed_foods
 
 # New migration: just db-revision "add meal_logs"
 db-revision message:

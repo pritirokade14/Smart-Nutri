@@ -42,6 +42,8 @@
   "alternativesTitle": "अधिक चांगले पर्याय",
   "appName": "SmartNutri AI",
   "attributionOff": "डेटा: Open Food Facts (ODbL)",
+  "attributionSmartnutriRecipe": "SmartNutri ची रेसिपी, USDA FoodData Central च्या घटकांपासून. आहारतज्ज्ञांची तपासणी प्रलंबित.",
+  "attributionUsdaFdc": "पोषण डेटा: USDA FoodData Central (सार्वजनिक डोमेन)",
   "authChange": "बदला",
   "authCodeLabel": "6 अंकी कोड",
   "authEmail": "ईमेलसह पुढे जा",
@@ -341,6 +343,34 @@
   "diaryPartialBadge": "अर्धवट नोंदवलेले",
   "diaryPartialNote": "अर्धवट नोंदवलेले दिवस साप्ताहिक सरासरीत धरले जात नाहीत.",
   "diaryPickDate": "तारीख निवडा",
+  "diaryPortionLine": "{quantity} {unit} · {grams} ग्रॅम",
+  "@diaryPortionLine": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryPortionLineMl": "{quantity} {unit} · {amount} मिली",
+  "@diaryPortionLineMl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "diaryPrevDay": "मागील दिवस",
   "diaryQuickAddCarbs": "कार्ब्स (ग्रॅम)",
   "diaryQuickAddEnergy": "कॅलरी",
@@ -468,6 +498,7 @@
   "errorExtractionUnavailable": "लेबल वाचण्याची सुविधा सध्या उपलब्ध नाही. नंतर पुन्हा प्रयत्न करा किंवा माहिती स्वतः भरा.",
   "errorFatPctOutOfRange": "कृपया कॅलरीतील चरबीचा वाटा 20% ते 30% दरम्यान निवडा.",
   "errorFollowUpWithoutType": "कृपया तुमची उत्तरे तपासा आणि पुन्हा प्रयत्न करा.",
+  "errorFoodNotFound": "आम्हाला तो पदार्थ सापडला नाही.",
   "errorForbidden": "तुम्हाला याचा प्रवेश नाही.",
   "errorGoalNotAllowedMinor": "दैनिक मार्गदर्शक प्रौढांसाठी आहेत. तुम्ही तरीही जेवण नोंदवू शकता.",
   "errorGoalNotAllowedUnderweight": "त्याऐवजी आम्ही तुम्हाला स्थिर वजन राखण्यास मदत करू शकतो.",
@@ -497,6 +528,7 @@
   "errorPrimaryMember": "तुमची स्वतःची प्रोफाइल काढता येत नाही.",
   "errorProductExists": "हे उत्पादन आधीच जतन केले आहे.",
   "errorProductNotFound": "हे उत्पादन आम्हाला अजून सापडले नाही.",
+  "errorQuantityOutOfRange": "हे प्रमाण खूप जास्त किंवा खूप कमी आहे. संख्या तपासून पुन्हा प्रयत्न करा.",
   "errorQuickAddEnergyRequired": "हे जोडण्यासाठी कॅलरी भरा.",
   "errorRateLimited": "खूप जास्त विनंत्या. कृपया थोडा वेळ थांबा.",
   "errorRateLimitedScans": "तुम्ही आजच्या लेबल-स्कॅन मर्यादेपर्यंत पोहोचला आहात.",
@@ -510,6 +542,8 @@
   "errorTargetWeightTooLow": "कृपया जास्त लक्ष्य वजन निवडा.",
   "errorTimezoneInvalid": "हा वेळ क्षेत्र ओळखला गेला नाही.",
   "errorUnauthorized": "कृपया साइन इन करा.",
+  "errorUnitGramsUnknown": "या मापाचे ग्रॅम आम्हाला अजून माहीत नाहीत. ग्रॅममध्ये प्रमाण टाका किंवा तुमचे स्वतःचे मूल्य सेट करा.",
+  "errorUnitNotSupported": "हे माप येथे उपलब्ध नाही. दुसरे निवडा.",
   "errorUnsupportedImage": "कृपया JPEG, PNG किंवा WebP फोटो वापरा.",
   "errorUserTypeNotSelected": "तुम्ही स्वतःसाठी निवडलेल्या पर्यायांपैकी एक निवडा.",
   "errorUserTypesNotFound": "आधी सांगा की तुम्ही SmartNutri का वापरत आहात.",
@@ -527,8 +561,23 @@
   "familyComingSoonTitle": "कुटुंब प्रोफाइल लवकरच येत आहेत",
   "familyTitle": "कुटुंब",
   "foodsBlankIsUnknown": "माहीत नसेल तर रिकामे ठेवा. रिकामे कधीही 0 धरले जात नाही.",
+  "foodsDishIngredients": "यापासून बनलेले",
+  "foodsGroupIndian": "भारतीय पदार्थ",
+  "foodsGroupPackaged": "पॅकेज्ड उत्पादने",
+  "foodsKindDish": "पदार्थ",
+  "foodsKindFood": "अन्न",
+  "foodsKindProduct": "उत्पादन",
+  "foodsNoResults": "काही सापडले नाही. दुसरा शब्द वापरून पहा किंवा झटपट जोडा.",
+  "foodsNotKnown": "माहीत नाही",
+  "foodsPartialResults": "काही निकाल लोड होऊ शकले नाहीत. पुन्हा प्रयत्न करा.",
+  "foodsPortionQuantity": "प्रमाण",
+  "foodsPortionSave": "जोडा",
+  "foodsPortionTitle": "किती?",
+  "foodsPreviewNote": "अंदाज. सेव्ह केलेली मूल्ये SmartNutri कडून येतात.",
   "foodsQuickAdd": "झटपट जोडा",
   "foodsRecent": "अलीकडील",
+  "foodsReviewPending": "घरगुती माप आणि भारतीय पदार्थ अजून आहारतज्ज्ञांच्या तपासणीसाठी प्रलंबित आहेत.",
+  "foodsSearchPlaceholder": "अन्न, पदार्थ किंवा ब्रँड शोधा",
   "footerLinksLabel": "SmartNutri विषयी",
   "footerTagline": "भारतीय कुटुंबांसाठी पॅकबंद अन्नाची माहिती.",
   "goalBuildMuscle": "स्नायू वाढवणे",
@@ -840,6 +889,8 @@
   "membersTitle": "कुटुंब",
   "membersYouBadge": "तुम्ही",
   "methodologyBasedOn": "आधार:",
+  "methodologyFoodDataBody": "पॅकेज्ड अन्नाची मूल्ये लेबलवरून येतात. सामान्य अन्नाचा डेटा USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov) कडून आहे, जो सार्वजनिक डोमेनमध्ये आहे. वाटीचे आकार ICMR-NIN च्या भारतीयांसाठी आहार मार्गदर्शक तत्त्वे 2024 (परिशिष्ट I) नुसार आहेत. कपावर आधारित काही रूपांतरणे USDA च्या कप-वजनांवरून काढली आहेत आणि अंदाजे म्हणून चिन्हांकित आहेत. ग्लास आणि इतर मूल्ये आमचा स्वतःचा संदर्भ संच आहेत, ज्यांची आहारतज्ज्ञांची तपासणी प्रलंबित आहे. जे मूल्य माहीत नाही, ते आम्ही अज्ञातच ठेवतो, अंदाज लावत नाही. भारतीय पदार्थ SmartNutri त्यांच्या घटकांवरून मोजते आणि आहारतज्ज्ञांची तपासणी प्रलंबित आहे. माहिती, वैद्यकीय सल्ला नाही.",
+  "methodologyFoodDataTitle": "अन्न डेटा आणि घरगुती माप",
   "methodologyIntro": "SmartNutri प्रत्येक पॅकबंद अन्न त्याच्या लेबलवरून आणि कुटुंबातील प्रत्येक सदस्याच्या प्रोफाइलवरून ठरलेल्या नियमांनुसार तपासते. AI फक्त निकाल समजावून सांगते, तो कधीच ठरवत नाही. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
   "methodologyMetaDescription": "SmartNutri कुटुंबातील प्रत्येक सदस्यासाठी पॅकबंद अन्न कसे तपासते: ठरलेले नियम, त्यांच्या मर्यादा आणि स्रोत. ही माहिती आहे, वैद्यकीय सल्ला नाही.",
   "methodologyPendingReview": "या मर्यादा सध्या कामचलाऊ मूल्ये आहेत आणि डॉक्टरांचे पुनरावलोकन बाकी आहे.",
@@ -1748,6 +1799,184 @@
       }
     }
   },
+  "unitAmountHintMl": "1 {unit} ≈ {amount} मिली",
+  "@unitAmountHintMl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitCup": "{count, plural, one {कप} other {कप}}",
+  "@unitCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitEditGrams": "या मापासाठी ग्रॅम बदला",
+  "unitG": "{count, plural, one {ग्रॅम} other {ग्रॅम}}",
+  "@unitG": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitGlass": "{count, plural, one {ग्लास} other {ग्लास}}",
+  "@unitGlass": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitGramsHint": "1 {unit} ≈ {grams} ग्रॅम",
+  "@unitGramsHint": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitKatori": "{count, plural, one {वाटी} other {वाट्या}}",
+  "@unitKatori": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriLarge": "{count, plural, one {मोठी वाटी} other {मोठ्या वाट्या}}",
+  "@unitKatoriLarge": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriMedium": "{count, plural, one {मध्यम वाटी} other {मध्यम वाट्या}}",
+  "@unitKatoriMedium": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriSmall": "{count, plural, one {लहान वाटी} other {लहान वाट्या}}",
+  "@unitKatoriSmall": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitMl": "{count, plural, one {मिली} other {मिली}}",
+  "@unitMl": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitMlHint": "{ml} मिली",
+  "@unitMlHint": {
+    "placeholders": {
+      "ml": {
+        "type": "String"
+      }
+    }
+  },
+  "unitPiece": "{count, plural, one {नग} other {नग}}",
+  "@unitPiece": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceLarge": "{count, plural, one {मोठा नग} other {मोठे नग}}",
+  "@unitPieceLarge": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceMedium": "{count, plural, one {मध्यम नग} other {मध्यम नग}}",
+  "@unitPieceMedium": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceSmall": "{count, plural, one {लहान नग} other {लहान नग}}",
+  "@unitPieceSmall": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitResetGrams": "प्रमाणित मूल्य वापरा",
+  "unitRoti": "{count, plural, one {चपाती} other {चपात्या}}",
+  "@unitRoti": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitServing": "{count, plural, one {सर्व्हिंग} other {सर्व्हिंग}}",
+  "@unitServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitSetGrams": "{unit} साठी ग्रॅम सेट करा",
+  "@unitSetGrams": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitSlice": "{count, plural, one {स्लाइस} other {स्लाइस}}",
+  "@unitSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitTbsp": "{count, plural, one {मोठा चमचा} other {मोठे चमचे}}",
+  "@unitTbsp": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitTsp": "{count, plural, one {लहान चमचा} other {लहान चमचे}}",
+  "@unitTsp": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitUnknown": "या मापाचे ग्रॅम आम्हाला अजून माहीत नाहीत. ग्रॅममध्ये प्रमाण टाका किंवा तुमचे स्वतःचे मूल्य सेट करा.",
+  "unitYourValue": "तुमचे मूल्य",
   "userTypesChangeLater": "तुम्ही हे प्रोफाइलमध्ये बदलू शकता",
   "userTypesConsentNeeded": "आरोग्य माहिती जतन करण्यासाठी आरोग्य डेटावर तुमची संमती आवश्यक आहे.",
   "userTypesConsentNote": "यातील काही निवडल्यास तुमच्या प्रोफाइलमध्ये माहिती जोडण्याची सूचना येऊ शकते. तुम्ही पुष्टी केली तरच आणि आरोग्य डेटासाठी तुमची संमती असेल तरच ती जतन होईल.",

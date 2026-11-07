@@ -103,6 +103,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attributionOff => 'Data from Open Food Facts (ODbL)';
 
   @override
+  String get attributionSmartnutriRecipe =>
+      'Recipe by SmartNutri from USDA FoodData Central ingredients. Pending dietitian review.';
+
+  @override
+  String get attributionUsdaFdc =>
+      'Nutrition data: USDA FoodData Central (public domain)';
+
+  @override
   String get authChange => 'Change';
 
   @override
@@ -727,6 +735,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diaryPickDate => 'Pick a date';
 
   @override
+  String diaryPortionLine(String grams, String quantity, String unit) {
+    return '$quantity $unit · $grams g';
+  }
+
+  @override
+  String diaryPortionLineMl(String amount, String quantity, String unit) {
+    return '$quantity $unit · $amount ml';
+  }
+
+  @override
   String get diaryPrevDay => 'Previous day';
 
   @override
@@ -988,6 +1006,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please check your answers and try again.';
 
   @override
+  String get errorFoodNotFound => 'We couldn\'t find that food.';
+
+  @override
   String get errorForbidden => 'You don\'t have access to this.';
 
   @override
@@ -1088,6 +1109,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorProductNotFound => 'We couldn\'t find this product yet.';
 
   @override
+  String get errorQuantityOutOfRange =>
+      'That amount is too large or too small. Check the number and try again.';
+
+  @override
   String get errorQuickAddEnergyRequired => 'Enter the calories to add this.';
 
   @override
@@ -1132,6 +1157,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnauthorized => 'Please sign in.';
+
+  @override
+  String get errorUnitGramsUnknown =>
+      'We don\'t know the grams for this measure yet. Enter grams, or set your own value.';
+
+  @override
+  String get errorUnitNotSupported =>
+      'That measure isn\'t available here. Choose another.';
 
   @override
   String get errorUnsupportedImage => 'Please use a JPEG, PNG or WebP photo.';
@@ -1196,10 +1229,58 @@ class AppLocalizationsEn extends AppLocalizations {
       'Leave blank if you don\'t know. Blank is never counted as 0.';
 
   @override
+  String get foodsDishIngredients => 'Made with';
+
+  @override
+  String get foodsGroupIndian => 'Indian foods';
+
+  @override
+  String get foodsGroupPackaged => 'Packaged products';
+
+  @override
+  String get foodsKindDish => 'Dish';
+
+  @override
+  String get foodsKindFood => 'Food';
+
+  @override
+  String get foodsKindProduct => 'Product';
+
+  @override
+  String get foodsNoResults =>
+      'No foods found. Try another word, or use quick add.';
+
+  @override
+  String get foodsNotKnown => 'Not known';
+
+  @override
+  String get foodsPartialResults => 'Some results couldn\'t load. Try again.';
+
+  @override
+  String get foodsPortionQuantity => 'Amount';
+
+  @override
+  String get foodsPortionSave => 'Add';
+
+  @override
+  String get foodsPortionTitle => 'How much?';
+
+  @override
+  String get foodsPreviewNote =>
+      'Estimate. The saved values come from SmartNutri.';
+
+  @override
   String get foodsQuickAdd => 'Quick add';
 
   @override
   String get foodsRecent => 'Recent';
+
+  @override
+  String get foodsReviewPending =>
+      'Household measures and Indian dishes are pending dietitian review.';
+
+  @override
+  String get foodsSearchPlaceholder => 'Search foods, dishes or brands';
 
   @override
   String get footerLinksLabel => 'About SmartNutri';
@@ -1824,6 +1905,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodologyBasedOn => 'Based on:';
+
+  @override
+  String get methodologyFoodDataBody =>
+      'Packaged-food values come from the label. Generic foods come from USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov), which is in the public domain. Katori sizes follow the ICMR-NIN Dietary Guidelines for Indians 2024 (Annexure I). Some cup-based conversions are derived from USDA cup weights and are marked approximate. Glass and other values are our own reference set, pending dietitian review. Where a value is not known, we leave it unknown and never guess. Indian dishes are calculated by SmartNutri from their ingredients and are pending dietitian review. Information, not medical advice.';
+
+  @override
+  String get methodologyFoodDataTitle => 'Food data and household measures';
 
   @override
   String get methodologyIntro =>
@@ -3095,6 +3183,226 @@ class AppLocalizationsEn extends AppLocalizations {
   String targetsUnusualConfirm(String fields) {
     return 'Please check $fields. Is this right?';
   }
+
+  @override
+  String unitAmountHintMl(String amount, String unit) {
+    return '1 $unit ≈ $amount ml';
+  }
+
+  @override
+  String unitCup(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'cups',
+      one: 'cup',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unitEditGrams => 'Edit grams for this measure';
+
+  @override
+  String unitG(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'g',
+      one: 'g',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitGlass(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'glasses',
+      one: 'glass',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitGramsHint(String grams, String unit) {
+    return '1 $unit ≈ $grams g';
+  }
+
+  @override
+  String unitKatori(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'katoris',
+      one: 'katori',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitKatoriLarge(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'large katoris',
+      one: 'large katori',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitKatoriMedium(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'medium katoris',
+      one: 'medium katori',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitKatoriSmall(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'small katoris',
+      one: 'small katori',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitMl(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ml',
+      one: 'ml',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitMlHint(String ml) {
+    return '$ml ml';
+  }
+
+  @override
+  String unitPiece(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'pieces',
+      one: 'piece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitPieceLarge(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'large pieces',
+      one: 'large piece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitPieceMedium(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'medium pieces',
+      one: 'medium piece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitPieceSmall(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'small pieces',
+      one: 'small piece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unitResetGrams => 'Use the standard value';
+
+  @override
+  String unitRoti(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'rotis',
+      one: 'roti',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitServing(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'servings',
+      one: 'serving',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitSetGrams(String unit) {
+    return 'Set grams for $unit';
+  }
+
+  @override
+  String unitSlice(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'slices',
+      one: 'slice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitTbsp(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'tbsp',
+      one: 'tbsp',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unitTsp(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'tsp',
+      one: 'tsp',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unitUnknown =>
+      'We don\'t know the grams for this measure yet. Enter grams, or set your own value.';
+
+  @override
+  String get unitYourValue => 'Your value';
 
   @override
   String get userTypesChangeLater => 'You can change this in Profile';

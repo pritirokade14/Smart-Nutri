@@ -10,6 +10,8 @@ enum MealOutSourceKind {
   product('product'),
   @JsonValue('off')
   off('off'),
+  @JsonValue('food')
+  food('food'),
   @JsonValue('quick_add')
   quickAdd('quick_add'),
 

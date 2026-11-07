@@ -57,9 +57,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T13:00:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 300.0,
           "id": "df9d3624-5740-532c-b190-42753acd1080",
@@ -82,9 +85,17 @@
             "sat_fat_g": null,
             "sugars_g": null
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "35164ac5-4887-5a09-b020-acb4e83aa6ca",
           "product_name": "Khichdi",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T13:00:00+05:30"
         }
       ],

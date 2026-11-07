@@ -10,6 +10,8 @@ enum RecentItemSourceKind {
   product('product'),
   @JsonValue('off')
   off('off'),
+  @JsonValue('food')
+  food('food'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

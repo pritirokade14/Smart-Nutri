@@ -189,7 +189,16 @@ async def recents(
     seen: set[tuple[str, str]] = set()
     items: list[RecentItem] = []
     for r in rows:
-        key = ("p", str(r.product_id)) if r.product_id is not None else ("o", r.off_barcode or "")
+        # One item per product, barcode or food (the newest entry). An entry whose reference is
+        # gone (a deleted custom food, slice 4) has nothing to log again and is skipped.
+        if r.product_id is not None:
+            key = ("product", str(r.product_id))
+        elif r.food_id is not None:
+            key = ("food", str(r.food_id))
+        elif r.off_barcode:
+            key = ("off", r.off_barcode)
+        else:
+            continue
         if key in seen:
             continue
         seen.add(key)
@@ -198,12 +207,16 @@ async def recents(
                 source_kind=r.source_kind,  # type: ignore[arg-type]
                 product_id=r.product_id,
                 barcode=r.off_barcode,
+                food_id=r.food_id,
                 name=r.product_name or "",
                 grade=r.grade,  # type: ignore[arg-type]
                 grams=r.grams or 0.0,
+                quantity=None if r.quantity is None else float(r.quantity),
+                unit=r.unit,
                 meal_slot_id=r.meal_slot_id,
                 last_eaten_at=r.eaten_at,
                 attribution=meals_service.OFF_ATTRIBUTION if r.off_barcode else None,
+                attributions=meals_service._attributions(r),
             )
         )
     if slot_id is not None:

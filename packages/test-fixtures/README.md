@@ -191,6 +191,15 @@ The protein g/kg per goal moved from `thresholds.yaml` to `apps/api/app/scoring/
 - **Cases:** `day_complete_under`, `day_over_energy`, `day_incomplete_energy`, `day_quick_add_kcal_only`, `day_empty`, `day_no_target`, `day_consent_required`, `day_paused_pregnancy`, `day_hide_energy`, `day_hide_all`, `day_half_up`, `day_archived_slot`, `week_mixed`, `week_hide_all`.
 - Clients render these numbers and never compute a total, a remaining value, a progress fraction, a date or a default slot.
 
+## Weight trend (Plan 12: `weights/`)
+
+`weights/inputs/<stem>.json` is hand-written; `weights/expected/<stem>.json` is **generated** by `apps/api/scripts/generate_weight_expectations.py` from the real maths (`app/scoring/weight_trend.py`), then dumped with sorted keys, 2-space indent and a trailing newline. Run it from `apps/api`: `uv run python scripts/generate_weight_expectations.py` checks (exit 1 if stale), `--write` updates. `apps/api/tests/unit/scoring/test_weight_trend.py` fails when an expected file is stale and pins the hand-worked numbers. Review every change with `nutrition-safety-reviewer`; never edit an expected file by hand.
+
+- **Input:** `{"weigh_ins": [{"date", "weight_kg"}], "target_kg": number | null, "numbers_display": "show" | "hide_energy" | "hide_all"}`. The full history, oldest first.
+- **Expected:** the `WeightTrendOut` body without the request envelope (`member_id`, `days`, `from`, `to`): `points[{date, weight_kg, outlier, y}]`, `trend[{date, trend_kg, y}]`, `weekly_rate {kg, pct_bw} | null`, `projection {target_kg, date} | null`, `projection_reason`, `flags`, `numbers_hidden`, `pending_clinician_review`. kg and pct are 2 dp half-up. `y` is `(v - min) / (max - min)` (2 dp half-up, 0.5 when all are equal) over the weigh-ins and the trend values together. Under `hide_all` every kg, the rate and the target are null and `y` is kept.
+- **Cases:** `three_constant`, `gap_calendar_days`, `single_outlier`, `step_change_two_in_a_row`, `too_few_for_rate`, `weekly_rate_loss`, `rapid_loss_three_weeks`, `projection_{ready,too_few,moving_away,too_far,reached}`, `no_target`, `hide_all`.
+- **Clients** never compute the trend. They may use these files to test that they render the API's JSON, including the hollow outlier points and the null kg under `hide_all`.
+
 ## How each project uses them
 
 | Project | Test |
@@ -218,3 +227,31 @@ Resolved:
 
 - R12: `expected/namkeen.diabetic_adult.json` is now `caution` (`cardio_risk_high_in`): blood-sugar members get a caution when the product is high_in salt or saturated fat. `sf_biscuit.diabetic_adult` (7 g sat fat per 100 g) gains the same reason; its status stays `avoid`.
 - R13: `expected/cola.no_age.json`, `expected/namkeen.no_age.json`, `expected/no_ingredients.no_age.json` and `expected/sf_biscuit.no_age.json` are now `unknown` (`age_unknown`): with no birth year, the child and infant rules are checked at the most protective age, and any flag makes the verdict `unknown`.
+
+## Unit conversions (`units/`)
+
+`units/conversions.json`: about 20 cases for `to_grams` and the portion preview (Plan 12 slice 3). It is **generated** from the real code, never edited by hand:
+
+```
+cd apps/api && uv run python -m scripts.generate_unit_expectations          # --check (default)
+cd apps/api && uv run python -m scripts.generate_unit_expectations --write
+```
+
+Each case is `{case, food: {basis, serving_g, density_g_per_ml, global_portions, user_portions}, unit, quantity, per_100, expected: {grams_per_unit, amount, error, preview}}`.
+
+- `grams_per_unit` is the amount of ONE unit in the food's basis (grams, or ml for an ml-basis food), or `null` when the unit does not resolve (a picker never offers it).
+- `amount` is `quantity` x `grams_per_unit`, or `null` with `error` set (`unit_grams_unknown` or `quantity_out_of_range`): a unit that cannot be converted is refused, never guessed.
+- `preview` is the portion preview Android and web must reproduce: `quantity x grams_per_unit x per_100 / 100`, rounded half-up to 1 dp, in exact decimal arithmetic (so `1.15` x 100 g shows `1.2`, not the float `1.1`). A `null` nutrient stays `null`, never 0.
+- The per-100 values are synthetic test numbers, not food data. The API asserts `to_grams` and its own rounding against the file (`tests/unit/foods/test_units.py`); Android and web assert their **preview** against it.
+
+## Seeded dishes (`foods/`)
+
+`foods/dishes.json`: the per-100 g nutrients of the 21 seeded Indian dishes (Plan 12 slice 3), and the 9 dishes left out with their status (`blocked` or `needs_weighing`). It is **generated** from the real seed code, never edited by hand:
+
+```
+cd apps/api && uv run python -m scripts.generate_dish_expectations          # --check (default)
+cd apps/api && uv run python -m scripts.generate_dish_expectations --write
+```
+
+`{dishes: {<code>: {name_en, cooked_weight_g, serving_g | null, per_100: {energy_kcal, sugars_g, salt_g, protein_g, fat_g, sat_fat_g, carbs_g, fibre_g}}}, excluded: {<code>: status}}`. A nutrient is `null` when it is unknown on any ingredient (never a partial sum): `sat_fat_g` is `null` for every dish, and `sugars_g` is `null` for dal tadka. Every value is PENDING DIETITIAN REVIEW: the recipes and cooked weights in `docs/research/food-diary/data/indian_dishes_recipes.md` are assumptions. The API asserts the numbers (`tests/unit/foods/test_dishes.py`).
+

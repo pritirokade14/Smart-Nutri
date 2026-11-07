@@ -134,8 +134,30 @@ async def seed(session, account_id: UUID, storage: FakeStorage) -> dict[str, UUI
         a=account_id,
         m=member,
     )
+    food = (
+        await _exec(
+            session,
+            "insert into foods (source, source_code, name_en, search_text, basis, per_100, "
+            "licence, data_version) values ('usda_fdc', :c, 'Dal', 'dal', 'g', '{}', "
+            "'CC0 1.0', 'v') returning id",
+            c=f"del-{account_id}",
+        )
+    ).scalar_one()
+    await _exec(
+        session,
+        "insert into food_portions (account_id, food_id, unit, grams_per_unit, source) "
+        "values (:a, :f, 'roti', 35, 'user')",
+        a=account_id,
+        f=food,
+    )
+    await _exec(
+        session,
+        "insert into food_portions (food_id, unit, grams_per_unit, source) "
+        "values (:f, 'piece', 40, 'reference_table')",
+        f=food,
+    )
     await session.flush()
-    return {"product": product, "member": member}
+    return {"product": product, "member": member, "food": food}
 
 
 async def counts(session, account_id: UUID) -> dict[str, int]:
@@ -525,3 +547,24 @@ async def test_delete_me_succeeds_when_the_bucket_is_missing(
     assert set((await counts(db_session, A)).values()) == {0}
     assert await tombstoned(db_session, A)
     assert admin.deleted == [A]
+
+
+async def test_delete_me_erases_user_portions_and_keeps_global(client, login, db_session, storage):
+    """Plan 12: the account's own portion overrides go; the global rows and foods stay."""
+    seeded = await seed(db_session, A, storage)
+    await seed(db_session, B, storage)
+    assert "food_portions" in ACCOUNT_OWNED_TABLES
+    login(A)
+    assert (await client.delete("/v1/me")).status_code == 204
+    rows = await _exec(
+        db_session,
+        "select account_id, source from food_portions "
+        "where food_id in (select id from foods where source_code like 'del-%')",
+    )
+    got = sorted((str(a), s) for a, s in rows.all())
+    assert got == sorted(
+        [("None", "reference_table"), (str(B), "user"), ("None", "reference_table")]
+    )
+    assert (
+        await _exec(db_session, "select count(*) from foods where id = :f", f=seeded["food"])
+    ).scalar_one() == 1

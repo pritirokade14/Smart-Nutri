@@ -110,8 +110,13 @@ class MealSync {
       memberId: row.memberId,
       productId: row.productId,
       barcode: row.barcode,
+      foodId: row.foodId,
       grams: energy == null ? row.grams : null,
       servings: energy == null ? row.servings : null,
+      quantity: energy == null ? row.quantity : null,
+      unit: energy != null || row.unit == null
+          ? null
+          : MealInUnit.fromJson(row.unit!),
       quick: energy == null
           ? null
           : QuickIn(

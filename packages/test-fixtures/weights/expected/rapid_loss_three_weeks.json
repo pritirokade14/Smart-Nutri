@@ -1,0 +1,325 @@
+{
+  "flags": [
+    "rapid_loss"
+  ],
+  "numbers_hidden": false,
+  "pending_clinician_review": true,
+  "points": [
+    {
+      "date": "2026-01-01",
+      "outlier": false,
+      "weight_kg": 80.0,
+      "y": 1.0
+    },
+    {
+      "date": "2026-01-02",
+      "outlier": false,
+      "weight_kg": 79.8,
+      "y": 0.96
+    },
+    {
+      "date": "2026-01-03",
+      "outlier": false,
+      "weight_kg": 79.6,
+      "y": 0.93
+    },
+    {
+      "date": "2026-01-04",
+      "outlier": false,
+      "weight_kg": 79.4,
+      "y": 0.89
+    },
+    {
+      "date": "2026-01-05",
+      "outlier": false,
+      "weight_kg": 79.2,
+      "y": 0.85
+    },
+    {
+      "date": "2026-01-06",
+      "outlier": false,
+      "weight_kg": 79.0,
+      "y": 0.81
+    },
+    {
+      "date": "2026-01-07",
+      "outlier": false,
+      "weight_kg": 78.8,
+      "y": 0.78
+    },
+    {
+      "date": "2026-01-08",
+      "outlier": false,
+      "weight_kg": 78.6,
+      "y": 0.74
+    },
+    {
+      "date": "2026-01-09",
+      "outlier": false,
+      "weight_kg": 78.4,
+      "y": 0.7
+    },
+    {
+      "date": "2026-01-10",
+      "outlier": false,
+      "weight_kg": 78.2,
+      "y": 0.67
+    },
+    {
+      "date": "2026-01-11",
+      "outlier": false,
+      "weight_kg": 78.0,
+      "y": 0.63
+    },
+    {
+      "date": "2026-01-12",
+      "outlier": false,
+      "weight_kg": 77.8,
+      "y": 0.59
+    },
+    {
+      "date": "2026-01-13",
+      "outlier": false,
+      "weight_kg": 77.6,
+      "y": 0.56
+    },
+    {
+      "date": "2026-01-14",
+      "outlier": false,
+      "weight_kg": 77.4,
+      "y": 0.52
+    },
+    {
+      "date": "2026-01-15",
+      "outlier": false,
+      "weight_kg": 77.2,
+      "y": 0.48
+    },
+    {
+      "date": "2026-01-16",
+      "outlier": false,
+      "weight_kg": 77.0,
+      "y": 0.44
+    },
+    {
+      "date": "2026-01-17",
+      "outlier": false,
+      "weight_kg": 76.8,
+      "y": 0.41
+    },
+    {
+      "date": "2026-01-18",
+      "outlier": false,
+      "weight_kg": 76.6,
+      "y": 0.37
+    },
+    {
+      "date": "2026-01-19",
+      "outlier": false,
+      "weight_kg": 76.4,
+      "y": 0.33
+    },
+    {
+      "date": "2026-01-20",
+      "outlier": false,
+      "weight_kg": 76.2,
+      "y": 0.3
+    },
+    {
+      "date": "2026-01-21",
+      "outlier": false,
+      "weight_kg": 76.0,
+      "y": 0.26
+    },
+    {
+      "date": "2026-01-22",
+      "outlier": false,
+      "weight_kg": 75.8,
+      "y": 0.22
+    },
+    {
+      "date": "2026-01-23",
+      "outlier": false,
+      "weight_kg": 75.6,
+      "y": 0.19
+    },
+    {
+      "date": "2026-01-24",
+      "outlier": false,
+      "weight_kg": 75.4,
+      "y": 0.15
+    },
+    {
+      "date": "2026-01-25",
+      "outlier": false,
+      "weight_kg": 75.2,
+      "y": 0.11
+    },
+    {
+      "date": "2026-01-26",
+      "outlier": false,
+      "weight_kg": 75.0,
+      "y": 0.07
+    },
+    {
+      "date": "2026-01-27",
+      "outlier": false,
+      "weight_kg": 74.8,
+      "y": 0.04
+    },
+    {
+      "date": "2026-01-28",
+      "outlier": false,
+      "weight_kg": 74.6,
+      "y": 0.0
+    }
+  ],
+  "projection": null,
+  "projection_reason": "no_target",
+  "trend": [
+    {
+      "date": "2026-01-01",
+      "trend_kg": 80.0,
+      "y": 1.0
+    },
+    {
+      "date": "2026-01-02",
+      "trend_kg": 79.95,
+      "y": 0.99
+    },
+    {
+      "date": "2026-01-03",
+      "trend_kg": 79.86,
+      "y": 0.97
+    },
+    {
+      "date": "2026-01-04",
+      "trend_kg": 79.75,
+      "y": 0.95
+    },
+    {
+      "date": "2026-01-05",
+      "trend_kg": 79.61,
+      "y": 0.93
+    },
+    {
+      "date": "2026-01-06",
+      "trend_kg": 79.46,
+      "y": 0.9
+    },
+    {
+      "date": "2026-01-07",
+      "trend_kg": 79.29,
+      "y": 0.87
+    },
+    {
+      "date": "2026-01-08",
+      "trend_kg": 79.12,
+      "y": 0.84
+    },
+    {
+      "date": "2026-01-09",
+      "trend_kg": 78.94,
+      "y": 0.8
+    },
+    {
+      "date": "2026-01-10",
+      "trend_kg": 78.75,
+      "y": 0.77
+    },
+    {
+      "date": "2026-01-11",
+      "trend_kg": 78.57,
+      "y": 0.73
+    },
+    {
+      "date": "2026-01-12",
+      "trend_kg": 78.37,
+      "y": 0.7
+    },
+    {
+      "date": "2026-01-13",
+      "trend_kg": 78.18,
+      "y": 0.66
+    },
+    {
+      "date": "2026-01-14",
+      "trend_kg": 77.99,
+      "y": 0.63
+    },
+    {
+      "date": "2026-01-15",
+      "trend_kg": 77.79,
+      "y": 0.59
+    },
+    {
+      "date": "2026-01-16",
+      "trend_kg": 77.59,
+      "y": 0.55
+    },
+    {
+      "date": "2026-01-17",
+      "trend_kg": 77.39,
+      "y": 0.52
+    },
+    {
+      "date": "2026-01-18",
+      "trend_kg": 77.2,
+      "y": 0.48
+    },
+    {
+      "date": "2026-01-19",
+      "trend_kg": 77.0,
+      "y": 0.44
+    },
+    {
+      "date": "2026-01-20",
+      "trend_kg": 76.8,
+      "y": 0.41
+    },
+    {
+      "date": "2026-01-21",
+      "trend_kg": 76.6,
+      "y": 0.37
+    },
+    {
+      "date": "2026-01-22",
+      "trend_kg": 76.4,
+      "y": 0.33
+    },
+    {
+      "date": "2026-01-23",
+      "trend_kg": 76.2,
+      "y": 0.3
+    },
+    {
+      "date": "2026-01-24",
+      "trend_kg": 76.0,
+      "y": 0.26
+    },
+    {
+      "date": "2026-01-25",
+      "trend_kg": 75.8,
+      "y": 0.22
+    },
+    {
+      "date": "2026-01-26",
+      "trend_kg": 75.6,
+      "y": 0.19
+    },
+    {
+      "date": "2026-01-27",
+      "trend_kg": 75.4,
+      "y": 0.15
+    },
+    {
+      "date": "2026-01-28",
+      "trend_kg": 75.2,
+      "y": 0.11
+    }
+  ],
+  "weekly_rate": {
+    "kg": -1.4,
+    "pct_bw": -1.86
+  }
+}

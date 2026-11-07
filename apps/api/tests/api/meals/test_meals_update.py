@@ -216,3 +216,142 @@ async def test_update_family_entry_422(client, family, sf_biscuit_product_id, ap
     assert r.status_code == 422 and r.json()["error"]["code"] == "diary_member_not_enabled"
     monkeypatch.setattr(app.state.settings, "diary_family_enabled", True)
     assert (await _patch(client, m["id"], grams=40)).status_code == 200
+
+
+# ---- Plan 12 Task 5: quantity + unit, resolved only from the entry's own snapshot
+
+from decimal import Decimal
+
+from sqlalchemy import select
+
+from app.features.foods.models import FoodPortion
+from app.features.meals.models import MealLog
+
+
+async def _log_food(client, food_ids, code="172437", **kw):
+    body = {"food_id": food_ids[code], **(kw or {"quantity": 1, "unit": "katori"})}
+    r = await client.post("/v1/meals", json=body)
+    assert r.status_code == 201, r.text
+    return r.json()
+
+
+async def _db_row(db_session, meal_id) -> MealLog:
+    return await db_session.scalar(
+        select(MealLog).where(MealLog.id == meal_id).execution_options(populate_existing=True)
+    )
+
+
+async def test_patch_quantity_unit_from_snapshot(client, food_ids, db_session):
+    m = await _log_food(client, food_ids)
+    r = await _patch(client, m["id"], quantity=2, unit="katori_small")
+    assert r.status_code == 200, r.text
+    j = r.json()
+    assert (j["grams"], j["quantity"], j["unit"]) == (163.3, 2.0, "katori_small")  # 2 x 81.65
+    row = await _db_row(db_session, m["id"])
+    assert row.nutrients["energy_kcal"] == float(Decimal(121) * Decimal("163.3") / 100)
+    assert j["updated_at"] >= m["updated_at"]
+    # Grams are always resolvable for a gram-basis food, and set the unit to g.
+    r = await _patch(client, m["id"], quantity=50, unit="g")
+    assert (r.json()["grams"], r.json()["unit"]) == (50.0, "g")
+    r = await _patch(client, m["id"], grams=80)
+    assert (r.json()["grams"], r.json()["quantity"], r.json()["unit"]) == (80.0, 80.0, "g")
+
+
+async def test_patch_same_portion_identical_snapshot(client, food_ids, db_session):
+    m = await _log_food(client, food_ids)
+    before = await _db_row(db_session, m["id"])
+    nutrients, snapshot = dict(before.nutrients), dict(before.food_snapshot)
+    r = await _patch(client, m["id"], quantity=1, unit="katori")
+    assert r.status_code == 200, r.text
+    after = await _db_row(db_session, m["id"])
+    assert after.nutrients == nutrients  # the round trip changes nothing
+    assert after.food_snapshot == snapshot
+    assert (after.grams, after.quantity, after.unit) == (142.0, Decimal(1), "katori")
+    assert r.json()["nutrients"] == m["nutrients"]
+
+
+async def test_override_change_keeps_past_entry(client, food_ids, db_session):
+    roti = await _log_food(client, food_ids, "171844", quantity=1, unit="roti")  # global 68 g
+    assert roti["grams"] == 68.0
+    # The user now sets their own roti weight: the past entry does not move.
+    db_session.add(
+        FoodPortion(
+            food_id=(await _db_row(db_session, roti["id"])).food_id,
+            unit="roti",
+            grams_per_unit=Decimal(35),
+            source="user",
+            account_id=ACC_A,
+        )
+    )
+    await db_session.flush()
+    listed = (await client.get("/v1/meals", params={"local_date": roti["local_date"]})).json()
+    same = next(m for m in listed if m["id"] == roti["id"])
+    assert same["grams"] == 68.0 and same["nutrients"] == roti["nutrients"]
+    # A PATCH to the same unit still uses the snapshot's grams (68), not the new override (35).
+    r = await _patch(client, roti["id"], quantity=2, unit="roti")
+    assert r.json()["grams"] == 136.0
+    # A NEW entry uses the override.
+    new = await _log_food(client, food_ids, "171844", quantity=2, unit="roti")
+    assert new["grams"] == 70.0
+
+
+async def test_patch_unit_not_in_snapshot_422(client, food_ids, db_session):
+    m = await _log_food(client, food_ids)
+    for unit in ("roti", "piece", "serving"):
+        r = await _patch(client, m["id"], quantity=1, unit=unit)
+        assert r.status_code == 422 and r.json()["error"]["code"] == "unit_grams_unknown", unit
+    # Even after the user sets a roti weight, an old entry only knows what resolved then.
+    db_session.add(
+        FoodPortion(
+            food_id=(await _db_row(db_session, m["id"])).food_id,
+            unit="roti",
+            grams_per_unit=Decimal(35),
+            source="user",
+            account_id=ACC_A,
+        )
+    )
+    await db_session.flush()
+    r = await _patch(client, m["id"], quantity=1, unit="roti")
+    assert r.status_code == 422 and r.json()["error"]["code"] == "unit_grams_unknown"
+    r = await _patch(client, m["id"], quantity=1001, unit="katori")
+    assert r.status_code == 422 and r.json()["error"]["code"] == "quantity_out_of_range"
+    r = await _patch(client, m["id"], quantity=30, unit="katori_large")
+    assert r.json()["error"]["code"] == "quantity_out_of_range"
+    unchanged = await _db_row(db_session, m["id"])
+    assert (unchanged.grams, unchanged.unit) == (142.0, "katori")
+
+
+async def test_patch_quantity_validation(client, family, food_ids, sf_biscuit_product_id):
+    m = await _log_food(client, food_ids)
+    for body in (
+        {"quantity": 1},
+        {"unit": "katori"},
+        {"quantity": 1, "unit": "katori", "grams": 5},
+        {"quantity": 1, "unit": "katori", "servings": 1},
+        {"quantity": 1, "unit": "mystery"},
+    ):
+        r = await _patch(client, m["id"], **body)
+        assert r.status_code == 422 and r.json()["error"]["code"] == "validation_error", body
+    quick = (await client.post("/v1/meals", json={"quick": {"energy_kcal": 100}})).json()
+    r = await _patch(client, quick["id"], quantity=1, unit="g")
+    assert r.status_code == 422 and r.json()["error"]["code"] == "validation_error"
+    # A product entry logged before units existed (no units in its snapshot) still takes grams.
+    p = await _log(client, family.me, sf_biscuit_product_id, grams=50)
+    r = await _patch(client, p["id"], quantity=10, unit="g")
+    assert r.status_code == 200 and r.json()["grams"] == 10.0
+    r = await _patch(client, p["id"], quantity=2, unit="serving")  # 25 g serving, resolved then
+    assert r.status_code == 200 and r.json()["grams"] == 50.0
+
+
+async def test_patch_quantity_unit_on_a_legacy_row_without_snapshot(
+    client, family, sf_biscuit_product_id, db_session
+):
+    m = await _log(client, family.me, sf_biscuit_product_id, grams=40)
+    await db_session.execute(
+        text("update meal_logs set food_snapshot = null where id = :i"), {"i": m["id"]}
+    )
+    r = await _patch(client, m["id"], quantity=10, unit="g")
+    assert r.status_code == 200 and r.json()["grams"] == 10.0
+    assert [u["code"] for u in r.json()["portion_units"]] == ["g"]
+    r = await _patch(client, m["id"], quantity=1, unit="serving")  # nothing saved to convert by
+    assert r.status_code == 422 and r.json()["error"]["code"] == "unit_grams_unknown"

@@ -1,6 +1,6 @@
 """GET /v1/diary/recents (Plan 11 Task 7; Ruling E18)."""
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta, timezone
 from uuid import uuid4
 
 from app.features.meals.models import MealLog
@@ -140,3 +140,54 @@ async def test_recents_off_attribution(client, g1, db_session, slot_ids, product
     by_kind = {i["source_kind"]: i for i in (await client.get(URL)).json()["items"]}
     assert by_kind["off"]["attribution"] == "attribution.off"
     assert by_kind["product"]["attribution"] is None
+
+
+# ---- Plan 12 Task 5: generic foods, quantity and unit
+
+
+async def test_recents_dedupe_by_food(client, g1, slot_ids, food_ids, clock):
+    dal, roti = food_ids["172437"], food_ids["171844"]
+    for day, food, body in (
+        ("2026-11-04", dal, {"quantity": 1, "unit": "katori"}),
+        ("2026-11-05", roti, {"quantity": 2, "unit": "roti"}),
+        ("2026-11-06", dal, {"grams": 100}),
+    ):
+        r = await client.post(
+            "/v1/meals",
+            json={"food_id": food, "local_date": day, "meal_slot_id": slot_ids["lunch"], **body},
+        )
+        assert r.status_code == 201, r.text
+    j = (await client.get(URL)).json()
+    assert [(i["source_kind"], i["food_id"]) for i in j["items"]] == [
+        ("food", dal),  # the newest entry of dal; the 4 Nov one is folded in
+        ("food", roti),
+    ]
+    assert all(i["product_id"] is None and i["barcode"] is None for i in j["items"])
+    assert j["items"][0]["attributions"] == ["attribution.usda_fdc"]
+
+
+async def test_recents_carry_quantity_unit(client, g1, slot_ids, food_ids, clock):
+    r = await client.post(
+        "/v1/meals",
+        json={
+            "food_id": food_ids["172437"],
+            "quantity": 1.5,
+            "unit": "katori",
+            "meal_slot_id": slot_ids["lunch"],
+        },
+    )
+    assert r.status_code == 201, r.text
+    [item] = (await client.get(URL)).json()["items"]
+    assert (item["quantity"], item["unit"], item["grams"]) == (1.5, "katori", 213.0)
+    assert item["name"].startswith("Pigeon peas") and item["grade"] is None
+
+
+async def test_legacy_rows_have_null_unit(client, g1, db_session, slot_ids, clock):
+    member = await members_service.get_or_create_primary(db_session, ACC_A)
+    at = datetime(2026, 11, 6, 7, 0, tzinfo=UTC)
+    db_session.add(_off(member, slot_ids["lunch"], "8901", at, name="Legacy namkeen", grams=30.0))
+    await db_session.flush()
+    [item] = (await client.get(URL)).json()["items"]
+    assert item["source_kind"] == "off" and item["barcode"] == "8901"
+    assert item["quantity"] is None and item["unit"] is None and item["food_id"] is None
+    assert item["attributions"] == ["attribution.off"]

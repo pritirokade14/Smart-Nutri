@@ -42,6 +42,8 @@
   "alternativesTitle": "Healthier options",
   "appName": "SmartNutri AI",
   "attributionOff": "Data from Open Food Facts (ODbL)",
+  "attributionSmartnutriRecipe": "Recipe by SmartNutri from USDA FoodData Central ingredients. Pending dietitian review.",
+  "attributionUsdaFdc": "Nutrition data: USDA FoodData Central (public domain)",
   "authChange": "Change",
   "authCodeLabel": "6-digit code",
   "authEmail": "Continue with email",
@@ -341,6 +343,34 @@
   "diaryPartialBadge": "Partly logged",
   "diaryPartialNote": "Partly logged days are left out of weekly averages.",
   "diaryPickDate": "Pick a date",
+  "diaryPortionLine": "{quantity} {unit} · {grams} g",
+  "@diaryPortionLine": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "diaryPortionLineMl": "{quantity} {unit} · {amount} ml",
+  "@diaryPortionLineMl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "diaryPrevDay": "Previous day",
   "diaryQuickAddCarbs": "Carbs (g)",
   "diaryQuickAddEnergy": "Calories",
@@ -468,6 +498,7 @@
   "errorExtractionUnavailable": "Label reading is unavailable right now. Try again later or enter the details manually.",
   "errorFatPctOutOfRange": "Please choose a share of calories from fat between 20% and 30%.",
   "errorFollowUpWithoutType": "Please check your answers and try again.",
+  "errorFoodNotFound": "We couldn't find that food.",
   "errorForbidden": "You don't have access to this.",
   "errorGoalNotAllowedMinor": "Daily guides are for adults. You can still log food.",
   "errorGoalNotAllowedUnderweight": "We can help you keep a steady weight instead.",
@@ -497,6 +528,7 @@
   "errorPrimaryMember": "Your own profile can't be removed.",
   "errorProductExists": "This product is already saved.",
   "errorProductNotFound": "We couldn't find this product yet.",
+  "errorQuantityOutOfRange": "That amount is too large or too small. Check the number and try again.",
   "errorQuickAddEnergyRequired": "Enter the calories to add this.",
   "errorRateLimited": "Too many requests. Please wait a moment.",
   "errorRateLimitedScans": "You've reached today's label-scan limit.",
@@ -510,6 +542,8 @@
   "errorTargetWeightTooLow": "Please choose a higher target weight.",
   "errorTimezoneInvalid": "That time zone isn't recognised.",
   "errorUnauthorized": "Please sign in.",
+  "errorUnitGramsUnknown": "We don't know the grams for this measure yet. Enter grams, or set your own value.",
+  "errorUnitNotSupported": "That measure isn't available here. Choose another.",
   "errorUnsupportedImage": "Please use a JPEG, PNG or WebP photo.",
   "errorUserTypeNotSelected": "Pick one of the options you chose for yourself.",
   "errorUserTypesNotFound": "Tell us what brings you to SmartNutri first.",
@@ -527,8 +561,23 @@
   "familyComingSoonTitle": "Family profiles are coming soon",
   "familyTitle": "Family",
   "foodsBlankIsUnknown": "Leave blank if you don't know. Blank is never counted as 0.",
+  "foodsDishIngredients": "Made with",
+  "foodsGroupIndian": "Indian foods",
+  "foodsGroupPackaged": "Packaged products",
+  "foodsKindDish": "Dish",
+  "foodsKindFood": "Food",
+  "foodsKindProduct": "Product",
+  "foodsNoResults": "No foods found. Try another word, or use quick add.",
+  "foodsNotKnown": "Not known",
+  "foodsPartialResults": "Some results couldn't load. Try again.",
+  "foodsPortionQuantity": "Amount",
+  "foodsPortionSave": "Add",
+  "foodsPortionTitle": "How much?",
+  "foodsPreviewNote": "Estimate. The saved values come from SmartNutri.",
   "foodsQuickAdd": "Quick add",
   "foodsRecent": "Recent",
+  "foodsReviewPending": "Household measures and Indian dishes are pending dietitian review.",
+  "foodsSearchPlaceholder": "Search foods, dishes or brands",
   "footerLinksLabel": "About SmartNutri",
   "footerTagline": "Packaged-food information for Indian families.",
   "goalBuildMuscle": "Build muscle",
@@ -840,6 +889,8 @@
   "membersTitle": "Family",
   "membersYouBadge": "You",
   "methodologyBasedOn": "Based on:",
+  "methodologyFoodDataBody": "Packaged-food values come from the label. Generic foods come from USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov), which is in the public domain. Katori sizes follow the ICMR-NIN Dietary Guidelines for Indians 2024 (Annexure I). Some cup-based conversions are derived from USDA cup weights and are marked approximate. Glass and other values are our own reference set, pending dietitian review. Where a value is not known, we leave it unknown and never guess. Indian dishes are calculated by SmartNutri from their ingredients and are pending dietitian review. Information, not medical advice.",
+  "methodologyFoodDataTitle": "Food data and household measures",
   "methodologyIntro": "SmartNutri checks each packaged food against its label and each family member's profile using fixed rules. An AI only explains the result; it never decides it. This is information, not medical advice.",
   "methodologyMetaDescription": "How SmartNutri checks packaged food for each family member: the fixed rules, their thresholds and sources. Information, not medical advice.",
   "methodologyPendingReview": "These thresholds are working values, pending review by a clinician.",
@@ -1748,6 +1799,184 @@
       }
     }
   },
+  "unitAmountHintMl": "1 {unit} ≈ {amount} ml",
+  "@unitAmountHintMl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitCup": "{count, plural, one {cup} other {cups}}",
+  "@unitCup": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitEditGrams": "Edit grams for this measure",
+  "unitG": "{count, plural, one {g} other {g}}",
+  "@unitG": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitGlass": "{count, plural, one {glass} other {glasses}}",
+  "@unitGlass": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitGramsHint": "1 {unit} ≈ {grams} g",
+  "@unitGramsHint": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitKatori": "{count, plural, one {katori} other {katoris}}",
+  "@unitKatori": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriLarge": "{count, plural, one {large katori} other {large katoris}}",
+  "@unitKatoriLarge": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriMedium": "{count, plural, one {medium katori} other {medium katoris}}",
+  "@unitKatoriMedium": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitKatoriSmall": "{count, plural, one {small katori} other {small katoris}}",
+  "@unitKatoriSmall": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitMl": "{count, plural, one {ml} other {ml}}",
+  "@unitMl": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitMlHint": "{ml} ml",
+  "@unitMlHint": {
+    "placeholders": {
+      "ml": {
+        "type": "String"
+      }
+    }
+  },
+  "unitPiece": "{count, plural, one {piece} other {pieces}}",
+  "@unitPiece": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceLarge": "{count, plural, one {large piece} other {large pieces}}",
+  "@unitPieceLarge": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceMedium": "{count, plural, one {medium piece} other {medium pieces}}",
+  "@unitPieceMedium": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitPieceSmall": "{count, plural, one {small piece} other {small pieces}}",
+  "@unitPieceSmall": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitResetGrams": "Use the standard value",
+  "unitRoti": "{count, plural, one {roti} other {rotis}}",
+  "@unitRoti": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitServing": "{count, plural, one {serving} other {servings}}",
+  "@unitServing": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitSetGrams": "Set grams for {unit}",
+  "@unitSetGrams": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "unitSlice": "{count, plural, one {slice} other {slices}}",
+  "@unitSlice": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitTbsp": "{count, plural, one {tbsp} other {tbsp}}",
+  "@unitTbsp": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitTsp": "{count, plural, one {tsp} other {tsp}}",
+  "@unitTsp": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "unitUnknown": "We don't know the grams for this measure yet. Enter grams, or set your own value.",
+  "unitYourValue": "Your value",
   "userTypesChangeLater": "You can change this in Profile",
   "userTypesConsentNeeded": "Saving health details needs your consent to health data processing.",
   "userTypesConsentNote": "Choosing some of these may offer to add details to your profile. This is saved only if you confirm, and only with your consent to health data processing.",

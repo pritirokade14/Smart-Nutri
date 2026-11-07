@@ -16,20 +16,20 @@ def _sync_url(cfg) -> str:
 def test_head_is_latest(migrated):
     engine = create_engine(_sync_url(migrated), poolclass=NullPool)
     with engine.connect() as conn:
-        assert (
-            MigrationContext.configure(conn).get_current_revision()
-            == "0009_diary_days_slots_entries"
-        )
+        assert MigrationContext.configure(conn).get_current_revision() == "0010_diary_foods_units"
     engine.dispose()
 
 
 def test_single_alembic_head():
-    """0006 to 0009 are chained, so there is exactly one head, 0009."""
+    """0006 to 0010 are chained, so there is exactly one head, 0010."""
     from alembic.config import Config
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(Config("alembic.ini"))
-    assert script.get_heads() == ["0009_diary_days_slots_entries"]
+    assert script.get_heads() == ["0010_diary_foods_units"]
+    assert script.get_revision("0010_diary_foods_units").down_revision == (
+        "0009_diary_days_slots_entries"
+    )
     assert script.get_revision("0009_diary_days_slots_entries").down_revision == (
         "0008_diary_goal_settings"
     )
@@ -162,6 +162,104 @@ def test_diary_goal_settings_downgrades_cleanly(migrated):
             ).scalar()
             assert writes is False
     finally:
+        command.upgrade(migrated, "head")
+        engine.dispose()
+
+
+def test_0010_upgrade_downgrade(migrated):
+    """Plan 12 Task 1: the downgrade removes `food` entries and keeps product and quick-add
+    entries; the upgrade seeds the 17 unit rows and re-creates the tables with forced RLS."""
+    engine = create_engine(_sync_url(migrated), poolclass=NullPool)
+    try:
+        with engine.begin() as conn:
+            acc = conn.execute(
+                text("insert into accounts (id) values (gen_random_uuid()) returning id")
+            ).scalar_one()
+            member = conn.execute(
+                text(
+                    "insert into members (account_id, name, relation) "
+                    "values (:a, 'M', 'self') returning id"
+                ),
+                {"a": acc},
+            ).scalar_one()
+            slot = conn.execute(
+                text(
+                    "insert into meal_slots (account_id, member_id, position, label_key, "
+                    "is_default) values (:a, :m, 0, 'diary.slot.breakfast', true) returning id"
+                ),
+                {"a": acc, "m": member},
+            ).scalar_one()
+            product = conn.execute(
+                text(
+                    "insert into products (name, category, source) "
+                    "values ('Mig biscuit', 'general', 'user') returning id"
+                )
+            ).scalar_one()
+            food = conn.execute(
+                text(
+                    "insert into foods (source, source_code, name_en, search_text, basis, "
+                    "per_100, licence, data_version) values ('usda_fdc', 'mig-1', 'Mig dal', "
+                    "'mig dal', 'g', '{}', 'CC0 1.0', 'v') returning id"
+                )
+            ).scalar_one()
+            base = {"a": acc, "m": member, "s": slot}
+            conn.execute(
+                text(
+                    "insert into meal_logs (account_id, member_id, source_kind, food_id, grams, "
+                    "quantity, unit, nutrients, local_date, meal_slot_id) values "
+                    "(:a, :m, 'food', :f, 142, 1, 'katori', '{}', current_date, :s)"
+                ),
+                base | {"f": food},
+            )
+            conn.execute(
+                text(
+                    "insert into meal_logs (account_id, member_id, source_kind, product_id, "
+                    "grams, nutrients, local_date, meal_slot_id) values "
+                    "(:a, :m, 'product', :p, 30, '{}', current_date, :s)"
+                ),
+                base | {"p": product},
+            )
+            conn.execute(
+                text(
+                    "insert into meal_logs (account_id, member_id, source_kind, nutrients, "
+                    "local_date, meal_slot_id) values "
+                    "(:a, :m, 'quick_add', '{}', current_date, :s)"
+                ),
+                base,
+            )
+        command.downgrade(migrated, "0009_diary_days_slots_entries")
+        with engine.connect() as conn:
+            insp = inspect(conn)
+            names = insp.get_table_names()
+            assert {"foods", "food_portions", "household_units"}.isdisjoint(names)
+            cols = {c["name"] for c in insp.get_columns("meal_logs")}
+            assert {"food_id", "quantity", "unit"}.isdisjoint(cols)
+            kinds = conn.execute(
+                text("select source_kind from meal_logs where account_id = :a order by 1"),
+                {"a": acc},
+            ).scalars()
+            assert list(kinds) == ["product", "quick_add"]
+        command.upgrade(migrated, "head")
+        with engine.connect() as conn:
+            units = conn.execute(text("select code, ml from household_units order by sort")).all()
+            assert len(units) == 17 and dict(units)["katori"] == 200
+            for table in ("household_units", "foods", "food_portions"):
+                row = conn.execute(
+                    text(
+                        "select relrowsecurity, relforcerowsecurity from pg_class "
+                        f"where oid = 'public.{table}'::regclass"
+                    )
+                ).one()
+                assert tuple(row) == (True, True), table
+                writes = conn.execute(
+                    text(f"select has_table_privilege('authenticated', 'public.{table}', 'INSERT')")
+                ).scalar()
+                assert writes is False, table
+    finally:
+        with engine.begin() as conn:
+            conn.execute(
+                text("delete from meal_logs where account_id in (select id from accounts)")
+            )
         command.upgrade(migrated, "head")
         engine.dispose()
 
@@ -313,6 +411,7 @@ def test_downgrade_then_upgrade_is_clean(migrated):
 def test_models_match_migration(migrated):
     import app.features.consents.models
     import app.features.diary.models
+    import app.features.foods.models
     import app.features.me.models
     import app.features.meal_slots.models
     import app.features.meals.models
@@ -346,6 +445,7 @@ def test_models_match_migration(migrated):
 def test_orm_class_names():
     from app.features.consents.models import Consent
     from app.features.diary.models import DiaryDay
+    from app.features.foods.models import Food, FoodPortion, HouseholdUnit
     from app.features.me.models import Account, AccountUserTypes, DeletedAccount
     from app.features.meal_slots.models import MealSlot
     from app.features.meals.models import MealLog
@@ -374,6 +474,9 @@ def test_orm_class_names():
             DiaryGoalSettings,
             MealSlot,
             DiaryDay,
+            HouseholdUnit,
+            Food,
+            FoodPortion,
         )
     } == TABLES
 

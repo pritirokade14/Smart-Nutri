@@ -196,13 +196,14 @@ describe("AddFoodPanel", () => {
     expect(track).not.toHaveBeenCalled();
   });
 
-  it("the existing search, scan and label flows are linked", async () => {
+  it("search is a segment; scan and label stay linked", async () => {
     stub();
     open();
     const links = await screen.findByTestId("add-food-links");
     const hrefs = within(links)
       .getAllByRole("link")
       .map((a) => a.getAttribute("href"));
-    expect(hrefs).toEqual(["/en/search", "/en/scan", "/en/scan/label"]);
+    expect(hrefs).toEqual(["/en/scan", "/en/scan/label"]);
+    expect(screen.getByRole("tab", { name: en.search.title })).toBeTruthy();
   });
 });

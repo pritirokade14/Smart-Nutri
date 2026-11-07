@@ -3,6 +3,8 @@ from collections.abc import AsyncIterator
 import pytest
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
 
+from app.features.foods.models import Food
+from app.features.foods.seed import seed_foods
 from tests.db.conftest import alembic_cfg, db, migrated, pg_url  # noqa: F401  (shared DB fixtures)
 
 
@@ -88,3 +90,18 @@ def seed_day(db_session):
         await db_session.flush()
 
     return _seed
+
+
+@pytest.fixture
+async def seeded(db_session):
+    """The real seed: 141 USDA foods and 21 dishes with their portions and densities."""
+    await seed_foods(db_session)
+
+
+@pytest.fixture
+async def food_ids(db_session, seeded) -> dict[str, str]:
+    """source_code -> food id (uuid string) for every seeded food and dish."""
+    from sqlalchemy import select
+
+    rows = await db_session.execute(select(Food.source_code, Food.id))
+    return {code: str(i) for code, i in rows}

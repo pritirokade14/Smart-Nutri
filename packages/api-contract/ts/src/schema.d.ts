@@ -127,6 +127,100 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/foods/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Foods Search
+         * @description Search generic foods and Indian dishes first, then packaged products (our catalogue and
+         *     Open Food Facts). Hits carry no nutrients. When Open Food Facts cannot answer, the other
+         *     results still come back with `partial: true` and `failed_sources: ["off"]`. USDA and
+         *     Open Food Facts credits ride on each hit.
+         */
+        get: operations["foods_search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/foods/units": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Foods Units List
+         * @description The household units (kind, volume or grams) in display order. Whether a unit applies to
+         *     a food is `foods_get`'s `units`; the label is the i18n key `unit.<code>`.
+         */
+        get: operations["foods_units_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/foods/{kind}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Foods Get
+         * @description One food with the per-100 values and ONLY the units that resolve (a unit with nothing to
+         *     convert it by is never listed), the default unit, the units the user may set their own
+         *     grams for, credits and, for a dish, its ingredients. `id` is a uuid, or the barcode for
+         *     `off`. Per-100 values the member hid are null. Household measures and dishes are pending
+         *     dietitian review.
+         */
+        get: operations["foods_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/foods/{kind}/{id}/portions/{unit}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Foods Portion Put
+         * @description Set YOUR grams for one unit of one food (for example one roti = 35 g). Count and volume
+         *     units only; `serving` and the mass units are 422 `unit_not_supported`. The value belongs to
+         *     the account, replaces ours for you, and never changes a past diary entry.
+         */
+        put: operations["foods_portion_put"];
+        post?: never;
+        /**
+         * Foods Portion Delete
+         * @description Remove YOUR value for this unit; ours applies again. 204 even when you had none.
+         */
+        delete: operations["foods_portion_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -1368,6 +1462,22 @@ export interface components {
              */
             today: string;
         };
+        /** DishIngredientOut */
+        DishIngredientOut: {
+            /** Grams */
+            grams: number | null;
+            /** Name */
+            name: string | null;
+        };
+        /** DishOut */
+        DishOut: {
+            /** Cooked Weight G */
+            cooked_weight_g: number | null;
+            /** Ingredients */
+            ingredients: components["schemas"]["DishIngredientOut"][];
+            /** Servings */
+            servings: number | null;
+        };
         /**
          * DisplayIn
          * @description The eye toggle (Ruling D4): only these two fields change; null means unchanged.
@@ -1537,6 +1647,139 @@ export interface components {
             family_with?: ("children" | "parents" | "partner" | "others")[] | null;
             /** Gym Goal */
             gym_goal?: ("build_muscle" | "lose_fat" | "stay_fit") | null;
+        };
+        /** FoodDetailOut */
+        FoodDetailOut: {
+            /** Attribution */
+            attribution: string | null;
+            /** Attributions */
+            attributions: string[];
+            /**
+             * Basis
+             * @enum {string}
+             */
+            basis: "g" | "ml";
+            /** Brand */
+            brand: string | null;
+            /** Default Unit */
+            default_unit: string;
+            dish: components["schemas"]["DishOut"] | null;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "food" | "product" | "off";
+            /** Licence */
+            licence: string | null;
+            /** Name */
+            name: string;
+            numbers_hidden: components["schemas"]["NumbersHidden"];
+            /** @description Per 100 g (or 100 ml), unrounded; null = unknown, or hidden by the member's numbers display */
+            per_100: components["schemas"]["NutrientSnapshot"];
+            /**
+             * Review Pending
+             * @description Household measures and dishes are pending dietitian review
+             */
+            review_pending: boolean;
+            /** Serving G */
+            serving_g: number | null;
+            /**
+             * Settable Units
+             * @description Units that do not resolve yet and may be given the user's own grams
+             */
+            settable_units: string[];
+            /** Units */
+            units: components["schemas"]["FoodUnitOut"][];
+        };
+        /** FoodHit */
+        FoodHit: {
+            /**
+             * Attribution
+             * @description "attribution.usda_fdc", "attribution.smartnutri_recipe" or "attribution.off"
+             */
+            attribution: string | null;
+            /**
+             * Attributions
+             * @description Every credit this hit needs, in order
+             */
+            attributions: string[];
+            /** Brand */
+            brand: string | null;
+            /** @description Nutri-Score calculated by SmartNutri; packaged products only, else null */
+            grade: components["schemas"]["NutriScoreGrade"] | null;
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "indian" | "packaged";
+            /**
+             * Id
+             * @description A uuid, or the barcode for kind=off
+             */
+            id: string;
+            /**
+             * Is Dish
+             * @description A documented Indian dish (calculated from ingredients)
+             */
+            is_dish: boolean;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "food" | "product" | "off";
+            /** Name */
+            name: string;
+        };
+        /**
+         * FoodKindPath
+         * @description What ``id`` is: a generic food or dish (uuid), our own product (uuid) or an Open Food
+         *     Facts product (the barcode).
+         * @enum {string}
+         */
+        FoodKindPath: "food" | "product" | "off";
+        /** FoodSearchOut */
+        FoodSearchOut: {
+            /** Failed Sources */
+            failed_sources: "off"[];
+            /** Items */
+            items: components["schemas"]["FoodHit"][];
+            /**
+             * Partial
+             * @description true when a source (Open Food Facts) could not answer
+             */
+            partial: boolean;
+        };
+        /** FoodUnitOut */
+        FoodUnitOut: {
+            /** Code */
+            code: string;
+            /**
+             * Grams Per Unit
+             * @description The amount of ONE unit in the food's basis (grams, or ml for an ml-basis food), unrounded. Only units that resolve are listed
+             */
+            grams_per_unit: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "mass" | "volume" | "count";
+            /**
+             * Ml
+             * @description Volume of one unit; volume units only
+             */
+            ml: number | null;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "mass" | "serving" | "portion_user" | "portion_global" | "density" | "volume_basis";
+            /**
+             * User Override
+             * @description true when the account set this value itself
+             */
+            user_override: boolean;
         };
         /**
          * GoalSettingsIn
@@ -1722,8 +1965,10 @@ export interface components {
         /**
          * MealIn
          * @description Log what a member ate. Exactly one food reference (own ``product_id``, a ``barcode``
-         *     for Open Food Facts products, or ``quick``) and, except for a quick add, exactly one
-         *     portion (``grams`` or ``servings``; servings need the product's serving size).
+         *     for Open Food Facts products, a generic ``food_id``, or ``quick``) and, except for a quick
+         *     add, exactly one portion: ``grams``, ``servings`` (they need the food's serving size) or
+         *     ``quantity`` with a ``unit`` (a household unit such as a katori or a roti). A unit that
+         *     cannot be converted for this food is 422 ``unit_grams_unknown``; it is never guessed.
          *
          *     ``member_id`` defaults to the primary member. ``meal_slot_id`` defaults to the slot the
          *     server picks from the local time. ``local_date`` logs onto a past day (``eaten_at`` becomes
@@ -1743,6 +1988,11 @@ export interface components {
              * @description Timezone-aware. Default: now. At most 5 minutes ahead, at most 30 days ago.
              */
             eaten_at?: string | null;
+            /**
+             * Food Id
+             * @description A generic food or Indian dish
+             */
+            food_id?: string | null;
             /** Grams */
             grams?: number | null;
             /**
@@ -1756,9 +2006,19 @@ export interface components {
             member_id?: string | null;
             /** Product Id */
             product_id?: string | null;
+            /**
+             * Quantity
+             * @description With `unit`: how many of the unit
+             */
+            quantity?: number | null;
             quick?: components["schemas"]["QuickIn"] | null;
             /** Servings */
             servings?: number | null;
+            /**
+             * Unit
+             * @description With `quantity`: a household unit
+             */
+            unit?: ("g" | "ml" | "serving" | "piece" | "piece_small" | "piece_medium" | "piece_large" | "roti" | "slice" | "katori" | "katori_small" | "katori_medium" | "katori_large" | "cup" | "glass" | "tbsp" | "tsp") | null;
         };
         /** MealOut */
         MealOut: {
@@ -1768,10 +2028,22 @@ export interface components {
              */
             attribution: string | null;
             /**
+             * Attributions
+             * @description Every credit this entry needs ("attribution.usda_fdc", "attribution.off", ...)
+             */
+            attributions?: string[];
+            /**
              * Barcode
              * @description Open Food Facts barcode; null for our products
              */
             barcode: string | null;
+            /**
+             * Basis
+             * @description Whether `grams` and the per-100 values are per g or per ml
+             * @default g
+             * @enum {string}
+             */
+            basis: "g" | "ml";
             /** Client Id */
             client_id: string | null;
             /**
@@ -1779,6 +2051,11 @@ export interface components {
              * Format: date-time
              */
             eaten_at: string;
+            /**
+             * Food Id
+             * @description A generic food or Indian dish; null for other entries
+             */
+            food_id?: string | null;
             /** @description Nutri-Score calculated by SmartNutri at log time; null if not enough data */
             grade: components["schemas"]["NutriScoreGrade"] | null;
             /**
@@ -1814,6 +2091,11 @@ export interface components {
             member_id: string;
             nutrients: components["schemas"]["NutrientSnapshot"];
             /**
+             * Portion Units
+             * @description The units that resolved when the entry was logged (from its saved food), for the edit sheet. A PATCH may use only these
+             */
+            portion_units?: components["schemas"]["PortionUnitOut"][];
+            /**
              * Product Id
              * @description Our own product; null for Open Food Facts
              */
@@ -1824,10 +2106,20 @@ export interface components {
              */
             product_name: string;
             /**
+             * Quantity
+             * @description The portion as typed (with unit); null for older entries
+             */
+            quantity?: number | null;
+            /**
              * Source Kind
              * @enum {string}
              */
-            source_kind: "product" | "off" | "quick_add";
+            source_kind: "product" | "off" | "food" | "quick_add";
+            /**
+             * Unit
+             * @description The household unit; null for older entries
+             */
+            unit?: string | null;
             /**
              * Updated At
              * Format: date-time
@@ -1847,9 +2139,16 @@ export interface components {
             grams?: number | null;
             /** Meal Slot Id */
             meal_slot_id?: string | null;
+            /**
+             * Quantity
+             * @description With `unit`: a new portion in a household unit. Only units that resolved when the entry was logged (`portion_units`) are accepted, else 422 unit_grams_unknown
+             */
+            quantity?: number | null;
             quick?: components["schemas"]["QuickIn"] | null;
             /** Servings */
             servings?: number | null;
+            /** Unit */
+            unit?: ("g" | "ml" | "serving" | "piece" | "piece_small" | "piece_medium" | "piece_large" | "roti" | "slice" | "katori" | "katori_small" | "katori_medium" | "katori_large" | "cup" | "glass" | "tbsp" | "tsp") | null;
         };
         /** MealSlotCreateIn */
         MealSlotCreateIn: {
@@ -2206,6 +2505,24 @@ export interface components {
             sodium_mg: number | null;
             /** Sugars G */
             sugars_g: number | null;
+        };
+        /** PortionIn */
+        PortionIn: {
+            /**
+             * Grams Per Unit
+             * @description The amount of one unit in the food's basis
+             */
+            grams_per_unit: number;
+        };
+        /** PortionUnitOut */
+        PortionUnitOut: {
+            /** Code */
+            code: string;
+            /**
+             * Grams Per Unit
+             * @description The amount of ONE unit in the entry's basis, as it was when logged
+             */
+            grams_per_unit: number;
         };
         /**
          * PrefillChange
@@ -2572,8 +2889,15 @@ export interface components {
         RecentItem: {
             /** Attribution */
             attribution: string | null;
+            /** Attributions */
+            attributions?: string[];
             /** Barcode */
             barcode: string | null;
+            /**
+             * Food Id
+             * @description A generic food or dish; log it again with `food_id`
+             */
+            food_id?: string | null;
             grade: components["schemas"]["NutriScoreGrade"] | null;
             /** Grams */
             grams: number;
@@ -2592,10 +2916,17 @@ export interface components {
             /** Product Id */
             product_id: string | null;
             /**
+             * Quantity
+             * @description The portion as last logged, with `unit`; null for older entries
+             */
+            quantity?: number | null;
+            /**
              * Source Kind
              * @enum {string}
              */
-            source_kind: "product" | "off";
+            source_kind: "product" | "off" | "food";
+            /** Unit */
+            unit?: string | null;
         };
         /** RecentsOut */
         RecentsOut: {
@@ -2698,6 +3029,11 @@ export interface components {
              */
             source: "ours" | "off";
         };
+        /**
+         * SearchKind
+         * @enum {string}
+         */
+        SearchKind: "food" | "product";
         /**
          * SearchSort
          * @description Search order: ``relevance`` (ours first, then Open Food Facts) or ``protein`` (most
@@ -2936,6 +3272,20 @@ export interface components {
             salt_g: number | null;
             /** Sugars G */
             sugars_g: number | null;
+        };
+        /** UnitOut */
+        UnitOut: {
+            /** Code */
+            code: string;
+            /** Grams */
+            grams: number | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "mass" | "volume" | "count";
+            /** Ml */
+            ml: number | null;
         };
         /** UploadUrlIn */
         UploadUrlIn: {
@@ -3585,6 +3935,428 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["DiaryWeekOut"];
                 };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    foods_search: {
+        parameters: {
+            query: {
+                /** @description Which sources to search; default both (food = generic foods and dishes) */
+                kinds?: components["schemas"]["SearchKind"][] | null;
+                limit?: number;
+                /** @description 2 to 80 characters after trimming and collapsing spaces; shorter is 422 search_query_too_short */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FoodSearchOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    foods_units_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnitOut"][];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    foods_get: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path: {
+                kind: components["schemas"]["FoodKindPath"];
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FoodDetailOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    foods_portion_put: {
+        parameters: {
+            query?: {
+                /** @description Defaults to the primary member */
+                member_id?: string | null;
+            };
+            header?: never;
+            path: {
+                kind: components["schemas"]["FoodKindPath"];
+                id: string;
+                unit: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FoodDetailOut"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description consent_required: details.purposes lists the consents to grant (or re-grant at the current version) before this call */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Open Food Facts unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    foods_portion_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: components["schemas"]["FoodKindPath"];
+                id: string;
+                unit: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Missing or invalid access token */
             401: {

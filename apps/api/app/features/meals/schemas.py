@@ -6,6 +6,7 @@ from uuid import UUID
 from pydantic import AwareDatetime, BaseModel, Field, field_validator, model_validator
 
 from app.core.errors import ApiError
+from app.features.foods.units import UnitCode
 from app.features.products.schemas import NutriScoreGrade
 from app.features.targets.schemas import NumbersHidden
 from app.scoring.targets import ProteinBasis, TargetsStatus
@@ -16,7 +17,8 @@ MAX_SERVINGS = 200.0
 Band = Literal["ok", "near", "over", "unknown"]
 
 
-SourceKind = Literal["product", "off", "quick_add"]
+SourceKind = Literal["product", "off", "food", "quick_add"]
+MAX_QUANTITY = 5000.0  # meal_logs check: 0 < quantity <= 5000 (per-unit limits: units.py)
 
 
 def _validation_error(*fields: str) -> ApiError:
@@ -45,8 +47,10 @@ class QuickIn(BaseModel):
 
 class MealIn(BaseModel):
     """Log what a member ate. Exactly one food reference (own ``product_id``, a ``barcode``
-    for Open Food Facts products, or ``quick``) and, except for a quick add, exactly one
-    portion (``grams`` or ``servings``; servings need the product's serving size).
+    for Open Food Facts products, a generic ``food_id``, or ``quick``) and, except for a quick
+    add, exactly one portion: ``grams``, ``servings`` (they need the food's serving size) or
+    ``quantity`` with a ``unit`` (a household unit such as a katori or a roti). A unit that
+    cannot be converted for this food is 422 ``unit_grams_unknown``; it is never guessed.
 
     ``member_id`` defaults to the primary member. ``meal_slot_id`` defaults to the slot the
     server picks from the local time. ``local_date`` logs onto a past day (``eaten_at`` becomes
@@ -60,9 +64,14 @@ class MealIn(BaseModel):
     member_id: UUID | None = None
     product_id: UUID | None = None
     barcode: str | None = Field(default=None, max_length=64)
+    food_id: UUID | None = Field(default=None, description="A generic food or Indian dish")
     quick: QuickIn | None = None
     grams: float | None = Field(default=None, gt=0, le=MAX_GRAMS)
     servings: float | None = Field(default=None, gt=0, le=MAX_SERVINGS)
+    quantity: float | None = Field(
+        default=None, gt=0, le=MAX_QUANTITY, description="With `unit`: how many of the unit"
+    )
+    unit: UnitCode | None = Field(default=None, description="With `quantity`: a household unit")
     meal_slot_id: UUID | None = None
     local_date: date | None = Field(
         default=None, description="Log onto this local day (at most 30 days ago, not in future)."
@@ -75,18 +84,25 @@ class MealIn(BaseModel):
 
     @model_validator(mode="after")
     def _exactly_one(self) -> "MealIn":
-        refs = sum(x is not None for x in (self.product_id, self.barcode, self.quick))
+        refs = sum(x is not None for x in (self.product_id, self.barcode, self.food_id, self.quick))
         if refs != 1:
             raise ApiError("invalid_product_ref", 422)
         if self.local_date is not None and self.eaten_at is not None:
             raise _validation_error("local_date", "eaten_at")
+        if (self.quantity is None) != (self.unit is None):
+            raise _validation_error("quantity" if self.quantity is None else "unit")
         if self.quick is not None:
-            if self.grams is not None or self.servings is not None:
-                raise _validation_error(*(f for f in ("grams", "servings") if getattr(self, f)))
+            given = [f for f in ("grams", "servings", "quantity", "unit") if getattr(self, f)]
+            if given:
+                raise _validation_error(*given)
             if self.quick.energy_kcal is None:
                 raise ApiError("quick_add_energy_required", 422)
-        elif (self.grams is None) == (self.servings is None):
-            raise ApiError("portion_required", 422)
+        else:
+            forms = sum(
+                x is not None for x in (self.grams, self.servings, self.quantity)
+            )  # quantity and unit are one form
+            if forms != 1:
+                raise ApiError("portion_required", 422)
         return self
 
 
@@ -97,17 +113,37 @@ class MealPatch(BaseModel):
 
     grams: float | None = Field(default=None, gt=0, le=MAX_GRAMS)
     servings: float | None = Field(default=None, gt=0, le=MAX_SERVINGS)
+    quantity: float | None = Field(
+        default=None,
+        gt=0,
+        le=MAX_QUANTITY,
+        description=(
+            "With `unit`: a new portion in a household unit. Only units that resolved when the "
+            "entry was logged (`portion_units`) are accepted, else 422 unit_grams_unknown"
+        ),
+    )
+    unit: UnitCode | None = None
     meal_slot_id: UUID | None = None
     eaten_at: AwareDatetime | None = None
     quick: QuickIn | None = None
 
     @model_validator(mode="after")
     def _valid(self) -> "MealPatch":
-        if self.grams is not None and self.servings is not None:
-            raise _validation_error("grams", "servings")
+        if (self.quantity is None) != (self.unit is None):
+            raise _validation_error("quantity" if self.quantity is None else "unit")
+        forms = [f for f in ("grams", "servings", "quantity") if getattr(self, f) is not None]
+        if len(forms) > 1:
+            raise _validation_error(*forms)
         if all(
             v is None
-            for v in (self.grams, self.servings, self.meal_slot_id, self.eaten_at, self.quick)
+            for v in (
+                self.grams,
+                self.servings,
+                self.quantity,
+                self.meal_slot_id,
+                self.eaten_at,
+                self.quick,
+            )
         ):
             raise _validation_error()
         if self.quick is not None and self.quick.energy_kcal is None:
@@ -145,6 +181,13 @@ class NutrientSnapshot(BaseModel):
     fibre_g: float | None
 
 
+class PortionUnitOut(BaseModel):
+    code: str
+    grams_per_unit: float = Field(
+        description="The amount of ONE unit in the entry's basis, as it was when logged"
+    )
+
+
 class MealOut(BaseModel):
     id: UUID
     member_id: UUID
@@ -170,6 +213,27 @@ class MealOut(BaseModel):
         description="NutrientSnapshot keys that are unknown (null) on this entry, before hiding"
     )
     updated_at: AwareDatetime
+    food_id: UUID | None = Field(
+        default=None, description="A generic food or Indian dish; null for other entries"
+    )
+    quantity: float | None = Field(
+        default=None, description="The portion as typed (with unit); null for older entries"
+    )
+    unit: str | None = Field(default=None, description="The household unit; null for older entries")
+    basis: Literal["g", "ml"] = Field(
+        default="g", description="Whether `grams` and the per-100 values are per g or per ml"
+    )
+    attributions: list[str] = Field(
+        default_factory=list,
+        description='Every credit this entry needs ("attribution.usda_fdc", "attribution.off", ...)',
+    )
+    portion_units: list[PortionUnitOut] = Field(
+        default_factory=list,
+        description=(
+            "The units that resolved when the entry was logged (from its saved food), for the "
+            "edit sheet. A PATCH may use only these"
+        ),
+    )
 
 
 class CopyOut(BaseModel):

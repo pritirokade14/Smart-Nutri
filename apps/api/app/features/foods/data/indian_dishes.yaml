@@ -1,0 +1,497 @@
+# PENDING DIETITIAN REVIEW. Read by app/features/foods only (the seed job and its tests).
+#
+# The 30 dishes of docs/research/food-diary/data/indian_dishes_recipes.md, every one
+# `[assumed - needs dietitian]`. Ingredient ids are fdc_id values from usda_fdc_foods.csv; grams are
+# the raw weight, as the doc gives them. Water is never an ingredient: it is already inside the
+# cooked weight. Where the doc offers an alternative ("oil 5 g (or ghee 5 g)"), the first-named
+# ingredient is used. tests/unit/foods/test_dishes.py checks every pair against the doc.
+#
+# `status` records why a dish is or is not seeded; the seed derives it from the data:
+#   seeded         every ingredient is an FDC row and `cooked_weight_g` is given.
+#   blocked        a core ingredient has no FDC row (fdc_id null, gap: true).
+#   needs_weighing the doc gives a yield only as a count of pieces. It switches on by itself once a
+#                  dietitian adds `cooked_weight_g`.
+# Nutrients are never typed here: the seed sums them from the ingredients (recipe_math).
+
+dishes:
+  - code: roti
+    doc_section: 1
+    name_en: "Roti / chapati (plain)"
+    aliases: ["chapati", "phulka", "roti"]
+    status: needs_weighing
+    reason: "the doc gives the yield as a count of pieces, not grams; weigh a batch"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: 168893, grams: "40"}
+    notes: "Packaged roti rows (FDC 171844 and 174075) have a per-piece weight; a home-made roti does not until weighed."
+  - code: plain_rice
+    doc_section: 2
+    name_en: "Plain rice, boiled"
+    aliases: ["chawal", "boiled rice", "bhaat"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 250
+    servings: null
+    ingredients:
+      - {fdc_id: 169756, grams: "100"}
+    notes: "USDA lists cooked white rice (168878) as a separate row, which is the better entry when the user logs cooked rice."
+  - code: dal_tadka
+    doc_section: 3
+    name_en: "Dal tadka (toor)"
+    aliases: ["dal", "toor dal", "arhar dal", "tarka dal", "dal tadka"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 350
+    servings: null
+    ingredients:
+      - {fdc_id: 172436, grams: "50"}
+      - {fdc_id: 170000, grams: "30"}
+      - {fdc_id: 170457, grams: "40"}
+      - {fdc_id: 169230, grams: "5"}
+      - {fdc_id: 171017, grams: "8"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "1"}
+      - {fdc_id: 170932, grams: "1"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: "Chilli powder is the cayenne row (170932), a proxy."
+  - code: moong_dal
+    doc_section: 4
+    name_en: "Moong dal (yellow, plain)"
+    aliases: ["dal", "moong dal", "mung dal"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 300
+    servings: null
+    ingredients:
+      - {fdc_id: 174256, grams: "50"}
+      - {fdc_id: 172231, grams: "1"}
+      - {fdc_id: 173468, grams: "2"}
+      - {fdc_id: 171017, grams: "5"}
+      - {fdc_id: 170923, grams: "1"}
+    notes: null
+  - code: rajma_masala
+    doc_section: 5
+    name_en: "Rajma masala"
+    aliases: ["rajma", "kidney bean curry", "rajma chawal"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 400
+    servings: null
+    ingredients:
+      - {fdc_id: 173744, grams: "60"}
+      - {fdc_id: 170000, grams: "60"}
+      - {fdc_id: 170457, grams: "80"}
+      - {fdc_id: 169230, grams: "6"}
+      - {fdc_id: 169231, grams: "6"}
+      - {fdc_id: 171017, grams: "10"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 170922, grams: "2"}
+      - {fdc_id: 172231, grams: "1"}
+      - {fdc_id: 170932, grams: "1"}
+      - {fdc_id: 173468, grams: "3"}
+    notes: "Chilli powder is the cayenne row (170932), a proxy."
+  - code: chole
+    doc_section: 6
+    name_en: "Chole (chickpea curry)"
+    aliases: ["chana masala", "chickpea curry", "chole"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 400
+    servings: null
+    ingredients:
+      - {fdc_id: 173756, grams: "60"}
+      - {fdc_id: 170000, grams: "60"}
+      - {fdc_id: 170457, grams: "80"}
+      - {fdc_id: 169230, grams: "6"}
+      - {fdc_id: 169231, grams: "6"}
+      - {fdc_id: 171017, grams: "10"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 170922, grams: "2"}
+      - {fdc_id: 172231, grams: "1"}
+      - {fdc_id: 170932, grams: "1"}
+      - {fdc_id: 173468, grams: "3"}
+    notes: "Chilli powder is the cayenne row (170932), a proxy."
+  - code: poha
+    doc_section: 7
+    name_en: "Poha"
+    aliases: ["poha", "pohe", "flattened rice"]
+    status: blocked
+    reason: "no FDC row for flattened rice (poha); raw rice is not a substitute"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: null, name: "poha (flattened rice), dry", grams: "60", gap: true}
+      - {fdc_id: 170000, grams: "40"}
+      - {fdc_id: 170026, grams: "30"}
+      - {fdc_id: 172430, grams: "10"}
+      - {fdc_id: 171017, grams: "8"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 167747, grams: "5"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: "Blocked until a flattened-rice row exists (IFCT after NIN permission, or a dietitian-sourced entry). Do not substitute raw rice."
+  - code: upma
+    doc_section: 8
+    name_en: "Upma (rava)"
+    aliases: ["upma", "rava upma", "suji upma"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 250
+    servings: null
+    ingredients:
+      - {fdc_id: 168933, grams: "50"}
+      - {fdc_id: 170000, grams: "30"}
+      - {fdc_id: 170393, grams: "20"}
+      - {fdc_id: 170419, grams: "15"}
+      - {fdc_id: 171017, grams: "8"}
+      - {fdc_id: 170929, grams: "1"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: null
+  - code: idli
+    doc_section: 9
+    name_en: "Idli"
+    aliases: ["idli", "idly"]
+    status: needs_weighing
+    reason: "the doc gives the yield as a count of pieces, not grams; weigh a batch"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: 169756, grams: "100"}
+      - {fdc_id: 174259, grams: "33"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: "GAP: idli batter has no FDC row; the batter is rice and urad before steaming. Log by weighed idli grams."
+  - code: dosa_plain
+    doc_section: 10
+    name_en: "Dosa, plain"
+    aliases: ["dosa", "plain dosa"]
+    status: needs_weighing
+    reason: "the doc gives the yield as a count of pieces, not grams; weigh a batch"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: 169756, grams: "100"}
+      - {fdc_id: 174259, grams: "33"}
+      - {fdc_id: 171017, grams: "5"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: "Grams per dosa stay unknown until weighed."
+  - code: sambar
+    doc_section: 11
+    name_en: "Sambar"
+    aliases: ["sambhar", "sambar"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 600
+    servings: null
+    ingredients:
+      - {fdc_id: 172436, grams: "40"}
+      - {fdc_id: 170000, grams: "40"}
+      - {fdc_id: 170457, grams: "50"}
+      - {fdc_id: 170393, grams: "30"}
+      - {fdc_id: 169228, grams: "30"}
+      - {fdc_id: 167763, grams: "5"}
+      - {fdc_id: 171017, grams: "5"}
+      - {fdc_id: 170929, grams: "1"}
+      - {fdc_id: 171324, grams: "0.5"}
+      - {fdc_id: 172231, grams: "1"}
+      - {fdc_id: 170922, grams: "2"}
+      - {fdc_id: 170932, grams: "1"}
+      - {fdc_id: 173468, grams: "3"}
+    notes: "GAP: sambar powder and drumstick pod have no FDC row and are not in the ingredient list, so this is a lower bound on the spices. Chilli powder is the cayenne row (170932), a proxy."
+  - code: paneer_bhurji
+    doc_section: 12
+    name_en: "Paneer bhurji"
+    aliases: ["bhurji", "paneer bhurji"]
+    status: blocked
+    reason: "no FDC row for paneer; cottage cheese is not a substitute"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: null, name: "paneer", grams: "100", gap: true}
+      - {fdc_id: 170000, grams: "40"}
+      - {fdc_id: 170457, grams: "50"}
+      - {fdc_id: 171017, grams: "8"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 173468, grams: "1.5"}
+    notes: "Blocked until a paneer row exists (IFCT after NIN permission, or a dietitian-sourced label value)."
+  - code: egg_bhurji
+    doc_section: 13
+    name_en: "Egg bhurji"
+    aliases: ["anda bhurji", "egg bhurji", "scrambled egg"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 150
+    servings: 1
+    ingredients:
+      - {fdc_id: 171287, grams: "100"}
+      - {fdc_id: 170000, grams: "30"}
+      - {fdc_id: 170457, grams: "30"}
+      - {fdc_id: 171017, grams: "6"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 173468, grams: "1"}
+    notes: null
+  - code: khichdi
+    doc_section: 14
+    name_en: "Khichdi"
+    aliases: ["khichdi", "kichdi", "khichri"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 400
+    servings: null
+    ingredients:
+      - {fdc_id: 169756, grams: "50"}
+      - {fdc_id: 174256, grams: "25"}
+      - {fdc_id: 171017, grams: "5"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: "The doc allows ghee (173412) instead of oil; oil (171017) is used."
+  - code: curd_rice
+    doc_section: 15
+    name_en: "Curd rice"
+    aliases: ["dahi chawal", "curd rice", "thayir sadam"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 300
+    servings: null
+    ingredients:
+      - {fdc_id: 168878, grams: "150"}
+      - {fdc_id: 171284, grams: "120"}
+      - {fdc_id: 171265, grams: "30"}
+      - {fdc_id: 173468, grams: "1"}
+      - {fdc_id: 170929, grams: "0.5"}
+      - {fdc_id: 171017, grams: "3"}
+    notes: "Uses the cooked white rice row (168878) as an ingredient."
+  - code: aloo_sabzi
+    doc_section: 16
+    name_en: "Aloo sabzi (dry)"
+    aliases: ["aloo sabji", "aloo sabzi", "potato sabzi"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 220
+    servings: null
+    ingredients:
+      - {fdc_id: 170026, grams: "200"}
+      - {fdc_id: 170000, grams: "40"}
+      - {fdc_id: 171017, grams: "10"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 170932, grams: "0.5"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: "Chilli powder is the cayenne row (170932), a proxy."
+  - code: aloo_gobi
+    doc_section: 17
+    name_en: "Aloo gobi"
+    aliases: ["aloo gobhi", "aloo gobi", "gobi"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 280
+    servings: null
+    ingredients:
+      - {fdc_id: 169986, grams: "150"}
+      - {fdc_id: 170026, grams: "100"}
+      - {fdc_id: 170000, grams: "40"}
+      - {fdc_id: 170457, grams: "40"}
+      - {fdc_id: 171017, grams: "10"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 170922, grams: "1"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: null
+  - code: bhindi_sabzi
+    doc_section: 18
+    name_en: "Bhindi (okra) sabzi"
+    aliases: ["bhindi", "okra sabzi", "bhindi sabji"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 170
+    servings: null
+    ingredients:
+      - {fdc_id: 169260, grams: "200"}
+      - {fdc_id: 170000, grams: "40"}
+      - {fdc_id: 171017, grams: "10"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: null
+  - code: baingan_bharta
+    doc_section: 19
+    name_en: "Baingan bharta"
+    aliases: ["baingan bharta", "brinjal bharta", "bharta"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 250
+    servings: null
+    ingredients:
+      - {fdc_id: 169228, grams: "250"}
+      - {fdc_id: 170000, grams: "50"}
+      - {fdc_id: 170457, grams: "60"}
+      - {fdc_id: 169230, grams: "5"}
+      - {fdc_id: 171017, grams: "10"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: null
+  - code: palak_dal
+    doc_section: 20
+    name_en: "Palak dal"
+    aliases: ["palak dal", "spinach dal", "dal palak"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 350
+    servings: null
+    ingredients:
+      - {fdc_id: 172420, grams: "40"}
+      - {fdc_id: 168462, grams: "80"}
+      - {fdc_id: 170000, grams: "30"}
+      - {fdc_id: 169230, grams: "4"}
+      - {fdc_id: 171017, grams: "6"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "0.5"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: null
+  - code: chicken_curry
+    doc_section: 21
+    name_en: "Chicken curry"
+    aliases: ["chicken curry", "murgh curry", "chicken masala"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 400
+    servings: null
+    ingredients:
+      - {fdc_id: 171052, grams: "200"}
+      - {fdc_id: 170000, grams: "80"}
+      - {fdc_id: 170457, grams: "80"}
+      - {fdc_id: 169230, grams: "8"}
+      - {fdc_id: 169231, grams: "8"}
+      - {fdc_id: 171017, grams: "15"}
+      - {fdc_id: 170922, grams: "2"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 172231, grams: "1"}
+      - {fdc_id: 170932, grams: "1"}
+      - {fdc_id: 173468, grams: "3"}
+    notes: "Chicken is the boneless raw weight; convert bone-in weight first. Chilli powder is the cayenne row (170932), a proxy."
+  - code: chai
+    doc_section: 22
+    name_en: "Tea with milk and sugar (chai)"
+    aliases: ["chai", "tea with milk", "masala chai"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 200
+    servings: null
+    ingredients:
+      - {fdc_id: 171265, grams: "100"}
+      - {fdc_id: 173227, grams: "100"}
+      - {fdc_id: 169655, grams: "5"}
+    notes: "FDC has no loose tea-leaf row: brewed black tea stands in for the decoction. About 150 ml (a small cup), grams from the batch total."
+  - code: paratha
+    doc_section: 23
+    name_en: "Plain paratha"
+    aliases: ["paratha", "plain paratha"]
+    status: needs_weighing
+    reason: "the doc gives the yield as a count of pieces, not grams; weigh a batch"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: 168893, grams: "50"}
+      - {fdc_id: 171017, grams: "5"}
+      - {fdc_id: 173468, grams: "0.5"}
+    notes: "Grams per paratha stay unknown until weighed."
+  - code: puri
+    doc_section: 24
+    name_en: "Puri"
+    aliases: ["puri", "poori"]
+    status: needs_weighing
+    reason: "the doc gives the yield as a count of pieces, not grams; weigh a batch"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: 168893, grams: "30"}
+      - {fdc_id: 171017, grams: "12"}
+      - {fdc_id: 173468, grams: "0.3"}
+    notes: "Frying oil absorbed is highly variable; a dietitian must decide how much is eaten."
+  - code: veg_pulao
+    doc_section: 25
+    name_en: "Vegetable pulao"
+    aliases: ["pulao", "pulav", "veg pulao"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 300
+    servings: null
+    ingredients:
+      - {fdc_id: 169756, grams: "80"}
+      - {fdc_id: 170419, grams: "20"}
+      - {fdc_id: 170393, grams: "20"}
+      - {fdc_id: 170000, grams: "30"}
+      - {fdc_id: 171017, grams: "8"}
+      - {fdc_id: 170923, grams: "1"}
+      - {fdc_id: 173468, grams: "2"}
+    notes: "The doc allows ghee (173412) instead of oil; oil (171017) is used."
+  - code: boiled_egg
+    doc_section: 26
+    name_en: "Boiled egg"
+    aliases: ["boiled egg", "ande", "hard boiled egg"]
+    status: needs_weighing
+    reason: "the doc gives the yield as a count of pieces, not grams; weigh a batch"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: 171287, grams: "50"}
+    notes: "The hard-boiled egg row (173424) is the better entry when the user logs a cooked egg."
+  - code: masala_omelette
+    doc_section: 27
+    name_en: "Masala omelette"
+    aliases: ["omelette", "omelet", "masala omelette", "anda omelette"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 120
+    servings: 1
+    ingredients:
+      - {fdc_id: 171287, grams: "100"}
+      - {fdc_id: 170000, grams: "20"}
+      - {fdc_id: 170457, grams: "15"}
+      - {fdc_id: 171017, grams: "5"}
+      - {fdc_id: 173468, grams: "1"}
+    notes: null
+  - code: besan_chilla
+    doc_section: 28
+    name_en: "Besan chilla"
+    aliases: ["chilla", "cheela", "besan cheela"]
+    status: needs_weighing
+    reason: "the doc gives the yield as a count of pieces, not grams; weigh a batch"
+    cooked_weight_g: null
+    servings: null
+    ingredients:
+      - {fdc_id: 174288, grams: "50"}
+      - {fdc_id: 170000, grams: "25"}
+      - {fdc_id: 170457, grams: "20"}
+      - {fdc_id: 171017, grams: "5"}
+      - {fdc_id: 172231, grams: "0.3"}
+      - {fdc_id: 173468, grams: "1"}
+    notes: "Grams per chilla stay unknown until weighed."
+  - code: cucumber_raita
+    doc_section: 29
+    name_en: "Cucumber raita"
+    aliases: ["raita", "cucumber raita", "kheera raita"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 160
+    servings: null
+    ingredients:
+      - {fdc_id: 171284, grams: "120"}
+      - {fdc_id: 169225, grams: "40"}
+      - {fdc_id: 170923, grams: "0.3"}
+      - {fdc_id: 173468, grams: "0.8"}
+    notes: null
+  - code: sweet_lassi
+    doc_section: 30
+    name_en: "Sweet lassi"
+    aliases: ["lassi", "sweet lassi", "meethi lassi"]
+    status: seeded
+    reason: null
+    cooked_weight_g: 265
+    servings: null
+    ingredients:
+      - {fdc_id: 171284, grams: "150"}
+      - {fdc_id: 169655, grams: "15"}
+    notes: null

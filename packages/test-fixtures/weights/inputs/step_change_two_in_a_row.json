@@ -1,0 +1,26 @@
+{
+  "weigh_ins": [
+    {
+      "date": "2026-01-01",
+      "weight_kg": 80
+    },
+    {
+      "date": "2026-01-02",
+      "weight_kg": 80
+    },
+    {
+      "date": "2026-01-03",
+      "weight_kg": 80
+    },
+    {
+      "date": "2026-01-04",
+      "weight_kg": 84
+    },
+    {
+      "date": "2026-01-05",
+      "weight_kg": 84.2
+    }
+  ],
+  "target_kg": null,
+  "numbers_display": "show"
+}

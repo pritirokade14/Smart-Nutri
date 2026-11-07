@@ -330,7 +330,11 @@
     "copy_too_many": "That is too many items to copy at once. Copy one meal at a time.",
     "date_too_old": "You can only add to the last 30 days.",
     "meal_slot_last_active": "You need at least one meal.",
-    "meal_slot_label_duplicate": "You already have a meal with this name."
+    "meal_slot_label_duplicate": "You already have a meal with this name.",
+    "unit_grams_unknown": "We don't know the grams for this measure yet. Enter grams, or set your own value.",
+    "unit_not_supported": "That measure isn't available here. Choose another.",
+    "quantity_out_of_range": "That amount is too large or too small. Check the number and try again.",
+    "food_not_found": "We couldn't find that food."
   },
   "scan": {
     "title": "Scan a barcode",
@@ -370,7 +374,9 @@
     "not_found_body": "Check the barcode number. You can also sign in and photograph the label to add this product."
   },
   "attribution": {
-    "off": "Data from Open Food Facts (ODbL)"
+    "off": "Data from Open Food Facts (ODbL)",
+    "usda_fdc": "Nutrition data: USDA FoodData Central (public domain)",
+    "smartnutri_recipe": "Recipe by SmartNutri from USDA FoodData Central ingredients. Pending dietitian review."
   },
   "label": {
     "title": "Photograph the label",
@@ -882,7 +888,11 @@
     "meta_description": "How SmartNutri checks packaged food for each family member: the fixed rules, their thresholds and sources. Information, not medical advice.",
     "values": "Rule values",
     "based_on": "Based on:",
-    "unavailable": "We couldn't load the scoring rules right now. Please try again in a moment."
+    "unavailable": "We couldn't load the scoring rules right now. Please try again in a moment.",
+    "food_data": {
+      "title": "Food data and household measures",
+      "body": "Packaged-food values come from the label. Generic foods come from USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov), which is in the public domain. Katori sizes follow the ICMR-NIN Dietary Guidelines for Indians 2024 (Annexure I). Some cup-based conversions are derived from USDA cup weights and are marked approximate. Glass and other values are our own reference set, pending dietitian review. Where a value is not known, we leave it unknown and never guess. Indian dishes are calculated by SmartNutri from their ingredients and are pending dietitian review. Information, not medical advice."
+    }
   },
   "report": {
     "button": "Report a problem",
@@ -1280,11 +1290,61 @@
       "move_down": "Move {title} down",
       "time_start": "Start time",
       "time_end": "End time"
-    }
+    },
+    "portion_line": "{quantity} {unit} · {grams} g",
+    "portion_line_ml": "{quantity} {unit} · {amount} ml"
   },
   "foods": {
     "blank_is_unknown": "Leave blank if you don't know. Blank is never counted as 0.",
     "recent": "Recent",
-    "quick_add": "Quick add"
+    "quick_add": "Quick add",
+    "search_placeholder": "Search foods, dishes or brands",
+    "group": {
+      "indian": "Indian foods",
+      "packaged": "Packaged products"
+    },
+    "partial_results": "Some results couldn't load. Try again.",
+    "no_results": "No foods found. Try another word, or use quick add.",
+    "kind": {
+      "food": "Food",
+      "dish": "Dish",
+      "product": "Product"
+    },
+    "dish_ingredients": "Made with",
+    "review_pending": "Household measures and Indian dishes are pending dietitian review.",
+    "preview_note": "Estimate. The saved values come from SmartNutri.",
+    "not_known": "Not known",
+    "portion": {
+      "title": "How much?",
+      "quantity": "Amount",
+      "save": "Add"
+    }
+  },
+  "unit": {
+    "g": "{count, plural, one {g} other {g}}",
+    "ml": "{count, plural, one {ml} other {ml}}",
+    "serving": "{count, plural, one {serving} other {servings}}",
+    "piece": "{count, plural, one {piece} other {pieces}}",
+    "piece_small": "{count, plural, one {small piece} other {small pieces}}",
+    "piece_medium": "{count, plural, one {medium piece} other {medium pieces}}",
+    "piece_large": "{count, plural, one {large piece} other {large pieces}}",
+    "roti": "{count, plural, one {roti} other {rotis}}",
+    "slice": "{count, plural, one {slice} other {slices}}",
+    "katori": "{count, plural, one {katori} other {katoris}}",
+    "katori_small": "{count, plural, one {small katori} other {small katoris}}",
+    "katori_medium": "{count, plural, one {medium katori} other {medium katoris}}",
+    "katori_large": "{count, plural, one {large katori} other {large katoris}}",
+    "cup": "{count, plural, one {cup} other {cups}}",
+    "glass": "{count, plural, one {glass} other {glasses}}",
+    "tbsp": "{count, plural, one {tbsp} other {tbsp}}",
+    "tsp": "{count, plural, one {tsp} other {tsp}}",
+    "ml_hint": "{ml} ml",
+    "grams_hint": "1 {unit} ≈ {grams} g",
+    "amount_hint_ml": "1 {unit} ≈ {amount} ml",
+    "edit_grams": "Edit grams for this measure",
+    "set_grams": "Set grams for {unit}",
+    "your_value": "Your value",
+    "reset_grams": "Use the standard value",
+    "unknown": "We don't know the grams for this measure yet. Enter grams, or set your own value."
   }
 }

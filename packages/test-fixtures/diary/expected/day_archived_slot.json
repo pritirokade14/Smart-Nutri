@@ -41,9 +41,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T08:00:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 120.0,
           "id": "7ca85305-362c-545a-a30c-1ea6611c8119",
@@ -66,9 +69,17 @@
             "sat_fat_g": null,
             "sugars_g": null
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "c1400187-a12d-5167-b58f-6bcec3d6def1",
           "product_name": "Idli",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T08:00:00+05:30"
         }
       ],
@@ -126,9 +137,12 @@
       "entries": [
         {
           "attribution": null,
+          "attributions": [],
           "barcode": null,
+          "basis": "g",
           "client_id": null,
           "eaten_at": "2026-11-07T17:30:00+05:30",
+          "food_id": null,
           "grade": null,
           "grams": 250.0,
           "id": "f171c050-e792-5ea0-b29e-c63ed677e743",
@@ -151,9 +165,17 @@
             "sat_fat_g": null,
             "sugars_g": null
           },
+          "portion_units": [
+            {
+              "code": "g",
+              "grams_per_unit": 1.0
+            }
+          ],
           "product_id": "0dd154ff-c527-5622-9511-026a9011a0ee",
           "product_name": "Banana shake",
+          "quantity": null,
           "source_kind": "product",
+          "unit": null,
           "updated_at": "2026-11-07T17:30:00+05:30"
         }
       ],
