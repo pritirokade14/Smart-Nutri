@@ -133,6 +133,7 @@ class MyFoodsScreen extends ConsumerWidget {
           context,
           l10n,
           l10n.customFoodDeleteConfirm,
+          l10n.customFoodDelete,
           () => ref.read(customFoodsRepositoryProvider).delete(f.id),
           () => ref.invalidate(customFoodsProvider),
         ),
@@ -192,12 +193,13 @@ class MyFoodsScreen extends ConsumerWidget {
       },
       trailing: IconButton(
         key: deleteRecipeKey(r.id),
-        tooltip: l10n.diaryDelete,
+        tooltip: l10n.recipesDelete,
         icon: const Icon(Icons.delete_outline_rounded),
         onPressed: () => _confirm(
           context,
           l10n,
           l10n.recipesDeleteConfirm,
+          l10n.recipesDelete,
           () => ref.read(recipesRepositoryProvider).delete(r.id),
           () => ref.invalidate(recipesProvider),
         ),
@@ -209,6 +211,7 @@ class MyFoodsScreen extends ConsumerWidget {
     BuildContext context,
     AppLocalizations l10n,
     String message,
+    String deleteLabel,
     Future<void> Function() delete,
     VoidCallback done,
   ) async {
@@ -225,7 +228,7 @@ class MyFoodsScreen extends ConsumerWidget {
           TextButton(
             key: const Key('my-foods-delete-confirm'),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l10n.diaryDelete),
+            child: Text(deleteLabel),
           ),
         ],
       ),

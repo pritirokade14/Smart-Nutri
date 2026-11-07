@@ -402,7 +402,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
         gap,
         PrimaryButton(
           buttonKey: RecipeBuilderScreen.saveKey,
-          label: l10n.customFoodSave,
+          label: l10n.recipesSave,
           icon: Icons.check_rounded,
           busy: _busy,
           onPressed: _canSave ? _save : null,
