@@ -98,7 +98,9 @@ class GoalStep extends StatelessWidget {
                       label: Text(
                         // kg is null when numbers are hidden: the pace shows as a percent.
                         o.kgPerWeek == null
-                            ? '${formatDecimal(o.pctBwPerWeek)}%'
+                            ? l10n.targetsRateOptionPct(
+                                formatDecimal(o.pctBwPerWeek),
+                              )
                             : l10n.targetsRateOption(
                                 formatDecimal(o.kgPerWeek!),
                                 formatDecimal(o.pctBwPerWeek),

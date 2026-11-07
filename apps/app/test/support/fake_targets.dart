@@ -49,6 +49,9 @@ class FakeTargetsClient implements TargetsClient {
   final resets = <String?>[];
 
   Object? getError;
+
+  /// Thrown by the next `targetsDisplayPut`.
+  Object? displayError;
   Object? settingsGetError;
 
   /// Thrown by the next preview calls, in order.
@@ -90,6 +93,10 @@ class FakeTargetsClient implements TargetsClient {
   @override
   Future<DisplayOut> targetsDisplayPut({required DisplayIn body}) async {
     displays.add(body);
+    if (displayError case final e?) {
+      displayError = null;
+      throw e;
+    }
     final s = settings ?? goalSettingsOut();
     final display = body.numbersDisplay?.json ?? s.numbersDisplay.json!;
     settings = goalSettingsOut(

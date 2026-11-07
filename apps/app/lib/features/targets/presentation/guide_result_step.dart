@@ -14,10 +14,12 @@ import 'targets_explanation.dart';
 /// The field name for a member field the API listed as missing.
 String missingFieldLabel(AppLocalizations l10n, String field) =>
     switch (field) {
-      'birth_year' => l10n.membersFormBirthYear,
-      'sex' => l10n.membersFormSex,
-      'height_cm' => l10n.membersFormHeightCm,
-      'weight_kg' => l10n.membersFormWeightKg,
+      'birth_year' => l10n.targetsFieldBirthYear,
+      'sex' => l10n.targetsFieldSex,
+      'height' || 'height_cm' => l10n.targetsFieldHeight,
+      'weight' || 'weight_kg' => l10n.targetsFieldWeight,
+      'activity' || 'activity_level' => l10n.targetsFieldActivity,
+      'body_fat' || 'body_fat_pct' => l10n.targetsFieldBodyFat,
       _ => field,
     };
 

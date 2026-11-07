@@ -12,8 +12,8 @@ import '../domain/targets_format.dart';
 ///
 /// With hidden numbers there are no digits: `floor_applied` uses the copy
 /// without the value when the API sent no `floor_kcal`, and
-/// `carbs_below_reference` (its copy names a macro value) is left out while
-/// macros are hidden.
+/// `carbs_below_reference` uses its hidden copy (no macro value) while macros
+/// are hidden.
 String? flagMessage(AppLocalizations l10n, String flag, TargetsOut t) {
   switch (flag) {
     case 'underweight_maintenance':
@@ -37,7 +37,7 @@ String? flagMessage(AppLocalizations l10n, String flag, TargetsOut t) {
       return l10n.targetsFlagProteinCapped;
     case 'carbs_below_reference':
       return t.numbersHidden.macros
-          ? null
+          ? l10n.targetsFlagCarbsBelowReferenceHidden
           : l10n.targetsFlagCarbsBelowReference;
     case 'average_sex_reference':
       return l10n.targetsFlagAverageSexReference;

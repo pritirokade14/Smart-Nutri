@@ -140,6 +140,22 @@ void main() {
     expect(_in(find.textContaining('2,760')), findsOneWidget);
   });
 
+  testWidgets('un-hiding a rate-limited toggle shows the standard error', (
+    t,
+  ) async {
+    final targets = FakeTargetsClient(
+      today: 'g1_hide_all',
+      settings: goalSettingsOut(
+        activity: 'moderate',
+        numbersDisplay: 'hide_all',
+      ),
+    )..displayError = apiError(429, 'rate_limited');
+    await _home(t, targets, summary: (id) => daySummary(id, hidden: true));
+    await _tap(t, EyeToggle.buttonKey);
+    expect(find.text(en.errorRateLimited), findsOneWidget);
+    expect(_digits, findsNothing);
+  });
+
   testWidgets('hide_energy shows macros but no kcal', (t) async {
     await _home(
       t,

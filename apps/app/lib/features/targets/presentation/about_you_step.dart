@@ -55,7 +55,7 @@ class AboutYouStep extends StatelessWidget {
               labelText: l10n.membersFormBirthYear,
               errorText: yearBad
                   ? l10n.membersFormBirthYearInvalid('$now')
-                  : missing('birth_year', l10n.membersFormBirthYear),
+                  : missing('birth_year', l10n.targetsFieldBirthYear),
             ),
             onChanged: (_) => draft.notify(),
           ),
@@ -88,7 +88,7 @@ class AboutYouStep extends StatelessWidget {
             ),
             if (draft.missing.contains('sex') && draft.sex == null)
               Text(
-                l10n.targetsNeedsBodyData(l10n.membersFormSex),
+                l10n.targetsNeedsBodyData(l10n.targetsFieldSex),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: c.textSecondary,
                 ),
@@ -120,7 +120,7 @@ class AboutYouStep extends StatelessWidget {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: l10n.membersFormHeightCm,
-              errorText: missing('height_cm', l10n.membersFormHeightCm),
+              errorText: missing('height_cm', l10n.targetsFieldHeight),
             ),
             onChanged: (_) => draft.notify(),
           ),
@@ -131,7 +131,7 @@ class AboutYouStep extends StatelessWidget {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: l10n.membersFormWeightKg,
-              errorText: missing('weight_kg', l10n.membersFormWeightKg),
+              errorText: missing('weight_kg', l10n.targetsFieldWeight),
             ),
             onChanged: (_) => draft.notify(),
           ),

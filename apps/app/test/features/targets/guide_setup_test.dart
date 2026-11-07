@@ -275,13 +275,13 @@ void main() {
     s.targets.previewResult = targetsFixture('needs_height_cm');
     await _toGuide(t);
     expect(
-      find.text(en.targetsNeedsBodyData(en.membersFormHeightCm)),
+      find.text(en.targetsNeedsBodyData(en.targetsFieldHeight)),
       findsOneWidget,
     );
     await _tap(t, GuideSetupScreen.editAnswersKey);
     expect(find.byKey(AboutYouStep.heightKey), findsOneWidget);
     expect(
-      find.text(en.targetsNeedsBodyData(en.membersFormHeightCm)),
+      find.text(en.targetsNeedsBodyData(en.targetsFieldHeight)),
       findsOneWidget,
     );
   });
@@ -369,7 +369,7 @@ void main() {
     s.targets.previewResult = _withUnusual('g1_build_muscle', ['height_cm']);
     await _toGuide(t);
     expect(
-      find.text(en.targetsUnusualConfirm(en.membersFormHeightCm)),
+      find.text(en.targetsUnusualConfirm(en.targetsFieldHeight)),
       findsOneWidget,
     );
     FilledButton save() =>
