@@ -4,8 +4,11 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+/// `mine` (your custom foods and recipes) comes first, then `indian`, `packaged`
 @JsonEnum()
 enum FoodHitGroup {
+  @JsonValue('mine')
+  mine('mine'),
   @JsonValue('indian')
   indian('indian'),
   @JsonValue('packaged')

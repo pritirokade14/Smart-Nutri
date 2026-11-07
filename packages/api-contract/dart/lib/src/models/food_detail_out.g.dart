@@ -36,6 +36,9 @@ FoodDetailOut _$FoodDetailOutFromJson(Map<String, dynamic> json) =>
       units: (json['units'] as List<dynamic>)
           .map((e) => FoodUnitOut.fromJson(e as Map<String, dynamic>))
           .toList(),
+      recipeIncomplete: (json['recipe_incomplete'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$FoodDetailOutToJson(FoodDetailOut instance) =>
@@ -52,6 +55,7 @@ Map<String, dynamic> _$FoodDetailOutToJson(FoodDetailOut instance) =>
       'name': instance.name,
       'numbers_hidden': instance.numbersHidden,
       'per_100': instance.per100,
+      'recipe_incomplete': instance.recipeIncomplete,
       'review_pending': instance.reviewPending,
       'serving_g': instance.servingG,
       'settable_units': instance.settableUnits,
@@ -68,5 +72,7 @@ const _$FoodDetailOutKindEnumMap = {
   FoodDetailOutKind.food: 'food',
   FoodDetailOutKind.product: 'product',
   FoodDetailOutKind.off: 'off',
+  FoodDetailOutKind.customFood: 'custom_food',
+  FoodDetailOutKind.recipe: 'recipe',
   FoodDetailOutKind.$unknown: r'$unknown',
 };

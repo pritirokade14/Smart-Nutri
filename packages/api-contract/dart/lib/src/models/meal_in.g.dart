@@ -9,6 +9,7 @@ part of 'meal_in.dart';
 MealIn _$MealInFromJson(Map<String, dynamic> json) => MealIn(
   barcode: json['barcode'] as String?,
   clientId: json['client_id'] as String?,
+  customFoodId: json['custom_food_id'] as String?,
   eatenAt: json['eaten_at'] == null
       ? null
       : DateTime.parse(json['eaten_at'] as String),
@@ -24,6 +25,7 @@ MealIn _$MealInFromJson(Map<String, dynamic> json) => MealIn(
   quick: json['quick'] == null
       ? null
       : QuickIn.fromJson(json['quick'] as Map<String, dynamic>),
+  recipeId: json['recipe_id'] as String?,
   servings: json['servings'] as num?,
   unit: json['unit'] == null
       ? null
@@ -33,6 +35,7 @@ MealIn _$MealInFromJson(Map<String, dynamic> json) => MealIn(
 Map<String, dynamic> _$MealInToJson(MealIn instance) => <String, dynamic>{
   'barcode': instance.barcode,
   'client_id': instance.clientId,
+  'custom_food_id': instance.customFoodId,
   'eaten_at': instance.eatenAt?.toIso8601String(),
   'food_id': instance.foodId,
   'grams': instance.grams,
@@ -42,6 +45,7 @@ Map<String, dynamic> _$MealInToJson(MealIn instance) => <String, dynamic>{
   'product_id': instance.productId,
   'quantity': instance.quantity,
   'quick': instance.quick,
+  'recipe_id': instance.recipeId,
   'servings': instance.servings,
   'unit': _$MealInUnitEnumMap[instance.unit],
 };

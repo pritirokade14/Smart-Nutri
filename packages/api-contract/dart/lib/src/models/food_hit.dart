@@ -36,6 +36,8 @@ class FoodHit {
 
   /// Nutri-Score calculated by SmartNutri; packaged products only, else null
   final NutriScoreGrade? grade;
+
+  /// `mine` (your custom foods and recipes) comes first, then `indian`, `packaged`
   final FoodHitGroup group;
 
   /// A uuid, or the barcode for kind=off

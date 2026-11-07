@@ -131,6 +131,12 @@ class FakeFoodsClient implements FoodsClient {
   }
 
   @override
+  Future<FoodDetailOut> foodsByBarcode({
+    required String barcode,
+    String? memberId,
+  }) async => details.values.first;
+
+  @override
   Future<List<UnitOut>> foodsUnitsList() async => const [];
 
   @override

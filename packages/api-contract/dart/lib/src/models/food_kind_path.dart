@@ -14,6 +14,10 @@ enum FoodKindPath {
   product('product'),
   @JsonValue('off')
   off('off'),
+  @JsonValue('custom_food')
+  customFood('custom_food'),
+  @JsonValue('recipe')
+  recipe('recipe'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

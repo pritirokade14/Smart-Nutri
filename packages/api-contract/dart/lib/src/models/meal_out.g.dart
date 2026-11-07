@@ -35,12 +35,17 @@ MealOut _$MealOutFromJson(Map<String, dynamic> json) => MealOut(
   attributions: (json['attributions'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
+  customFoodId: json['custom_food_id'] as String?,
   foodId: json['food_id'] as String?,
   portionUnits: (json['portion_units'] as List<dynamic>?)
       ?.map((e) => PortionUnitOut.fromJson(e as Map<String, dynamic>))
       .toList(),
   quantity: json['quantity'] as num?,
+  recipeId: json['recipe_id'] as String?,
   unit: json['unit'] as String?,
+  unitSource: json['unit_source'] == null
+      ? null
+      : MealOutUnitSource.fromJson(json['unit_source'] as String),
 );
 
 Map<String, dynamic> _$MealOutToJson(MealOut instance) => <String, dynamic>{
@@ -49,6 +54,7 @@ Map<String, dynamic> _$MealOutToJson(MealOut instance) => <String, dynamic>{
   'barcode': instance.barcode,
   'basis': _$MealOutBasisEnumMap[instance.basis]!,
   'client_id': instance.clientId,
+  'custom_food_id': instance.customFoodId,
   'eaten_at': instance.eatenAt.toIso8601String(),
   'food_id': instance.foodId,
   'grade': _$NutriScoreGradeEnumMap[instance.grade],
@@ -63,8 +69,10 @@ Map<String, dynamic> _$MealOutToJson(MealOut instance) => <String, dynamic>{
   'product_id': instance.productId,
   'product_name': instance.productName,
   'quantity': instance.quantity,
+  'recipe_id': instance.recipeId,
   'source_kind': _$MealOutSourceKindEnumMap[instance.sourceKind]!,
   'unit': instance.unit,
+  'unit_source': _$MealOutUnitSourceEnumMap[instance.unitSource],
   'updated_at': instance.updatedAt.toIso8601String(),
 };
 
@@ -87,6 +95,15 @@ const _$MealOutSourceKindEnumMap = {
   MealOutSourceKind.product: 'product',
   MealOutSourceKind.off: 'off',
   MealOutSourceKind.food: 'food',
+  MealOutSourceKind.customFood: 'custom_food',
+  MealOutSourceKind.recipe: 'recipe',
   MealOutSourceKind.quickAdd: 'quick_add',
   MealOutSourceKind.$unknown: r'$unknown',
+};
+
+const _$MealOutUnitSourceEnumMap = {
+  MealOutUnitSource.grams: 'grams',
+  MealOutUnitSource.portion: 'portion',
+  MealOutUnitSource.density: 'density',
+  MealOutUnitSource.$unknown: r'$unknown',
 };

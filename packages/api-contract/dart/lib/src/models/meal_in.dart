@@ -27,6 +27,7 @@ class MealIn {
   const MealIn({
     this.barcode,
     this.clientId,
+    this.customFoodId,
     this.eatenAt,
     this.foodId,
     this.grams,
@@ -36,6 +37,7 @@ class MealIn {
     this.productId,
     this.quantity,
     this.quick,
+    this.recipeId,
     this.servings,
     this.unit,
   });
@@ -45,6 +47,10 @@ class MealIn {
   final String? barcode;
   @JsonKey(name: 'client_id')
   final String? clientId;
+
+  /// One of your own custom foods
+  @JsonKey(name: 'custom_food_id')
+  final String? customFoodId;
 
   /// Timezone-aware. Default: now. At most 5 minutes ahead, at most 30 days ago.
   @JsonKey(name: 'eaten_at')
@@ -68,6 +74,10 @@ class MealIn {
   /// With `unit`: how many of the unit
   final num? quantity;
   final QuickIn? quick;
+
+  /// One of your own recipes
+  @JsonKey(name: 'recipe_id')
+  final String? recipeId;
   final num? servings;
 
   /// With `quantity`: a household unit

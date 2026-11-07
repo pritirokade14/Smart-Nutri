@@ -6,6 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'meal_out_basis.dart';
 import 'meal_out_source_kind.dart';
+import 'meal_out_unit_source.dart';
 import 'nutri_score_grade.dart';
 import 'nutrient_snapshot.dart';
 import 'portion_unit_out.dart';
@@ -33,10 +34,13 @@ class MealOut {
     required this.updatedAt,
     this.basis = MealOutBasis.g,
     this.attributions,
+    this.customFoodId,
     this.foodId,
     this.portionUnits,
     this.quantity,
+    this.recipeId,
     this.unit,
+    this.unitSource,
   });
 
   factory MealOut.fromJson(Map<String, Object?> json) =>
@@ -55,6 +59,10 @@ class MealOut {
   final MealOutBasis basis;
   @JsonKey(name: 'client_id')
   final String? clientId;
+
+  /// Your custom food; null for other entries, or once it was deleted
+  @JsonKey(name: 'custom_food_id')
+  final String? customFoodId;
   @JsonKey(name: 'eaten_at')
   final DateTime eatenAt;
 
@@ -95,11 +103,19 @@ class MealOut {
 
   /// The portion as typed (with unit); null for older entries
   final num? quantity;
+
+  /// Your recipe; null for other entries, or once it was deleted
+  @JsonKey(name: 'recipe_id')
+  final String? recipeId;
   @JsonKey(name: 'source_kind')
   final MealOutSourceKind sourceKind;
 
   /// The household unit; null for older entries
   final String? unit;
+
+  /// How `grams` was worked out from the unit when logged: `grams` (exact: grams, millilitres or a label serving), `portion` (a per-food weight, ours or the account's own) or `density` (a volume converted through a density). Clients mark `portion` and `density` as approximate (≈). null on older entries
+  @JsonKey(name: 'unit_source')
+  final MealOutUnitSource? unitSource;
   @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 

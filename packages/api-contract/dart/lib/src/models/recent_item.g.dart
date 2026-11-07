@@ -18,12 +18,20 @@ RecentItem _$RecentItemFromJson(Map<String, dynamic> json) => RecentItem(
   name: json['name'] as String,
   productId: json['product_id'] as String?,
   sourceKind: RecentItemSourceKind.fromJson(json['source_kind'] as String),
+  basis: json['basis'] == null
+      ? RecentItemBasis.g
+      : RecentItemBasis.fromJson(json['basis'] as String),
   attributions: (json['attributions'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
+  customFoodId: json['custom_food_id'] as String?,
   foodId: json['food_id'] as String?,
   quantity: json['quantity'] as num?,
+  recipeId: json['recipe_id'] as String?,
   unit: json['unit'] as String?,
+  unitSource: json['unit_source'] == null
+      ? null
+      : RecentItemUnitSource.fromJson(json['unit_source'] as String),
 );
 
 Map<String, dynamic> _$RecentItemToJson(RecentItem instance) =>
@@ -31,6 +39,8 @@ Map<String, dynamic> _$RecentItemToJson(RecentItem instance) =>
       'attribution': instance.attribution,
       'attributions': instance.attributions,
       'barcode': instance.barcode,
+      'basis': _$RecentItemBasisEnumMap[instance.basis]!,
+      'custom_food_id': instance.customFoodId,
       'food_id': instance.foodId,
       'grade': _$NutriScoreGradeEnumMap[instance.grade],
       'grams': instance.grams,
@@ -39,9 +49,17 @@ Map<String, dynamic> _$RecentItemToJson(RecentItem instance) =>
       'name': instance.name,
       'product_id': instance.productId,
       'quantity': instance.quantity,
+      'recipe_id': instance.recipeId,
       'source_kind': _$RecentItemSourceKindEnumMap[instance.sourceKind]!,
       'unit': instance.unit,
+      'unit_source': _$RecentItemUnitSourceEnumMap[instance.unitSource],
     };
+
+const _$RecentItemBasisEnumMap = {
+  RecentItemBasis.g: 'g',
+  RecentItemBasis.ml: 'ml',
+  RecentItemBasis.$unknown: r'$unknown',
+};
 
 const _$NutriScoreGradeEnumMap = {
   NutriScoreGrade.a: 'A',
@@ -56,5 +74,14 @@ const _$RecentItemSourceKindEnumMap = {
   RecentItemSourceKind.product: 'product',
   RecentItemSourceKind.off: 'off',
   RecentItemSourceKind.food: 'food',
+  RecentItemSourceKind.customFood: 'custom_food',
+  RecentItemSourceKind.recipe: 'recipe',
   RecentItemSourceKind.$unknown: r'$unknown',
+};
+
+const _$RecentItemUnitSourceEnumMap = {
+  RecentItemUnitSource.grams: 'grams',
+  RecentItemUnitSource.portion: 'portion',
+  RecentItemUnitSource.density: 'density',
+  RecentItemUnitSource.$unknown: r'$unknown',
 };

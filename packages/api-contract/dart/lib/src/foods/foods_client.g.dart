@@ -21,6 +21,37 @@ class _FoodsClient implements FoodsClient {
   final ParseErrorLogger? errorLogger;
 
   @override
+  Future<FoodDetailOut> foodsByBarcode({
+    required String barcode,
+    String? memberId,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'member_id': memberId};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<FoodDetailOut>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/v1/foods/barcode/${barcode}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late FoodDetailOut _value;
+    try {
+      _value = FoodDetailOut.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<FoodSearchOut> foodsSearch({
     required String q,
     int? limit = 20,
