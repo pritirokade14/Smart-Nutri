@@ -56,6 +56,15 @@ class TrendResult:
             found = t
         return found
 
+    def point_at(self, day: date) -> tuple[date, Decimal] | None:
+        """(date, trend) at the latest non-outlier weigh-in on or before ``day``."""
+        found: tuple[date, Decimal] | None = None
+        for d, t in self.trend:
+            if d > day:
+                break
+            found = (d, t)
+        return found
+
     def count_until(self, day: date) -> int:
         return sum(1 for d, _ in self.trend if d <= day)
 
@@ -132,11 +141,18 @@ def _rate(result: TrendResult, end: date, c: ScoringConfig) -> tuple[Decimal, De
     t = c.targets["trend"]
     if result.count_until(end) < int(t["min_weigh_ins_for_rate"]):
         return None
-    now = result.at(end)
-    before = result.at(end - timedelta(days=int(t["rate_window_days"])))
-    if now is None or before is None:
+    window = int(t["rate_window_days"])
+    latest = result.point_at(end)
+    earlier = result.point_at(end - timedelta(days=window))
+    if latest is None or earlier is None:
         return None
-    kg = now - before
+    # The earlier anchor can be older than the window after a gap: divide by the days that
+    # really passed and express the change per window, so a gap never inflates the rate.
+    elapsed = (latest[0] - earlier[0]).days
+    if elapsed <= 0:
+        return None
+    now = latest[1]
+    kg = (now - earlier[1]) * window / elapsed
     return kg, kg / now * _HUNDRED
 
 

@@ -125,7 +125,7 @@
     }
   ],
   "projection": {
-    "date": "2026-02-24",
+    "date": null,
     "target_kg": null
   },
   "projection_reason": "ready",

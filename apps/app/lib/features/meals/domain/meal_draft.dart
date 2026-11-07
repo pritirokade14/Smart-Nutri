@@ -1,6 +1,7 @@
 /// One "I ate this" log before it is sent. Exactly one of [productId] (our
-/// product), [barcode] (Open Food Facts) and [quickEnergyKcal] (a quick add)
-/// is the source; a product has exactly one of [grams] and [servings].
+/// product), [barcode] (Open Food Facts), [foodId] (a generic food or dish)
+/// and [quickEnergyKcal] (a quick add) is the source; a food has exactly one
+/// of [grams], [servings] and [quantity] with [unit].
 class MealDraft {
   const MealDraft({
     required this.memberId,
@@ -9,6 +10,9 @@ class MealDraft {
     this.barcode,
     this.grams,
     this.servings,
+    this.foodId,
+    this.quantity,
+    this.unit,
     this.mealSlotId,
     this.localDate,
     this.quickName,
@@ -25,6 +29,14 @@ class MealDraft {
   final String? barcode;
   final num? grams;
   final num? servings;
+
+  /// A generic food or dish (`foods.id`).
+  final String? foodId;
+
+  /// A household-unit portion: [quantity] of [unit] (a unit code). Sent
+  /// instead of grams and servings; the API converts it.
+  final num? quantity;
+  final String? unit;
   final DateTime eatenAt;
 
   /// The chosen slot, or null (the API picks one).

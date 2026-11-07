@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog, Dialog } from "@/components/ui/Dialog";
 import { hintClass, inputClass, labelClass } from "@/components/ui/field";
 import { InfoIcon } from "@/components/ui/icons";
+import type { UnitCode } from "@/features/foods/api/foods";
+import { amountHint, unitLabel } from "@/features/foods/lib/unitLabel";
 import { errorKey } from "@/features/members/components/ConsentDialog";
 import { track } from "@/lib/analytics";
 import type { ApiError } from "@/lib/api/errors";
+import { cn } from "@/lib/cn";
 import type { MealOut, MealPatch, QuickIn } from "../api/diary";
 import type { MealSlotOut } from "../api/mealSlots";
 import { useDeleteMeal, useUpdateMeal } from "../hooks/useDiaryDay";
@@ -56,6 +59,11 @@ export function EditEntryDialog({
   const quick = entry.source_kind === "quick_add";
   // Hidden numbers arrive as null: the quick values cannot be edited blind.
   const quickEditable = quick && entry.nutrients.energy_kcal !== null;
+  // A food logged by unit is edited by unit; an older row, by grams.
+  const units = entry.portion_units ?? [];
+  const byUnit = !quick && entry.unit != null && units.length > 0;
+  const [unitCode, setUnitCode] = useState(entry.unit ?? "");
+  const [quantity, setQuantity] = useState(show(entry.quantity));
   const [grams, setGrams] = useState(show(entry.grams));
   const [slot, setSlot] = useState(entry.meal_slot_id);
   const [name, setName] = useState(entry.product_name);
@@ -69,13 +77,25 @@ export function EditEntryDialog({
   const [invalid, setInvalid] = useState(false);
   const [asking, setAsking] = useState(false);
 
+  const tt = (k: string, v?: Record<string, string | number>) =>
+    t(k as never, v as never);
   const errorText = (e: ApiError) =>
     e.code === "network" ? t("meals.online_only") : t(errorKey(t, e));
 
   function save(e: React.FormEvent) {
     e.preventDefault();
     const patch: MealPatch = {};
-    if (!quick && entry.grams != null) {
+    if (byUnit) {
+      const n = num(quantity);
+      if (n === null || n <= 0) {
+        setInvalid(true);
+        return;
+      }
+      if (n !== entry.quantity || unitCode !== entry.unit) {
+        patch.quantity = n;
+        patch.unit = unitCode as UnitCode;
+      }
+    } else if (!quick && entry.grams != null) {
       const g = num(grams);
       if (g === null || g <= 0 || g > MAX_GRAMS) {
         setInvalid(true);
@@ -149,7 +169,53 @@ export function EditEntryDialog({
           <span>{t("meals.online_only")}</span>
         </p>
         <form id={formId} noValidate onSubmit={save} className="space-y-4">
-          {!quick && entry.grams != null ? (
+          {byUnit ? (
+            <div className="space-y-2" data-testid="edit-portion">
+              <fieldset className="m-0 flex min-w-0 flex-wrap gap-2 border-0 p-0">
+                <legend className="sr-only">{t("foods.portion.title")}</legend>
+                {units.map((u) => (
+                  <button
+                    key={u.code}
+                    type="button"
+                    data-testid={`edit-unit-${u.code}`}
+                    aria-pressed={u.code === unitCode}
+                    onClick={() => setUnitCode(u.code)}
+                    className={cn(
+                      "min-h-9 cursor-pointer rounded-full border px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary",
+                      u.code === unitCode
+                        ? "border-brand-primary bg-brand-soft text-brand-primary"
+                        : "border-border-default bg-surface-default text-text-primary hover:bg-surface-muted",
+                    )}
+                  >
+                    {unitLabel(tt, u.code, num(quantity) ?? 1)}
+                  </button>
+                ))}
+              </fieldset>
+              <label htmlFor={ids.grams} className={labelClass}>
+                {t("foods.portion.quantity")}
+              </label>
+              <input
+                id={ids.grams}
+                inputMode="decimal"
+                value={quantity}
+                aria-invalid={invalid || undefined}
+                onChange={(e) => setQuantity(e.target.value)}
+                data-allow-digits
+                className={inputClass}
+              />
+              {units.find((u) => u.code === unitCode) ? (
+                <p className={hintClass} data-allow-digits>
+                  {amountHint(
+                    tt,
+                    units.find(
+                      (u) => u.code === unitCode,
+                    ) as (typeof units)[number],
+                    entry.basis,
+                  )}
+                </p>
+              ) : null}
+            </div>
+          ) : !quick && entry.grams != null ? (
             <div className="space-y-1">
               <label htmlFor={ids.grams} className={labelClass}>
                 {t("meals.log.amount_grams")}

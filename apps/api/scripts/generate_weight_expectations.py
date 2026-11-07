@@ -17,7 +17,8 @@ body without the request envelope (`member_id`, `days`, `from`, `to`, which the 
   flags ["rapid_loss"], numbers_hidden, pending_clinician_review.
 kg and pct are rounded to 2 dp half-up and written as JSON numbers. `y` is `shape()` over the
 weigh-ins and the trend values together, so the dots and the line share one scale. Under
-`hide_all` every kg, the rate and the target are null; `y` and the projection date are kept.
+`hide_all` every kg, the rate and the target are null; `y` is kept; the projection date is null too, so no digits show (spec e2e 7), while
+`projection_reason` stays.
 Dumped with sorted keys, 2-space indent and a trailing newline.
 
 Review every change with nutrition-safety-reviewer before committing: never hand-edit an
@@ -91,7 +92,7 @@ def expected_for(case: dict) -> dict:
         },
         "projection": None
         if reason != "ready"
-        else {"target_kg": _kg(target, hidden), "date": when.isoformat()},
+        else {"target_kg": _kg(target, hidden), "date": None if hidden else when.isoformat()},
         "projection_reason": reason,
         "flags": ["rapid_loss"] if wt.rapid_loss(result) else [],
         "numbers_hidden": hidden,

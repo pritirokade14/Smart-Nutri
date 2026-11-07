@@ -1926,7 +1926,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodologyFoodDataBody =>
-      'Packaged-food values come from the label. Generic foods come from USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov), which is in the public domain. Household measures such as the katori, spoon and cup follow the ICMR-NIN Dietary Guidelines for Indians 2024 (Annexure I); where a measure has no published weight we say so instead of guessing. Indian dishes are calculated by SmartNutri from their ingredients and are pending dietitian review. Information, not medical advice.';
+      'Packaged-food values come from the label. Generic foods come from USDA FoodData Central (U.S. Department of Agriculture, Agricultural Research Service. FoodData Central. fdc.nal.usda.gov), which is in the public domain. Katori sizes follow the ICMR-NIN Dietary Guidelines for Indians 2024 (Annexure I). Some cup-based conversions are derived from USDA cup weights and are marked approximate. Glass and other values are our own reference set, pending dietitian review. Where a value is not known, we leave it unknown and never guess. Indian dishes are calculated by SmartNutri from their ingredients and are pending dietitian review. Information, not medical advice.';
 
   @override
   String get methodologyFoodDataTitle => 'Food data and household measures';

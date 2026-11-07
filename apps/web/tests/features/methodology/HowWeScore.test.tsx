@@ -58,6 +58,17 @@ const sectionTitle = (id: string) =>
   (en.methodology.section as Record<string, { title: string }>)[id]?.title;
 
 describe("HowWeScore", () => {
+  it("explains the food data and household measures", () => {
+    show(FIXTURE);
+    const card = screen.getByTestId("methodology-food_data");
+    expect(
+      within(card).getByRole("heading", {
+        name: en.methodology.food_data.title,
+      }),
+    ).toBeTruthy();
+    expect(card.textContent).toContain(en.methodology.food_data.body);
+  });
+
   it("renders every rule from fixture with its threshold and the pending-review banner", () => {
     show(FIXTURE);
     expect(

@@ -8,8 +8,11 @@ import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/observability/analytics.dart';
 import '../../../core/theme/tokens.g.dart';
-import '../../../shared/widgets/off_attribution.dart';
+import '../../../shared/widgets/source_attribution.dart';
 import '../../../shared/widgets/states.dart';
+import '../../foods/domain/unit_label.dart';
+import '../../foods/presentation/food_search_view.dart';
+import '../../foods/presentation/portion_picker_sheet.dart';
 import '../../meals/data/meals_repository.dart';
 import '../../meals/domain/meal_draft.dart';
 import '../../meals/presentation/meals_providers.dart';
@@ -20,7 +23,7 @@ import 'diary_providers.dart';
 import 'quick_add_form.dart';
 
 /// Where the sheet sends the user next: the existing flows.
-enum AddFoodNext { search, barcode, label }
+enum AddFoodNext { barcode, label }
 
 enum _Segment { recent, search, barcode, label, quick }
 
@@ -85,6 +88,53 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
   /// picks one).
   String? _slot(MealSlotsOut? slots) =>
       _picked ?? widget.slotId ?? slots?.suggestedSlotId;
+
+  /// Opens the portion picker for a search hit; a saved choice closes the
+  /// sheet like any other log.
+  Future<void> _pick(FoodHit hit, String? slotId) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    final kind = switch (hit.kind) {
+      FoodHitKind.food => FoodKindPath.food,
+      FoodHitKind.product => FoodKindPath.product,
+      _ => FoodKindPath.off,
+    };
+    final result = await showPortionPicker(
+      context,
+      food: (kind: kind, id: hit.id),
+      name: hit.name,
+      memberId: widget.day.memberId,
+      slotId: slotId,
+      onSave: (c) => logDiaryEntry(
+        ref,
+        MealDraft(
+          memberId: widget.day.memberId,
+          foodId: kind == FoodKindPath.food ? hit.id : null,
+          productId: kind == FoodKindPath.product ? hit.id : null,
+          barcode: kind == FoodKindPath.off ? hit.id : null,
+          quantity: c.quantity,
+          unit: c.unit,
+          eatenAt: DateTime.now().toUtc(),
+          mealSlotId: c.slotId,
+          localDate: _localDate,
+          displayName: hit.name,
+        ),
+        'search',
+      ),
+    );
+    if (result == null) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          result is MealLogged
+              ? l10n.mealsLogSavedYou
+              : l10n.mealsQueuedOffline,
+        ),
+      ),
+    );
+    if (mounted) nav.pop();
+  }
 
   Future<void> _log(MealDraft draft, String method) async {
     final l10n = AppLocalizations.of(context);
@@ -186,6 +236,11 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
                 child: InlineErrorBanner(message: _error!),
               ),
             if (_segment == _Segment.recent) _recents(slotId),
+            if (_segment == _Segment.search)
+              FoodSearchView(
+                enabled: !_busy,
+                onPick: (hit) => _pick(hit, slotId),
+              ),
             if (_segment == _Segment.quick)
               QuickAddForm(
                 busy: _busy,
@@ -214,13 +269,12 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
 
   void _onSegment(_Segment seg, String? slotId) {
     switch (seg) {
-      case _Segment.search:
-        _leave(AddFoodNext.search, 'search', slotId);
       case _Segment.barcode:
         _leave(AddFoodNext.barcode, 'barcode', slotId);
       case _Segment.label:
         _leave(AddFoodNext.label, 'label', slotId);
       case _Segment.recent:
+      case _Segment.search:
       case _Segment.quick:
         setState(() => _segment = seg);
     }
@@ -256,7 +310,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
               for (final r in items)
                 ListTile(
                   key: AddFoodSheet.recentKey(
-                    r.productId ?? r.barcode ?? r.name,
+                    r.foodId ?? r.productId ?? r.barcode ?? r.name,
                   ),
                   contentPadding: EdgeInsets.zero,
                   enabled: !_busy,
@@ -264,27 +318,57 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l10n.diaryGramsLine(formatForDisplay(r.grams))),
-                      if (r.attribution != null && r.barcode != null)
-                        OffAttribution(barcode: r.barcode!),
+                      Text(_recentPortion(l10n, r)),
+                      SourceAttribution(
+                        keys: recentAttributions(r),
+                        offBarcode: r.barcode,
+                      ),
                     ],
                   ),
-                  onTap: () => _log(
-                    MealDraft(
-                      memberId: widget.day.memberId,
-                      productId: r.productId,
-                      barcode: r.productId == null ? r.barcode : null,
-                      grams: r.grams,
-                      eatenAt: DateTime.now().toUtc(),
-                      mealSlotId: slotId,
-                      localDate: _localDate,
-                      displayName: r.name,
-                    ),
-                    'recent',
-                  ),
+                  onTap: () => _log(_recentDraft(r, slotId), 'recent'),
                 ),
             ],
           ),
         );
   }
+
+  /// A recent logs again what was last eaten: its quantity and unit, or the
+  /// grams for a row logged before household units.
+  MealDraft _recentDraft(RecentItem r, String? slotId) {
+    final byUnit = r.unit != null && r.quantity != null;
+    return MealDraft(
+      memberId: widget.day.memberId,
+      foodId: r.foodId,
+      productId: r.foodId == null ? r.productId : null,
+      barcode: r.foodId == null && r.productId == null ? r.barcode : null,
+      grams: byUnit ? null : r.grams,
+      quantity: byUnit ? r.quantity : null,
+      unit: byUnit ? r.unit : null,
+      eatenAt: DateTime.now().toUtc(),
+      mealSlotId: slotId,
+      localDate: _localDate,
+      displayName: r.name,
+    );
+  }
+
+  String _recentPortion(AppLocalizations l10n, RecentItem r) {
+    final unit = r.unit;
+    final quantity = r.quantity;
+    if (unit == null || quantity == null) {
+      return l10n.diaryGramsLine(formatForDisplay(r.grams));
+    }
+    return l10n.diaryPortionLine(
+      formatForDisplay(r.grams),
+      formatForDisplay(quantity),
+      unitLabel(l10n, unit, quantity),
+    );
+  }
+}
+
+/// The credit keys of a recent: its own list, else Open Food Facts when only
+/// the older single `attribution` is set.
+List<String> recentAttributions(RecentItem r) {
+  final list = r.attributions;
+  if (list != null && list.isNotEmpty) return list;
+  return r.attribution != null ? const [SourceAttribution.offKey] : const [];
 }

@@ -201,7 +201,7 @@ EXPECTED_CASES = {
     "three_constant", "gap_calendar_days", "single_outlier", "step_change_two_in_a_row",
     "too_few_for_rate", "weekly_rate_loss", "rapid_loss_three_weeks", "projection_ready",
     "projection_too_few", "projection_moving_away", "projection_too_far", "projection_reached",
-    "no_target", "hide_all",
+    "no_target", "hide_all", "rate_after_gap", "projection_after_gap",
 }  # fmt: skip
 
 
@@ -233,6 +233,13 @@ def test_fixture_hand_checked_goldens():
     assert all(t["trend_kg"] is None and t["y"] is not None for t in hidden["trend"])
     assert hidden["weekly_rate"] is None
     assert hidden["projection"]["target_kg"] is None
+    assert hidden["projection"]["date"] is None  # no digits under hide_all
+    assert hidden["projection_reason"] == "ready"
+    # after a gap the rate uses the days that really passed (26 days here), not one week
+    gap_rate = _expected("rate_after_gap")["weekly_rate"]
+    assert gap_rate == {"kg": -0.52, "pct_bw": -0.66}
+    late = _expected("projection_after_gap")
+    assert late["weekly_rate"]["kg"] == -0.17 and late["projection"]["date"] == "2026-07-26"
     assert _expected("too_few_for_rate")["weekly_rate"] is None
     assert _expected("rapid_loss_three_weeks")["flags"] == ["rapid_loss"]
     assert _expected("three_constant")["flags"] == []

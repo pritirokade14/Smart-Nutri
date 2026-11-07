@@ -163,6 +163,22 @@ export function MethodologyView({ data }: { data: Methodology }) {
       {data.sections.map((s) => (
         <SectionCard key={s.id} section={s} sources={sources} />
       ))}
+      <Card
+        as="section"
+        data-testid="methodology-food_data"
+        aria-labelledby="m-food_data"
+        className="space-y-3"
+      >
+        <h2
+          id="m-food_data"
+          className="text-lg font-semibold text-text-primary"
+        >
+          {t("methodology.food_data.title")}
+        </h2>
+        <p className="text-md text-text-primary">
+          {t("methodology.food_data.body")}
+        </p>
+      </Card>
       <section aria-labelledby="sources-title" className="space-y-3">
         <h2
           id="sources-title"

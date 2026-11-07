@@ -92,7 +92,9 @@ async def search_foods(
     items: list[FoodHit] = []
     if SearchKind.FOOD in kinds:
         rows = await session.scalars(
-            select(Food).where(Food.search_text.ilike(_like(query), escape="\\"))
+            select(Food).where(
+                Food.search_text.ilike(_like(query), escape="\\"), Food.review_status != "retired"
+            )
         )
         ranked = sorted(
             rows, key=lambda f: (rank(query, f.name_en, f.search_text), len(f.name_en), f.name_en)

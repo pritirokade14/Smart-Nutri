@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smartnutri_api/src/export.dart';
 
 import '../../support/fake_diary.dart';
+import '../../support/fake_foods.dart';
 import '../../support/fake_meals.dart';
 import '../../support/fake_members.dart';
 import '../../support/fake_targets.dart';
@@ -28,9 +29,11 @@ class DiaryEnv {
     GoalSettingsOut? settings,
     List<MealSlotOut>? slots,
     FakeMealsClient? meals,
+    FakeFoodsClient? foods,
   }) : diary = FakeDiaryClient(day: day, week: week),
        slots = FakeMealSlotsClient(items: slots),
-       meals = meals ?? FakeMealsClient() {
+       meals = meals ?? FakeMealsClient(),
+       foods = foods ?? FakeFoodsClient() {
     this.targets = FakeTargetsClient(
       today: targets,
       settings: settings ?? goalSettingsOut(activity: 'moderate'),
@@ -40,6 +43,7 @@ class DiaryEnv {
   final FakeDiaryClient diary;
   final FakeMealSlotsClient slots;
   final FakeMealsClient meals;
+  final FakeFoodsClient foods;
   final queue = MemoryMealQueue();
   late final FakeTargetsClient targets;
 
@@ -64,6 +68,7 @@ class DiaryEnv {
     targets: targets,
     diary: diary,
     mealSlots: slots,
+    foods: foods,
   );
 }
 

@@ -60,6 +60,17 @@ class PendingMeals extends Table {
   /// The name shown on the pending row (a product name or a quick-add name).
   /// User text: never sent to analytics.
   TextColumn get displayName => text().nullable()();
+
+  // Queue schema v3 (Plan 12 slice 3). A generic food or dish and a
+  // household-unit portion; rows queued by older apps have none of these.
+
+  /// A generic food or Indian dish (`foods.id`).
+  TextColumn get foodId => text().nullable()();
+
+  /// A household-unit portion: [quantity] of [unit] (a unit code), instead
+  /// of [grams] and [servings]. The API converts it.
+  RealColumn get quantity => real().nullable()();
+  TextColumn get unit => text().nullable()();
   IntColumn get attempts => integer().withDefault(const Constant(0))();
   TextColumn get lastError => text().nullable()();
 
@@ -76,7 +87,7 @@ class MealQueueDatabase extends _$MealQueueDatabase {
       MealQueueDatabase(driftDatabase(name: 'smartnutri_meal_queue'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -92,6 +103,11 @@ class MealQueueDatabase extends _$MealQueueDatabase {
         await m.addColumn(pendingMeals, pendingMeals.quickCarbsG);
         await m.addColumn(pendingMeals, pendingMeals.quickFibreG);
         await m.addColumn(pendingMeals, pendingMeals.displayName);
+      }
+      if (from < 3) {
+        await m.addColumn(pendingMeals, pendingMeals.foodId);
+        await m.addColumn(pendingMeals, pendingMeals.quantity);
+        await m.addColumn(pendingMeals, pendingMeals.unit);
       }
     },
   );
