@@ -1,0 +1,59 @@
+{
+  "flags": [],
+  "numbers_hidden": false,
+  "pending_clinician_review": true,
+  "points": [
+    {
+      "date": "2026-01-01",
+      "outlier": false,
+      "weight_kg": 80.0,
+      "y": 1.0
+    },
+    {
+      "date": "2026-01-02",
+      "outlier": false,
+      "weight_kg": 80.0,
+      "y": 1.0
+    },
+    {
+      "date": "2026-01-03",
+      "outlier": false,
+      "weight_kg": 80.0,
+      "y": 1.0
+    },
+    {
+      "date": "2026-01-10",
+      "outlier": false,
+      "weight_kg": 79.0,
+      "y": 0.0
+    }
+  ],
+  "projection": null,
+  "projection_reason": "no_target",
+  "trend": [
+    {
+      "date": "2026-01-01",
+      "trend_kg": 80.0,
+      "y": 1.0
+    },
+    {
+      "date": "2026-01-02",
+      "trend_kg": 80.0,
+      "y": 1.0
+    },
+    {
+      "date": "2026-01-03",
+      "trend_kg": 80.0,
+      "y": 1.0
+    },
+    {
+      "date": "2026-01-10",
+      "trend_kg": 79.13,
+      "y": 0.13
+    }
+  ],
+  "weekly_rate": {
+    "kg": -0.87,
+    "pct_bw": -1.1
+  }
+}

@@ -191,6 +191,15 @@ The protein g/kg per goal moved from `thresholds.yaml` to `apps/api/app/scoring/
 - **Cases:** `day_complete_under`, `day_over_energy`, `day_incomplete_energy`, `day_quick_add_kcal_only`, `day_empty`, `day_no_target`, `day_consent_required`, `day_paused_pregnancy`, `day_hide_energy`, `day_hide_all`, `day_half_up`, `day_archived_slot`, `week_mixed`, `week_hide_all`.
 - Clients render these numbers and never compute a total, a remaining value, a progress fraction, a date or a default slot.
 
+## Weight trend (Plan 12: `weights/`)
+
+`weights/inputs/<stem>.json` is hand-written; `weights/expected/<stem>.json` is **generated** by `apps/api/scripts/generate_weight_expectations.py` from the real maths (`app/scoring/weight_trend.py`), then dumped with sorted keys, 2-space indent and a trailing newline. Run it from `apps/api`: `uv run python scripts/generate_weight_expectations.py` checks (exit 1 if stale), `--write` updates. `apps/api/tests/unit/scoring/test_weight_trend.py` fails when an expected file is stale and pins the hand-worked numbers. Review every change with `nutrition-safety-reviewer`; never edit an expected file by hand.
+
+- **Input:** `{"weigh_ins": [{"date", "weight_kg"}], "target_kg": number | null, "numbers_display": "show" | "hide_energy" | "hide_all"}`. The full history, oldest first.
+- **Expected:** the `WeightTrendOut` body without the request envelope (`member_id`, `days`, `from`, `to`): `points[{date, weight_kg, outlier, y}]`, `trend[{date, trend_kg, y}]`, `weekly_rate {kg, pct_bw} | null`, `projection {target_kg, date} | null`, `projection_reason`, `flags`, `numbers_hidden`, `pending_clinician_review`. kg and pct are 2 dp half-up. `y` is `(v - min) / (max - min)` (2 dp half-up, 0.5 when all are equal) over the weigh-ins and the trend values together. Under `hide_all` every kg, the rate and the target are null and `y` is kept.
+- **Cases:** `three_constant`, `gap_calendar_days`, `single_outlier`, `step_change_two_in_a_row`, `too_few_for_rate`, `weekly_rate_loss`, `rapid_loss_three_weeks`, `projection_{ready,too_few,moving_away,too_far,reached}`, `no_target`, `hide_all`.
+- **Clients** never compute the trend. They may use these files to test that they render the API's JSON, including the hollow outlier points and the null kg under `hide_all`.
+
 ## How each project uses them
 
 | Project | Test |

@@ -166,7 +166,25 @@ def target_unit_of(path: tuple[str, ...]) -> str:
     if head == "rounding":
         return "kcal" if leaf == "kcal_step" else "g"
     if head == "plausible":
+        if leaf == "weight_change_kg_per_day":
+            return "kg per day"
         return "cm" if p[1] == "height_cm" else "kg"
+    if head == "trend":
+        return {
+            "min_weigh_ins_for_trend": "weigh-ins",
+            "alpha_per_day": "smoothing weight per day (0 to 1)",
+            "outlier_pct_from_trend": "% of trend weight",
+            "min_weigh_ins_for_rate": "weigh-ins",
+            "rate_window_days": "days",
+        }[leaf]
+    if head == "projection":
+        return {
+            "min_weigh_ins": "weigh-ins",
+            "min_span_days": "days",
+            "max_horizon_days": "days",
+        }[leaf]
+    if head == "safety":
+        return "% of body weight per week" if "pct" in leaf else "weekly check-ins in a row"
     return ""
 
 
@@ -331,6 +349,9 @@ KEY_SOURCES: dict[tuple[str, ...], tuple[list[str], list[str]]] = {
     ("targets", "minors"): ([_SMARTNUTRI], ["who_protein_2007"]),
     ("targets", "rounding"): ([_SMARTNUTRI], []),
     ("targets", "plausible"): ([_SMARTNUTRI], []),
+    ("targets", "trend"): ([_SMARTNUTRI], []),
+    ("targets", "projection"): ([_SMARTNUTRI], []),
+    ("targets", "safety"): ([_SMARTNUTRI], ["cdc_weight_loss"]),
 }
 
 
