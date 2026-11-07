@@ -7,7 +7,13 @@ import { Dialog } from "@/components/ui/Dialog";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { InfoIcon } from "@/components/ui/icons";
 import { LoadingState } from "@/components/ui/Skeleton";
+import type { FoodHit } from "@/features/foods/api/foods";
+import { FoodSearch } from "@/features/foods/components/FoodSearch";
+import { PortionPicker } from "@/features/foods/components/PortionPicker";
+import { SourceCredit } from "@/features/foods/components/SourceCredit";
+import { unitLabel } from "@/features/foods/lib/unitLabel";
 import { formatAmount } from "@/features/history/lib/summary";
+import type { MealIn } from "@/features/meals/api/meals";
 import { useLogMeal } from "@/features/meals/hooks/useMeals";
 import { errorKey } from "@/features/members/components/ConsentDialog";
 import { track } from "@/lib/analytics";
@@ -20,7 +26,14 @@ import { type DiaryAddMethod, setDiaryAddContext } from "../lib/addContext";
 import { slotLabel } from "../lib/slotLabel";
 import { QuickAddForm } from "./QuickAddForm";
 
-type Segment = "recent" | "quick";
+type Segment = "recent" | "search" | "quick";
+
+const recentCredits = (r: RecentItem): string[] =>
+  r.attributions && r.attributions.length > 0
+    ? r.attributions
+    : r.attribution
+      ? [r.attribution]
+      : [];
 
 /** Chips for the member's slots; hidden until the list loads. */
 export function SlotChips({
@@ -96,6 +109,7 @@ export function AddFoodPanel({
   const slots = useMealSlots();
   const [picked, setPicked] = useState<string | null>(null);
   const [segment, setSegment] = useState<Segment>("recent");
+  const [hit, setHit] = useState<FoodHit | null>(null);
   const chosen = picked ?? slotId ?? slots.data?.suggested_slot_id ?? null;
   const loaded = slots.data !== undefined && chosen !== null;
   const recents = useRecents(loaded ? (chosen ?? undefined) : undefined);
@@ -107,10 +121,18 @@ export function AddFoodPanel({
     clientId.current ??= crypto.randomUUID();
     log.mutate(
       {
-        ...(item.product_id
-          ? { product_id: item.product_id }
-          : { barcode: item.barcode }),
-        grams: item.grams,
+        ...(item.food_id
+          ? { food_id: item.food_id }
+          : item.product_id
+            ? { product_id: item.product_id }
+            : { barcode: item.barcode }),
+        // The last portion as it was logged: its unit, else grams (a legacy row).
+        ...(item.quantity != null && item.unit
+          ? {
+              quantity: item.quantity,
+              unit: item.unit as NonNullable<MealIn["unit"]>,
+            }
+          : { grams: item.grams }),
         ...(loaded && chosen ? { meal_slot_id: chosen } : {}),
         ...(localDate ? { local_date: localDate } : {}),
         client_id: clientId.current,
@@ -161,7 +183,7 @@ export function AddFoodPanel({
         />
       ) : null}
       <div className="flex flex-wrap gap-2" role="tablist">
-        {(["recent", "quick"] as const).map((s) => (
+        {(["recent", "search", "quick"] as const).map((s) => (
           <button
             key={s}
             type="button"
@@ -175,18 +197,15 @@ export function AddFoodPanel({
                 : "bg-surface-muted text-text-primary",
             )}
           >
-            {s === "recent" ? t("foods.recent") : t("foods.quick_add")}
+            {s === "recent"
+              ? t("foods.recent")
+              : s === "search"
+                ? t("search.title")
+                : t("foods.quick_add")}
           </button>
         ))}
       </div>
       <div className="flex flex-wrap gap-2" data-testid="add-food-links">
-        <a
-          href={`/${locale}/search`}
-          onClick={() => leave("search")}
-          className={buttonClass({ variant: "outline", size: "sm" })}
-        >
-          {t("search.title")}
-        </a>
         <a
           href={`/${locale}/scan`}
           onClick={() => leave("barcode")}
@@ -202,7 +221,19 @@ export function AddFoodPanel({
           {t("label.title")}
         </a>
       </div>
-      {segment === "quick" ? (
+      {segment === "search" ? (
+        hit ? (
+          <PortionPicker
+            hit={hit}
+            slotId={loaded ? chosen : null}
+            localDate={localDate}
+            onLogged={done}
+            onCancel={() => setHit(null)}
+          />
+        ) : (
+          <FoodSearch onPick={setHit} />
+        )
+      ) : segment === "quick" ? (
         <QuickAddForm
           slotId={loaded ? chosen : null}
           localDate={localDate}
@@ -219,7 +250,7 @@ export function AddFoodPanel({
       ) : (
         <ul className="divide-y divide-border-default" data-testid="recents">
           {(recents.data?.items ?? []).map((r) => (
-            <li key={`${r.product_id ?? r.barcode}`}>
+            <li key={`${r.food_id ?? r.product_id ?? r.barcode}`}>
               <button
                 type="button"
                 data-testid="recent-item"
@@ -229,9 +260,12 @@ export function AddFoodPanel({
               >
                 <span className="min-w-0 text-md font-medium break-words text-text-primary">
                   {r.name}
+                  <SourceCredit keys={recentCredits(r)} />
                 </span>
                 <span className="shrink-0 text-sm text-text-secondary">
-                  {t("diary.grams_line", { grams: formatAmount(r.grams) })}
+                  {r.quantity != null && r.unit
+                    ? `${formatAmount(r.quantity)} ${unitLabel((k, v) => t(k as never, v as never), r.unit, r.quantity)}`
+                    : t("diary.grams_line", { grams: formatAmount(r.grams) })}
                 </span>
               </button>
             </li>

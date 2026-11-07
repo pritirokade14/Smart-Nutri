@@ -304,6 +304,87 @@ function setActive(b) {
 // "unknown" and the limits are the week_family fixture's, as served.
 
 const SF = read("responses/analyze/sf_biscuit.json").product;
+// ---- Foods (Plan 12 slice 3): per-100 numbers and unit weights come from the
+// shared units/conversions.json fixture; the stub only serves them.
+const UNIT_CASES = read("units/conversions.json").cases;
+const unitCase = (name) => UNIT_CASES.find((c) => c.case === name);
+const ROTI_ID = "f0000000-0000-4000-8000-000000000002";
+const DAL_ID = "f0000000-0000-4000-8000-000000000001";
+const massUnit = {
+  code: "g",
+  kind: "mass",
+  ml: null,
+  grams_per_unit: 1,
+  source: "mass",
+  user_override: false,
+};
+const FOODS = {
+  [`product:${ROTI_ID}`]: {
+    kind: "product",
+    id: ROTI_ID,
+    name: "Whole wheat roti",
+    brand: "Acme",
+    basis: "g",
+    per_100: unitCase("two_packaged_roti").per_100,
+    units: [
+      massUnit,
+      {
+        code: "roti",
+        kind: "count",
+        ml: null,
+        grams_per_unit: 68,
+        source: "portion_global",
+        user_override: false,
+      },
+    ],
+    default_unit: "roti",
+    settable_units: [],
+    serving_g: null,
+    attribution: null,
+    attributions: [],
+    licence: null,
+    dish: null,
+    review_pending: false,
+  },
+  [`food:${DAL_ID}`]: {
+    kind: "food",
+    id: DAL_ID,
+    name: "Toor dal, cooked",
+    brand: null,
+    basis: "g",
+    per_100: unitCase("katori_cooked_dal").per_100,
+    units: [
+      massUnit,
+      {
+        code: "katori",
+        kind: "volume",
+        ml: 200,
+        grams_per_unit: 142,
+        source: "density",
+        user_override: false,
+      },
+    ],
+    default_unit: "katori",
+    settable_units: [],
+    serving_g: null,
+    attribution: "attribution.usda_fdc",
+    attributions: ["attribution.usda_fdc"],
+    licence: null,
+    dish: null,
+    review_pending: true,
+  },
+};
+const foodHit = (f) => ({
+  kind: f.kind,
+  id: f.id,
+  name: f.name,
+  brand: f.brand,
+  group: f.kind === "food" ? "indian" : "packaged",
+  is_dish: false,
+  grade: null,
+  attribution: f.attribution,
+  attributions: f.attributions,
+});
 const WEEK = read("meals/expected/week_family.dad_diabetic.json");
 const IST_MS = 330 * 60_000;
 const istDate = (iso) =>
@@ -438,6 +519,35 @@ function logMeal(b) {
         NUTRIENTS.map((k) => [k, b.quick[k] ?? null]),
       ),
     };
+  } else if (b.food_id || b.product_id === ROTI_ID) {
+    const f = b.food_id
+      ? FOODS[`food:${b.food_id}`]
+      : FOODS[`product:${b.product_id}`];
+    if (!f) return [404, envelope("food_not_found")];
+    const u = f.units.find((x) => x.code === b.unit);
+    if (!(b.quantity > 0) || !u) return [422, envelope("unit_grams_unknown")];
+    const grams = round1(b.quantity * u.grams_per_unit);
+    meal = {
+      ...base,
+      product_id: b.food_id ? null : f.id,
+      food_id: b.food_id ?? null,
+      barcode: null,
+      product_name: f.name,
+      grade: null,
+      grams,
+      quantity: b.quantity,
+      unit: b.unit,
+      basis: f.basis,
+      source_kind: b.food_id ? "food" : "product",
+      attribution: null,
+      attributions: f.attributions,
+      portion_units: f.units.map((x) => ({
+        code: x.code,
+        grams_per_unit: x.grams_per_unit,
+      })),
+      nutrients: scaled(f.per_100, grams),
+      _per100: f.per_100,
+    };
   } else {
     if (b.product_id !== SF.product_id)
       return [404, envelope("product_not_found")];
@@ -466,10 +576,23 @@ const istClock = (iso) =>
 function patchMeal(id, b) {
   const m = state.meals.find((x) => x.id === id);
   if (!m) return [404, envelope("meal_not_found")];
-  const set = ["grams", "servings", "meal_slot_id", "eaten_at", "quick"].filter(
-    (k) => b[k] != null,
-  );
+  const set = [
+    "grams",
+    "servings",
+    "quantity",
+    "meal_slot_id",
+    "eaten_at",
+    "quick",
+  ].filter((k) => b[k] != null);
   if (!set.length) return [422, envelope("validation_error")];
+  if (b.quantity != null) {
+    const u = (m.portion_units ?? []).find((x) => x.code === b.unit);
+    if (!u) return [422, envelope("unit_grams_unknown")];
+    m.quantity = b.quantity;
+    m.unit = b.unit;
+    m.grams = round1(b.quantity * u.grams_per_unit);
+    m.nutrients = scaled(m._per100, m.grams);
+  }
   if (b.grams != null) {
     if (m.source_kind === "quick_add")
       return [422, envelope("validation_error")];
@@ -794,11 +917,17 @@ function diaryRecents() {
   const seen = new Set();
   const items = [];
   for (const m of [...state.meals].reverse()) {
-    if (m.source_kind !== "product" || seen.has(m.product_id)) continue;
-    seen.add(m.product_id);
+    if (m.source_kind === "quick_add") continue;
+    const ref = m.food_id ?? m.product_id;
+    if (seen.has(ref)) continue;
+    seen.add(ref);
     items.push({
-      source_kind: "product",
+      source_kind: m.source_kind,
       product_id: m.product_id,
+      food_id: m.food_id ?? null,
+      quantity: m.quantity ?? null,
+      unit: m.unit ?? null,
+      attributions: m.attributions ?? [],
       barcode: null,
       name: m.product_name,
       grade: m.grade,
@@ -1091,6 +1220,7 @@ function route(method, path, b, q = new URLSearchParams()) {
   // The meals routes share the terms gate (ruling G1).
   if (
     (path.startsWith("/v1/meals") ||
+      path.startsWith("/v1/foods") ||
       path.startsWith("/v1/diary") ||
       path.startsWith("/v1/meal-slots")) &&
     termsMissing()
@@ -1112,6 +1242,39 @@ function route(method, path, b, q = new URLSearchParams()) {
   if (path.startsWith("/v1/meal-slots/") || path === "/v1/meal-slots") {
     const slotRoute = mealSlotRoute(method, path, b);
     if (slotRoute) return slotRoute;
+  }
+  if (method === "GET" && path === "/v1/foods/search") {
+    const needle = (q.get("q") ?? "").trim().toLowerCase();
+    const items =
+      needle.length < 2
+        ? null
+        : Object.values(FOODS)
+            .filter((f) => f.name.toLowerCase().includes(needle))
+            .map(foodHit);
+    if (items === null) return [422, envelope("search_query_too_short")];
+    return [200, { items, partial: false, failed_sources: [] }];
+  }
+  const foodGet = path.match(
+    /^\/v1\/foods\/(food|product|off)\/([0-9a-f-]{36})$/,
+  );
+  if (foodGet && method === "GET") {
+    const f = FOODS[`${foodGet[1]}:${foodGet[2]}`];
+    if (!f) return [404, envelope("food_not_found")];
+    const d = display();
+    const hidden = { energy: d !== "show", macros: d === "hide_all" };
+    return [
+      200,
+      {
+        ...f,
+        per_100: Object.fromEntries(
+          Object.entries(f.per_100).map(([k, v]) => [
+            k,
+            (k === "energy_kcal" ? hidden.energy : hidden.macros) ? null : v,
+          ]),
+        ),
+        numbers_hidden: hidden,
+      },
+    ];
   }
   if (method === "GET" && path === "/v1/diary/day")
     return diaryDayOut(q.get("date"));

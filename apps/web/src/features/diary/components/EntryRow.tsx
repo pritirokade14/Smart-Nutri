@@ -2,6 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { chipClass } from "@/components/ui/Chip";
+import { SourceCredit } from "@/features/foods/components/SourceCredit";
+import { unitLabel } from "@/features/foods/lib/unitLabel";
 import { formatAmount } from "@/features/history/lib/summary";
 import type { MealOut } from "../api/diary";
 
@@ -24,6 +26,35 @@ export function EntryRow({
       ? t("diary.quick_add_name")
       : entry.product_name;
   const kcal = entry.nutrients.energy_kcal;
+  // "2 roti · 136 g" (or ml) as the API saved it; else the older grams line.
+  const portion =
+    entry.unit &&
+    entry.unit !== "g" &&
+    entry.quantity != null &&
+    entry.grams != null
+      ? t(
+          entry.basis === "ml" ? "diary.portion_line_ml" : "diary.portion_line",
+          {
+            quantity: String(entry.quantity),
+            unit: unitLabel(
+              (k, v) => t(k as never, v as never),
+              entry.unit,
+              entry.quantity,
+            ),
+            ...(entry.basis === "ml"
+              ? { amount: String(entry.grams) }
+              : { grams: String(entry.grams) }),
+          },
+        )
+      : entry.grams != null
+        ? t("diary.grams_line", { grams: formatAmount(entry.grams) })
+        : null;
+  const credits =
+    entry.attributions && entry.attributions.length > 0
+      ? entry.attributions
+      : entry.attribution
+        ? [entry.attribution]
+        : [];
   return (
     <li data-testid="entry-row">
       <button
@@ -42,12 +73,13 @@ export function EntryRow({
                 {t("diary.quick_badge")}
               </span>
             ) : null}
-            {entry.grams != null ? (
+            {portion ? (
               <span data-testid="entry-portion" data-allow-digits>
-                {t("diary.grams_line", { grams: formatAmount(entry.grams) })}
+                {portion}
               </span>
             ) : null}
           </span>
+          <SourceCredit keys={credits} />
         </span>
         <span className="flex flex-wrap items-center gap-2 text-md text-text-primary">
           {kcal !== null ? (
