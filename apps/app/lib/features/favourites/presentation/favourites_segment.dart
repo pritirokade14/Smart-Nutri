@@ -9,6 +9,7 @@ import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/source_attribution.dart';
 import '../../../shared/widgets/states.dart';
 import '../../foods/data/foods_repository.dart';
+import '../../foods/domain/portion_line.dart';
 import '../../foods/domain/unit_label.dart';
 import '../../scan/domain/number_text.dart';
 import 'favourite_star.dart';
@@ -114,18 +115,33 @@ class FavouritesSegment extends ConsumerWidget {
     );
   }
 
-  Widget _meal(BuildContext context, AppLocalizations l10n, FavouriteOut f) =>
-      ListTile(
-        key: rowKey(f.id),
-        contentPadding: EdgeInsets.zero,
-        enabled: enabled,
-        // User text: shown exactly as typed, never translated.
-        title: Text(f.name),
-        subtitle: Text(l10n.favouritesMealItems(f.itemCount)),
-        trailing: TextButton(
-          key: logAgainKey(f.id),
-          onPressed: enabled ? () => onLogMeal(f) : null,
-          child: Text(l10n.favouritesLogAgain),
-        ),
-      );
+  Widget _meal(
+    BuildContext context,
+    AppLocalizations l10n,
+    FavouriteOut f,
+  ) => ListTile(
+    key: rowKey(f.id),
+    contentPadding: EdgeInsets.zero,
+    enabled: enabled,
+    // User text: shown exactly as typed, never translated.
+    title: Text(f.name),
+    subtitle: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.favouritesMealItems(f.itemCount)),
+        for (final i in f.items ?? const <FavouriteItemOut>[])
+          if (i.grams != null)
+            // Item names are stored data; the amount is in the item's
+            // own basis (ml for an ml food), as the API resolved it.
+            Text(
+              '${i.name ?? ''} · ${portionLine(l10n, amount: i.grams!, ml: i.basis == FavouriteItemOutBasis.ml, quantity: i.quantity, unit: i.unit)}',
+            ),
+      ],
+    ),
+    trailing: TextButton(
+      key: logAgainKey(f.id),
+      onPressed: enabled ? () => onLogMeal(f) : null,
+      child: Text(l10n.favouritesLogAgain),
+    ),
+  );
 }

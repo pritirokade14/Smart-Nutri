@@ -13,6 +13,7 @@ FavouriteOut favouriteOut({
   int itemCount = 1,
   List<String>? attributions,
   String? barcode,
+  List<FavouriteItemOut>? items,
 }) => FavouriteOut(
   barcode: barcode,
   createdAt: DateTime.utc(2026, 11, 6),
@@ -22,7 +23,7 @@ FavouriteOut favouriteOut({
   foodId: foodId,
   id: id,
   itemCount: itemCount,
-  items: null,
+  items: items,
   kind: kind,
   memberId: 'p1',
   name: name,

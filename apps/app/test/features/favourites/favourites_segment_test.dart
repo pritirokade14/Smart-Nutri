@@ -119,4 +119,41 @@ void main() {
     expect(find.byKey(FavouritesSegment.emptyKey), findsOneWidget);
     expect(find.text(en.favouritesEmpty), findsOneWidget);
   });
+
+  testWidgets('saved meal items show ml for an ml item, g otherwise', (
+    t,
+  ) async {
+    final env = _env(
+      favs: [
+        favouriteOut(
+          id: 'fm2',
+          name: 'Breakfast',
+          kind: FavouriteOutKind.meal,
+          itemCount: 2,
+          items: const [
+            FavouriteItemOut(
+              grams: 200,
+              name: 'Milk',
+              quantity: 1,
+              sourceKind: FavouriteItemOutSourceKind.food,
+              unit: 'glass',
+              basis: FavouriteItemOutBasis.ml,
+            ),
+            FavouriteItemOut(
+              grams: 40,
+              name: 'Oats',
+              quantity: 40,
+              sourceKind: FavouriteItemOutSourceKind.food,
+              unit: 'g',
+            ),
+          ],
+        ),
+      ],
+    );
+    await pumpDiary(t, env);
+    await _openFavourites(t);
+    expect(find.textContaining('200 ml'), findsOneWidget);
+    expect(find.textContaining('200 g'), findsNothing);
+    expect(find.textContaining('40 g'), findsOneWidget);
+  });
 }
