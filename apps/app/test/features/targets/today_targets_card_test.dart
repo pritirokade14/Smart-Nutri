@@ -106,6 +106,37 @@ void main() {
     expect(find.byKey(ConsentSheet.agreeKey), findsOneWidget);
   });
 
+  testWidgets('eye toggle stays and works after health_data is withdrawn', (
+    t,
+  ) async {
+    final targets = FakeTargetsClient(today: 'g1_build_muscle')
+      ..getError = apiError(403, 'consent_required')
+      ..settingsGetError = apiError(403, 'consent_required');
+    await _home(t, targets, consents: FakeConsentsClient(granted: {'terms'}));
+    expect(find.byKey(TodayTargetsCard.consentKey), findsOneWidget);
+    await _tap(t, EyeToggle.buttonKey);
+    expect(
+      targets.displays.single.numbersDisplay,
+      DisplayInNumbersDisplay.hideAll,
+    );
+    await _tap(t, EyeToggle.buttonKey);
+    expect(
+      targets.displays.last.numbersDisplay,
+      DisplayInNumbersDisplay.valueShow,
+    );
+  });
+
+  testWidgets('eye toggle 404 shows neutral copy, no crash', (t) async {
+    final targets = FakeTargetsClient(today: 'g1_build_muscle')
+      ..getError = apiError(403, 'consent_required')
+      ..settingsGetError = apiError(403, 'consent_required')
+      ..displayError = apiError(404, 'not_found');
+    await _home(t, targets, consents: FakeConsentsClient(granted: {'terms'}));
+    await _tap(t, EyeToggle.buttonKey);
+    expect(find.text(en.targetsIntroBody), findsOneWidget);
+    expect(t.takeException(), isNull);
+  });
+
   testWidgets('eye toggle hides every number in one tap', (t) async {
     final targets =
         FakeTargetsClient(

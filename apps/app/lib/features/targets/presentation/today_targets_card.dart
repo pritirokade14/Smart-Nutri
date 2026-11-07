@@ -40,7 +40,15 @@ class TodayTargetsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final targets = ref.watch(todayTargetsProvider);
-    final settings = ref.watch(goalSettingsProvider).value;
+    final settingsState = ref.watch(goalSettingsProvider);
+    final settings = settingsState.value;
+    // With health data withdrawn the settings cannot be read, but the eye
+    // toggle only needs the terms, so it stays.
+    final settingsErr = settingsState.error;
+    final consentLost =
+        (settingsErr is TargetsFailure && settingsErr.isConsentRequired) ||
+        (targets.error is TargetsFailure &&
+            (targets.error as TargetsFailure).isConsentRequired);
     final dismissed = ref.watch(todayTargetsDismissedProvider);
     if (dismissed && targets.value?.status == TargetsOutStatus.none) {
       return const SizedBox.shrink();
@@ -48,7 +56,9 @@ class TodayTargetsCard extends ConsumerWidget {
     return HomeCardFrame(
       title: l10n.homeCardsTodayTargetsTitle,
       icon: Icons.today_rounded,
-      trailing: settings == null ? null : EyeToggle(settings: settings),
+      trailing: settings == null && !consentLost
+          ? null
+          : EyeToggle(settings: settings),
       child: targets.when(
         loading: () => const LoadingSkeleton(lines: 3),
         error: (e, _) {

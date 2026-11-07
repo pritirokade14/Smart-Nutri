@@ -115,6 +115,7 @@ void main() {
     await _pump(t, ProteinProgress(summary: _summary(hidden: true)));
     expect(find.byKey(ProteinProgress.hiddenKey), findsOneWidget);
     expect(find.text(en.diaryHiddenNumbers), findsOneWidget);
+    expect(find.text(en.diaryDisclaimer), findsOneWidget);
     expect(find.text(en.summaryBandUnknown), findsNothing);
     expect(find.byKey(ProteinProgress.noTargetKey), findsNothing);
   });

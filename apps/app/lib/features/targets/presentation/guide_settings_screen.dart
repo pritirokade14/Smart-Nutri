@@ -37,6 +37,8 @@ class GuideSettingsScreen extends ConsumerWidget {
   static const resetConfirmKey = Key('guide-settings-reset-confirm');
   static const unusualKey = Key('guide-settings-unusual');
   static const errorKey = Key('guide-settings-error');
+  static const termsOnlyKey = Key('guide-settings-terms-only');
+  static const noteKey = Key('guide-settings-note');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,7 +51,16 @@ class GuideSettingsScreen extends ConsumerWidget {
     if (settings.hasError) {
       final e = settings.error;
       body = e is TargetsFailure && e.isConsentRequired
-          ? _ConsentNote(onGranted: () => ref.invalidate(goalSettingsProvider))
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _ConsentNote(
+                  onGranted: () => ref.invalidate(goalSettingsProvider),
+                ),
+                const SizedBox(height: SnTokens.space4),
+                const _TermsOnlyControls(),
+              ],
+            )
           : ErrorState(
               message: localizedErrorCode(
                 l10n,
@@ -115,6 +126,114 @@ class _ConsentNote extends StatelessWidget {
   }
 }
 
+/// The Numbers choice and Reset when `health_data` is withdrawn: both calls
+/// need only the terms, so they keep working. The stored value cannot be read
+/// then, so no option is preselected.
+class _TermsOnlyControls extends ConsumerStatefulWidget {
+  const _TermsOnlyControls();
+
+  @override
+  ConsumerState<_TermsOnlyControls> createState() => _TermsOnlyControlsState();
+}
+
+class _TermsOnlyControlsState extends ConsumerState<_TermsOnlyControls> {
+  String _value = '';
+  String? _note;
+  bool _error = false;
+
+  Future<void> _setNumbers(String value) async {
+    final l10n = AppLocalizations.of(context);
+    final previous = _value;
+    setState(() {
+      _value = value;
+      _note = null;
+      _error = false;
+    });
+    try {
+      await ref
+          .read(targetsRepositoryProvider)
+          .setDisplay(
+            DisplayIn(numbersDisplay: DisplayInNumbersDisplay.fromJson(value)),
+          );
+      if (mounted) refreshTargets(ref);
+    } on TargetsFailure catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _value = previous;
+        if (e.isNotFound) {
+          _note = l10n.targetsIntroBody;
+        } else {
+          _error = true;
+          _note = localizedErrorCode(l10n, e.code);
+        }
+      });
+    }
+  }
+
+  Future<void> _reset() async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: Text(l10n.settingsDiaryResetConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            key: GuideSettingsScreen.resetConfirmKey,
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.settingsDiaryReset),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await ref.read(targetsRepositoryProvider).reset();
+      if (mounted) refreshTargets(ref);
+    } on TargetsFailure catch (e) {
+      if (!mounted) return;
+      setState(() {
+        if (e.isNotFound) {
+          _note = l10n.targetsIntroBody;
+        } else {
+          _error = true;
+          _note = localizedErrorCode(l10n, e.code);
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      key: GuideSettingsScreen.termsOnlyKey,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        NumbersChoice(value: _value, onChanged: _setNumbers),
+        if (_note case final note?) ...[
+          const SizedBox(height: SnTokens.space3),
+          if (_error)
+            InlineErrorBanner(key: GuideSettingsScreen.errorKey, message: note)
+          else
+            Text(note, key: GuideSettingsScreen.noteKey),
+        ],
+        const SizedBox(height: SnTokens.space2),
+        TextButton.icon(
+          key: GuideSettingsScreen.resetKey,
+          icon: const Icon(Icons.restart_alt_rounded),
+          label: Text(l10n.settingsDiaryReset),
+          onPressed: _reset,
+        ),
+        DisclaimerFooter(text: l10n.diaryDisclaimer),
+      ],
+    );
+  }
+}
+
 class _SettingsForm extends ConsumerStatefulWidget {
   const _SettingsForm({super.key, required this.primary, required this.stored});
 
@@ -159,6 +278,7 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
   /// Pace options for the current answers (`targets_preview`).
   Future<TargetsOut?> _refreshPreview() async {
     final l10n = AppLocalizations.of(context);
+    if (!_draft.pregnancyAnswered) return null;
     setState(() {
       _error = null;
       _bodyFatError = null;
@@ -198,7 +318,13 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
       _draft
         ..numbersDisplay = previous
         ..notify();
-      if (mounted) setState(() => _error = localizedErrorCode(l10n, e.code));
+      if (mounted) {
+        setState(
+          () => _error = e.isNotFound
+              ? l10n.targetsIntroBody
+              : localizedErrorCode(l10n, e.code),
+        );
+      }
     }
   }
 
@@ -323,7 +449,10 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
           buttonKey: GuideSettingsScreen.saveKey,
           label: l10n.targetsSave,
           busy: _busy,
-          onPressed: _draft.activity == null || _draft.hasUnreadableNumber
+          onPressed:
+              _draft.activity == null ||
+                  !_draft.pregnancyAnswered ||
+                  _draft.hasUnreadableNumber
               ? null
               : _save,
         ),

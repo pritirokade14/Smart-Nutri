@@ -7,6 +7,7 @@ import '../../../core/theme/tokens.g.dart';
 // ignore: implementation_imports
 import 'package:smartnutri_api/src/export.dart'
     show DailyLimitsOutProteinBasis, DailyLimitsOutProteinTargetStatus;
+import '../../../shared/widgets/disclaimer_footer.dart';
 import '../../history/presentation/summary_display.dart';
 import '../../meals/domain/meal_summary.dart';
 
@@ -41,7 +42,13 @@ class ProteinProgress extends StatelessWidget {
     final kcal = summary.totals.kcal;
     if (summary.macrosHidden) {
       // The API hid the protein numbers: no value, no target, no "no data".
-      return SummaryNote(key: hiddenKey, text: l10n.diaryHiddenNumbers);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SummaryNote(key: hiddenKey, text: l10n.diaryHiddenNumbers),
+          DisclaimerFooter(text: l10n.diaryDisclaimer),
+        ],
+      );
     }
     final band = shownBand(
       SummaryNutrient.protein,

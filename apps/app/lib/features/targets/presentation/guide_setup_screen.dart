@@ -102,6 +102,8 @@ class _GuideSetupScreenState extends ConsumerState<GuideSetupScreen> {
   /// or an error shown here (body fat errors go back to "About you").
   Future<bool> _runPreview() async {
     final l10n = AppLocalizations.of(context);
+    // No preview until the pregnancy question is answered.
+    if (!_draft.pregnancyAnswered) return true;
     setState(() {
       _busy = true;
       _error = null;
@@ -179,6 +181,7 @@ class _GuideSetupScreenState extends ConsumerState<GuideSetupScreen> {
     if (_busy) return false;
     return switch (_step) {
       2 => _draft.activity != null,
+      3 => _draft.pregnancyAnswered && !_draft.hasUnreadableNumber,
       _ => !_draft.hasUnreadableNumber,
     };
   }

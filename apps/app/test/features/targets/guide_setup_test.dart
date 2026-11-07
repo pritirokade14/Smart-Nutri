@@ -92,6 +92,7 @@ Future<void> _toGuide(WidgetTester t) async {
   await _next(t);
   await _tap(t, ActivityStep.levelKey('light'));
   await _next(t);
+  await _tap(t, GoalStep.pregnancyKey('no'));
   await _next(t);
 }
 
@@ -111,6 +112,31 @@ Color? _textColor(WidgetTester t, Finder f) =>
     DefaultTextStyle.of(t.element(f)).style.color;
 
 void main() {
+  testWidgets('pregnancy starts unanswered and blocks continue', (t) async {
+    final s = await _open(t);
+    await _next(t);
+    await _next(t);
+    await _tap(t, ActivityStep.levelKey('light'));
+    await _next(t);
+    final group = t.widget<RadioGroup<String>>(find.byType(RadioGroup<String>));
+    expect(group.groupValue, isNull);
+    expect(s.targets.previews, isEmpty);
+    final next = find.descendant(
+      of: find.byKey(GuideSetupScreen.nextKey),
+      matching: find.byType(ButtonStyleButton),
+    );
+    expect(
+      t
+          .widget<ButtonStyleButton>(
+            next.evaluate().isEmpty ? find.byType(FilledButton).last : next,
+          )
+          .onPressed,
+      isNull,
+    );
+    await _tap(t, GoalStep.pregnancyKey('prefer_not'));
+    expect(s.targets.previews, isNotEmpty);
+  });
+
   testWidgets('onboarding preselects show numbers', (t) async {
     await _open(t);
     final group = t.widget<RadioGroup<String>>(find.byType(RadioGroup<String>));
@@ -144,6 +170,7 @@ void main() {
     await _next(t);
     await _tap(t, ActivityStep.levelKey('light'));
     await _next(t);
+    await _tap(t, GoalStep.pregnancyKey('no'));
     await _next(t);
     await _tap(t, GuideSetupScreen.saveKey);
     final patch = s.members.patched.single.$2;
@@ -174,6 +201,7 @@ void main() {
     await _next(t);
     await _tap(t, ActivityStep.levelKey('light'));
     await _next(t);
+    await _tap(t, GoalStep.pregnancyKey('no'));
     expect(
       find.text('Please enter a number between 3 and 70.'),
       findsOneWidget,
@@ -259,6 +287,7 @@ void main() {
     await _next(t);
     await _tap(t, ActivityStep.levelKey('light'));
     await _next(t);
+    await _tap(t, GoalStep.pregnancyKey('no'));
     expect(find.text(en.targetsUnderweight), findsOneWidget);
     final chip = t.widget<ChoiceChip>(
       find.byKey(GoalStep.directionKey('maintain')),
@@ -302,6 +331,7 @@ void main() {
     await _next(t);
     await _tap(t, ActivityStep.levelKey('light'));
     await _next(t);
+    await _tap(t, GoalStep.pregnancyKey('no'));
     final chip = find.byKey(GoalStep.rateKey(0));
     expect(chip, findsOneWidget);
     expect(
@@ -341,7 +371,8 @@ void main() {
     await _next(t);
     await _next(t);
     await _tap(t, ActivityStep.levelKey('light'));
-    await _tapAndPump(t, GuideSetupScreen.nextKey);
+    await _next(t);
+    await _tapAndPump(t, GoalStep.pregnancyKey('no'));
     expect(find.byKey(ConsentSheet.agreeKey), findsOneWidget);
     expect(s.targets.puts, isEmpty);
     await _agree(t);

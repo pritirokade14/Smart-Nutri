@@ -35,7 +35,10 @@ class GuideDraft extends ChangeNotifier {
   num? ratePct;
 
   /// `yes`, `no` or `prefer_not` (both of the first and last pause guides).
-  String pregnancy = 'no';
+  /// Starts unanswered (null): preview and save wait for an answer.
+  String? pregnancy;
+
+  bool get pregnancyAnswered => pregnancy != null;
   String numbersDisplay = 'show';
 
   /// What the account already stores, to tell "blank" from "never set".

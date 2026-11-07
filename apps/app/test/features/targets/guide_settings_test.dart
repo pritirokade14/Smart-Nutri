@@ -103,6 +103,36 @@ void main() {
     );
   });
 
+  testWidgets('consent_required keeps Numbers choice and Reset working', (
+    t,
+  ) async {
+    final targets = FakeTargetsClient(today: 'g1_build_muscle')
+      ..settingsGetError = apiError(403, 'consent_required');
+    final (_, _) = await _open(t, targets);
+    expect(find.byKey(GuideSettingsScreen.consentKey), findsOneWidget);
+    await _tap(t, NumbersChoice.optionKey('hide_energy'));
+    expect(
+      targets.displays.single.numbersDisplay,
+      DisplayInNumbersDisplay.hideEnergy,
+    );
+    expect(targets.puts, isEmpty);
+    await _tap(t, GuideSettingsScreen.resetKey);
+    await _tap(t, GuideSettingsScreen.resetConfirmKey);
+    expect(targets.resets, hasLength(1));
+  });
+
+  testWidgets('display 404 with no settings shows neutral copy', (t) async {
+    final targets = FakeTargetsClient(today: 'g1_build_muscle')
+      ..settingsGetError = apiError(403, 'consent_required')
+      ..displayError = apiError(404, 'not_found');
+    final (_, _) = await _open(t, targets);
+    await _tap(t, NumbersChoice.optionKey('hide_all'));
+    expect(find.byKey(GuideSettingsScreen.noteKey), findsOneWidget);
+    expect(find.text(en.targetsIntroBody), findsOneWidget);
+    expect(find.byKey(GuideSettingsScreen.errorKey), findsNothing);
+    expect(t.takeException(), isNull);
+  });
+
   testWidgets('saving settings sends the settings put', (t) async {
     final (_, targets) = await _open(
       t,

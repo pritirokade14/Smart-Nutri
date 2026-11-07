@@ -20,6 +20,13 @@ class TargetsFailure implements Exception {
   /// 403 `consent_required`: open the health-data consent sheet, then retry.
   bool get isConsentRequired => code == 'consent_required';
 
+  /// 404: no settings exist yet (the display call needs a stored row).
+  bool get isNotFound {
+    final c = cause;
+    return (c is DioException && c.response?.statusCode == 404) ||
+        (code?.endsWith('not_found') ?? false);
+  }
+
   static Future<T> guard<T>(Future<T> Function() call) async {
     try {
       return await call();
