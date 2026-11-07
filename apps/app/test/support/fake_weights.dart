@@ -47,6 +47,16 @@ class FakeWeightsClient implements WeightsClient {
     deletes.add(day);
   }
 
+  var deleteAllCalls = 0;
+
+  @override
+  Future<WeightsDeletedOut> weightsDeleteAll({String? memberId}) async {
+    if (deleteError case final e?) throw e;
+    deleteAllCalls++;
+    final n = list.items.length;
+    return WeightsDeletedOut(deleted: n);
+  }
+
   @override
   Future<WeightOut> weightsPut({
     required DateTime day,
