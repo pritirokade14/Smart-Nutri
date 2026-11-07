@@ -48,3 +48,15 @@ rounding: {kcal_step: 10, macro_g_step: 1}
 plausible:        # confirm-before-save ranges for body data (hard limits stay in the members API)
   height_cm: {min: 120, max: 210}
   weight_kg: {min: 30, max: 200}
+  weight_change_kg_per_day: 2.0   # a weigh-in further than this per day from the previous one asks for confirmation (spec 6.5)
+# Weight trend (Food Diary slice 6; Plan 12 Task 22, rulings G24-G28). Read only by app/scoring/weight_trend.py.
+# All values are SmartNutri working values (section_sources.energy_targets: smartnutri_working_values),
+# PENDING CLINICIAN REVIEW; the 1.5 % per week rapid-loss line also follows the CDC weight-loss guidance.
+trend:
+  min_weigh_ins_for_trend: 3        # spec 4.9
+  alpha_per_day: 0.25               # ~7-day smoothing: mean lag (1-a)/a = 3 days, like a centred 7-day average
+  outlier_pct_from_trend: 3.0       # spec 4.10: a weigh-in further than this from the trend is left out
+  min_weigh_ins_for_rate: 3
+  rate_window_days: 7
+projection: {min_weigh_ins: 6, min_span_days: 14, max_horizon_days: 730}
+safety: {rapid_loss_pct_bw_per_week: 1.5, rapid_loss_weeks: 3}

@@ -5,12 +5,14 @@ from __future__ import annotations
 import ast
 import dataclasses
 from collections.abc import Mapping
+from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
 from app.scoring import targets as T
+from app.scoring import weight_trend as WT
 from app.scoring.config import load_config
 from tests.unit.scoring import test_targets as tt
 
@@ -102,6 +104,18 @@ def test_every_key_is_read():
             T.check_settings(tt.body(), s, rec)
     with pytest.raises(T.SettingsRuleError):
         T.check_body_fat(Decimal("2.9"), rec)
+    # weight_trend reads the trend, projection, safety and plausible-change keys
+    ins = [
+        WT.WeighIn(date(2026, 1, 1) + timedelta(days=i), Decimal(80) - Decimal("0.2") * i)
+        for i in range(28)
+    ]
+    res = WT.compute_trend(ins, dataclasses.replace(cfg, targets=Rec(cfg.targets, read)))
+    wcfg = dataclasses.replace(cfg, targets=Rec(cfg.targets, read))
+    WT.weight_for_targets(ins, ins[-1].day, wcfg)
+    WT.weekly_rate(res, wcfg)
+    WT.rapid_loss(res, wcfg)
+    WT.projection(res, Decimal(70), wcfg)
+    WT.max_change_kg_per_day(wcfg)
     exempt = {"version", "energy.equation", "protein.ibw.formula"}
     unread = set(leaves(cfg.targets)) - read - exempt
     assert not unread, f"unread targets.yaml keys: {sorted(unread)}"
@@ -164,6 +178,15 @@ def _reach(start: str) -> set[str]:
 @pytest.mark.parametrize("start", ["app.scoring.verdict", "app.scoring.conditions"])
 def test_verdict_does_not_import_targets(start):
     assert "app.scoring.targets" not in _reach(start)
+    assert "app.scoring.weight_trend" not in _reach(start)
+
+
+def test_analyze_service_does_not_import_weight_trend():
+    imports = _imports(_file("app.features.analyze.service"))
+    assert not any(i.endswith("weight_trend") for i in imports), imports
+    for imp in imports:
+        if imp.startswith("app.scoring."):
+            assert "app.scoring.weight_trend" not in _reach(imp)
 
 
 def test_analyze_service_does_not_import_targets():

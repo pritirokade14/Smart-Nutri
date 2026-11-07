@@ -1088,10 +1088,16 @@
             "max": 210,
             "min": 120
           },
+          "weight_change_kg_per_day": 2.0,
           "weight_kg": {
             "max": 200,
             "min": 30
           }
+        },
+        "projection": {
+          "max_horizon_days": 730,
+          "min_span_days": 14,
+          "min_weigh_ins": 6
         },
         "protein": {
           "adjusted_weight": {
@@ -1129,6 +1135,17 @@
         "rounding": {
           "kcal_step": 10,
           "macro_g_step": 1
+        },
+        "safety": {
+          "rapid_loss_pct_bw_per_week": 1.5,
+          "rapid_loss_weeks": 3
+        },
+        "trend": {
+          "alpha_per_day": 0.25,
+          "min_weigh_ins_for_rate": 3,
+          "min_weigh_ins_for_trend": 3,
+          "outlier_pct_from_trend": 3.0,
+          "rate_window_days": 7
         }
       }
     }
@@ -1273,5 +1290,5 @@
       "url_verified": false
     }
   ],
-  "version": "66eb4d51ea83"
+  "version": "85abc9fe4967"
 }

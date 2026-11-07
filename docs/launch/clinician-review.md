@@ -1,7 +1,7 @@
 # Clinician review: SmartNutri scoring thresholds
 
 > **Generated** by `scripts/clinician_review_sheet.py` from `apps/api/app/scoring/data/thresholds.yaml` and `targets.yaml`. Do not edit by hand.
-> Scoring version: `66eb4d51ea83`. Pending clinician review: **True**.
+> Scoring version: `85abc9fe4967`. Pending clinician review: **True**.
 
 **For the reviewer.** SmartNutri shows packaged-food verdicts per family member: `ok`, `caution`, `unknown` or `avoid`. It is information, not medical advice. Values are per 100 g (food) or per 100 ml (drink) unless the unit says otherwise. For each row, tick Approved, or write the value you recommend in Change to, then initial the Signed column. Sign and date the bottom of the sheet.
 
@@ -120,6 +120,17 @@
 | 107 | `targets.plausible.height_cm.max` | 210 | cm | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
 | 108 | `targets.plausible.weight_kg.min` | 30 | kg | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
 | 109 | `targets.plausible.weight_kg.max` | 200 | kg | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 110 | `targets.plausible.weight_change_kg_per_day` | 2.0 | kg per day | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 111 | `targets.trend.min_weigh_ins_for_trend` | 3 | weigh-ins | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 112 | `targets.trend.alpha_per_day` | 0.25 | smoothing weight per day (0 to 1) | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 113 | `targets.trend.outlier_pct_from_trend` | 3.0 | % of trend weight | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 114 | `targets.trend.min_weigh_ins_for_rate` | 3 | weigh-ins | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 115 | `targets.trend.rate_window_days` | 7 | days | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 116 | `targets.projection.min_weigh_ins` | 6 | weigh-ins | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 117 | `targets.projection.min_span_days` | 14 | days | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 118 | `targets.projection.max_horizon_days` | 730 | days | SmartNutri working values, pending clinician review | Is this appropriate for Indian adults? |  |  |  |
+| 119 | `targets.safety.rapid_loss_pct_bw_per_week` | 1.5 | % of body weight per week | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
+| 120 | `targets.safety.rapid_loss_weeks` | 3 | weekly check-ins in a row | SmartNutri working values, pending clinician review (why: CDC: losing weight) | Is this appropriate for Indian adults? |  |  |  |
 
 ## Other rule settings
 
