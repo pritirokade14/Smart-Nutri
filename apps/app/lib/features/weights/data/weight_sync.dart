@@ -18,7 +18,7 @@ class WeighInSync {
 
   /// Sends every queued weigh-in once; returns how many were stored. Stops at
   /// the first network failure. `weight_needs_confirm` marks the row for the
-  /// user to check; any other refusal drops it from the queue view.
+  /// user to check; any other refusal keeps its error code for the sync notice.
   Future<int> flush() => _running ??= _flush().whenComplete(() {
     _running = null;
   });
@@ -47,7 +47,11 @@ class WeighInSync {
             WeighInStatus.needsConfirm,
           );
         } else {
-          await _queue.setWeighInStatus(row.clientId, WeighInStatus.failed);
+          await _queue.setWeighInStatus(
+            row.clientId,
+            WeighInStatus.failed,
+            error: apiErrorCode(e) ?? 'internal_error',
+          );
         }
       }
     }

@@ -1392,6 +1392,17 @@ class $PendingWeighInsTable extends PendingWeighIns
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _lastErrorMeta = const VerificationMeta(
+    'lastError',
+  );
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+    'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     clientId,
@@ -1400,6 +1411,7 @@ class $PendingWeighInsTable extends PendingWeighIns
     confirmUnusual,
     status,
     attempts,
+    lastError,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1458,6 +1470,12 @@ class $PendingWeighInsTable extends PendingWeighIns
         attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta),
       );
     }
+    if (data.containsKey('last_error')) {
+      context.handle(
+        _lastErrorMeta,
+        lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta),
+      );
+    }
     return context;
   }
 
@@ -1491,6 +1509,10 @@ class $PendingWeighInsTable extends PendingWeighIns
         DriftSqlType.int,
         data['${effectivePrefix}attempts'],
       )!,
+      lastError: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_error'],
+      ),
     );
   }
 
@@ -1509,6 +1531,9 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
   final bool confirmUnusual;
   final String status;
   final int attempts;
+
+  /// The API error code of a refusal (status `failed`).
+  final String? lastError;
   const PendingWeighIn({
     required this.clientId,
     required this.localDate,
@@ -1516,6 +1541,7 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
     required this.confirmUnusual,
     required this.status,
     required this.attempts,
+    this.lastError,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1526,6 +1552,9 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
     map['confirm_unusual'] = Variable<bool>(confirmUnusual);
     map['status'] = Variable<String>(status);
     map['attempts'] = Variable<int>(attempts);
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
     return map;
   }
 
@@ -1537,6 +1566,9 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
       confirmUnusual: Value(confirmUnusual),
       status: Value(status),
       attempts: Value(attempts),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
     );
   }
 
@@ -1552,6 +1584,7 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
       confirmUnusual: serializer.fromJson<bool>(json['confirmUnusual']),
       status: serializer.fromJson<String>(json['status']),
       attempts: serializer.fromJson<int>(json['attempts']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
     );
   }
   @override
@@ -1564,6 +1597,7 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
       'confirmUnusual': serializer.toJson<bool>(confirmUnusual),
       'status': serializer.toJson<String>(status),
       'attempts': serializer.toJson<int>(attempts),
+      'lastError': serializer.toJson<String?>(lastError),
     };
   }
 
@@ -1574,6 +1608,7 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
     bool? confirmUnusual,
     String? status,
     int? attempts,
+    Value<String?> lastError = const Value.absent(),
   }) => PendingWeighIn(
     clientId: clientId ?? this.clientId,
     localDate: localDate ?? this.localDate,
@@ -1581,6 +1616,7 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
     confirmUnusual: confirmUnusual ?? this.confirmUnusual,
     status: status ?? this.status,
     attempts: attempts ?? this.attempts,
+    lastError: lastError.present ? lastError.value : this.lastError,
   );
   PendingWeighIn copyWithCompanion(PendingWeighInsCompanion data) {
     return PendingWeighIn(
@@ -1592,6 +1628,7 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
           : this.confirmUnusual,
       status: data.status.present ? data.status.value : this.status,
       attempts: data.attempts.present ? data.attempts.value : this.attempts,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
     );
   }
 
@@ -1603,7 +1640,8 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
           ..write('weightKg: $weightKg, ')
           ..write('confirmUnusual: $confirmUnusual, ')
           ..write('status: $status, ')
-          ..write('attempts: $attempts')
+          ..write('attempts: $attempts, ')
+          ..write('lastError: $lastError')
           ..write(')'))
         .toString();
   }
@@ -1616,6 +1654,7 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
     confirmUnusual,
     status,
     attempts,
+    lastError,
   );
   @override
   bool operator ==(Object other) =>
@@ -1626,7 +1665,8 @@ class PendingWeighIn extends DataClass implements Insertable<PendingWeighIn> {
           other.weightKg == this.weightKg &&
           other.confirmUnusual == this.confirmUnusual &&
           other.status == this.status &&
-          other.attempts == this.attempts);
+          other.attempts == this.attempts &&
+          other.lastError == this.lastError);
 }
 
 class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
@@ -1636,6 +1676,7 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
   final Value<bool> confirmUnusual;
   final Value<String> status;
   final Value<int> attempts;
+  final Value<String?> lastError;
   final Value<int> rowid;
   const PendingWeighInsCompanion({
     this.clientId = const Value.absent(),
@@ -1644,6 +1685,7 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
     this.confirmUnusual = const Value.absent(),
     this.status = const Value.absent(),
     this.attempts = const Value.absent(),
+    this.lastError = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PendingWeighInsCompanion.insert({
@@ -1653,6 +1695,7 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
     this.confirmUnusual = const Value.absent(),
     this.status = const Value.absent(),
     this.attempts = const Value.absent(),
+    this.lastError = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : clientId = Value(clientId),
        localDate = Value(localDate),
@@ -1664,6 +1707,7 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
     Expression<bool>? confirmUnusual,
     Expression<String>? status,
     Expression<int>? attempts,
+    Expression<String>? lastError,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1673,6 +1717,7 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
       if (confirmUnusual != null) 'confirm_unusual': confirmUnusual,
       if (status != null) 'status': status,
       if (attempts != null) 'attempts': attempts,
+      if (lastError != null) 'last_error': lastError,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1684,6 +1729,7 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
     Value<bool>? confirmUnusual,
     Value<String>? status,
     Value<int>? attempts,
+    Value<String?>? lastError,
     Value<int>? rowid,
   }) {
     return PendingWeighInsCompanion(
@@ -1693,6 +1739,7 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
       confirmUnusual: confirmUnusual ?? this.confirmUnusual,
       status: status ?? this.status,
       attempts: attempts ?? this.attempts,
+      lastError: lastError ?? this.lastError,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1718,6 +1765,9 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
     if (attempts.present) {
       map['attempts'] = Variable<int>(attempts.value);
     }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1733,6 +1783,7 @@ class PendingWeighInsCompanion extends UpdateCompanion<PendingWeighIn> {
           ..write('confirmUnusual: $confirmUnusual, ')
           ..write('status: $status, ')
           ..write('attempts: $attempts, ')
+          ..write('lastError: $lastError, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2326,6 +2377,7 @@ typedef $$PendingWeighInsTableCreateCompanionBuilder =
       Value<bool> confirmUnusual,
       Value<String> status,
       Value<int> attempts,
+      Value<String?> lastError,
       Value<int> rowid,
     });
 typedef $$PendingWeighInsTableUpdateCompanionBuilder =
@@ -2336,6 +2388,7 @@ typedef $$PendingWeighInsTableUpdateCompanionBuilder =
       Value<bool> confirmUnusual,
       Value<String> status,
       Value<int> attempts,
+      Value<String?> lastError,
       Value<int> rowid,
     });
 
@@ -2375,6 +2428,11 @@ class $$PendingWeighInsTableFilterComposer
 
   ColumnFilters<int> get attempts => $composableBuilder(
     column: $table.attempts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+    column: $table.lastError,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2417,6 +2475,11 @@ class $$PendingWeighInsTableOrderingComposer
     column: $table.attempts,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PendingWeighInsTableAnnotationComposer
@@ -2447,6 +2510,9 @@ class $$PendingWeighInsTableAnnotationComposer
 
   GeneratedColumn<int> get attempts =>
       $composableBuilder(column: $table.attempts, builder: (column) => column);
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
 }
 
 class $$PendingWeighInsTableTableManager
@@ -2492,6 +2558,7 @@ class $$PendingWeighInsTableTableManager
                 Value<bool> confirmUnusual = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<int> attempts = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PendingWeighInsCompanion(
                 clientId: clientId,
@@ -2500,6 +2567,7 @@ class $$PendingWeighInsTableTableManager
                 confirmUnusual: confirmUnusual,
                 status: status,
                 attempts: attempts,
+                lastError: lastError,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2510,6 +2578,7 @@ class $$PendingWeighInsTableTableManager
                 Value<bool> confirmUnusual = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<int> attempts = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PendingWeighInsCompanion.insert(
                 clientId: clientId,
@@ -2518,6 +2587,7 @@ class $$PendingWeighInsTableTableManager
                 confirmUnusual: confirmUnusual,
                 status: status,
                 attempts: attempts,
+                lastError: lastError,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

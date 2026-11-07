@@ -111,6 +111,9 @@ class PendingWeighIns extends Table {
   TextColumn get status => text().withDefault(const Constant('pending'))();
   IntColumn get attempts => integer().withDefault(const Constant(0))();
 
+  /// The API error code of a refusal (status `failed`).
+  TextColumn get lastError => text().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {clientId};
 }
@@ -124,7 +127,7 @@ class MealQueueDatabase extends _$MealQueueDatabase {
       MealQueueDatabase(driftDatabase(name: 'smartnutri_meal_queue'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -152,6 +155,9 @@ class MealQueueDatabase extends _$MealQueueDatabase {
       }
       if (from < 5) {
         await m.createTable(pendingWeighIns);
+      }
+      if (from == 5) {
+        await m.addColumn(pendingWeighIns, pendingWeighIns.lastError);
       }
     },
   );
@@ -215,7 +221,19 @@ abstract interface class WeighInQueue {
   /// A 5xx, 429 or network failure: keep the row, `attempts + 1`.
   Future<void> recordWeighInAttempt(String clientId);
 
-  Future<void> setWeighInStatus(String clientId, String status);
+  Future<void> setWeighInStatus(
+    String clientId,
+    String status, {
+    String? error,
+  });
+
+  /// The error codes of the refused weigh-ins (one entry per row; `null`
+  /// when no code was stored).
+  Stream<List<String?>> watchFailedWeighIns();
+
+  /// Forgets the refused weigh-ins, kilograms included (after the user saw
+  /// the notice).
+  Future<void> clearFailedWeighIns();
 
   /// The user confirmed an unusual value: send it again with
   /// `confirm_unusual`.
@@ -357,10 +375,24 @@ class DriftMealQueue implements MealQueue, WeighInQueue {
   );
 
   @override
-  Future<void> setWeighInStatus(String clientId, String status) =>
-      (_db.update(_w)..where((r) => r.clientId.equals(clientId))).write(
-        PendingWeighInsCompanion(status: Value(status)),
-      );
+  Future<void> setWeighInStatus(
+    String clientId,
+    String status, {
+    String? error,
+  }) => (_db.update(_w)..where((r) => r.clientId.equals(clientId))).write(
+    PendingWeighInsCompanion(status: Value(status), lastError: Value(error)),
+  );
+
+  @override
+  Stream<List<String?>> watchFailedWeighIns() =>
+      (_db.select(_w)..where((r) => r.status.equals(WeighInStatus.failed)))
+          .watch()
+          .map((rows) => [for (final r in rows) r.lastError]);
+
+  @override
+  Future<void> clearFailedWeighIns() => (_db.delete(
+    _w,
+  )..where((r) => r.status.equals(WeighInStatus.failed))).go();
 
   @override
   Future<void> confirmWeighIn(String clientId) =>

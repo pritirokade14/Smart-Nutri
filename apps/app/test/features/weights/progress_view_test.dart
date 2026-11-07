@@ -10,6 +10,7 @@ import '../../support/fixtures.dart';
 import 'weights_harness.dart';
 
 void main() {
+  _extra();
   testWidgets('renders weights/expected weekly_rate_loss', (t) async {
     final env = WeightsEnv();
     await pumpWeights(t, env);
@@ -125,5 +126,41 @@ void main() {
     await t.tap(find.byKey(TargetsExplanationTile.tileKey));
     await t.pumpAndSettle();
     expect(find.text(en.targetsHowWeightTrend('76.2')), findsOneWidget);
+  });
+}
+
+void _noDigits(WidgetTester t) {
+  final inChips = {
+    for (final w in t.widgetList<Text>(
+      find.descendant(of: find.byType(ChoiceChip), matching: find.byType(Text)),
+    ))
+      w.data,
+  };
+  final date = RegExp(r'[A-Z][a-z]{2} \d{1,2}, \d{4}');
+  for (final s in texts(t)) {
+    if (inChips.contains(s)) continue;
+    expect(s.replaceAll(date, ''), isNot(matches(r'\d')), reason: s);
+  }
+}
+
+void _extra() {
+  testWidgets('hide_all rapid loss shows no percentage', (t) async {
+    await pumpWeights(t, WeightsEnv(trend: 'hide_all_rapid_loss'));
+    expect(find.byKey(ProgressView.rapidLossKey), findsOneWidget);
+    expect(find.text(en.weightRapidLossHidden), findsOneWidget);
+    _noDigits(t);
+  });
+
+  testWidgets('delete all works without health_data consent', (t) async {
+    final env = WeightsEnv(consents: {'terms'});
+    await pumpWeights(t, env);
+    await t.tap(find.byKey(ProgressView.deleteAllKey));
+    await t.pumpAndSettle();
+    expect(find.text(en.weightDeleteAllConfirm), findsOneWidget);
+    expect(env.weights.deleteAllCalls, 0);
+    await t.tap(find.byKey(ProgressView.deleteAllConfirmKey));
+    await t.pumpAndSettle();
+    expect(env.weights.deleteAllCalls, 1);
+    expect(find.text(en.weightDeleteAllDone), findsOneWidget);
   });
 }

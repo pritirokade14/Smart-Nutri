@@ -119,4 +119,9 @@ class WeightsRepository {
   Future<void> delete(String date) => WeightsFailure.guard(
     () => _client.weightsDelete(day: parseDateKey(date)!),
   );
+
+  /// Online only; terms consent is enough (erasing never needs
+  /// `health_data`). Returns how many weigh-ins were deleted.
+  Future<int> deleteAll() async =>
+      (await WeightsFailure.guard(() => _client.weightsDeleteAll())).deleted;
 }

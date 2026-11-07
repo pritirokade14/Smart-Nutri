@@ -334,9 +334,34 @@ class MemoryMealQueue implements MealQueue, WeighInQueue {
   }
 
   @override
-  Future<void> setWeighInStatus(String clientId, String status) async {
+  Future<void> setWeighInStatus(
+    String clientId,
+    String status, {
+    String? error,
+  }) async {
     final r = weighIns[clientId];
-    if (r != null) weighIns[clientId] = r.copyWith(status: status);
+    if (r != null) {
+      weighIns[clientId] = r.copyWith(status: status, lastError: Value(error));
+    }
+    _changed();
+  }
+
+  List<String?> _failedWeighIns() => [
+    for (final r in weighIns.values)
+      if (r.status == WeighInStatus.failed) r.lastError,
+  ];
+
+  @override
+  Stream<List<String?>> watchFailedWeighIns() async* {
+    yield _failedWeighIns();
+    await for (final _ in _changes.stream) {
+      yield _failedWeighIns();
+    }
+  }
+
+  @override
+  Future<void> clearFailedWeighIns() async {
+    weighIns.removeWhere((_, r) => r.status == WeighInStatus.failed);
     _changed();
   }
 

@@ -67,6 +67,14 @@ final failedMealsCountProvider = StreamProvider<int>(
   (ref) => ref.watch(mealQueueProvider).watchFailedCount(),
 );
 
+/// Error codes of the weigh-ins the API refused (shown once, then cleared).
+final failedWeighInsProvider = StreamProvider<List<String?>>((ref) {
+  final q = ref.watch(mealQueueProvider);
+  return q is WeighInQueue
+      ? (q as WeighInQueue).watchFailedWeighIns()
+      : const Stream<List<String?>>.empty();
+});
+
 /// Bumped whenever the stored log changes (a log, an undo, a sync), so the
 /// history and summaries reload.
 class MealsRevision extends Notifier<int> {

@@ -46,6 +46,8 @@ class ProgressView extends ConsumerStatefulWidget {
 
   static const consentKey = Key('progress-consent');
   static const consentButtonKey = Key('progress-consent-grant');
+  static const deleteAllKey = Key('progress-delete-all');
+  static const deleteAllConfirmKey = Key('progress-delete-all-confirm');
   static const addKey = Key('progress-add');
   static const emptyKey = Key('progress-empty');
   static const rateKey = Key('progress-weekly-rate');
@@ -223,7 +225,10 @@ class _Body extends ConsumerWidget {
         if (trend.flags.contains('rapid_loss'))
           _Note(
             key: ProgressView.rapidLossKey,
-            text: l10n.weightRapidLoss(formatDecimal(trend.rapidLossPct)),
+            // Hidden numbers: the same note without the percentage.
+            text: hidden
+                ? l10n.weightRapidLossHidden
+                : l10n.weightRapidLoss(formatDecimal(trend.rapidLossPct)),
           ),
         // The taper and goal-reached notes come from today's targets.
         if (targets != null)
@@ -302,13 +307,47 @@ class _Note extends StatelessWidget {
   }
 }
 
-class _ConsentCard extends StatelessWidget {
+class _ConsentCard extends ConsumerWidget {
   const _ConsentCard({required this.onGranted});
 
   final VoidCallback onGranted;
 
+  /// Erasing never needs consent: delete every weigh-in, after a confirm.
+  Future<void> _deleteAll(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final material = MaterialLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Text(l10n.weightDeleteAllConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(material.cancelButtonLabel),
+          ),
+          TextButton(
+            key: ProgressView.deleteAllConfirmKey,
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.weightDeleteAll),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ref.read(weightsRepositoryProvider).deleteAll();
+      refreshWeights(ref);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.weightDeleteAllDone)));
+    } on WeightsFailure catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(localizedErrorCode(l10n, e.code))),
+      );
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return Card(
       key: ProgressView.consentKey,
@@ -325,6 +364,11 @@ class _ConsentCard extends StatelessWidget {
                 if (await showConsentSheet(context)) onGranted();
               },
               child: Text(l10n.consentAgree),
+            ),
+            TextButton(
+              key: ProgressView.deleteAllKey,
+              onPressed: () => _deleteAll(context, ref),
+              child: Text(l10n.weightDeleteAll),
             ),
           ],
         ),
