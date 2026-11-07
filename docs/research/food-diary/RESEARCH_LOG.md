@@ -52,3 +52,20 @@ Corrections and notes:
 - `apps/nutritrace.md` §3.1 calls NutriTrace's coefficients (9.99, 6.25, 4.92) non-standard. The 1990 abstract shows they are the paper's full-precision combined equation. The spec records the correction (FEATURE_SPEC §2).
 - FitBook's MIT licence names "Flexify" as the copyright holder. Flagged again in the spec; nothing reused.
 - Still unverified: the primary source of the activity factors (1.2 to 1.725), of the 1,200 and 1,500 kcal floors, the USDA FDC CC0 status, the IFCT 2017 / NIN reuse terms, and katori, cup and glass volumes. Each is marked in the spec and, where it matters, raised as an open question (Q1, Q2, Q6).
+
+## Slice 3 data prep
+
+Date: 2026-11-07. Output in `docs/research/food-diary/data/` (`household_units.csv`, `usda_ingredients.csv`, `indian_dishes_recipes.md`, `NIN_permission_request.md`). All unit values are PENDING DIETITIAN REVIEW.
+
+| Source URL | Finding |
+|---|---|
+| https://fdc.nal.usda.gov/api-guide | Licensing section, quoted: "USDA FoodData Central data are in the public domain and they are not copyrighted. They are published under CC0 1.0 Universal (CC0 1.0). No permission is needed for their use, but we request that users list FoodData Central as the source". Suggested citation: "U.S. Department of Agriculture, Agricultural Research Service. FoodData Central, 2019. fdc.nal.usda.gov." This closes the "USDA CC0 unverified" item. |
+| https://fdc.nal.usda.gov/download-datasets | Bulk download page. Used the SR Legacy CSV (April 2018, final SR release, 6 MB), https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip. No API key or sign-up used (the DEMO_KEY search call was only a connectivity test). Nutrient ids: 1008 energy kcal, 1003 protein, 1005 carbohydrate, 1004 fat, 1079 fibre, 2000 (else 1063) sugars, 1093 sodium. Gaps (no SR Legacy row): paneer, poha, jaggery, curry leaves, hing, garam masala, buffalo milk. A Foundation Foods release (Oct 2026) exists but was not used. |
+| FDC `food_portion.csv` in the same download | Piece and cup weights used in `household_units.csv`: egg large 50 g, banana medium 118 g, apple medium 182 g, chapati/roti packaged 43 g (whole wheat frozen) and 68 g (plain), cup weights for density rows. Cup weights are US cups (about 236.6 ml), so densities are derived. |
+| https://nin.res.in/dietaryguidelines/pdfjs/locale/DGI_2024.pdf (read via https://agritech.tnau.ac.in/nutrition/pdf/DGI_07th_May_2024_fin.pdf) | ICMR-NIN Dietary Guidelines for Indians 2024, Annexure I and II: standard katoris of 360, 200, 155 and 115 ml; tablespoon labelled 15 g, teaspoon 5 g; diet charts state "1 cup/Katori = 200 ml". **Conflicts with our Q6 katori 150 ml.** Egg: 20 g raw weight = 1/2 egg (weak evidence). |
+| https://www.nin.res.in/downloads/DietaryGuidelinesforNINwebsite.pdf | NIN Dietary Guidelines for Indians (2011), Annexure 8: serving sizes and energy per serving for cooked dishes (1 phulka 80 kcal, 2 idli 150 kcal, 1 dosa 125 kcal and so on). No grams. Used as the dish list reference. |
+| Web search results (commercial blogs, e.g. yourtrainer.in, tap.health) | Idli, dosa, chapati and katori values disagree widely (idli 30 to 50 g, dosa 80 to 125 g, chapati 25 to 40 g). Not used as values; recorded only as notes. |
+
+Corrections and notes:
+- Units with no reliable source (grams left empty): phulka, home-made roti, paratha, idli, dosa, vada, puri, samosa, laddoo, papad, pakora, ladle, handful, bowl, plate, slice and piece (generic).
+- The 30 recipes have no verified published recipe source; all are `[assumed — needs dietitian]`.
