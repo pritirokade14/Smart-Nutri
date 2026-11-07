@@ -21,7 +21,14 @@ import '../../targets/presentation/guide_result_step.dart' show statusMessage;
 import '../../targets/presentation/targets_explanation.dart';
 import '../../targets/presentation/targets_providers.dart';
 import '../data/diary_repository.dart';
+import '../../../core/storage/meal_queue.dart';
+import '../domain/diary_dates.dart';
+import 'add_food_sheet.dart';
+import 'copy_sheet.dart';
 import 'day_header.dart';
+import 'day_menu.dart';
+import 'pending_entries.dart';
+import 'week_view.dart';
 import 'diary_providers.dart';
 import 'diary_rings.dart';
 import 'edit_entry_sheet.dart';
@@ -46,12 +53,15 @@ class DiaryScreen extends ConsumerStatefulWidget {
   static const partialKey = Key('diary-partial-badge');
   static const hiddenNoteKey = Key('diary-hidden-note');
   static const pendingReviewKey = Key('diary-pending-review');
+  static const addFabKey = Key('diary-add-fab');
 
   @override
   ConsumerState<DiaryScreen> createState() => _DiaryScreenState();
 }
 
 class _DiaryScreenState extends ConsumerState<DiaryScreen> {
+  bool _week = false;
+
   @override
   void initState() {
     super.initState();
@@ -76,30 +86,91 @@ class _DiaryScreenState extends ConsumerState<DiaryScreen> {
             onPressed: () => context.push('/search'),
           ),
           if (settings != null) EyeToggle(settings: settings),
+          if (day.value != null && !_week) DayMenu(day: day.value!),
         ],
       ),
-      body: day.when(
-        skipLoadingOnRefresh: false,
-        loading: () => const SingleChildScrollView(
-          padding: EdgeInsets.all(SnTokens.space4),
-          child: LoadingSkeleton(card: true, lines: 4),
-        ),
-        error: (e, _) => Center(
-          child: SingleChildScrollView(
-            child: ErrorState(
-              message: localizedErrorCode(
-                l10n,
-                e is DiaryFailure ? e.code : null,
-              ),
-              onRetry: () => ref.invalidate(diaryDayProvider(widget.date)),
+      floatingActionButton: day.value == null || _week
+          ? null
+          : FloatingActionButton.extended(
+              key: DiaryScreen.addFabKey,
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l10n.diaryAdd),
+              onPressed: () => addFood(context, ref, day.value!),
+            ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              SnTokens.space4,
+              SnTokens.space2,
+              SnTokens.space4,
+              0,
+            ),
+            child: SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(value: false, label: Text(l10n.diaryToday)),
+                ButtonSegment(value: true, label: Text(l10n.diaryWeekTitle)),
+              ],
+              selected: {_week},
+              onSelectionChanged: (v) => setState(() => _week = v.single),
             ),
           ),
-        ),
-        data: (d) =>
-            DiaryDayBody(day: d, date: widget.date, settings: settings),
+          Expanded(
+            child: _week
+                ? WeekView(end: widget.date)
+                : _dayBody(context, day, settings, l10n),
+          ),
+        ],
       ),
     );
   }
+
+  Widget _dayBody(
+    BuildContext context,
+    AsyncValue<DiaryDayOut> day,
+    GoalSettingsOut? settings,
+    AppLocalizations l10n,
+  ) {
+    return day.when(
+      skipLoadingOnRefresh: false,
+      loading: () => const SingleChildScrollView(
+        padding: EdgeInsets.all(SnTokens.space4),
+        child: LoadingSkeleton(card: true, lines: 4),
+      ),
+      error: (e, _) => Center(
+        child: SingleChildScrollView(
+          child: ErrorState(
+            message: localizedErrorCode(
+              l10n,
+              e is DiaryFailure ? e.code : null,
+            ),
+            onRetry: () => ref.invalidate(diaryDayProvider(widget.date)),
+          ),
+        ),
+      ),
+      data: (d) => DiaryDayBody(day: d, date: widget.date, settings: settings),
+    );
+  }
+}
+
+/// Opens the add-food sheet, then the flow the user chose. The existing
+/// search, scanner and label screens log through the portion sheet, which
+/// reads [diaryAddContextProvider]; it is cleared when they are done.
+Future<void> addFood(
+  BuildContext context,
+  WidgetRef ref,
+  DiaryDayOut day, {
+  String? slotId,
+}) async {
+  final next = await showAddFoodSheet(context, day: day, slotId: slotId);
+  if (next == null || !context.mounted) return;
+  final path = switch (next) {
+    AddFoodNext.search => '/search',
+    AddFoodNext.barcode => '/scan',
+    AddFoodNext.label => '/scan/label',
+  };
+  await context.push(path);
+  ref.read(diaryAddContextProvider.notifier).clear();
 }
 
 /// The loaded day: header, rings (or the reason there are none), the slots
@@ -215,6 +286,38 @@ class DiaryDayBody extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: SnTokens.space2),
               child: SlotSection(
                 slot: slot,
+                onAdd: slot.archived
+                    ? null
+                    : () => addFood(context, ref, day, slotId: slot.slotId),
+                menu: PopupMenuButton<String>(
+                  key: SlotSection.menuKey(slot.slotId),
+                  onSelected: (_) => showCopySheet(
+                    context,
+                    fromDate: dateKey(day.date),
+                    toDate: dateKey(day.today),
+                    fromSlotId: slot.slotId,
+                    askTarget: true,
+                  ),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(
+                      value: 'copy',
+                      child: Text(l10n.diaryCopyMeal),
+                    ),
+                  ],
+                ),
+                pending: [
+                  for (final r in pendingForSlot(
+                    ref.watch(pendingEntriesProvider).value ??
+                        const <PendingMeal>[],
+                    day,
+                    slot,
+                    fallbackSlotId: ref
+                        .watch(mealSlotsProvider)
+                        .value
+                        ?.suggestedSlotId,
+                  ))
+                    PendingEntryTile(row: r),
+                ],
                 onEntryTap: (e) async {
                   final changed = await showEditEntrySheet(context, e);
                   if (changed == true) {

@@ -8,6 +8,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/observability/analytics.dart';
 import '../../../core/time/timezone_sync.dart';
 import '../../home/presentation/home_screen.dart' show meProvider;
+import '../../../core/storage/meal_queue.dart';
 import '../../meals/presentation/meals_providers.dart';
 import '../data/diary_repository.dart';
 import '../data/meal_slots_repository.dart';
@@ -76,3 +77,43 @@ class _TimezoneSyncScopeState extends ConsumerState<TimezoneSyncScope> {
 /// numbers.
 void trackDiaryDayViewed(WidgetRef ref) =>
     ref.read(analyticsProvider).track('diary_day_viewed');
+
+/// Where the next "I ate this" log from the search, barcode or label flows
+/// goes: set by the add-food sheet, read by the portion sheet, cleared when
+/// the user is back on the Diary.
+class DiaryAddContext {
+  const DiaryAddContext({required this.method, this.slotId, this.localDate});
+
+  /// The analytics `method` (`search`, `barcode`, `label`).
+  final String method;
+  final String? slotId;
+
+  /// A past day, else null.
+  final String? localDate;
+}
+
+class DiaryAddContextNotifier extends Notifier<DiaryAddContext?> {
+  @override
+  DiaryAddContext? build() => null;
+
+  void set(DiaryAddContext c) => state = c;
+  void clear() => state = null;
+}
+
+final diaryAddContextProvider =
+    NotifierProvider<DiaryAddContextNotifier, DiaryAddContext?>(
+      DiaryAddContextNotifier.new,
+    );
+
+/// Recent foods, the given slot's first.
+final diaryRecentsProvider = FutureProvider.autoDispose
+    .family<List<RecentItem>, String?>(
+      (ref, slotId) =>
+          ref.watch(diaryRepositoryProvider).recents(slotId: slotId),
+      retry: (_, _) => null,
+    );
+
+/// Entries waiting on this phone.
+final pendingEntriesProvider = StreamProvider.autoDispose<List<PendingMeal>>(
+  (ref) => ref.watch(mealQueueProvider).watchPending(),
+);

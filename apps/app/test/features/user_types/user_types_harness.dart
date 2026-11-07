@@ -8,6 +8,7 @@ import 'package:smartnutri_ai/core/l10n/app_localizations.dart';
 import 'package:smartnutri_ai/core/network/api_client.dart';
 import 'package:smartnutri_ai/core/observability/analytics.dart';
 import 'package:smartnutri_ai/core/router/app_router.dart';
+import 'package:smartnutri_ai/core/storage/meal_queue.dart';
 import 'package:smartnutri_ai/core/theme/app_theme.dart';
 import 'package:smartnutri_ai/features/auth/data/auth_repository.dart';
 
@@ -47,6 +48,7 @@ Future<AppHarness> pumpApp(
   String? initial,
   List<Override> overrides = const [],
   String locale = 'en',
+  MealQueue? queue,
   Size size = const Size(900, 3600),
   void Function(String event, Map<String, Object> props)? onEvent,
 }) async {
@@ -57,7 +59,7 @@ Future<AppHarness> pumpApp(
   await t.pumpWidget(
     ProviderScope(
       overrides: [
-        ...mealTestOverrides(client: meals ?? FakeMealsClient()),
+        ...mealTestOverrides(client: meals ?? FakeMealsClient(), queue: queue),
         ...overrides,
         appConfigProvider.overrideWithValue(testAppConfig),
         authRepositoryProvider.overrideWithValue(

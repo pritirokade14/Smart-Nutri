@@ -84,6 +84,105 @@ class $PendingMealsTable extends PendingMeals
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _mealSlotIdMeta = const VerificationMeta(
+    'mealSlotId',
+  );
+  @override
+  late final GeneratedColumn<String> mealSlotId = GeneratedColumn<String>(
+    'meal_slot_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _localDateMeta = const VerificationMeta(
+    'localDate',
+  );
+  @override
+  late final GeneratedColumn<String> localDate = GeneratedColumn<String>(
+    'local_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quickNameMeta = const VerificationMeta(
+    'quickName',
+  );
+  @override
+  late final GeneratedColumn<String> quickName = GeneratedColumn<String>(
+    'quick_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quickEnergyKcalMeta = const VerificationMeta(
+    'quickEnergyKcal',
+  );
+  @override
+  late final GeneratedColumn<double> quickEnergyKcal = GeneratedColumn<double>(
+    'quick_energy_kcal',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quickProteinGMeta = const VerificationMeta(
+    'quickProteinG',
+  );
+  @override
+  late final GeneratedColumn<double> quickProteinG = GeneratedColumn<double>(
+    'quick_protein_g',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quickFatGMeta = const VerificationMeta(
+    'quickFatG',
+  );
+  @override
+  late final GeneratedColumn<double> quickFatG = GeneratedColumn<double>(
+    'quick_fat_g',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quickCarbsGMeta = const VerificationMeta(
+    'quickCarbsG',
+  );
+  @override
+  late final GeneratedColumn<double> quickCarbsG = GeneratedColumn<double>(
+    'quick_carbs_g',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quickFibreGMeta = const VerificationMeta(
+    'quickFibreG',
+  );
+  @override
+  late final GeneratedColumn<double> quickFibreG = GeneratedColumn<double>(
+    'quick_fibre_g',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _displayNameMeta = const VerificationMeta(
+    'displayName',
+  );
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+    'display_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _attemptsMeta = const VerificationMeta(
     'attempts',
   );
@@ -116,6 +215,15 @@ class $PendingMealsTable extends PendingMeals
     grams,
     servings,
     eatenAt,
+    mealSlotId,
+    localDate,
+    quickName,
+    quickEnergyKcal,
+    quickProteinG,
+    quickFatG,
+    quickCarbsG,
+    quickFibreG,
+    displayName,
     attempts,
     lastError,
   ];
@@ -179,6 +287,78 @@ class $PendingMealsTable extends PendingMeals
     } else if (isInserting) {
       context.missing(_eatenAtMeta);
     }
+    if (data.containsKey('meal_slot_id')) {
+      context.handle(
+        _mealSlotIdMeta,
+        mealSlotId.isAcceptableOrUnknown(
+          data['meal_slot_id']!,
+          _mealSlotIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('local_date')) {
+      context.handle(
+        _localDateMeta,
+        localDate.isAcceptableOrUnknown(data['local_date']!, _localDateMeta),
+      );
+    }
+    if (data.containsKey('quick_name')) {
+      context.handle(
+        _quickNameMeta,
+        quickName.isAcceptableOrUnknown(data['quick_name']!, _quickNameMeta),
+      );
+    }
+    if (data.containsKey('quick_energy_kcal')) {
+      context.handle(
+        _quickEnergyKcalMeta,
+        quickEnergyKcal.isAcceptableOrUnknown(
+          data['quick_energy_kcal']!,
+          _quickEnergyKcalMeta,
+        ),
+      );
+    }
+    if (data.containsKey('quick_protein_g')) {
+      context.handle(
+        _quickProteinGMeta,
+        quickProteinG.isAcceptableOrUnknown(
+          data['quick_protein_g']!,
+          _quickProteinGMeta,
+        ),
+      );
+    }
+    if (data.containsKey('quick_fat_g')) {
+      context.handle(
+        _quickFatGMeta,
+        quickFatG.isAcceptableOrUnknown(data['quick_fat_g']!, _quickFatGMeta),
+      );
+    }
+    if (data.containsKey('quick_carbs_g')) {
+      context.handle(
+        _quickCarbsGMeta,
+        quickCarbsG.isAcceptableOrUnknown(
+          data['quick_carbs_g']!,
+          _quickCarbsGMeta,
+        ),
+      );
+    }
+    if (data.containsKey('quick_fibre_g')) {
+      context.handle(
+        _quickFibreGMeta,
+        quickFibreG.isAcceptableOrUnknown(
+          data['quick_fibre_g']!,
+          _quickFibreGMeta,
+        ),
+      );
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+        _displayNameMeta,
+        displayName.isAcceptableOrUnknown(
+          data['display_name']!,
+          _displayNameMeta,
+        ),
+      );
+    }
     if (data.containsKey('attempts')) {
       context.handle(
         _attemptsMeta,
@@ -228,6 +408,42 @@ class $PendingMealsTable extends PendingMeals
         DriftSqlType.dateTime,
         data['${effectivePrefix}eaten_at'],
       )!,
+      mealSlotId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}meal_slot_id'],
+      ),
+      localDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_date'],
+      ),
+      quickName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}quick_name'],
+      ),
+      quickEnergyKcal: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quick_energy_kcal'],
+      ),
+      quickProteinG: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quick_protein_g'],
+      ),
+      quickFatG: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quick_fat_g'],
+      ),
+      quickCarbsG: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quick_carbs_g'],
+      ),
+      quickFibreG: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quick_fibre_g'],
+      ),
+      displayName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name'],
+      ),
       attempts: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}attempts'],
@@ -258,8 +474,29 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
   final double? grams;
   final double? servings;
 
-  /// When it was eaten (stored as UTC), sent as `eaten_at`.
+  /// When it was eaten (stored as UTC), sent as `eaten_at` (unless
+  /// [localDate] is set).
   final DateTime eatenAt;
+
+  /// The meal slot chosen, or null (the API picks from the clock).
+  final String? mealSlotId;
+
+  /// A past day (`2026-11-06`) the entry belongs to; sent as `local_date`
+  /// instead of `eaten_at`.
+  final String? localDate;
+
+  /// A quick add: set when [quickEnergyKcal] is. Blank fields stay null,
+  /// never 0.
+  final String? quickName;
+  final double? quickEnergyKcal;
+  final double? quickProteinG;
+  final double? quickFatG;
+  final double? quickCarbsG;
+  final double? quickFibreG;
+
+  /// The name shown on the pending row (a product name or a quick-add name).
+  /// User text: never sent to analytics.
+  final String? displayName;
   final int attempts;
   final String? lastError;
   const PendingMeal({
@@ -270,6 +507,15 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     this.grams,
     this.servings,
     required this.eatenAt,
+    this.mealSlotId,
+    this.localDate,
+    this.quickName,
+    this.quickEnergyKcal,
+    this.quickProteinG,
+    this.quickFatG,
+    this.quickCarbsG,
+    this.quickFibreG,
+    this.displayName,
     required this.attempts,
     this.lastError,
   });
@@ -291,6 +537,33 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
       map['servings'] = Variable<double>(servings);
     }
     map['eaten_at'] = Variable<DateTime>(eatenAt);
+    if (!nullToAbsent || mealSlotId != null) {
+      map['meal_slot_id'] = Variable<String>(mealSlotId);
+    }
+    if (!nullToAbsent || localDate != null) {
+      map['local_date'] = Variable<String>(localDate);
+    }
+    if (!nullToAbsent || quickName != null) {
+      map['quick_name'] = Variable<String>(quickName);
+    }
+    if (!nullToAbsent || quickEnergyKcal != null) {
+      map['quick_energy_kcal'] = Variable<double>(quickEnergyKcal);
+    }
+    if (!nullToAbsent || quickProteinG != null) {
+      map['quick_protein_g'] = Variable<double>(quickProteinG);
+    }
+    if (!nullToAbsent || quickFatG != null) {
+      map['quick_fat_g'] = Variable<double>(quickFatG);
+    }
+    if (!nullToAbsent || quickCarbsG != null) {
+      map['quick_carbs_g'] = Variable<double>(quickCarbsG);
+    }
+    if (!nullToAbsent || quickFibreG != null) {
+      map['quick_fibre_g'] = Variable<double>(quickFibreG);
+    }
+    if (!nullToAbsent || displayName != null) {
+      map['display_name'] = Variable<String>(displayName);
+    }
     map['attempts'] = Variable<int>(attempts);
     if (!nullToAbsent || lastError != null) {
       map['last_error'] = Variable<String>(lastError);
@@ -315,6 +588,33 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
           ? const Value.absent()
           : Value(servings),
       eatenAt: Value(eatenAt),
+      mealSlotId: mealSlotId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mealSlotId),
+      localDate: localDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localDate),
+      quickName: quickName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quickName),
+      quickEnergyKcal: quickEnergyKcal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quickEnergyKcal),
+      quickProteinG: quickProteinG == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quickProteinG),
+      quickFatG: quickFatG == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quickFatG),
+      quickCarbsG: quickCarbsG == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quickCarbsG),
+      quickFibreG: quickFibreG == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quickFibreG),
+      displayName: displayName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayName),
       attempts: Value(attempts),
       lastError: lastError == null && nullToAbsent
           ? const Value.absent()
@@ -335,6 +635,15 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
       grams: serializer.fromJson<double?>(json['grams']),
       servings: serializer.fromJson<double?>(json['servings']),
       eatenAt: serializer.fromJson<DateTime>(json['eatenAt']),
+      mealSlotId: serializer.fromJson<String?>(json['mealSlotId']),
+      localDate: serializer.fromJson<String?>(json['localDate']),
+      quickName: serializer.fromJson<String?>(json['quickName']),
+      quickEnergyKcal: serializer.fromJson<double?>(json['quickEnergyKcal']),
+      quickProteinG: serializer.fromJson<double?>(json['quickProteinG']),
+      quickFatG: serializer.fromJson<double?>(json['quickFatG']),
+      quickCarbsG: serializer.fromJson<double?>(json['quickCarbsG']),
+      quickFibreG: serializer.fromJson<double?>(json['quickFibreG']),
+      displayName: serializer.fromJson<String?>(json['displayName']),
       attempts: serializer.fromJson<int>(json['attempts']),
       lastError: serializer.fromJson<String?>(json['lastError']),
     );
@@ -350,6 +659,15 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
       'grams': serializer.toJson<double?>(grams),
       'servings': serializer.toJson<double?>(servings),
       'eatenAt': serializer.toJson<DateTime>(eatenAt),
+      'mealSlotId': serializer.toJson<String?>(mealSlotId),
+      'localDate': serializer.toJson<String?>(localDate),
+      'quickName': serializer.toJson<String?>(quickName),
+      'quickEnergyKcal': serializer.toJson<double?>(quickEnergyKcal),
+      'quickProteinG': serializer.toJson<double?>(quickProteinG),
+      'quickFatG': serializer.toJson<double?>(quickFatG),
+      'quickCarbsG': serializer.toJson<double?>(quickCarbsG),
+      'quickFibreG': serializer.toJson<double?>(quickFibreG),
+      'displayName': serializer.toJson<String?>(displayName),
       'attempts': serializer.toJson<int>(attempts),
       'lastError': serializer.toJson<String?>(lastError),
     };
@@ -363,6 +681,15 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     Value<double?> grams = const Value.absent(),
     Value<double?> servings = const Value.absent(),
     DateTime? eatenAt,
+    Value<String?> mealSlotId = const Value.absent(),
+    Value<String?> localDate = const Value.absent(),
+    Value<String?> quickName = const Value.absent(),
+    Value<double?> quickEnergyKcal = const Value.absent(),
+    Value<double?> quickProteinG = const Value.absent(),
+    Value<double?> quickFatG = const Value.absent(),
+    Value<double?> quickCarbsG = const Value.absent(),
+    Value<double?> quickFibreG = const Value.absent(),
+    Value<String?> displayName = const Value.absent(),
     int? attempts,
     Value<String?> lastError = const Value.absent(),
   }) => PendingMeal(
@@ -373,6 +700,19 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     grams: grams.present ? grams.value : this.grams,
     servings: servings.present ? servings.value : this.servings,
     eatenAt: eatenAt ?? this.eatenAt,
+    mealSlotId: mealSlotId.present ? mealSlotId.value : this.mealSlotId,
+    localDate: localDate.present ? localDate.value : this.localDate,
+    quickName: quickName.present ? quickName.value : this.quickName,
+    quickEnergyKcal: quickEnergyKcal.present
+        ? quickEnergyKcal.value
+        : this.quickEnergyKcal,
+    quickProteinG: quickProteinG.present
+        ? quickProteinG.value
+        : this.quickProteinG,
+    quickFatG: quickFatG.present ? quickFatG.value : this.quickFatG,
+    quickCarbsG: quickCarbsG.present ? quickCarbsG.value : this.quickCarbsG,
+    quickFibreG: quickFibreG.present ? quickFibreG.value : this.quickFibreG,
+    displayName: displayName.present ? displayName.value : this.displayName,
     attempts: attempts ?? this.attempts,
     lastError: lastError.present ? lastError.value : this.lastError,
   );
@@ -385,6 +725,27 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
       grams: data.grams.present ? data.grams.value : this.grams,
       servings: data.servings.present ? data.servings.value : this.servings,
       eatenAt: data.eatenAt.present ? data.eatenAt.value : this.eatenAt,
+      mealSlotId: data.mealSlotId.present
+          ? data.mealSlotId.value
+          : this.mealSlotId,
+      localDate: data.localDate.present ? data.localDate.value : this.localDate,
+      quickName: data.quickName.present ? data.quickName.value : this.quickName,
+      quickEnergyKcal: data.quickEnergyKcal.present
+          ? data.quickEnergyKcal.value
+          : this.quickEnergyKcal,
+      quickProteinG: data.quickProteinG.present
+          ? data.quickProteinG.value
+          : this.quickProteinG,
+      quickFatG: data.quickFatG.present ? data.quickFatG.value : this.quickFatG,
+      quickCarbsG: data.quickCarbsG.present
+          ? data.quickCarbsG.value
+          : this.quickCarbsG,
+      quickFibreG: data.quickFibreG.present
+          ? data.quickFibreG.value
+          : this.quickFibreG,
+      displayName: data.displayName.present
+          ? data.displayName.value
+          : this.displayName,
       attempts: data.attempts.present ? data.attempts.value : this.attempts,
       lastError: data.lastError.present ? data.lastError.value : this.lastError,
     );
@@ -400,6 +761,15 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
           ..write('grams: $grams, ')
           ..write('servings: $servings, ')
           ..write('eatenAt: $eatenAt, ')
+          ..write('mealSlotId: $mealSlotId, ')
+          ..write('localDate: $localDate, ')
+          ..write('quickName: $quickName, ')
+          ..write('quickEnergyKcal: $quickEnergyKcal, ')
+          ..write('quickProteinG: $quickProteinG, ')
+          ..write('quickFatG: $quickFatG, ')
+          ..write('quickCarbsG: $quickCarbsG, ')
+          ..write('quickFibreG: $quickFibreG, ')
+          ..write('displayName: $displayName, ')
           ..write('attempts: $attempts, ')
           ..write('lastError: $lastError')
           ..write(')'))
@@ -415,6 +785,15 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
     grams,
     servings,
     eatenAt,
+    mealSlotId,
+    localDate,
+    quickName,
+    quickEnergyKcal,
+    quickProteinG,
+    quickFatG,
+    quickCarbsG,
+    quickFibreG,
+    displayName,
     attempts,
     lastError,
   );
@@ -429,6 +808,15 @@ class PendingMeal extends DataClass implements Insertable<PendingMeal> {
           other.grams == this.grams &&
           other.servings == this.servings &&
           other.eatenAt == this.eatenAt &&
+          other.mealSlotId == this.mealSlotId &&
+          other.localDate == this.localDate &&
+          other.quickName == this.quickName &&
+          other.quickEnergyKcal == this.quickEnergyKcal &&
+          other.quickProteinG == this.quickProteinG &&
+          other.quickFatG == this.quickFatG &&
+          other.quickCarbsG == this.quickCarbsG &&
+          other.quickFibreG == this.quickFibreG &&
+          other.displayName == this.displayName &&
           other.attempts == this.attempts &&
           other.lastError == this.lastError);
 }
@@ -441,6 +829,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
   final Value<double?> grams;
   final Value<double?> servings;
   final Value<DateTime> eatenAt;
+  final Value<String?> mealSlotId;
+  final Value<String?> localDate;
+  final Value<String?> quickName;
+  final Value<double?> quickEnergyKcal;
+  final Value<double?> quickProteinG;
+  final Value<double?> quickFatG;
+  final Value<double?> quickCarbsG;
+  final Value<double?> quickFibreG;
+  final Value<String?> displayName;
   final Value<int> attempts;
   final Value<String?> lastError;
   final Value<int> rowid;
@@ -452,6 +849,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     this.grams = const Value.absent(),
     this.servings = const Value.absent(),
     this.eatenAt = const Value.absent(),
+    this.mealSlotId = const Value.absent(),
+    this.localDate = const Value.absent(),
+    this.quickName = const Value.absent(),
+    this.quickEnergyKcal = const Value.absent(),
+    this.quickProteinG = const Value.absent(),
+    this.quickFatG = const Value.absent(),
+    this.quickCarbsG = const Value.absent(),
+    this.quickFibreG = const Value.absent(),
+    this.displayName = const Value.absent(),
     this.attempts = const Value.absent(),
     this.lastError = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -464,6 +870,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     this.grams = const Value.absent(),
     this.servings = const Value.absent(),
     required DateTime eatenAt,
+    this.mealSlotId = const Value.absent(),
+    this.localDate = const Value.absent(),
+    this.quickName = const Value.absent(),
+    this.quickEnergyKcal = const Value.absent(),
+    this.quickProteinG = const Value.absent(),
+    this.quickFatG = const Value.absent(),
+    this.quickCarbsG = const Value.absent(),
+    this.quickFibreG = const Value.absent(),
+    this.displayName = const Value.absent(),
     this.attempts = const Value.absent(),
     this.lastError = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -478,6 +893,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     Expression<double>? grams,
     Expression<double>? servings,
     Expression<DateTime>? eatenAt,
+    Expression<String>? mealSlotId,
+    Expression<String>? localDate,
+    Expression<String>? quickName,
+    Expression<double>? quickEnergyKcal,
+    Expression<double>? quickProteinG,
+    Expression<double>? quickFatG,
+    Expression<double>? quickCarbsG,
+    Expression<double>? quickFibreG,
+    Expression<String>? displayName,
     Expression<int>? attempts,
     Expression<String>? lastError,
     Expression<int>? rowid,
@@ -490,6 +914,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
       if (grams != null) 'grams': grams,
       if (servings != null) 'servings': servings,
       if (eatenAt != null) 'eaten_at': eatenAt,
+      if (mealSlotId != null) 'meal_slot_id': mealSlotId,
+      if (localDate != null) 'local_date': localDate,
+      if (quickName != null) 'quick_name': quickName,
+      if (quickEnergyKcal != null) 'quick_energy_kcal': quickEnergyKcal,
+      if (quickProteinG != null) 'quick_protein_g': quickProteinG,
+      if (quickFatG != null) 'quick_fat_g': quickFatG,
+      if (quickCarbsG != null) 'quick_carbs_g': quickCarbsG,
+      if (quickFibreG != null) 'quick_fibre_g': quickFibreG,
+      if (displayName != null) 'display_name': displayName,
       if (attempts != null) 'attempts': attempts,
       if (lastError != null) 'last_error': lastError,
       if (rowid != null) 'rowid': rowid,
@@ -504,6 +937,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     Value<double?>? grams,
     Value<double?>? servings,
     Value<DateTime>? eatenAt,
+    Value<String?>? mealSlotId,
+    Value<String?>? localDate,
+    Value<String?>? quickName,
+    Value<double?>? quickEnergyKcal,
+    Value<double?>? quickProteinG,
+    Value<double?>? quickFatG,
+    Value<double?>? quickCarbsG,
+    Value<double?>? quickFibreG,
+    Value<String?>? displayName,
     Value<int>? attempts,
     Value<String?>? lastError,
     Value<int>? rowid,
@@ -516,6 +958,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
       grams: grams ?? this.grams,
       servings: servings ?? this.servings,
       eatenAt: eatenAt ?? this.eatenAt,
+      mealSlotId: mealSlotId ?? this.mealSlotId,
+      localDate: localDate ?? this.localDate,
+      quickName: quickName ?? this.quickName,
+      quickEnergyKcal: quickEnergyKcal ?? this.quickEnergyKcal,
+      quickProteinG: quickProteinG ?? this.quickProteinG,
+      quickFatG: quickFatG ?? this.quickFatG,
+      quickCarbsG: quickCarbsG ?? this.quickCarbsG,
+      quickFibreG: quickFibreG ?? this.quickFibreG,
+      displayName: displayName ?? this.displayName,
       attempts: attempts ?? this.attempts,
       lastError: lastError ?? this.lastError,
       rowid: rowid ?? this.rowid,
@@ -546,6 +997,33 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
     if (eatenAt.present) {
       map['eaten_at'] = Variable<DateTime>(eatenAt.value);
     }
+    if (mealSlotId.present) {
+      map['meal_slot_id'] = Variable<String>(mealSlotId.value);
+    }
+    if (localDate.present) {
+      map['local_date'] = Variable<String>(localDate.value);
+    }
+    if (quickName.present) {
+      map['quick_name'] = Variable<String>(quickName.value);
+    }
+    if (quickEnergyKcal.present) {
+      map['quick_energy_kcal'] = Variable<double>(quickEnergyKcal.value);
+    }
+    if (quickProteinG.present) {
+      map['quick_protein_g'] = Variable<double>(quickProteinG.value);
+    }
+    if (quickFatG.present) {
+      map['quick_fat_g'] = Variable<double>(quickFatG.value);
+    }
+    if (quickCarbsG.present) {
+      map['quick_carbs_g'] = Variable<double>(quickCarbsG.value);
+    }
+    if (quickFibreG.present) {
+      map['quick_fibre_g'] = Variable<double>(quickFibreG.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
     if (attempts.present) {
       map['attempts'] = Variable<int>(attempts.value);
     }
@@ -568,6 +1046,15 @@ class PendingMealsCompanion extends UpdateCompanion<PendingMeal> {
           ..write('grams: $grams, ')
           ..write('servings: $servings, ')
           ..write('eatenAt: $eatenAt, ')
+          ..write('mealSlotId: $mealSlotId, ')
+          ..write('localDate: $localDate, ')
+          ..write('quickName: $quickName, ')
+          ..write('quickEnergyKcal: $quickEnergyKcal, ')
+          ..write('quickProteinG: $quickProteinG, ')
+          ..write('quickFatG: $quickFatG, ')
+          ..write('quickCarbsG: $quickCarbsG, ')
+          ..write('quickFibreG: $quickFibreG, ')
+          ..write('displayName: $displayName, ')
           ..write('attempts: $attempts, ')
           ..write('lastError: $lastError, ')
           ..write('rowid: $rowid')
@@ -596,6 +1083,15 @@ typedef $$PendingMealsTableCreateCompanionBuilder =
       Value<double?> grams,
       Value<double?> servings,
       required DateTime eatenAt,
+      Value<String?> mealSlotId,
+      Value<String?> localDate,
+      Value<String?> quickName,
+      Value<double?> quickEnergyKcal,
+      Value<double?> quickProteinG,
+      Value<double?> quickFatG,
+      Value<double?> quickCarbsG,
+      Value<double?> quickFibreG,
+      Value<String?> displayName,
       Value<int> attempts,
       Value<String?> lastError,
       Value<int> rowid,
@@ -609,6 +1105,15 @@ typedef $$PendingMealsTableUpdateCompanionBuilder =
       Value<double?> grams,
       Value<double?> servings,
       Value<DateTime> eatenAt,
+      Value<String?> mealSlotId,
+      Value<String?> localDate,
+      Value<String?> quickName,
+      Value<double?> quickEnergyKcal,
+      Value<double?> quickProteinG,
+      Value<double?> quickFatG,
+      Value<double?> quickCarbsG,
+      Value<double?> quickFibreG,
+      Value<String?> displayName,
       Value<int> attempts,
       Value<String?> lastError,
       Value<int> rowid,
@@ -655,6 +1160,51 @@ class $$PendingMealsTableFilterComposer
 
   ColumnFilters<DateTime> get eatenAt => $composableBuilder(
     column: $table.eatenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mealSlotId => $composableBuilder(
+    column: $table.mealSlotId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localDate => $composableBuilder(
+    column: $table.localDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get quickName => $composableBuilder(
+    column: $table.quickName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quickEnergyKcal => $composableBuilder(
+    column: $table.quickEnergyKcal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quickProteinG => $composableBuilder(
+    column: $table.quickProteinG,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quickFatG => $composableBuilder(
+    column: $table.quickFatG,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quickCarbsG => $composableBuilder(
+    column: $table.quickCarbsG,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quickFibreG => $composableBuilder(
+    column: $table.quickFibreG,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+    column: $table.displayName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -713,6 +1263,51 @@ class $$PendingMealsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get mealSlotId => $composableBuilder(
+    column: $table.mealSlotId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localDate => $composableBuilder(
+    column: $table.localDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get quickName => $composableBuilder(
+    column: $table.quickName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quickEnergyKcal => $composableBuilder(
+    column: $table.quickEnergyKcal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quickProteinG => $composableBuilder(
+    column: $table.quickProteinG,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quickFatG => $composableBuilder(
+    column: $table.quickFatG,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quickCarbsG => $composableBuilder(
+    column: $table.quickCarbsG,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quickFibreG => $composableBuilder(
+    column: $table.quickFibreG,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get attempts => $composableBuilder(
     column: $table.attempts,
     builder: (column) => ColumnOrderings(column),
@@ -753,6 +1348,45 @@ class $$PendingMealsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get eatenAt =>
       $composableBuilder(column: $table.eatenAt, builder: (column) => column);
+
+  GeneratedColumn<String> get mealSlotId => $composableBuilder(
+    column: $table.mealSlotId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get localDate =>
+      $composableBuilder(column: $table.localDate, builder: (column) => column);
+
+  GeneratedColumn<String> get quickName =>
+      $composableBuilder(column: $table.quickName, builder: (column) => column);
+
+  GeneratedColumn<double> get quickEnergyKcal => $composableBuilder(
+    column: $table.quickEnergyKcal,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get quickProteinG => $composableBuilder(
+    column: $table.quickProteinG,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get quickFatG =>
+      $composableBuilder(column: $table.quickFatG, builder: (column) => column);
+
+  GeneratedColumn<double> get quickCarbsG => $composableBuilder(
+    column: $table.quickCarbsG,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get quickFibreG => $composableBuilder(
+    column: $table.quickFibreG,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get attempts =>
       $composableBuilder(column: $table.attempts, builder: (column) => column);
@@ -805,6 +1439,15 @@ class $$PendingMealsTableTableManager
                 Value<double?> grams = const Value.absent(),
                 Value<double?> servings = const Value.absent(),
                 Value<DateTime> eatenAt = const Value.absent(),
+                Value<String?> mealSlotId = const Value.absent(),
+                Value<String?> localDate = const Value.absent(),
+                Value<String?> quickName = const Value.absent(),
+                Value<double?> quickEnergyKcal = const Value.absent(),
+                Value<double?> quickProteinG = const Value.absent(),
+                Value<double?> quickFatG = const Value.absent(),
+                Value<double?> quickCarbsG = const Value.absent(),
+                Value<double?> quickFibreG = const Value.absent(),
+                Value<String?> displayName = const Value.absent(),
                 Value<int> attempts = const Value.absent(),
                 Value<String?> lastError = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -816,6 +1459,15 @@ class $$PendingMealsTableTableManager
                 grams: grams,
                 servings: servings,
                 eatenAt: eatenAt,
+                mealSlotId: mealSlotId,
+                localDate: localDate,
+                quickName: quickName,
+                quickEnergyKcal: quickEnergyKcal,
+                quickProteinG: quickProteinG,
+                quickFatG: quickFatG,
+                quickCarbsG: quickCarbsG,
+                quickFibreG: quickFibreG,
+                displayName: displayName,
                 attempts: attempts,
                 lastError: lastError,
                 rowid: rowid,
@@ -829,6 +1481,15 @@ class $$PendingMealsTableTableManager
                 Value<double?> grams = const Value.absent(),
                 Value<double?> servings = const Value.absent(),
                 required DateTime eatenAt,
+                Value<String?> mealSlotId = const Value.absent(),
+                Value<String?> localDate = const Value.absent(),
+                Value<String?> quickName = const Value.absent(),
+                Value<double?> quickEnergyKcal = const Value.absent(),
+                Value<double?> quickProteinG = const Value.absent(),
+                Value<double?> quickFatG = const Value.absent(),
+                Value<double?> quickCarbsG = const Value.absent(),
+                Value<double?> quickFibreG = const Value.absent(),
+                Value<String?> displayName = const Value.absent(),
                 Value<int> attempts = const Value.absent(),
                 Value<String?> lastError = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -840,6 +1501,15 @@ class $$PendingMealsTableTableManager
                 grams: grams,
                 servings: servings,
                 eatenAt: eatenAt,
+                mealSlotId: mealSlotId,
+                localDate: localDate,
+                quickName: quickName,
+                quickEnergyKcal: quickEnergyKcal,
+                quickProteinG: quickProteinG,
+                quickFatG: quickFatG,
+                quickCarbsG: quickCarbsG,
+                quickFibreG: quickFibreG,
+                displayName: displayName,
                 attempts: attempts,
                 lastError: lastError,
                 rowid: rowid,

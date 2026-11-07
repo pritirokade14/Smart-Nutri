@@ -33,6 +33,7 @@ class SlotSection extends StatelessWidget {
   static Key sectionKey(String slotId) => Key('diary-slot-$slotId');
   static Key titleKey(String slotId) => Key('diary-slot-title-$slotId');
   static Key addKey(String slotId) => Key('diary-slot-add-$slotId');
+  static Key menuKey(String slotId) => Key('diary-slot-menu-$slotId');
 
   @override
   Widget build(BuildContext context) {

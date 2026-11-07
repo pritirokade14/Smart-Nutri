@@ -5,6 +5,7 @@ import 'package:smartnutri_api/src/export.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/meal_queue.dart';
+import '../../diary/domain/diary_dates.dart';
 
 /// What one `POST /v1/meals` attempt came to.
 enum SendOutcome {
@@ -98,13 +99,33 @@ class MealSync {
     return (sent: sent, failed: failed, kept: kept);
   }
 
-  static MealIn toMealIn(PendingMeal row) => MealIn(
-    memberId: row.memberId,
-    productId: row.productId,
-    barcode: row.barcode,
-    grams: row.grams,
-    servings: row.servings,
-    eatenAt: row.eatenAt.toUtc(),
-    clientId: row.clientId,
-  );
+  /// The request for a queued row. A quick add (`quickEnergyKcal` set) sends
+  /// `quick`; a past day sends `local_date` and no `eaten_at` (the API takes
+  /// both as an error); a v1 row has neither slot nor date and sends its
+  /// `eatenAt` as before.
+  static MealIn toMealIn(PendingMeal row) {
+    final energy = row.quickEnergyKcal;
+    final day = parseDateKey(row.localDate);
+    return MealIn(
+      memberId: row.memberId,
+      productId: row.productId,
+      barcode: row.barcode,
+      grams: energy == null ? row.grams : null,
+      servings: energy == null ? row.servings : null,
+      quick: energy == null
+          ? null
+          : QuickIn(
+              name: row.quickName,
+              energyKcal: energy,
+              proteinG: row.quickProteinG,
+              fatG: row.quickFatG,
+              carbsG: row.quickCarbsG,
+              fibreG: row.quickFibreG,
+            ),
+      mealSlotId: row.mealSlotId,
+      localDate: day,
+      eatenAt: day == null ? row.eatenAt.toUtc() : null,
+      clientId: row.clientId,
+    );
+  }
 }

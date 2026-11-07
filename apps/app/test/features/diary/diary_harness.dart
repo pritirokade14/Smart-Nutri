@@ -40,7 +40,19 @@ class DiaryEnv {
   final FakeDiaryClient diary;
   final FakeMealSlotsClient slots;
   final FakeMealsClient meals;
+  final queue = MemoryMealQueue();
   late final FakeTargetsClient targets;
+
+  /// Gives the slot list the ids of the day's own slots (as the API would).
+  void slotsFromDay() => slots.items = [
+    for (final s in diary.day.slots.where((s) => !s.archived))
+      slotOut(
+        s.slotId,
+        s.labelKey ?? '',
+        position: s.position,
+        customLabel: s.customLabel,
+      ),
+  ];
 
   /// Every analytics event with its filtered props.
   final events = <(String, Map<String, Object>)>[];
@@ -61,10 +73,13 @@ Future<AppHarness> pumpDiary(
   DiaryEnv env, {
   String initial = '/diary',
   Size? size,
+  String locale = 'en',
 }) => pumpApp(
   t,
   env.api,
   meals: env.meals,
+  queue: env.queue,
+  locale: locale,
   initial: initial,
   size: size ?? const Size(900, 3600),
   onEvent: (e, p) => env.events.add((e, p)),

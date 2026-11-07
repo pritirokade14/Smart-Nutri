@@ -187,7 +187,10 @@ void main() {
       t.widget<IconButton>(find.byKey(DayHeader.nextKey)).onPressed,
       isNull,
     );
-    expect(find.text(en.diaryToday), findsOneWidget);
+    expect(
+      t.widget<Text>(find.byKey(DayHeader.dateKeyKey)).data,
+      en.diaryToday,
+    );
     await t.tap(find.byKey(DayHeader.prevKey));
     await t.pumpAndSettle();
     expect(_path(h), '/diary?date=2026-11-06');

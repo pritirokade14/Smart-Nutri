@@ -247,6 +247,14 @@ class MemoryMealQueue implements MealQueue {
   }
 
   @override
+  Stream<List<PendingMeal>> watchPending() async* {
+    yield await pending();
+    await for (final _ in _changes.stream) {
+      yield await pending();
+    }
+  }
+
+  @override
   Stream<int> watchPendingCount() => _watch((r) => r.lastError == null);
 
   @override
