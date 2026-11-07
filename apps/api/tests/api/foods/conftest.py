@@ -6,10 +6,20 @@ from uuid import UUID
 import pytest
 
 from app.core.config import Settings
-from app.core.security import AccountContext
+from app.core.security import AccountContext, current_account
+from app.db.session import get_session
 from app.features.foods.models import Food, FoodPortion
 from app.features.me.service import ensure_account
-from tests.api.meals.conftest import ACC_A, FakeOff
+from app.integrations.openfoodfacts import get_off_client
+from tests.api.conftest import clock  # noqa: F401  (pinned clock)
+from tests.api.meals.conftest import ACC_A, OFF_BARCODE, OFF_PAYLOAD, FakeOff  # noqa: F401
+from tests.api.members.conftest import add_member, consented, grant  # noqa: F401
+from tests.api.targets.conftest import (  # noqa: F401  (shared fixtures)
+    G1_SETTINGS,
+    g1,
+    set_primary,
+    today,
+)
 
 ACC_B = UUID("22222222-2222-2222-2222-222222222222")
 
@@ -22,6 +32,20 @@ def settings() -> Settings:
 @pytest.fixture
 def fake_off() -> FakeOff:
     return FakeOff()
+
+
+@pytest.fixture
+def login(app, db_session, fake_off):
+    """Act as `account_id` on the rolled-back test session with a fake Open Food Facts."""
+
+    def _login(account_id: UUID = ACC_A, *, off=None) -> None:
+        app.dependency_overrides[get_session] = lambda: db_session
+        app.dependency_overrides[get_off_client] = lambda: off or fake_off
+        app.dependency_overrides[current_account] = lambda: AccountContext(
+            account_id, "asha@example.com"
+        )
+
+    return _login
 
 
 @pytest.fixture
