@@ -24,3 +24,4 @@ Answered one at a time, starting 2026-11-07. These are binding for the build.
 | Q18 | Tab placement | (a) Sugar Control mode tabs: Home, Scan, Diary, Sugar, Profile. Family moves to More while it's deferred. |
 
 Q6–Q18 were set to the recommended option at the user's request ("use all the recommended things", 2026-11-07).
+| Q19 | Show SD in S3 patterns | Yes: show a plain descriptive SD ("readings vary by about ±X mg/dL") next to the average, with no CV, score or colours (user, 2026-11-08). |
